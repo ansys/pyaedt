@@ -154,7 +154,7 @@ jobs:
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
   unit-tests:
-    name: Running unit tests
+    name: Unit tests
     needs: [smoke-tests]
     runs-on: ubuntu-latest
     steps:
@@ -182,7 +182,7 @@ jobs:
         if: ${{ always() }}
 
   integration-tests:
-    name: Running integration tests
+    name: Integration tests
     needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
@@ -213,7 +213,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-windows:
-    name: Testing solvers and coverage (Windows)
+    name: Test solvers (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -271,7 +271,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-linux:
-    name: Testing solvers and coverage (Linux)
+    name: Test solvers (linux)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -326,7 +326,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-windows:
-    name: Testing and coverage (Windows)
+    name: Test general (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -389,7 +389,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-linux:
-    name: Testing and coverage (Linux)
+    name: Test general (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -432,7 +432,7 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 120
+          timeout_minutes: 40
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
@@ -457,7 +457,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-windows:
-    name: Testing and coverage Visualization (Windows)
+    name: Test visualization (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -499,10 +499,10 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 120
+          timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
       - uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
         with:
@@ -522,7 +522,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-linux:
-    name: Testing and coverage visualization (Linux)
+    name: Test visualization (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -566,11 +566,11 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 120
+          timeout_minutes: 40
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
       - uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
         with:
@@ -590,7 +590,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-windows:
-    name: Testing and coverage extensions (Windows)
+    name: Test extensions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -653,7 +653,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-linux:
-    name: Testing and coverage extensions (Linux)
+    name: Test extensions (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -725,7 +725,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-filter-windows:
-    name: Testing and coverage filter solutions (Windows)
+    name: Test filter solutions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -788,7 +788,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-emit-windows:
-    name: Testing and coverage EMIT (Windows)
+    name: Test EMIT (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
