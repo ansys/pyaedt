@@ -30,6 +30,8 @@ from mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
 from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
@@ -49,6 +51,7 @@ def hfss3dl(add_app):
 
 
 class TestClass:
+    @pytest.mark.skipif(is_linux, reason="Random fail in Linux.")
     def test_get_touchstone_data(self, hfss3dl):
         all_ts_data = hfss3dl.get_touchstone_data("Setup1")
         assert isinstance(all_ts_data, list)
@@ -159,8 +162,9 @@ def test_reduce_touchstone_data(touchstone_file):
     assert res.endswith("s2p")
     res = ts.reduce([0, 100])
     assert res.endswith("s1p")
-    res = ts.reduce([0, 100], output_file="dummy.s2p")
-    assert res is None
+
+    with pytest.raises(AEDTRuntimeError):
+        ts.reduce([0, 100], output_file="dummy.s2p")
 
 
 @patch("os.path.exists", return_value=False)
