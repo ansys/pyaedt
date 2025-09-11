@@ -154,7 +154,8 @@ class TouchstoneData(rf.Network):
             output_file = Path(output_file)
 
         if not output_file:
-            output_file = temp_touch.parent / temp_touch.stem + f"_reduced.s{len(reduced)}p"
+            new_name = temp_touch.stem + f"_reduced.s{len(reduced)}p"
+            output_file = temp_touch.parent / new_name
         elif output_file and f"s{len(reduced)}p" not in output_file.suffix:
             raise AEDTRuntimeError(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
 
