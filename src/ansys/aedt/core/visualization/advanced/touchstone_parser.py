@@ -27,6 +27,9 @@ import os
 from pathlib import Path
 import re
 import tempfile
+from typing import List
+from typing import Optional
+from typing import Union
 import warnings
 
 import numpy as np
@@ -37,6 +40,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 try:
     import skrf as rf
@@ -109,14 +113,16 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def reduce(self, ports, output_file=None, reordered=True):
+    def reduce(
+        self, ports: Union[List[str], List[int]], output_file: Optional[Union[str, Path]] = None, reordered: bool = True
+    ) -> str:
         """Reduce the Touchstone file and export it.
 
         Parameters
         ----------
         ports : list
             List of ports or port indexes to use for the reduction.
-        output_file : str, or :class:'pathlib.Path', optional
+        output_file : str or :class:'pathlib.Path', optional
             Output file path. The default is ``None``.
         reordered : bool, optional
             Whether to reorder the ports in the output file with given input order or not. The default is ``True``.
@@ -148,10 +154,11 @@ class TouchstoneData(rf.Network):
             output_file = Path(output_file)
 
         if not output_file:
-            output_file = temp_touch.stem + f"_reduced.s{len(reduced)}p"
+            new_name = temp_touch.stem + f"_reduced.s{len(reduced)}p"
+            output_file = temp_touch.parent / new_name
         elif output_file and f"s{len(reduced)}p" not in output_file.suffix:
-            logger.error(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
-            return
+            raise AEDTRuntimeError(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
+
         # Save the reduced 4-port network to a new Touchstone file
         reduced_network.write_touchstone(output_file)
 
