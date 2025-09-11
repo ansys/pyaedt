@@ -30,12 +30,14 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
 
 import os
+from pathlib import Path
 import re
 import shutil
 import tempfile
 import time
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Union
 import warnings
 
@@ -1799,12 +1801,12 @@ class Analysis(Design, object):
             )
 
     @pyaedt_function_handler()
-    def set_hpc_from_file(self, acf_file=None, configuration_name=None):
-        """Set custom HPC options to AEDT.
+    def set_hpc_from_file(self, acf_file: Union[str, Path] = None, configuration_name: Optional[str] = None) -> bool:
+        """Set custom HPC options from ACF file.
 
         Parameters
         ----------
-        acf_file : str, optional
+        acf_file : str or :class:`pathlib.Path`, optional
             Full path to the custom ACF file. The default is ``None``.
         configuration_name : str, optional
             Name of the configuration in the ACF file. The default is ``None``.
@@ -1815,10 +1817,9 @@ class Analysis(Design, object):
             ``True`` when successful, ``False`` when failed.
         """
         if not acf_file and not configuration_name:
-            self.logger.error("No custom ACF file or configuration name provided.")
-            return False
-        if acf_file:  # pragma: no cover
-            self._desktop.SetRegistryFromFile(acf_file)
+            raise AEDTRuntimeError("No custom ACF file or configuration name provided.")
+        if acf_file:
+            self._desktop.SetRegistryFromFile(str(acf_file))
             acf_name = ""
             with open_file(acf_file, "r") as f:
                 lines = f.readlines()
@@ -1832,21 +1833,45 @@ class Analysis(Design, object):
         elif configuration_name:
             success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, configuration_name)
             return success
-        return False
 
     @pyaedt_function_handler()
     def set_custom_hpc_options(
         self,
-        cores=None,
-        gpus=None,
-        tasks=None,
-        num_variations_to_distribute=None,
-        allowed_distribution_types=None,
-        use_auto_settings=True,
-    ):
+        cores: Optional[int] = None,
+        gpus: Optional[int] = None,
+        tasks: Optional[int] = None,
+        num_variations_to_distribute: Optional[int] = None,
+        allowed_distribution_types: Optional[list] = None,
+        use_auto_settings: bool = True,
+    ) -> bool:
+        """Set custom HPC options.
+
+        This method creates a temporary ACF file based on the local configuration file and modifies it with
+        the specified HPC options.
+
+        Parameters
+        ----------
+        cores : int, optional
+            Number of cores. The default is ``None``.
+        gpus : str, optional
+            Number of gpus. The default is ``None``.
+        tasks : int, optional
+            Number of tasks. The default is ``None``.
+        num_variations_to_distribute : int, optional
+            Number of variations to distribute. The default is ``None``.
+        allowed_distribution_types : list, optional
+            Allowed distribution types. The default is ``None``.
+        use_auto_settings : bool, optional
+            Number of variations to distribute. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         config_name = "pyaedt_config"
         source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
-        if settings.remote_rpc_session:
+        if settings.remote_rpc_session:  # pragma: no cover
             target_name = os.path.join(tempfile.gettempdir(), generate_unique_name("config") + ".acf")
         else:
             target_name = (
@@ -1859,14 +1884,14 @@ class Analysis(Design, object):
             shutil.copy2(source_name, target_name)
 
         # If source and destination are same
-        except shutil.SameFileError:
+        except shutil.SameFileError:  # pragma: no cover
             self.logger.warning("Source and destination represents the same file.")
         # If there is any permission issue
-        except PermissionError:
+        except PermissionError:  # pragma: no cover
             self.logger.error("Permission denied.")
             skip_files = True
         # For other errors
-        except Exception:
+        except Exception:  # pragma: no cover
             self.logger.error("Error occurred while copying file.")
             skip_files = True
         if not skip_files:
@@ -1900,7 +1925,7 @@ class Analysis(Design, object):
                 succeeded = update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, separator="")
                 skip_files = True if not succeeded else skip_files
 
-        if settings.remote_rpc_session:
+        if settings.remote_rpc_session:  # pragma: no cover
             remote_name = (
                 os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
                 if self.working_directory[0] != "\\"
@@ -1912,9 +1937,8 @@ class Analysis(Design, object):
             try:
                 self._desktop.SetRegistryFromFile(target_name)
                 return self.set_hpc_from_file(configuration_name=config_name)
-            except Exception:
-                self.logger.info(f"Failed to set registry from file {target_name}.")
-        return False
+            except Exception:  # pragma: no cover
+                raise AEDTRuntimeError(f"Failed to set registry from file {target_name}.")
 
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze_setup(
