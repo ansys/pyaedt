@@ -1709,15 +1709,14 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_bp_bs_filters(self, emit_app):
         # create a BP filter and modify it's bandpass frequencies
-        rad1 = emit_app.modeler.components.create_component("New Radio")
         bp_filter_name = "BP Filter"
-        bp_filter = emit_app.modeler.components.create_component("Band Pass", name=bp_filter_name)
+        _ = emit_app.modeler.components.create_component("Band Pass", name=bp_filter_name)
 
         rev = emit_app.results.analyze()
 
         # create a BS filter and modify it's bandstop frequencies
         bs_filter_name = "BS Filter"
-        bs_filter = emit_app.modeler.components.create_component("Band Stop", name=bs_filter_name)
+        _ = emit_app.modeler.components.create_component("Band Stop", name=bs_filter_name)
 
         # configure the pass band
         bp_filter_comp = rev.get_component_node(bp_filter_name)
