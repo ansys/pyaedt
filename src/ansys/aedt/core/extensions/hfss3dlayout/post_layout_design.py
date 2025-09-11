@@ -25,6 +25,7 @@
 from dataclasses import dataclass
 import os
 import tkinter
+from tkinter import messagebox
 from tkinter import ttk
 
 import ansys.aedt.core
@@ -239,7 +240,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._widgets["antipad_selections_entry"].delete(1.0, tkinter.END)
             self._widgets["antipad_selections_entry"].insert(tkinter.END, ",".join(selected))
         except Exception as e:
-            self.log_message(f"Error getting selections: {str(e)}")
+            messagebox.showerror("Error", f"Error getting selections: {str(e)}")
 
     def _get_microvia_selections(self):
         """Get selections for microvia operation."""
@@ -258,7 +259,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
             self._widgets["microvia_selection_entry"].insert(tkinter.END, ",".join(temp))
         except Exception as e:
-            self.log_message(f"Error getting padstack definitions: {str(e)}")
+            messagebox.showerror("Error", f"Error getting padstack definitions: {str(e)}")
 
     def _antipad_callback(self):
         """Handle antipad creation."""
@@ -268,12 +269,12 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             race_track = self._widgets["antipad_race_track_var"].get()
 
             if not selections_text:
-                self.log_message("Please select vias first.")
+                messagebox.showerror("Error", "Please select vias first.")
                 return
 
             selected = [s.strip() for s in selections_text.split(",") if s.strip()]
             if len(selected) != 2:
-                self.log_message("Please select exactly two vias.")
+                messagebox.showerror("Error", "Please select exactly two vias.")
                 return
 
             # Create data object
@@ -286,7 +287,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self.root.destroy()
 
         except Exception as e:
-            self.log_message(f"Error in antipad callback: {str(e)}")
+            messagebox.showerror("Error", f"Error in antipad callback: {str(e)}")
 
     def _microvia_callback(self):
         """Handle microvia creation."""
@@ -297,13 +298,13 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             split_via = self._widgets["microvia_split_via_var"].get()
 
             if not selections_text:
-                self.log_message("Please select padstack definitions first.")
+                messagebox.showerror("Error", "Please select padstack definitions first.")
                 return
 
             try:
                 angle = float(angle_text)
             except ValueError:
-                self.log_message("Invalid angle value. Please enter a number.")
+                messagebox.showerror("Error", "Invalid angle value. Please enter a number.")
                 return
 
             selected = [s.strip() for s in selections_text.split(",") if s.strip()]
@@ -318,7 +319,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self.root.destroy()
 
         except Exception as e:
-            self.log_message(f"Error in microvia callback: {str(e)}")
+            messagebox.showerror("Error", f"Error in microvia callback: {str(e)}")
 
 
 def main(data: PostLayoutDesignExtensionData):
