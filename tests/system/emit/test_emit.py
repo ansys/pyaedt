@@ -1749,7 +1749,7 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_fm_fsk_freq_deviation(self, emit_app):
         # create a radio
-        radio_name = 'Test'
+        radio_name = "Test"
         _ = emit_app.modeler.components.create_component("New Radio", name=radio_name)
 
         rev = emit_app.results.analyze()
@@ -1761,7 +1761,7 @@ class TestClass:
         band_node = None
         radio_children = radio_comp.children
         for child in radio_children:
-            if child.node_type == 'Band':
+            if child.node_type == "Band":
                 band_node = child
                 break
 
