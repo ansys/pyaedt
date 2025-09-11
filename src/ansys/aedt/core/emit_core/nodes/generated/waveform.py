@@ -82,12 +82,12 @@ class Waveform(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Start Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @start_frequency.setter
     def start_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Start Frequency", f"{value}")
 
     @property
@@ -97,12 +97,12 @@ class Waveform(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Stop Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @stop_frequency.setter
     def stop_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Stop Frequency", f"{value}")
 
     @property
@@ -112,12 +112,12 @@ class Waveform(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Channel Spacing")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @channel_spacing.setter
     def channel_spacing(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Channel Spacing", f"{value}")
 
     @property
@@ -314,12 +314,12 @@ class Waveform(EmitNode):
         Value should be between 1.0 and 100.0e9.
         """
         val = self._get_property("Max Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @max_frequency.setter
     def max_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Frequency", f"{value}")
 
     class WindowTypeOption(Enum):
@@ -438,3 +438,4 @@ class Waveform(EmitNode):
     def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Delay Skew", f"{value}")
+

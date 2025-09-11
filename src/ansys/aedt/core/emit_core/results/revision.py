@@ -938,11 +938,9 @@ class Revision:
         --------
         >>> node = revision.get_component_node("wifi radio")
         """
-        components = self.get_all_component_nodes()
-
-        for comp in components:
-            if comp.name == component_name:
-                return comp
+        comp_id = self._emit_com.GetComponentNodeID(self.results_index, component_name)
+        if comp_id > 0:
+            return self._get_node(comp_id)
         return None
 
     @pyaedt_function_handler

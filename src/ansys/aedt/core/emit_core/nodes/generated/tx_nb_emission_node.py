@@ -74,10 +74,10 @@ class TxNbEmissionNode(EmitNode):
     def measurement_frequency(self) -> float:
         """Measurement frequency for the absolute freq/amp pairs."""
         val = self._get_property("Measurement Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @measurement_frequency.setter
     def measurement_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Measurement Frequency", f"{value}")

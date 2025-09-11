@@ -345,12 +345,12 @@ class AntennaNode(EmitNode):
         Value should be between 1.0 and 1e13.
         """
         val = self._get_property("Resonant Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @resonant_frequency.setter
     def resonant_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Resonant Frequency", f"{value}")
 
     @property
@@ -793,14 +793,14 @@ class AntennaNode(EmitNode):
     def waveguide_cutoff_frequency(self) -> float:
         """Implied lowest operating frequency of pyramidal horn antenna."""
         val = self._get_property("Waveguide Cutoff Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @property
     def aperture_cutoff_frequency(self) -> float:
         """Implied lowest operating frequency of conical horn antenna."""
         val = self._get_property("Aperture Cutoff Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     class SWEModeTruncationOption(Enum):
@@ -898,3 +898,4 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
+

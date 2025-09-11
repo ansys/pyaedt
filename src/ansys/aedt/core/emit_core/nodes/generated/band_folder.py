@@ -51,3 +51,4 @@ class BandFolder(EmitNode):
     def delete(self):
         """Delete this node"""
         self._delete()
+

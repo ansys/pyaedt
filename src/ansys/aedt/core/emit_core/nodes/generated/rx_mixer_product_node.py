@@ -104,12 +104,12 @@ class RxMixerProductNode(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Minimum Tuning Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @minimum_tuning_frequency.setter
     def minimum_tuning_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Minimum Tuning Frequency", f"{value}")
 
     @property
@@ -119,12 +119,12 @@ class RxMixerProductNode(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Maximum Tuning Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @maximum_tuning_frequency.setter
     def maximum_tuning_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Maximum Tuning Frequency", f"{value}")
 
     @property
@@ -166,12 +166,12 @@ class RxMixerProductNode(EmitNode):
         Value should be greater than 1.
         """
         val = self._get_property("Bandwidth 80 dB")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @bandwidth_80_db.setter
     def bandwidth_80_db(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Bandwidth 80 dB", f"{value}")
 
     @property
@@ -246,12 +246,12 @@ class RxMixerProductNode(EmitNode):
     def rf_transition_frequency(self) -> float:
         """RF Frequency Transition point."""
         val = self._get_property("RF Transition Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @rf_transition_frequency.setter
     def rf_transition_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("RF Transition Frequency", f"{value}")
 
     class UseHighLOOption(Enum):

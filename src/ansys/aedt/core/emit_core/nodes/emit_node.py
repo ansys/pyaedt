@@ -208,9 +208,16 @@ class EmitNode:
         try:
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
             kv_pairs = [prop.split("=") for prop in props]
-            selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
-            if len(selected_kv_pairs) != 1:
+            selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
+            if len(selected_kv_pairs) < 1:
                 return ""
+            elif len(selected_kv_pairs) > 1:
+                # if there are two (or more) keys with identical display names for a node
+                # we need to return all the values
+                vals = []
+                for kv_pair in selected_kv_pairs:
+                    vals.append(kv_pair[1])
+                return vals
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]

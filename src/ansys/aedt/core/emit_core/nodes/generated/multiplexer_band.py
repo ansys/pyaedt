@@ -118,12 +118,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Max Pass Band")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @max_pass_band.setter
     def max_pass_band(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Pass Band", f"{value}")
 
     @property
@@ -133,12 +133,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Min Stop Band")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @min_stop_band.setter
     def min_stop_band(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Stop Band", f"{value}")
 
     @property
@@ -148,12 +148,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Max Stop Band")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @max_stop_band.setter
     def max_stop_band(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Max Stop Band", f"{value}")
 
     @property
@@ -163,12 +163,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Min Pass Band")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @min_pass_band.setter
     def min_pass_band(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Min Pass Band", f"{value}")
 
     @property
@@ -178,12 +178,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Lower Stop Band")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @lower_stop_band.setter
     def lower_stop_band(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
     @property
@@ -193,12 +193,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Lower Cutoff")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @lower_cutoff.setter
     def lower_cutoff(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
     @property
@@ -208,12 +208,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Higher Cutoff")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @higher_cutoff.setter
     def higher_cutoff(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
     @property
@@ -223,12 +223,12 @@ class MultiplexerBand(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Higher Stop Band")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @higher_stop_band.setter
     def higher_stop_band(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 
     @property
@@ -236,3 +236,4 @@ class MultiplexerBand(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

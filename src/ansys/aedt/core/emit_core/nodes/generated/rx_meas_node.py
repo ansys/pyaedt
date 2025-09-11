@@ -68,7 +68,7 @@ class RxMeasNode(EmitNode):
     def receive_frequency(self) -> float:
         """Channel associated with the measurement file."""
         val = self._get_property("Receive Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     class MeasurementModeOption(Enum):
@@ -159,12 +159,12 @@ class RxMeasNode(EmitNode):
         Value should be between 1000 and 200000.
         """
         val = self._get_property("Freq. Deviation")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @freq_deviation.setter
     def freq_deviation(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Freq. Deviation", f"{value}")
 
     @property
@@ -278,12 +278,12 @@ class RxMeasNode(EmitNode):
         Value should be greater than 1e6.
         """
         val = self._get_property("Start Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @start_frequency.setter
     def start_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Start Frequency", f"{value}")
 
     @property
@@ -293,12 +293,12 @@ class RxMeasNode(EmitNode):
         Value should be less than 6e9.
         """
         val = self._get_property("Stop Frequency")
-        val = self._convert_from_internal_units(float(val), "Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @stop_frequency.setter
     def stop_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Frequency")
+        value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Stop Frequency", f"{value}")
 
     @property
@@ -335,3 +335,4 @@ class RxMeasNode(EmitNode):
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("enabled", f"{str(value).lower()}")
+
