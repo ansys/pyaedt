@@ -1995,7 +1995,7 @@ class Analysis(Design, object):
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
         set_custom_dso = False
         result = True
-        if acf_file:
+        if acf_file:  # pragma: no cover
             set_custom_dso = self.set_hpc_from_file(acf_file)
         elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
             set_custom_dso = self.set_custom_hpc_options(
@@ -2023,7 +2023,7 @@ class Analysis(Design, object):
             try:
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.warning("Failed to revert to initial design mesh.")
             try:
                 self.logger.info("Solving design setup %s", name)
@@ -2032,7 +2032,7 @@ class Analysis(Design, object):
                     "ModelCreation",
                 ]:
                     self.odesign.Analyze(name, blocking)
-                else:
+                else:  # pragma: no cover
                     self.odesign.Analyze(name)
             except Exception:  # pragma: no cover
                 self.logger.error("Error in Solving Setup %s", name)
