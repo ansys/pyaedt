@@ -30,6 +30,7 @@ from mock import patch
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
 from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
@@ -159,8 +160,9 @@ def test_reduce_touchstone_data(touchstone_file):
     assert res.endswith("s2p")
     res = ts.reduce([0, 100])
     assert res.endswith("s1p")
-    res = ts.reduce([0, 100], output_file="dummy.s2p")
-    assert res is None
+
+    with pytest.raises(AEDTRuntimeError):
+        ts.reduce([0, 100], output_file="dummy.s2p")
 
 
 @patch("os.path.exists", return_value=False)

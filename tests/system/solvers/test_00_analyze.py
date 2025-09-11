@@ -497,9 +497,7 @@ class TestClass:
 
     def test_circuit_push_excitation(self, circuit_app):
         setup_name = "test_07a_LNA"
-        circuit_app.modeler.schematic.create_field_model(
-            "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
-        )
+        circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
         setup = circuit_app.create_setup(setup_name)
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
         assert circuit_app.push_excitations(instance="U1", thevenin_calculation=False, setup=setup_name)
@@ -507,9 +505,7 @@ class TestClass:
 
     def test_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
-        circuit_app.modeler.schematic.create_field_model(
-            "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
-        )
+        circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
         circuit_app.create_setup(setup_name, setup_type="NexximTransient")
         assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
