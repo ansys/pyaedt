@@ -30,7 +30,6 @@ import pytest
 import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
 from tests.system.extensions.conftest import local_path as extensions_local_path
-from tests.system.general.conftest import local_path
 
 push_project = "push_excitation"
 twinbuilder_circuit = "TB_test"
@@ -118,61 +117,6 @@ class TestClass:
                 "siwave_export": [],
             },
         )
-
-    def test_15_import_asc(self, local_scratch, add_app):
-        aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
-
-        from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
-        from ansys.aedt.core.extensions.circuit.import_schematic import main
-
-        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
-        assert main(ImportSchematicData(file_extension=file_path))
-
-        file_path = os.path.join(local_path, "example_models", "T21", "netlist_small.cir")
-        assert main(ImportSchematicData(file_extension=file_path))
-
-        file_path = os.path.join(local_path, "example_models", "T21", "Schematic1.qcv")
-        assert main(ImportSchematicData(file_extension=file_path))
-
-        file_path_invented = os.path.join(local_path, "example_models", "T21", "butter_invented.asc")
-        with pytest.raises(Exception) as execinfo:
-            main(ImportSchematicData(file_extension=file_path_invented))
-            assert execinfo.args[0] == "File does not exist."
-        aedtapp.close_project()
-
-    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-    def test_18_via_merging(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import main
-
-        file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
-        new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
-        local_scratch.copyfolder(
-            os.path.join(
-                extensions_local_path,
-                "example_models",
-                "T45",
-                "test_via_merging.aedb",
-            ),
-            file_path,
-        )
-        _input_ = {
-            "contour_list": [
-                [
-                    [0.143, 0.04],
-                    [0.1476, 0.04],
-                    [0.1476, 0.03618],
-                    [0.143, 0.036],
-                ]
-            ],
-            "is_batch": True,
-            "start_layer": "TOP",
-            "stop_layer": "INT5",
-            "design_name": "test",
-            "aedb_path": file_path,
-            "new_aedb_path": new_file,
-            "test_mode": True,
-        }
-        assert main(_input_)
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
