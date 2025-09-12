@@ -28,6 +28,7 @@ import os
 import sys
 import tempfile
 import types
+from unittest.mock import MagicMock
 
 # Import required modules
 from typing import cast
@@ -50,6 +51,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
     from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
@@ -223,6 +225,29 @@ class TestClass:
         connected_comp, connected_port = antenna3.port_connection(ant3_port)
         assert connected_comp == radio3.name
         assert connected_port == rad3_port
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_create_radio_antenna(self, emit_app):
+        new_radio, new_antenna = emit_app.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
+        assert isinstance(new_radio, EmitNode)
+        assert isinstance(new_antenna, EmitNode)
+        with pytest.raises(RuntimeError) as e:
+            emit_app.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
+        assert "Failed to create radio of type 'WrongComponent'" in str(e.value)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_30_connect_components(self, emit_app):
+        emit_app.logger.info = MagicMock()
+        new_radio = emit_app.schematic.create_component("MICS")
+        new_antenna = emit_app.schematic.create_component("Antenna")
+        emit_app.schematic.connect_components(new_radio.name, new_antenna.name)
+        emit_app.logger.info.assert_called_with("Successfully connected components 'MICS' and 'Antenna'.")
+        with pytest.raises(RuntimeError) as e:
+            emit_app.schematic.connect_components(new_radio.name, "WrongComponent")
+        assert (
+                   "Failed to connect components 'MICS' and 'WrongComponent': "
+                   "Failed to execute gRPC AEDT command: PlaceComponent"
+               ) in str(e.value)
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
     def test_radio_component(self, emit_app):
