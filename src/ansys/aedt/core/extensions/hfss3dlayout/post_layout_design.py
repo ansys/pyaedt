@@ -108,9 +108,14 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["microvia_signal_only_cb"] = None
         self._widgets["microvia_split_via_cb"] = None
         self._widgets["microvia_create_button"] = None
-        self._widgets["antipad_race_track_var"] = None
-        self._widgets["microvia_signal_only_var"] = None
-        self._widgets["microvia_split_via_var"] = None
+        self.antipad_race_track_var = tkinter.BooleanVar()
+        self.microvia_signal_only_var = tkinter.BooleanVar()
+        self.microvia_split_via_var = tkinter.BooleanVar()
+
+        # Set initial values based on defaults
+        self.antipad_race_track_var.set(EXTENSION_DEFAULT_ARGUMENTS["race_track"])
+        self.microvia_signal_only_var.set(EXTENSION_DEFAULT_ARGUMENTS["signal_only"])
+        self.microvia_split_via_var.set(EXTENSION_DEFAULT_ARGUMENTS["split_via"])
 
         # Trigger manually since add_extension_content requires loading info first
         self.add_extension_content()
@@ -158,7 +163,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["antipad_race_track_cb"] = ttk.Checkbutton(
             self._widgets["antipad_frame"],
             text="RaceTrack",
-            variable=self._widgets["antipad_race_track_var"],
+            variable=self.antipad_race_track_var,
             style="PyAEDT.TCheckbutton",
         )
         self._widgets["antipad_race_track_cb"].grid(row=1, column=2, pady=10, padx=10)
@@ -208,7 +213,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["microvia_signal_only_cb"] = ttk.Checkbutton(
             self._widgets["microvia_frame"],
             text="Signal Only",
-            variable=self._widgets["microvia_signal_only_var"],
+            variable=self.microvia_signal_only_var,
             width=20,
             style="PyAEDT.TCheckbutton",
         )
@@ -218,7 +223,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         self._widgets["microvia_split_via_cb"] = ttk.Checkbutton(
             self._widgets["microvia_frame"],
             text="Split Via",
-            variable=self._widgets["microvia_split_via_var"],
+            variable=self.microvia_split_via_var,
             width=20,
             style="PyAEDT.TCheckbutton",
         )
@@ -266,7 +271,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         try:
             selections_text = self._widgets["antipad_selections_entry"].get(1.0, tkinter.END).strip()
             radius = self._widgets["antipad_radius_entry"].get(1.0, tkinter.END).strip()
-            race_track = self._widgets["antipad_race_track_var"].get()
+            race_track = self.antipad_race_track_var.get()
 
             if not selections_text:
                 messagebox.showerror("Error", "Please select vias first.")
@@ -294,8 +299,8 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         try:
             selections_text = self._widgets["microvia_selection_entry"].get(1.0, tkinter.END).strip()
             angle_text = self._widgets["microvia_angle_entry"].get(1.0, tkinter.END).strip()
-            signal_only = self._widgets["microvia_signal_only_var"].get()
-            split_via = self._widgets["microvia_split_via_var"].get()
+            signal_only = self.microvia_signal_only_var.get()
+            split_via = self.microvia_split_via_var.get()
 
             if not selections_text:
                 messagebox.showerror("Error", "Please select padstack definitions first.")
@@ -340,6 +345,8 @@ def main(data: PostLayoutDesignExtensionData):
 
     project_name = active_project.GetName()
     design_name = active_design.GetName()
+
+    design_name = design_name.split(";")[1] if ";" in design_name else design_name
 
     h3d = get_pyaedt_app(project_name, design_name)
 
@@ -457,7 +464,7 @@ def _get_antipad_primitives(pedb, via_p, via_n):
     return prims
 
 
-def _create_antipad(h3d, pedb, selections, radius, race_track):
+def _create_antipad(h3d, pedb, selections, radius, race_track): # pragma: no cover
     """Create antipad for via pair."""
     via_p = pedb.padstacks.instances_by_name[selections[0]]
     via_n = pedb.padstacks.instances_by_name[selections[1]]
@@ -480,7 +487,7 @@ def _create_antipad(h3d, pedb, selections, radius, race_track):
     print("***** Done *****")
 
 
-def _create_microvia(pedb, selection, signal_only, angle, split_via):
+def _create_microvia(pedb, selection, signal_only, angle, split_via): # pragma: no cover
     """Create microvia with conical shape."""
     from pathlib import Path
 
