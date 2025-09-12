@@ -49,16 +49,16 @@ def test_post_layout_design_antipad_operation(add_app):
     edb.stackup.add_layer("TOP", thickness="0.035mm")
     edb.stackup.add_layer("BOTTOM", thickness="0.035mm")
 
-    _net1 = edb.nets.create("VCC")
-    _net2 = edb.nets.create("GND")
+    _ = edb.nets.create("VCC")
+    _ = edb.nets.create("GND")
 
     # Create padstack definition
-    _padstack_def = edb.padstacks.create("test_via")
+    _ = edb.padstacks.create("test_via")
 
     # Create via instances
-    _via1 = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="VCC", via_name="via1")
+    _ = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="VCC", via_name="via1")
 
-    _via2 = edb.padstacks.place(position=[0.001, 0], definition_name="test_via", net_name="GND", via_name="via2")
+    _ = edb.padstacks.place(position=[0.001, 0], definition_name="test_via", net_name="GND", via_name="via2")
 
     # Test that the extension can be instantiated
     extension = PostLayoutDesignExtension(withdraw=True)
@@ -84,13 +84,13 @@ def test_post_layout_design_microvia_operation(add_app):
     edb.stackup.add_layer("TOP", thickness="0.035mm")
     edb.stackup.add_layer("BOTTOM", thickness="0.035mm")
 
-    _signal_net = edb.nets.create("SIGNAL")
+    _ = edb.nets.create("SIGNAL")
 
     # Create padstack definition
-    _padstack_def = edb.padstacks.create("test_padstack")
+    _ = edb.padstacks.create("test_padstack")
 
     # Create via instance
-    _via = edb.padstacks.place(position=[0, 0], definition_name="test_padstack", net_name="SIGNAL")
+    _ = edb.padstacks.place(position=[0, 0], definition_name="test_padstack", net_name="SIGNAL")
 
     # Test the main function
     result = main(data)
@@ -119,7 +119,7 @@ def test_post_layout_design_exceptions(add_app):
         main(data)
 
     # Test with wrong design type
-    _aedt_app = add_app(application=Q3d, project_name="post_layout", design_name="wrong_design")
+    _ = add_app(application=Q3d, project_name="post_layout", design_name="wrong_design")
 
     data = PostLayoutDesignExtensionData(operation="antipad", via_selections=["via1", "via2"], radius="0.5mm")
 
@@ -134,10 +134,10 @@ def test_post_layout_design_extension_ui_workflow(add_app):
     # Create basic setup
     edb = aedt_app.modeler.primitives.edb
     edb.stackup.add_layer("TOP", thickness="0.035mm")
-    _net = edb.nets.create("TEST_NET")
-    _padstack_def = edb.padstacks.create("test_via")
+    _ = edb.nets.create("TEST_NET")
+    _ = edb.padstacks.create("test_via")
 
-    _via = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="TEST_NET")
+    _ = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="TEST_NET")
 
     # Test extension instantiation
     extension = PostLayoutDesignExtension(withdraw=True)
@@ -167,14 +167,14 @@ def test_post_layout_design_backend_classes(add_app):
     edb.stackup.add_layer("TOP", thickness="0.035mm")
     edb.stackup.add_layer("BOTTOM", thickness="0.035mm")
 
-    _net1 = edb.nets.create("NET1")
-    _net2 = edb.nets.create("NET2")
+    _ = edb.nets.create("NET1")
+    _ = edb.nets.create("NET2")
 
-    _padstack_def = edb.padstacks.create("test_via")
+    _ = edb.padstacks.create("test_via")
 
-    _via1 = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="NET1", via_name="via1")
+    _ = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="NET1", via_name="via1")
 
-    _via2 = edb.padstacks.place(position=[0.001, 0], definition_name="test_via", net_name="NET2", via_name="via2")
+    _ = edb.padstacks.place(position=[0.001, 0], definition_name="test_via", net_name="NET2", via_name="via2")
 
     # Test antipad creation
     data_antipad = PostLayoutDesignExtensionData(
@@ -189,10 +189,10 @@ def test_post_layout_design_backend_classes(add_app):
 
     edb2 = aedt_app2.modeler.primitives.edb
     edb2.stackup.add_layer("TOP", thickness="0.035mm")
-    _signal_net = edb2.nets.create("SIGNAL")
-    _padstack_def2 = edb2.padstacks.create("micro_via")
+    _ = edb2.nets.create("SIGNAL")
+    _ = edb2.padstacks.create("micro_via")
 
-    _via3 = edb2.padstacks.place(position=[0, 0], definition_name="micro_via", net_name="SIGNAL")
+    _ = edb2.padstacks.place(position=[0, 0], definition_name="micro_via", net_name="SIGNAL")
 
     # Test microvia creation
     data_microvia = PostLayoutDesignExtensionData(
