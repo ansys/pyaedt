@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -46,7 +47,6 @@ from .log_distance_coupling_node import LogDistanceCouplingNode
 from .multiplexer import Multiplexer
 from .multiplexer_band import MultiplexerBand
 from .power_divider import PowerDivider
-from .profile_trace_node import ProfileTraceNode
 from .propagation_loss_coupling_node import PropagationLossCouplingNode
 from .radio_node import RadioNode
 from .result_plot_node import ResultPlotNode
@@ -100,7 +100,6 @@ __all__ = [
     "Multiplexer",
     "MultiplexerBand",
     "PowerDivider",
-    "ProfileTraceNode",
     "PropagationLossCouplingNode",
     "RadioNode",
     "ResultPlotNode",
