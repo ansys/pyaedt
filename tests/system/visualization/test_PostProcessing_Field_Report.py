@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+
 import pytest
 
 
@@ -34,7 +35,6 @@ def h3d_potter_horn(add_app):
 
 
 class TestClass:
-
     def test_create_report(self, h3d_potter_horn):
         variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
@@ -75,7 +75,7 @@ class TestClass:
         assert sweep_report
         h3d_potter_horn.post.delete_report(sweep_report.plot_name)
 
-    def test_create_report_from_configuration_sweep_report(self, h3d_potter_horn,local_scratch):
+    def test_create_report_from_configuration_sweep_report(self, h3d_potter_horn, local_scratch):
         variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -175,9 +175,7 @@ class TestClass:
         assert os.path.exists(template)
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
-            template2 = os.path.join(
-                TESTS_VISUALIZATION_PATH, "example_models", "T12", "template_invented.rpt"
-            )
+            template2 = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "T12", "template_invented.rpt")
             assert not new_report4.apply_report_template(template2)
             template3 = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "T12", "template.csv")
             assert not new_report4.apply_report_template(template3)
