@@ -1270,7 +1270,7 @@ class FieldPlot:
             raise AttributeError("``points`` argument is invalid.")
 
         # Convert pathlib.Path to string if needed
-        if filename is not None and hasattr(filename, '__fspath__'):
+        if filename is not None and hasattr(filename, "__fspath__"):
             filename = str(filename)
 
         if filename is not None:
@@ -1711,7 +1711,7 @@ class FieldPlot:
         self.oField.UpdateQuantityFieldsPlots(self.plot_folder)
 
         # Convert pathlib.Path to string if needed
-        if full_path is not None and hasattr(full_path, '__fspath__'):
+        if full_path is not None and hasattr(full_path, "__fspath__"):
             full_path = str(full_path)
 
         if not full_path:
@@ -1771,7 +1771,7 @@ class FieldPlot:
         >>> oModule.ExportFieldPlot
         """
         # Convert pathlib.Path to string if needed
-        if export_path is not None and hasattr(export_path, '__fspath__'):
+        if export_path is not None and hasattr(export_path, "__fspath__"):
             export_path = str(export_path)
 
         if not export_path:
