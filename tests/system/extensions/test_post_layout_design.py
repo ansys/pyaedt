@@ -86,7 +86,6 @@ def test_post_layout_design_main_function_exceptions(add_app):
         post_layout_design.main(data)
 
 
-@pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
 def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
     """Test antipad creation with racetrack enabled."""
     file_path = os.path.join(
@@ -125,7 +124,6 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
     h3d.close_project()
 
 
-@pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
 def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
     """Test antipad creation with racetrack disabled."""
     file_path = os.path.join(
@@ -163,7 +161,6 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
 
     h3d.close_project()
 
-@pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
 def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
     """Test main function with unknown action."""
     file_path = os.path.join(
