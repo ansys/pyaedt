@@ -457,3 +457,99 @@ def test_fields_distribution(add_app, local_scratch):
     assert file_path.is_file()
 
     aedtapp.close_project(aedtapp.project_name)
+
+
+def test_fields_distribution_comprehensive_scenarios(add_app, local_scratch):
+    """Test comprehensive fields distribution functionality with various scenarios."""
+    from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
+    from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
+
+    file_path = Path(local_scratch.path) / "loss_distribution.csv"
+
+    aedtapp = add_app(
+        application=ansys.aedt.core.Maxwell2d,
+        subfolder=test_subfolder,
+        project_name=fields_distribution_project,
+    )
+
+    # Test basic export
+    data = FieldsDistributionExtensionData(
+        points_file="",
+        export_file=str(file_path),
+        export_option="Ohmic_loss",
+        objects_list=["hv_terminal"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+    data.is_test = True
+
+    assert main(data)
+    assert file_path.is_file()
+
+    # Test with points file
+    points_file = Path(extensions_local_path) / "example_models" / test_subfolder / "hv_terminal.pts"
+    data = FieldsDistributionExtensionData(
+        points_file=str(points_file),
+        export_file=str(file_path),
+        export_option="Ohmic_loss",
+        objects_list=["hv_terminal"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+    data.is_test = True
+
+    assert main(data)
+    assert file_path.is_file()
+
+    # Test with multiple objects
+    data = FieldsDistributionExtensionData(
+        points_file="",
+        export_file=str(file_path),
+        export_option="Ohmic_loss",
+        objects_list=["hv_terminal", "lv_turn1"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+    data.is_test = True
+
+    assert main(data)
+    assert file_path.is_file()
+
+    # Test with empty objects list (all objects)
+    data = FieldsDistributionExtensionData(
+        points_file="",
+        export_file=str(file_path),
+        export_option="Ohmic_loss",
+        objects_list=[],
+        solution_option="Setup1 : LastAdaptive",
+    )
+    data.is_test = True
+
+    assert main(data)
+    assert file_path.is_file()
+
+    # Test SurfaceAcForceDensity option
+    data = FieldsDistributionExtensionData(
+        points_file="",
+        export_file=str(file_path),
+        export_option="SurfaceAcForceDensity",
+        objects_list=["hv_terminal"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+    data.is_test = True
+
+    assert main(data)
+    assert file_path.is_file()
+
+    # Test NPY export
+    file_path = Path(local_scratch.path) / "loss_distribution.npy"
+    data = FieldsDistributionExtensionData(
+        points_file="",
+        export_file=str(file_path),
+        export_option="SurfaceAcForceDensity",
+        objects_list=["hv_terminal"],
+        solution_option="Setup1 : LastAdaptive",
+    )
+    data.is_test = True
+
+    assert main(data)
+    assert file_path.is_file()
+
+    aedtapp.close_project(aedtapp.project_name)

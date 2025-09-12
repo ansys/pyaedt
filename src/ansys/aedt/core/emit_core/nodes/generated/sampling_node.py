@@ -39,6 +39,11 @@ class SamplingNode(EmitNode):
         return self._parent
 
     @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
+    @property
     def table_data(self):
         """Table.
         Table consists of 2 columns.
