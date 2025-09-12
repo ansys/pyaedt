@@ -38,6 +38,11 @@ class TxBbEmissionNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")

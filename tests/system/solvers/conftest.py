@@ -202,6 +202,7 @@ def add_app(local_scratch):
             solution_type=solution_type,
             version=desktop_version,
             remove_lock=remove_lock,
+            non_graphical=NONGRAPHICAL,
         )
 
     return _method

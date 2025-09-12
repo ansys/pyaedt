@@ -102,49 +102,47 @@ def hfss_app(add_app):
     app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
-def icepak_app(add_app):
-    app = add_app(application=Icepak, design_name="SolveTest")
-    return app
-
-
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def hfss3dl_solve(add_app):
     app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def hfss3dl_solved(add_app):
     app = add_app(project_name=test_3dl_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def circuit_erl(add_app):
     app = add_app(erl_project_name, design_name="2ports", application=Circuit, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def circuit_com(add_app):
     app = add_app(com_project_name, design_name="0_simple_channel", application=Circuit, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def m3dtransient(add_app):
     app = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
 class TestClass:
@@ -177,14 +175,18 @@ class TestClass:
         assert profile[key0].product == "HFSS3DLayout"
         assert profile[key0].max_memory() > MemoryGB(0.01)
 
+    def test_3dl_export_profile(self, hfss3dl_solved):
+        assert Path(hfss3dl_solved.export_profile("Setup1")).exists()
+        assert Path(hfss3dl_solved.export_mesh_stats("Setup1")).exists()
+
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-    def test_01a_sbr_link_array(self, sbr_platform, array):
+    def test_sbr_link_array(self, sbr_platform, array):
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
         profile = sbr_platform.setups[0].get_profile()
         assert profile is None
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-    def test_01b_sbr_link_array(self, sbr_platform_solved):
+    def test_sbr_link_array_solved(self, sbr_platform_solved):
         profile = sbr_platform_solved.setups[0].get_profile()
         assert isinstance(profile, Profiles)
         key0 = list(profile.keys())[0]
@@ -211,7 +213,7 @@ class TestClass:
         assert (Path(self.local_scratch.path) / "2d1_array.jpg").exists()
         assert Path(ffdata2.metadata_file).is_file()
 
-    def test_01b_sbr_create_vrt(self, sbr_app):
+    def test_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
         sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
         vrt = sbr_app.post.create_sbr_plane_visual_ray_tracing(max_frequency="10GHz", incident_theta="40deg")
@@ -225,7 +227,7 @@ class TestClass:
         assert vrt.update()
         assert vrt.delete()
 
-    def test_01c_sbr_create_vrt_creeping(self, sbr_app):
+    def test_sbr_create_vrt_creeping(self, sbr_app):
         sbr_app.rename_design("vtr_creeping")
         sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
         vrt = sbr_app.post.create_creeping_plane_visual_ray_tracing(max_frequency="10GHz")
@@ -243,7 +245,7 @@ class TestClass:
         desktop_version < "2022.2",
         reason="Not working in non-graphical in version lower than 2022.2",
     )
-    def test_02_hfss_export_results(self, hfss_app):
+    def test_hfss_export_results(self, hfss_app):
         hfss_app.insert_design("Array_simple_resuts", "Modal")
         from ansys.aedt.core.generic.file_utils import read_json
 
@@ -316,7 +318,7 @@ class TestClass:
         assert hfss_app.export_touchstone_on_completion(export=False)
         assert hfss_app.export_touchstone_on_completion(export=True)
 
-    def test_03a_icepak_analyze_and_export_summary(self, icepak_solved):
+    def test_icepak_analyze_and_export_summary(self, icepak_solved):
         assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
         assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
         icepak_solved.save_project()
@@ -381,27 +383,27 @@ class TestClass:
         assert profile.elapsed_time > timedelta(seconds=1)
         assert profile.product == "Icepak"
 
-    def test_03b_icepak_get_output_variable(self, icepak_solved):
+    def test_icepak_get_output_variable(self, icepak_solved):
         with pytest.raises(KeyError):
             icepak_solved.get_output_variable("invalid")
         value = icepak_solved.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-    def test_03c_icepak_get_monitor_output(self, icepak_solved):
+    def test_icepak_get_monitor_output(self, icepak_solved):
         assert icepak_solved.monitor.all_monitors["test_monitor"].value()
         assert icepak_solved.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
         assert icepak_solved.monitor.all_monitors["test_monitor"].value(setup=icepak_solved.existing_analysis_sweeps[0])
         assert icepak_solved.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
-    def test_03d_icepak_eval_tempc(self, icepak_solved):
+    def test_icepak_eval_tempc(self, icepak_solved):
         assert Path(
             icepak_solved.eval_volume_quantity_from_field_summary(
                 ["box"], "Temperature", savedir=icepak_solved.working_directory
             )
         ).exists()
 
-    def test_03e_icepak_ExportFLDFil(self, icepak_solved):
+    def test_icepak_export_fld(self, icepak_solved):
         fld_file = Path(self.local_scratch.path) / "test_fld.fld"
         icepak_solved.post.export_field_file(
             quantity="Temp",
@@ -470,7 +472,7 @@ class TestClass:
         assert profile.max_memory() > profile.max_memory(adaptive_passes - 1)
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-    def test_04d_3dl_export_touchstone(self, hfss3dl_solved):
+    def test_3dl_export_touchstone(self, hfss3dl_solved):
         filename = Path(self.local_scratch.path) / "touchstone.s2p"
         solution_name = "Setup1"
         sweep_name = "Sweep1"
@@ -480,34 +482,26 @@ class TestClass:
         sweep_name = None
         assert hfss3dl_solved.export_touchstone(solution_name, sweep_name)
 
-    def test_04e_3dl_export_results(self, hfss3dl_solved):
+    def test_3dl_export_results(self, hfss3dl_solved):
         files = hfss3dl_solved.export_results()
         assert len(files) > 0
 
-    def test_04f_3dl_set_export_touchstone(self, hfss3dl_solved):
+    def test_3dl_set_export_touchstone(self, hfss3dl_solved):
         assert hfss3dl_solved.export_touchstone_on_completion(True)
         assert hfss3dl_solved.export_touchstone_on_completion(False)
         if desktop_version > "2024.2":
             assert hfss3dl_solved.set_export_touchstone()
 
-    def test_04g_3dl_get_all_sparameter_list(self, hfss3dl_solved):
-        assert hfss3dl_solved.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
-
-    def test_04h_3dl_get_all_return_loss_list(self, hfss3dl_solved):
+    def test_3dl_touchstone_results(self, hfss3dl_solved):
         assert hfss3dl_solved.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
-
-    def test_04i_3dl_get_all_insertion_loss_list(self, hfss3dl_solved):
+        assert hfss3dl_solved.get_all_sparameter_list == ["S(Port1,Port1)", "S(Port1,Port2)", "S(Port2,Port2)"]
         assert hfss3dl_solved.get_all_insertion_loss_list(
             drivers_prefix_name="Port1", receivers_prefix_name="Port2"
         ) == ["S(Port1,Port2)"]
-
-    def test_04j_3dl_get_next_xtalk_list(self, hfss3dl_solved):
         assert hfss3dl_solved.get_next_xtalk_list() == ["S(Port1,Port2)"]
-
-    def test_04k_3dl_get_fext_xtalk_list(self, hfss3dl_solved):
         assert hfss3dl_solved.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
-    def test_05a_circuit_add_3dlayout_component(self, circuit_app):
+    def test_circuit_add_3dlayout_component(self, circuit_app):
         setup = circuit_app.create_setup("test_06b_LNA")
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
         myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
@@ -538,32 +532,34 @@ class TestClass:
         new_report.sub_design_id = myedb.id
         assert new_report.create()
 
-    def test_05b_circuit_add_hfss_component(self, circuit_app):
+    def test_circuit_add_hfss_component(self, circuit_app):
         my_model, myname = circuit_app.modeler.schematic.create_field_model(
             "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
         )
         assert type(my_model) is int
 
-    def test_05c_circuit_push_excitation(self, circuit_app):
+    def test_circuit_push_excitation(self, circuit_app):
         setup_name = "test_07a_LNA"
+        circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
         setup = circuit_app.create_setup(setup_name)
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
         assert circuit_app.push_excitations(instance="U1", thevenin_calculation=False, setup=setup_name)
         assert circuit_app.push_excitations(instance="U1", thevenin_calculation=True, setup=setup_name)
 
-    def test_05d_circuit_push_excitation_time(self, circuit_app):
+    def test_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
+        circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
         circuit_app.create_setup(setup_name, setup_type="NexximTransient")
         assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
-    def test_06_m3d_harmonic_forces(self, m3dtransient):
+    def test_m3d_harmonic_forces(self, m3dtransient):
         assert m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
-    def test_07_export_maxwell_fields(self, m3dtransient):
-        fld_file_3 = Path(self.local_scratch.path) / "test_fld_3.fld"
+    def test_export_maxwell_fields(self, m3dtransient, local_scratch):
+        fld_file_3 = Path(local_scratch.path) / "test_fld_3.fld"
         assert m3dtransient.post.export_field_file(
             quantity="Mag_B",
             solution=m3dtransient.nominal_sweep,
@@ -574,7 +570,7 @@ class TestClass:
             intrinsics="10ms",
         )
         assert fld_file_3.exists()
-        fld_file_4 = Path(self.local_scratch.path) / "test_fld_4.fld"
+        fld_file_4 = Path(local_scratch.path) / "test_fld_4.fld"
         m3dtransient.available_variations.independent = True
         assert not m3dtransient.post.export_field_file(
             quantity="Mag_B",
@@ -594,9 +590,9 @@ class TestClass:
         new_setup.props = setup.props
         new_setup.update()
 
-    def test_08_compute_erl(self, circuit_erl):
-        touchstone_file = circuit_erl.export_touchstone()
-        spisim = SpiSim(touchstone_file)
+    def test_compute_erl(self, circuit_erl):
+        sp = circuit_erl.export_touchstone()
+        spisim = SpiSim(sp)
 
         erl_data2 = spisim.compute_erl(
             port_order="EvenOdd",
@@ -615,9 +611,9 @@ class TestClass:
         erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
         assert erl_data_3
 
-    def test_09a_compute_com(self, local_scratch, circuit_com):
-        touchstone_file = circuit_com.export_touchstone()
-        spisim = SpiSim(touchstone_file)
+    def test_compute_com_exported_touchstone(self, local_scratch, circuit_com):
+        sp = circuit_com.export_touchstone()
+        spisim = SpiSim(sp)
 
         report_dir = Path(spisim.working_directory) / "50GAUI-1_C2C"
         report_dir.mkdir(parents=True, exist_ok=True)
@@ -627,7 +623,7 @@ class TestClass:
         )
         assert com
 
-    def test_09b_compute_com(self, local_scratch):
+    def test_compute_com(self, local_scratch):
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(Path(com_example_file_folder) / "SerDes_Demo_02_Thru.s4p")
         fext_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
@@ -646,7 +642,7 @@ class TestClass:
         )
         assert com_0 and com_1
 
-    def test_09c_compute_com(self, local_scratch):
+    def test_compute_com_parameter_ver_3p4(self, local_scratch):
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
         spisim = SpiSim(thru_s4p)
@@ -663,9 +659,9 @@ class TestClass:
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1
 
-    def test_10_export_to_maxwell(self, add_app):
+    def test_export_to_maxwell(self, add_app):
         app = add_app("assm_test", application=Rmxprt, subfolder="T00")
-        app.analyze(cores=1)
+        app.analyze(cores=4)
         m2d = app.create_maxwell_design("Setup1")
         assert m2d.design_type == "Maxwell 2D"
         m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
@@ -697,3 +693,19 @@ class TestClass:
 
         spisim = SpiSim(fpath_snp)
         assert spisim.compute_ucie([0, 2, 4, 6, 8, 10], [1, 3, 5, 7, 9, 11], [1, 3])
+
+    def test_set_hpc_from_file(self, hfss3dl_solve):
+        acf_file = Path(hfss3dl_solve.pyaedt_dir) / "misc" / "pyaedt_local_config.acf"
+        with pytest.raises(AEDTRuntimeError):
+            hfss3dl_solve.set_hpc_from_file()
+
+        assert hfss3dl_solve.set_hpc_from_file(acf_file=acf_file)
+        assert hfss3dl_solve.set_hpc_from_file(configuration_name="Local")
+
+    def test_custom_hpc_from_file(self, icepak_solved):
+        allowed_distributed = ["Variations", "Frequencies", "Transient Excitations", "Domain Solver"]
+        assert icepak_solved.set_custom_hpc_options()
+
+        assert icepak_solved.set_custom_hpc_options(
+            cores=4, gpus=1, tasks=4, num_variations_to_distribute=4, allowed_distribution_types=allowed_distributed
+        )
