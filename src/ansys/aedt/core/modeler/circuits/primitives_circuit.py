@@ -270,7 +270,7 @@ class CircuitComponents(object):
             if isinstance(xpos, (float, int)) and isinstance(ypos, (float, int)):
                 if update_current_location:
                     self.current_position = [xpos, ypos]
-        
+
         if update_current_location:
             self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
             if self.current_position[1] / AEDT_UNITS["Length"]["mil"] > self.limits_mils:
