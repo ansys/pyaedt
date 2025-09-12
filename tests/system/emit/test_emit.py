@@ -28,10 +28,10 @@ import os
 import sys
 import tempfile
 import types
-from unittest.mock import MagicMock
 
 # Import required modules
 from typing import cast
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -245,9 +245,9 @@ class TestClass:
         with pytest.raises(RuntimeError) as e:
             emit_app.schematic.connect_components(new_radio.name, "WrongComponent")
         assert (
-                   "Failed to connect components 'MICS' and 'WrongComponent': "
-                   "Failed to execute gRPC AEDT command: PlaceComponent"
-               ) in str(e.value)
+            "Failed to connect components 'MICS' and 'WrongComponent': "
+            "Failed to execute gRPC AEDT command: PlaceComponent"
+        ) in str(e.value)
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
     def test_radio_component(self, emit_app):

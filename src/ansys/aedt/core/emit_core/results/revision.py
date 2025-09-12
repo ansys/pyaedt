@@ -1013,7 +1013,7 @@ class Revision:
 
         node = None
         try:
-            if node_type == 'RadioNode' and props["IsEmitter"] == 'true':
+            if node_type == "RadioNode" and props["IsEmitter"] == "true":
                 type_class = getattr(generated, f"{prefix}EmitterNode")
                 node = type_class(self.emit_project, self.results_index, node_id)
             else:

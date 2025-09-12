@@ -215,6 +215,7 @@ class Emit(Design, object):
     @property
     def schematic(self):
         """EMIT Schematic.
+
         Returns
         -------
         :class:`ansys.aedt.core.emit_core.emit_schematic.EmitSchematic`
