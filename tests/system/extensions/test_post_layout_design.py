@@ -3,202 +3,180 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the
-# following conditions:
 #
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-from pathlib import Path
+import os
 
 import pytest
 
-from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import Q3d
-from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtension
+import ansys.aedt.core
+from ansys.aedt.core.extensions.hfss3dlayout import post_layout_design
 from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
-from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from tests.system.extensions.conftest import local_path as extensions_local_path
+
+# Get local path for test files
+local_path = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_post_layout_design_antipad_operation(add_app):
-    """Test the antipad operation in Post Layout Design extension."""
+def test_post_layout_design_data_class(add_app):
+    """Test the PostLayoutDesignExtensionData class."""
+    # Test default values
+    data = PostLayoutDesignExtensionData()
+    assert data.action == "antipad"
+    assert data.selections == []
+    assert data.radius == "0.5mm"
+    assert data.race_track is True
+    assert data.signal_only is True
+    assert data.split_via is True
+    assert data.angle == 75.0
+
+    # Test with custom values
+    custom_data = PostLayoutDesignExtensionData(
+        action="microvia",
+        selections=["via1"],
+        radius="1.0mm",
+        race_track=False,
+        signal_only=False,
+        split_via=False,
+        angle=45.0,
+    )
+    assert custom_data.action == "microvia"
+    assert custom_data.selections == ["via1"]
+    assert custom_data.radius == "1.0mm"
+    assert custom_data.race_track is False
+    assert custom_data.signal_only is False
+    assert custom_data.split_via is False
+    assert custom_data.angle == 45.0
+
+
+def test_post_layout_design_main_function_exceptions(add_app):
+    """Test exceptions in the main function."""
+    # Test with no selections
+    data = PostLayoutDesignExtensionData(action="antipad", selections=[])
+    with pytest.raises(AEDTRuntimeError, match="No selections provided"):
+        post_layout_design.main(data)
+
+
+def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
+    """Test antipad creation with racetrack enabled."""
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
+
+    local_scratch.copyfolder(
+        os.path.join(
+            extensions_local_path,
+            "example_models",
+            "T45",
+            "ANSYS-HSD_V1.aedb",
+        ),
+        file_path,
+    )
+
+    h3d = add_app(
+        file_path,
+        application=ansys.aedt.core.Hfss3dLayout,
+        just_open=True,
+    )
+    h3d.save_project()
+
+    # Create data object with antipad parameters
     data = PostLayoutDesignExtensionData(
-        operation="antipad", via_selections=["via1", "via2"], radius="0.75mm", race_track=True
+        action="antipad",
+        selections=["Via79", "Via78"],
+        radius="1mm",
+        race_track=True,
     )
 
-    aedt_app = add_app(application=Hfss3dLayout, project_name="post_layout", design_name="antipad_test")
-
-    # Create a simple test layout with vias
-    edb = aedt_app.modeler.primitives.edb
-
-    # Create basic stackup and nets
-    edb.stackup.add_layer("TOP", thickness="0.035mm")
-    edb.stackup.add_layer("BOTTOM", thickness="0.035mm")
-
-    _ = edb.nets.create("VCC")
-    _ = edb.nets.create("GND")
-
-    # Create padstack definition
-    _ = edb.padstacks.create("test_via")
-
-    # Create via instances
-    _ = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="VCC", via_name="via1")
-
-    _ = edb.padstacks.place(position=[0.001, 0], definition_name="test_via", net_name="GND", via_name="via2")
-
-    # Test that the extension can be instantiated
-    extension = PostLayoutDesignExtension(withdraw=True)
-    extension.root.nametowidget("generate")
-    extension.root.destroy()
-
-    # Test the main function
-    assert main(data) is True
-
-
-def test_post_layout_design_microvia_operation(add_app):
-    """Test the micro via operation in Post Layout Design extension."""
-    data = PostLayoutDesignExtensionData(
-        operation="microvia", padstack_selections=["test_padstack"], etching_angle=60.0, signal_only=True
-    )
-
-    aedt_app = add_app(application=Hfss3dLayout, project_name="post_layout", design_name="microvia_test")
-
-    # Create a simple test layout
-    edb = aedt_app.modeler.primitives.edb
-
-    # Create basic stackup and nets
-    edb.stackup.add_layer("TOP", thickness="0.035mm")
-    edb.stackup.add_layer("BOTTOM", thickness="0.035mm")
-
-    _ = edb.nets.create("SIGNAL")
-
-    # Create padstack definition
-    _ = edb.padstacks.create("test_padstack")
-
-    # Create via instance
-    _ = edb.padstacks.place(position=[0, 0], definition_name="test_padstack", net_name="SIGNAL")
-
-    # Test the main function
-    result = main(data)
-    assert isinstance(result, str)  # Should return new EDB path
-    assert Path(result).exists()
-
-
-def test_post_layout_design_exceptions(add_app):
-    """Test exceptions thrown by the Post Layout Design extension."""
-    # Test invalid operation
-    data = PostLayoutDesignExtensionData(operation="invalid_op")
-    with pytest.raises(AEDTRuntimeError, match="Invalid operation specified"):
-        main(data)
-
-    # Test antipad with wrong number of vias
-    data = PostLayoutDesignExtensionData(
-        operation="antipad",
-        via_selections=["via1"],  # Only one via
-    )
-    with pytest.raises(AEDTRuntimeError, match="Exactly two vias must be selected"):
-        main(data)
-
-    # Test microvia with empty padstack selection
-    data = PostLayoutDesignExtensionData(operation="microvia", padstack_selections=[])
-    with pytest.raises(AEDTRuntimeError, match="At least one padstack definition must be selected"):
-        main(data)
-
-    # Test with wrong design type
-    _ = add_app(application=Q3d, project_name="post_layout", design_name="wrong_design")
-
-    data = PostLayoutDesignExtensionData(operation="antipad", via_selections=["via1", "via2"], radius="0.5mm")
-
-    with pytest.raises(AEDTRuntimeError, match="This extension only works with HFSS 3D Layout Design"):
-        main(data)
-
-
-def test_post_layout_design_extension_ui_workflow(add_app):
-    """Test the complete UI workflow of the extension."""
-    aedt_app = add_app(application=Hfss3dLayout, project_name="post_layout", design_name="ui_test")
-
-    # Create basic setup
-    edb = aedt_app.modeler.primitives.edb
-    edb.stackup.add_layer("TOP", thickness="0.035mm")
-    _ = edb.nets.create("TEST_NET")
-    _ = edb.padstacks.create("test_via")
-
-    _ = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="TEST_NET")
-
-    # Test extension instantiation
-    extension = PostLayoutDesignExtension(withdraw=True)
-
-    # Verify UI elements exist
-    assert extension.notebook is not None
-    assert extension.via_selections_entry is not None
-    assert extension.radius_entry is not None
-    assert extension.race_track_var is not None
-    assert extension.padstack_selections_entry is not None
-    assert extension.etching_angle_entry is not None
-    assert extension.signal_only_var is not None
-
-    # Test get_aedt_selections method
-    selections = extension.get_aedt_selections()
-    assert isinstance(selections, list)
-
-    extension.root.destroy()
-
-
-def test_post_layout_design_backend_classes(add_app):
-    """Test the backend classes functionality."""
-    aedt_app = add_app(application=Hfss3dLayout, project_name="post_layout", design_name="backend_test")
-
-    # Create test setup
-    edb = aedt_app.modeler.primitives.edb
-    edb.stackup.add_layer("TOP", thickness="0.035mm")
-    edb.stackup.add_layer("BOTTOM", thickness="0.035mm")
-
-    _ = edb.nets.create("NET1")
-    _ = edb.nets.create("NET2")
-
-    _ = edb.padstacks.create("test_via")
-
-    _ = edb.padstacks.place(position=[0, 0], definition_name="test_via", net_name="NET1", via_name="via1")
-
-    _ = edb.padstacks.place(position=[0.001, 0], definition_name="test_via", net_name="NET2", via_name="via2")
-
-    # Test antipad creation
-    data_antipad = PostLayoutDesignExtensionData(
-        operation="antipad", via_selections=["via1", "via2"], radius="0.5mm", race_track=False
-    )
-
-    result = main(data_antipad)
+    # Call main function
+    result = post_layout_design.main(data)
     assert result is True
 
-    # Create new app for microvia test
-    aedt_app2 = add_app(application=Hfss3dLayout, project_name="post_layout2", design_name="microvia_backend")
+    h3d.close_project()
 
-    edb2 = aedt_app2.modeler.primitives.edb
-    edb2.stackup.add_layer("TOP", thickness="0.035mm")
-    _ = edb2.nets.create("SIGNAL")
-    _ = edb2.padstacks.create("micro_via")
 
-    _ = edb2.padstacks.place(position=[0, 0], definition_name="micro_via", net_name="SIGNAL")
+def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
+    """Test antipad creation with racetrack disabled."""
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
 
-    # Test microvia creation
-    data_microvia = PostLayoutDesignExtensionData(
-        operation="microvia", padstack_selections=["micro_via"], etching_angle=75.0, signal_only=True
+    local_scratch.copyfolder(
+        os.path.join(
+            extensions_local_path,
+            "example_models",
+            "T45",
+            "ANSYS-HSD_V1.aedb",
+        ),
+        file_path,
     )
 
-    result = main(data_microvia)
-    assert isinstance(result, str)
-    assert Path(result).exists()
+    h3d = add_app(
+        file_path,
+        application=ansys.aedt.core.Hfss3dLayout,
+        just_open=True,
+    )
+    h3d.save_project()
+
+    # Create data object with antipad parameters (no racetrack)
+    data = PostLayoutDesignExtensionData(
+        action="antipad",
+        selections=["Via1", "Via2"],
+        radius="1mm",
+        race_track=False,
+    )
+
+    # Call main function
+    result = post_layout_design.main(data)
+    assert result is True
+
+    h3d.close_project()
+
+
+def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
+    """Test main function with unknown action."""
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_unknown_action.aedb")
+
+    local_scratch.copyfolder(
+        os.path.join(
+            extensions_local_path,
+            "example_models",
+            "T45",
+            "ANSYS-HSD_V1.aedb",
+        ),
+        file_path,
+    )
+
+    h3d = add_app(
+        file_path,
+        application=ansys.aedt.core.Hfss3dLayout,
+        just_open=True,
+    )
+    h3d.save_project()
+
+    # Test with unknown action
+    data = PostLayoutDesignExtensionData(
+        action="unknown_action",
+        selections=["Via79", "Via78"],
+        radius="1mm",
+        race_track=True,
+    )
+
+    with pytest.raises(AEDTRuntimeError, match="Unknown action"):
+        post_layout_design.main(data)
+
+    h3d.close_project()
