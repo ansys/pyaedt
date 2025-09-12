@@ -34,7 +34,6 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -3920,31 +3919,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         design_file = Path(self.working_directory) / "design_data.json"
         write_configuration_file(self.design_data, design_file)
         return True
-
-    @pyaedt_function_handler()
-    def read_design_data(self):
-        """Read back the design data as a dictionary.
-
-        Returns
-        -------
-        dict
-            Dictionary of design data.
-
-        Examples
-        --------
-        After generating design data and storing it as .json file, retrieve it as a dictionary.
-
-        >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(solution_type="Transient")
-        >>> m2d["width"] = "10mm"
-        >>> m2d["height"] = "15mm"
-        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
-        >>> m2d.generate_design_data()
-        >>> data = m2d.read_design_data()
-        >>> m2d.release_desktop(True, True)
-        """
-        design_file = Path(self.working_directory) / "design_data.json"
-        return read_configuration_file(design_file)
 
     @pyaedt_function_handler(edge_list="assignment", bound_name="boundary")
     def assign_balloon(self, assignment, boundary=None, is_voltage=False):
