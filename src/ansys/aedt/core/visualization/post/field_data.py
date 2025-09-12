@@ -1241,7 +1241,7 @@ class FieldPlot:
             List with [x,y,z] coordinates of a point or list of lists of points or
             dictionary with keys containing point names and for each key the point
             coordinates [x,y,z].
-        filename : str, optional
+        filename : str or pathlib.Path, optional
             Full path or relative path with filename.
             Default is ``None`` in which case no file is exported.
         visibility : bool, optional
@@ -1268,6 +1268,11 @@ class FieldPlot:
                 points_value = points
         else:
             raise AttributeError("``points`` argument is invalid.")
+
+        # Convert pathlib.Path to string if needed
+        if filename is not None and hasattr(filename, '__fspath__'):
+            filename = str(filename)
+
         if filename is not None:
             if not os.path.isdir(os.path.dirname(filename)):
                 raise AttributeError(f"Specified path ({filename}) does not exist")
@@ -1663,7 +1668,7 @@ class FieldPlot:
         .. note::
            There are some limitations on HFSS 3D Layout plots.
 
-        full_path : str, optional
+        full_path : str or pathlib.Path, optional
             Path for saving the image file. PNG and GIF formats are supported.
             The default is ``None`` which export file in working_directory.
         width : int, optional
@@ -1704,6 +1709,11 @@ class FieldPlot:
         >>> oModule.ExportPlotImageWithViewToFile
         """
         self.oField.UpdateQuantityFieldsPlots(self.plot_folder)
+
+        # Convert pathlib.Path to string if needed
+        if full_path is not None and hasattr(full_path, '__fspath__'):
+            full_path = str(full_path)
+
         if not full_path:
             full_path = os.path.join(self._postprocessor._app.working_directory, self.name + ".png")
         status = self._postprocessor.export_field_jpg(
@@ -1737,7 +1747,7 @@ class FieldPlot:
 
         Parameters
         ----------
-        export_path : str, optional
+        export_path : str or pathlib.Path, optional
             Path where image will be saved.
             The default is ``None`` which export file in working_directory.
         view : str, optional
@@ -1760,6 +1770,10 @@ class FieldPlot:
         >>> oModule.UpdateQuantityFieldsPlots
         >>> oModule.ExportFieldPlot
         """
+        # Convert pathlib.Path to string if needed
+        if export_path is not None and hasattr(export_path, '__fspath__'):
+            export_path = str(export_path)
+
         if not export_path:
             export_path = self._postprocessor._app.working_directory
         if sys.version_info.major > 2:
