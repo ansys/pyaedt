@@ -24,26 +24,18 @@
 
 import tkinter
 from unittest.mock import MagicMock
-from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import (
-    PostLayoutDesignExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import (
-    PostLayoutDesignExtensionData,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtension
+from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture
 def mock_hfss3dlayout_app(mock_hfss_app):
     """Fixture to create a mock HFSS 3D Layout application."""
-
     # Mock the design type to be HFSS 3D Layout Design
     mock_hfss_app.design_type = "HFSS 3D Layout Design"
 
@@ -63,7 +55,6 @@ def mock_hfss3dlayout_app(mock_hfss_app):
 
 def test_post_layout_design_extension_default(mock_hfss3dlayout_app):
     """Test instantiation of the Post Layout Design extension."""
-
     extension = PostLayoutDesignExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
@@ -75,19 +66,14 @@ def test_post_layout_design_extension_default(mock_hfss3dlayout_app):
 
 def test_post_layout_design_extension_wrong_design_type(mock_hfss_app):
     """Test exception when wrong design type is used."""
-
     mock_hfss_app.design_type = "HFSS"
 
-    with pytest.raises(
-        AEDTRuntimeError,
-        match="This extension only works with HFSS 3D Layout Design"
-    ):
+    with pytest.raises(AEDTRuntimeError, match="This extension only works with HFSS 3D Layout Design"):
         PostLayoutDesignExtension(withdraw=True)
 
 
 def test_post_layout_design_extension_antipad_ui(mock_hfss3dlayout_app):
     """Test antipad UI creation and functionality."""
-
     extension = PostLayoutDesignExtension(withdraw=True)
 
     # Test default values
@@ -107,7 +93,6 @@ def test_post_layout_design_extension_antipad_ui(mock_hfss3dlayout_app):
 
 def test_post_layout_design_extension_microvia_ui(mock_hfss3dlayout_app):
     """Test micro via UI creation and functionality."""
-
     extension = PostLayoutDesignExtension(withdraw=True)
 
     # Test default values
@@ -127,7 +112,6 @@ def test_post_layout_design_extension_microvia_ui(mock_hfss3dlayout_app):
 
 def test_post_layout_design_extension_antipad_valid_data(mock_hfss3dlayout_app):
     """Test antipad callback with valid inputs."""
-
     extension = PostLayoutDesignExtension(withdraw=True)
 
     # Set valid inputs
@@ -159,31 +143,21 @@ def test_post_layout_design_extension_antipad_valid_data(mock_hfss3dlayout_app):
 
 def test_post_layout_design_extension_antipad_invalid_selections():
     """Test antipad callback with invalid via selections."""
-
     # Test with only one via
     via_selections = ["via1"]
 
-    with pytest.raises(
-        AEDTRuntimeError, match="Please select exactly two vias"
-    ):
-        if len(via_selections) != 2 or any(
-            not sel.strip() for sel in via_selections
-        ):
+    with pytest.raises(AEDTRuntimeError, match="Please select exactly two vias"):
+        if len(via_selections) != 2 or any(not sel.strip() for sel in via_selections):
             raise AEDTRuntimeError("Please select exactly two vias.")
 
 
-def test_post_layout_design_extension_microvia_valid_data(
-    mock_hfss3dlayout_app
-):
+def test_post_layout_design_extension_microvia_valid_data(mock_hfss3dlayout_app):
     """Test micro via callback with valid inputs."""
-
     extension = PostLayoutDesignExtension(withdraw=True)
 
     # Set valid inputs
     extension.padstack_selections_entry.delete("1.0", tkinter.END)
-    extension.padstack_selections_entry.insert(
-        tkinter.END, "padstack1,padstack2"
-    )
+    extension.padstack_selections_entry.insert(tkinter.END, "padstack1,padstack2")
     extension.etching_angle_entry.delete("1.0", tkinter.END)
     extension.etching_angle_entry.insert(tkinter.END, "60.0")
     extension.signal_only_var.set(False)
@@ -210,25 +184,16 @@ def test_post_layout_design_extension_microvia_valid_data(
 
 def test_post_layout_design_extension_microvia_invalid_selections():
     """Test micro via callback with invalid padstack selections."""
-
     # Test with empty selection
     padstack_selections = [""]
 
-    with pytest.raises(
-        AEDTRuntimeError,
-        match="Please select at least one padstack definition"
-    ):
-        if not padstack_selections or any(
-            not sel.strip() for sel in padstack_selections
-        ):
-            raise AEDTRuntimeError(
-                "Please select at least one padstack definition."
-            )
+    with pytest.raises(AEDTRuntimeError, match="Please select at least one padstack definition"):
+        if not padstack_selections or any(not sel.strip() for sel in padstack_selections):
+            raise AEDTRuntimeError("Please select at least one padstack definition.")
 
 
 def test_post_layout_design_extension_data_class():
     """Test the PostLayoutDesignExtensionData dataclass."""
-
     # Test default values
     data = PostLayoutDesignExtensionData()
     assert data.operation == "antipad"
@@ -247,7 +212,7 @@ def test_post_layout_design_extension_data_class():
         race_track=False,
         padstack_selections=["pad1"],
         etching_angle=60.0,
-        signal_only=False
+        signal_only=False,
     )
     assert data.operation == "microvia"
     assert data.via_selections == ["via1", "via2"]
