@@ -464,7 +464,7 @@ def _get_antipad_primitives(pedb, via_p, via_n):
     return prims
 
 
-def _create_antipad(h3d, pedb, selections, radius, race_track): # pragma: no cover
+def _create_antipad(h3d, pedb, selections, radius, race_track):  # pragma: no cover
     """Create antipad for via pair."""
     via_p = pedb.padstacks.instances_by_name[selections[0]]
     via_n = pedb.padstacks.instances_by_name[selections[1]]
@@ -487,7 +487,7 @@ def _create_antipad(h3d, pedb, selections, radius, race_track): # pragma: no cov
     print("***** Done *****")
 
 
-def _create_microvia(pedb, selection, signal_only, angle, split_via): # pragma: no cover
+def _create_microvia(pedb, selection, signal_only, angle, split_via):  # pragma: no cover
     """Create microvia with conical shape."""
     from pathlib import Path
 

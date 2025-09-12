@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import tkinter
-from tkinter import TclError
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
@@ -36,6 +35,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayou
 from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+
 @pytest.fixture
 def mock_hfss_3d_layout_app_with_padstacks(mock_hfss_3d_layout_app):
     """Fixture to create a mock HFSS 3D Layout application with padstacks."""
@@ -43,28 +43,26 @@ def mock_hfss_3d_layout_app_with_padstacks(mock_hfss_3d_layout_app):
     mock_editor = MagicMock()
     mock_editor.GetSelections.return_value = ["Via1", "Via2"]
     mock_hfss_3d_layout_app.oeditor = mock_editor
-    
+
     # Mock modeler and primitives
     mock_modeler = MagicMock()
     mock_primitives = MagicMock()
     mock_edb = MagicMock()
-    
+
     # Mock padstack instances
-    mock_padstack_instances = {
-        "Via1": MagicMock(),
-        "Via2": MagicMock()
-    }
+    mock_padstack_instances = {"Via1": MagicMock(), "Via2": MagicMock()}
     mock_padstack_instances["Via1"].definition.name = "PadStack1"
     mock_padstack_instances["Via2"].definition.name = "PadStack2"
-    
+
     mock_edb.padstacks.instances_by_name = mock_padstack_instances
     mock_edb.close.return_value = None
-    
+
     mock_primitives.edb = mock_edb
     mock_modeler.primitives = mock_primitives
     mock_hfss_3d_layout_app.modeler = mock_modeler
-    
+
     yield mock_hfss_3d_layout_app
+
 
 def test_post_layout_design_extension_default(mock_hfss_3d_layout_app_with_padstacks):
     """Test instantiation of the Post Layout Design extension."""
@@ -79,20 +77,20 @@ def test_post_layout_design_extension_default(mock_hfss_3d_layout_app_with_padst
 def test_post_layout_design_extension_antipad_callback(mock_hfss_3d_layout_app_with_padstacks):
     """Test the antipad callback functionality."""
     extension = PostLayoutDesignExtension(withdraw=True)
-    
+
     # Set valid data for antipad
     extension._widgets["antipad_selections_entry"].delete(1.0, tkinter.END)
     extension._widgets["antipad_selections_entry"].insert(tkinter.END, "Via1, Via2")
-    extension._widgets["antipad_radius_entry"].delete(1.0, tkinter.END) 
+    extension._widgets["antipad_radius_entry"].delete(1.0, tkinter.END)
     extension._widgets["antipad_radius_entry"].insert(tkinter.END, "1.0mm")
-    
+
     # Mock the race track variable
     extension.antipad_race_track_var = MagicMock()
     extension.antipad_race_track_var.get.return_value = True
-    
+
     # Call the callback
     extension._antipad_callback()
-    
+
     # Check that data was set correctly
     data: PostLayoutDesignExtensionData = extension.data
     assert data.action == "antipad"
@@ -104,22 +102,22 @@ def test_post_layout_design_extension_antipad_callback(mock_hfss_3d_layout_app_w
 def test_post_layout_design_extension_microvia_callback(mock_hfss_3d_layout_app_with_padstacks):
     """Test the microvia callback functionality."""
     extension = PostLayoutDesignExtension(withdraw=True)
-    
+
     # Set valid data for microvia
     extension._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
     extension._widgets["microvia_selection_entry"].insert(tkinter.END, "PadStack1, PadStack2")
     extension._widgets["microvia_angle_entry"].delete(1.0, tkinter.END)
     extension._widgets["microvia_angle_entry"].insert(tkinter.END, "80")
-    
+
     # Mock the checkbox variables
     extension.microvia_signal_only_var = MagicMock()
     extension.microvia_signal_only_var.get.return_value = False
     extension.microvia_split_via_var = MagicMock()
     extension.microvia_split_via_var.get.return_value = True
-    
+
     # Call the callback
     extension._microvia_callback()
-    
+
     # Check that data was set correctly
     data: PostLayoutDesignExtensionData = extension.data
     assert data.action == "microvia"
@@ -129,40 +127,40 @@ def test_post_layout_design_extension_microvia_callback(mock_hfss_3d_layout_app_
     assert data.split_via is True
 
 
-#def test_post_layout_design_extension_antipad_callback_exceptions(mock_hfss_3d_layout_app_with_padstacks):
+# def test_post_layout_design_extension_antipad_callback_exceptions(mock_hfss_3d_layout_app_with_padstacks):
 #    """Test exceptions in antipad callback."""
 #    extension = PostLayoutDesignExtension(withdraw=True)
-#    
+#
 #    # Test no selections
 #    extension._widgets["antipad_selections_entry"].delete(1.0, tkinter.END)
-#    
+#
 #    with pytest.raises(TclError):
 #        extension._antipad_callback()
-#    
+#
 #    # Test wrong number of selections
 #    extension._widgets["antipad_selections_entry"].delete(1.0, tkinter.END)
 #    extension._widgets["antipad_selections_entry"].insert(tkinter.END, "Via1")
-#    
+#
 #    with pytest.raises(TclError):
 #        extension._antipad_callback()
 #
 #
-#def test_post_layout_design_extension_microvia_callback_exceptions(mock_hfss_3d_layout_app_with_padstacks):
+# def test_post_layout_design_extension_microvia_callback_exceptions(mock_hfss_3d_layout_app_with_padstacks):
 #    """Test exceptions in microvia callback."""
 #    extension = PostLayoutDesignExtension(withdraw=True)
-#    
+#
 #    # Test no selections
 #    extension._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
-#    
+#
 #    with pytest.raises(TclError):
 #        extension._microvia_callback()
-#    
+#
 #    # Test invalid angle
 #    extension._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
 #    extension._widgets["microvia_selection_entry"].insert(tkinter.END, "PadStack1")
 #    extension._widgets["microvia_angle_entry"].delete(1.0, tkinter.END)
 #    extension._widgets["microvia_angle_entry"].insert(tkinter.END, "invalid_angle")
-#    
+#
 #    with pytest.raises(TclError):
 #        extension._microvia_callback()
 
@@ -170,12 +168,12 @@ def test_post_layout_design_extension_microvia_callback(mock_hfss_3d_layout_app_
 def test_post_layout_design_extension_get_antipad_selections(mock_hfss_3d_layout_app_with_padstacks):
     """Test getting antipad selections."""
     extension = PostLayoutDesignExtension(withdraw=True)
-    
+
     # Mock the editor to return selections
     mock_hfss_3d_layout_app_with_padstacks.oeditor.GetSelections.return_value = ["Via1", "Via2"]
-    
+
     extension._get_antipad_selections()
-    
+
     # Check that selections were inserted into the entry
     selections_text = extension._widgets["antipad_selections_entry"].get(1.0, tkinter.END).strip()
     assert selections_text == "Via1,Via2"
@@ -184,12 +182,12 @@ def test_post_layout_design_extension_get_antipad_selections(mock_hfss_3d_layout
 def test_post_layout_design_extension_get_microvia_selections(mock_hfss_3d_layout_app_with_padstacks):
     """Test getting microvia selections."""
     extension = PostLayoutDesignExtension(withdraw=True)
-    
+
     # Mock the editor to return selections
     mock_hfss_3d_layout_app_with_padstacks.oeditor.GetSelections.return_value = ["Via1", "Via2"]
-    
+
     extension._get_microvia_selections()
-    
+
     # Check that padstack definitions were inserted into the entry
     selections_text = extension._widgets["microvia_selection_entry"].get(1.0, tkinter.END).strip()
     assert selections_text == "PadStack1,PadStack2"
@@ -198,16 +196,16 @@ def test_post_layout_design_extension_get_microvia_selections(mock_hfss_3d_layou
 def test_post_layout_design_extension_get_selections_exceptions(mock_hfss_3d_layout_app_with_padstacks):
     """Test exceptions in get selections methods."""
     extension = PostLayoutDesignExtension(withdraw=True)
-    
+
     # Test exception in get_antipad_selections
     mock_hfss_3d_layout_app_with_padstacks.oeditor.GetSelections.side_effect = Exception("Test error")
-    
-    with patch('tkinter.messagebox.showerror') as mock_showerror:
+
+    with patch("tkinter.messagebox.showerror") as mock_showerror:
         extension._get_antipad_selections()
         mock_showerror.assert_called_once()
-    
+
     # Test exception in get_microvia_selections
-    with patch('tkinter.messagebox.showerror') as mock_showerror:
+    with patch("tkinter.messagebox.showerror") as mock_showerror:
         extension._get_microvia_selections()
         mock_showerror.assert_called_once()
 
@@ -223,7 +221,7 @@ def test_post_layout_design_extension_data_dataclass():
     assert data.signal_only is True
     assert data.split_via is True
     assert data.angle == 75.0
-    
+
     # Test with custom values
     data = PostLayoutDesignExtensionData(
         action="microvia",
@@ -232,7 +230,7 @@ def test_post_layout_design_extension_data_dataclass():
         race_track=False,
         signal_only=False,
         split_via=False,
-        angle=85.0
+        angle=85.0,
     )
     assert data.action == "microvia"
     assert data.selections == ["PadStack1", "PadStack2"]
@@ -249,6 +247,7 @@ def test_main_function_exceptions():
     data = PostLayoutDesignExtensionData(selections=[])
     with pytest.raises(AEDTRuntimeError, match="No selections provided"):
         main(data)
+
 
 def test_post_layout_design_extension_wrong_design_type():
     """Test exception when design type is not HFSS 3D Layout."""

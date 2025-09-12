@@ -23,21 +23,14 @@
 # SOFTWARE.
 
 import os
-import shutil
-import tempfile
 
 import pytest
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import (
-    PostLayoutDesignExtensionData,
-)
 from ansys.aedt.core.extensions.hfss3dlayout import post_layout_design
-from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.system.extensions.conftest import (
-    local_path as extensions_local_path,
-)
+from tests.system.extensions.conftest import local_path as extensions_local_path
 
 # Get local path for test files
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -77,20 +70,14 @@ def test_post_layout_design_data_class(add_app):
 def test_post_layout_design_main_function_exceptions(add_app):
     """Test exceptions in the main function."""
     # Test with no selections
-    data = PostLayoutDesignExtensionData(
-        action="antipad", selections=[]
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="No selections provided"
-    ):
+    data = PostLayoutDesignExtensionData(action="antipad", selections=[])
+    with pytest.raises(AEDTRuntimeError, match="No selections provided"):
         post_layout_design.main(data)
 
 
 def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
     """Test antipad creation with racetrack enabled."""
-    file_path = os.path.join(
-        local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb"
-    )
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
 
     local_scratch.copyfolder(
         os.path.join(
@@ -126,9 +113,7 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
 
 def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
     """Test antipad creation with racetrack disabled."""
-    file_path = os.path.join(
-        local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb"
-    )
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
 
     local_scratch.copyfolder(
         os.path.join(
@@ -161,11 +146,10 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
 
     h3d.close_project()
 
+
 def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
     """Test main function with unknown action."""
-    file_path = os.path.join(
-        local_scratch.path, "ANSYS-HSD_V1_unknown_action.aedb"
-    )
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_unknown_action.aedb")
 
     local_scratch.copyfolder(
         os.path.join(
