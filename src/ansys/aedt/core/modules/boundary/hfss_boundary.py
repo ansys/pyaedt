@@ -26,6 +26,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
 
 
@@ -529,3 +530,738 @@ class NearFieldSetup(FieldSetup, object):
 
     def __init__(self, app, component_name, props, component_type):
         FieldSetup.__init__(self, app, component_name, props, component_type)
+
+
+class WavePortObject(BoundaryObject):
+    """Manages HFSS Wave Port boundary objects.
+
+    This class provides specialized functionality for wave port
+    boundaries in HFSS, including analytical alignment settings.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> wave_port = hfss.wave_port(
+        ...
+    ... )
+    >>> wave_port.set_analytical_alignment(True)
+    """
+
+    def __init__(self, app, name, props, btype):
+        """Initialize a wave port boundary object.
+
+        Parameters
+        ----------
+        app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
+            The AEDT application instance.
+        name : str
+            Name of the boundary.
+        props : dict
+            Dictionary of boundary properties.
+        btype : str
+            Type of the boundary.
+        """
+        super().__init__(app, name, props, btype)
+
+    @pyaedt_function_handler()
+    def set_analytical_alignment(
+        self, u_axis_line=None, analytic_reverse_v=False, coordinate_system="Global", alignment_group=None
+    ):
+        """Set the analytical alignment property for the wave port.
+
+        Parameters
+        ----------
+        u_axis_line : list
+            List containing start and end points for the U-axis line.
+            Format: [[x1, y1, z1], [x2, y2, z2]]
+        analytic_reverse_v : bool, optional
+            Whether to reverse the V direction. Default is False.
+        coordinate_system : str, optional
+            Coordinate system to use. Default is "Global".
+        alignment_group : int, list or None, optional
+            Alignment group number(s) for the wave port. If None, the default group is used.
+            If a single integer is provided, it is applied to all modes.
+
+        Returns
+        -------
+        bool
+            True if the operation was successful, False otherwise.
+
+        Examples
+        --------
+        >>> u_line = [[0, 0, 0], [1, 0, 0]]
+        >>> wave_port.set_analytical_alignment(u_line, analytic_reverse_v=True)
+        True
+        """
+        try:
+            # Go through all modes and set the alignment group if provided
+            if alignment_group is None:
+                alignment_group = [0] * len(self.props["Modes"])
+            elif isinstance(alignment_group, int):
+                alignment_group = [alignment_group] * len(self.props["Modes"])
+            elif not (isinstance(alignment_group, list) and all(isinstance(x, (int, float)) for x in alignment_group)):
+                raise ValueError("alignment_group must be a list of numbers or None.")
+            if len(alignment_group) != len(self.props["Modes"]):
+                raise ValueError("alignment_group length must match the number of modes.")
+            if not (
+                isinstance(u_axis_line, list)
+                and len(u_axis_line) == 2
+                and all(isinstance(pt, list) and len(pt) == 3 for pt in u_axis_line)
+            ):
+                raise ValueError("u_axis_line must be a list of two 3-element lists.")
+            if not isinstance(analytic_reverse_v, bool):
+                raise ValueError("analytic_reverse_v must be a boolean.")
+            if not isinstance(coordinate_system, str):
+                raise ValueError("coordinate_system must be a string.")
+
+            for i, mode_key in enumerate(self.props["Modes"]):
+                self.props["Modes"][mode_key]["AlignmentGroup"] = i
+            analytic_u_line = {}
+            analytic_u_line["Coordinate System"] = coordinate_system
+            analytic_u_line["Start"] = [str(i) + self._app.modeler.model_units for i in u_axis_line[0]]
+            analytic_u_line["End"] = [str(i) + self._app.modeler.model_units for i in u_axis_line[1]]
+            self.props["AnalyticULine"] = analytic_u_line
+            self.props["AnalyticReverseV"] = analytic_reverse_v
+            self.props["UseAnalyticAlignment"] = True
+            return self.update()
+        except Exception as e:
+            self._app.logger.error(f"Failed to set analytical alignment: {str(e)}")
+            return False
+
+    @pyaedt_function_handler()
+    def set_alignment_integration_line(self, integration_lines=None, coordinate_system="Global", alignment_groups=None):
+        """Set the integration line alignment property for the wave port modes.
+
+        This method configures integration lines for wave port modes,
+        which are used for modal excitation and field calculation. At
+        least the first 2 modes should have integration lines defined,
+        and at least 1 alignment group should exist.
+
+        Parameters
+        ----------
+        integration_lines : list of lists, optional
+            List of integration lines for each mode. Each integration
+            line is defined as [[start_x, start_y, start_z],
+            [end_x, end_y, end_z]]. If None, integration lines will
+            be disabled for all modes.
+            Format: [[[x1, y1, z1], [x2, y2, z2]], [[x3, y3, z3], ...]]
+        coordinate_system : str, optional
+            Coordinate system to use for the integration lines.
+            Default is "Global".
+        alignment_groups : list of int, optional
+            Alignment group numbers for each mode. If None, default
+            groups will be assigned. At least one alignment group
+            should exist. If a single integer is provided, it will be
+            applied to all modes with integration lines.
+
+        Returns
+        -------
+        bool
+            True if the operation was successful, False otherwise.
+
+        Examples
+        --------
+        >>> # Define integration lines for first two modes
+        >>> int_lines = [
+        ...     [[0, 0, 0], [10, 0, 0]],  # Mode 1 integration line
+        ...     [[0, 0, 0], [0, -9, 0]],  # Mode 2 integration line
+        ... ]
+        >>> # Mode 1 in group 1, Mode 2 in group 0
+        >>> alignment_groups = [1, 0]
+        >>> wave_port.set_alignment_integration_line(int_lines, "Global", alignment_groups)
+        True
+
+        >>> # Disable integration lines for all modes
+        >>> wave_port.set_alignment_integration_line()
+        True
+        """
+        try:
+            num_modes = self.properties["Num Modes"]
+
+            if integration_lines is None:
+                # Disable integration lines for all modes
+                for mode_key in self.props["Modes"]:
+                    self.props["Modes"][mode_key]["UseIntLine"] = False
+                    if "IntLine" in self.props["Modes"][mode_key]:
+                        del self.props["Modes"][mode_key]["IntLine"]
+                return self.update()
+
+            # Validate integration_lines parameter
+            if not isinstance(integration_lines, list):
+                raise ValueError("integration_lines must be a list of integration line definitions.")
+
+            # Ensure at least the first 2 modes have integration lines
+            if len(integration_lines) < min(2, num_modes):
+                raise ValueError("At least the first 2 modes should have integration lines defined.")
+
+            # Validate each integration line format
+            for i, line in enumerate(integration_lines):
+                if not (
+                    isinstance(line, list)
+                    and len(line) == 2
+                    and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
+                ):
+                    raise ValueError(
+                        f"Integration line {i + 1} must be a list of two 3-element lists [[x1,y1,z1], [x2,y2,z2]]."
+                    )
+
+            # Validate coordinate_system
+            if not isinstance(coordinate_system, str):
+                raise ValueError("coordinate_system must be a string.")
+
+            # Handle alignment_groups parameter
+            if alignment_groups is None:
+                # Default: modes with integration lines get group 1,
+                # others get group 0
+                alignment_groups = [1 if i < len(integration_lines) else 0 for i in range(num_modes)]
+            elif isinstance(alignment_groups, int):
+                # Single group for modes with integration lines
+                alignment_groups = [(alignment_groups if i < len(integration_lines) else 0) for i in range(num_modes)]
+            elif isinstance(alignment_groups, list):
+                # Validate alignment_groups list
+                if not all(isinstance(x, (int, float)) for x in alignment_groups):
+                    raise ValueError("alignment_groups must be a list of integers.")
+                # Extend or truncate to match number of modes
+                if len(alignment_groups) < num_modes:
+                    alignment_groups.extend([0] * (num_modes - len(alignment_groups)))
+                elif len(alignment_groups) > num_modes:
+                    alignment_groups = alignment_groups[:num_modes]
+            else:
+                raise ValueError("alignment_groups must be an integer, list of integers, or None.")
+
+            # Ensure at least one alignment group exists (non-zero)
+            if all(group == 0 for group in alignment_groups[: len(integration_lines)]):
+                self._app.logger.warning(
+                    "No non-zero alignment groups defined. Setting first mode to alignment group 1."
+                )
+                if len(alignment_groups) > 0:
+                    alignment_groups[0] = 1
+
+            # Configure each mode
+
+            mode_keys = list(self.props["Modes"].keys())
+            for i, mode_key in enumerate(mode_keys):
+                # Set alignment group
+                self.props["Modes"][mode_key]["AlignmentGroup"] = alignment_groups[i]
+                if i < len(integration_lines):
+                    # Mode has an integration line
+
+                    # Create IntLine structure
+                    int_line = {
+                        "Coordinate System": coordinate_system,
+                        "Start": [f"{coord}{self._app.modeler.model_units}" for coord in integration_lines[i][0]],
+                        "End": [f"{coord}{self._app.modeler.model_units}" for coord in integration_lines[i][1]],
+                    }
+                    self.props["Modes"][mode_key]["IntLine"] = int_line
+                    self.props["Modes"][mode_key]["UseIntLine"] = True
+                else:
+                    # Mode does not have an integration line
+                    self.props["Modes"][mode_key]["UseIntLine"] = False
+                    if "IntLine" in self.props["Modes"][mode_key]:
+                        del self.props["Modes"][mode_key]["IntLine"]
+            self.props["UseLineModeAlignment"] = True
+            return self.update()
+        except Exception as e:
+            self._app.logger.error(f"Failed to set integration line alignment: {str(e)}")
+            return False
+
+    @pyaedt_function_handler()
+    def set_polarity_integration_line(self, integration_lines=None, coordinate_system="Global"):
+        """Set polarity integration lines for the wave port modes.
+
+        This method configures integration lines for wave port modes
+        with polarity alignment. When integration lines are provided,
+        they are used to define the field polarization direction for
+        each mode. The alignment mode is set to polarity
+        (UseLineModeAlignment=False).
+
+        Parameters
+        ----------
+        integration_lines : list of lists, optional
+            List of integration lines for each mode. Each integration
+            line is defined as [[start_x, start_y, start_z],
+            [end_x, end_y, end_z]]. If None, integration lines will
+            be disabled for all modes.
+            Format: [[[x1, y1, z1], [x2, y2, z2]], [[x3, y3, z3], ...]]
+        coordinate_system : str, optional
+            Coordinate system to use for the integration lines.
+            Default is "Global".
+
+        Returns
+        -------
+        bool
+            True if the operation was successful, False otherwise.
+
+        Examples
+        --------
+        >>> # Define integration lines for modes
+        >>> int_lines = [
+        ...     [[0, 0, 0], [10, 0, 0]],  # Mode 1 integration line
+        ...     [[0, 0, 0], [0, 10, 0]],  # Mode 2 integration line
+        ... ]
+        >>> wave_port.set_polarity_integration_line(int_lines, "Global")
+        True
+
+        >>> # Disable integration lines for all modes
+        >>> wave_port.set_polarity_integration_line()
+        True
+        """
+        try:
+            # Set UseLineModeAlignment to False for polarity mode
+            self.props["UseLineModeAlignment"] = False
+            self.props["UseAnalyticAlignment"] = False
+
+            if integration_lines is None:
+                return self.update()
+
+            # Normalize integration_lines to handle single mode case
+            if not isinstance(integration_lines, list):
+                raise ValueError("integration_lines must be a list of integration line definitions.")
+
+            # If not a list of lists, assume it's a single integration
+            # line for first mode
+            if len(integration_lines) > 0 and not isinstance(integration_lines[0], list):
+                integration_lines = [integration_lines]
+            elif (
+                len(integration_lines) > 0
+                and len(integration_lines[0]) == 2
+                and isinstance(integration_lines[0][0], (int, float))
+            ):
+                integration_lines = [integration_lines]
+
+            # Validate each integration line format
+            for i, line in enumerate(integration_lines):
+                if not (
+                    isinstance(line, list)
+                    and len(line) == 2
+                    and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
+                ):
+                    raise ValueError(
+                        f"Integration line {i + 1} must be a list of two 3-element lists [[x1,y1,z1], [x2,y2,z2]]."
+                    )
+
+            # Validate coordinate_system
+            if not isinstance(coordinate_system, str):
+                raise ValueError("coordinate_system must be a string.")
+
+            # Configure each mode
+            mode_keys = list(self.props["Modes"].keys())
+            for i, mode_key in enumerate(mode_keys):
+                # Set AlignmentGroup to 0 for polarity mode
+                mode_props = self.props["Modes"][mode_key]
+                mode_props["AlignmentGroup"] = 0
+
+                if i < len(integration_lines):
+                    # Mode has an integration line
+                    start = [
+                        (str(coord) + self._app.modeler.model_units if isinstance(coord, (int, float)) else coord)
+                        for coord in integration_lines[i][0]
+                    ]
+                    stop = [
+                        (str(coord) + self._app.modeler.model_units if isinstance(coord, (int, float)) else coord)
+                        for coord in integration_lines[i][1]
+                    ]
+
+                    # Create IntLine structure
+                    int_line = {
+                        "Coordinate System": coordinate_system,
+                        "Start": start,
+                        "End": stop,
+                    }
+                    mode_props["IntLine"] = int_line
+                    mode_props["UseIntLine"] = True
+                else:
+                    # Mode does not have an integration line
+                    mode_props["UseIntLine"] = False
+                    if "IntLine" in mode_props:
+                        del mode_props["IntLine"]
+
+            return self.update()
+        except Exception as e:
+            self._app.logger.error(f"Failed to set polarity integration lines: {str(e)}")
+            return False
+
+    @property
+    def filter_modes_reporter(self):
+        """Get the reporter filter setting for each mode.
+
+        Returns
+        -------
+        list of bool
+            List of boolean values indicating whether each mode is
+            filtered in the reporter.
+        """
+        return self.props["ReporterFilter"]
+
+    @filter_modes_reporter.setter
+    def filter_modes_reporter(self, value):
+        """Set the reporter filter setting for wave port modes.
+
+        Parameters
+        ----------
+        value : bool or list of bool
+            Boolean value(s) to set for the reporter filter. If a
+            single boolean is provided, it will be applied to all
+            modes. If a list is provided, it must match the number
+            of modes.
+
+        Examples
+        --------
+        >>> # Set all modes to be filtered
+        >>> wave_port.filter_modes_reporter = True
+
+        >>> # Set specific filter values for each mode
+        >>> wave_port.filter_modes_reporter = [True, False, True]
+        """
+        try:
+            num_modes = self.properties["Num Modes"]
+            show_reporter_filter = True
+            if isinstance(value, bool):
+                # Single boolean value - apply to all modes
+                filter_values = [value] * num_modes
+                # In case all values are the same, we hide the Reporter Filter
+                show_reporter_filter = False
+            elif isinstance(value, list):
+                # List of boolean values
+                if not all(isinstance(v, bool) for v in value):
+                    raise ValueError("All values in the list must be boolean.")
+                if len(value) != num_modes:
+                    raise ValueError(f"List length ({len(value)}) must match the number of modes ({num_modes}).")
+                filter_values = value
+            else:
+                raise ValueError("Value must be a boolean or a list of booleans.")
+            self.props["ShowReporterFilter"] = show_reporter_filter
+            # Apply the filter values to each mode
+            self.props["ReporterFilter"] = filter_values
+
+            self.update()
+        except Exception as e:
+            self._app.logger.error(f"Failed to set filter modes reporter: {str(e)}")
+            raise
+
+    @property
+    def specify_wave_direction(self):
+        """Get the 'Specify Wave Direction' property.
+
+        Returns
+        -------
+        bool
+            Whether the wave direction is specified.
+        """
+        return self.properties["Specify Wave Direction"]
+
+    @specify_wave_direction.setter
+    def specify_wave_direction(self, value):
+        """Set the 'Specify Wave Direction' property.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to specify the wave direction.
+        """
+        if value == self.properties["Specify Wave Direction"]:
+            return value
+        self.properties["Specify Wave Direction"] = value
+
+    @property
+    def deembed(self):
+        """Get the de-embedding property of the wave port.
+
+        Returns
+        -------
+        bool
+            Whether de-embedding is enabled.
+        """
+        return self.properties["Deembed"]
+
+    @deembed.setter
+    def deembed(self, value):
+        """Set the de-embedding property of the wave port.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to enable de-embedding.
+        """
+        if value == self.properties["Deembed"]:
+            return value
+        self.properties["Deembed"] = value
+
+    @property
+    def renorm_all_modes(self):
+        """Renormalize all modes property
+
+        Returns
+        -------
+        bool
+            Whether renormalization of all modes is enabled.
+        """
+        return self.properties["Renorm All Modes"]
+
+    @renorm_all_modes.setter
+    def renorm_all_modes(self, value):
+        """Set the renormalization property for all modes.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to enable renormalization for all modes.
+        """
+        if value == self.properties["Renorm All Modes"]:
+            return value
+        self.properties["Renorm All Modes"] = value
+
+    @property
+    def renorm_impedance_type(self):
+        """Get the renormalization impedance type
+
+        Returns
+        -------
+        str
+            The type of renormalization impedance.
+        """
+        return self.properties["Renorm Impedance Type"]
+
+    @renorm_impedance_type.setter
+    def renorm_impedance_type(self, value):
+        """Set the renormalization impedance type.
+
+        Parameters
+        ----------
+        value : str
+            The type of renormalization impedance. It can be a type contained in the list of choices.
+        """
+        if value not in self.properties["Renorm Impedance Type/Choices"]:
+            raise ValueError(
+                f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}."
+            )
+        if value == self.properties["Renorm Impedance Type"]:
+            return value
+        self.properties["Renorm Impedance Type"] = value
+
+    @property
+    def renorm_impedance(self):
+        """Get the renormalization impedance value.
+
+        Returns
+        -------
+        str
+            The renormalization impedance value.
+        """
+        return self.properties["Renorm Imped"]
+
+    @renorm_impedance.setter
+    def renorm_impedance(self, value):
+        """Set the renormalization impedance value.
+
+        Parameters
+        ----------
+        value : str or int
+            The renormalization impedance value. Must be a string with units
+            (e.g., "50ohm") or a int (defaults to "ohm").
+        """
+        allowed_units = ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"]
+        if self.renorm_impedance_type != "Impedance":
+            raise ValueError("Renorm Impedance can be set only if Renorm Impedance Type is 'Impedance'.")
+
+        if isinstance(value, int):
+            value_str = f"{value}ohm"
+        elif isinstance(value, float):
+            raise ValueError("Renorm Impedance must be a string with units or an int.")
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Renorm Impedance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Renorm Impedance must be a string with units or a float.")
+
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+        else:
+            value_str = f"{value}ohm"
+
+        if not any(value_str.endswith(unit) for unit in allowed_units):
+            raise ValueError(f"Renorm Impedance must end with one of {allowed_units}.")
+
+        if value_str == self.properties["Renorm Imped"]:
+            return value_str
+        self.properties["Renorm Imped"] = value_str
+
+    # NOTE: The following properties are write-only as HFSS does not return their values.
+    # Attempting to read them will raise NotImplementedError.
+    # This is a workaround until the API provides a way to read these properties.
+    # Also, these properties reset to default
+    @property
+    def rlc_type(self):
+        """Get the RLC type property."""
+        raise NotImplementedError("Getter for 'rlc_type' is not implemented. Use the setter only.")
+
+    @rlc_type.setter
+    def rlc_type(self, value):
+        """Set the RLC type property.
+
+        Parameters
+        ----------
+        value : str
+            The type of RLC circuit.
+        """
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("RLC Type can be set only if Renorm Impedance Type is 'RLC'.")
+        allowed_types = ["Serial", "Parallel"]
+        if value not in allowed_types:
+            raise ValueError(f"RLC Type must be one of {allowed_types}.")
+        self.properties["RLC Type"] = value
+
+    @property
+    def use_resistance(self):
+        """Get the 'Use Resistance' property."""
+        raise NotImplementedError("Getter for 'use_resistance' is not implemented. Use the setter only.")
+
+    @use_resistance.setter
+    def use_resistance(self, value):
+        """Set the 'Use Resistance' property.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to use resistance in the RLC circuit.
+        """
+        if not isinstance(value, bool):
+            raise ValueError("Use Resistance must be a boolean value.")
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Use Resistance can be set only if Renorm Impedance Type is 'RLC'.")
+        self.properties["Use Resistance"] = value
+
+    @property
+    def resistance_value(self):
+        """Get the resistance value."""
+        raise NotImplementedError("Getter for 'resistance_value' is not implemented. Use the setter only.")
+
+    @resistance_value.setter
+    def resistance_value(self, value):
+        """Set the resistance value.
+
+        Parameters
+        ----------
+        value : str or float
+            The resistance value. Must be a string with units (e.g., "50ohm") or a float (defaults to "ohm").
+        """
+        allowed_units = ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"]
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Resistance can be set only if Renorm Impedance Type is 'RLC'.")
+        if isinstance(value, (int, float)):
+            value_str = f"{value}ohm"
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Resistance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Resistance must be a string with units or a float.")
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Resistance must end with one of {allowed_units}.")
+        self.properties["Resistance Value"] = value_str
+
+    @property
+    def use_inductance(self):
+        """Get the 'Use Inductance' property."""
+        raise NotImplementedError("Getter for 'use_inductance' is not implemented. Use the setter only.")
+
+    @use_inductance.setter
+    def use_inductance(self, value):
+        """Set the 'Use Inductance' property.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to use inductance in the RLC circuit.
+        """
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Use Inductance can be set only if Renorm Impedance Type is 'RLC'.")
+        if not isinstance(value, bool):
+            raise ValueError("Use Inductance must be a boolean value.")
+        self.properties["Use Inductance"] = value
+
+    @property
+    def inductance_value(self):
+        """Get the inductance value."""
+        raise NotImplementedError("Getter for 'inductance_value' is not implemented. Use the setter only.")
+
+    @inductance_value.setter
+    def inductance_value(self, value):
+        """Set the inductance value.
+
+        Parameters
+        ----------
+        value : str or float
+            The inductance value. Must be a string with units (e.g., "10nH") or a float (defaults to "H").
+        """
+        allowed_units = ["fH", "pH", "nH", "uH", "mH", "H"]
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Inductance can be set only if Renorm Impedance Type is 'RLC'.")
+        if isinstance(value, (int, float)):
+            value_str = f"{value}H"
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Inductance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Inductance must be a string with units or a float.")
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Inductance must end with one of {allowed_units}.")
+        self.properties["Inductance Value"] = value_str
+
+    @property
+    def use_capacitance(self):
+        """Get the 'Use Capacitance' property."""
+        raise NotImplementedError("Getter for 'use_capacitance' is not implemented. Use the setter only.")
+
+    @use_capacitance.setter
+    def use_capacitance(self, value):
+        """Set the 'Use Capacitance' property.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to use capacitance in the RLC circuit.
+        """
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Use Capacitance can be set only if Renorm Impedance Type is 'RLC'.")
+        if not isinstance(value, bool):
+            raise ValueError("Use Capacitance must be a boolean value.")
+        self.properties["Use Capacitance"] = value
+
+    @property
+    def capacitance_value(self):
+        """Get the capacitance value."""
+        raise NotImplementedError("Getter for 'capacitance_value' is not implemented. Use the setter only.")
+
+    @capacitance_value.setter
+    def capacitance_value(self, value):
+        """Set the capacitance value.
+
+        Parameters
+        ----------
+        value : str or float
+            The capacitance value. Must be a string with units (e.g., "1pF") or a float (defaults to "F").
+        """
+        allowed_units = ["fF", "pF", "nF", "uF", "mF", "farad"]
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Capacitance can be set only if Renorm Impedance Type is 'RLC'.")
+        if isinstance(value, (int, float)):
+            value_str = f"{value}F"
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Capacitance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Capacitance must be a string with units or a float.")
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Capacitance must end with one of {allowed_units}.")
+        self.properties["Capacitance Value"] = value_str
