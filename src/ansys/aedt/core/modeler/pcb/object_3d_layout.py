@@ -34,7 +34,7 @@ from typing import Tuple
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -42,7 +42,7 @@ class Object3DLayout(object):
     """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
-    -----------
+    ----------
     primitives : :class:`ansys.aedt.core.modeler.Model3DLayout.Modeler3dLayout`
     """
 
@@ -919,7 +919,8 @@ class Nets3DLayout(object):
         Returns
         -------
         list
-            Geometries that belong to the selected net."""
+            Geometries that belong to the selected net.
+        """
         comps = self._primitives._get_names(["component", "pin", "via"])
         geo = [i for i in self._oeditor.FindObjects("Net", self.name) if i not in comps]
         return geo

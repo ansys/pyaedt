@@ -29,7 +29,7 @@ import pytest
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.math_utils import MathUtils
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
@@ -296,7 +296,7 @@ class TestClass:
         assert plane in planes
 
     def test_25_clean_object_name(self):
-        # TODO
+        # TODO: Write test
         assert True
 
     def test_26_create_airbox(self):

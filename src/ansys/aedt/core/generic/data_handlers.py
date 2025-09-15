@@ -31,7 +31,7 @@ import unicodedata
 
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -449,7 +449,6 @@ def from_rkm(code):
     '4.7M'
 
     """
-
     # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
     fd_pattern = f"([0-9]+)([{''.join(RKM_MAPS.keys())}]+)([0-9]*)"

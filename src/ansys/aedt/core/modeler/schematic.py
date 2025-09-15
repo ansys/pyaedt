@@ -132,7 +132,8 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
+        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")
+        """
         return self._app.oeditor
 
     @pyaedt_function_handler()
@@ -186,8 +187,10 @@ class ModelerCircuit(Modeler):
             components = self.schematic.components
         else:
             components = self.components
-        start = components[starting_component]
-        end = components[ending_component]
+        starting_component = self._get_components_selections(starting_component)
+        ending_component = self._get_components_selections(ending_component)
+        start = components[starting_component[0]]
+        end = components[ending_component[0]]
         if isinstance(pin_starting, (int, str)):
             pin_starting = [pin_starting]
         if isinstance(pin_ending, (int, str)):
@@ -477,7 +480,7 @@ class ModelerCircuit(Modeler):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
-                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                    if sel in [el.instance_name, el.composed_name, el.name]:
                         sels.append(el.composed_name)
         if not return_as_list:
             return ", ".join(sels)
@@ -555,7 +558,7 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
 
         """
-        # TODO Check why it crashes when multiple circuits are created
+        # TODO: Check why it crashes when multiple circuits are created
         return None
 
     @property
@@ -756,7 +759,7 @@ class ModelerEmit(ModelerCircuit):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
-                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                    if sel in [el.instance_name, el.composed_name, el.name]:
                         sels.append(el.composed_name)
         if not return_as_list:
             return ", ".join(sels)

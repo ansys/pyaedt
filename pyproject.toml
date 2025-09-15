@@ -33,7 +33,7 @@ classifiers = [
 
 dependencies = [
     "fpdf2",
-    "grpcio>=1.50.0,<1.74",
+    "grpcio>=1.50.0,<1.75",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
@@ -43,6 +43,7 @@ dependencies = [
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
+    "pydantic>=2.6.4,<2.12",
 ]
 
 [project.optional-dependencies]
@@ -62,9 +63,9 @@ tests = [
     "osmnx>=1.1.0,<2.1",
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
-    "pytest-xdist>=3.5.0,<3.8",
-    "pyvista[io]>=0.38.0,<0.46",
-    "scikit-rf>=0.30.0,<1.8",
+    "pytest-xdist>=3.5.0,<3.9",
+    "pyvista[io]>=0.38.0,<0.47",
+    "scikit-rf>=0.30.0,<1.9",
     "tables",
 ]
 dotnet = [
@@ -74,7 +75,7 @@ dotnet = [
     "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
-    "ansys-sphinx-theme>=1.0.0,<1.5",
+    "ansys-sphinx-theme>=1.0.0,<1.7",
     "jupyter",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
@@ -83,14 +84,14 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
 ]
 graphics = [
     "ansys-tools-visualization-interface",
-    "pyvista[io]>=0.38.0,<0.45",
+    "pyvista[io]>=0.38.0,<0.47",
     "matplotlib>=3.5.0,<3.11",
-    "vtk>=9.0,<9.4",
+    "vtk>=9.0,<9.6",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
@@ -101,11 +102,11 @@ all = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.4",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.8",
+    "scikit-rf>=0.30.0,<1.9",
     "pyaedt[jupyter]",
     "requests",
 ]
@@ -115,11 +116,11 @@ examples = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.4",
-    "pyvista>=0.38.0,<0.45",
+    "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.3",
-    "scikit-rf>=0.30.0,<1.8",
+    "plotly>=6.0,<6.4",
+    "scikit-rf>=0.30.0,<1.9",
 ]
 
 [tool.setuptools.dynamic]
@@ -163,25 +164,12 @@ ignore = [
     "D104", # undocumented-public-package
     "D105", # undocumented-magic-method
     "D106", # undocumented-public-nested-class
-    "D201", # blank-line-before-function
-    "D202", # blank-line-after-function
     "D205", # missing-blank-line-after-summary
-    "D209", # new-line-after-last-paragraph
     "D210", # surrounding-whitespace
-    "D214", # overindented-section
-    "D215", # overindented-section-underline
-    "D300", # triple-single-quotes
     "D301", # escape-sequence-in-docstring
     "D400", # missing-trailing-period
     "D401", # non-imperative-mood
-    "D403", # first-word-uncapitalized
     "D404", # docstring-starts-with-this
-    "D406", # missing-new-line-after-section-name
-    "D407", # missing-dashed-underline-after-section
-    "D409", # mismatched-section-underline-length
-    "D410", # no-blank-line-after-section
-    "D411", # no-blank-line-before-section
-    "D412", # blank-lines-between-header-and-content
     "D414", # empty-docstring-section
     "D419", # empty-docstring
 
@@ -208,7 +196,6 @@ ignore = [
     "PTH108", # os-unlink
     "PTH109", # os-getcwd
     "PTH110", # os-path-exists
-    "PTH111", # os-path-expanduser
     "PTH112", # os-path-isdir
     "PTH113", # os-path-isfile
     "PTH116", # os-stat
@@ -218,16 +205,11 @@ ignore = [
     "PTH122", # os-path-splitext
     "PTH123", # builtin-open 
     "PTH201", # path-constructor-current-directory
-    "PTH204", # os-path-getmtime
     "PTH208", # os-listdir
 
     # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-    "TD001", # invalid-todo-tag
     "TD002", # missing-todo-author
     "TD003", # missing-todo-link
-    "TD004", # missing-todo-colon
-    "TD005", # missing-todo-description
-    "TD006"  # invalid-todo-capitalization
 ]
 
 [tool.ruff.lint.pydocstyle]

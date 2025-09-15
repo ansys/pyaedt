@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
 import time
 
@@ -640,9 +641,6 @@ class TestClass:
         port.properties["Magnitude"] = "5V"
         assert port.properties["Magnitude"] == "5V"
 
-    def test_28_create_scattering(self):
-        assert self.aedtapp.create_scattering()
-
     def test_29_duplicate_material(self):
         self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
@@ -867,6 +865,9 @@ class TestClass:
 
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
+
+        assert pl1.export_image_from_aedtplt(Path(tempfile.gettempdir()))
+
         pl2 = test.post.create_fieldplot_nets(
             ["V3P3_S5"],
             "Mag_E",
@@ -877,6 +878,8 @@ class TestClass:
 
         assert pl2
         assert pl2.export_image_from_aedtplt(tempfile.gettempdir())
+
+        assert pl2.export_image_from_aedtplt(Path(tempfile.gettempdir()))
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self, hfss3dl):
@@ -996,3 +999,7 @@ class TestClass:
 
         # If CS is renamed, it can not be deleted
         assert not cs2.delete()
+
+    def test_create_scattering(self, hfss3dl):
+        hfss3dl.create_setup()
+        assert hfss3dl.create_scattering()

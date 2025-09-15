@@ -60,6 +60,8 @@ class Results:
         self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
+        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+
     @pyaedt_function_handler()
     def _add_revision(self, name=None):
         """Add a new revision or get the current revision if it already exists.
@@ -79,9 +81,22 @@ class Results:
         -------
         ``Revision`` object that was created.
         """
-        revision = Revision(self, self.emit_project, name)
-        self.revisions.append(revision)
-        return revision
+        if self.aedt_version > 251 and name is None:
+            current_revision = None
+            current_revisions = [revision for revision in self.revisions if revision.name == "Current"]
+
+            # Remove existing Current revisions
+            for revision in current_revisions:
+                self.delete_revision("Current")
+
+            # Create and return an updated Current revision
+            current_revision = Revision(self, self.emit_project, name)
+            self.revisions.append(current_revision)
+            return current_revision
+        else:
+            revision = Revision(self, self.emit_project, name)
+            self.revisions.append(revision)
+            return revision
 
     @pyaedt_function_handler()
     def delete_revision(self, revision_name):
@@ -100,17 +115,28 @@ class Results:
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
         """
-        if revision_name in self.design.GetResultList():
-            self.design.DeleteResult(revision_name)
-            if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
-                self.emit_project._emit_api.close()
-                self.current_revision = None
+        if self.aedt_version > 251:
+            if revision_name in self.design.GetKeptResultNames():
+                self.design.DeleteKeptResult(revision_name)
+                if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
+                    self.emit_project._emit_api.close()
+                    self.current_revision = None
             for rev in self.revisions:
                 if revision_name in rev.name:
                     self.revisions.remove(rev)
                     break
-            else:
-                warnings.warn(f"{revision_name} does not exist")
+        else:
+            if revision_name in self.design.GetResultList():
+                self.design.DeleteResult(revision_name)
+                if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
+                    self.emit_project._emit_api.close()
+                    self.current_revision = None
+                for rev in self.revisions:
+                    if revision_name in rev.name:
+                        self.revisions.remove(rev)
+                        break
+                else:
+                    warnings.warn(f"{revision_name} does not exist")
 
     @staticmethod
     def interaction_domain():
@@ -191,6 +217,9 @@ class Results:
             return self.analyze()
         # retrieve the latest revision if nothing specified
         if revision_name is None:
+            if self.aedt_version > 251:
+                return self.current_revision
+
             # unload the current revision and load the latest
             self.current_revision.revision_loaded = False
             self.current_revision = self.revisions[-1]
@@ -204,7 +233,7 @@ class Results:
                 self.current_revision._load_revision()
             else:
                 # might be an old revision that was never loaded by pyaedt
-                aedt_result_list = self.design.GetResultList()
+                aedt_result_list = self.design.GetKeptResultNames()
                 rev = [x for x in aedt_result_list if revision_name == x]
                 if len(rev) > 0:
                     # unload the current revision and load the specified revision
@@ -229,21 +258,28 @@ class Results:
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
         """
-        # No revisions exist, add one
-        if self.current_revision is None:
-            self.current_revision = self._add_revision()
-        # no changes since last created revision, load it
-        elif (
-            self.revisions[-1].revision_number
-            == self.emit_project.desktop_class.active_design(
-                self.emit_project.desktop_class.active_project()
-            ).GetRevision()
-        ):
-            self.get_revision(self.revisions[-1].name)
-        else:
-            # there are changes since the current revision was analyzed, create
-            # a new revision
-            self.current_revision.revision_loaded = False
-            self.current_revision = self._add_revision()
+        if self.aedt_version > 251:
+            if self.current_revision:
+                self.current_revision.revision_loaded = False
 
-        return self.current_revision
+            self.current_revision = self._add_revision()
+            return self.current_revision
+        else:
+            # No revisions exist, add one
+            if self.current_revision is None:
+                self.current_revision = self._add_revision()
+            # no changes since last created revision, load it
+            elif (
+                self.revisions[-1].revision_number
+                == self.emit_project.desktop_class.active_design(
+                    self.emit_project.desktop_class.active_project()
+                ).GetRevision()
+            ):
+                self.get_revision(self.revisions[-1].name)
+            else:
+                # there are changes since the current revision was analyzed, create
+                # a new revision
+                self.current_revision.revision_loaded = False
+                self.current_revision = self._add_revision()
+
+            return self.current_revision

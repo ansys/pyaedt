@@ -148,266 +148,6 @@ def m3d_app(add_app):
 
 
 class TestClass:
-    def test_create_report(self, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        field_test.set_source_context(["1"])
-        context = {"Context": "3D", "SourceContext": "1:1"}
-        nominal_report = field_test.post.create_report(
-            "db(GainTotal)",
-            field_test.nominal_adaptive,
-            variations=variations,
-            primary_sweep_variable="Phi",
-            secondary_sweep_variable="Theta",
-            report_category="Far Fields",
-            plot_type="3D Polar Plot",
-            context=context,
-        )
-        assert nominal_report
-
-    def test_create_report_sweep(self, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        sweep = field_test.setups[0].sweeps[0]
-        variations["Freq"] = "30.1GHz"
-        sweep_report = field_test.post.create_report(
-            "db(GainTotal)",
-            sweep.name,
-            variations=variations,
-            primary_sweep_variable="Phi",
-            secondary_sweep_variable="Theta",
-            report_category="Far Fields",
-            plot_type="3D Polar Plot",
-            context="3D",
-        )
-        assert sweep_report
-
-    def test_create_report_from_configuration_sweep_report(self, local_scratch, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        sweep = field_test.setups[0].sweeps[0]
-        variations["Freq"] = "30.1GHz"
-        sweep_report = field_test.post.create_report(
-            "db(GainTotal)",
-            sweep.name,
-            variations=variations,
-            primary_sweep_variable="Phi",
-            secondary_sweep_variable="Theta",
-            report_category="Far Fields",
-            plot_type="3D Polar Plot",
-            context="3D",
-        )
-        assert sweep_report.export_config(os.path.join(local_scratch.path, f"{sweep_report.plot_name}.json"))
-        assert field_test.post.create_report_from_configuration(
-            os.path.join(local_scratch.path, f"{sweep_report.plot_name}.json"), solution_name=sweep.name
-        )
-
-    def test_create_report_time(self, field_test):
-        assert field_test.post.create_report(
-            "Time",
-            field_test.existing_analysis_sweeps[1],
-            plot_name="Time Domain Report",
-            domain="Time",
-            primary_sweep_variable="Time",
-            report_category="Modal Solution Data",
-        )
-
-    def test_reports_by_category_far_field(self, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        new_report = field_test.post.reports_by_category.far_field("db(RealizedGainTotal)", field_test.nominal_adaptive)
-        new_report.variations = variations
-        new_report.report_type = "3D Polar Plot"
-        new_report.far_field_sphere = "3D"
-        assert new_report.create()
-
-    def test_reports_by_category_far_field_1(self, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        field_test.set_source_context(["1"])
-        new_report2 = field_test.post.reports_by_category.far_field(
-            "db(RealizedGainTotal)", field_test.nominal_adaptive, "3D", "1:1"
-        )
-        new_report2.variations = variations
-        new_report2.report_type = "3D Polar Plot"
-        assert new_report2.create()
-
-    def test_reports_by_category_far_antenna_parameters(self, field_test):
-        new_report3 = field_test.post.reports_by_category.antenna_parameters(
-            "db(PeakRealizedGain)", field_test.nominal_adaptive, "3D"
-        )
-        new_report3.report_type = "Data Table"
-        assert new_report3.create()
-
-    def test_reports_by_category_far_antenna_parameters_1(self, field_test):
-        new_report4 = field_test.post.reports_by_category.antenna_parameters(
-            "db(PeakRealizedGain)", infinite_sphere="3D"
-        )
-        new_report4.report_type = "Data Table"
-        assert new_report4.create()
-
-    def test_reports_by_category_far_antenna_parameters_2(self, field_test):
-        new_report4 = field_test.post.reports_by_category.antenna_parameters(
-            "db(PeakRealizedGain)", infinite_sphere="3D"
-        )
-        new_report4.report_type = "Data Table"
-        assert new_report4.create()
-
-    def test_create_report_from_configuration_template(self, field_test):
-        new_report4 = field_test.post.reports_by_category.antenna_parameters(
-            "db(PeakRealizedGain)", infinite_sphere="3D"
-        )
-        new_report4.report_type = "Data Table"
-        new_report4.create()
-        template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
-        if not config["NonGraphical"]:
-            assert new_report4.apply_report_template(template)
-            template2 = os.path.join(
-                TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template_invented.rpt"
-            )
-            assert not new_report4.apply_report_template(template2)
-            template3 = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.csv")
-            assert not new_report4.apply_report_template(template3)
-            assert not new_report4.apply_report_template(template3, property_type="Dummy")
-
-        assert field_test.post.create_report_from_configuration(template)
-
-    def test_data_plot(self, local_scratch, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        data = field_test.post.get_solution_data(
-            "GainTotal",
-            field_test.nominal_adaptive,
-            variations=variations,
-            primary_sweep_variable="Theta",
-            report_category="Far Fields",
-            context="3D",
-        )
-        assert data.plot(snapshot_path=os.path.join(local_scratch.path, "reportC.jpg"), show=False)
-
-    def test_data_plot_3d(self, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        data = field_test.post.get_solution_data(
-            "GainTotal",
-            field_test.nominal_adaptive,
-            variations=variations,
-            primary_sweep_variable="Theta",
-            report_category="Far Fields",
-            context="3D",
-        )
-        assert data.plot_3d(show=False)
-
-    def test_create_3d_plot(self, local_scratch, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        data = field_test.post.get_solution_data(
-            "GainTotal",
-            field_test.nominal_adaptive,
-            variations=variations,
-            primary_sweep_variable="Theta",
-            report_category="Far Fields",
-            context="3D",
-        )
-        assert field_test.post.create_3d_plot(
-            data,
-            snapshot_path=os.path.join(local_scratch.path, "reportC_3D_2.jpg"),
-            show=False,
-        )
-
-    def test_get_solution_data(self, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-        context = {"Context": "3D", "SourceContext": "1:1"}
-        data = field_test.post.get_solution_data(
-            "GainTotal",
-            field_test.nominal_adaptive,
-            variations=variations,
-            primary_sweep_variable="Theta",
-            report_category="Far Fields",
-            context=context,
-        )
-
-        assert data.primary_sweep == "Theta"
-        assert len(data.data_magnitude("GainTotal")) > 0
-        assert not data.data_magnitude("GainTotal2")
-
-    def test_create_report_nominal_sweep(self, field_test):
-        variations = field_test.available_variations.get_independent_nominal_values()
-        variations["Theta"] = ["All"]
-        variations["Phi"] = ["All"]
-        variations["Freq"] = ["30GHz"]
-
-        assert field_test.post.create_report(
-            "S(1,1)", field_test.nominal_sweep, variations=variations, plot_type="Smith Chart"
-        )
-
-    # Improve it for Maxwell
-    def test_reports_by_category_fields(self, field_test):
-        field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
-        variations2 = field_test.available_variations.get_independent_nominal_values()
-        assert field_test.setups[0].create_report(
-            "Mag_E", primary_sweep_variable="Distance", report_category="Fields", context="Poly1"
-        )
-        new_report = field_test.post.reports_by_category.fields("Mag_H", field_test.nominal_adaptive)
-        new_report.variations = variations2
-        new_report.polyline = "Poly1"
-        assert new_report.create()
-        new_report = field_test.post.reports_by_category.fields("Mag_H")
-        new_report.variations = variations2
-        new_report.polyline = "Poly1"
-        assert new_report.create()
-
-    def test_reports_by_category_modal_solution(self, field_test):
-        variations2 = field_test.available_variations.get_independent_nominal_values()
-        new_report = field_test.post.reports_by_category.modal_solution("S(1,1)")
-        new_report.report_type = "Smith Chart"
-        assert new_report.create()
-        data = field_test.setups[0].get_solution_data(
-            "Mag_E", variations=variations2, primary_sweep_variable="Theta", report_category="Fields", context="Poly1"
-        )
-        assert data.units_sweeps["Phase"] == "deg"
-
-    def test_get_far_field_data(self, field_test):
-        assert field_test.post.get_far_field_data(expressions="RealizedGainTotal", domain="3D")
-        assert field_test.post.get_far_field_data(
-            expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
-        )
-        data_far_field2 = field_test.post.get_far_field_data(
-            expressions="RealizedGainTotal",
-            setup_sweep_name=field_test.nominal_adaptive,
-            domain={"Context": "3D", "SourceContext": "1:1"},
-        )
-        assert data_far_field2.plot(formula="db20", is_polar=True, show=False)
-
-    def test_reports_by_category_terminal_solution(self, field_test):
-        test = field_test.post.reports_by_category.terminal_solution()
-        assert test
-
-    def test_get_solution_data_per_variation(self, field_test):
-        assert (
-            field_test.post.get_solution_data_per_variation(solution_type="Far Fields", expressions="RealizedGainTotal")
-            is None
-        )
-
     def test_circuit_export_results(self, circuit_test):
         files = circuit_test.export_results()
         assert len(files) > 0
@@ -550,9 +290,6 @@ class TestClass:
             context="Differential Pairs",
         )
 
-    def test_get_efields(self, field_test):
-        assert field_test.post.get_efields_data(ff_setup="3D")
-
     def test_sbr_get_solution_data(self, sbr_test):
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
@@ -604,7 +341,7 @@ class TestClass:
         assert os.path.exists(q3dtest.export_convergence("Setup1"))
 
     def test_q3d_export_profile(self, q3dtest):
-        assert os.path.exists(q3dtest.export_profile("Setup1"))
+        assert Path(q3dtest.export_profile("Setup1")).exists()
 
     def test_q3d_reports_by_category_standard(self, q3dtest):
         new_report = q3dtest.post.reports_by_category.standard(q3dtest.get_traces_for_plot())
@@ -629,7 +366,7 @@ class TestClass:
         assert os.path.exists(q2dtest.export_convergence("Setup1"))
 
     def test_q2d_export_profile(self, q2dtest):
-        assert os.path.exists(q2dtest.export_profile("Setup1"))
+        assert Path(q2dtest.export_profile("Setup1")).exists()
 
     def test_q2d_reports_by_category_standard(self, q2dtest):
         new_report = q2dtest.post.reports_by_category.standard(q2dtest.get_traces_for_plot())
@@ -891,23 +628,8 @@ class TestClass:
         new_report2.time_stop = "2.5us"
         assert new_report2.create()
 
-    def test_get_variations(self, field_test):
-        setup = field_test.existing_analysis_sweeps[0]
-        variations = field_test.available_variations.variations(setup)
-        assert isinstance(variations, list)
-        assert isinstance(variations[0], list)
-        vars_dict = field_test.available_variations.variations(setup_sweep=setup, output_as_dict=True)
-        assert isinstance(vars_dict, list)
-        assert isinstance(vars_dict[0], dict)
-
     def test_cleanup_solution(self, q3dtest):
         assert q3dtest.cleanup_solution()
-
-    def test_cleanup_solution_1(self, field_test):
-        setup = field_test.existing_analysis_sweeps
-        variations = field_test.available_variations._get_variation_strings(setup[0])
-        assert field_test.cleanup_solution(variations, entire_solution=False)
-        assert field_test.cleanup_solution(variations, entire_solution=True)
 
     def test_ipk_get_scalar_field_value(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(

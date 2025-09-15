@@ -45,12 +45,25 @@ Starting from 2023R2, buttons are available in the Automation Tab as in the exam
 
 If you have installation problems, visit :ref:`Troubleshooting<panel_error>`.
 
+You can watch the following video to see how to install PyAEDT:
+
+.. raw:: html
+
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/c-zl8iMjP4M?si=zpdREiZhzODW-kW1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 
 Extension manager
 ~~~~~~~~~~~~~~~~~
 
-The user can install or uninstall automated workflows using the extension manager.
-There are three options:
+The **PyAEDT Extension Manager** provides a centralized interface for accessing, launching, and managing automation workflows directly within AEDT.
+
+From this window, you can:
+
+- Browse and launch **project-level toolkits** organized by design type.
+- Add **custom extensions** from your local environment.
+- Control whether extensions appear in the **AEDT Automation ribbon** for quick access.
+
+There are three types of extensions supported:
 
 - **Pre-installed extensions** already available in the PyAEDT library.
 
@@ -64,16 +77,34 @@ See `Extension Manager <https://aedt.docs.pyansys.com/version/stable/User_guide/
   :width: 800
   :alt: PyAEDT toolkit manager 1
 
-The user can select the AEDT application to install the specific workflow.
+Each extension tile shows its name, icon, and a **Launch** button.
+Extensions that are not currently linked to the AEDT ribbon show a muted icon.
+Pinned extensions are marked and appears in the corresponding AEDT design ribbon tab.
+
+
+Selecting the **Custom** tile in the Extension Manager opens a dialog where you can add your own PyAEDT-based extension.
 
 .. image:: ../Resources/toolkit_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
-Once the toolkit is installed, its icon only appears in the ribbon when you either create a new design or open an existing one that is compatible with the toolkit. Toolkit icons are visible only within the corresponding design environment.
+In the dialog, you can:
+
+- **Browse for a Python script** that implements the extension behavior.
+- **Optionally leave the script path empty**. If no script is provided, a default extension script is automatically generated using a predefined template.
+
+You must also specify an **Extension Name**, which appears in the AEDT Automation.
+
+Once configured, click **OK** to register the extension. It then appears alongside other extensions in the manager interface.
+
+A message bar at the bottom provides real-time feedback about actions, such as launching extensions or errors.
 
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
+
+.. raw:: html
+
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/Et-mLCzaGno?si=TBzxvkhqg6Ep0_yR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 
 Version manager
@@ -141,7 +172,7 @@ Finally, in the Python console, run the following commands:
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
 
-- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.1").
+- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.2").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT.
 - If you use your PersonalLib, the PyAEDT icons are installed at user level in the AEDT ribbon.
 - If you use the syslib, the PyAEDT icons are installed at application level in the AEDT ribbon.
@@ -197,7 +228,7 @@ Finally, in the Python console, run the following commands:
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
 
-- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.1").
+- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.2").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT, depending if you want to install the PyAEDT icons at user level or application level.
 - You can skip the installation of the version manager by specifying the extra argument skip_version_manager=True:
 

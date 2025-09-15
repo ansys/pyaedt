@@ -7,6 +7,7 @@ name = "Fields distribution"
 script = "fields_distribution.py"
 icon = "images/large/fields_distribution.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/maxwell/fields_distribution.html"
 
 [CoilDesignGeometry]
 name = "Create coil design geometry"

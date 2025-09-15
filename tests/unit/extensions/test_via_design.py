@@ -98,7 +98,7 @@ def conditional_open(file=None, mode="r", *args, **kwargs):
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_via_design_extension_default(mock_desktop):
-    """Test instantiation of the Advanced Fields Calculator extension."""
+    """Test instantiation of the Via Design extension."""
     mock_desktop.return_value = MagicMock()
 
     extension = ViaDesignExtension(withdraw=True)
@@ -113,10 +113,8 @@ def test_via_design_extension_default(mock_desktop):
 
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("builtins.open", side_effect=conditional_open)
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_select_configuration_example(mock_desktop, mock_file_open, mock_asksaveasfilename):
+def test_via_design_extension_select_configuration_example(mock_file_open, mock_asksaveasfilename):
     """Test saving examples configuration success"""
-
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
     extension = ViaDesignExtension(withdraw=True)
@@ -135,14 +133,14 @@ def test_via_design_extension_select_configuration_example(mock_desktop, mock_fi
 
 @patch("tkinter.filedialog.askopenfilename", return_value=MOCK_EXAMPLE_PATH)
 @patch("builtins.open", side_effect=conditional_open)
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_create_design_failure(mock_desktop, mock_file_open, mock_askopenfilename):
+def test_via_design_extension_create_design_failure(mock_file_open, mock_askopenfilename):
     """Test create design with non existing file"""
     extension = ViaDesignExtension(withdraw=True)
 
     button = extension.root.nametowidget(".!frame.button_create_design")
     with pytest.raises(TclError):
         button.invoke()
+    extension.root.destroy()
 
 
 @patch("tkinter.filedialog.askopenfilename")
@@ -164,15 +162,19 @@ def test_via_design_extension_create_design_sucess(
     button.invoke()
 
     mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_ui(mock_desktop):
-    """Test that the default values of the UI are set correctly."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ViaDesignExtension(withdraw=False)
-    extension.root.update()
     extension.root.destroy()
 
-    assert extension.data is None
+
+@patch("tkinter.filedialog.asksaveasfilename")
+def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
+    """Test the examples provided in the via design extension."""
+    extension = ViaDesignExtension(withdraw=True)
+
+    for example in EXPORT_EXAMPLES:
+        example_name = example.toml_file_path.stem
+        button = extension.root.nametowidget(f".!notebook.!frame.button_{example_name}")
+        path = tmp_path / f"{example_name}.toml"
+        mock_asksaveasfilename.return_value = path
+        button.invoke()
+        assert path.is_file()
+    extension.root.destroy()

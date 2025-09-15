@@ -3,7 +3,6 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
-#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -22,165 +21,154 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
 
-import ansys.aedt.core
+from dataclasses import dataclass
+import os
+from pathlib import Path
+import tkinter
+from tkinter import filedialog
+from tkinter import ttk
+
 from ansys.aedt.core import Circuit
-import ansys.aedt.core.extensions
+from ansys.aedt.core import Desktop
+from ansys.aedt.core.extensions.misc import ExtensionCircuitCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+# Retrieve environment info
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
-# Extension batch arguments
-extension_arguments = {"asc_file": ""}
-extension_description = "Import schematic to Circuit"
+# Extension batch arguments and title
+EXTENSION_DEFAULT_ARGUMENTS = {"file_extension": ""}
+EXTENSION_TITLE = "Import schematic to Circuit"
 
 
-def frontend():  # pragma: no cover
-    import tkinter
-    from tkinter import filedialog
-    from tkinter import ttk
+@dataclass
+class ImportSchematicData(ExtensionCommonData):
+    """Data class for import schematic extension."""
 
-    import PIL.Image
-    import PIL.ImageTk
+    file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
 
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    master = tkinter.Tk()
-    master.title(extension_description)
+class ImportSchematicExtension(ExtensionCircuitCommon):
+    """Extension for importing schematic into Circuit."""
 
-    # Detect if user closes the UI
-    master.flag = False
-
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
-
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
-
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
-
-    # Apply light theme initially
-    theme.apply_light_theme(style)
-    master.theme = "light"
-
-    # Set background color of the window (optional)
-    master.configure(bg=theme.light["widget_bg"])
-
-    label2 = ttk.Label(master, text="Browse file:", style="PyAEDT.TLabel")
-    label2.grid(row=0, column=0, pady=10, padx=10)
-
-    text = tkinter.Text(master, width=40, height=1)
-    text.grid(row=0, column=1, pady=10, padx=5)
-    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-
-    def browse_asc_folder():
-        inital_dir = text.get("1.0", tkinter.END).strip()
-        filename = filedialog.askopenfilename(
-            initialdir=Path(inital_dir).parent if inital_dir else "/",
-            title="Select configuration file",
-            filetypes=(("LTSPice file", "*.asc"), ("Spice file", "*.cir *.sp"), ("Qcv file", "*.qcv")),
+    def __init__(self, withdraw: bool = False):
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=1,
+            toggle_column=2,
         )
-        text.insert(tkinter.END, filename)
+        self._text_widget = None
+        self.add_extension_content()
 
-    b1 = ttk.Button(master, text="...", width=10, command=browse_asc_folder, style="PyAEDT.TButton")
-    b1.grid(row=0, column=2, pady=10)
+    def add_extension_content(self):
+        """Add UI elements for file selection and import action."""
+        label = ttk.Label(
+            self.root,
+            text="Browse file:",
+            style="PyAEDT.TLabel",
+        )
+        label.grid(row=0, column=0, padx=15, pady=10)
 
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
-        else:
-            set_light_theme()
-            master.theme = "light"
+        self._text_widget = tkinter.Text(
+            self.root,
+            width=40,
+            height=1,
+        )
+        self._text_widget.grid(row=0, column=1, padx=5, pady=10)
 
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263d")  # Sun icon for light theme
+        def browse_file():
+            current = self._text_widget.get(
+                "1.0",
+                tkinter.END,
+            ).strip()
+            initial = Path(current).parent if current else Path.home()
+            filename = filedialog.askopenfilename(
+                initialdir=initial,
+                title="Select schematic file",
+                filetypes=(
+                    ("LTSPice file", "*.asc"),
+                    ("Spice file", "*.cir *.sp"),
+                    ("Qcv file", "*.qcv"),
+                ),
+            )
+            if filename:
+                self._text_widget.delete("1.0", tkinter.END)
+                self._text_widget.insert(tkinter.END, filename)
 
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        theme.apply_dark_theme(style)
-        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+        browse_button = ttk.Button(
+            self.root,
+            text="...",
+            width=10,
+            command=browse_file,
+            style="PyAEDT.TButton",
+        )
+        browse_button.grid(row=0, column=2, padx=10, pady=10)
 
-    # Create a frame for the toggle button to position it correctly
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=1, column=2, pady=10, padx=10)  # Place it in the second row, third column
+        def callback():
+            file_extension = self._text_widget.get(
+                "1.0",
+                tkinter.END,
+            ).strip()
+            if not Path(file_extension).exists():
+                raise ValueError("File does not exist.")
+            self.data = ImportSchematicData(file_extension=file_extension)
+            self.root.destroy()
 
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(button_frame, text="\u263d", command=toggle_theme, style="PyAEDT.TButton")
-    change_theme_button.grid(row=0, column=0, padx=0)
-
-    def callback():
-        master.flag = True
-        master.asc_path_ui = text.get("1.0", tkinter.END).strip()
-        master.destroy()
-
-    b3 = ttk.Button(master, text="Import", width=40, command=callback, style="PyAEDT.TButton")
-    b3.grid(row=1, column=1, pady=10, padx=10)
-
-    tkinter.mainloop()
-
-    asc_file_ui = getattr(master, "asc_path_ui", extension_arguments["asc_file"])
-
-    output_dict = {}
-    if master.flag:
-        output_dict = {
-            "asc_file": asc_file_ui,
-        }
-    return output_dict
+        import_button = ttk.Button(
+            self.root,
+            text="Import",
+            width=40,
+            command=callback,
+            style="PyAEDT.TButton",
+        )
+        import_button.grid(row=1, column=1, padx=10, pady=10)
 
 
-def main(extension_args):
-    asc_file = Path(extension_args["asc_file"])
-    if not asc_file.exists():
-        raise Exception("File does not exist.")
-
-    app = ansys.aedt.core.Desktop(
+def main(data: ImportSchematicData) -> bool:
+    """Execute schematic import based on provided data."""
+    file_extension = Path(data.file_extension)
+    app = Desktop(
         new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
+    cir = Circuit(design=file_extension.stem)
 
-    cir = Circuit(design=asc_file.stem)
+    if file_extension.suffix == ".asc":
+        cir.create_schematic_from_asc_file(str(file_extension))
+    elif file_extension.suffix in {".sp", ".cir"}:
+        cir.create_schematic_from_netlist(str(file_extension))
+    elif file_extension.suffix == ".qcv":
+        cir.create_schematic_from_mentor_netlist(str(file_extension))
 
-    if asc_file.suffix == ".asc":
-        cir.create_schematic_from_asc_file(str(asc_file))
-    elif asc_file.suffix in {".sp", ".cir"}:
-        cir.create_schematic_from_netlist(str(asc_file))
-    elif asc_file.suffix == ".qcv":
-        cir.create_schematic_from_mentor_netlist(str(asc_file))
-    if not extension_args["is_test"]:  # pragma: no cover
+    if "PYTEST_CURRENT_TEST" not in os.environ:
         app.release_desktop(False, False)
     return True
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(extension_arguments, extension_description)
-
-    # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-            main(args)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
+    if not args.get("is_batch", False):
+        extension = ImportSchematicExtension(withdraw=False)
+        tkinter.mainloop()
+        if extension.data:
+            main(extension.data)
     else:
-        main(args)
+        data = ImportSchematicData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)

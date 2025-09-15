@@ -8,6 +8,7 @@ airgap
 (?i)Ansys
 API
 autosave
+autoplay
 beamforming
 brd
 busbar
@@ -22,6 +23,7 @@ COM interface
 [Cc]omponents
 Conda
 CPython
+cutout_type
 DesignXploration
 docstring
 [Dd]ocstrings
@@ -31,10 +33,12 @@ EDB
 EDT
 efields
 EMIT
+expansion_factor
 fanout
 FEBI
 FE-BI
 file_path
+fix_disjoints
 FRTM
 getters
 Github

@@ -29,6 +29,7 @@ from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.emit_core.couplings import CouplingsEmit
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_enum
+from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
 from ansys.aedt.core.emit_core.results.results import Results
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.schematic import ModelerEmit
@@ -55,7 +56,7 @@ class Emit(Design, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -95,7 +96,7 @@ class Emit(Design, object):
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
 
-    >>> aedtapp = Emit(projectname, designame, version=251)
+    >>> aedtapp = Emit(projectname, designame, version=252)
 
     Once an ``Emit`` instance is initialized, you can edit the schematic:
 
@@ -172,6 +173,7 @@ class Emit(Design, object):
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
+        self._schematic = EmitSchematic(self)
         if self._aedt_version > "2023.1":
             # the next 2 lines of code are needed to point
             # the EMIT object to the correct EmiApiPython
@@ -184,12 +186,6 @@ class Emit(Design, object):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
-
-            # set the default units here to make sure the EmitApi level
-            # stays synced with pyaedt
-            unit_types = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
-            unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "Ohm"]
-            self.set_units(unit_types, unit_values)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -215,6 +211,17 @@ class Emit(Design, object):
             Couplings within the EMIT Design
         """
         return self._couplings
+
+    @property
+    def schematic(self):
+        """EMIT Schematic.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.emit_core.emit_schematic.EmitSchematic`
+            EMIT schematic.
+        """
+        return self._schematic
 
     @pyaedt_function_handler()
     def version(self, detailed=False):
@@ -265,7 +272,6 @@ class Emit(Design, object):
             ``True`` if the units were successfully changed and ``False``
             if there was an error.
         """
-
         if isinstance(unit_type, list):
             for t, v in zip(unit_type, unit_value):
                 if t not in EMIT_VALID_UNITS:
