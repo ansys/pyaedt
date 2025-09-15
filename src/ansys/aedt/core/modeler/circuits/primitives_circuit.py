@@ -355,7 +355,7 @@ class CircuitComponents(object):
             self.logger.warning("Port name already assigned.")
             return False
 
-        xpos, ypos = self._get_location(location)
+        xpos, ypos = self._get_location(location, update_current_location=False)
 
         arg1 = ["NAME:IPortProps", "Name:=", name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
