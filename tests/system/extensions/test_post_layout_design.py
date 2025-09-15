@@ -180,3 +180,49 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
         post_layout_design.main(data)
 
     h3d.close_project()
+
+
+def test_layout_design_toolkit_microvia(add_app, local_scratch):
+    """Test microvia creation with conical shape."""
+    file_path = os.path.join(
+        local_scratch.path, "ANSYS-HSD_V1_microvia.aedb"
+    )
+
+    local_scratch.copyfolder(
+        os.path.join(
+            extensions_local_path,
+            "example_models",
+            "T45",
+            "ANSYS-HSD_V1.aedb",
+        ),
+        file_path,
+    )
+
+    h3d = add_app(
+        file_path,
+        application=ansys.aedt.core.Hfss3dLayout,
+        just_open=True,
+    )
+    h3d.save_project()
+
+    # Get valid padstack definition from the design
+    pedb = h3d.modeler.primitives.edb
+    available_padstacks = list(pedb.padstacks.definitions.keys())
+    pedb.close()
+
+    # Skip test if no padstacks available
+    if not available_padstacks:
+        pytest.skip("No padstack definitions available in test model")
+
+    # Create data object with microvia parameters
+    data = PostLayoutDesignExtensionData(
+        action="microvia",
+        selections=[available_padstacks[0]],  # Use first available
+        angle=75.0,
+        signal_only=True,
+        split_via=False,
+    )
+
+    # Call main function
+    result = post_layout_design.main(data)
+    assert result is True
