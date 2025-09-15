@@ -190,8 +190,8 @@ def test_layout_design_toolkit_microvia(add_app, local_scratch):
         os.path.join(
             extensions_local_path,
             "example_models",
-            "T45",
-            "ANSYS-HSD_V1.aedb",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
         ),
         file_path,
     )
