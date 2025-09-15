@@ -83,8 +83,8 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
         os.path.join(
             extensions_local_path,
             "example_models",
-            "T45",
-            "ANSYS-HSD_V1.aedb",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
         ),
         file_path,
     )
@@ -99,7 +99,7 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
     # Create data object with antipad parameters
     data = PostLayoutDesignExtensionData(
         action="antipad",
-        selections=["Via79", "Via78"],
+        selections=["Via1138", "Via1136"],
         radius="1mm",
         race_track=True,
     )
@@ -119,8 +119,8 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
         os.path.join(
             extensions_local_path,
             "example_models",
-            "T45",
-            "ANSYS-HSD_V1.aedb",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
         ),
         file_path,
     )
@@ -135,7 +135,7 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
     # Create data object with antipad parameters (no racetrack)
     data = PostLayoutDesignExtensionData(
         action="antipad",
-        selections=["Via1", "Via2"],
+        selections=["Via1138", "Via1136"],
         radius="1mm",
         race_track=False,
     )
@@ -155,8 +155,8 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
         os.path.join(
             extensions_local_path,
             "example_models",
-            "T45",
-            "ANSYS-HSD_V1.aedb",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
         ),
         file_path,
     )
