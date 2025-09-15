@@ -205,7 +205,7 @@ def test_layout_design_toolkit_microvia(add_app, local_scratch):
 
     # Get valid padstack definition from the design
     pedb = h3d.modeler.primitives.edb
-    available_padstacks = list(pedb.padstacks.definitions.keys())
+    available_padstacks = ["v40h20-1"]
     pedb.close()
 
     # Skip test if no padstacks available
