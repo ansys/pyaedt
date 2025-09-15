@@ -106,6 +106,7 @@ def m2d_setup(add_app):
 
 
 class TestClass:
+
     def test_assign_initial_mesh_from_slider(self, aedtapp):
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
         with pytest.raises(ValueError):
@@ -143,6 +144,23 @@ class TestClass:
         bound_name = ansys.aedt.core.generate_unique_name("Coil")
         bound = aedtapp.assign_coil(assignment=["Coil"], name=bound_name)
         assert bound_name == bound.name
+
+
+    def test_assign_coil_group(self, aedtapp):
+        coil1 = aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Coil_1", material="copper")
+        coil2 = aedtapp.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2", material="copper")
+        coil3 = aedtapp.modeler.create_rectangle([10, 0, 0], [3, 1], name="Coil_3", material="copper")
+        coil_group = aedtapp.assign_coil_group(assignment=[coil1.name, coil2.name, coil3.name])
+        assert coil_group
+        assert coil_group.type == "CoilGroup"
+        coil_group2 = aedtapp.assign_coil_group(
+            assignment=[coil1.name, coil2.name],
+            coil_group_name="TestGroup",
+            conductors_number=2,
+            polarity="Negative"
+        )
+        assert coil_group2.name == "TestGroup"
+        assert coil_group2.props.get("ConductorNumber", coil_group2.props.get("Conductor number")) == "2"
 
     def test_create_vector_potential(self, aedtapp):
         region = aedtapp.modeler["Region"]

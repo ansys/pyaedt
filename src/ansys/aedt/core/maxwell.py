@@ -1422,6 +1422,109 @@ class Maxwell(CreateBoundaryMixin):
                 raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
 
         return self._create_boundary(name, props, bound_type)
+    
+
+    @pyaedt_function_handler()
+    def assign_coil_group(self, assignment, coil_group_name=None, conductors_number=1, polarity="Positive"):
+        """Assign multiple coil objects to a coil group boundary.
+
+        This method groups several coil objects together under one boundary definition
+        so the solver treats them as a single logical coil entity.
+
+        Parameters
+        ----------
+        assignment : list
+            List of coil boundary names (e.g., ["Coil_n_1", "Coil_n_2", "Coil_n_3"]) or objects/faces.
+        coil_group_name : str, optional
+            Name of the coil group boundary. The default is ``None``,
+            in which case a random name is automatically generated.
+        conductors_number : int, optional
+            Number of conductors. The default is ``1``.
+        polarity : str, optional
+            Type of polarity. Options are ``"Positive"`` and ``"Negative``.
+            The default is ``"Positive"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+        >>> oModule.AssignCoilGroup
+
+        Examples
+        --------
+        Create rectangles and assign a coil group boundary to them.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> coil1 = m2d.modeler.create_rectangle([0, 0, 0], [3, 1], name="Coil_1")
+        >>> coil2 = m2d.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2")
+        >>> CoilGroup = m2d.assign_coil_group([coil1, coil2], "CoilGroupExample")
+        >>> m2d.release_desktop(True, True)
+
+        Assign coil group boundary using existing coil names.
+
+        >>> coil_names = ["Coil_n_1", "Coil_n_2", "Coil_n_3"]
+        >>> CoilGroup = m2d.assign_coil_group(coil_names, "MyCoilGroup")
+        >>> m2d.release_desktop(True, True)
+        """
+
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+
+       
+        boundary_names = self.modeler.get_boundaries_name()
+        is_coil_names = all(isinstance(item, str) and item in boundary_names for item in assignment)
+        
+        if is_coil_names:
+            
+            if not coil_group_name:
+                coil_group_name = generate_unique_name("CoilGroup")
+            elif coil_group_name in boundary_names:
+                coil_group_name = generate_unique_name(coil_group_name)
+            
+            self.oboundary.AssignCoilGroup(assignment, coil_group_name)
+            return self.modeler.get_boundaries_name()[coil_group_name] if coil_group_name in self.modeler.get_boundaries_name() else True
+        else:
+           
+            assignment = self.modeler.convert_to_selections(assignment, True)
+
+            if not coil_group_name:
+                coil_group_name = generate_unique_name("CoilGroup")
+            elif coil_group_name in boundary_names:
+                coil_group_name = generate_unique_name(coil_group_name)
+            terminal_names = []
+            for i, obj in enumerate(assignment, 1):
+                terminal_names.append(f"{coil_group_name}_{i}")
+
+            if self.design_type == "Maxwell 3D":
+                if isinstance(assignment[0], str):
+                    props = {
+                        "Objects": assignment,
+                        "Conductor number": str(conductors_number),
+                        "Point out of terminal": polarity.lower() != "positive",
+                        "TerminalNames": terminal_names  
+                    }
+                else:
+                    props = {
+                        "Faces": assignment,
+                        "Conductor number": str(conductors_number),
+                        "Point out of terminal": polarity.lower() != "positive",
+                        "TerminalNames": terminal_names
+                    }
+            else:
+                if not isinstance(assignment[0], str):
+                    raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
+                props = {
+                    "Objects": assignment,
+                    "Conductor number": str(conductors_number),
+                    "PolarityType": polarity.lower(),
+                    "TerminalNames": terminal_names  
+                }
+
+            return self._create_boundary(coil_group_name, props, "CoilGroup")
 
     @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
