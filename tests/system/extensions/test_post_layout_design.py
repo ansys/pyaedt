@@ -184,9 +184,7 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
 
 def test_layout_design_toolkit_microvia(add_app, local_scratch):
     """Test microvia creation with conical shape."""
-    file_path = os.path.join(
-        local_scratch.path, "ANSYS-HSD_V1_microvia.aedb"
-    )
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_microvia.aedb")
 
     local_scratch.copyfolder(
         os.path.join(
