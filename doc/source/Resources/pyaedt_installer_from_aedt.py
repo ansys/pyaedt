@@ -260,10 +260,6 @@ def install_pyaedt():
         else:
             subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)  # nosec
 
-        # Install uv in the virtual environment
-        print("Installing uv in the virtual environment...")
-        subprocess.run([str(pip_exe), "install", "uv"], check=True)  # nosec
-
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
             unzipped_path = unzip_if_zip(Path(args.wheel))
@@ -277,8 +273,12 @@ def install_pyaedt():
                 command.append("pyaedt[all,dotnet]=='0.9.0'")
             else:
                 command.append("pyaedt[all]")
-            subprocess.run(command, check=True)  # nosec
+            subprocess.run(command, check=True, env=env)  # nosec
         else:
+            # Install uv in the virtual environment
+            print("Installing uv in the virtual environment...")
+            subprocess.run([str(pip_exe), "install", "uv"], check=True, env=env)  # nosec
+
             print("Installing PyAEDT using online sources with uv...")
             subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
             subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
@@ -291,13 +291,13 @@ def install_pyaedt():
                 subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
 
         if args.version <= "231":
-            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True)  # nosec
+            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True, env=env)  # nosec
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
         # Ensure uv is installed in the venv
-        subprocess.run([str(pip_exe), "install", "uv"], check=True)  # nosec
-        subprocess.call([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True)  # nosec
+        subprocess.run([str(pip_exe), "install", "uv"], check=True, env=env)  # nosec
+        subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True, env=env)  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
@@ -312,7 +312,7 @@ def install_pyaedt():
                 command.append("pyaedt[all,dotnet]=='0.9.0'")
             else:
                 command.append("pyaedt[all]")
-            subprocess.run(command, check=True)  # nosec
+            subprocess.run(command, check=True, env=env)  # nosec
         else:
             print("Installing PyAEDT using online sources with uv...")
             if args.version <= "231":
