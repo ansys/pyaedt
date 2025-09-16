@@ -42,6 +42,8 @@ dependencies = [
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
     "pydantic>=2.6.4,<2.12",
+    # Needed for extensions
+    "pillow>=10,<12"
 ]
 
 [project.optional-dependencies]
