@@ -338,7 +338,7 @@ def install_pyaedt():
         else:
             # Install uv in the virtual environment
             print("Installing uv in the virtual environment...")
-            subprocess.run([str(pip_exe), "install", "uv"], check=True, env=env)  # nosec
+            subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
 
             print("Installing PyAEDT using online sources with uv...")
             subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
@@ -387,7 +387,7 @@ def install_pyaedt():
             subprocess.run(command, check=True, env=env)  # nosec
         else:
             # Ensure uv is installed in the venv
-            subprocess.run([str(pip_exe), "install", "uv"], check=True, env=env)  # nosec
+            subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
             subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True, env=env)  # nosec
             
             print("Installing PyAEDT using online sources with uv...")
