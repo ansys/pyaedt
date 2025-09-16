@@ -144,6 +144,11 @@ class TestClass:
         bound = aedtapp.assign_coil(assignment=["Coil"], name=bound_name)
         assert bound_name == bound.name
 
+    def test_assign_coilgroup(self, aedtapp):
+        bound = aedtapp.assign_coil_group(assignment=["Coil", "Coil_1"])
+        assert bound
+        polarity = "Positive"
+
     def test_create_vector_potential(self, aedtapp):
         region = aedtapp.modeler["Region"]
         edge_object = region.edges[0]
@@ -192,6 +197,8 @@ class TestClass:
         assert force.delete()
         force = aedtapp.assign_force(assignment="Magnet2_Section1", force_name="Force_Test")
         assert force.name == "Force_Test"
+
+    
 
     def test_assign_current_source(self, m2d_app):
         coil = m2d_app.modeler.create_circle(
