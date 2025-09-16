@@ -264,7 +264,8 @@ def install_pyaedt():
             print("Installing PyAEDT using provided wheels argument")
             unzipped_path = unzip_if_zip(Path(args.wheel))
             command = [
-                str(uv_exe), "pip", "install",
+                str(pip_exe),
+                "install",
                 "--no-cache-dir",
                 "--no-index",
                 r"--find-links={}".format(str(unzipped_path)),
@@ -295,15 +296,13 @@ def install_pyaedt():
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
-        # Ensure uv is installed in the venv
-        subprocess.run([str(pip_exe), "install", "uv"], check=True, env=env)  # nosec
-        subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True, env=env)  # nosec
-
+        
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
             unzipped_path = unzip_if_zip(Path(args.wheel))
             command = [
-                str(uv_exe), "pip", "install",
+                str(pip_exe),
+                "install",
                 "--no-cache-dir",
                 "--no-index",
                 r"--find-links={}".format(str(unzipped_path)),
@@ -314,6 +313,10 @@ def install_pyaedt():
                 command.append("pyaedt[all]")
             subprocess.run(command, check=True, env=env)  # nosec
         else:
+            # Ensure uv is installed in the venv
+            subprocess.run([str(pip_exe), "install", "uv"], check=True, env=env)  # nosec
+            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True, env=env)  # nosec
+            
             print("Installing PyAEDT using online sources with uv...")
             if args.version <= "231":
                 subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
