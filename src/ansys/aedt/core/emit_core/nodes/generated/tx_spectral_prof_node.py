@@ -38,6 +38,11 @@ class TxSpectralProfNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_narrowband_emissions_mask(self):
         """Add a Transmitter Narrowband Emission Profile"""
         return self._add_child_node("Narrowband Emissions Mask")
