@@ -30,14 +30,12 @@ readme = "README.md"
 requires-python = ">=3.10,<4"
 
 dependencies = [
-  "fpdf2",
   "grpcio>=1.50.0,<1.75",
   "jsonschema",
   "psutil",
   "pyedb>=0.24.0,!=0.28.0",
   "tomli; python_version < '3.11'",
   "tomli-w",
-  "rpyc>=6.0.0,<6.1",
   "pyyaml",
   "defusedxml>=0.7,<8.0",
   "numpy>=1.20.0,<2.3",
@@ -57,6 +55,8 @@ all = [
   "scikit-rf>=0.30.0,<1.9",
   "pyaedt[jupyter]",
   "requests",
+  "fpdf2",
+  "rpyc>=6.0.0,<6.1",
   "uv>=0.8.17",
 ]
 doc = [
@@ -71,6 +71,8 @@ doc = [
   "sphinx_design>=0.4.0,<0.7",
   "pyvista[io]>=0.38.0,<0.47",
   "ansys-tools-visualization-interface",
+  "fpdf2",
+  "rpyc>=6.0.0,<6.1",
 ]
 dotnet = [
   "ansys-pythonnet>=3.1.0rc3",
@@ -89,12 +91,15 @@ examples = [
   "joblib>=1.4.0,<1.6",
   "plotly>=6.0,<6.4",
   "scikit-rf>=0.30.0,<1.9",
+  "fpdf2",
+  "rpyc>=6.0.0,<6.1",
 ]
 graphics = [
   "ansys-tools-visualization-interface",
   "pyvista[io]>=0.38.0,<0.47",
   "matplotlib>=3.5.0,<3.11",
   "vtk>=9.0,<9.6",
+  "fpdf2",
 ]
 integration-tests = [
   "matplotlib>=3.5.0,<3.11",
@@ -115,11 +120,13 @@ tests = [
   "pyvista[io]>=0.38.0,<0.47",
   "scikit-rf>=0.30.0,<1.9",
   "tables",
+  "rpyc>=6.0.0,<6.1",
 ]
 unit-tests = [
   "pytest>=7.4.0,<8.5",
   "pytest-cov>=4.0.0,<6.3",
   "mock>=5.1.0,<5.3",
+  "fpdf2",
 ]
 
 [tool.setuptools.dynamic]
@@ -262,14 +269,12 @@ checks = [
   "GL09", # Deprecation warning should precede extended summary
   "GL10", # reST directives {directives} must be followed by two colons  # Return
   "RT04", # Return value description should start with a capital letter"
-  "RT05", # Return value description should finish with "."
-  # Summary
+  "RT05", # Return value description should finish with "."  # Summary
   "SS01", # No summary found
   "SS02", # Summary does not start with a capital letter
   "SS03", # Summary does not end with a period
   "SS04", # Summary contains heading whitespaces
-  "SS05", # Summary must start with infinitive verb, not third person
-  # Parameters
+  "SS05", # Summary must start with infinitive verb, not third person  # Parameters
   "PR10", # Parameter "{param_name}" requires a space before the colon
   # separating the parameter name and type",
 ]
