@@ -44,10 +44,10 @@ class AMIConturEyeDiagram(CommonReport):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Time"
         self._legacy_props["report_type"] = "Rectangular Contour Plot"
-        self.variations.pop("Time", None)
-        self._legacy_props["context"]["variations"]["__UnitInterval"] = ["All"]
-        self._legacy_props["context"]["variations"]["__Amplitude"] = ["All"]
-        self._legacy_props["context"]["variations"]["__EyeOpening"] = ["0"]
+
+        vars = {i: k for i, k in self._legacy_props["context"]["variations"].items() if i not in ["Time", "Frequency"]}
+        self.variations = {"__UnitInterval": "All", "__Amplitude": "All", "__EyeOpening": ["0"]}
+        self.variations.update(vars)
         self._legacy_props["context"]["primary_sweep"] = "__UnitInterval"
         self._legacy_props["context"]["secondary_sweep"] = "__Amplitude"
         self.quantity_type = 0
@@ -478,9 +478,11 @@ class AMIEyeDiagram(CommonReport):
         self.domain = "Time"
         if report_category == "Statistical Eye":
             self._legacy_props["report_type"] = "Statistical Eye Plot"
-            self.variations.pop("Time", None)
-            self.variations["__UnitInterval"] = "All"
-            self.variations["__Amplitude"] = "All"
+            self.variations = {i: k for i, k in self.variations.items() if i != "Time"}
+            vars = {i: k for i, k in self._legacy_props["context"]["variations"].items()}
+            self.variations = {"__UnitInterval": "All", "__Amplitude": "All"}
+            self.variations.update(vars)
+
         self.unit_interval = "0s"
         self.offset = "0ms"
         self.auto_delay = True
@@ -948,9 +950,10 @@ class AMIEyeDiagram(CommonReport):
             y_units,
         ]
         mask_points = ["NAME:MaskPoints"]
-        for point in points:
-            mask_points.append(point[0])
-            mask_points.append(point[1])
+        if points:
+            for point in points:
+                mask_points.append(point[0])
+                mask_points.append(point[1])
         arg.append(mask_points)
         args = ["NAME:ChangedProps", arg]
         args.append(["NAME:Mask Fill Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
