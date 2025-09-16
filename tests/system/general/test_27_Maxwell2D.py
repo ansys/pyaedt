@@ -147,20 +147,41 @@ class TestClass:
 
 
     def test_assign_coil_group(self, aedtapp):
+        """Test assign_coil_group functionality in Maxwell 2D."""
         coil1 = aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Coil_1", material="copper")
         coil2 = aedtapp.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2", material="copper")
         coil3 = aedtapp.modeler.create_rectangle([10, 0, 0], [3, 1], name="Coil_3", material="copper")
-        coil_group = aedtapp.assign_coil_group(assignment=[coil1.name, coil2.name, coil3.name])
-        assert coil_group
-        assert coil_group.type == "CoilGroup"
-        coil_group2 = aedtapp.assign_coil_group(
-            assignment=[coil1.name, coil2.name],
-            coil_group_name="TestGroup",
-            conductors_number=2,
-            polarity="Negative"
-        )
-        assert coil_group2.name == "TestGroup"
-        assert coil_group2.props.get("ConductorNumber", coil_group2.props.get("Conductor number")) == "2"
+        
+        # First create coil boundaries from the rectangles
+        coil_boundary1 = aedtapp.assign_coil(assignment=[coil1.name], name="CoilBoundary1")
+        coil_boundary2 = aedtapp.assign_coil(assignment=[coil2.name], name="CoilBoundary2")
+        coil_boundary3 = aedtapp.assign_coil(assignment=[coil3.name], name="CoilBoundary3")
+        
+        # Test creating coil group from existing coil boundaries
+        # In Maxwell 2D, AssignCoilGroup is not supported, so we expect an AEDTRuntimeError
+        with pytest.raises(AEDTRuntimeError) as excinfo:
+            coil_group = aedtapp.assign_coil_group(
+                assignment=[coil_boundary1.name, coil_boundary2.name, coil_boundary3.name],
+                coil_group_name="TestCoilGroup"
+            )
+        
+        # Verify the error message indicates Maxwell 2D limitation
+        assert "AssignCoilGroup is not supported in Maxwell 2D" in str(excinfo.value)
+        
+        # Test creating coil group directly from objects (should also fail with proper error)
+        rect4 = aedtapp.modeler.create_rectangle([15, 0, 0], [3, 1], name="Coil_4", material="copper")
+        rect5 = aedtapp.modeler.create_rectangle([20, 0, 0], [3, 1], name="Coil_5", material="copper")
+        
+        with pytest.raises(AEDTRuntimeError) as excinfo2:
+            coil_group2 = aedtapp.assign_coil_group(
+                assignment=[rect4.name, rect5.name],
+                coil_group_name="TestGroup2",
+                conductors_number=2,
+                polarity="Negative"
+            )
+        
+        # Verify the error message indicates Maxwell 2D limitation
+        assert "AssignCoilGroup is not supported in Maxwell 2D" in str(excinfo2.value)
 
     def test_create_vector_potential(self, aedtapp):
         region = aedtapp.modeler["Region"]

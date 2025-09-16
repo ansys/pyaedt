@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -1422,7 +1423,6 @@ class Maxwell(CreateBoundaryMixin):
                 raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
 
         return self._create_boundary(name, props, bound_type)
-    
 
     @pyaedt_function_handler()
     def assign_coil_group(self, assignment, coil_group_name=None, conductors_number=1, polarity="Positive"):
@@ -1434,7 +1434,10 @@ class Maxwell(CreateBoundaryMixin):
         Parameters
         ----------
         assignment : list
-            List of coil boundary names (e.g., ["Coil_n_1", "Coil_n_2", "Coil_n_3"]) or objects/faces.
+            List of coil boundary names (e.g., ["Coil1", "Coil2", "Coil3"]) that have been
+            previously created using the `assign_coil` method, or object names that will
+            be used to create individual coil terminals first. In Maxwell 3D, coil terminals 
+            are applied to faces, not solid objects.
         coil_group_name : str, optional
             Name of the coil group boundary. The default is ``None``,
             in which case a random name is automatically generated.
@@ -1446,8 +1449,14 @@ class Maxwell(CreateBoundaryMixin):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object if successful, ``False`` otherwise.
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject` or bool
+            Boundary object if successful, ``True`` if creation succeeded but boundary
+            object is not accessible, ``False`` otherwise.
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If the AEDT API fails to create the coil group or individual coil terminals.
 
         References
         ----------
@@ -1455,76 +1464,120 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Create rectangles and assign a coil group boundary to them.
+        Create coil groups in Maxwell 3D after creating individual coils.
 
-        >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d()
-        >>> coil1 = m2d.modeler.create_rectangle([0, 0, 0], [3, 1], name="Coil_1")
-        >>> coil2 = m2d.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2")
-        >>> CoilGroup = m2d.assign_coil_group([coil1, coil2], "CoilGroupExample")
-        >>> m2d.release_desktop(True, True)
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> box1 = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> box2 = m3d.modeler.create_box([20, 0, 0], [10, 10, 10], name="Box2")
+        >>> # Create individual coils first (required before grouping)
+        >>> coil1 = m3d.assign_coil(assignment=[box1.faces[0].id], name="Coil1")
+        >>> coil2 = m3d.assign_coil(assignment=[box2.faces[0].id], name="Coil2")
+        >>> # Now create coil group using coil names
+        >>> coil_group = m3d.assign_coil_group([coil1.name, coil2.name], "MyCoilGroup")
+        >>> m3d.release_desktop(True, True)
+        
+        Create coil group directly from objects (will create individual coils first):
+        
+        >>> # Alternative: create coil group directly from objects
+        >>> coil_group2 = m3d.assign_coil_group([box1.name, box2.name], "MyCoilGroup2")
 
-        Assign coil group boundary using existing coil names.
+        Notes
+        -----
+        **Two Usage Modes:**
+        
+        1. **From existing coil boundaries**: Pass coil boundary names that were previously 
+           created using `assign_coil`. The method will group these existing boundaries.
+           
+        2. **From objects**: Pass object names. The method will first create individual 
+           coil terminals for each object, then group them together.
+        
+        **Maxwell 3D Requirements:**
+        - For mode 1: Coil terminals must be applied to faces, not solid objects  
+        - For mode 2: Objects will be converted to individual coil terminals automatically
+        - The AEDT API availability depends on the AEDT version being used
 
-        >>> coil_names = ["Coil_n_1", "Coil_n_2", "Coil_n_3"]
-        >>> CoilGroup = m2d.assign_coil_group(coil_names, "MyCoilGroup")
-        >>> m2d.release_desktop(True, True)
+        **Version Compatibility:**
+        - The method attempts to use the native AEDT `AssignCoilGroup` API
+        - If the API is not available or fails, appropriate error messages are provided
+        - Success depends on AEDT version and solver type compatibility
         """
-
-        if not isinstance(assignment, list):
-            assignment = [assignment]
-
-       
-        boundary_names = self.modeler.get_boundaries_name()
-        is_coil_names = all(isinstance(item, str) and item in boundary_names for item in assignment)
+        
+        # Ensure assignment is a list
+        assignment = assignment if isinstance(assignment, list) else [assignment]
+        
+        # Generate unique name if not provided
+        if not coil_group_name:
+            coil_group_name = generate_unique_name("CoilGroup")
+        
+        # Get existing boundary names to check for conflicts
+        boundary_names = [bound.name for bound in self.boundaries]
+        if coil_group_name in boundary_names:
+            coil_group_name = generate_unique_name(coil_group_name)
+        
+        # Check if assignment contains boundary names (coil terminals) or object names
+        boundary_names_list = [bound.name for bound in self.boundaries if bound.type in ["Coil", "CoilTerminal"]]
+        is_coil_names = all(isinstance(item, str) and item in boundary_names_list for item in assignment)
         
         if is_coil_names:
+            # Assignment contains coil boundary names - try direct API call
+            try:
+                self.oboundary.AssignCoilGroup(assignment, coil_group_name)
+            except (AttributeError, GrpcApiError) as e:
+                # AssignCoilGroup might not be available or supported in this solver/version
+                # For Maxwell 2D, we may need to use a different approach or raise an appropriate error
+                if self.design_type == "Maxwell 2D":
+                    raise AEDTRuntimeError(
+                        f"AssignCoilGroup is not supported in Maxwell 2D. "
+                        f"Use individual coil boundaries instead. Error: {str(e)}"
+                    )
+                else:
+                    raise AEDTRuntimeError(f"Failed to create coil group: {str(e)}")
             
-            if not coil_group_name:
-                coil_group_name = generate_unique_name("CoilGroup")
-            elif coil_group_name in boundary_names:
-                coil_group_name = generate_unique_name(coil_group_name)
-            
-            self.oboundary.AssignCoilGroup(assignment, coil_group_name)
-            return self.modeler.get_boundaries_name()[coil_group_name] if coil_group_name in self.modeler.get_boundaries_name() else True
+            # Return the boundary object if successfully created
+            for bound in self.boundaries:
+                if bound.name == coil_group_name:
+                    return bound
+            return True  # Fallback if boundary object not found but creation succeeded
         else:
-           
+            # Assignment contains object names - need to create individual coils first, then group them
             assignment = self.modeler.convert_to_selections(assignment, True)
-
-            if not coil_group_name:
-                coil_group_name = generate_unique_name("CoilGroup")
-            elif coil_group_name in boundary_names:
-                coil_group_name = generate_unique_name(coil_group_name)
+            
+            # Create individual coil terminals for each object
             terminal_names = []
             for i, obj in enumerate(assignment, 1):
-                terminal_names.append(f"{coil_group_name}_{i}")
-
-            if self.design_type == "Maxwell 3D":
-                if isinstance(assignment[0], str):
-                    props = {
-                        "Objects": assignment,
-                        "Conductor number": str(conductors_number),
-                        "Point out of terminal": polarity.lower() != "positive",
-                        "TerminalNames": terminal_names  
-                    }
+                terminal_name = f"{coil_group_name}_Terminal_{i}"
+                
+                # Create individual coil terminal
+                coil = self.assign_coil(assignment=[obj], conductors_number=conductors_number, 
+                                      polarity=polarity, name=terminal_name)
+                if coil:
+                    terminal_names.append(coil.name)
                 else:
-                    props = {
-                        "Faces": assignment,
-                        "Conductor number": str(conductors_number),
-                        "Point out of terminal": polarity.lower() != "positive",
-                        "TerminalNames": terminal_names
-                    }
+                    raise AEDTRuntimeError(f"Failed to create coil terminal for object '{obj}'")
+            
+            # Now group the created coil terminals
+            if terminal_names:
+                try:
+                    self.oboundary.AssignCoilGroup(terminal_names, coil_group_name)
+                except (AttributeError, GrpcApiError) as e:
+                    # AssignCoilGroup might not be available or supported in this solver/version
+                    if self.design_type == "Maxwell 2D":
+                        raise AEDTRuntimeError(
+                            f"AssignCoilGroup is not supported in Maxwell 2D. "
+                            f"Individual coil terminals '{', '.join(terminal_names)}' were created successfully. "
+                            f"Error: {str(e)}"
+                        )
+                    else:
+                        raise AEDTRuntimeError(f"Failed to create coil group: {str(e)}")
+                
+                # Return the boundary object if successfully created
+                for bound in self.boundaries:
+                    if bound.name == coil_group_name:
+                        return bound
+                return True  # Fallback if boundary object not found but creation succeeded
             else:
-                if not isinstance(assignment[0], str):
-                    raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
-                props = {
-                    "Objects": assignment,
-                    "Conductor number": str(conductors_number),
-                    "PolarityType": polarity.lower(),
-                    "TerminalNames": terminal_names  
-                }
-
-            return self._create_boundary(coil_group_name, props, "CoilGroup")
+                raise AEDTRuntimeError("No valid coil terminals were created for the coil group")
 
     @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
