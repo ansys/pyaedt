@@ -264,7 +264,6 @@ class TestClass:
         bound.delete()
         assert len(aedtapp.boundaries_by_type["Band"]) == 1
 
-
     def test_change_inductance_computation(self, aedtapp):
         assert aedtapp.change_inductance_computation()
         assert aedtapp.change_inductance_computation(True, False)
