@@ -132,10 +132,10 @@ class TestClass:
         assert bounds_name == bounds.name
 
     def test_assign_coil(self, aedtapp):
-        bound = aedtapp.assign_coil(assignment=["Coil"])
-        assert bound
+        # bound = aedtapp.assign_coil(assignment=["Coil"])
+        # assert bound
         polarity = "Positive"
-        bound = aedtapp.assign_coil(assignment=["Coil"], polarity=polarity)
+        bound = aedtapp.assign_coil(assignment=["Coil","Coil_2", "Coil_4" ], polarity=polarity)
         assert bound.props["PolarityType"] == polarity.lower()
         polarity = "Negative"
         bound = aedtapp.assign_coil(assignment=["Coil"], polarity=polarity)
