@@ -194,19 +194,64 @@ def parse_arguments_for_pyaedt_installer(args=None):
 
 
 def unzip_if_zip(path):
-    """Unzip path if it is a ZIP file."""
-    import zipfile
+    """Unzip path if it is a ZIP file into a temporary directory.
 
-    # Extracted folder
-    unzipped_path = path
-    if path.suffix == ".zip":
-        unzipped_path = path.parent / path.stem
-        if unzipped_path.exists():
-            shutil.rmtree(unzipped_path, ignore_errors=True)
-        with zipfile.ZipFile(path, "r") as zip_ref:
-            # Extract all contents to a directory. (You can specify a different extraction path if needed.)
-            zip_ref.extractall(unzipped_path)
-    return unzipped_path
+    If the zip contains nested zip files, extract them recursively until there
+    are no more zip files inside. Returns the directory from the last
+    extraction step (contains the wheels). If no nested zips were
+    extracted, returns the top-level temp dir. If the provided path is not a
+    zip file, the original Path is returned.
+    """
+    import zipfile
+    import tempfile
+    import shutil
+    from pathlib import Path
+
+    path = Path(path)
+    # If not a zip file, return as-is
+    if not path.is_file() or path.suffix.lower() != ".zip":
+        return path
+
+    # Create a dedicated temporary directory for extraction
+    top_dir = Path(tempfile.mkdtemp(prefix="pyaedt_unzip_"))
+
+    # Extract the top-level zip into the temp dir
+    with zipfile.ZipFile(path, "r") as zip_ref:
+        zip_ref.extractall(top_dir)
+
+    # Track the last directory we extracted into
+    last_unzipped = None
+
+    # Recursively find and extract any nested zip files until none remain
+    while True:
+        # Find all .zip files under the extracted tree
+        nested_zips = list(top_dir.rglob("*.zip"))
+        if not nested_zips:
+            break
+        for zpath in nested_zips:
+            try:
+                # Extract each nested zip into a folder next to the zip file
+                target_dir = zpath.with_suffix("")
+                if target_dir.exists():
+                    shutil.rmtree(target_dir)
+                with zipfile.ZipFile(zpath, "r") as zf:
+                    zf.extractall(target_dir)
+                # remember this as the last unzipped folder
+                last_unzipped = target_dir
+            finally:
+                # Remove the nested zip file so it won't be processed again
+                try:
+                    zpath.unlink()
+                except Exception:
+                    # If we cannot remove the zip, continue anyway
+                    pass
+
+    # If we performed any nested extraction, return the last one
+    if last_unzipped is not None and last_unzipped.exists():
+        return last_unzipped
+
+    # Otherwise return the top-level extraction directory
+    return top_dir
 
 
 def install_pyaedt():
