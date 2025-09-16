@@ -260,7 +260,7 @@ class CircuitComponents(object):
         return [i / AEDT_UNITS["Length"][self.schematic_units] for i in self._convert_point_to_meter(point)]
 
     @pyaedt_function_handler()
-    def _get_location(self, location=None):
+    def _get_location(self, location=None, update_current_location=True):
         locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
         if not location:
             xpos = self.current_position[0]
@@ -268,11 +268,14 @@ class CircuitComponents(object):
         else:
             xpos, ypos = self._convert_point_to_meter(location)
             if isinstance(xpos, (float, int)) and isinstance(ypos, (float, int)):
-                self.current_position = [xpos, ypos]
-        self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
-        if self.current_position[1] / AEDT_UNITS["Length"]["mil"] > self.limits_mils:
-            self.current_position[1] = 0
-            self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
+                if update_current_location:
+                    self.current_position = [xpos, ypos]
+
+        if update_current_location:
+            self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
+            if self.current_position[1] / AEDT_UNITS["Length"]["mil"] > self.limits_mils:
+                self.current_position[1] = 0
+                self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
         return xpos, ypos
 
     @pyaedt_function_handler()
@@ -352,7 +355,7 @@ class CircuitComponents(object):
             self.logger.warning("Port name already assigned.")
             return False
 
-        xpos, ypos = self._get_location(location)
+        xpos, ypos = self._get_location(location, update_current_location=False)
 
         arg1 = ["NAME:IPortProps", "Name:=", name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
@@ -392,7 +395,7 @@ class CircuitComponents(object):
         >>> oEditor.CreatePagePort
         """
         location = [] if location is None else location
-        xpos, ypos = self._get_location(location)
+        xpos, ypos = self._get_location(location, update_current_location=False)
 
         # id = self.create_unique_id()
         comp_name = self.oeditor.CreatePagePort(
