@@ -42,8 +42,6 @@ dependencies = [
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
     "pydantic>=2.6.4,<2.12",
-    # Needed for extensions
-    "pillow>=10,<12"
 ]
 
 [project.optional-dependencies]
@@ -51,6 +49,7 @@ unit-tests = [
     "pytest>=7.4.0,<8.5",
     "pytest-cov>=4.0.0,<6.3",
     "mock>=5.1.0,<5.3",
+    "fpdf2",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
@@ -67,7 +66,6 @@ tests = [
     "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.9",
     "tables",
-    "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
 dotnet = [
