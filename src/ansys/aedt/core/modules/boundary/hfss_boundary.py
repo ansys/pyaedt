@@ -532,7 +532,7 @@ class NearFieldSetup(FieldSetup, object):
         FieldSetup.__init__(self, app, component_name, props, component_type)
 
 
-class WavePortObject(BoundaryObject):
+class WavePort(BoundaryObject):
     """Manages HFSS Wave Port boundary objects.
 
     This class provides specialized functionality for wave port

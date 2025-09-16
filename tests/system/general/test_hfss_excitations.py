@@ -22,7 +22,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-"""Tests for HFSS excitations, particularly WavePortObject functionality."""
+"""Tests for HFSS excitations, particularly WavePort functionality."""
 
 import pytest
 
