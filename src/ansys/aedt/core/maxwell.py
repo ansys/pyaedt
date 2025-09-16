@@ -1404,6 +1404,18 @@ class Maxwell(CreateBoundaryMixin):
                 )
                 bound_type = "CoilTerminal"
             else:
+                bound_objects = {"Objects": assignment}
+
+            if len(assignment) > 1:
+                coil_group_names = []
+                for x in range(0, len(assignment)):
+                    coil_group_names.append(name + f"_{str(x + 1)}")
+                bound_name = coil_group_names[0]
+                props = {"items": coil_group_names, bound_name: bound_objects}
+                bound_type = "CoilGroup"
+            
+            else:
+
                 props = dict(
                     {
                         "Objects": assignment,
