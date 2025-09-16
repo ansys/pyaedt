@@ -548,7 +548,7 @@ class WavePort(BoundaryObject):
     >>> wave_port.set_analytical_alignment(True)
     """
 
-    def __init__(self, app, name, props, btype):
+    def __init__(self, app, name, props=None):
         """Initialize a wave port boundary object.
 
         Parameters
@@ -557,12 +557,10 @@ class WavePort(BoundaryObject):
             The AEDT application instance.
         name : str
             Name of the boundary.
-        props : dict
+        props : dict, optional
             Dictionary of boundary properties.
-        btype : str
-            Type of the boundary.
         """
-        super().__init__(app, name, props, btype)
+        super().__init__(app, name, props, "Wave Port")
 
     @pyaedt_function_handler()
     def set_analytical_alignment(

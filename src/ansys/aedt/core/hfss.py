@@ -254,7 +254,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         # Wave Port cases - return WavePort
         if boundary_type == "Wave Port":
             try:
-                bound = WavePort(self, name, props, boundary_type)
+                bound = WavePort(self, name, props)
                 if not bound.create():
                     raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
