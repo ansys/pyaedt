@@ -569,6 +569,35 @@ class WavePort(BoundaryObject):
         super().__init__(app, name, props, "Wave Port")
 
     @property
+    def assignment(self) -> Union[str, int]:
+        """Wave port object assignment.
+
+        Returns
+        -------
+        str or int
+            Object assignment.
+        """
+        value = None
+        if "Assignment" in self.properties:
+            value = self.properties["Assignment"]
+            if "Face_" in value:
+                value = [int(i.replace("Face_", "")) for i in value.split("(")[1].split(")")[0].split(",")][0]
+        return value
+
+    @property
+    def modes(self) -> int:
+        """Number of modes.
+
+        Returns
+        -------
+        int
+        """
+        value = None
+        if "Num Modes" in self.properties:
+            value = self.properties["Num Modes"]
+        return value
+
+    @property
     def specify_wave_direction(self) -> bool:
         """Enable specify wave direction.
 
@@ -603,6 +632,26 @@ class WavePort(BoundaryObject):
         return value
 
     @property
+    def use_deembed(self) -> bool:
+        """Use dembedding.
+
+        Returns
+        -------
+        bool
+            Use dembedding.
+        """
+        value = None
+        if "Deembed" in self.properties:
+            value = self.properties["Deembed"]
+        return value
+
+    @use_deembed.setter
+    def use_deembed(self, value: bool):
+        if not isinstance(value, bool) or self.use_deembed is None:
+            raise AEDTRuntimeError("Use dembedding must be a boolean.")
+        self.properties["Deembed"] = value
+
+    @property
     def deembed(self) -> Union[Quantity, None]:
         """Dembedding distance.
 
@@ -612,22 +661,20 @@ class WavePort(BoundaryObject):
             Whether de-embedding is enabled.
         """
         value = None
-        if "Deembed" in self.properties:
-            value_deemb = self.properties["Deembed"]
-            if value_deemb:
-                value = Quantity(self.properties["Deembed Dist"])
+        if self.use_deembed:
+            value = Quantity(self.properties["Deembed Dist"])
         return value
 
     @deembed.setter
     def deembed(self, value: Optional[Union[Quantity, float, int, str, bool]]):
         if value is None or value is False:
-            self.properties["Deembed"] = False
+            self.use_deembed = False
         elif value is True:
-            self.properties["Deembed"] = True
+            self.use_deembed = True
             self.properties["Deembed Dist"] = str("0.0mm")
         else:
-            if not self.properties["Deembed"]:
-                self.properties["Deembed"] = True
+            if not self.use_deembed:
+                self.use_deembed = True
             if not isinstance(value, Quantity):
                 value = Quantity(self._app.value_with_units(value))
             self.properties["Deembed Dist"] = str(value)
@@ -707,56 +754,228 @@ class WavePort(BoundaryObject):
             raise ValueError("Renorm Impedance must have resistance units.")
         self.properties["Renorm Imped"] = str(value)
 
-    # @pyaedt_function_handler()
-    # def deembed_distance(
-    #     self, distance: Optional[Union[Quantity, str, float]] = 0.0,
-    # ):
-    #     """Set the deembeding distance.
-    #
-    #     Parameters
-    #     ----------
-    #     distance
-    #         Deembeding distance.
-    #
-    #     Returns
-    #     -------
-    #     bool
-    #         True if the operation was successful, False otherwise.
-    #
-    #     Examples
-    #     --------
-    #     >>> u_line = [[0, 0, 0], [1, 0, 0]]
-    #     >>> wave_port.set_analytical_alignment(u_line, analytic_reverse_v=True)
-    #     True
-    #     """
-    #     self.properties["Deembed"] = True
-    #     props = [
-    #         "NAME:ChangedProps",
-    #         [
-    #             "NAME:Deembed Dist",
-    #             "Value:=", str(distance),
-    #         ]
-    #     ]
-    #     return self._change_property(props)
-    #
-    # @pyaedt_function_handler()
-    # def _change_property(self, arg):
-    #     """Update properties of the mesh operation.
-    #
-    #     Parameters
-    #     ----------
-    #     arg : list
-    #         List of the properties to update. For example,
-    #         ``["NAME:ChangedProps", ["NAME:Max Length", "Value:=", "2mm"]]``.
-    #
-    #     Returns
-    #     -------
-    #     list
-    #         List of changed properties of the mesh operation.
-    #
-    #     """
-    #     arguments = ["NAME:AllTabs", ["NAME:HfssTab", ["NAME:PropServers", f"BoundarySetup:{self.name}"], arg]]
-    #     self._app.odesign.ChangeProperty(arguments)
+    @property
+    def rlc_type(self) -> str:
+        """Get the RLC type property.
+
+        Returns
+        -------
+        str
+            RLC type.
+        """
+        value = None
+        if "RLC Type" in self.properties:
+            value = self.properties["RLC Type"]
+        return value
+
+    @rlc_type.setter
+    def rlc_type(self, value):
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("RLC Type can be set only if Renorm Impedance Type is 'RLC'.")
+        allowed_types = ["Serial", "Parallel"]
+        if value not in allowed_types:
+            raise ValueError(f"RLC Type must be one of {allowed_types}.")
+        self.properties["RLC Type"] = value
+
+    @property
+    def use_resistance(self) -> bool:
+        """Use resistance.
+
+        Returns
+        -------
+        bool
+            Use resistance.
+        """
+        # This property can not be disabled
+        value = None
+        if "Use Resistance" in self.properties:
+            value = self.properties["Use Resistance"]
+        return value
+
+    @property
+    def resistance(self) -> Quantity:
+        """Resistance value.
+
+        Returns
+        -------
+        Quantity or None
+            Resistance value.
+        """
+        value = None
+        if self.use_resistance:
+            value = Quantity(self.properties["Resistance Value"])
+        return value
+
+    @resistance.setter
+    def resistance(self, value: Optional[Union[Quantity, float, int, str]]):
+        if self.renorm_impedance_type == "RLC":
+            if not isinstance(value, Quantity):
+                value = Quantity(self._app.value_with_units(value, units_system="Resistance"))
+            if value.unit not in AEDT_UNITS["Resistance"]:
+                raise ValueError("Renorm Impedance must have resistance units.")
+            self.properties["Resistance Value"] = str(value)
+
+    @property
+    def use_inductance(self) -> bool:
+        """Use inductance.
+
+        Returns
+        -------
+        bool
+            Use inductance.
+        """
+        value = None
+        if "Use Inductance" in self.properties:
+            value = self.properties["Use Inductance"]
+        return value
+
+    @use_inductance.setter
+    def use_inductance(self, value: bool):
+        if not isinstance(value, bool) or self.use_inductance is None:
+            raise AEDTRuntimeError("Use inductance must be a boolean.")
+        self.properties["Use Inductance"] = value
+
+    @property
+    def inductance(self) -> Quantity:
+        """Inductance value.
+
+        Returns
+        -------
+        Quantity or None
+            Inductance value.
+        """
+        value = None
+        if self.use_inductance:
+            value = Quantity(self.properties["Use Inductance"])
+        return value
+
+    @inductance.setter
+    def inductance(self, value: Optional[Union[Quantity, float, int, str, bool]]):
+        if value is None or value is False:
+            self.use_inductance = False
+        elif value is True:
+            self.use_inductance = True
+            self.properties["Inductance value"] = str("0.0nH")
+        else:
+            if not self.use_inductance:
+                self.use_inductance = True
+
+            if not isinstance(value, Quantity):
+                value = Quantity(self._app.value_with_units(value, units_system="Inductance"))
+            if value.unit not in AEDT_UNITS["Inductance"]:
+                raise ValueError("Inductance must have inductance units.")
+
+            self.properties["Inductance value"] = str(value)
+
+    @property
+    def use_capacitance(self) -> bool:
+        """Use capacitance.
+
+        Returns
+        -------
+        bool
+            Use capacitance.
+        """
+        value = None
+        if "Use Capacitance" in self.properties:
+            value = self.properties["Use Capacitance"]
+        return value
+
+    @use_capacitance.setter
+    def use_capacitance(self, value: bool):
+        if not isinstance(value, bool) or self.use_capacitance is None:
+            raise AEDTRuntimeError("Use capacitance must be a boolean.")
+        self.properties["Use Capacitance"] = value
+
+    @property
+    def capacitance(self) -> Quantity:
+        """Capacitance value.
+
+        Returns
+        -------
+        Quantity or None
+            Capacitance value.
+        """
+        value = None
+        if self.use_capacitance:
+            value = Quantity(self.properties["Use Capacitance"])
+        return value
+
+    @capacitance.setter
+    def capacitance(self, value: Optional[Union[Quantity, float, int, str, bool]]):
+        if value is None or value is False:
+            self.use_capacitance = False
+        elif value is True:
+            self.use_capacitance = True
+            self.properties["Capactiance value"] = str("0.0nF")
+        else:
+            if not self.use_capacitance:
+                self.use_capacitance = True
+
+            if not isinstance(value, Quantity):
+                value = Quantity(self._app.value_with_units(value, units_system="Capacitance"))
+            if value.unit not in AEDT_UNITS["Capacitance"]:
+                raise ValueError("Capacitance must have inductance units.")
+
+            self.properties["Capacitance value"] = str(value)
+
+    @property
+    def filter_modes_reporter(self):
+        """Get the reporter filter setting for each mode.
+
+        Returns
+        -------
+        list of bool
+            List of boolean values indicating whether each mode is
+            filtered in the reporter.
+        """
+        return self.props["ReporterFilter"]
+
+    @filter_modes_reporter.setter
+    def filter_modes_reporter(self, value):
+        """Set the reporter filter setting for wave port modes.
+
+        Parameters
+        ----------
+        value : bool or list of bool
+            Boolean value(s) to set for the reporter filter. If a
+            single boolean is provided, it will be applied to all
+            modes. If a list is provided, it must match the number
+            of modes.
+
+        Examples
+        --------
+        >>> # Set all modes to be filtered
+        >>> wave_port.filter_modes_reporter = True
+
+        >>> # Set specific filter values for each mode
+        >>> wave_port.filter_modes_reporter = [True, False, True]
+        """
+        try:
+            num_modes = self.properties["Num Modes"]
+            show_reporter_filter = True
+            if isinstance(value, bool):
+                # Single boolean value - apply to all modes
+                filter_values = [value] * num_modes
+                # In case all values are the same, we hide the Reporter Filter
+                show_reporter_filter = False
+            elif isinstance(value, list):
+                # List of boolean values
+                if not all(isinstance(v, bool) for v in value):
+                    raise ValueError("All values in the list must be boolean.")
+                if len(value) != num_modes:
+                    raise ValueError(f"List length ({len(value)}) must match the number of modes ({num_modes}).")
+                filter_values = value
+            else:
+                raise ValueError("Value must be a boolean or a list of booleans.")
+            self.props["ShowReporterFilter"] = show_reporter_filter
+            # Apply the filter values to each mode
+            self.props["ReporterFilter"] = filter_values
+
+            self.update()
+        except Exception as e:
+            self._app.logger.error(f"Failed to set filter modes reporter: {str(e)}")
+            raise
 
     @pyaedt_function_handler()
     def set_analytical_alignment(
@@ -1075,239 +1294,3 @@ class WavePort(BoundaryObject):
         except Exception as e:
             self._app.logger.error(f"Failed to set polarity integration lines: {str(e)}")
             return False
-
-    @property
-    def filter_modes_reporter(self):
-        """Get the reporter filter setting for each mode.
-
-        Returns
-        -------
-        list of bool
-            List of boolean values indicating whether each mode is
-            filtered in the reporter.
-        """
-        return self.props["ReporterFilter"]
-
-    @filter_modes_reporter.setter
-    def filter_modes_reporter(self, value):
-        """Set the reporter filter setting for wave port modes.
-
-        Parameters
-        ----------
-        value : bool or list of bool
-            Boolean value(s) to set for the reporter filter. If a
-            single boolean is provided, it will be applied to all
-            modes. If a list is provided, it must match the number
-            of modes.
-
-        Examples
-        --------
-        >>> # Set all modes to be filtered
-        >>> wave_port.filter_modes_reporter = True
-
-        >>> # Set specific filter values for each mode
-        >>> wave_port.filter_modes_reporter = [True, False, True]
-        """
-        try:
-            num_modes = self.properties["Num Modes"]
-            show_reporter_filter = True
-            if isinstance(value, bool):
-                # Single boolean value - apply to all modes
-                filter_values = [value] * num_modes
-                # In case all values are the same, we hide the Reporter Filter
-                show_reporter_filter = False
-            elif isinstance(value, list):
-                # List of boolean values
-                if not all(isinstance(v, bool) for v in value):
-                    raise ValueError("All values in the list must be boolean.")
-                if len(value) != num_modes:
-                    raise ValueError(f"List length ({len(value)}) must match the number of modes ({num_modes}).")
-                filter_values = value
-            else:
-                raise ValueError("Value must be a boolean or a list of booleans.")
-            self.props["ShowReporterFilter"] = show_reporter_filter
-            # Apply the filter values to each mode
-            self.props["ReporterFilter"] = filter_values
-
-            self.update()
-        except Exception as e:
-            self._app.logger.error(f"Failed to set filter modes reporter: {str(e)}")
-            raise
-
-    # NOTE: The following properties are write-only as HFSS does not return their values.
-    # Attempting to read them will raise NotImplementedError.
-    # This is a workaround until the API provides a way to read these properties.
-    # Also, these properties reset to default
-    @property
-    def rlc_type(self):
-        """Get the RLC type property."""
-        raise NotImplementedError("Getter for 'rlc_type' is not implemented. Use the setter only.")
-
-    @rlc_type.setter
-    def rlc_type(self, value):
-        """Set the RLC type property.
-
-        Parameters
-        ----------
-        value : str
-            The type of RLC circuit.
-        """
-        if self.renorm_impedance_type != "RLC":
-            raise ValueError("RLC Type can be set only if Renorm Impedance Type is 'RLC'.")
-        allowed_types = ["Serial", "Parallel"]
-        if value not in allowed_types:
-            raise ValueError(f"RLC Type must be one of {allowed_types}.")
-        self.properties["RLC Type"] = value
-
-    @property
-    def use_resistance(self):
-        """Get the 'Use Resistance' property."""
-        raise NotImplementedError("Getter for 'use_resistance' is not implemented. Use the setter only.")
-
-    @use_resistance.setter
-    def use_resistance(self, value):
-        """Set the 'Use Resistance' property.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to use resistance in the RLC circuit.
-        """
-        if not isinstance(value, bool):
-            raise ValueError("Use Resistance must be a boolean value.")
-        if self.renorm_impedance_type != "RLC":
-            raise ValueError("Use Resistance can be set only if Renorm Impedance Type is 'RLC'.")
-        self.properties["Use Resistance"] = value
-
-    @property
-    def resistance_value(self):
-        """Get the resistance value."""
-        raise NotImplementedError("Getter for 'resistance_value' is not implemented. Use the setter only.")
-
-    @resistance_value.setter
-    def resistance_value(self, value):
-        """Set the resistance value.
-
-        Parameters
-        ----------
-        value : str or float
-            The resistance value. Must be a string with units (e.g., "50ohm") or a float (defaults to "ohm").
-        """
-        allowed_units = ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"]
-        if self.renorm_impedance_type != "RLC":
-            raise ValueError("Resistance can be set only if Renorm Impedance Type is 'RLC'.")
-        if isinstance(value, (int, float)):
-            value_str = f"{value}ohm"
-        elif isinstance(value, str):
-            value_str = value.replace(" ", "")
-            if not any(value_str.endswith(unit) for unit in allowed_units):
-                raise ValueError(f"Resistance must end with one of {allowed_units}.")
-        else:
-            raise ValueError("Resistance must be a string with units or a float.")
-        if isinstance(value, str):
-            value_str = value.replace(" ", "")
-            if not any(value_str.endswith(unit) for unit in allowed_units):
-                raise ValueError(f"Resistance must end with one of {allowed_units}.")
-        self.properties["Resistance Value"] = value_str
-
-    @property
-    def use_inductance(self):
-        """Get the 'Use Inductance' property."""
-        raise NotImplementedError("Getter for 'use_inductance' is not implemented. Use the setter only.")
-
-    @use_inductance.setter
-    def use_inductance(self, value):
-        """Set the 'Use Inductance' property.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to use inductance in the RLC circuit.
-        """
-        if self.renorm_impedance_type != "RLC":
-            raise ValueError("Use Inductance can be set only if Renorm Impedance Type is 'RLC'.")
-        if not isinstance(value, bool):
-            raise ValueError("Use Inductance must be a boolean value.")
-        self.properties["Use Inductance"] = value
-
-    @property
-    def inductance_value(self):
-        """Get the inductance value."""
-        raise NotImplementedError("Getter for 'inductance_value' is not implemented. Use the setter only.")
-
-    @inductance_value.setter
-    def inductance_value(self, value):
-        """Set the inductance value.
-
-        Parameters
-        ----------
-        value : str or float
-            The inductance value. Must be a string with units (e.g., "10nH") or a float (defaults to "H").
-        """
-        allowed_units = ["fH", "pH", "nH", "uH", "mH", "H"]
-        if self.renorm_impedance_type != "RLC":
-            raise ValueError("Inductance can be set only if Renorm Impedance Type is 'RLC'.")
-        if isinstance(value, (int, float)):
-            value_str = f"{value}H"
-        elif isinstance(value, str):
-            value_str = value.replace(" ", "")
-            if not any(value_str.endswith(unit) for unit in allowed_units):
-                raise ValueError(f"Inductance must end with one of {allowed_units}.")
-        else:
-            raise ValueError("Inductance must be a string with units or a float.")
-        if isinstance(value, str):
-            value_str = value.replace(" ", "")
-            if not any(value_str.endswith(unit) for unit in allowed_units):
-                raise ValueError(f"Inductance must end with one of {allowed_units}.")
-        self.properties["Inductance Value"] = value_str
-
-    @property
-    def use_capacitance(self):
-        """Get the 'Use Capacitance' property."""
-        raise NotImplementedError("Getter for 'use_capacitance' is not implemented. Use the setter only.")
-
-    @use_capacitance.setter
-    def use_capacitance(self, value):
-        """Set the 'Use Capacitance' property.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to use capacitance in the RLC circuit.
-        """
-        if self.renorm_impedance_type != "RLC":
-            raise ValueError("Use Capacitance can be set only if Renorm Impedance Type is 'RLC'.")
-        if not isinstance(value, bool):
-            raise ValueError("Use Capacitance must be a boolean value.")
-        self.properties["Use Capacitance"] = value
-
-    @property
-    def capacitance_value(self):
-        """Get the capacitance value."""
-        raise NotImplementedError("Getter for 'capacitance_value' is not implemented. Use the setter only.")
-
-    @capacitance_value.setter
-    def capacitance_value(self, value):
-        """Set the capacitance value.
-
-        Parameters
-        ----------
-        value : str or float
-            The capacitance value. Must be a string with units (e.g., "1pF") or a float (defaults to "F").
-        """
-        allowed_units = ["fF", "pF", "nF", "uF", "mF", "farad"]
-        if self.renorm_impedance_type != "RLC":
-            raise ValueError("Capacitance can be set only if Renorm Impedance Type is 'RLC'.")
-        if isinstance(value, (int, float)):
-            value_str = f"{value}F"
-        elif isinstance(value, str):
-            value_str = value.replace(" ", "")
-            if not any(value_str.endswith(unit) for unit in allowed_units):
-                raise ValueError(f"Capacitance must end with one of {allowed_units}.")
-        else:
-            raise ValueError("Capacitance must be a string with units or a float.")
-        if isinstance(value, str):
-            value_str = value.replace(" ", "")
-            if not any(value_str.endswith(unit) for unit in allowed_units):
-                raise ValueError(f"Capacitance must end with one of {allowed_units}.")
-        self.properties["Capacitance Value"] = value_str
