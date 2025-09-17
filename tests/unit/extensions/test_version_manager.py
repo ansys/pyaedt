@@ -1,25 +1,53 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# -*- coding: utf-8 -*-
 import os
+from pathlib import Path
 import platform
 import tkinter
+from unittest.mock import MagicMock
+from unittest.mock import patch
 import zipfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+
+import pytest
 
 import ansys  # noqa: F401  (needed for monkeypatching Desktop)
-import pytest
-from tkinter import ttk
-
 from ansys.aedt.core.extensions.installer import version_manager as vm
+
 
 # Provide a lightweight variable class to avoid tkinter dependency
 class _Var:
     def __init__(self, value=""):
         self._v = value
+
     def set(self, value):  # pragma: no cover - trivial
         self._v = value
+
     def get(self):  # pragma: no cover - trivial
         return self._v
+
 
 # Helper lambdas/functions to keep lines short
 
@@ -175,23 +203,17 @@ def test_update_from_wheelhouse_no_selection(root, simple_desktop):
         mgr.update_from_wheelhouse()
 
 
-def test_reset_pyaedt_buttons_in_aedt_invokes_installer(
-    root, simple_desktop
-):
+def test_reset_pyaedt_buttons_in_aedt_invokes_installer(root, simple_desktop):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", "/tmp")
     with patch.object(vm.messagebox, "askyesno", return_value=True):
-        with patch(
-            "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt"
-        ) as mock_add:
+        with patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt") as mock_add:
             with patch.object(vm.messagebox, "showinfo") as mock_info:
                 mgr.reset_pyaedt_buttons_in_aedt()
                 mock_add.assert_called_once()
                 mock_info.assert_called_once()
 
 
-def test_get_installed_version_various_paths(
-    monkeypatch, root, simple_desktop
-):
+def test_get_installed_version_various_paths(monkeypatch, root, simple_desktop):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", "/tmp")
     # Case 1: importlib.metadata path works
     with patch.object(
@@ -220,9 +242,7 @@ def test_get_installed_version_various_paths(
     assert mgr.get_installed_version("pyaedt") == "Please restart"
 
 
-def test_clicked_refresh_updates_strings(
-    monkeypatch, root, simple_desktop
-):
+def test_clicked_refresh_updates_strings(monkeypatch, root, simple_desktop):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", "/tmp")
     monkeypatch.setattr(vm, "get_latest_version", _latest("9.9.9"))
     with patch.object(
@@ -274,9 +294,8 @@ def test_get_desktop_info(monkeypatch):
     assert created[0].non_graphical is True
     created[0].release_desktop.assert_called_once()
 
-def test_update_from_wheelhouse_valid(
-    monkeypatch, root, simple_desktop, tmp_path
-):
+
+def test_update_from_wheelhouse_valid(monkeypatch, root, simple_desktop, tmp_path):
     pyver = ".".join(platform.python_version().split(".")[:2])
     os_tag = "windows" if vm.is_windows else "ubuntu"
     fname = f"wh-v1.0.0-full-x-{os_tag}-x-{pyver}.zip"
@@ -297,6 +316,7 @@ def test_update_from_wheelhouse_valid(
         mgr.update_from_wheelhouse()
         mock_run.assert_called()
         vm.messagebox.showerror.assert_not_called()
+
 
 def test_toggle_theme_switches(monkeypatch, root, simple_desktop):
     vm.root = MagicMock()
@@ -355,11 +375,11 @@ def _make_wh_zip(tmp_path, pyaedt_version, wh_pkg_type, os_system, pyver="3.10")
     return zpath
 
 
-def test_update_from_wheelhouse_incorrect_type_triggers_error(
-    monkeypatch, root, simple_desktop, tmp_path
-):
+def test_update_from_wheelhouse_incorrect_type_triggers_error(monkeypatch, root, simple_desktop, tmp_path):
     # pyaedt version <= 0.15.3 and package type != 'installer' should trigger error
-    zpath = _make_wh_zip(tmp_path, "v0.15.0", "full", "windows", pyver="".join(platform.python_version().split(".")[:2]))
+    zpath = _make_wh_zip(
+        tmp_path, "v0.15.0", "full", "windows", pyver="".join(platform.python_version().split(".")[:2])
+    )
     monkeypatch.setattr(vm.filedialog, "askopenfilename", lambda **k: str(zpath))
     err = MagicMock()
     monkeypatch.setattr(vm.messagebox, "showerror", err)
@@ -373,9 +393,7 @@ def test_update_from_wheelhouse_incorrect_type_triggers_error(
     assert "This wheelhouse doesn't contain required packages" in err.call_args[0][1]
 
 
-def test_update_from_wheelhouse_os_mismatch_triggers_error(
-    monkeypatch, root, simple_desktop, tmp_path
-):
+def test_update_from_wheelhouse_os_mismatch_triggers_error(monkeypatch, root, simple_desktop, tmp_path):
     # OS tag 'windows' but vm.is_windows False should trigger error
     pyver = ".".join(platform.python_version().split(".")[:2])
     zpath = _make_wh_zip(tmp_path, "v1.0.0", "installer", "windows", pyver=pyver)
