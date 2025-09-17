@@ -197,14 +197,15 @@ def unzip_if_zip(path):
     """Unzip path if it is a ZIP file into a temporary directory.
 
     If the zip contains nested zip files, extract them recursively until there
-    are no more zip files inside. Returns the directory from the last
-    extraction step (contains the wheels). If no nested zips were
-    extracted, returns the top-level temp dir. If the provided path is not a
-    zip file, the original Path is returned.
+    are no more zip files inside. Returns the deepest directory that contains
+    all the .whl files (common ancestor). If no .whl files are found but nested
+    zip extraction occurred, returns the last extracted folder. If the provided
+    path is not a zip file, the original Path is returned.
     """
     import zipfile
     import tempfile
     import shutil
+    import os
     from pathlib import Path
 
     path = Path(path)
@@ -219,15 +220,15 @@ def unzip_if_zip(path):
     with zipfile.ZipFile(path, "r") as zip_ref:
         zip_ref.extractall(top_dir)
 
-    # Track the last directory we extracted into
     last_unzipped = None
 
     # Recursively find and extract any nested zip files until none remain
     while True:
-        # Find all .zip files under the extracted tree
         nested_zips = list(top_dir.rglob("*.zip"))
         if not nested_zips:
             break
+        # Sort to get deterministic behavior (optional)
+        nested_zips.sort()
         for zpath in nested_zips:
             try:
                 # Extract each nested zip into a folder next to the zip file
@@ -236,17 +237,32 @@ def unzip_if_zip(path):
                     shutil.rmtree(target_dir)
                 with zipfile.ZipFile(zpath, "r") as zf:
                     zf.extractall(target_dir)
-                # remember this as the last unzipped folder
                 last_unzipped = target_dir
             finally:
                 # Remove the nested zip file so it won't be processed again
                 try:
                     zpath.unlink()
                 except Exception:
-                    # If we cannot remove the zip, continue anyway
                     pass
 
-    # If we performed any nested extraction, return the last one
+    # Find all wheel files under the extracted tree
+    wheels = list(top_dir.rglob("*.whl"))
+    if wheels:
+        # Compute the common ancestor of all wheel parent directories
+        parents = [str(w.parent) for w in wheels]
+        common = Path(os.path.commonpath(parents))
+        # If the common path is below top_dir, return it; otherwise return top_dir
+        try:
+            common = common.resolve()
+            top_dir_resolved = top_dir.resolve()
+            if str(common).startswith(str(top_dir_resolved)):
+                return common
+        except Exception:
+            # If resolution fails for any reason, fall back to returning top_dir
+            return top_dir
+        return top_dir
+
+    # If no wheels were found but we extracted nested zips, return the last extraction dir
     if last_unzipped is not None and last_unzipped.exists():
         return last_unzipped
 
