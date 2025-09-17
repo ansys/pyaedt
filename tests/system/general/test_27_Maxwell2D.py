@@ -132,10 +132,9 @@ class TestClass:
         assert bounds_name == bounds.name
 
     def test_assign_coil(self, aedtapp):
-        # bound = aedtapp.assign_coil(assignment=["Coil"])
-        # assert bound
+        bound = aedtapp.assign_coil(assignment=["Coil"])
+        assert bound
         polarity = "Positive"
-        bound = aedtapp.assign_coil(assignment=["Coil","Coil_2", "Coil_4" ], polarity=polarity)
         assert bound.props["PolarityType"] == polarity.lower()
         polarity = "Negative"
         bound = aedtapp.assign_coil(assignment=["Coil"], polarity=polarity)
@@ -145,9 +144,12 @@ class TestClass:
         assert bound_name == bound.name
 
     def test_assign_coilgroup(self, aedtapp):
-        bound = aedtapp.assign_coil_group(assignment=["Coil", "Coil_1"])
-        assert bound
         polarity = "Positive"
+        bound = aedtapp.assign_coil(assignment=["Coil","Coil_2", "Coil_4" ])
+        assert bound
+        assert len(bound['items'])==3
+        assert bound.props["PolarityType"] == polarity.lower()
+        
 
     def test_create_vector_potential(self, aedtapp):
         region = aedtapp.modeler["Region"]
