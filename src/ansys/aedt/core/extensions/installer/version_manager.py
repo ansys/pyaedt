@@ -292,6 +292,29 @@ class VersionManager:
             messagebox.showerror("Error: Git Not Found", "Git does not seem to be installed or is not accessible.")
         return res
 
+    def activate_venv(self):
+        """Prepare a subprocess environment that has the virtual environment activated.
+
+        This function does not change the current Python process, but prepares an env
+        dictionary (stored in self.activated_env) that can be passed to subprocess.run
+        so that commands like uv and pip resolve to the ones inside the virtualenv.
+        """
+        try:
+            scripts_dir = (
+                os.path.join(self.venv_path, "Scripts") if is_windows else os.path.join(self.venv_path, "bin")
+            )
+            env = os.environ.copy()
+            # Prepend venv scripts/bin to PATH so executables from the venv are preferred
+            env["PATH"] = scripts_dir + os.pathsep + env.get("PATH", "")
+            # Mark the virtual environment
+            env["VIRTUAL_ENV"] = self.venv_path
+            # Unset PYTHONHOME if set to avoid mixing environments
+            env.pop("PYTHONHOME", None)
+            self.activated_env = env
+        except Exception:
+            # Fallback to the current environment to avoid breaking functionality
+            self.activated_env = os.environ.copy()
+
     def update_pyaedt(self):
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
@@ -304,9 +327,9 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True)  # nosec
+                subprocess.run([self.uv_exe, "pip", "install", f"pyaedt=={latest_version}"], check=True, env=self.activated_env)  # nosec
             else:
-                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)  # nosec
+                subprocess.run([self.uv_exe, "pip", "install", "-U", "pyaedt"], check=True, env=self.activated_env)  # nosec
 
             self.clicked_refresh(need_restart=True)
 
@@ -323,9 +346,17 @@ class VersionManager:
                 return
 
             if self.pyedb_version > latest_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True)  # nosec
+                subprocess.run(
+                    [self.uv_exe, "pip", "install", f"pyedb=={latest_version}"],
+                    check=True,
+                    env=self.activated_env,
+                )  # nosec
             else:
-                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)  # nosec
+                subprocess.run(
+                    [self.uv_exe, "pip", "install", "-U", "pyedb"],
+                    check=True,
+                    env=self.activated_env,
+                )  # nosec
 
             print("Pyedb has been updated")
             self.clicked_refresh(need_restart=True)
@@ -339,8 +370,14 @@ class VersionManager:
         if response:
             branch_name = self.pyaedt_branch_name.get()
             subprocess.run(
-                [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyaedt.git@{branch_name}"],
+                [
+                    self.uv_exe,
+                    "pip",
+                    "install",
+                    f"git+https://github.com/ansys/pyaedt.git@{branch_name}",
+                ],
                 check=True,
+                env=self.activated_env,
             )  # nosec
             self.clicked_refresh(need_restart=True)
 
@@ -353,8 +390,14 @@ class VersionManager:
         if response:
             branch_name = self.pyedb_branch_name.get()
             subprocess.run(
-                [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"],
+                [
+                    self.uv_exe,
+                    "pip",
+                    "install",
+                    f"git+https://github.com/ansys/pyedb.git@{branch_name}",
+                ],
                 check=True,
+                env=self.activated_env,
             )  # nosec
             self.clicked_refresh(need_restart=True)
 
@@ -427,8 +470,7 @@ class VersionManager:
 
             subprocess.run(
                 [
-                    self.python_exe,
-                    "-m",
+                    self.uv_exe,
                     "pip",
                     "install",
                     "--force-reinstall",
@@ -438,6 +480,7 @@ class VersionManager:
                     "pyaedt[all]",
                 ],
                 check=True,
+                env=self.activated_env,
             )  # nosec
             self.clicked_refresh(need_restart=True)
 
