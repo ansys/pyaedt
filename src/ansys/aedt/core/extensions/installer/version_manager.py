@@ -139,6 +139,11 @@ class VersionManager:
         self.activated_env = None
         self.activate_venv()
 
+        # Install uv if not present
+        if not os.path.exists(self.uv_exe):
+            print("Installing uv...")
+            subprocess.run([self.python_exe, "-m", "pip", "install", "uv"], check=True, env=self.activated_env)  # nosec
+
         # Load the logo for the main window
         icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
         im = PIL.Image.open(icon_path)
@@ -584,7 +589,7 @@ def get_desktop_info(release_desktop=True):
     return {"desktop": aedtapp, "aedt_version": aedt_version, "personal_lib": personal_lib}
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     kwargs = get_desktop_info()
     # Initialize tkinter root window and run the app
     root = tkinter.Tk()
