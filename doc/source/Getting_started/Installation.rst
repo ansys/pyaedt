@@ -246,7 +246,7 @@ install from local wheelhouses, and to improve reliability for long-running
 package downloads.
 
 You can use `uv` to install PyAEDT into your own virtual environment. The
-steps below show how to create a venv, activate it, install `uv`, and then
+steps below show how to create a virtual environment, activate it, install `uv`, and then
 install PyAEDT. Examples are provided for Windows (PowerShell) and Linux (bash).
 
 Create and activate a virtual environment (Windows - PowerShell)
@@ -270,7 +270,7 @@ Create and activate a virtual environment (Linux)
     uv pip install pyaedt[all]
 
 .. note::
-  Virtual environments should be created with venv and not directly with uv to avoid potential issues.
+  Virtual environments should be created with `venv` and not directly with `uv` to avoid potential issues.
 
 Installing from a wheelhouse using uv
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
