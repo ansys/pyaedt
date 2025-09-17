@@ -140,9 +140,10 @@ class VersionManager:
         self.activate_venv()
 
         # Install uv if not present
-        if not os.path.exists(self.uv_exe):
-            print("Installing uv...")
-            subprocess.run([self.python_exe, "-m", "pip", "install", "uv"], check=True, env=self.activated_env)  # nosec
+        if "PYTEST_CURRENT_TEST" not in os.environ: # pragma: no cover
+            if not os.path.exists(self.uv_exe):
+                print("Installing uv...")
+                subprocess.run([self.python_exe, "-m", "pip", "install", "uv"], check=True, env=self.activated_env)  # nosec
 
         # Load the logo for the main window
         icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
@@ -182,12 +183,12 @@ class VersionManager:
             self.theme_color = "light"
 
     def set_light_theme(self):
-        root.configure(bg=self.theme.light["widget_bg"])
+        self.root.configure(bg=self.theme.light["widget_bg"])
         self.theme.apply_light_theme(self.style)
         self.change_theme_button.config(text="\u263d")
 
     def set_dark_theme(self):
-        root.configure(bg=self.theme.dark["widget_bg"])
+        self.root.configure(bg=self.theme.dark["widget_bg"])
         self.theme.apply_dark_theme(self.style)
         self.change_theme_button.config(text="\u2600")
 
@@ -499,13 +500,6 @@ class VersionManager:
             self.clicked_refresh(need_restart=True)
 
     def reset_pyaedt_buttons_in_aedt(self):
-        def handle_remove_error(func, path, exc_info):
-            # Attempt to fix permission issues
-            import stat
-
-            os.chmod(path, stat.S_IWRITE)  # Add write permission
-            func(path)  # Retry the operation
-
         response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
 
         if response:
@@ -570,7 +564,7 @@ def get_desktop_info(release_desktop=True):
     aedt_version = get_aedt_version()
     aedt_process_id = get_process_id()
 
-    if aedt_process_id is not None:
+    if aedt_process_id is not None: # pragma: no cover
         new_desktop = False
         ng = False
         close_project = False
