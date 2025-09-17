@@ -500,6 +500,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             self._app.oboundary.AssignCoil(self._get_args())
         elif bound_type == "CoilGroup":
             self._app.oboundary.AssignCoilGroup(self._get_args()[2], self._get_args()[3])
+            return True
         elif bound_type == "Source":
             self._app.oboundary.AssignSource(self._get_args())
         elif bound_type == "Sink":

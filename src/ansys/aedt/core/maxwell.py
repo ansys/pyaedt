@@ -1408,10 +1408,20 @@ class Maxwell(CreateBoundaryMixin):
 
             if len(assignment) > 1:
                 coil_group_names = []
+                bound_props = dict(
+                    {
+                        "Objects": assignment,
+                        "Conductor number": str(conductors_number),
+                        "PolarityType": polarity.lower(),
+                    }
+                )
+
                 for x in range(0, len(assignment)):
                     coil_group_names.append(name + f"_{str(x + 1)}")
-                bound_name = coil_group_names[0]
-                props = {"items": coil_group_names, bound_name: bound_objects}
+
+                props = {"items": coil_group_names}
+                props[coil_group_names[0]] = bound_props.copy()
+                
                 bound_type = "CoilGroup"
             
             else:
@@ -1435,77 +1445,6 @@ class Maxwell(CreateBoundaryMixin):
 
         return self._create_boundary(name, props, bound_type)
     
-    # @pyaedt_function_handler(input_object="assignment", conductor_number="conductors_number")
-    # def assign_coil_group(self, assignment, conductors_number=1, polarity="Positive", name=None):
-    #     """Assign coils to a list of objects or face IDs.
-
-    #     Parameters
-    #     ----------
-    #     assignment : list
-    #         List of objects, objects name or face IDs.
-    #     conductors_number : int, optional
-    #         Number of conductors. The default is ``1``.
-    #     polarity : str, optional
-    #         Type of the polarity. The default is ``"Positive"``.
-    #     name : str, optional
-    #         Name of the coil. The default is ``None``,
-    #         in which case a random name with prefix "Coil" will be generated.
-
-    #     Returns
-    #     -------
-    #     :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-    #         Bounding object for the winding, otherwise only the bounding object.
-    #         ``False`` when failed.
-
-    #     References
-    #     ----------
-    #     >>> oModule.AssignCoil
-
-    #     Examples
-    #     --------
-    #     Assign coil terminal to an object for a Maxwell 2D Transient design.
-
-    #     >>> from ansys.aedt.core import Maxwell2d
-    #     >>> m2d = Maxwell2d(solution_type="TransientZ")
-    #     >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
-    #     >>> coil = m2d.assign_coil(assignment=[terminal], conductors_number=5, name="Coil")
-    #     >>> m2d.release_desktop(True, True)
-    #     """
-    #     if polarity.lower() == "positive":
-    #         point = False
-    #     else:
-    #         point = True
-
-    #     assignment = self.modeler.convert_to_selections(assignment, True)
-
-    #     if not name:
-    #         name = generate_unique_name("Coil")
-
-    #     if isinstance(assignment[0], str):
-    #         if self.modeler._is3d:
-    #             props = dict(
-    #                 {"Objects": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
-    #             )
-    #             bound_type = "CoilTerminal"
-    #         else:
-    #             props = dict(
-    #                 {
-    #                     "Objects": assignment,
-    #                     "Conductor number": str(conductors_number),
-    #                     "PolarityType": polarity.lower(),
-    #                 }
-    #             )
-    #             bound_type = "Coil"
-    #     else:
-    #         if self.modeler._is3d:
-    #             props = dict(
-    #                 {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
-    #             )
-    #             bound_type = "CoilTerminal"
-    #         else:
-    #             raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
-
-    #     return self._create_boundary(name, props, bound_type)
 
     @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
