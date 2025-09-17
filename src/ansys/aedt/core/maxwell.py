@@ -1400,17 +1400,17 @@ class Maxwell(CreateBoundaryMixin):
         if isinstance(assignment[0], str):
             if self.modeler._is3d:
                 props = dict(
-                    {"Objects": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
+                    {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
                 )
                 bound_type = "CoilTerminal"
             else:
-                bound_objects = {"Objects": assignment}
+                props = {"Faces": assignment}
 
             if len(assignment) > 1:
                 coil_group_names = []
                 bound_props = dict(
                     {
-                        "Objects": assignment,
+                        "Faces": assignment,
                         "Conductor number": str(conductors_number),
                         "PolarityType": polarity.lower(),
                     }
