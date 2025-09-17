@@ -148,7 +148,7 @@ class TestClass:
         bound = aedtapp.assign_coil(assignment=["Coil","Coil_2", "Coil_4" ])
         assert bound
         assert len(bound['items'])==3
-        assert bound.props["PolarityType"] == polarity.lower()
+        assert bound.props[(list(bound.props.keys())[1])]["PolarityType"] == polarity.lower()
         
 
     def test_create_vector_potential(self, aedtapp):
