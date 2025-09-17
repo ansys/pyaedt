@@ -427,37 +427,13 @@ if __name__ == "__main__":
         if validate_disclaimer():
             oDesktop.AddMessage("", "", 0, "Disclaimer accepted.")
             # Check if wheelhouse defined. Wheelhouse is created for Windows only.
-            # Parse ScriptArgument in a way compatible with IronPython
-            # ScriptArgument may be quoted ("path with spaces") or empty.
-            wheelpyaedt = ""
-            try:
-                sa = ScriptArgument.strip() if ScriptArgument else ""
-            except Exception:
-                sa = ""
-
-            candidate = ""
-            if sa:
-                # If the entire string is quoted, treat as a single arg
-                if (sa[0] == sa[-1]) and sa[0] in ('"', "'"):
-                    candidate = sa[1:-1].strip()
-                else:
-                    # Otherwise split on whitespace and take first token
-                    parts = sa.split()
-                    candidate = parts[0] if parts else ""
-
-                # Remove any stray surrounding quotes
-                candidate = candidate.strip().strip('"').strip("'")
-
-                if candidate:
-                    # Expand user (~) and make absolute if relative using os.path
-                    candidate = os.path.expanduser(candidate)
-                    if not os.path.isabs(candidate):
-                        candidate = os.path.abspath(candidate)
-                    # Keep wheel only if it exists on disk
-                    if os.path.exists(candidate):
-                        wheelpyaedt = candidate
-                    else:
-                        wheelpyaedt = ""
+            wheelpyaedt = []
+            # Retrieve the script arguments
+            script_args = ScriptArgument.split()
+            if len(script_args) == 1:
+                wheelpyaedt = script_args[0]
+                if not os.path.exists(wheelpyaedt):
+                    wheelpyaedt = []
             run_pyinstaller_from_c_python(oDesktop)
         else:
             oDesktop.AddMessage("", "", 1, "Disclaimer refused, installation canceled.")
