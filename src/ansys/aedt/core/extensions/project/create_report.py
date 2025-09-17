@@ -86,6 +86,7 @@ class CreateReportExtension(ExtensionProjectCommon):
         self._widgets["open_report_var"] = None
         self._widgets["save_path_entry"] = None
         self.data: CreateReportExtensionData = CreateReportExtensionData()
+        self.generate_clicked = False  # Track if generate button was clicked
         self.add_extension_content()
 
     def add_extension_content(self):
@@ -155,6 +156,7 @@ class CreateReportExtension(ExtensionProjectCommon):
                 open_report=self._widgets["open_report_var"].get(),
                 save_path=self._widgets["save_path_entry"].get("1.0", tkinter.END).strip(),
             )
+            extension.generate_clicked = True
             extension.root.destroy()
 
         ok_button = ttk.Button(
@@ -238,5 +240,5 @@ if __name__ == "__main__":  # pragma: no cover
     # Open UI
     extension = CreateReportExtension()
     tkinter.mainloop()
-    if extension.data:
+    if extension.data and extension.generate_clicked:
         main(extension.data)

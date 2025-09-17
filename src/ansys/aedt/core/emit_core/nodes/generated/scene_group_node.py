@@ -38,6 +38,11 @@ class SceneGroupNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_group(self):
         """Add a new scene group"""
         return self._add_child_node("Group")

@@ -401,6 +401,8 @@ class ExtensionCommon:
                 res = active_design.GetDesignName()
             case "Circuit Design":
                 res = active_design.GetName().split(";")[1]
+            case "Twin Builder":
+                res = active_design.GetName().split(";")[1]
             case _:
                 res = active_design.GetName()
         return res
@@ -482,6 +484,16 @@ class ExtensionCircuitCommon(ExtensionCommon):
         if self.aedt_application.design_type != "Circuit Design":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
+
+
+class ExtensionTwinBuilderCommon(ExtensionCommon):
+    """Common methods for TwinBuilder extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is a TwinBuilder design."""
+        if self.aedt_application.design_type != "Twin Builder":
+            self.release_desktop()
+            raise AEDTRuntimeError("This extension can only be used with Twin Builder designs.")
 
 
 class ExtensionProjectCommon(ExtensionCommon):

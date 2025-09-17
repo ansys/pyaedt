@@ -31,6 +31,11 @@ class CouplingsNode(EmitNode):
         self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def import_touchstone(self, file_name):
         """Open an Existing S-Matrix Data File"""
         return self._import(file_name, "TouchstoneCoupling")

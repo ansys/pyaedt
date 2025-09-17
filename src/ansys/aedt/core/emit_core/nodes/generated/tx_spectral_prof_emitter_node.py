@@ -37,6 +37,11 @@ class TxSpectralProfEmitterNode(EmitNode):
         return self._parent
 
     @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("enabled")

@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -91,14 +90,7 @@ class Revision:
 
                 emit_obj.odesign.SaveEmitProject()
 
-                self.path = os.path.normpath(
-                    os.path.join(
-                        emit_obj.project_path,
-                        f"{emit_obj.project_name}.aedtresults",
-                        "EmitDesign1",
-                        "Current Project.emit",
-                    )
-                )
+                self.path = emit_obj.odesign.GetManagedFilesPath()
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
@@ -547,9 +539,9 @@ class Revision:
                     # The start and stop frequencies define the Band's extents,
                     # while the active frequencies are a subset of the Band's frequencies
                     # being used for this specific project as defined in the Radio's Sampling.
-                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i])
-                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i])
-                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i])
+                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i], "MHz")
+                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i], "MHz")
+                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i], "MHz")
 
                     for tx_band in tx_bands:
                         domain.set_receiver(rx_radio, rx_band)
@@ -929,6 +921,30 @@ class Revision:
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
+    def get_component_node(self, component_name) -> EmitNode:
+        """Gets the component node.
+
+        Parameters
+        ----------
+        component_name: str
+            Name of the component.
+
+        Returns
+        -------
+        component_node: EmitNode
+            Component node.
+
+        Examples
+        --------
+        >>> node = revision.get_component_node("wifi radio")
+        """
+        comp_id = self._emit_com.GetComponentNodeID(self.results_index, component_name)
+        if comp_id > 0:
+            return self._get_node(comp_id)
+        return None
+
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
     def _get_all_node_ids(self) -> list[int]:
         """Gets all node ids from this revision.
 
@@ -997,8 +1013,12 @@ class Revision:
 
         node = None
         try:
-            type_class = getattr(generated, f"{prefix}{node_type}")
-            node = type_class(self.emit_project, self.results_index, node_id)
+            if node_type == "RadioNode" and props["IsEmitter"] == "true":
+                type_class = getattr(generated, f"{prefix}EmitterNode")
+                node = type_class(self.emit_project, self.results_index, node_id)
+            else:
+                type_class = getattr(generated, f"{prefix}{node_type}")
+                node = type_class(self.emit_project, self.results_index, node_id)
         except AttributeError:
             node = EmitNode(self.emit_project, self.results_index, node_id)
         return node

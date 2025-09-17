@@ -33,6 +33,11 @@ class Filter(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -192,64 +197,148 @@ class Filter(EmitNode):
         self._set_property("Min Pass Band", f"{value}")
 
     @property
-    def lower_stop_band(self) -> float:
-        """Lower stop band frequency.
+    def bp_lower_stop_band(self) -> float:
+        """Bandpass filter lower stop band frequency.
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Lower Stop Band")
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Lower Stop Band")
+        else:
+            val = self._get_property("BP Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
-    @lower_stop_band.setter
-    def lower_stop_band(self, value: float | str):
+    @bp_lower_stop_band.setter
+    def bp_lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Lower Stop Band", f"{value}")
+        self._set_property("BandPassLowerStopBandFrequency", f"{value}")
 
     @property
-    def lower_cutoff(self) -> float:
-        """Lower cutoff frequency.
+    def bp_lower_cutoff(self) -> float:
+        """Bandpass filter lower cutoff frequency.
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Lower Cutoff")
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Lower Cutoff")
+        else:
+            val = self._get_property("BP Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
-    @lower_cutoff.setter
-    def lower_cutoff(self, value: float | str):
+    @bp_lower_cutoff.setter
+    def bp_lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Lower Cutoff", f"{value}")
+        self._set_property("BandPassLowerCutoffFrequency", f"{value}")
 
     @property
-    def higher_cutoff(self) -> float:
-        """Higher cutoff frequency.
+    def bp_higher_cutoff(self) -> float:
+        """Bandpass filter higher cutoff frequency.
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Higher Cutoff")
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Higher Cutoff")
+        else:
+            val = self._get_property("BP Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
-    @higher_cutoff.setter
-    def higher_cutoff(self, value: float | str):
+    @bp_higher_cutoff.setter
+    def bp_higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Higher Cutoff", f"{value}")
+        self._set_property("BandPassHigherCutoffFrequency", f"{value}")
 
     @property
-    def higher_stop_band(self) -> float:
-        """Higher stop band frequency.
+    def bp_higher_stop_band(self) -> float:
+        """Bandpass filter higher stop band frequency.
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Higher Stop Band")
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Higher Stop Band")
+        else:
+            val = self._get_property("BP Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
-    @higher_stop_band.setter
-    def higher_stop_band(self, value: float | str):
+    @bp_higher_stop_band.setter
+    def bp_higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Higher Stop Band", f"{value}")
+        self._set_property("BandPassHigherStopBandFrequency", f"{value}")
+
+    @property
+    def bs_lower_cutoff(self) -> float:
+        """Band stop filter lower cutoff frequency.
+
+        Value should be between 1 and 100e9.
+        """
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Lower Cutoff")
+        else:
+            val = self._get_property("BS Lower Cutoff")
+        val = self._convert_from_internal_units(float(val), "Freq")
+        return float(val)
+
+    @bs_lower_cutoff.setter
+    def bs_lower_cutoff(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._set_property("BandStopLowerCutoffFrequency", f"{value}")
+
+    @property
+    def bs_lower_stop_band(self) -> float:
+        """Band stop filter lower stop band frequency.
+
+        Value should be between 1 and 100e9.
+        """
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Lower Stop Band")
+        else:
+            val = self._get_property("BS Lower Stop Band")
+        val = self._convert_from_internal_units(float(val), "Freq")
+        return float(val)
+
+    @bs_lower_stop_band.setter
+    def bs_lower_stop_band(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._set_property("BandStopLowerStopBandFrequency", f"{value}")
+
+    @property
+    def bs_higher_stop_band(self) -> float:
+        """Band stop filter higher stop band frequency.
+
+        Value should be between 1 and 100e9.
+        """
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Higher Stop Band")
+        else:
+            val = self._get_property("BS Higher Stop Band")
+        val = self._convert_from_internal_units(float(val), "Freq")
+        return float(val)
+
+    @bs_higher_stop_band.setter
+    def bs_higher_stop_band(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._set_property("BandStopHigherStopBandFrequency", f"{value}")
+
+    @property
+    def bs_higher_cutoff(self) -> float:
+        """Band stop filter higher cutoff frequency.
+
+        Value should be between 1 and 100e9.
+        """
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            val = self._get_property("Higher Cutoff")
+        else:
+            val = self._get_property("BS Higher Cutoff")
+        val = self._convert_from_internal_units(float(val), "Freq")
+        return float(val)
+
+    @bs_higher_cutoff.setter
+    def bs_higher_cutoff(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._set_property("BandStopHigherCutoffFrequency", f"{value}")
 
     @property
     def lowest_tuned_frequency(self) -> float:

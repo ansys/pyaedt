@@ -76,6 +76,7 @@ class UnitType(MutableEnum):
 EMIT_VALID_UNITS = {
     "Power": ["mW", "W", "kW", "dBm", "dBW"],
     "Frequency": ["Hz", "kHz", "MHz", "GHz", "THz"],
+    "Freq": ["Hz", "kHz", "MHz", "GHz", "THz"],
     "Length": ["pm", "nm", "um", "mm", "cm", "dm", "meter", "meters", "km", "mil", "in", "ft", "yd", "mile"],
     "Time": ["ps", "ns", "us", "ms", "s"],
     "Voltage": ["nV", "uV", "mV", "V", "kV", "MegV"],
@@ -86,6 +87,7 @@ EMIT_VALID_UNITS = {
 
 EMIT_INTERNAL_UNITS = {
     "Power": "dBm",
+    "Frequency": "Hz",
     "Freq": "Hz",
     "Length": "meter",
     "Time": "s",
