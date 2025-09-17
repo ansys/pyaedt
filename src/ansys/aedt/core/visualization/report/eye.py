@@ -45,9 +45,11 @@ class AMIConturEyeDiagram(CommonReport):
         self.domain = "Time"
         self._legacy_props["report_type"] = "Rectangular Contour Plot"
 
-        vars = {i: k for i, k in self._legacy_props["context"]["variations"].items() if i not in ["Time", "Frequency"]}
+        variables = {
+            i: k for i, k in self._legacy_props["context"]["variations"].items() if i not in ["Time", "Frequency"]
+        }
         self.variations = {"__UnitInterval": "All", "__Amplitude": "All", "__EyeOpening": ["0"]}
-        self.variations.update(vars)
+        self.variations.update(variables)
         self._legacy_props["context"]["primary_sweep"] = "__UnitInterval"
         self._legacy_props["context"]["secondary_sweep"] = "__Amplitude"
         self.quantity_type = 0
@@ -479,9 +481,9 @@ class AMIEyeDiagram(CommonReport):
         if report_category == "Statistical Eye":
             self._legacy_props["report_type"] = "Statistical Eye Plot"
             self.variations = {i: k for i, k in self.variations.items() if i != "Time"}
-            vars = {i: k for i, k in self._legacy_props["context"]["variations"].items()}
+            variables = {i: k for i, k in self._legacy_props["context"]["variations"].items()}
             self.variations = {"__UnitInterval": "All", "__Amplitude": "All"}
-            self.variations.update(vars)
+            self.variations.update(variables)
 
         self.unit_interval = "0s"
         self.offset = "0ms"
