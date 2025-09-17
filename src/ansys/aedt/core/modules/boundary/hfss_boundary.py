@@ -22,8 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+from typing import Union
+
+from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -562,6 +568,196 @@ class WavePort(BoundaryObject):
         """
         super().__init__(app, name, props, "Wave Port")
 
+    @property
+    def specify_wave_direction(self) -> bool:
+        """Enable specify wave direction.
+
+        Returns
+        -------
+        bool
+            Whether the wave direction is specified.
+        """
+        value = None
+        if "Specify Wave Direction" in self.properties:
+            value = self.properties["Specify Wave Direction"]
+        return value
+
+    @specify_wave_direction.setter
+    def specify_wave_direction(self, value: bool):
+        if not isinstance(value, bool) or self.specify_wave_direction is None:
+            raise AEDTRuntimeError("Wave direction must be a boolean.")
+        self.properties["Specify Wave Direction"] = value
+
+    @property
+    def wave_direction(self) -> list:
+        """Wave direction.
+
+        Returns
+        -------
+        list
+            Wave direction.
+        """
+        value = None
+        if "Wave Direction" in self.properties:
+            value = list(self.properties["Wave Direction"])
+        return value
+
+    @property
+    def deembed(self) -> Union[Quantity, None]:
+        """Dembedding distance.
+
+        Returns
+        -------
+        Quantity or None
+            Whether de-embedding is enabled.
+        """
+        value = None
+        if "Deembed" in self.properties:
+            value_deemb = self.properties["Deembed"]
+            if value_deemb:
+                value = Quantity(self.properties["Deembed Dist"])
+        return value
+
+    @deembed.setter
+    def deembed(self, value: Optional[Union[Quantity, float, int, str, bool]]):
+        if value is None or value is False:
+            self.properties["Deembed"] = False
+        elif value is True:
+            self.properties["Deembed"] = True
+            self.properties["Deembed Dist"] = str("0.0mm")
+        else:
+            if not self.properties["Deembed"]:
+                self.properties["Deembed"] = True
+            if not isinstance(value, Quantity):
+                value = Quantity(self._app.value_with_units(value))
+            self.properties["Deembed Dist"] = str(value)
+
+    @property
+    def renorm_all_modes(self) -> bool:
+        """Renormalize all modes.
+
+        Returns
+        -------
+        bool
+            Whether renormalization of all modes is enabled.
+        """
+        value = None
+        if "Renorm All Modes" in self.properties:
+            value = self.properties["Renorm All Modes"]
+        return value
+
+    @renorm_all_modes.setter
+    def renorm_all_modes(self, value: bool):
+        if not isinstance(value, bool) or self.renorm_all_modes is None:
+            raise AEDTRuntimeError("Renorm all modes must be a boolean.")
+        self.properties["Renorm All Modes"] = value
+
+    @property
+    def renorm_impedance_type(self) -> str:
+        """Get the renormalization impedance type
+
+        Returns
+        -------
+        str
+            The type of renormalization impedance.
+        """
+        value = None
+        if "Renorm Impedance Type" in self.properties:
+            value = self.properties["Renorm Impedance Type"]
+        return value
+
+    @renorm_impedance_type.setter
+    def renorm_impedance_type(self, value: str):
+        # Activate renorm all modes
+        if not self.renorm_all_modes:
+            self.renorm_all_modes = True
+
+        if self.renorm_impedance_type and (
+            "Renorm Impedance Type/Choices" in self.properties
+            and value not in self.properties["Renorm Impedance Type/Choices"]
+        ):
+            raise ValueError(
+                f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}."
+            )
+        self.properties["Renorm Impedance Type"] = value
+
+    @property
+    def renorm_impedance(self) -> Union[Quantity, None]:
+        """Get the renormalization impedance value.
+
+        Returns
+        -------
+        Quantity
+            The renormalization impedance value.
+        """
+        value = None
+        if "Renorm Imped" in self.properties:
+            value = Quantity(self.properties["Renorm Imped"])
+        return value
+
+    @renorm_impedance.setter
+    def renorm_impedance(self, value: Optional[Union[Quantity, float, int, str]]):
+        if self.renorm_impedance_type != "Impedance":
+            raise ValueError("Renorm Impedance can be set only if Renorm Impedance Type is 'Impedance'.")
+
+        if not isinstance(value, Quantity):
+            value = Quantity(self._app.value_with_units(value, units_system="Resistance"))
+
+        if value.unit not in AEDT_UNITS["Resistance"]:
+            raise ValueError("Renorm Impedance must have resistance units.")
+        self.properties["Renorm Imped"] = str(value)
+
+    # @pyaedt_function_handler()
+    # def deembed_distance(
+    #     self, distance: Optional[Union[Quantity, str, float]] = 0.0,
+    # ):
+    #     """Set the deembeding distance.
+    #
+    #     Parameters
+    #     ----------
+    #     distance
+    #         Deembeding distance.
+    #
+    #     Returns
+    #     -------
+    #     bool
+    #         True if the operation was successful, False otherwise.
+    #
+    #     Examples
+    #     --------
+    #     >>> u_line = [[0, 0, 0], [1, 0, 0]]
+    #     >>> wave_port.set_analytical_alignment(u_line, analytic_reverse_v=True)
+    #     True
+    #     """
+    #     self.properties["Deembed"] = True
+    #     props = [
+    #         "NAME:ChangedProps",
+    #         [
+    #             "NAME:Deembed Dist",
+    #             "Value:=", str(distance),
+    #         ]
+    #     ]
+    #     return self._change_property(props)
+    #
+    # @pyaedt_function_handler()
+    # def _change_property(self, arg):
+    #     """Update properties of the mesh operation.
+    #
+    #     Parameters
+    #     ----------
+    #     arg : list
+    #         List of the properties to update. For example,
+    #         ``["NAME:ChangedProps", ["NAME:Max Length", "Value:=", "2mm"]]``.
+    #
+    #     Returns
+    #     -------
+    #     list
+    #         List of changed properties of the mesh operation.
+    #
+    #     """
+    #     arguments = ["NAME:AllTabs", ["NAME:HfssTab", ["NAME:PropServers", f"BoundarySetup:{self.name}"], arg]]
+    #     self._app.odesign.ChangeProperty(arguments)
+
     @pyaedt_function_handler()
     def set_analytical_alignment(
         self, u_axis_line=None, analytic_reverse_v=False, coordinate_system="Global", alignment_group=None
@@ -937,154 +1133,6 @@ class WavePort(BoundaryObject):
         except Exception as e:
             self._app.logger.error(f"Failed to set filter modes reporter: {str(e)}")
             raise
-
-    @property
-    def specify_wave_direction(self):
-        """Get the 'Specify Wave Direction' property.
-
-        Returns
-        -------
-        bool
-            Whether the wave direction is specified.
-        """
-        return self.properties["Specify Wave Direction"]
-
-    @specify_wave_direction.setter
-    def specify_wave_direction(self, value):
-        """Set the 'Specify Wave Direction' property.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to specify the wave direction.
-        """
-        if value == self.properties["Specify Wave Direction"]:
-            return value
-        self.properties["Specify Wave Direction"] = value
-
-    @property
-    def deembed(self):
-        """Get the de-embedding property of the wave port.
-
-        Returns
-        -------
-        bool
-            Whether de-embedding is enabled.
-        """
-        return self.properties["Deembed"]
-
-    @deembed.setter
-    def deembed(self, value):
-        """Set the de-embedding property of the wave port.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to enable de-embedding.
-        """
-        if value == self.properties["Deembed"]:
-            return value
-        self.properties["Deembed"] = value
-
-    @property
-    def renorm_all_modes(self):
-        """Renormalize all modes property
-
-        Returns
-        -------
-        bool
-            Whether renormalization of all modes is enabled.
-        """
-        return self.properties["Renorm All Modes"]
-
-    @renorm_all_modes.setter
-    def renorm_all_modes(self, value):
-        """Set the renormalization property for all modes.
-
-        Parameters
-        ----------
-        value : bool
-            Whether to enable renormalization for all modes.
-        """
-        if value == self.properties["Renorm All Modes"]:
-            return value
-        self.properties["Renorm All Modes"] = value
-
-    @property
-    def renorm_impedance_type(self):
-        """Get the renormalization impedance type
-
-        Returns
-        -------
-        str
-            The type of renormalization impedance.
-        """
-        return self.properties["Renorm Impedance Type"]
-
-    @renorm_impedance_type.setter
-    def renorm_impedance_type(self, value):
-        """Set the renormalization impedance type.
-
-        Parameters
-        ----------
-        value : str
-            The type of renormalization impedance. It can be a type contained in the list of choices.
-        """
-        if value not in self.properties["Renorm Impedance Type/Choices"]:
-            raise ValueError(
-                f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}."
-            )
-        if value == self.properties["Renorm Impedance Type"]:
-            return value
-        self.properties["Renorm Impedance Type"] = value
-
-    @property
-    def renorm_impedance(self):
-        """Get the renormalization impedance value.
-
-        Returns
-        -------
-        str
-            The renormalization impedance value.
-        """
-        return self.properties["Renorm Imped"]
-
-    @renorm_impedance.setter
-    def renorm_impedance(self, value):
-        """Set the renormalization impedance value.
-
-        Parameters
-        ----------
-        value : str or int
-            The renormalization impedance value. Must be a string with units
-            (e.g., "50ohm") or a int (defaults to "ohm").
-        """
-        allowed_units = ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"]
-        if self.renorm_impedance_type != "Impedance":
-            raise ValueError("Renorm Impedance can be set only if Renorm Impedance Type is 'Impedance'.")
-
-        if isinstance(value, int):
-            value_str = f"{value}ohm"
-        elif isinstance(value, float):
-            raise ValueError("Renorm Impedance must be a string with units or an int.")
-        elif isinstance(value, str):
-            value_str = value.replace(" ", "")
-            if not any(value_str.endswith(unit) for unit in allowed_units):
-                raise ValueError(f"Renorm Impedance must end with one of {allowed_units}.")
-        else:
-            raise ValueError("Renorm Impedance must be a string with units or a float.")
-
-        if isinstance(value, str):
-            value_str = value.replace(" ", "")
-        else:
-            value_str = f"{value}ohm"
-
-        if not any(value_str.endswith(unit) for unit in allowed_units):
-            raise ValueError(f"Renorm Impedance must end with one of {allowed_units}.")
-
-        if value_str == self.properties["Renorm Imped"]:
-            return value_str
-        self.properties["Renorm Imped"] = value_str
 
     # NOTE: The following properties are write-only as HFSS does not return their values.
     # Attempting to read them will raise NotImplementedError.
