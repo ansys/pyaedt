@@ -328,6 +328,10 @@ class TestClass:
             )
             == "MyReport1"
         )
+        rep = ami_design.post.reports_by_category.statistical_eye_contour(
+            setup="AMIAnalysis", expressions=["b_output4_14"]
+        )
+        assert rep.create()
         assert (
             ami_design.post.create_statistical_eye_plot(
                 "Dom_Quick",
