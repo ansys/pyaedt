@@ -304,115 +304,110 @@ class QExtractor(FieldAnalysis3D, object):
         >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
         >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
         """
-        setting_AC = []
-        setting_CG = []
-        setting_DC = []
+        settings_ac = []
+        settings_cg = []
+        settings_dc = []
         if cg:
             net_list = ["NAME:Source Names"]
-
-            excitation = self.excitation_names
-
-            for key, value in cg.items():
-                if key not in excitation:
-                    self.logger.error("Not existing net " + key)
-                    return False
-                else:
-                    net_list.append(key)
-
             if self.default_solution_type == "Q3D Extractor":
-                value_list = ["NAME:Source Values"]
-                phase_list = ["NAME:Source Values"]
+                magnitude_list = ["NAME:Source Magnitudes"]
+                phase_list = ["NAME:Source Phases"]
             else:
-                value_list = ["NAME:Magnitude"]
+                magnitude_list = ["NAME:Magnitude"]
                 phase_list = ["NAME:Phase"]
 
             for key, vals in cg.items():
+                if key not in self.excitation_names:
+                    self.logger.error("Not existing net " + key)
+                    return False
+
                 if isinstance(vals, str):
-                    value = vals
+                    magnitude = vals
                     phase = "0deg"
                 else:
-                    value = vals[0]
-                    if len(vals) == 1:
-                        phase = "0deg"
-                    else:
-                        phase = vals[1]
-                value_list.append(value)
+                    magnitude = vals[0]
+                    phase = vals[1]
+
+                net_list.append(key)
+                magnitude_list.append(magnitude)
                 phase_list.append(phase)
+
             if self.default_solution_type == "Q3D Extractor":
-                setting_CG = ["NAME:Cap", "Value Type:=", "N", net_list, value_list, phase_list]
+                settings_cg = ["NAME:Cap", "Value Type:=", "N", net_list, magnitude_list, phase_list]
             else:
-                setting_CG = ["NAME:CGSources", net_list, value_list, phase_list]
+                settings_cg = ["NAME:CGSources", net_list, magnitude_list, phase_list]
+
         if acrl:
             source_list = ["NAME:Source Names"]
-            unit = "V"
-            excitation = self.sources(0, False)
-            for key, value in acrl.items():
-                if key not in excitation:
-                    self.logger.error("Not existing excitation " + key)
-                    return False
-                else:
-                    source_list.append(key)
+            magnitude_unit = "V"
+            sources = self.sources(0, False)
+
             if self.default_solution_type == "Q3D Extractor":
-                value_list = ["NAME:Source Values"]
-                phase_list = ["NAME:Source Values"]
+                value_list = ["NAME:Source Magnitudes"]
+                phase_list = ["NAME:Source Phases"]
             else:
                 value_list = ["NAME:Magnitude"]
                 phase_list = ["NAME:Phase"]
+
             for key, vals in acrl.items():
+                if key not in sources:
+                    self.logger.error("Not existing source " + key)
+                    return False
+
                 if isinstance(vals, str):
-                    magnitude = decompose_variable_value(vals)
-                    value = vals
+                    magnitude = vals
+                    magnitude_unit = decompose_variable_value(vals)[1]
                     phase = "0deg"
                 else:
-                    value = vals[0]
-                    magnitude = decompose_variable_value(value)
-                    if len(vals) == 1:
-                        phase = "0deg"
-                    else:
-                        phase = vals[1]
-                if magnitude[1]:
-                    unit = magnitude[1]
-                else:
-                    value += unit
+                    magnitude = vals[0]
+                    magnitude_unit = decompose_variable_value(magnitude)[1]
+                    phase = vals[1]
 
-                value_list.append(value)
+                source_list.append(key)
+                value_list.append(magnitude)
                 phase_list.append(phase)
 
             if self.default_solution_type == "Q3D Extractor":
-                setting_AC = ["NAME:AC", "Value Type:=", unit, source_list, value_list]
+                settings_ac = ["NAME:AC", "Value Type:=", magnitude_unit, source_list, value_list, phase_list]
             else:
-                setting_AC = ["NAME:RLSources", source_list, value_list, phase_list]
-        if dcrl and self.default_solution_type == "Q3D Extractor":
-            unit = "V"
+                settings_ac = ["NAME:RLSources", source_list, value_list, phase_list]
+
+        if dcrl:
             source_list = ["NAME:Source Names"]
-            excitation = self.sources(0, False)
-            for key, value in dcrl.items():
-                if key not in excitation:  # pragma: no cover
-                    self.logger.error("Not existing excitation " + key)
-                    return False
-                else:
-                    source_list.append(key)
+            magnitude_unit = "A"
+            sources = self.sources(0, False)
+
             if self.default_solution_type == "Q3D Extractor":
-                value_list = ["NAME:Source Values"]
+                value_list = ["NAME:Source Magnitudes"]
+                phase_list = ["NAME:Source Phases"]
             else:  # pragma: no cover
                 value_list = ["NAME:Magnitude"]
+                phase_list = ["NAME:Source Phase"]
+
             for key, vals in dcrl.items():
-                magnitude = decompose_variable_value(vals)
-                if magnitude[1]:
-                    unit = magnitude[1]
-                else:
-                    vals += unit
+                if key not in sources:  # pragma: no cover
+                    self.logger.error("Not existing source " + key)
+                    return False
+
                 if isinstance(vals, str):
-                    value = vals
+                    magnitude = vals
+                    magnitude_unit = decompose_variable_value(vals)[1]
+                    phase = "0deg"
                 else:
-                    value = vals[0]
-                value_list.append(value)
-            setting_DC = ["NAME:DC", "Value Type:=", unit, source_list, value_list]
+                    magnitude = vals[0]
+                    magnitude_unit = decompose_variable_value(magnitude)[1]
+                    phase = vals[1]
+
+                source_list.append(key)
+                value_list.append(magnitude)
+                phase_list.append(phase)
+
+            settings_dc = ["NAME:DC", "Value Type:=", magnitude_unit, source_list, value_list, phase_list]
 
         if self.default_solution_type == "Q3D Extractor":
-            self.osolution.EditSources(setting_AC, setting_CG, setting_DC)
+            self.osolution.EditSources(settings_ac, settings_cg, settings_dc)
         else:
-            self.osolution.EditSources(setting_CG, setting_AC)
+            self.osolution.EditSources(settings_cg, settings_ac)
 
         return True
 
