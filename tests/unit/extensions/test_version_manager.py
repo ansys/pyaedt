@@ -29,12 +29,12 @@ import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import patch
 import zipfile
-from ansys.aedt.core.generic.general_methods import is_linux
 
 import pytest
 
 import ansys  # noqa: F401  (needed for monkeypatching Desktop)
 from ansys.aedt.core.extensions.installer import version_manager as vm
+from ansys.aedt.core.generic.general_methods import is_linux
 
 
 # Provide a lightweight variable class to avoid tkinter dependency
