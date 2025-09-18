@@ -895,7 +895,7 @@ class ExtensionManager(ExtensionProjectCommon):
             except Exception:  # pragma: no cover
                 pass
 
-    def _export_logs(self):  # pragma: no cover
+    def _export_logs(self):
         """Export logs to a text file."""
         if not self.full_log_buffer:
             messagebox.showinfo(
