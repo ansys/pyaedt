@@ -58,6 +58,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
@@ -1312,6 +1313,78 @@ class Desktop(object):
         return True
 
     @pyaedt_function_handler()
+    def __release_and_close_desktop(self, close_projects, close_aedt_app):
+        """Internal method performing common operations when releasing or closing AEDT.
+
+        Parameters
+        ----------
+        close_projects : bool, optional
+            Whether to close the AEDT projects that are open in the session.
+        close_aedt_app : bool, optional
+            Whether to close the active AEDT session on exiting AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        # Handle case were the desktop has been released and properties have already been deleted
+        if self.__closed is True:  # pragma no cover
+            return True
+        if self.is_grpc_api:
+            self.grpc_plugin.recreate_application(True)
+        self.logger.oproject = None
+        self.logger.odesign = None
+        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
+            close_projects = True
+            close_aedt_app = True
+
+        for edb_object in _edb_sessions:
+            try:
+                edb_object.close()
+            except Exception:  # pragma: no cover
+                self.logger.warning("Failed to close Edb object.")
+
+        if close_projects and "PYTEST_CURRENT_TEST" not in os.environ:
+            projects = self.project_list
+            for project in projects:
+                try:
+                    self.odesktop.CloseProject(project)
+                except Exception:  # pragma: no cover
+                    self.logger.warning(f"Failed to close Project {project}")
+
+        if close_aedt_app:
+            result = self.__close_aedt_application(self.aedt_process_id, self.is_grpc_api)
+        else:
+            result = self.__release_aedt_application(self.aedt_process_id, self.is_grpc_api)
+
+        if not result:  # pragma: no cover
+            self.logger.error("Error releasing desktop.")
+            return False
+        self.logger._desktop_class = None
+        self.logger._oproject = None
+        self.logger._odesign = None
+        if close_aedt_app:
+            self.logger.info("Desktop has been released and closed.")
+        else:
+            self.logger.info("Desktop has been released.")
+        if self.aedt_process_id in _desktop_sessions:
+            del _desktop_sessions[self.aedt_process_id]
+        props = [a for a in dir(self) if not a.startswith("__")]
+        for a in props:
+            self.__dict__.pop(a, None)
+
+        gc.collect()
+        self.__closed = True
+        return result
+
+    @pyaedt_function_handler()
+    @deprecate_argument(
+        arg_name="close_on_exit",
+        message="The ``close_on_exit`` argument will be removed in future versions. "
+        "Use ``close_desktop`` method to close the desktop.",
+    )
     def release_desktop(self, close_projects=True, close_on_exit=True):
         """Release AEDT.
 
@@ -1335,58 +1408,17 @@ class Desktop(object):
         >>> desktop = ansys.aedt.core.Desktop("2025.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
-        >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
+        >>> desktop.release_desktop(close_projects=False)  # doctest: +SKIP
 
         """
-        # Handle case were the desktop has been released and properties have already been deleted
-        if self.__closed is True:  # pragma no cover
-            return True
-        if self.is_grpc_api:
-            self.grpc_plugin.recreate_application(True)
-        self.logger.oproject = None
-        self.logger.odesign = None
-        if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
-            close_projects = True
-            close_on_exit = True
-
-        for edb_object in _edb_sessions:
-            try:
-                edb_object.close()
-            except Exception:  # pragma: no cover
-                self.logger.warning("Failed to close Edb object.")
-
-        if close_projects and "PYTEST_CURRENT_TEST" not in os.environ:
-            projects = self.project_list
-            for project in projects:
-                try:
-                    self.odesktop.CloseProject(project)
-                except Exception:  # pragma: no cover
-                    self.logger.warning(f"Failed to close Project {project}")
-
         if close_on_exit:
-            result = self.__close_aedt_application(self.aedt_process_id, self.is_grpc_api)
-        else:
-            result = self.__release_aedt_application(self.aedt_process_id, self.is_grpc_api)
+            warnings.warn(
+                "The `close_on_exit` argument will be removed in future versions. "
+                "Use `close_desktop` method to close the desktop.",
+                DeprecationWarning,
+            )
 
-        if not result:  # pragma: no cover
-            self.logger.error("Error releasing desktop.")
-            return False
-        self.logger._desktop_class = None
-        self.logger._oproject = None
-        self.logger._odesign = None
-        if close_on_exit:
-            self.logger.info("Desktop has been released and closed.")
-        else:
-            self.logger.info("Desktop has been released.")
-        if self.aedt_process_id in _desktop_sessions:
-            del _desktop_sessions[self.aedt_process_id]
-        props = [a for a in dir(self) if not a.startswith("__")]
-        for a in props:
-            self.__dict__.pop(a, None)
-
-        gc.collect()
-        self.__closed = True
-        return result
+        return self.__release_and_close_desktop(close_projects, close_on_exit)
 
     def close_desktop(self):
         """Close all projects and shut down AEDT.
@@ -1405,9 +1437,6 @@ class Desktop(object):
         >>> desktop.close_desktop()  # doctest: +SKIP
 
         """
-        if self.__closed is True:  # pragma: no cover
-            return
-
         return self.release_desktop(close_projects=True, close_on_exit=True)
 
     def enable_autosave(self):
