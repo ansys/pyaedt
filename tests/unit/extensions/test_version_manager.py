@@ -29,6 +29,7 @@ import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import patch
 import zipfile
+from ansys.aedt.core.generic.general_methods import is_linux
 
 import pytest
 
@@ -109,6 +110,7 @@ def simple_desktop(tmp_path):
     return d
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_get_latest_version_success_and_failure(monkeypatch):
     # success
     fake_resp = MagicMock()
@@ -133,7 +135,8 @@ def test_get_latest_version_success_and_failure(monkeypatch):
     assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
 
 
-def test_is_git_available_and_activate_venv(monkeypatch, tmp_path):
+@pytest.mark.skipif(is_linux, reason="Not supported.")
+def test_is_git_available_and_activate_venv(monkeypatch, root, tmp_path):
     # Git not available
     monkeypatch.setattr(vm.shutil, "which", lambda name: None)
     with patch.object(vm.messagebox, "showerror") as mock_err:
@@ -149,15 +152,13 @@ def test_is_git_available_and_activate_venv(monkeypatch, tmp_path):
     assert vm.VersionManager.is_git_available() is True
 
     # activate_venv: ensure PATH is prefixed with venv Scripts
-    root = tkinter.Tk()
-    root.withdraw()
     mgr = vm.VersionManager(root, MagicMock(), "2025.1", str(tmp_path))
     scripts_dir = os.path.join(mgr.venv_path, "Scripts")
     assert mgr.activated_env["VIRTUAL_ENV"] == mgr.venv_path
     assert mgr.activated_env["PATH"].startswith(scripts_dir)
-    root.destroy()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_update_pyaedt_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
     # Simulate installed version greater than latest -> pin to exact
@@ -175,6 +176,7 @@ def test_update_pyaedt_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
             mock_run.assert_called()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_update_pyedb_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
     monkeypatch.setattr(vm, "get_latest_version", _latest("1.0.0"))  # noqa: E501
@@ -191,6 +193,7 @@ def test_update_pyedb_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
             mock_run.assert_called()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_update_from_wheelhouse_no_selection(root, simple_desktop, tmp_path):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
     with patch.object(
@@ -202,6 +205,7 @@ def test_update_from_wheelhouse_no_selection(root, simple_desktop, tmp_path):
         mgr.update_from_wheelhouse()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_reset_pyaedt_buttons_in_aedt_invokes_installer(root, simple_desktop, tmp_path):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
     with patch.object(vm.messagebox, "askyesno", return_value=True):
@@ -212,6 +216,7 @@ def test_reset_pyaedt_buttons_in_aedt_invokes_installer(root, simple_desktop, tm
                 mock_info.assert_called_once()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_get_installed_version_various_paths(monkeypatch, root, simple_desktop, tmp_path):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
     # Case 1: importlib.metadata path works
@@ -241,6 +246,7 @@ def test_get_installed_version_various_paths(monkeypatch, root, simple_desktop, 
     assert mgr.get_installed_version("pyaedt") == "Please restart"
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_clicked_refresh_updates_strings(monkeypatch, root, simple_desktop, tmp_path):
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
     monkeypatch.setattr(vm, "get_latest_version", _latest("9.9.9"))
@@ -264,6 +270,7 @@ def test_clicked_refresh_updates_strings(monkeypatch, root, simple_desktop, tmp_
             assert "7.7.7" in mgr.pyaedt_info.get()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_get_desktop_info(monkeypatch, tmp_path):
     # Cover get_desktop_info path with process id None
     monkeypatch.setattr(vm, "get_port", lambda: 1234)
@@ -294,6 +301,7 @@ def test_get_desktop_info(monkeypatch, tmp_path):
     created[0].release_desktop.assert_called_once()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_update_from_wheelhouse_valid(monkeypatch, root, simple_desktop, tmp_path):
     pyver = ".".join(platform.python_version().split(".")[:2])
     os_tag = "windows" if vm.is_windows else "ubuntu"
@@ -317,6 +325,7 @@ def test_update_from_wheelhouse_valid(monkeypatch, root, simple_desktop, tmp_pat
         vm.messagebox.showerror.assert_not_called()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_toggle_theme_switches(monkeypatch, root, simple_desktop, tmp_path):
     vm.root = MagicMock()
     mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
@@ -337,6 +346,7 @@ def test_toggle_theme_switches(monkeypatch, root, simple_desktop, tmp_path):
     mgr.change_theme_button.config.assert_called_with(text="\u263d")
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_init_runs_and_creates_ui(monkeypatch, root, simple_desktop, tmp_path):
     # Prevent network and subprocess calls during initialization
     monkeypatch.setattr(vm.VersionManager, "get_installed_version", lambda self, name: "0.0.0")
@@ -348,6 +358,7 @@ def test_init_runs_and_creates_ui(monkeypatch, root, simple_desktop, tmp_path):
     assert "Venv path" in mgr.venv_information.get()
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_ui_creation_methods(monkeypatch, root, simple_desktop, tmp_path):
     # Prevent network and subprocess calls during initialization
     monkeypatch.setattr(vm.VersionManager, "get_installed_version", lambda self, name: "0.0.0")
@@ -374,6 +385,7 @@ def _make_wh_zip(tmp_path, pyaedt_version, wh_pkg_type, os_system, pyver="3.10")
     return zpath
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_update_from_wheelhouse_incorrect_type_triggers_error(monkeypatch, root, simple_desktop, tmp_path):
     # pyaedt version <= 0.15.3 and package type != 'installer' should trigger error
     zpath = _make_wh_zip(
@@ -392,6 +404,7 @@ def test_update_from_wheelhouse_incorrect_type_triggers_error(monkeypatch, root,
     assert "This wheelhouse doesn't contain required packages" in err.call_args[0][1]
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_update_from_wheelhouse_os_mismatch_triggers_error(monkeypatch, root, simple_desktop, tmp_path):
     # OS tag 'windows' but vm.is_windows False should trigger error
     pyver = ".".join(platform.python_version().split(".")[:2])
