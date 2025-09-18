@@ -773,7 +773,9 @@ class ExtensionManager(ExtensionProjectCommon):
             try:
                 self._update_logs_text_widget()
             except Exception:
-                pass
+                messagebox.showerror(
+                    "Error", "Logs window error. Closing it."
+                )
         # Reschedule if process still running
         if self.active_process and self.active_process.poll() is None:
             self.root.after(500, self._periodic_log_refresh)
@@ -803,7 +805,9 @@ class ExtensionManager(ExtensionProjectCommon):
             try:
                 self.logs_window.destroy()
             except Exception:
-                pass
+                messagebox.showerror(
+                    "Error", "Failed to close logs window."
+                )
             finally:
                 # Clear reference so future checks see it's closed
                 self.logs_window = None
@@ -818,7 +822,10 @@ class ExtensionManager(ExtensionProjectCommon):
                 self._close_logs_window()
                 return
             except Exception:  # pragma: no cover
-                pass
+                messagebox.showerror(
+                    "Error", "Failed to close existing logs window."
+                )
+                return
         self.logs_window = tkinter.Toplevel(self.root)
         self.logs_window.title('Extension Logs')
         self.logs_window.geometry('700x400')
@@ -893,7 +900,9 @@ class ExtensionManager(ExtensionProjectCommon):
                 self.logs_text_widget.delete('1.0', 'end')
                 self.logs_text_widget.configure(state='disabled')
             except Exception:  # pragma: no cover
-                pass
+                messagebox.showerror(
+                    "Error", "Failed to clear logs window."
+                )
 
     def _export_logs(self):
         """Export logs to a text file."""
