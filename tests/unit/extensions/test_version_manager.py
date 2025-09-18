@@ -109,31 +109,6 @@ def simple_desktop():
     d.logger = MagicMock()
     return d
 
-
-def test_get_latest_version_success_and_failure(monkeypatch):
-    # success
-    fake_resp = MagicMock()
-    fake_resp.status_code = 200
-    fake_resp.json.return_value = {"info": {"version": "1.2.3"}}
-    monkeypatch.setattr(
-        vm.requests,
-        "get",
-        lambda url, timeout=3: fake_resp,
-    )  # noqa: E501
-    assert vm.get_latest_version("pyaedt") == "1.2.3"
-
-    # non-200
-    fake_resp.status_code = 404
-    assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
-
-    # exception
-    def raise_exc(*a, **k):
-        raise RuntimeError("boom")
-
-    monkeypatch.setattr(vm.requests, "get", raise_exc)
-    assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
-
-
 def test_is_git_available_and_activate_venv(monkeypatch):
     # Git not available
     monkeypatch.setattr(vm.shutil, "which", lambda name: None)
@@ -407,3 +382,55 @@ def test_update_from_wheelhouse_os_mismatch_triggers_error(monkeypatch, root, si
     mgr.update_from_wheelhouse()
     assert err.called
     assert "not compatible with your operating system" in err.call_args[0][1]
+
+
+def test_get_latest_version():
+    """Test get_latest_version function with various scenarios."""
+    # Test successful response
+    mock_response = MagicMock()
+    mock_response.status = 200
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=None)
+
+    with patch.object(vm.urllib.request, "urlopen",
+                      return_value=mock_response):
+        expected_return = {"info": {"version": "1.2.3"}}
+        with patch.object(vm.json, "load",
+                          return_value=expected_return):
+            result = vm.get_latest_version("pyaedt")
+            assert result == "1.2.3"
+
+    # Test HTTP error response (non-200 status)
+    mock_response.status = 404
+    with patch.object(vm.urllib.request, "urlopen",
+                      return_value=mock_response):
+        result = vm.get_latest_version("nonexistent-package")
+        assert result == vm.UNKNOWN_VERSION
+
+    # Test network timeout/exception
+    with patch.object(vm.urllib.request, "urlopen",
+                      side_effect=Exception("Network error")):
+        result = vm.get_latest_version("pyaedt")
+        assert result == vm.UNKNOWN_VERSION
+
+    # Test JSON parsing error
+    mock_response.status = 200
+    with patch.object(vm.urllib.request, "urlopen",
+                      return_value=mock_response):
+        with patch.object(vm.json, "load",
+                          side_effect=ValueError("Invalid JSON")):
+            result = vm.get_latest_version("pyaedt")
+            assert result == vm.UNKNOWN_VERSION
+
+    # Test with custom timeout
+    with patch.object(vm.urllib.request, "urlopen") as mock_urlopen:
+        mock_urlopen.return_value = mock_response
+        expected_return = {"info": {"version": "2.0.0"}}
+        with patch.object(vm.json, "load",
+                          return_value=expected_return):
+            result = vm.get_latest_version("pyaedt", timeout=10)
+            assert result == "2.0.0"
+            # Verify that the timeout parameter was passed correctly
+            expected_url = "https://pypi.org/pypi/pyaedt/json"
+            mock_urlopen.assert_called_once_with(expected_url,
+                                                 timeout=10)

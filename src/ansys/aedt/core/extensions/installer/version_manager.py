@@ -38,7 +38,8 @@ import zipfile
 import defusedxml
 import PIL.Image
 import PIL.ImageTk
-import requests
+import urllib.request
+import json
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -62,13 +63,14 @@ UNKNOWN_VERSION = "Unknown"
 
 
 def get_latest_version(package_name, timeout=3):
+    url = f"https://pypi.org/pypi/{package_name}/json"
     try:
-        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
-        if response.status_code == 200:
-            data = response.json()
-            return data["info"]["version"]
-        else:
-            return UNKNOWN_VERSION
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            if response.status == 200:
+                data = json.load(response)
+                return data["info"]["version"]
+            else:
+                return UNKNOWN_VERSION
     except Exception:
         return UNKNOWN_VERSION
 
