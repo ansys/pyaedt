@@ -66,6 +66,7 @@ tests = [
     "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.9",
     "tables",
+    "requests",
     "rpyc>=6.0.0,<6.1",
 ]
 dotnet = [
