@@ -60,7 +60,7 @@ from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import get_string_version
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
-from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -400,7 +400,7 @@ class Desktop(object):
         if not settings.remote_api:
             pyaedt_logger.info(f"Python version {sys.version}.")
         pyaedt_logger.info(f"PyAEDT version {__version__}.")
-        if settings.use_multi_desktop and not inside_desktop and new_desktop:
+        if settings.use_multi_desktop and not inside_desktop_ironpython_console and new_desktop:
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
         elif len(_desktop_sessions.keys()) > 0:
@@ -610,7 +610,7 @@ class Desktop(object):
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
 
-        # Register the desktop closure to be called at exit unless asked not not.
+        # Register the desktop closure to be called at exit unless asked not to.
         atexit.register(lambda: self.release_desktop(close_projects=close_on_exit, close_on_exit=close_on_exit))
 
     def __enter__(self):
@@ -643,9 +643,9 @@ class Desktop(object):
 
         if len(project_design_name) != 2:
             return None
-        if isinstance(project_design_name[0], int) and project_design_name[0] < len(self.project_list()):
-            projectname = self.project_list()[project_design_name[0]]
-        elif isinstance(project_design_name[0], str) and project_design_name[0] in self.project_list():
+        if isinstance(project_design_name[0], int) and project_design_name[0] < len(self.project_list):
+            projectname = self.project_list[project_design_name[0]]
+        elif isinstance(project_design_name[0], str) and project_design_name[0] in self.project_list:
             projectname = project_design_name[0]
         else:
             return None
@@ -903,8 +903,8 @@ class Desktop(object):
         """
         if not name:
             active_project = self.odesktop.GetActiveProject()
-            if not active_project and self.project_list():
-                active_project = self.odesktop.SetActiveProject(self.project_list()[0])
+            if not active_project and self.project_list:
+                active_project = self.odesktop.SetActiveProject(self.project_list[0])
         else:
             try:
                 active_project = self.odesktop.SetActiveProject(name)
@@ -931,7 +931,7 @@ class Desktop(object):
         self.odesktop.CloseAllWindows()
         return True
 
-    @pyaedt_function_handler()
+    @property
     def project_list(self):
         """Get a list of projects.
 
@@ -1189,7 +1189,7 @@ class Desktop(object):
         >>> oDesktop.OpenProject
 
         """
-        if Path(project_file).stem in self.project_list():
+        if Path(project_file).stem in self.project_list:
             proj = self.active_project(Path(project_file).stem)
         else:
             proj = self.odesktop.OpenProject(project_file)
@@ -1204,15 +1204,13 @@ class Desktop(object):
             return False
 
     @pyaedt_function_handler()
-    def __close_aedt_application(self, close_desktop, pid, is_grpc_api):
+    def __release_aedt_application(self, pid, is_grpc_api):
         """Release the AEDT API.
 
         Parameters
         ----------
         desktop_class : :class:ansys.aedt.core.desktop.Desktop
             Desktop class.
-        close_desktop : bool
-            Whether to close the active AEDT session.
         pid : int
             Process ID of the desktop app that is being closed.
         is_grpc_api : bool
@@ -1225,11 +1223,48 @@ class Desktop(object):
 
         """
         if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api):
-            if close_desktop and self.parent_desktop_id:  # pragma: no cover
+            for k, d in _desktop_sessions.items():
+                if k == pid:
+                    d.grpc_plugin.recreate_application(True)
+                    d.grpc_plugin.Release()
+                    return True
+        elif not inside_desktop_ironpython_console:  # pragma: no cover
+            try:
+                scopeID = 0
+                while scopeID <= 5:
+                    self.COMUtil.ReleaseCOMObjectScope(self.COMUtil.PInvokeProxyAPI, scopeID)
+                    scopeID += 1
+            except Exception:
+                pyaedt_logger.warning(
+                    "Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`."
+                )
+        return True
+
+    @pyaedt_function_handler()
+    def __close_aedt_application(self, pid, is_grpc_api):
+        """Close the AEDT application.
+
+        Parameters
+        ----------
+        desktop_class : :class:ansys.aedt.core.desktop.Desktop
+            Desktop class.
+        pid : int
+            Process ID of the desktop app that is being closed.
+        is_grpc_api : bool
+            Whether the active AEDT session is gRPC or COM.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api):
+            if self.parent_desktop_id:  # pragma: no cover
                 pyaedt_logger.error("A child desktop session is linked to this session.")
                 pyaedt_logger.error("Multiple desktop sessions must be released in reverse order.")
                 return False
-            elif close_desktop:
+            else:
                 try:
                     if settings.use_multi_desktop:  # pragma: no cover
                         os.kill(pid, 9)
@@ -1251,33 +1286,16 @@ class Desktop(object):
                     return True
                 except Exception:  # pragma: no cover
                     warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-            else:  # pragma: no cover
-                for k, d in _desktop_sessions.items():
-                    if k == pid:
-                        d.grpc_plugin.recreate_application(True)
-                        d.grpc_plugin.Release()
-                        return True
-        elif not inside_desktop:  # pragma: no cover
-            if close_desktop:
-                try:
-                    if settings.use_multi_desktop:
-                        self.odesktop.QuitApplication()
-                    else:
-                        os.kill(pid, 9)
-                except Exception:  # pragma: no cover
-                    warnings.warn("Something went wrong closing AEDT. Exception in `os.kill(pid, 9)`.")
-                    return False
-            else:
-                try:
-                    scopeID = 0
-                    while scopeID <= 5:
-                        self.COMUtil.ReleaseCOMObjectScope(self.COMUtil.PInvokeProxyAPI, scopeID)
-                        scopeID += 1
-                except Exception:
-                    pyaedt_logger.warning(
-                        "Something went wrong releasing AEDT. Exception in `_main.COMUtil.ReleaseCOMObjectScope`."
-                    )
-        if not settings.remote_rpc_session and close_desktop:  # pragma: no cover
+        elif not inside_desktop_ironpython_console:  # pragma: no cover
+            try:
+                if settings.use_multi_desktop:
+                    self.odesktop.QuitApplication()
+                else:
+                    os.kill(pid, 9)
+            except Exception:  # pragma: no cover
+                warnings.warn("Something went wrong closing AEDT. Exception in `os.kill(pid, 9)`.")
+                return False
+        if not settings.remote_rpc_session:  # pragma: no cover
             timeout = 10
             while pid in active_sessions():
                 time.sleep(1)
@@ -1291,7 +1309,6 @@ class Desktop(object):
                             "Something went wrong closing AEDT. Exception in `os.kill(pid, 9)` after timeout."
                         )
                         return False
-
         return True
 
     @pyaedt_function_handler()
@@ -1345,7 +1362,11 @@ class Desktop(object):
                     self.odesktop.CloseProject(project)
                 except Exception:  # pragma: no cover
                     self.logger.warning(f"Failed to close Project {project}")
-        result = self.__close_aedt_application(close_on_exit, self.aedt_process_id, self.is_grpc_api)
+
+        if close_on_exit:
+            result = self.__close_aedt_application(self.aedt_process_id, self.is_grpc_api)
+        else:
+            result = self.__release_aedt_application(self.aedt_process_id, self.is_grpc_api)
 
         if not result:  # pragma: no cover
             self.logger.error("Error releasing desktop.")
@@ -1630,7 +1651,7 @@ class Desktop(object):
         """
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
-        if project_name in self.project_list():
+        if project_name in self.project_list:
             self.save_project(project_path, project_path)
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
@@ -1653,7 +1674,7 @@ class Desktop(object):
             if not Path(aedt_full_exe_path).exists():
                 self.logger.warning("The AEDT executable path is not visible from the client.")
             aedt_full_exe_path.replace("\\", "\\\\")
-        if project_name in self.project_list():
+        if project_name in self.project_list:
             self.odesktop.CloseProject(project_name)
         path_file = Path(__file__)
         destination_reg = Path(project_path) / "Job_settings.areg"
@@ -1751,12 +1772,12 @@ class Desktop(object):
         """
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
-        if project_name in self.project_list():
+        if project_name in self.project_list:
             self.save_project(project_path, project_path)
 
         if not job_name:
             job_name = generate_unique_name(project_name)
-        if project_name in self.project_list():
+        if project_name in self.project_list:
             self.odesktop.CloseProject(project_name)
         path_file = Path(__file__)
         reg_name = generate_unique_name("ansys_cloud") + ".areg"
