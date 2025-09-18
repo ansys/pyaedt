@@ -17,7 +17,8 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Topic :: Software Development :: Libraries",
   "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
-  "Topic :: Scientific/Engineering :: Information Analysis", # Additional specific classifiers
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  # Additional specific classifiers
   "Operating System :: OS Independent",
 ]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
