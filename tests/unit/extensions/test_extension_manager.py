@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import io
-import os
 import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
@@ -165,6 +164,7 @@ def test_extension_manager_default_settings(mock_toolkits, mock_desktop, mock_ae
 
     extension.root.destroy()
 
+
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 def test_start_log_stream_threads_appends_stdout_and_stderr(mock_toolkits, mock_desktop, mock_aedt_app):
@@ -257,14 +257,14 @@ def test_update_logs_text_widget_inserts_and_autoscroll(mock_toolkits, mock_desk
     extension._update_logs_text_widget()
 
     # Should have enabled, cleared, inserted and disabled
-    txt.configure.assert_any_call(state='normal')
-    txt.delete.assert_called_once_with('1.0', 'end')
+    txt.configure.assert_any_call(state="normal")
+    txt.delete.assert_called_once_with("1.0", "end")
     # Two insert calls (one plain, one with stderr tag)
     insert_calls = [c for c in txt.insert.call_args_list]
     assert any("line1" in str(call) for call in insert_calls)
     assert any("line2" in str(call) for call in insert_calls)
-    txt.configure.assert_any_call(state='disabled')
-    txt.see.assert_called_once_with('end')
+    txt.configure.assert_any_call(state="disabled")
+    txt.see.assert_called_once_with("end")
 
     extension.root.destroy()
 
@@ -315,7 +315,7 @@ def test_clear_logs_and_export_behaviour(mock_toolkits, mock_desktop, mock_aedt_
     extension.logs_text_widget = fake_txt
     extension._clear_logs()
     assert extension.full_log_buffer == []
-    fake_txt.delete.assert_called_once_with('1.0', 'end')
+    fake_txt.delete.assert_called_once_with("1.0", "end")
 
     # Test _export_logs when no logs -> showinfo called
     extension.full_log_buffer = []
@@ -326,21 +326,31 @@ def test_clear_logs_and_export_behaviour(mock_toolkits, mock_desktop, mock_aedt_
     # Test _export_logs writes file and shows info
     extension.full_log_buffer = [("ok", "stdout"), ("bad", "stderr")]
     save_file = tmp_path / "out_logs.txt"
-    with patch("ansys.aedt.core.extensions.installer.extension_manager.filedialog.asksaveasfilename", return_value=str(save_file)), \
-        patch("ansys.aedt.core.extensions.installer.extension_manager.messagebox.showinfo") as mock_info:
+    with (
+        patch(
+            "ansys.aedt.core.extensions.installer.extension_manager.filedialog.asksaveasfilename",
+            return_value=str(save_file),
+        ),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.messagebox.showinfo") as mock_info,
+    ):
         extension._export_logs()
         # File should exist and contain expected lines
         assert save_file.exists()
-        content = save_file.read_text(encoding='utf-8')
+        content = save_file.read_text(encoding="utf-8")
         assert "ok" in content
         assert "[ERR] bad" in content
         mock_info.assert_called_once()
 
     # Test _export_logs handles writing exception
     extension.full_log_buffer = [("line", "stdout")]
-    with patch("ansys.aedt.core.extensions.installer.extension_manager.filedialog.asksaveasfilename", return_value=str(tmp_path / "file.txt")), \
-        patch("ansys.aedt.core.extensions.installer.extension_manager.open", side_effect=Exception("disk full")), \
-        patch("ansys.aedt.core.extensions.installer.extension_manager.messagebox.showerror") as mock_err:
+    with (
+        patch(
+            "ansys.aedt.core.extensions.installer.extension_manager.filedialog.asksaveasfilename",
+            return_value=str(tmp_path / "file.txt"),
+        ),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.open", side_effect=Exception("disk full")),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.messagebox.showerror") as mock_err,
+    ):
         extension._export_logs()
         mock_err.assert_called_once()
 
