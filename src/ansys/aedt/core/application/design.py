@@ -820,6 +820,9 @@ class Design(AedtObjects):
     def project_list(self) -> List[str]:
         """Project list.
 
+        .. deprecated:: 0.19.1
+            This property is deprecated. Use the ``ansys.aedt.core.desktop.project_list`` method instead.
+
         Returns
         -------
         list
@@ -829,7 +832,13 @@ class Design(AedtObjects):
         ----------
         >>> oDesktop.GetProjectList
         """
-        return list(self.odesktop.GetProjectList())
+        warnings.warn(
+            "`design.project_list` is deprecated. The property is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.project_list`.",
+            DeprecationWarning,
+        )
+
+        return self.desktop_class.project_list
 
     @property
     def project_path(self) -> Optional[str]:
@@ -1323,10 +1332,10 @@ class Design(AedtObjects):
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
             else:
-                project_list = self.odesktop.GetProjectList()
+                project_list = self.desktop_class.project_list
                 self._oproject = self.odesktop.NewProject()
                 if not self._oproject:
-                    new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                    new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
                     if new_project_list:
                         self._oproject = self.desktop_class.active_project(new_project_list[0])
                 if proj_name.endswith(".aedt"):
@@ -1336,10 +1345,10 @@ class Design(AedtObjects):
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
-            project_list = self.odesktop.GetProjectList()
+            project_list = self.desktop_class.project_list
             self._oproject = self.odesktop.NewProject()
             if not self._oproject:
-                new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
                 if new_project_list:
                     self._oproject = self.desktop_class.active_project(new_project_list[0])
             self._add_handler()
@@ -3318,7 +3327,7 @@ class Design(AedtObjects):
         >>> oDesktop.CloseProject
         """
         legacy_name = self.project_name
-        if name and name not in self.project_list:
+        if name and name not in self.desktop_class.project_list:
             self.logger.warning("Project named '%s' was not found.", name)
             return False
         if not name:

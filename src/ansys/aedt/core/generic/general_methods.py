@@ -48,7 +48,7 @@ from ansys.aedt.core.internal.errors import MethodNotSupportedError
 
 is_linux = os.name == "posix"
 is_windows = not is_linux
-inside_desktop = True if "4.0.30319.42000" in sys.version else False
+inside_desktop_ironpython_console = True if "4.0.30319.42000" in sys.version else False
 
 inclusion_list = [
     "CreateVia",

@@ -468,12 +468,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if Path(source_project).is_file():
             project_path = source_project
             project_name = Path(source_project).stem
-            if project_name in dkp.project_list():
+            if project_name in dkp.project_list:
                 app = dkp[[project_name, source_design_name]]
             else:
                 app = dkp.load_project(project_path, source_design_name)
                 is_loaded = True
-        elif source_project in self.project_list:
+        elif source_project in dkp.project_list:
             project_name = source_project
             project_path = Path(self.project_path) / str(project_name + ".aedt")
             app = dkp[[source_project, source_design_name]]
@@ -729,12 +729,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if Path(project).is_file():
             project_path = project
             project_name = Path(project).stem
-            if project_name in dkp.project_list():
+            if project_name in dkp.project_list:
                 maxwell_app = dkp[[project_name, design]]
             else:
                 maxwell_app = dkp.load_project(project_path, design)
                 project_selection = 1
-        elif project in self.project_list:
+        elif project in self.desktop_class.project_list:
             project_name = "$PROJECTDIR/{}.aedt".format(project)
             maxwell_app = dkp[[project, design]]
         else:

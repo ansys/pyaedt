@@ -175,7 +175,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         process_id = desktop.aedt_process_id
     elif _desktop_sessions and project_name:
         for desktop in list(_desktop_sessions.values()):
-            if project_name in list(desktop.project_list()):
+            if project_name in list(desktop.project_list):
                 odesktop = desktop.odesktop
                 break
     elif _desktop_sessions:
