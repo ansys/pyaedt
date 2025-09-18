@@ -24,7 +24,6 @@
 
 # -*- coding: utf-8 -*-
 import os
-from pathlib import Path
 import platform
 import tkinter
 from unittest.mock import MagicMock
@@ -102,10 +101,10 @@ def root():
 
 
 @pytest.fixture
-def simple_desktop():
+def simple_desktop(tmp_path):
     d = MagicMock()
     d.aedt_version_id = "2025.1"
-    d.personallib = str(Path("/tmp/personal"))
+    d.personallib = str(tmp_path / "personal")
     d.logger = MagicMock()
     return d
 
@@ -134,7 +133,7 @@ def test_get_latest_version_success_and_failure(monkeypatch):
     assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
 
 
-def test_is_git_available_and_activate_venv(monkeypatch):
+def test_is_git_available_and_activate_venv(monkeypatch, tmp_path):
     # Git not available
     monkeypatch.setattr(vm.shutil, "which", lambda name: None)
     with patch.object(vm.messagebox, "showerror") as mock_err:
@@ -152,15 +151,15 @@ def test_is_git_available_and_activate_venv(monkeypatch):
     # activate_venv: ensure PATH is prefixed with venv Scripts
     root = tkinter.Tk()
     root.withdraw()
-    mgr = vm.VersionManager(root, MagicMock(), "2025.1", "/tmp")
+    mgr = vm.VersionManager(root, MagicMock(), "2025.1", str(tmp_path))
     scripts_dir = os.path.join(mgr.venv_path, "Scripts")
     assert mgr.activated_env["VIRTUAL_ENV"] == mgr.venv_path
     assert mgr.activated_env["PATH"].startswith(scripts_dir)
     root.destroy()
 
 
-def test_update_pyaedt_calls_pip(monkeypatch, root, simple_desktop):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", "/tmp")
+def test_update_pyaedt_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
+    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
     # Simulate installed version greater than latest -> pin to exact
     monkeypatch.setattr(vm, "get_latest_version", _latest("1.0.0"))  # noqa: E501
     monkeypatch.setattr(vm.messagebox, "askyesno", _yes)  # noqa: E501
@@ -189,7 +188,7 @@ def test_update_pyedb_calls_pip(monkeypatch, root, simple_desktop):
     ):
         with patch.object(vm.subprocess, "run") as mock_run:
             mgr.update_pyedb()
-            mock_run.assert_called
+            mock_run.assert_called()
 
 
 def test_update_from_wheelhouse_no_selection(root, simple_desktop):
@@ -265,7 +264,7 @@ def test_clicked_refresh_updates_strings(monkeypatch, root, simple_desktop):
             assert "7.7.7" in mgr.pyaedt_info.get()
 
 
-def test_get_desktop_info(monkeypatch):
+def test_get_desktop_info(monkeypatch, tmp_path):
     # Cover get_desktop_info path with process id None
     monkeypatch.setattr(vm, "get_port", lambda: 1234)
     monkeypatch.setattr(vm, "get_aedt_version", lambda: "2025.1")
@@ -275,7 +274,7 @@ def test_get_desktop_info(monkeypatch):
 
     def desktop_factory(new_desktop, version, port, non_graphical):
         m = MagicMock()
-        m.personallib = "/tmp/personal"
+        m.personallib = str(tmp_path / "personal")
         m.release_desktop = MagicMock()
         m.new_desktop = new_desktop
         m.version = version
