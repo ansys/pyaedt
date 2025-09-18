@@ -174,12 +174,8 @@ class ExtensionCommon:
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_logger(self, parent, row, column):
-        logger_frame = ttk.Frame(
-            parent, style="PyAEDT.TFrame", name="logger_frame"
-        )
-        logger_frame.grid(
-            row=row, column=column, sticky="ew", **DEFAULT_PADDING
-        )
+        logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
+        logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
 
         # Configure grid so text expands and button stays to the right
@@ -233,11 +229,7 @@ class ExtensionCommon:
         elif self.root.theme == "dark":
             self.__apply_theme("light")
         else:  # pragma: no cover
-            raise ValueError(
-                "Unknown theme: "
-                f"{self.root.theme}. "
-                "Use 'light' or 'dark'."
-            )
+            raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
     def log_message(self, message: str):
         """Append a message to the log text box."""
