@@ -1261,7 +1261,7 @@ class Design(AedtObjects):
             if self._oproject:
                 self.logger.info(f"No project is defined. Project {self._oproject.GetName()} exists and has been read.")
         else:
-            prj_list = self.odesktop.GetProjectList()
+            prj_list = self.desktop_class.project_list
             if prj_list and proj_name in list(prj_list):
                 self._oproject = self.desktop_class.active_project(proj_name)
                 self._add_handler()
