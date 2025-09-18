@@ -109,6 +109,7 @@ def simple_desktop():
     d.logger = MagicMock()
     return d
 
+
 def test_is_git_available_and_activate_venv(monkeypatch):
     # Git not available
     monkeypatch.setattr(vm.shutil, "which", lambda name: None)
@@ -392,33 +393,27 @@ def test_get_latest_version():
     mock_response.__enter__ = MagicMock(return_value=mock_response)
     mock_response.__exit__ = MagicMock(return_value=None)
 
-    with patch.object(vm.urllib.request, "urlopen",
-                      return_value=mock_response):
+    with patch.object(vm.urllib.request, "urlopen", return_value=mock_response):
         expected_return = {"info": {"version": "1.2.3"}}
-        with patch.object(vm.json, "load",
-                          return_value=expected_return):
+        with patch.object(vm.json, "load", return_value=expected_return):
             result = vm.get_latest_version("pyaedt")
             assert result == "1.2.3"
 
     # Test HTTP error response (non-200 status)
     mock_response.status = 404
-    with patch.object(vm.urllib.request, "urlopen",
-                      return_value=mock_response):
+    with patch.object(vm.urllib.request, "urlopen", return_value=mock_response):
         result = vm.get_latest_version("nonexistent-package")
         assert result == vm.UNKNOWN_VERSION
 
     # Test network timeout/exception
-    with patch.object(vm.urllib.request, "urlopen",
-                      side_effect=Exception("Network error")):
+    with patch.object(vm.urllib.request, "urlopen", side_effect=Exception("Network error")):
         result = vm.get_latest_version("pyaedt")
         assert result == vm.UNKNOWN_VERSION
 
     # Test JSON parsing error
     mock_response.status = 200
-    with patch.object(vm.urllib.request, "urlopen",
-                      return_value=mock_response):
-        with patch.object(vm.json, "load",
-                          side_effect=ValueError("Invalid JSON")):
+    with patch.object(vm.urllib.request, "urlopen", return_value=mock_response):
+        with patch.object(vm.json, "load", side_effect=ValueError("Invalid JSON")):
             result = vm.get_latest_version("pyaedt")
             assert result == vm.UNKNOWN_VERSION
 
@@ -426,11 +421,9 @@ def test_get_latest_version():
     with patch.object(vm.urllib.request, "urlopen") as mock_urlopen:
         mock_urlopen.return_value = mock_response
         expected_return = {"info": {"version": "2.0.0"}}
-        with patch.object(vm.json, "load",
-                          return_value=expected_return):
+        with patch.object(vm.json, "load", return_value=expected_return):
             result = vm.get_latest_version("pyaedt", timeout=10)
             assert result == "2.0.0"
             # Verify that the timeout parameter was passed correctly
             expected_url = "https://pypi.org/pypi/pyaedt/json"
-            mock_urlopen.assert_called_once_with(expected_url,
-                                                 timeout=10)
+            mock_urlopen.assert_called_once_with(expected_url, timeout=10)
