@@ -129,7 +129,11 @@ examples = [
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
-
+perceive_em = [
+    "numpy==1.26.4",
+    "imageio-ffmpeg",
+    "pyaedt[graphics]",
+]
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
 

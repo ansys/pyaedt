@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
@@ -22,14 +24,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
+from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
 
-TESTS_PATH = Path(__file__).resolve().parent
-TESTS_SYSTEM_PATH = TESTS_PATH / "system"
-TESTS_UNIT_PATH = TESTS_PATH / "unit"
-TESTS_GENERAL_PATH = TESTS_SYSTEM_PATH / "general"
-TESTS_SOLVERS_PATH = TESTS_SYSTEM_PATH / "solvers"
-TESTS_VISUALIZATION_PATH = TESTS_SYSTEM_PATH / "visualization"
-TESTS_EXTENSIONS_PATH = TESTS_SYSTEM_PATH / "extensions"
-TESTS_FILTER_SOLUTIONS_PATH = TESTS_SYSTEM_PATH / "filter_solutions"
-TESTS_PERCEIVE_EM_PATH = TESTS_SYSTEM_PATH / "perceive_em"
+
+def test_real_api_initialization():
+    """Test that the PerceiveEM class initializes and loads the real API."""
+    em = PerceiveEM()
+    assert em.installation_path is not None
+    assert isinstance(em.version, str)
+    assert isinstance(em.copyright, str)
+    assert em.material_manager
+    assert em.scene
+    assert em.simulation
+    assert em.perceive_em_settings
+
+
+def test_apply_perceive_license():
+    em = PerceiveEM()
+    assert em.apply_perceive_em_license()
+
+
+def test_apply_hpc_license_real():
+    em1 = PerceiveEM()
+    em1.apply_perceive_em_license()
+    assert em1.apply_hpc_license(is_pack=True)
+
+    em2 = PerceiveEM()
+    em2.apply_perceive_em_license()
+    assert em2.apply_hpc_license(is_pack=False)
