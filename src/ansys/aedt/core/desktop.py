@@ -622,7 +622,10 @@ class Desktop(object):
         if ex_type:
             self.__exception(ex_value, ex_traceback)
         if self.close_on_exit:
-            self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
+            self.close_desktop()
+            self.__closed = True
+        else:
+            self.release_desktop(False, False)
             self.__closed = True
 
     @pyaedt_function_handler()
@@ -1437,7 +1440,7 @@ class Desktop(object):
         >>> desktop.close_desktop()  # doctest: +SKIP
 
         """
-        return self.release_desktop(close_projects=True, close_on_exit=True)
+        return self.__release_and_close_desktop(close_projects=True, close_aedt_app=True)
 
     def enable_autosave(self):
         """Enable the autosave option.

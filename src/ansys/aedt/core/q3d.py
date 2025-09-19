@@ -1929,7 +1929,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             >>> q3d = Q3d()
             >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
-            >>> q3d.release_desktop(True, True)
+            >>> q3d.desktop_class.close_desktop()
 
         Parameters
         ----------
@@ -2001,7 +2001,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             >>> sweep1 = setup1.create_frequency_sweep(
             ...     unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1", sweep_type="Discrete"
             ... )
-            >>> q3d.release_desktop(True, True)
+            >>> q3d.desktop_class.close_desktop()
 
         Parameters
         ----------

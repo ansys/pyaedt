@@ -157,7 +157,7 @@ def desktop(local_scratch):
         d.odesktop.SetSchematicEnvironment(0)
     yield d
     pid = d.aedt_process_id
-    d.release_desktop(True, True)
+    d.close_desktop()
     time.sleep(1)
     try:
         os.kill(pid, 9)

@@ -461,7 +461,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> tb.add_q3d_dynamic_component(
         ...     "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", "100mm"
         ... )
-        >>> tb.release_desktop()
+        >>> tb.desktop_class.close_desktop()
         """
         dkp = self.desktop_class
         is_loaded = False
