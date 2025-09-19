@@ -178,15 +178,48 @@ class ExtensionCommon:
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
 
-        log_text = tkinter.Text(self._widgets["logger_frame"], height=2, width=80)
+        # Configure grid so text expands and button stays to the right
+        logger_frame.grid_columnconfigure(0, weight=1)
+
+        log_text = tkinter.Text(
+            self._widgets["logger_frame"],
+            height=2,
+            width=80,
+            name="log_text_widget",
+        )
         log_text.configure(
             bg=self.theme.light["pane_bg"],
             foreground=self.theme.light["text"],
             font=self.theme.default_font,
         )
-        log_text.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        log_text.grid(
+            row=0,
+            column=0,
+            padx=(10, 5),
+            pady=5,
+            sticky="nsew",
+        )
         log_text.configure(state="disabled")  # Make it read-only
         self._widgets["log_text_widget"] = log_text
+
+        # Add "Show logs" button
+        all_logs_btn = ttk.Button(
+            logger_frame,
+            text="Show logs",
+            style="PyAEDT.TButton",
+            command=self.open_all_logs_window,
+            width=12,
+            name="all_logs_button",
+        )
+        all_logs_btn.grid(
+            row=0,
+            column=1,
+            padx=(5, 10),
+            pady=5,
+            sticky="e",
+        )
+        self._widgets["all_logs_button"] = all_logs_btn
+
         self.log_message("Welcome to the PyAEDT Extension Manager!")
 
     def toggle_theme(self):
@@ -195,19 +228,20 @@ class ExtensionCommon:
             self.__apply_theme("dark")
         elif self.root.theme == "dark":
             self.__apply_theme("light")
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
     def log_message(self, message: str):
         """Append a message to the log text box."""
         if self._widgets["log_text_widget"]:
-            self._widgets["log_text_widget"].configure(state="normal")
-            self._widgets["log_text_widget"].delete("1.0", "end")
-            self._widgets["log_text_widget"].insert("end", message + "\n")
-            self._widgets["log_text_widget"].configure(state="disabled")
+            widget = self._widgets["log_text_widget"]
+            widget.configure(state="normal")
+            widget.delete("1.0", "end")
+            widget.insert("end", message + "\n")
+            widget.configure(state="disabled")
 
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
-        """Initialize the Tkinter root window with error handling and icon."""
+        """Init Tk root window with error handling and icon."""
 
         def report_callback_exception(self, exc, val, tb):
             """Custom exception showing an error message."""
