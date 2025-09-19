@@ -155,7 +155,7 @@ class TestClass:
         sources_ac = {"Circle3": "40A"}
         assert q2d.edit_sources(sources_cg, sources_ac)
 
-        sources_cg = {"Circle2": ["10V"], "Circle3": "4A"}
+        sources_cg = {"Circle2": "10V", "Circle3": "4A"}
         sources_ac = {"Circle3": ("100A", "5deg")}
         assert q2d.edit_sources(sources_cg, sources_ac)
 

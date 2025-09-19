@@ -279,17 +279,17 @@ class QExtractor(FieldAnalysis3D, object):
         cg : dict, optional
             Dictionary of input sources to modify the module and phase of a CG solution.
             Dictionary values can be:
-            - 1 Value to set up ``0deg`` as the default
+            - 1 Magnitude to set up ``0deg`` as the default
             - 2 Values tuple or list (magnitude and phase)
         acrl : dict, optional
             Dictionary of input sources to modify the module and phase of an ACRL solution.
             Dictionary values can be:
-            - 1 Value to set up 0deg as the default
+            - 1 Magnitude to set up 0deg as the default
             - 2 Values tuple or list (magnitude and phase)
         dcrl : dict, optional
             Dictionary of input sources to modify the module and phase of a DCRL solution, This
             parameter is only available for Q3D. Dictionary values can be:
-            - 1 Value to set up ``0deg`` as the default
+            - 1 Magnitude to set up ``0deg`` as the default
             - 2 Values tuple or list (magnitude and phase)
 
         Returns
@@ -299,16 +299,19 @@ class QExtractor(FieldAnalysis3D, object):
 
         Examples
         --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d(version="2025.2")
         >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
-        >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
-        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
+        Values can also be passed as lists instead of tuples.
+        >>> sources_dcrl = {"Box1_1:Source2": ["5V", "0deg"]}
+        >>> q3d.edit_sources(cg=sources_cg, acrl=sources_acrl, dcrl=sources_dcrl)
         """
         settings_ac = []
         settings_cg = []
         settings_dc = []
         if cg:
-            net_list = ["NAME:Source Names"]
+            source_list = ["NAME:Source Names"]
             if self.default_solution_type == "Q3D Extractor":
                 magnitude_list = ["NAME:Source Magnitudes"]
                 phase_list = ["NAME:Source Phases"]
@@ -321,21 +324,18 @@ class QExtractor(FieldAnalysis3D, object):
                     self.logger.error("Not existing net " + key)
                     return False
 
+                source_list.append(key)
                 if isinstance(vals, str):
-                    magnitude = vals
-                    phase = "0deg"
+                    magnitude_list.append(vals)
+                    phase_list.append("0deg")
                 else:
-                    magnitude = vals[0]
-                    phase = vals[1]
-
-                net_list.append(key)
-                magnitude_list.append(magnitude)
-                phase_list.append(phase)
+                    magnitude_list.append(vals[0])
+                    phase_list.append(vals[1])
 
             if self.default_solution_type == "Q3D Extractor":
-                settings_cg = ["NAME:Cap", "Value Type:=", "N", net_list, magnitude_list, phase_list]
+                settings_cg = ["NAME:Cap", "Value Type:=", "N", source_list, magnitude_list, phase_list]
             else:
-                settings_cg = ["NAME:CGSources", net_list, magnitude_list, phase_list]
+                settings_cg = ["NAME:CGSources", source_list, magnitude_list, phase_list]
 
         if acrl:
             source_list = ["NAME:Source Names"]
@@ -343,10 +343,10 @@ class QExtractor(FieldAnalysis3D, object):
             sources = self.sources(0, False)
 
             if self.default_solution_type == "Q3D Extractor":
-                value_list = ["NAME:Source Magnitudes"]
+                magnitude_list = ["NAME:Source Magnitudes"]
                 phase_list = ["NAME:Source Phases"]
             else:
-                value_list = ["NAME:Magnitude"]
+                magnitude_list = ["NAME:Magnitude"]
                 phase_list = ["NAME:Phase"]
 
             for key, vals in acrl.items():
@@ -354,23 +354,20 @@ class QExtractor(FieldAnalysis3D, object):
                     self.logger.error("Not existing source " + key)
                     return False
 
-                if isinstance(vals, str):
-                    magnitude = vals
-                    magnitude_unit = decompose_variable_value(vals)[1]
-                    phase = "0deg"
-                else:
-                    magnitude = vals[0]
-                    magnitude_unit = decompose_variable_value(magnitude)[1]
-                    phase = vals[1]
-
                 source_list.append(key)
-                value_list.append(magnitude)
-                phase_list.append(phase)
+                if isinstance(vals, str):
+                    magnitude_list.append(vals)
+                    magnitude_unit = decompose_variable_value(vals)[1]
+                    phase_list.append("0deg")
+                else:
+                    magnitude_list.append(vals[0])
+                    magnitude_unit = decompose_variable_value(vals[0])[1]
+                    phase_list.append(vals[1])
 
             if self.default_solution_type == "Q3D Extractor":
-                settings_ac = ["NAME:AC", "Value Type:=", magnitude_unit, source_list, value_list, phase_list]
+                settings_ac = ["NAME:AC", "Value Type:=", magnitude_unit, source_list, magnitude_list, phase_list]
             else:
-                settings_ac = ["NAME:RLSources", source_list, value_list, phase_list]
+                settings_ac = ["NAME:RLSources", source_list, magnitude_list, phase_list]
 
         if dcrl:
             source_list = ["NAME:Source Names"]
@@ -378,10 +375,10 @@ class QExtractor(FieldAnalysis3D, object):
             sources = self.sources(0, False)
 
             if self.default_solution_type == "Q3D Extractor":
-                value_list = ["NAME:Source Magnitudes"]
+                magnitude_list = ["NAME:Source Magnitudes"]
                 phase_list = ["NAME:Source Phases"]
             else:  # pragma: no cover
-                value_list = ["NAME:Magnitude"]
+                magnitude_list = ["NAME:Magnitude"]
                 phase_list = ["NAME:Source Phase"]
 
             for key, vals in dcrl.items():
@@ -389,26 +386,22 @@ class QExtractor(FieldAnalysis3D, object):
                     self.logger.error("Not existing source " + key)
                     return False
 
-                if isinstance(vals, str):
-                    magnitude = vals
-                    magnitude_unit = decompose_variable_value(vals)[1]
-                    phase = "0deg"
-                else:
-                    magnitude = vals[0]
-                    magnitude_unit = decompose_variable_value(magnitude)[1]
-                    phase = vals[1]
-
                 source_list.append(key)
-                value_list.append(magnitude)
-                phase_list.append(phase)
+                if isinstance(vals, str):
+                    magnitude_list.append(vals)
+                    magnitude_unit = decompose_variable_value(vals)[1]
+                    phase_list.append("0deg")
+                else:
+                    magnitude_list.append(vals[0])
+                    magnitude_unit = decompose_variable_value(vals[0])[1]
+                    phase_list.append(vals[1])
 
-            settings_dc = ["NAME:DC", "Value Type:=", magnitude_unit, source_list, value_list, phase_list]
+            settings_dc = ["NAME:DC", "Value Type:=", magnitude_unit, source_list, magnitude_list, phase_list]
 
         if self.default_solution_type == "Q3D Extractor":
             self.osolution.EditSources(settings_ac, settings_cg, settings_dc)
         else:
             self.osolution.EditSources(settings_cg, settings_ac)
-
         return True
 
     @pyaedt_function_handler(setup_name="setup")
