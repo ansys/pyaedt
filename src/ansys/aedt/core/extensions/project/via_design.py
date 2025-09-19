@@ -199,7 +199,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         )
 
         if "PYTEST_CURRENT_TEST" not in os.environ:
-            hfss_3d.release_desktop(close_projects=False, close_desktop=False)
+            hfss_3d.desktop_class.release_desktop(False, False)
         return True
 
     @property

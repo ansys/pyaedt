@@ -612,7 +612,9 @@ class Desktop(object):
         _desktop_sessions[self.aedt_process_id] = self
 
         # Register the desktop closure to be called at exit unless asked not to.
-        atexit.register(lambda: self.release_desktop(close_projects=close_on_exit, close_on_exit=close_on_exit))
+        atexit.register(
+            lambda: self.__release_and_close_desktop(close_projects=close_on_exit, close_aedt_app=close_on_exit)
+        )
 
     def __enter__(self):
         return self

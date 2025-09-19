@@ -722,7 +722,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
         ...     excitations[e.name] = ["20", True, e.props["Type"], False]
         >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
-        >>> tb.release_desktop(False, False)
+        >>> tb.desktop_class.release_desktop(False, False)
         """
         dkp = self.desktop_class
         project_selection = 0
