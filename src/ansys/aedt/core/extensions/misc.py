@@ -202,10 +202,10 @@ class ExtensionCommon:
         log_text.configure(state="disabled")  # Make it read-only
         self._widgets["log_text_widget"] = log_text
 
-        # Add "All logs" button
+        # Add "Show logs" button
         all_logs_btn = ttk.Button(
             logger_frame,
-            text="All logs",
+            text="Show logs",
             style="PyAEDT.TButton",
             command=self.open_all_logs_window,
             width=12,
