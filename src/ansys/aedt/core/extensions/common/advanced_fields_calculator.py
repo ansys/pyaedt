@@ -95,8 +95,10 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
             "Mechanical",
         ]:
             self.release_desktop()
-            raise AEDTRuntimeError("This extension only works with HFSS, Icepak, " \
-            "HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, or Mechanical designs.")
+            raise AEDTRuntimeError(
+                "This extension only works with HFSS, Icepak, "
+                "HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, or Mechanical designs."
+            )
 
     def __load_expression_files(self):
         """Load expression files from the current directory and personal library."""
