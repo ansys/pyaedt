@@ -94,7 +94,6 @@ def test_import_nastran_switch_to_dark_theme(mock_askopenfilename, mock_hfss_app
 @patch("tkinter.filedialog.askopenfilename")
 def test_import_nastran_switch_to_light_theme(mock_askopenfilename, mock_hfss_app):
     """Test theme toggle button when switching to light theme."""
-
     extension = ImportNastranExtension(withdraw=True)
 
     # Switch to dark first
@@ -165,24 +164,16 @@ def test_preview_calls_nastran_to_stl(mock_hfss_app):
 
     fp = "/mock/path/test_file.nas"
     extension._ImportNastranExtension__file_path_text.delete("1.0", tkinter.END)
-    extension._ImportNastranExtension__file_path_text.insert(
-        tkinter.END, fp
-    )
-    extension._ImportNastranExtension__decimation_text.delete(
-        "1.0", tkinter.END
-    )
-    extension._ImportNastranExtension__decimation_text.insert(
-        tkinter.END, "0.2"
-    )
+    extension._ImportNastranExtension__file_path_text.insert(tkinter.END, fp)
+    extension._ImportNastranExtension__decimation_text.delete("1.0", tkinter.END)
+    extension._ImportNastranExtension__decimation_text.insert(tkinter.END, "0.2")
 
-    with patch("pathlib.Path.is_file", return_value=True), \
-         patch(
-             "ansys.aedt.core.extensions.common.import_nastran.nastran_to_stl"
-         ) as mock_nastran_to_stl:
+    with (
+        patch("pathlib.Path.is_file", return_value=True),
+        patch("ansys.aedt.core.extensions.common.import_nastran.nastran_to_stl") as mock_nastran_to_stl,
+    ):
         extension._ImportNastranExtension__preview()
-        mock_nastran_to_stl.assert_called_once_with(
-            fp, decimation=0.2, preview=True
-        )
+        mock_nastran_to_stl.assert_called_once_with(fp, decimation=0.2, preview=True)
 
     extension.root.destroy()
 
@@ -193,24 +184,16 @@ def test_preview_calls_simplify_stl(mock_hfss_app):
 
     fp = "/mock/path/test_file.stl"
     extension._ImportNastranExtension__file_path_text.delete("1.0", tkinter.END)
-    extension._ImportNastranExtension__file_path_text.insert(
-        tkinter.END, fp
-    )
-    extension._ImportNastranExtension__decimation_text.delete(
-        "1.0", tkinter.END
-    )
-    extension._ImportNastranExtension__decimation_text.insert(
-        tkinter.END, "0.3"
-    )
+    extension._ImportNastranExtension__file_path_text.insert(tkinter.END, fp)
+    extension._ImportNastranExtension__decimation_text.delete("1.0", tkinter.END)
+    extension._ImportNastranExtension__decimation_text.insert(tkinter.END, "0.3")
 
-    with patch("pathlib.Path.is_file", return_value=True), \
-         patch(
-             "ansys.aedt.core.extensions.common.import_nastran.simplify_stl"
-         ) as mock_simplify_stl:
+    with (
+        patch("pathlib.Path.is_file", return_value=True),
+        patch("ansys.aedt.core.extensions.common.import_nastran.simplify_stl") as mock_simplify_stl,
+    ):
         extension._ImportNastranExtension__preview()
-        mock_simplify_stl.assert_called_once_with(
-            fp, decimation=0.3, preview=True
-        )
+        mock_simplify_stl.assert_called_once_with(fp, decimation=0.3, preview=True)
 
     extension.root.destroy()
 
@@ -220,13 +203,9 @@ def test_preview_raises_when_no_file_selected(mock_hfss_app):
     extension = ImportNastranExtension(withdraw=True)
 
     # Ensure file path text is empty
-    extension._ImportNastranExtension__file_path_text.delete(
-        "1.0", tkinter.END
-    )
+    extension._ImportNastranExtension__file_path_text.delete("1.0", tkinter.END)
 
-    with pytest.raises(
-        ValueError, match=r"Please select a valid file\."
-    ):
+    with pytest.raises(ValueError, match=r"Please select a valid file\."):
         extension._ImportNastranExtension__preview()
 
     extension.root.destroy()
