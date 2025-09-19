@@ -19,6 +19,13 @@ script = "../common/points_cloud.py"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/point_cloud_generator.html"
 
+[ViaDesign]
+icon = "images/large/via_design_icon.png"
+name = "Via Design"
+script = "via_design.py"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/via_design.html"
+
 [ExportFiles]
 icon = "images/large/export.png"
 name = "Export Layout info"

@@ -4,13 +4,6 @@ name = "Generate report"
 script = "create_report.py"
 template = "run_pyaedt_toolkit_script"
 
-[ViaDesign] # HFSS 3D
-icon = "images/large/via_design_icon.png"
-name = "Via Design"
-script = "via_design.py"
-template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/via_design.html"
-
 [ConfigureLayout] # HFSS 3D
 icon = "images/large/aedb.png"
 name = "Configure Layout"
