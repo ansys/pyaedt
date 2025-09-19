@@ -33,10 +33,11 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.modules.profile import MemoryGB
+from tests.conftest import EXTENSIONS_GENERAL_TEST_PREFIX
+from tests.conftest import SYSTEM_SOLVERS_TEST_PREFIX
 from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 
 
@@ -111,10 +112,11 @@ def _exercise_profile_object(profile) -> None:
     if getattr(profile, "mesh_process", None):
         mesh_table = profile.mesh_process.table()
         assert isinstance(mesh_table, pd.DataFrame)
-        assert "cpu_time" in mesh_table.columns
-        assert "elapsed_time" in mesh_table.columns
-        assert "max_memory" in mesh_table.columns
-        assert isinstance(max(mesh_table["max_memory"]), MemoryGB)
+        if not profile.product == "Icepak" or not profile.transient:  # No table for Icepak steady-state.
+            assert "cpu_time" in mesh_table.columns
+            assert "elapsed_time" in mesh_table.columns
+            assert "max_memory" in mesh_table.columns
+            assert isinstance(max(mesh_table["max_memory"]), MemoryGB)
 
     # Adaptive pass tables (if present)
     if getattr(profile, "adaptive_pass", None) and getattr(profile.adaptive_pass, "steps", None):
@@ -158,16 +160,10 @@ def _exercise_profile_object(profile) -> None:
 @pytest.mark.parametrize(
     "app_cls, folder",
     [
-        (Maxwell3d, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/m3d.aedtz"),
-        (Maxwell2d, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/m2d.aedtz"),
-        (Icepak, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/for_icepak_post_parasolid.aedtz"),
         (Hfss, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/Potter_Horn_242.aedtz"),
-        (Hfss3dLayout, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/via_gsg_solved.aedtz"),
-        # (Hfss, "solved/HFSS"),
-        # (Hfss3dLayout, "solved/HFSS3DLayout"),
-        # (Maxwell3d, "solved/Maxwell"),
-        # (Maxwell2d, "solved/Maxwell"),
-        # (Icepak, "solved/Icepak"),
+        (Hfss3dLayout, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T44/differential_microstrip.aedtz"),
+        (Maxwell2d, EXTENSIONS_GENERAL_TEST_PREFIX + "/example_models/T45/transformer_loss_distribution.aedtz"),
+        (Maxwell3d, SYSTEM_SOLVERS_TEST_PREFIX + "/example_models/T00/Transient_StrandedWindings.aedtz"),
     ],
 )
 def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):

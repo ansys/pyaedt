@@ -25,6 +25,7 @@
 from collections.abc import Mapping
 from datetime import datetime
 from datetime import timedelta
+from difflib import SequenceMatcher
 from functools import total_ordering
 import inspect
 from pathlib import Path
@@ -66,8 +67,12 @@ def string_to_time(time_string: str) -> timedelta:
     --------
     >>> time_object = string_to_time("01:02:03")
     """
+    h, m, s = None, None, None
     h, m, s = map(int, time_string.split(":"))
-    return timedelta(hours=h, minutes=m, seconds=s)
+    if h or m or s:
+        return timedelta(hours=h, minutes=m, seconds=s)
+    else:
+        return timedelta(seconds=0)
 
 
 def format_timedelta(time_delta: Optional[Union[str, timedelta]]) -> str:
@@ -95,6 +100,11 @@ def format_timedelta(time_delta: Optional[Union[str, timedelta]]) -> str:
         days_info = f"{days} day{'s' if days > 1 else ''}"
         return f"{days_info} {hours:02}:{minutes:02}:{seconds:02}"
     return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
+def _find_common_string(s1, s2):
+    match = SequenceMatcher(None, s1, s2).find_longest_match(0, len(s1), 0, len(s2))
+    return s1[match.a : match.b + match.size]
 
 
 def merge_dict(d1: dict, d2: dict) -> dict:
@@ -174,7 +184,7 @@ class MemoryGB(object):
 
     """
 
-    _convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1e-9}
+    _convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "MB": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1e-9}
 
     @pyaedt_function_handler()
     def __init__(self, memory_value: Optional[Union[int, float, str]] = None):
@@ -282,6 +292,7 @@ PROFILE_PROP_MAPPING = MappingProxyType(
         "Cpu time": ("_cpu_time", string_to_time),
         "Real time": ("_real_time", string_to_time),
         "Elapsed Time": ("elapsed_time", string_to_time),
+        "Elapsed time": ("elapsed_time", string_to_time),
         "Memory": ("_memory", MemoryGB),
         "Disk": ("_disk_space", MemoryGB),
         "Product": ("_product_str", str),
@@ -305,6 +316,7 @@ PROFILE_PROP_MAPPING = MappingProxyType(
         "Nodes": ("nodes", int),  # Icepak only
         "Faces": ("faces", int),  # Icepak only
         "Cells": ("cells", int),  # Icepak only
+        "Residual": ("residual", float),  # Icepak steady-state only
     }
 )
 
@@ -342,6 +354,8 @@ MERGE_OPERATOR = {
     "end_time": max,
     "stop_time": max,
     "host_name": lambda x, y: x + "\n" + y,  # concatenate strings
+    "name": _find_common_string,
+    # "name": lambda x, y: x + "\n" + y,  # concatenate strings
     "elapsed_time": lambda a, b: a + b,  # Add timedelta instances
     "max_memory": max,
     "frequency_sweeps": merge_dict,
@@ -350,6 +364,7 @@ MERGE_OPERATOR = {
     "_real_time": max,
     "info": lambda x, y: x + "\n" + y,
     "_memory": max,
+    "validation_memory": max,
     "steps": merge_dict,
 }
 ATTR_MAPPING = {
@@ -407,6 +422,12 @@ class ProfileStepSummary(object):
         else:
             self.memory = None
 
+    def __add__(self, other):
+        self.cpu_time = self.cpu_time + other.cpu_time
+        self.real_time = self.real_time + other.real_time
+        self.memory = max(self.memory, other.memory)
+        return self
+
 
 class ProfileStep(object):
     """A profile step possibly containing nested sub-steps.
@@ -430,6 +451,19 @@ class ProfileStep(object):
             for step_name, step_data in data.children.items():
                 name = self._clean_key_name(step_name)  # Clean up key names.
                 self.steps[name] = ProfileStep(step_data)
+
+        # A different parser for some profiles is needed
+        # because data may be stored in the
+        # "info" attribute. Use the regex to extract keywords and values from
+        # the Icepak info string. The delimiter in the info string may be
+        # either ":" or "="
+        elif hasattr(self, "info"):
+            key_pattern = "|".join(re.escape(k) for k in PROFILE_PROP_MAPPING)
+            pairs = re.findall(rf"(?:(?<=\s)|^)({key_pattern})\s*[:=]\s*([^\s]+)", self.info)
+            for key, value in pairs:
+                if key in PROFILE_PROP_MAPPING:
+                    if not hasattr(self, PROFILE_PROP_MAPPING[key][0]):
+                        setattr(self, PROFILE_PROP_MAPPING[key][0], PROFILE_PROP_MAPPING[key][1](value))
 
         # Depending on how data is presented in the profile, the end time for
         # the step may have to be calculated. The "_stop_time" property is only
@@ -556,26 +590,40 @@ class ProfileStep(object):
 
         data = {"Step": []}  # Contains the data for the Pandas DataFrame.
 
-        for step_name, step_data in self.steps.items():
-            name = step_name_map(step_name)  # Replace key with a more meaningful name.
-            data["Step"].append(name)
-            for prop in columns:
-                if hasattr(step_data, prop):
-                    value = getattr(step_data, prop)
-                else:
-                    value = "NA"
-                data.setdefault(prop, []).append(value)
+        if hasattr(self, "steps"):
+            for step_name, step_data in self.steps.items():
+                name = step_name_map(step_name)  # Replace key with a more meaningful name.
+                data["Step"].append(name)
+                for prop in columns:
+                    if hasattr(step_data, prop):
+                        value = getattr(step_data, prop)
+                    else:
+                        value = "NA"
+                    data.setdefault(prop, []).append(value)
 
-        table_out = pd.DataFrame(data)
+            table_out = pd.DataFrame(data)
 
-        # Update formatting of timedelta props
-        for p in self.__timedelta_props:
-            if p in table_out:
-                table_out[p] = table_out[p].apply(format_timedelta)
+            # Update formatting of timedelta props
+            for p in self.__timedelta_props:
+                if p in table_out:
+                    table_out[p] = table_out[p].apply(format_timedelta)
+        # This is meant to handle Icepak steady-state mesh profile steps which are completely
+        # different from all other profile steps. TODO: Improve handling of Icepak mesh profile.
+        else:
+            for step_name, step_data in self.__dict__.items():
+                name = step_name_map(step_name.split("\n")[0])  # Replace key with a more meaningful name.
+                data["Step"].append(name)
+                for prop in columns:
+                    if hasattr(step_data, prop):
+                        value = getattr(step_data, prop)
+                    else:
+                        value = "NA"
+                    data.setdefault(prop, []).append(value)
+            table_out = pd.DataFrame(data)
 
         return table_out
 
-    def __add__(self, new_profile):
+    def __add__(self, other):
         """Merge two :class:`ProfileStep` instances.
 
         The merge combines attributes using :data:`merge_operator` when
@@ -593,20 +641,21 @@ class ProfileStep(object):
         """
         result = self.__class__.__new__(self.__class__)
         result.__dict__ = {}
-        for key, value in self.__dict__.items():
-            new_val = None
-            if key in self.__dict__ and key in new_profile.__dict__:
+        for key in set(self.__dict__) | set(other.__dict__):
+            val_self = getattr(self, key, None)
+            val_other = getattr(other, key, None)
+            if key in self.__dict__ and key in other.__dict__:
                 if key in MERGE_OPERATOR:
-                    new_val = MERGE_OPERATOR[key](value, new_profile.__dict__[key])
-                elif value == new_profile.__dict__[key]:
-                    new_val = value
+                    new_val = MERGE_OPERATOR[key](val_self, val_other)
+                elif val_self == val_other:
+                    new_val = val_self
                 else:
                     try:
-                        new_val = value + new_profile.__dict__[key]
+                        new_val = val_self + val_other
                     except TypeError:
-                        new_val = value
-            elif key in new_profile.__dict__:
-                new_val = new_profile.__dict__[key]
+                        new_val = val_self
+            elif key in other.__dict__:
+                new_val = val_other
             setattr(result, key, new_val)
         return result
 
@@ -837,11 +886,48 @@ def get_mesh_process_name(group_data: BinaryTreeNode) -> Optional[str]:
     str or None
     ``"Initial Meshing Group"``, or ``"Meshing Process Group"`` when present, otherwise ``None``.
     """
-    mesh_process_names = ["Initial Meshing Group", "Meshing Process Group"]
+    mesh_process_names = ["Initial Meshing Group", "Meshing Process Group", "Meshing Process", "Meshing Process 2"]
+    names = []
     for name in mesh_process_names:
         if name in group_data.children.keys():
-            return name
-    return None
+            names.append(name)
+    return names if len(names) > 0 else None
+
+
+def convert_icepak_info(info_str: str) -> tuple:
+    """Convert the ``"Info"`` block of the profile ``Summary`` to (timedelta, MemoryGB).
+
+    Parameters
+    ----------
+    info_str : str
+        String containing the Icepak ComEngine profile time and memory.
+
+
+    Returns
+    -------
+    time, memory : timedelta, MemoryGB
+        Icepak ComEngine profile time and memory.
+    """
+    pattern = (
+        r"Elapsed time\s*:\s*(\d{2}:\d{2}:\d{2})\s*,\s*"
+        r"Icepak ComEngine Memory\s*:\s*([\d.]+\s*(?:G|GB|M|MB|K|KB|TB|Bytes))"
+    )
+    match = re.search(pattern, info_str)
+    elapsed, memory = None, None
+    if match:
+        time_str, mem_str = match.groups()
+
+        # Parse timedelta
+        h, m, s = map(int, time_str.split(":"))
+        elapsed = timedelta(hours=h, minutes=m, seconds=s)
+
+        # Normalize memory string (add "B")
+        if not mem_str.strip().upper().endswith("B"):
+            mem_str = mem_str.strip() + "B"
+
+        memory = MemoryGB(mem_str)
+
+    return elapsed, memory
 
 
 class SimulationProfile(object):
@@ -881,9 +967,16 @@ class SimulationProfile(object):
 
         if "Adaptive Meshing Group" in group_data.children.keys():
             self.adaptive_pass = ProfileStep(group_data.children["Adaptive Meshing Group"])
-        mesh_process_name = get_mesh_process_name(group_data)
-        if mesh_process_name:
-            self.mesh_process = ProfileStep(group_data.children[mesh_process_name])
+        mesh_process_names = get_mesh_process_name(group_data)
+        if mesh_process_names:  # Icepak steady-state can have two mesh-related process steps.
+            for name in mesh_process_names:  # TODO: Improve handling of Icepak mesh process step.
+                if name in group_data.children.keys():
+                    mesh_process = ProfileStep(group_data.children[name])
+                    if self.mesh_process:
+                        self.mesh_process += mesh_process  # Merge results from the two process steps.
+                    else:
+                        self.mesh_process = mesh_process
+
         if "HFSS" in group_data.properties["Product"]:
             if "Design Validation" in group_data.children.keys():
                 info = group_data.children["Design Validation"].properties["Info"].split(",")
@@ -900,11 +993,19 @@ class SimulationProfile(object):
                         self.frequency_sweeps[sweep_key] = FrequencySweepProfile(data, sweep_key)
 
         if "Maxwell" in group_data.properties["Product"] or "Icepak" in group_data.properties["Product"]:
+            # Information is stored differently in different products. Icepak steady state uses the
+            # "Info" key. Icepak transient and Maxwell transient use "Elapsed Time" and "Memory".
             if "Design Validation" in group_data.children.keys():
-                time_str = group_data.children["Design Validation"].properties["Elapsed Time"]
-                memory_str = group_data.children["Design Validation"].properties["Memory"]
-                self.validation_time = string_to_time(time_str)
-                self.validation_memory = MemoryGB(memory_str)
+                if "Elapsed Time" in group_data.children["Design Validation"].properties:
+                    time_str = group_data.children["Design Validation"].properties["Elapsed Time"]
+                    self.validation_time = string_to_time(time_str)
+                if "Memory" in group_data.children["Design Validation"].properties:
+                    memory_str = group_data.children["Design Validation"].properties["Memory"]
+                    self.validation_memory = MemoryGB(memory_str)
+                if "Info" in group_data.children["Design Validation"].properties:
+                    self.validation_time, self.validation_memory = convert_icepak_info(
+                        group_data.children["Design Validation"].properties["Info"]
+                    )
         if "HPC Group" in group_data.children.keys():
             if "MPI Vendor" in group_data.children["HPC Group"].properties.keys():
                 self.mpi_vendor = group_data.children["HPC Group"].properties["MPI Vendor"]
@@ -1104,7 +1205,7 @@ class SimulationProfile(object):
         total_time = timedelta(0)
 
         if num_passes:
-            pass_names = [s for s in self.adaptive_pass.process_steps if "Adaptive Pass" in s]
+            pass_names = [s for s in self.adaptive_pass.process_steps if "Pass" in s]
             for pass_name in pass_names[:num_passes]:
                 total_time += getattr(self.adaptive_pass.steps[pass_name], attr_name)
         elif max_time:
@@ -1124,7 +1225,7 @@ class SimulationProfile(object):
         int
         """
         if self.adaptive_pass:
-            return sum("Adaptive Pass" in s for s in self.adaptive_pass.process_steps)
+            return sum("Pass" in s for s in self.adaptive_pass.process_steps)
         else:
             return 0
 
