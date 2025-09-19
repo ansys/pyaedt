@@ -27,6 +27,7 @@
 import io
 from pathlib import Path
 import re
+import string
 import time
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -1399,20 +1400,31 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         if isinstance(assignment[0], str):
             if self.modeler._is3d:
-                props = dict(
-                    {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
-                )
-                bound_type = "CoilTerminal"
+                coil_group_names = [name + f"_{i+1}" for i in range(len(assignment))]
+                bound_props = {
+                    "Faces": assignment,
+                    "Conductor number": str(conductors_number),
+                    "Point out of terminal": point
+                }
+                props = {"items": coil_group_names}
+                props[coil_group_names[0]] = bound_props.copy()
+                bound_type = "CoilTerminalGroup"
             else:
-                props = {"Faces": assignment}
-
+                props = {
+            "Faces": assignment,                  
+            "Conductor number": str(conductors_number),
+            "Point out of terminal": point,
+        }
+                bound_type = "CoilTerminal"
+               
+                
             if len(assignment) > 1:
                 coil_group_names = []
                 bound_props = dict(
                     {
                         "Faces": assignment,
                         "Conductor number": str(conductors_number),
-                        "PolarityType": polarity.lower(),
+                        "Point out of terminal": False
                     }
                 )
 
@@ -1421,9 +1433,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
                 props = {"items": coil_group_names}
                 props[coil_group_names[0]] = bound_props.copy()
-                
-                bound_type = "CoilGroup"
-            
+
+                bound_type = "CoilTerminal"
+
             else:
 
                 props = dict(
@@ -1434,13 +1446,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                     }
                 )
                 bound_type = "Coil"
+        # else:
+        #     if self.modeler._is3d:
+        #         props = dict(
+        #             {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
+        #         )
+        #         bound_type = "CoilTerminal"
         else:
-            if self.modeler._is3d:
-                props = dict(
-                    {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
-                )
-                bound_type = "CoilTerminal"
-            else:
                 raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
 
         return self._create_boundary(name, props, bound_type)
