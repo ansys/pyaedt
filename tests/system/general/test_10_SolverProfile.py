@@ -204,11 +204,7 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
             continue
         finally:
             if app:
-                # Close the project but keep the desktop alive for subsequent tests.
-                try:
-                    app.close_project()
-                except Exception:
-                    pass
+                app.close_project()
 
     if not found_any_profile:
         if last_error:

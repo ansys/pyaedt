@@ -921,6 +921,30 @@ class Revision:
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
+    def get_component_node(self, component_name) -> EmitNode:
+        """Gets the component node.
+
+        Parameters
+        ----------
+        component_name: str
+            Name of the component.
+
+        Returns
+        -------
+        component_node: EmitNode
+            Component node.
+
+        Examples
+        --------
+        >>> node = revision.get_component_node("wifi radio")
+        """
+        comp_id = self._emit_com.GetComponentNodeID(self.results_index, component_name)
+        if comp_id > 0:
+            return self._get_node(comp_id)
+        return None
+
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
     def _get_all_node_ids(self) -> list[int]:
         """Gets all node ids from this revision.
 
@@ -989,8 +1013,12 @@ class Revision:
 
         node = None
         try:
-            type_class = getattr(generated, f"{prefix}{node_type}")
-            node = type_class(self.emit_project, self.results_index, node_id)
+            if node_type == "RadioNode" and props["IsEmitter"] == "true":
+                type_class = getattr(generated, f"{prefix}EmitterNode")
+                node = type_class(self.emit_project, self.results_index, node_id)
+            else:
+                type_class = getattr(generated, f"{prefix}{node_type}")
+                node = type_class(self.emit_project, self.results_index, node_id)
         except AttributeError:
             node = EmitNode(self.emit_project, self.results_index, node_id)
         return node
