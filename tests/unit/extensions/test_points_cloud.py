@@ -30,9 +30,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.points_cloud import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtension
-from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtensionData
+from ansys.aedt.core.extensions.common.points_cloud import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 

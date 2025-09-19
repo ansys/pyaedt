@@ -1,41 +1,40 @@
-[GenerateReport]
+[GenerateReport] # All
+icon = "images/large/pdf.png"
 name = "Generate report"
 script = "create_report.py"
-icon = "images/large/pdf.png"
 template = "run_pyaedt_toolkit_script"
 
-[ImportNastran]
+[ImportNastran] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
+icon = "images/large/cad3d.png"
 name = "Import Nastran/STL"
 script = "import_nastran.py"
-icon = "images/large/cad3d.png"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/import_nastran.html"
 
-[FieldsCalculator]
+[FieldsCalculator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D
+icon = "images/large/fields.png"
 name = "Advanced Fields Calculator"
 script = "advanced_fields_calculator.py"
-icon = "images/large/fields.png"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/advanced_fields_calculator.html"
 
-[PointCloudGenerator]
+[PointCloudGenerator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D
+icon = "images/large/cloud.png"
 name = "Point Cloud Generator"
 script = "points_cloud.py"
-icon = "images/large/cloud.png"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/point_cloud_generator.html"
 
-[ViaDesign]
+[ViaDesign] # HFSS 3D
+icon = "images/large/via_design_icon.png"
 name = "Via Design"
 script = "via_design.py"
-icon = "images/large/via_design_icon.png"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/via_design.html"
 
-[ConfigureLayout]
+[ConfigureLayout] # HFSS 3D
+icon = "images/large/aedb.png"
 name = "Configure Layout"
 script = "configure_layout.py"
-icon = "images/large/aedb.png"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
-

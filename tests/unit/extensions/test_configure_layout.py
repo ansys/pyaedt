@@ -29,8 +29,8 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.resources.configure_layout.template import SERDES_CONFIG
+from ansys.aedt.core.extensions.common.resources.configure_layout.master_ui import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.common.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
@@ -43,7 +43,7 @@ def local_scratch():
 
 
 def test_create_new_edb_name():
-    from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import create_new_edb_name
+    from ansys.aedt.core.extensions.common.resources.configure_layout.master_ui import create_new_edb_name
 
     assert create_new_edb_name("test") == "test_1"
     assert create_new_edb_name("test_1") == "test_2"
@@ -129,7 +129,7 @@ def test_main_tab_export(
 
 
 def test_main_tab_export_options():
-    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_main import update_options
+    from ansys.aedt.core.extensions.common.resources.configure_layout.tab_main import update_options
 
     extension = ConfigureLayoutExtension(withdraw=True)
     default = extension.export_options.model_dump()
@@ -147,7 +147,7 @@ def test_main_tab_export_options():
 def test_export_template(mock_msg, mock_asksaveasfilename, local_scratch):
     mock_msg.return_value = None
     mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "serdes_config.json")
-    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_export_template
+    from ansys.aedt.core.extensions.common.resources.configure_layout.tab_example import call_back_export_template
 
     call_back_export_template()
     assert Path(mock_asksaveasfilename.return_value).exists()

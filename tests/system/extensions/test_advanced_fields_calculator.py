@@ -27,9 +27,9 @@ from unittest.mock import patch
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import main
 from ansys.aedt.core.modeler.modeler_3d import Modeler3D
 
 fields_calculator = "fields_calculator_solved"

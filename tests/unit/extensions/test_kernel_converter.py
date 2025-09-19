@@ -29,13 +29,13 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.kernel_converter import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.kernel_converter import KernelConverterExtension
-from ansys.aedt.core.extensions.project.kernel_converter import KernelConverterExtensionData
-from ansys.aedt.core.extensions.project.kernel_converter import _check_missing
-from ansys.aedt.core.extensions.project.kernel_converter import _convert_3d_component
-from ansys.aedt.core.extensions.project.kernel_converter import _convert_aedt
-from ansys.aedt.core.extensions.project.kernel_converter import main
+from ansys.aedt.core.extensions.common.kernel_converter import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtension
+from ansys.aedt.core.extensions.common.kernel_converter import KernelConverterExtensionData
+from ansys.aedt.core.extensions.common.kernel_converter import _check_missing
+from ansys.aedt.core.extensions.common.kernel_converter import _convert_3d_component
+from ansys.aedt.core.extensions.common.kernel_converter import _convert_aedt
+from ansys.aedt.core.extensions.common.kernel_converter import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 

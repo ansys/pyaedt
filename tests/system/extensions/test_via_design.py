@@ -27,8 +27,8 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
+from ansys.aedt.core.extensions.common.via_design import EXPORT_EXAMPLES
+from ansys.aedt.core.extensions.common.via_design import ViaDesignExtension
 from ansys.aedt.core.generic.settings import is_linux
 from tests.system.extensions.conftest import config
 

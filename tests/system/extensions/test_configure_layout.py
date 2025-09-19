@@ -31,10 +31,10 @@ import pytest
 import requests
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import GUIDE_LINK
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import INTRO_LINK
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.resources.configure_layout.template import SERDES_CONFIG
+from ansys.aedt.core.extensions.common.resources.configure_layout.master_ui import GUIDE_LINK
+from ansys.aedt.core.extensions.common.resources.configure_layout.master_ui import INTRO_LINK
+from ansys.aedt.core.extensions.common.resources.configure_layout.master_ui import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.common.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
@@ -116,7 +116,7 @@ def test_load_edb_into_hfss3dlayout(test_folder, extension_under_test):
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
 def test_load_example_board(mock_load_edb_into_hfss3dlayout, test_folder, extension_under_test):
-    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_load_example_board
+    from ansys.aedt.core.extensions.common.resources.configure_layout.tab_example import call_back_load_example_board
 
     call_back_load_example_board(extension_under_test, test_folder=test_folder.path)
     Path(mock_load_edb_into_hfss3dlayout.call_args[0][0]).exists()

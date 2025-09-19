@@ -29,9 +29,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
 from ansys.aedt.core.generic.file_utils import read_toml
 
 AEDT_APPLICATION_SETUP = "Setup1 : LastAdaptive"

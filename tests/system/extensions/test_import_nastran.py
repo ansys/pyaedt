@@ -28,9 +28,9 @@ import shutil
 import pytest
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtension
-from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtensionData
-from ansys.aedt.core.extensions.project.import_nastran import main
+from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData
+from ansys.aedt.core.extensions.common.import_nastran import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 

@@ -38,10 +38,10 @@ from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.extensions.project.resources.configure_layout.data_class import AedtInfo
-from ansys.aedt.core.extensions.project.resources.configure_layout.data_class import ExportOptions
-from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import create_tab_example
-from ansys.aedt.core.extensions.project.resources.configure_layout.tab_main import create_tab_main
+from ansys.aedt.core.extensions.common.resources.configure_layout.data_class import AedtInfo
+from ansys.aedt.core.extensions.common.resources.configure_layout.data_class import ExportOptions
+from ansys.aedt.core.extensions.common.resources.configure_layout.tab_example import create_tab_example
+from ansys.aedt.core.extensions.common.resources.configure_layout.tab_main import create_tab_main
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 

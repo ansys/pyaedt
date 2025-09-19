@@ -27,10 +27,10 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.import_nastran import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtension
-from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtensionData
-from ansys.aedt.core.extensions.project.import_nastran import main
+from ansys.aedt.core.extensions.common.import_nastran import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData
+from ansys.aedt.core.extensions.common.import_nastran import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 

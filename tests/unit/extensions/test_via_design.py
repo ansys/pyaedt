@@ -31,9 +31,9 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
+from ansys.aedt.core.extensions.common.via_design import EXPORT_EXAMPLES
+from ansys.aedt.core.extensions.common.via_design import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.via_design import ViaDesignExtension
 
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
