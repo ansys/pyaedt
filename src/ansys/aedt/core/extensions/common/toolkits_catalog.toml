@@ -4,13 +4,6 @@ name = "Generate report"
 script = "create_report.py"
 template = "run_pyaedt_toolkit_script"
 
-[FieldsCalculator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D
-icon = "images/large/fields.png"
-name = "Advanced Fields Calculator"
-script = "advanced_fields_calculator.py"
-template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/advanced_fields_calculator.html"
-
 [PointCloudGenerator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D
 icon = "images/large/cloud.png"
 name = "Point Cloud Generator"

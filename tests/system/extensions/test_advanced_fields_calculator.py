@@ -38,7 +38,8 @@ test_subfolder = "T45"
 HFSS_ASSIGNMENTS = ["Polyline1", "Polyline2"]
 
 
-def test_advanced_fields_calculator_q3d_ok_button(add_app):
+@patch.object(AdvancedFieldsCalculatorExtension, "check_design_type", return_value=None)
+def test_advanced_fields_calculator_q3d_ok_button(mock_check, add_app):
     """Test the OK button in the Advanced Fields Calculator extension."""
     aedt_app = add_app(application=Q3d, project_name=fields_calculator, subfolder=test_subfolder)
 
