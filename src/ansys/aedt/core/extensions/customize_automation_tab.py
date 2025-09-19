@@ -54,7 +54,7 @@ AEDT_APPLICATIONS = {
     "maxwell2d": "Maxwell2D",
     "maxwell3d": "Maxwell3D",
     "mechanical": "Mechanical",
-    "project": "Project",
+    "common": "Common",
     "q2d": "2DExtractor",
     "q3d": "Q3DExtractor",
     "twinbuilder": "TwinBuilder",

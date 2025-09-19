@@ -29,8 +29,8 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.resources.configure_layout.template import SERDES_CONFIG
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
@@ -42,8 +42,27 @@ def local_scratch():
     scratch.remove()
 
 
+@pytest.fixture(autouse=True)
+def _mock_aedt_application():
+    """Autouse fixture to patch ConfigureLayoutExtension.aedt_application for all tests in this module.
+
+    This ensures the extension sees the expected design_type and does not raise
+    AEDTRuntimeError during initialization.
+    """
+    patcher = patch(
+        "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.aedt_application",
+        new_callable=PropertyMock,
+    )
+    mock_app = patcher.start()
+    mock_app.return_value = type("AedtApp", (), {"design_type": "HFSS 3D Layout Design"})()
+    try:
+        yield mock_app
+    finally:
+        patcher.stop()
+
+
 def test_create_new_edb_name():
-    from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import create_new_edb_name
+    from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import create_new_edb_name
 
     assert create_new_edb_name("test") == "test_1"
     assert create_new_edb_name("test_1") == "test_2"
@@ -53,12 +72,19 @@ def test_create_new_edb_name():
 
 
 @patch(
-    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.aedt_application",
+    new_callable=PropertyMock,
+)
+@patch(
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
 )
 @patch("tkinter.filedialog.askopenfilename")
-def test_main_selected_edb(mock_askopenfilename, mock_active_db):
+def test_main_selected_edb(mock_askopenfilename, mock_active_db, mock_aedt_app):
     mock_active_db.return_value = "/path/active.aedb/edb.def"
     mock_askopenfilename.return_value = "/path/inactive.aedb/edb.def"
+    # Provide a mocked aedt_application with the expected design_type so the
+    # extension initialization does not raise AEDTRuntimeError during the test.
+    mock_aedt_app.return_value = type("AedtApp", (), {"design_type": "HFSS 3D Layout Design"})()
 
     extension = ConfigureLayoutExtension(withdraw=True)
     # get active edb
@@ -78,22 +104,32 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db):
 
 
 @patch(
-    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.load_edb_into_hfss3dlayout"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.load_edb_into_hfss3dlayout"
 )
 @patch(
-    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.apply_config_to_edb"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.apply_config_to_edb"
 )
 @patch(
-    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
 @patch("tkinter.filedialog.askopenfilename")
+@patch(
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.aedt_application",
+    new_callable=PropertyMock,
+)
 def test_tab_main_apply(
-    mock_askopenfilename, mock_selected_edb, mock_apply_config_to_edb, mock_load_edb_into_hfss3dlayout
+    mock_aedt_app,
+    mock_askopenfilename,
+    mock_selected_edb,
+    mock_apply_config_to_edb,
+    mock_load_edb_into_hfss3dlayout,
 ):
     mock_askopenfilename.return_value = "/path/config.json"
     mock_selected_edb.return_value = "/path/edb.def"
     mock_apply_config_to_edb.return_value = "/path/mock.aedb"
+    # Ensure a mocked aedt_application with the expected design_type
+    mock_aedt_app.return_value = type("AedtApp", (), {"design_type": "HFSS 3D Layout Design"})()
 
     extension = ConfigureLayoutExtension(withdraw=True)
     extension.var_active_design.set(False)
@@ -105,20 +141,31 @@ def test_tab_main_apply(
 
 
 @patch(
-    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.export_config_from_edb"
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.export_config_from_edb"
 )
 @patch(
-    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("tkinter.messagebox.showinfo")
+@patch(
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.aedt_application",
+    new_callable=PropertyMock,
+)
 def test_main_tab_export(
-    mock_msg, mock_asksaveasfilename, mock_selected_edb, mock_export_config_from_edb, local_scratch
+    mock_aedt_app,
+    mock_msg,
+    mock_asksaveasfilename,
+    mock_selected_edb,
+    mock_export_config_from_edb,
+    local_scratch,
 ):
     mock_msg.return_value = None
     mock_selected_edb.return_value = "/path/edb.def"
     mock_export_config_from_edb.return_value = {"general": {"anti_pads_always_on": True, "suppress_pads": True}}
+    # Ensure a mocked aedt_application with the expected design_type
+    mock_aedt_app.return_value = type("AedtApp", (), {"design_type": "HFSS 3D Layout Design"})()
 
     extension = ConfigureLayoutExtension(withdraw=True)
     extension.var_active_design.set(False)
@@ -129,17 +176,22 @@ def test_main_tab_export(
 
 
 def test_main_tab_export_options():
-    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_main import update_options
+    from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import update_options
 
-    extension = ConfigureLayoutExtension(withdraw=True)
-    default = extension.export_options.model_dump()
-    for name in default:
-        button_name = f".notebook.main.frame1.{name}"
-        extension.root.nametowidget(button_name).invoke()
-    update_options(extension)
-    for i, j in extension.export_options.model_dump().items():
-        assert not default[i] == j
-    extension.root.destroy()
+    # Patch aedt_application for this test so extension initialization succeeds
+    with patch(
+        "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.aedt_application",
+        new=type("AedtApp", (), {"design_type": "HFSS 3D Layout Design"})(),
+    ):
+        extension = ConfigureLayoutExtension(withdraw=True)
+        default = extension.export_options.model_dump()
+        for name in default:
+            button_name = f".notebook.main.frame1.{name}"
+            extension.root.nametowidget(button_name).invoke()
+        update_options(extension)
+        for i, j in extension.export_options.model_dump().items():
+            assert not default[i] == j
+        extension.root.destroy()
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
@@ -147,7 +199,7 @@ def test_main_tab_export_options():
 def test_export_template(mock_msg, mock_asksaveasfilename, local_scratch):
     mock_msg.return_value = None
     mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "serdes_config.json")
-    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_export_template
+    from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import call_back_export_template
 
     call_back_export_template()
     assert Path(mock_asksaveasfilename.return_value).exists()

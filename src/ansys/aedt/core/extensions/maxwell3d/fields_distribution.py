@@ -289,7 +289,7 @@ class FieldsDistributionExtension(ExtensionCommon):
 
             def submit():
                 if option_var.get() == "Option 1":
-                    from ansys.aedt.core.extensions.project.points_cloud import main as points_main
+                    from ansys.aedt.core.extensions.common.points_cloud import main as points_main
 
                     selected_objects = self._widgets["objects_list_lb"].curselection()
                     objects_list = [self._widgets["objects_list_lb"].get(i) for i in selected_objects]

@@ -119,7 +119,7 @@ MIN_WIDTH = 600
 MIN_HEIGHT = 400
 
 AEDT_EXTENSION_APPLICATIONS = [
-    "Project",
+    "Common",
     "HFSS",
     "Maxwell3D",
     "Icepak",
@@ -154,7 +154,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.toolkits = None
         self.add_to_aedt_var = tkinter.BooleanVar(value=True)
         self.current_category = (
-            "Project"  # Default to Project application
+            "Common"  # Default to Project application
         )
 
         # Tkinter widgets

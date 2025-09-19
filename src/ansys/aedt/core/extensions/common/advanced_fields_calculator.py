@@ -82,6 +82,24 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
+    def check_design_type(self):
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical"""
+        if self.aedt_application.design_type not in [
+            "HFSS",
+            "Icepak",
+            "HFSS 3D",
+            "Maxwell 3D",
+            "Q3D",
+            "Maxwell 2D",
+            "Q2D",
+            "Mechanical",
+        ]:
+            self.release_desktop()
+            raise AEDTRuntimeError(
+                "This extension only works with HFSS, Icepak, "
+                "HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, or Mechanical designs."
+            )
+
     def __load_expression_files(self):
         """Load expression files from the current directory and personal library."""
         # Load new expressions from current directory

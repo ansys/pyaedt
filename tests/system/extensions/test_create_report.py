@@ -29,9 +29,9 @@ import os
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.project.create_report import CreateReportExtension
-from ansys.aedt.core.extensions.project.create_report import CreateReportExtensionData
-from ansys.aedt.core.extensions.project.create_report import main
+from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
+from ansys.aedt.core.extensions.common.create_report import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 

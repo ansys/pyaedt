@@ -26,8 +26,8 @@ from pathlib import Path
 
 import pytest
 
-from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtensionData
-from ansys.aedt.core.extensions.project.points_cloud import main
+from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
+from ansys.aedt.core.extensions.common.points_cloud import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 point_cloud_generator = "point_cloud_generator"

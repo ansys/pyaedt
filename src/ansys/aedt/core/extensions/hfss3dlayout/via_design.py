@@ -40,7 +40,7 @@ import toml
 
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import SUN
-from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -77,7 +77,7 @@ EXPORT_EXAMPLES = [
 ]
 
 
-class ViaDesignExtension(ExtensionProjectCommon):
+class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for advanced fields calculator in AEDT."""
 
     def __init__(self, withdraw: bool = False):

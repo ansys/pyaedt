@@ -29,9 +29,9 @@ from tkinter import TclError
 
 import pytest
 
-from ansys.aedt.core.extensions.project.create_report import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.create_report import CreateReportExtension
-from ansys.aedt.core.extensions.project.create_report import CreateReportExtensionData
+from ansys.aedt.core.extensions.common.create_report import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.create_report import CreateReportExtension
+from ansys.aedt.core.extensions.common.create_report import CreateReportExtensionData
 
 
 def test_create_report_extension_default():
