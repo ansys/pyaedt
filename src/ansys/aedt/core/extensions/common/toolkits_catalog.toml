@@ -4,13 +4,6 @@ name = "Generate report"
 script = "create_report.py"
 template = "run_pyaedt_toolkit_script"
 
-[ImportNastran] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
-icon = "images/large/cad3d.png"
-name = "Import Nastran/STL"
-script = "import_nastran.py"
-template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/import_nastran.html"
-
 [FieldsCalculator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D
 icon = "images/large/fields.png"
 name = "Advanced Fields Calculator"

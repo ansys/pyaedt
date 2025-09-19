@@ -1,10 +1,3 @@
-[CreatePowerMap]
-icon = "images/large/push.png"
-name = "Create Power Map from CSV file"
-pip = ""
-script = "power_map_from_csv.py"
-template = "run_pyaedt_toolkit_script"
-
 [ImportNastran] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
 icon = "../common/images/large/cad3d.png"
 name = "Import Nastran/STL"
