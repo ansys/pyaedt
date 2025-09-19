@@ -1,9 +1,11 @@
+Post Layout Design
+==================
+
 This extension is a collection of layout design tools
------------------------------------------------------------------
 
 .. image:: ../../../_static/extensions/layout_design_toolkit.png
   :width: 800
-  :alt: Layout Design Toolkit
+  :alt: Post Layout Design
 
 ----------
 Features

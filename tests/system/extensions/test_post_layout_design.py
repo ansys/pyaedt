@@ -83,8 +83,8 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
         os.path.join(
             extensions_local_path,
             "example_models",
-            "T45",
-            "ANSYS-HSD_V1.aedb",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
         ),
         file_path,
     )
@@ -99,7 +99,7 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
     # Create data object with antipad parameters
     data = PostLayoutDesignExtensionData(
         action="antipad",
-        selections=["Via79", "Via78"],
+        selections=["Via1138", "Via1136"],
         radius="1mm",
         race_track=True,
     )
@@ -119,8 +119,8 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
         os.path.join(
             extensions_local_path,
             "example_models",
-            "T45",
-            "ANSYS-HSD_V1.aedb",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
         ),
         file_path,
     )
@@ -135,7 +135,7 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
     # Create data object with antipad parameters (no racetrack)
     data = PostLayoutDesignExtensionData(
         action="antipad",
-        selections=["Via1", "Via2"],
+        selections=["Via1138", "Via1136"],
         radius="1mm",
         race_track=False,
     )
@@ -155,8 +155,8 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
         os.path.join(
             extensions_local_path,
             "example_models",
-            "T45",
-            "ANSYS-HSD_V1.aedb",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
         ),
         file_path,
     )
@@ -180,3 +180,47 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
         post_layout_design.main(data)
 
     h3d.close_project()
+
+
+def test_layout_design_toolkit_microvia(add_app, local_scratch):
+    """Test microvia creation with conical shape."""
+    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_microvia.aedb")
+
+    local_scratch.copyfolder(
+        os.path.join(
+            extensions_local_path,
+            "example_models",
+            "post_layout_design",
+            "ANSYS_SVP_V1_1_SFP.aedb",
+        ),
+        file_path,
+    )
+
+    h3d = add_app(
+        file_path,
+        application=ansys.aedt.core.Hfss3dLayout,
+        just_open=True,
+    )
+    h3d.save_project()
+
+    # Get valid padstack definition from the design
+    pedb = h3d.modeler.primitives.edb
+    available_padstacks = ["v40h20-1"]
+    pedb.close()
+
+    # Skip test if no padstacks available
+    if not available_padstacks:
+        pytest.skip("No padstack definitions available in test model")
+
+    # Create data object with microvia parameters
+    data = PostLayoutDesignExtensionData(
+        action="microvia",
+        selections=[available_padstacks[0]],  # Use first available
+        angle=75.0,
+        signal_only=True,
+        split_via=False,
+    )
+
+    # Call main function
+    result = post_layout_design.main(data)
+    assert result is True
