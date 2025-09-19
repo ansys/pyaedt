@@ -38,7 +38,6 @@ import zipfile
 import defusedxml
 import PIL.Image
 import PIL.ImageTk
-import pyedb
 import requests
 
 import ansys.aedt.core
@@ -91,17 +90,21 @@ class VersionManager:
         return os.path.join(self.venv_path, "Scripts", "python.exe")
 
     @property
+    def uv_exe(self):
+        return os.path.join(self.venv_path, "Scripts", "uv.exe")
+
+    @property
     def python_version(self):
         temp = platform.python_version().split(".")[0:2]
         return ".".join(temp)
 
     @property
     def pyaedt_version(self):
-        return ansys.aedt.core.version
+        return self.get_installed_version("pyaedt")
 
     @property
     def pyedb_version(self):
-        return pyedb.version
+        return self.get_installed_version("pyedb")
 
     def __init__(self, ui, desktop, aedt_version, personal_lib):
         from ansys.aedt.core.extensions.misc import ExtensionTheme
@@ -129,6 +132,18 @@ class VersionManager:
         self.pyedb_branch_name.set("main")
 
         self.ini_file_path = os.path.join(os.path.dirname(__file__), "settings.ini")
+
+        # Prepare subprocess environment so the venv is effectively activated for all runs
+        # This prepends the venv Scripts (Windows) / bin (POSIX) directory to PATH and
+        # sets VIRTUAL_ENV so subprocesses use the correct interpreter/tools (uv, pip, etc.).
+        self.activated_env = None
+        self.activate_venv()
+
+        # Install uv if not present
+        if "PYTEST_CURRENT_TEST" not in os.environ: # pragma: no cover
+            if not os.path.exists(self.uv_exe):
+                print("Installing uv...")
+                subprocess.run([self.python_exe, "-m", "pip", "install", "uv"], check=True, env=self.activated_env)  # nosec
 
         # Load the logo for the main window
         icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
@@ -168,12 +183,12 @@ class VersionManager:
             self.theme_color = "light"
 
     def set_light_theme(self):
-        root.configure(bg=self.theme.light["widget_bg"])
+        self.root.configure(bg=self.theme.light["widget_bg"])
         self.theme.apply_light_theme(self.style)
         self.change_theme_button.config(text="\u263d")
 
     def set_dark_theme(self):
-        root.configure(bg=self.theme.dark["widget_bg"])
+        self.root.configure(bg=self.theme.dark["widget_bg"])
         self.theme.apply_dark_theme(self.style)
         self.change_theme_button.config(text="\u2600")
 
@@ -292,6 +307,29 @@ class VersionManager:
             messagebox.showerror("Error: Git Not Found", "Git does not seem to be installed or is not accessible.")
         return res
 
+    def activate_venv(self):
+        """Prepare a subprocess environment that has the virtual environment activated.
+
+        This function does not change the current Python process, but prepares an env
+        dictionary (stored in self.activated_env) that can be passed to subprocess.run
+        so that commands like uv and pip resolve to the ones inside the virtualenv.
+        """
+        try:
+            scripts_dir = (
+                os.path.join(self.venv_path, "Scripts") if is_windows else os.path.join(self.venv_path, "bin")
+            )
+            env = os.environ.copy()
+            # Prepend venv scripts/bin to PATH so executables from the venv are preferred
+            env["PATH"] = scripts_dir + os.pathsep + env.get("PATH", "")
+            # Mark the virtual environment
+            env["VIRTUAL_ENV"] = self.venv_path
+            # Unset PYTHONHOME if set to avoid mixing environments
+            env.pop("PYTHONHOME", None)
+            self.activated_env = env
+        except Exception:
+            # Fallback to the current environment to avoid breaking functionality
+            self.activated_env = os.environ.copy()
+
     def update_pyaedt(self):
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
 
@@ -304,9 +342,9 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True)  # nosec
+                subprocess.run([self.uv_exe, "pip", "install", f"pyaedt=={latest_version}"], check=True, env=self.activated_env)  # nosec
             else:
-                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)  # nosec
+                subprocess.run([self.uv_exe, "pip", "install", "-U", "pyaedt"], check=True, env=self.activated_env)  # nosec
 
             self.clicked_refresh(need_restart=True)
 
@@ -323,9 +361,17 @@ class VersionManager:
                 return
 
             if self.pyedb_version > latest_version:
-                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True)  # nosec
+                subprocess.run(
+                    [self.uv_exe, "pip", "install", f"pyedb=={latest_version}"],
+                    check=True,
+                    env=self.activated_env,
+                )  # nosec
             else:
-                subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)  # nosec
+                subprocess.run(
+                    [self.uv_exe, "pip", "install", "-U", "pyedb"],
+                    check=True,
+                    env=self.activated_env,
+                )  # nosec
 
             print("Pyedb has been updated")
             self.clicked_refresh(need_restart=True)
@@ -339,8 +385,14 @@ class VersionManager:
         if response:
             branch_name = self.pyaedt_branch_name.get()
             subprocess.run(
-                [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyaedt.git@{branch_name}"],
+                [
+                    self.uv_exe,
+                    "pip",
+                    "install",
+                    f"git+https://github.com/ansys/pyaedt.git@{branch_name}",
+                ],
                 check=True,
+                env=self.activated_env,
             )  # nosec
             self.clicked_refresh(need_restart=True)
 
@@ -353,8 +405,14 @@ class VersionManager:
         if response:
             branch_name = self.pyedb_branch_name.get()
             subprocess.run(
-                [self.python_exe, "-m", "pip", "install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"],
+                [
+                    self.uv_exe,
+                    "pip",
+                    "install",
+                    f"git+https://github.com/ansys/pyedb.git@{branch_name}",
+                ],
                 check=True,
+                env=self.activated_env,
             )  # nosec
             self.clicked_refresh(need_restart=True)
 
@@ -427,8 +485,7 @@ class VersionManager:
 
             subprocess.run(
                 [
-                    self.python_exe,
-                    "-m",
+                    self.uv_exe,
                     "pip",
                     "install",
                     "--force-reinstall",
@@ -438,17 +495,11 @@ class VersionManager:
                     "pyaedt[all]",
                 ],
                 check=True,
+                env=self.activated_env,
             )  # nosec
             self.clicked_refresh(need_restart=True)
 
     def reset_pyaedt_buttons_in_aedt(self):
-        def handle_remove_error(func, path, exc_info):
-            # Attempt to fix permission issues
-            import stat
-
-            os.chmod(path, stat.S_IWRITE)  # Add write permission
-            func(path)  # Retry the operation
-
         response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
 
         if response:
@@ -456,6 +507,28 @@ class VersionManager:
 
             add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
             messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
+
+    def get_installed_version(self, package_name):
+        """Return the installed version of package_name inside the virtualenv.
+
+        This runs the venv Python to query the package metadata so we can show
+        the updated version without restarting the current process.
+        """
+        try:
+            # Prefer importlib.metadata (Python 3.8+). Use venv python to inspect
+            cmd = [self.python_exe, "-c", "import importlib.metadata as m; print(m.version(\"%s\"))" % package_name]
+            out = subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
+            return out.strip()
+        except Exception:
+            try:
+                # Fallback to 'pip show' and parse Version
+                cmd = [self.uv_exe, "pip", "show", package_name]
+                out = subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
+                for line in out.splitlines():
+                    if line.startswith("Version:"):
+                        return line.split(":", 1)[1].strip()
+            except Exception:
+                return "Please restart"
 
     def clicked_refresh(self, need_restart=False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
@@ -466,8 +539,23 @@ class VersionManager:
             self.pyaedt_info.set(f"PyAEDT: {self.pyaedt_version} (Latest {get_latest_version('pyaedt')})")
             self.pyedb_info.set(f"PyEDB: {self.pyedb_version} (Latest {get_latest_version('pyedb')})")
         else:
-            self.pyaedt_info.set(f"PyAEDT: {'Please restart'}")
-            self.pyedb_info.set(f"PyEDB: {'Please restart'}")
+            # Try to detect the newly installed versions inside the venv so we can
+            # display the updated version immediately without forcing a restart.
+            try:
+                pyaedt_installed = self.get_installed_version("pyaedt")
+            except Exception:
+                pyaedt_installed = "Please restart"
+
+            try:
+                pyedb_installed = self.get_installed_version("pyedb")
+            except Exception:
+                pyedb_installed = "Please restart"
+
+            latest_pyaedt = get_latest_version("pyaedt")
+            latest_pyedb = get_latest_version("pyedb")
+
+            self.pyaedt_info.set(f"PyAEDT: {pyaedt_installed} (Latest {latest_pyaedt})")
+            self.pyedb_info.set(f"PyEDB: {pyedb_installed} (Latest {latest_pyedb})")
             messagebox.showinfo("Message", "Done")
 
 
@@ -476,7 +564,7 @@ def get_desktop_info(release_desktop=True):
     aedt_version = get_aedt_version()
     aedt_process_id = get_process_id()
 
-    if aedt_process_id is not None:
+    if aedt_process_id is not None: # pragma: no cover
         new_desktop = False
         ng = False
         close_project = False
@@ -495,7 +583,7 @@ def get_desktop_info(release_desktop=True):
     return {"desktop": aedtapp, "aedt_version": aedt_version, "personal_lib": personal_lib}
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     kwargs = get_desktop_info()
     # Initialize tkinter root window and run the app
     root = tkinter.Tk()
