@@ -98,7 +98,7 @@ def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with
     mock_filedialog.assert_called_once()
 
 
-@patch("ansys.aedt.core.extensions.project.points_cloud.generate_point_cloud")
+@patch("ansys.aedt.core.extensions.common.points_cloud.generate_point_cloud")
 def test_point_cloud_extension_preview_button(
     mock_generate_cloud, mock_hfss_app_with_objects_in_group, patch_graphics_modules
 ):

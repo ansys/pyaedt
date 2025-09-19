@@ -16,6 +16,13 @@ script = "../common/advanced_fields_calculator.py"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/advanced_fields_calculator.html"
 
+[PointCloudGenerator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
+icon = "../common/images/large/cloud.png"
+name = "Point Cloud Generator"
+script = "../common/points_cloud.py"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/point_cloud_generator.html"
+
 [FieldsDistribution]
 icon = "images/large/fields_distribution.png"
 name = "Fields distribution"
