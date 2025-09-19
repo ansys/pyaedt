@@ -72,7 +72,7 @@ def desktop():
     yield d
     d.odesktop.SetDesktopConfiguration("All")
     d.odesktop.SetSchematicEnvironment(0)
-    d.release_desktop(True, True)
+    d.close_desktop()
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")

@@ -2825,7 +2825,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.create_sbr_custom_array_file()
-        >>> hfss.release_desktop()
+        >>> hfss.desktop_class.close_desktop()
         """
         if output_file is None:
             output_file = Path(self.working_directory) / "custom_array.sarr"

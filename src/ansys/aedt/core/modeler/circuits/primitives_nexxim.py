@@ -834,7 +834,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_voltage_probe(name="probe")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -874,7 +874,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_current_probe(name="probe")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -2050,7 +2050,7 @@ class NexximComponents(CircuitComponents):
         >>> cir = Circuit(version="2025.2")
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         if isinstance(input_file, str):
             input_file = Path(input_file)

@@ -2562,7 +2562,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
-        pj_names = self.project_list
+        pj_names = self.desktop_class.project_list
         if "groupName" in kwargs:
             warnings.warn(
                 "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",

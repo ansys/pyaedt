@@ -9104,7 +9104,7 @@ class PrimitivesBuilder(object):
     >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
     >>> primitives_builder.create(),,
-    >>> aedtapp.release_desktop()
+    >>> aedtapp.desktop_class.close_desktop()
     """
 
     def __init__(self, app, input_file=None, input_dict=None):

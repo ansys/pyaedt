@@ -871,7 +871,7 @@ class VirtualCompliance:
             design_name = template_report.design_name
             report_type = template_report.report_type
             if template_report.project_name:
-                if template_report.project_name not in self._desktop_class.project_list():
+                if template_report.project_name not in self._desktop_class.project_list:
                     self._desktop_class.load_project(template_report.project)
             else:
                 template_report.project_name = self._project_name
@@ -1057,7 +1057,7 @@ class VirtualCompliance:
             design_name = template_report.design_name
             report_type = template_report.report_type
             if template_report.project_name:
-                if template_report.project_name not in self._desktop_class.project_list():
+                if template_report.project_name not in self._desktop_class.project_list:
                     self._desktop_class.load_project(template_report.project)
             else:
                 template_report.project_name = self._project_name
@@ -1157,7 +1157,7 @@ class VirtualCompliance:
                 report_type = template_report.report_type
                 group = template_report.group_plots
                 if template_report.project_name:
-                    if template_report.project_name not in self._desktop_class.project_list():
+                    if template_report.project_name not in self._desktop_class.project_list:
                         self._desktop_class.load_project(template_report.project)
                 else:
                     template_report.project_name = self._project_name

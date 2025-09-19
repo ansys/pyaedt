@@ -299,7 +299,7 @@ class PostProcessorCommon(object):
         >>> expressions = m3d.post.available_report_quantities(
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -1392,7 +1392,7 @@ class PostProcessorCommon(object):
         ...     context="3D",
         ... )
         >>> hfss.post.create_report("S(1,1)", hfss.nominal_sweep, variations=variations, plot_type="Smith Chart")
-        >>> hfss.release_desktop(False, False)
+        >>> hfss.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1402,7 +1402,7 @@ class PostProcessorCommon(object):
         ...     primary_sweep_variable="Time",
         ...     plot_name="Winding Plot 1",
         ... )
-        >>> m2d.release_desktop(False, False)
+        >>> m2d.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1423,7 +1423,7 @@ class PostProcessorCommon(object):
         ...     plot_type="Data Table",
         ...     plot_name="reduced_matrix",
         ... )
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1551,7 +1551,7 @@ class PostProcessorCommon(object):
         ...    variations=variations,
         ...)
         >>> data2.plot()
-        >>> hfss.release_desktop(False, False)
+        >>> hfss.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1561,7 +1561,7 @@ class PostProcessorCommon(object):
         ...     primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
-        >>> m2d.release_desktop(False, False)
+        >>> m2d.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
@@ -1569,7 +1569,7 @@ class PostProcessorCommon(object):
         >>> spectralPlotData = circuit.post.get_solution_data(
         ...     expressions="V(Vprobe1)", domain="Spectral", primary_sweep_variable="Spectrum", context=context
         ... )
-        >>> circuit.release_desktop(False, False)
+        >>> circuit.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1585,7 +1585,7 @@ class PostProcessorCommon(object):
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
         >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,

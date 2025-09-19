@@ -370,7 +370,7 @@ def main(data: PostLayoutDesignExtensionData):
             new_edb_path = _create_microvia(pedb, data.selections, data.signal_only, data.angle, data.split_via)
             # Open new project with micro vias
             new_h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
-            new_h3d.release_desktop(False, False)
+            new_h3d.desktop_class.release_desktop(False, False)
 
         else:
             raise AEDTRuntimeError(f"Unknown action: {data.action}")

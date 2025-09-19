@@ -446,7 +446,7 @@ class TestClass:
             export_path=design_export_path_local,
         )
         assert os.path.exists(design_export_path_local)
-        app.release_desktop()
+        app.desktop_class.close_desktop()
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
@@ -484,7 +484,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
             "imported_netlist.ckt", "Lumped"
         )
-        app.release_desktop()
+        app.desktop_class.close_desktop()
 
     def test_part_libraries(self, lumped_design):
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED

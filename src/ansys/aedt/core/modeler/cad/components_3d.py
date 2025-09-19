@@ -872,7 +872,7 @@ class UserDefinedComponent(object):
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
 
-        project_list = [i for i in self._primitives._app.project_list]
+        project_list = [i for i in self._primitives._app.desktop_class.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(
             [
@@ -881,7 +881,7 @@ class UserDefinedComponent(object):
             ]
         )
 
-        new_project = [i for i in self._primitives._app.project_list if i not in project_list]
+        new_project = [i for i in self._primitives._app.desktop_class.project_list if i not in project_list]
 
         if new_project:
             from ansys.aedt.core.generic.design_types import get_pyaedt_app
