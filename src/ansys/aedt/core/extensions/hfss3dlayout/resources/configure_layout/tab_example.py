@@ -30,7 +30,7 @@ from tkinter import messagebox
 from tkinter import ttk
 
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.extensions.common.resources.configure_layout.template import SERDES_CONFIG
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template import SERDES_CONFIG
 
 
 def create_tab_example(tab_frame, master):
