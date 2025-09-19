@@ -33,15 +33,15 @@ import webbrowser
 from pyedb import Edb
 
 import ansys.aedt.core
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import AedtInfo
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import ExportOptions
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import create_tab_example
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import create_tab_main
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import AedtInfo
-from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import ExportOptions
-from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import create_tab_example
-from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_main import create_tab_main
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 

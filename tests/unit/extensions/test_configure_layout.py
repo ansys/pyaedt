@@ -71,7 +71,10 @@ def test_create_new_edb_name():
     assert create_new_edb_name("test_1_a") == "test_1_a_1"
 
 
-@patch("ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.aedt_application", new_callable=PropertyMock)
+@patch(
+    "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.aedt_application",
+    new_callable=PropertyMock,
+)
 @patch(
     "ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
 )

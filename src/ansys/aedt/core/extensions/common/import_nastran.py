@@ -91,11 +91,11 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
     def check_design_type(self):
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
-        if self.aedt_application.design_type not in [
-            "HFSS", "Icepak", "HFSS 3D", "Maxwell 3D", "Q3D", "Mechanical"
-        ]:
+        if self.aedt_application.design_type not in ["HFSS", "Icepak", "HFSS 3D", "Maxwell 3D", "Q3D", "Mechanical"]:
             self.release_desktop()
-            raise AEDTRuntimeError("This extension only works with HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, or Mechanical designs.")
+            raise AEDTRuntimeError(
+                "This extension only works with HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, or Mechanical designs."
+            )
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""

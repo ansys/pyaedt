@@ -85,7 +85,14 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
     def check_design_type(self):
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical"""
         if self.aedt_application.design_type not in [
-            "HFSS", "Icepak", "HFSS 3D", "Maxwell 3D", "Q3D", "Maxwell 2D", "Q2D", "Mechanical"
+            "HFSS",
+            "Icepak",
+            "HFSS 3D",
+            "Maxwell 3D",
+            "Q3D",
+            "Maxwell 2D",
+            "Q2D",
+            "Mechanical",
         ]:
             self.release_desktop()
             raise AEDTRuntimeError("This extension only works with HFSS, Icepak, " \

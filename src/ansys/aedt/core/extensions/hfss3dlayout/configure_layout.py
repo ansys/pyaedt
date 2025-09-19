@@ -25,9 +25,9 @@ from pathlib import Path
 import tempfile
 import tkinter
 
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import get_arguments
-from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(ConfigureLayoutExtension.EXTENSION_TITLE)

@@ -35,6 +35,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
 
+
 # Mock get_pyaedt_app globally so tests don't access a real Desktop
 @pytest.fixture(autouse=True)
 def _mock_get_pyaedt_app(monkeypatch):
@@ -48,6 +49,7 @@ def _mock_get_pyaedt_app(monkeypatch):
         _fake_app,
     )
     yield
+
 
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
@@ -80,16 +82,13 @@ def mock_aedt_classes():
     """Mock AEDT classes used in the ViaDesignExtension tests."""
     with (
         patch(
-            "ansys.aedt.core.extensions.hfss3dlayout."
-            "via_design.Hfss3dLayout",
+            "ansys.aedt.core.extensions.hfss3dlayout.via_design.Hfss3dLayout",
         ) as mock_hfss_3d,
         patch(
-            "ansys.aedt.core.extensions.misc."
-            "Desktop",
+            "ansys.aedt.core.extensions.misc.Desktop",
         ) as mock_desktop,
         patch(
-            "ansys.aedt.core.extensions.hfss3dlayout."
-            "via_design.ViaDesignBackend",
+            "ansys.aedt.core.extensions.hfss3dlayout.via_design.ViaDesignBackend",
         ) as mock_backend,
     ):
         mock_hfss_3d_instance = MagicMock()
@@ -147,9 +146,7 @@ def test_via_design_extension_select_configuration_example(
 
     for example in EXPORT_EXAMPLES:
         example_name = example.toml_file_path.stem
-        widget_name = (
-            f".!notebook.!frame.button_{example_name}"
-        )
+        widget_name = f".!notebook.!frame.button_{example_name}"
         button = extension.root.nametowidget(widget_name)
         button.invoke()
 
@@ -225,9 +222,7 @@ def test_via_design_examples_success(
 
     for example in EXPORT_EXAMPLES:
         example_name = example.toml_file_path.stem
-        widget_name = (
-            f".!notebook.!frame.button_{example_name}"
-        )
+        widget_name = f".!notebook.!frame.button_{example_name}"
         button = extension.root.nametowidget(widget_name)
         path = tmp_path / f"{example_name}.toml"
         mock_asksaveasfilename.return_value = path
