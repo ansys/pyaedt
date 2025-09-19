@@ -303,7 +303,10 @@ class Design(AedtObjects):
         if self._desktop_class._connected_app_instances > 0:  # pragma: no cover
             self._desktop_class._connected_app_instances -= 1
         if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
-            self.release_desktop(self.close_on_exit, self.close_on_exit)
+            if self.close_on_exit:
+                self.desktop_class.close_desktop()
+            else:
+                self.desktop_class.release_desktop(False, False)
 
     def __enter__(self):  # pragma: no cover
         self._desktop_class._connected_app_instances += 1
@@ -821,7 +824,7 @@ class Design(AedtObjects):
         """Project list.
 
         .. deprecated:: 0.19.1
-            This property is deprecated. Use the ``ansys.aedt.core.desktop.project_list`` method instead.
+            This property is deprecated. Use the ``ansys.aedt.core.desktop.project_list`` property instead.
 
         Returns
         -------
@@ -2622,6 +2625,9 @@ class Design(AedtObjects):
     def release_desktop(self, close_projects=True, close_desktop=True):
         """Release AEDT.
 
+        .. deprecated:: 0.19.1
+            This property is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
+
         Parameters
         ----------
         close_projects : bool, optional
@@ -2635,7 +2641,15 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.desktop_class.release_desktop(close_projects, close_desktop)
+        warnings.warn(
+            "method `design.release_desktop` is deprecated. The method is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.release_desktop()`.",
+            DeprecationWarning,
+        )
+        if close_desktop:
+            self.desktop_class.close_desktop()
+        else:
+            self.desktop_class.release_desktop(close_projects, False)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
