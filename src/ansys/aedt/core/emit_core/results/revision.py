@@ -1013,8 +1013,12 @@ class Revision:
 
         node = None
         try:
-            type_class = getattr(generated, f"{prefix}{node_type}")
-            node = type_class(self.emit_project, self.results_index, node_id)
+            if node_type == "RadioNode" and props["IsEmitter"] == "true":
+                type_class = getattr(generated, f"{prefix}EmitterNode")
+                node = type_class(self.emit_project, self.results_index, node_id)
+            else:
+                type_class = getattr(generated, f"{prefix}{node_type}")
+                node = type_class(self.emit_project, self.results_index, node_id)
         except AttributeError:
             node = EmitNode(self.emit_project, self.results_index, node_id)
         return node
