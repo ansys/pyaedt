@@ -125,3 +125,5 @@ solderballs
 pin_mapping
 refdes
 gnd
+uv
+venv
