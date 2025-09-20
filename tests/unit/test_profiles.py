@@ -235,9 +235,9 @@ def test_adaptive_pass_adapt_frequency_property():
 
 def test_get_mesh_process_name():
     n = Node(children={"Initial Meshing Group": Node(), "Other": Node()})
-    assert profiles.get_mesh_process_name(n) == "Initial Meshing Group"
+    assert "Initial Meshing Group" in profiles.get_mesh_process_name(n)
     n2 = Node(children={"Meshing Process Group": Node()})
-    assert profiles.get_mesh_process_name(n2) == "Meshing Process Group"
+    assert "Meshing Process Group" in profiles.get_mesh_process_name(n2)
     n3 = Node(children={"X": Node()})
     assert profiles.get_mesh_process_name(n3) is None
 

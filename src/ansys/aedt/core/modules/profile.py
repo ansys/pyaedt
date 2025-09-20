@@ -459,7 +459,7 @@ class ProfileStep(object):
         # either ":" or "="
         elif hasattr(self, "info"):
             key_pattern = "|".join(re.escape(k) for k in PROFILE_PROP_MAPPING)
-            pairs = re.findall(rf"(?:(?<=\s)|^)({key_pattern})\s*[:=]\s*([^\s]+)", self.info)
+            pairs = re.findall(rf"(?:(?<=\s)|^)({key_pattern})\s*[:=]\s*([^\s,]+)", self.info)
             for key, value in pairs:
                 if key in PROFILE_PROP_MAPPING:
                     if not hasattr(self, PROFILE_PROP_MAPPING[key][0]):
@@ -656,6 +656,8 @@ class ProfileStep(object):
                         new_val = val_self
             elif key in other.__dict__:
                 new_val = val_other
+            elif key in self.__dict__:
+                new_val = val_self
             setattr(result, key, new_val)
         return result
 
