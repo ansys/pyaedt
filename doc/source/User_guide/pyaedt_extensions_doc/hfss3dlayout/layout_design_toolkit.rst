@@ -1,4 +1,4 @@
-Post Layout Design
+Post layout design
 ==================
 
 This extension is a collection of layout design tools
