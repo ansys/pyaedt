@@ -24,6 +24,7 @@
 import json
 from pathlib import Path
 import tempfile
+from tkinter import TclError
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
@@ -36,6 +37,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_u
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
+import warnings
 
 
 class TestFolder:
@@ -74,8 +76,12 @@ def extension_under_test(add_app):
     extension.root.destroy()
     try:
         app.close_project(app.project_name)
-    except Exception:
-        pass
+    except Exception as e:
+
+        warnings.warn(
+            f"Failed to close project {getattr(app, 'project_name', None)}: {e}",
+            RuntimeWarning,
+        )
 
 
 def test_links():
