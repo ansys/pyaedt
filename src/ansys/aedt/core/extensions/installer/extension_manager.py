@@ -280,7 +280,22 @@ class ExtensionManager(ExtensionProjectCommon):
     def load_extensions(self, category: str):
         """Load application extensions."""
         # Track the current category for UI refresh
-        self.current_category = AEDT_APPLICATIONS[category.lower()]
+        mapped_category = AEDT_APPLICATIONS.get(str(category).lower())
+
+        if mapped_category:
+            self.current_category = mapped_category
+        elif category in AEDT_APPLICATIONS.values():
+            self.current_category = category
+        else:
+            matched = next(
+                (
+                    v
+                    for v in AEDT_APPLICATIONS.values()
+                    if v.lower() == str(category).lower()
+                ),
+                None,
+            )
+            self.current_category = matched or category
 
         # Clear right panel
         for widget in self.right_panel.winfo_children():
