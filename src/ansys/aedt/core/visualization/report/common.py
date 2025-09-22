@@ -435,6 +435,7 @@ class CommonReport(BinaryTreeNode):
     """Provides common reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
+        self._variations = None
         self._post = app
         self._app = self._post._app
         self._legacy_props = {}
@@ -1123,9 +1124,12 @@ class CommonReport(BinaryTreeNode):
                     if tr.properties.get("Secondary Sweep", None):
                         variations[tr.properties["Secondary Sweep"]] = ["All"]
                 self._legacy_props["context"]["variations"] = variations
+                self._variations = None
             except Exception:
                 self._app.logger.debug("Something went wrong while processing variations.")
-        return HistoryProps(self, self._legacy_props["context"]["variations"])
+        if not self._variations:
+            self._variations = HistoryProps(self, self._legacy_props["context"]["variations"])
+        return self._variations
 
     @variations.setter
     def variations(self, value):
@@ -1134,6 +1138,8 @@ class CommonReport(BinaryTreeNode):
             for i in range(0, len(value), 2):
                 value_dict[value[i][:-2]] = value[i + 1]
             value = value_dict
+        self._legacy_props["context"]["variations"] = value
+        self._variations = HistoryProps(self, value)
         self._legacy_props["context"]["variations"] = HistoryProps(self, value)
 
     @property
