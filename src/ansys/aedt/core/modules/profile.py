@@ -1004,7 +1004,7 @@ class SimulationProfile(object):
                 if "Memory" in group_data.children["Design Validation"].properties:
                     memory_str = group_data.children["Design Validation"].properties["Memory"]
                     self.validation_memory = MemoryGB(memory_str)
-                if "Info" in group_data.children["Design Validation"].properties:
+                if "Info" in group_data.children["Design Validation"].properties:  # TODO: Add test coverage
                     self.validation_time, self.validation_memory = convert_icepak_info(
                         group_data.children["Design Validation"].properties["Info"]
                     )

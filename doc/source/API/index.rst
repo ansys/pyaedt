@@ -99,5 +99,5 @@ Example with ``Desktop`` class implicit initialization:
    SetupTemplates
    CableModeling
    FilterSolutions
-   Profile
+   Profiles
    generic
