@@ -35,7 +35,6 @@ from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
 
-
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
 MOCK_TOML_CONTENT = {
@@ -60,6 +59,7 @@ def toml_file_path(tmp_path):
     with file_path.open("w") as f:
         toml.dump(MOCK_TOML_CONTENT, f)
     return file_path
+
 
 def conditional_open(file=None, mode="r", *args, **kwargs):
     """Open mocked TOML files, otherwise call real open."""
