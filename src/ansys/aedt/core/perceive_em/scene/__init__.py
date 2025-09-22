@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
@@ -22,14 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
+from ansys.aedt.core.perceive_em.scene.actors import Actor
+from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+from ansys.aedt.core.perceive_em.scene.scene_root import SceneManager
 
-TESTS_PATH = Path(__file__).resolve().parent
-TESTS_SYSTEM_PATH = TESTS_PATH / "system"
-TESTS_UNIT_PATH = TESTS_PATH / "unit"
-TESTS_GENERAL_PATH = TESTS_SYSTEM_PATH / "general"
-TESTS_SOLVERS_PATH = TESTS_SYSTEM_PATH / "solvers"
-TESTS_VISUALIZATION_PATH = TESTS_SYSTEM_PATH / "visualization"
-TESTS_EXTENSIONS_PATH = TESTS_SYSTEM_PATH / "extensions"
-TESTS_FILTER_SOLUTIONS_PATH = TESTS_SYSTEM_PATH / "filter_solutions"
-TESTS_PERCEIVE_EM_PATH = TESTS_SYSTEM_PATH / "perceive_em"
+__all__ = ["SceneManager", "Actor", "AntennaPlatform"]

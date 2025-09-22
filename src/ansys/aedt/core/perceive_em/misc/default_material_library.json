@@ -1,0 +1,288 @@
+{
+    "name": "material_library",
+    "version": 1,
+    "materials": {
+		"pec": {
+                "coating_idx":0
+			},
+		"asphalt": {
+				"thickness": -1,
+				"relEpsReal": 3.18,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "coating_idx":1
+			},
+		"asphalt_high_rough": {
+				"thickness": -1,
+				"relEpsReal": 3.18,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "height_standard_dev":0.9,
+                "roughness":0.15,
+                "coating_idx":2
+			},
+		"asphalt_low_rough": {
+				"thickness": -1,
+				"relEpsReal": 3.18,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "height_standard_dev":0.34,
+                "roughness":0.08,
+                "coating_idx":3
+			},
+		"earth": {
+				"thickness": -1,
+				"relEpsReal": 1.8,
+				"relEpsImag":-0.01,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "coating_idx":4
+			},
+		"earth_rough": {
+				"thickness": -1,
+				"relEpsReal": 3.8,
+				"relEpsImag":-0.5,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.01,
+                "height_standard_dev":0.3,
+                "roughness":0.25,
+                "coating_idx":5
+			},
+		"concrete": {
+				"thickness": -1,
+				"relEpsReal": 3,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "coating_idx":6
+			},
+		"concrete_rough": {
+				"thickness": -1,
+				"relEpsReal": 3,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "height_standard_dev":0.2,
+                "roughness":0.005,
+                "coating_idx":7
+			},
+		"glass": {
+				"thickness": 4.0,
+				"relEpsReal": 5.0,
+				"relEpsImag":0,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0000325,
+                "backing":"VACUUM",
+                "coating_idx":8
+			},
+		"vegetation": {
+				"thickness": 10.0,
+				"relEpsReal": 1.2,
+				"relEpsImag":0,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0000325,
+                "backing":"VACUUM",
+                "coating_idx":9
+			},
+		"plastic": {
+				"thickness": 3.0,
+				"relEpsReal": 6.5,
+				"relEpsImag":0,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0000325,
+                "backing":"VACUUM",
+                "coating_idx":10
+			},
+		"aluminium": {
+				"thickness": -1,
+				"relEpsReal": 3,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":1e8,
+                "coating_idx":11
+			},
+		"rubber_hard": {
+				"thickness": -1,
+				"relEpsReal": 2.7,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "coating_idx":12
+			},
+		"human_avg": {
+				"thickness": -1,
+				"relEpsReal": 6.6,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":38.38,
+                "coating_idx":13
+			},
+		"carbon_fiber": {
+				"thickness": -1,
+				"relEpsReal": 2.5,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "coating_idx":14
+			},
+		"wood": {
+				"thickness": -1,
+				"relEpsReal": 5,
+				"relEpsImag":-2.15,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "coating_idx":15
+			},
+		"seawater": {
+				"thickness": -1,
+				"relEpsReal": 6.6,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":38.38,
+                "coating_idx":16
+			},
+		"seawater_rough": {
+				"thickness": -1,
+				"relEpsReal": 6.6,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":38.38,
+                "height_standard_dev":1,
+                "roughness":0.49,
+                "coating_idx":17
+			},
+		"wall_exterior": {
+				"thickness": 0.2,
+				"relEpsReal": 5,
+				"relEpsImag": 0,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":8.0,
+                "coating_idx":18
+			},
+		"aluminium_rough": {
+				"thickness": -1,
+				"relEpsReal": 3,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":1e8,
+                "height_standard_dev":0.1,
+                "roughness":0.01,
+                "coating_idx":19
+			},
+		"drywall": {
+			"thickness": 9,
+			"relEpsReal": 2.49,
+			"relEpsImag": -0.01,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 20
+		    },
+		"floor_tile": {
+			"thickness": -1,
+			"relEpsReal": 3.08,
+			"relEpsImag": -0.1811,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 21
+		    },
+		"tile": {
+			"thickness": 10,
+			"relEpsReal": 3.08,
+			"relEpsImag": -0.1811,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 22
+		    },
+		"plywood": {
+			"thickness": 20,
+			"relEpsReal": 2.47,
+			"relEpsImag": -0.31369,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 23
+		    },
+		"stucco": {
+			"thickness": 20,
+			"relEpsReal": 1.07,
+			"relEpsImag": -0.48043,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 24
+		    },
+		"glass_PTFE": {
+			"thickness": 8,
+			"relEpsReal": 2.5,
+			"relEpsImag": -0.005,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 25
+		    },
+		"dry_brick": {
+			"thickness": -1,
+			"relEpsReal": 5.86,
+			"relEpsImag": -0.67976,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 26
+		    },
+		"particle_board": {
+			"thickness": 50,
+			"relEpsReal": 2.7,
+			"relEpsImag": -0.3047,
+			"relMuReal": 1.0,
+			"relMuImag": 0.0,
+			"conductivity": 0,
+			"coating_idx": 27
+		    },
+		"polystyrene": {
+				"thickness": -1,
+				"relEpsReal": 2.6,
+				"relEpsImag":-0.1,
+				"relMuReal": 1.0,
+				"relMuImag": 0.0,
+				"conductivity":0.0,
+                "coating_idx":28
+			},
+		"wall_interior": {
+				"thickness": [130.0,89.0,130.0],
+				"relEpsReal": [2.8,1.0,2.8],
+				"relEpsImag":[0,0,0],
+				"relMuReal": [1.0,1.0,1.0],
+				"relMuImag": [0.0,0.0,0.0],
+				"conductivity":[0.001,0.0,0.001],
+                "coating_idx":29
+			},
+		"absorber": {
+                "coating_idx":30
+			}
+    }
+}
