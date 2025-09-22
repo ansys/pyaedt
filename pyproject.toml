@@ -1,133 +1,134 @@
 [build-system]
-build-backend = "setuptools.build_meta"
 requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
 
 [project]
-authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
-classifiers = [
-  # General classifiers
-  "Development Status :: 4 - Beta",
-  "Intended Audience :: Developers",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: Manufacturing",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Topic :: Software Development :: Libraries",
-  "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
-  "Topic :: Scientific/Engineering :: Information Analysis",
-  # Additional specific classifiers
-  "Operating System :: OS Independent",
-]
-description = "High-level Python API for Ansys Electronics Desktop Framework"
-dynamic = ["version"]
-license = "MIT"
-license-files = ["LICENSE"]
-maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 name = "pyaedt"
+dynamic = ["version"]
+description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
 requires-python = ">=3.10,<4"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
+maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
+classifiers = [
+    # General classifiers
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Manufacturing",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    # Additional specific classifiers
+    "Operating System :: OS Independent",
+]
 
 dependencies = [
-  "grpcio>=1.50.0,<1.75",
-  "jsonschema",
-  "psutil",
-  "pyedb>=0.24.0,!=0.28.0",
-  "tomli; python_version < '3.11'",
-  "tomli-w",
-  "pyyaml",
-  "defusedxml>=0.7,<8.0",
-  "numpy>=1.20.0,<2.3",
-  "pydantic>=2.6.4,<2.12",
+    "grpcio>=1.50.0,<1.75",
+    "jsonschema",
+    "psutil",
+    "pyedb>=0.24.0,!=0.28.0",
+    "tomli; python_version < '3.11'",
+    "tomli-w",
+    "pyyaml",
+    "defusedxml>=0.7,<8.0",
+    "numpy>=1.20.0,<2.3",
+    "pydantic>=2.6.4,<2.12",
 ]
 
 [project.optional-dependencies]
-all = [
-  "matplotlib>=3.5.0,<3.11",
-  "openpyxl>=3.1.0,<3.3",
-  "osmnx>=1.1.0,<2.1",
-  "pandas>=1.1.0,<2.4",
-  "pyvista[io]>=0.38.0,<0.47",
-  "fast-simplification>=0.1.7",
-  "ansys-tools-visualization-interface",
-  "tables; python_version >= '3.10'",
-  "scikit-rf>=0.30.0,<1.9",
-  "pyaedt[jupyter]",
-  "requests",
-  "fpdf2",
-  "rpyc>=6.0.0,<6.1",
-]
-doc = [
-  "ansys-sphinx-theme>=1.0.0,<1.7",
-  "jupyter",
-  "numpydoc>=1.5.0,<1.9",
-  "recommonmark",
-  "Sphinx>=7.1.0,<8.3",
-  "sphinx-autobuild==2024.10.3",
-  "sphinx-copybutton>=0.5.0,<0.6",
-  "sphinx-gallery>=0.14.0,<0.20",
-  "sphinx_design>=0.4.0,<0.7",
-  "pyvista[io]>=0.38.0,<0.47",
-  "ansys-tools-visualization-interface",
-  "fpdf2",
-  "rpyc>=6.0.0,<6.1",
-]
-dotnet = [
-  "ansys-pythonnet>=3.1.0rc3",
-  "cffi>=1.16.0,<1.18; platform_system=='Linux'",
-  "dotnetcore2==3.1.23; platform_system=='Linux'",
-  "pywin32>=303; platform_system=='Windows'",
-]
-examples = [
-  "imageio>=2.34.0,<2.38",
-  "matplotlib>=3.5.0,<3.11",
-  "openpyxl>=3.1.0,<3.3",
-  "osmnx>=1.1.0,<2.1",
-  "pandas>=1.1.0,<2.4",
-  "pyvista>=0.38.0,<0.47",
-  "fast-simplification>=0.1.7",
-  "joblib>=1.4.0,<1.6",
-  "plotly>=6.0,<6.4",
-  "scikit-rf>=0.30.0,<1.9",
-  "fpdf2",
-  "rpyc>=6.0.0,<6.1",
-]
-graphics = [
-  "ansys-tools-visualization-interface",
-  "pyvista[io]>=0.38.0,<0.47",
-  "matplotlib>=3.5.0,<3.11",
-  "vtk>=9.0,<9.6",
-  "fpdf2",
+unit-tests = [
+    "pytest>=7.4.0,<8.5",
+    "pytest-cov>=4.0.0,<6.3",
+    "mock>=5.1.0,<5.3",
+    "fpdf2",
+    "requests",
 ]
 integration-tests = [
-  "matplotlib>=3.5.0,<3.11",
-  "pandas>=1.1.0,<2.4",
-  "pyaedt[unit-tests]",
-]
-jupyter = [
-  "jupyterlab>=3.6.0,<4.5",
-  "ipython>=7.30.0,<9.1",
+    "matplotlib>=3.5.0,<3.11",
+    "pandas>=1.1.0,<2.4",
+    "pyaedt[unit-tests]",
 ]
 tests = [
-  "ansys-tools-visualization-interface",
-  "openpyxl>=3.1.0,<3.3",
-  "osmnx>=1.1.0,<2.1",
-  "pyaedt[integration-tests]",
-  "pytest-timeout>=2.3.0,<2.5",
-  "pytest-xdist>=3.5.0,<3.9",
-  "pyvista[io]>=0.38.0,<0.47",
-  "scikit-rf>=0.30.0,<1.9",
-  "tables",
-  "rpyc>=6.0.0,<6.1",
+    "ansys-tools-visualization-interface",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=1.1.0,<2.1",
+    "pyaedt[integration-tests]",
+    "pytest-timeout>=2.3.0,<2.5",
+    "pytest-xdist>=3.5.0,<3.9",
+    "pyvista[io]>=0.38.0,<0.47",
+    "scikit-rf>=0.30.0,<1.9",
+    "tables",
+    "rpyc>=6.0.0,<6.1",
 ]
-unit-tests = [
-  "pytest>=7.4.0,<8.5",
-  "pytest-cov>=4.0.0,<6.3",
-  "mock>=5.1.0,<5.3",
-  "fpdf2",
-  "requests",
+dotnet = [
+    "ansys-pythonnet>=3.1.0rc3",
+    "cffi>=1.16.0,<2.1; platform_system=='Linux'",
+    "dotnetcore2==3.1.23; platform_system=='Linux'",
+    "pywin32>=303; platform_system=='Windows'",
+]
+doc = [
+    "ansys-sphinx-theme>=1.0.0,<1.7",
+    "jupyter",
+    "numpydoc>=1.5.0,<1.9",
+    "recommonmark",
+    "Sphinx>=7.1.0,<8.3",
+    "sphinx-autobuild==2024.10.3",
+    "sphinx-copybutton>=0.5.0,<0.6",
+    "sphinx-gallery>=0.14.0,<0.20",
+    "sphinx_design>=0.4.0,<0.7",
+    "pyvista[io]>=0.38.0,<0.47",
+    "ansys-tools-visualization-interface",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
+]
+graphics = [
+    "ansys-tools-visualization-interface",
+    "pyvista[io]>=0.38.0,<0.47",
+    "matplotlib>=3.5.0,<3.11",
+    "vtk>=9.0,<9.6",
+    "fpdf2",
+]
+jupyter = [
+    "jupyterlab>=3.6.0,<4.5",
+    "ipython>=7.30.0,<9.1",
+]
+all = [
+    "matplotlib>=3.5.0,<3.11",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=1.1.0,<2.1",
+    "pandas>=1.1.0,<2.4",
+    "pyvista[io]>=0.38.0,<0.47",
+    "fast-simplification>=0.1.7",
+    "ansys-tools-visualization-interface",
+    "tables; python_version >= '3.10'",
+    "scikit-rf>=0.30.0,<1.9",
+    "pyaedt[jupyter]",
+    "requests",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
+]
+examples = [
+    "imageio>=2.34.0,<2.38",
+    "matplotlib>=3.5.0,<3.11",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=1.1.0,<2.1",
+    "pandas>=1.1.0,<2.4",
+    "pyvista>=0.38.0,<0.47",
+    "fast-simplification>=0.1.7",
+    "joblib>=1.4.0,<1.6",
+    "plotly>=6.0,<6.4",
+    "scikit-rf>=0.30.0,<1.9",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
 ]
 
 [tool.setuptools.dynamic]
@@ -135,85 +136,88 @@ version = {attr = "ansys.aedt.core.__version__"}
 
 [project.urls]
 Bugs = "https://github.com/ansys/pyaedt/issues"
-Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
-Discussions = "https://github.com/ansys/pyaedt/discussions"
 Documentation = "https://aedt.docs.pyansys.com"
-Releases = "https://github.com/ansys/pyaedt/releases"
 Source = "https://github.com/ansys/pyaedt"
+Discussions = "https://github.com/ansys/pyaedt/discussions"
+Releases = "https://github.com/ansys/pyaedt/releases"
+Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
 [tool.ruff]
-exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files 
-fix = true
 line-length = 120
+fix = true
+exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files 
 
 [tool.ruff.format]
-docstring-code-format = true
-indent-style = "space"
 quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
 
 [tool.ruff.lint]
-ignore = [
-  # "D" - pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
-  "D100", # undocumented-public-module
-  "D101", # undocumented-public-class
-  "D102", # undocumented-public-method
-  "D103", # undocumented-public-function
-  "D104", # undocumented-public-package
-  "D105", # undocumented-magic-method
-  "D106", # undocumented-public-nested-class
-  "D205", # missing-blank-line-after-summary
-  "D210", # surrounding-whitespace
-  "D301", # escape-sequence-in-docstring
-  "D400", # missing-trailing-period
-  "D401", # non-imperative-mood
-  "D404", # docstring-starts-with-this
-  "D414", # empty-docstring-section
-  "D419", # empty-docstring
-  # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
-  "N801", # invalid-class-name
-  "N802", # invalid-function-name
-  "N803", # invalid-argument-name
-  "N806", # non-lowercase-variable-in-function
-  "N813", # camelcase-imported-as-lowercase
-  "N815", # mixed-case-variable-in-class-scope
-  "N816", # mixed-case-variable-in-global-scope
-  "N817", # camelcase-imported-as-acronym
-  "N818", # error-suffix-on-exception-name
-  "N999", # invalid-module-name
-  # "PTH" - flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
-  "PTH100", # os-path-abspath
-  "PTH101", # os-chmod
-  "PTH102", # os-mkdir
-  "PTH103", # os-makedirs
-  "PTH104", # os-rename
-  "PTH106", # os-rmdir
-  "PTH107", # os-remove
-  "PTH108", # os-unlink
-  "PTH109", # os-getcwd
-  "PTH110", # os-path-exists
-  "PTH112", # os-path-isdir
-  "PTH113", # os-path-isfile
-  "PTH116", # os-stat
-  "PTH118", # os-path-join
-  "PTH119", # os-path-basename
-  "PTH120", # os-path-dirname
-  "PTH122", # os-path-splitext
-  "PTH123", # builtin-open 
-  "PTH201", # path-constructor-current-directory
-  "PTH208", # os-listdir
-  # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-  "TD002", # missing-todo-author
-  "TD003", # missing-todo-link
-]
 select = [
-  "D", # pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
-  "E", # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-  "F", # pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
-  "I", # isort, see https://docs.astral.sh/ruff/rules/#isort-i
-  "N", # pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
-  "PTH", # flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
-  "TD", # flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-  "W", # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "D",   # pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "E",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "F",   # pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "I",   # isort, see https://docs.astral.sh/ruff/rules/#isort-i
+    "N",   # pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "PTH", # flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+    "TD",  # flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
+    "W",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+]
+ignore = [
+    # "D" - pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "D100", # undocumented-public-module
+    "D101", # undocumented-public-class
+    "D102", # undocumented-public-method
+    "D103", # undocumented-public-function
+    "D104", # undocumented-public-package
+    "D105", # undocumented-magic-method
+    "D106", # undocumented-public-nested-class
+    "D205", # missing-blank-line-after-summary
+    "D210", # surrounding-whitespace
+    "D301", # escape-sequence-in-docstring
+    "D400", # missing-trailing-period
+    "D401", # non-imperative-mood
+    "D404", # docstring-starts-with-this
+    "D414", # empty-docstring-section
+    "D419", # empty-docstring
+
+    # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "N801", # invalid-class-name
+    "N802", # invalid-function-name
+    "N803", # invalid-argument-name
+    "N806", # non-lowercase-variable-in-function
+    "N813", # camelcase-imported-as-lowercase
+    "N815", # mixed-case-variable-in-class-scope
+    "N816", # mixed-case-variable-in-global-scope
+    "N817", # camelcase-imported-as-acronym
+    "N818", # error-suffix-on-exception-name
+    "N999", # invalid-module-name
+
+    # "PTH" - flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+    "PTH100", # os-path-abspath
+    "PTH101", # os-chmod
+    "PTH102", # os-mkdir
+    "PTH103", # os-makedirs
+    "PTH104", # os-rename
+    "PTH106", # os-rmdir
+    "PTH107", # os-remove
+    "PTH108", # os-unlink
+    "PTH109", # os-getcwd
+    "PTH110", # os-path-exists
+    "PTH112", # os-path-isdir
+    "PTH113", # os-path-isfile
+    "PTH116", # os-stat
+    "PTH118", # os-path-join
+    "PTH119", # os-path-basename
+    "PTH120", # os-path-dirname
+    "PTH122", # os-path-splitext
+    "PTH123", # builtin-open 
+    "PTH201", # path-constructor-current-directory
+    "PTH208", # os-listdir
+
+    # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
+    "TD002", # missing-todo-author
+    "TD003", # missing-todo-link
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -221,9 +225,9 @@ select = [
 convention = "numpy"
 
 [tool.ruff.lint.isort]
-force-single-line = true
 force-sort-within-sections = true
 known-first-party = ["doc", "src/ansys/aedt/core", "tests"]
+force-single-line = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
@@ -232,71 +236,71 @@ max-complexity = 10
 "src/pyaedt/**.py" = ["F403"]
 
 [tool.codespell]
-enable-colors = true
 ignore-words = "ignore_words.txt"
 skip = """
 *.pyc,*.aedt,*.xml,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,\
 *.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./docs/build/*,./docs/images/*,./dist/*,*~,.hypothesis*,\
 ./src/ansys/aedt/core/third_party,./docs/source/examples/*,*cover,*.dat,*.mac,PKG-INFO,*.mypy_cache/*,*.xml,*.aedt,*.svg
 """
+enable-colors = true
 
 [tool.coverage.run]
 source = ["src/ansys/aedt/core"]
 
 [tool.coverage.report]
-omit = ["src/ansys/aedt/core/rpc/*.py"]
 show_missing = true
+omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
-filterwarnings = [
-  "ignore::UserWarning:src.ansys.aedt.core.*",
-  "ignore::DeprecationWarning:src.*",
-  "ignore::UserWarning:ansys.aedt.core.*",
-  "ignore::DeprecationWarning:ansys.aedt.core.*",
-]
 markers = [
-  "unit",
-  "integration",
-  "system",
-  "solvers",
-  "general",
+    "unit",
+    "integration",
+    "system",
+    "solvers",
+    "general",
+]
+filterwarnings = [
+    "ignore::UserWarning:src.ansys.aedt.core.*",
+    "ignore::DeprecationWarning:src.*",
+    "ignore::UserWarning:ansys.aedt.core.*",
+    "ignore::DeprecationWarning:ansys.aedt.core.*"
 ]
 
 [tool.numpydoc_validation]
 checks = [
-  "GL06", # Found unknown section
-  "GL07", # Sections are in the wrong order.
-  "GL08", # The object does not have a docstring
-  "GL09", # Deprecation warning should precede extended summary
-  "GL10", # reST directives {directives} must be followed by two colons
-  # Return
-  "RT04", # Return value description should start with a capital letter"
-  "RT05", # Return value description should finish with "."
-  # Summary
-  "SS01", # No summary found
-  "SS02", # Summary does not start with a capital letter
-  "SS03", # Summary does not end with a period
-  "SS04", # Summary contains heading whitespaces
-  "SS05", # Summary must start with infinitive verb, not third person
-  # Parameters
-  "PR10", # Parameter "{param_name}" requires a space before the colon
-  # separating the parameter name and type",
+    "GL06",  # Found unknown section
+    "GL07",  # Sections are in the wrong order.
+    "GL08",  # The object does not have a docstring
+    "GL09",  # Deprecation warning should precede extended summary
+    "GL10",  # reST directives {directives} must be followed by two colons
+    # Return
+    "RT04", # Return value description should start with a capital letter"
+    "RT05", # Return value description should finish with "."
+    # Summary
+    "SS01",  # No summary found
+    "SS02",  # Summary does not start with a capital letter
+    "SS03",  # Summary does not end with a period
+    "SS04",  # Summary contains heading whitespaces
+    "SS05",  # Summary must start with infinitive verb, not third person
+    # Parameters
+    "PR10",  # Parameter "{param_name}" requires a space before the colon
+    # separating the parameter name and type",
 ]
 exclude = [
-  '\.AEDTMessageManager.add_message$', # bad SS05
-  '\.Modeler3D\.create_choke$', # bad RT05
-  '\.tests', # missing docstring for tests
-  'HistoryProps.', # bad RT05 because of the base class named OrderedDict
+    '\.AEDTMessageManager.add_message$',  # bad SS05
+    '\.Modeler3D\.create_choke$',  # bad RT05
+    '\.tests',  # missing docstring for tests
+    'HistoryProps.',  # bad RT05 because of the base class named OrderedDict
 ]
 
 [tool.towncrier]
+package = "ansys.aedt.core"
 directory = "doc/changelog.d"
 filename = "doc/source/changelog.rst"
-issue_format = "`#{issue} <https://github.com/ansys/pyaedt/pull/{issue}>`_"
-package = "ansys.aedt.core"
 start_string = ".. towncrier release notes start\n"
 template = "doc/changelog.d/changelog_template.jinja"
 title_format = "`{version} <https://github.com/ansys/pyaedt/releases/tag/v{version}>`_ - {project_date}"
+issue_format = "`#{issue} <https://github.com/ansys/pyaedt/pull/{issue}>`_"
 
 [[tool.towncrier.type]]
 directory = "added"
