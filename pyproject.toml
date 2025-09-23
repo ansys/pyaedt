@@ -47,7 +47,7 @@ dependencies = [
 [project.optional-dependencies]
 unit-tests = [
     "pytest>=7.4.0,<8.5",
-    "pytest-cov>=4.0.0,<6.3",
+    "pytest-cov>=4.0.0,<7.1",
     "mock>=5.1.0,<5.3",
     "fpdf2",
     "requests",
