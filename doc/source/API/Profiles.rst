@@ -68,8 +68,8 @@ for the variation:
     False
 
 Some ``SimulationProfile`` attributes are instances of the ``ProfileStep`` class. A ``ProfileStep``
-instance man, in turn, be comprised of additional steps that can be accessed as
-a Pandas ``dataframe`` instance. The ``SimulationProfile`` class allows you to retrieve
+instance, in turn, may be comprised of additional steps that can be accessed as
+a :py:class:`Pandas.dataframe` instance. The ``SimulationProfile`` class allows you to retrieve
 summary data from all
 steps with the ``real_time``, ``max_memory`` and ``cpu_time`` attributes.
 
