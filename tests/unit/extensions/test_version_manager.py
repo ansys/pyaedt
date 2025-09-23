@@ -26,8 +26,12 @@ import os
 import sys
 from unittest.mock import MagicMock
 import zipfile
+import tempfile
 
 from ansys.aedt.core.extensions.installer import version_manager as vm
+
+# Use a platform-safe temporary personal lib path instead of hard-coded '/tmp/personal'
+PERSONAL_LIB = os.path.join(tempfile.gettempdir(), "personal")
 
 # Ensure tests don't try to pip-install uv during VersionManager __init__.
 os.environ.setdefault("PYTEST_CURRENT_TEST", "1")
@@ -94,11 +98,11 @@ def _make_vm(monkeypatch):
 
     # Minimal desktop mock passed to VersionManager
     desktop = MagicMock()
-    desktop.personallib = "/tmp/personal"
+    desktop.personallib = PERSONAL_LIB
     desktop.release_desktop = MagicMock()
 
     # Create the manager
-    manager = vm.VersionManager(ui, desktop, aedt_version="2025.2", personal_lib="/tmp/personal")
+    manager = vm.VersionManager(ui, desktop, aedt_version="2025.2", personal_lib=PERSONAL_LIB)
     return manager
 
 
@@ -153,8 +157,13 @@ def test_get_installed_version_importlib_and_fallback(monkeypatch):
         return "Name: pyaedt\nVersion: 2.0.0\n"
 
     monkeypatch.setattr(vm.subprocess, "check_output", lambda *a, **k: (_ for _ in ()).throw(RuntimeError()))
+    # Simulate first approach failing then fallback succeeding using real functions
+    def raise_runtime(*a, **k):
+        raise RuntimeError()
+
+    monkeypatch.setattr(vm.subprocess, "check_output", raise_runtime)
     # Next call inside inner try should succeed
-    monkeypatch.setattr(vm.subprocess, "check_output", lambda *a, **k: pip_show(*a, **k))
+    monkeypatch.setattr(vm.subprocess, "check_output", pip_show)
     res = manager.get_installed_version("pyaedt")
     assert res == "Name: pyaedt\nVersion: 2.0.0"
 
@@ -424,11 +433,11 @@ def test_get_desktop_info_creates_desktop(monkeypatch):
     monkeypatch.setattr(vm, "get_process_id", lambda: None)
 
     fake_desktop = MagicMock()
-    fake_desktop.personallib = "/tmp/personal"
+    fake_desktop.personallib = PERSONAL_LIB
     fake_desktop.release_desktop = MagicMock()
 
     monkeypatch.setattr(vm.ansys.aedt.core, "Desktop", lambda **k: fake_desktop)
     out = vm.get_desktop_info(release_desktop=False)
     assert out["desktop"] is fake_desktop
     assert out["aedt_version"] == "2024.2"
-    assert out["personal_lib"] == "/tmp/personal"
+    assert out["personal_lib"] == PERSONAL_LIB
