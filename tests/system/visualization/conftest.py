@@ -72,6 +72,7 @@ settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
 settings.enable_pandas_output = True
+settings.use_local_example_data = False
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
@@ -97,6 +98,8 @@ config = {
     "disable_sat_bounding_box": True,
     "close_desktop": True,
     "remove_lock": False,
+    "local_example_folder": None,
+    "use_local_example_data": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -114,6 +117,8 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
+if settings.use_local_example_data:
+    settings.local_example_folder = config["local_example_folder"]
 close_desktop = config["close_desktop"]
 remove_lock = config["remove_lock"]
 
