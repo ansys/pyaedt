@@ -438,11 +438,8 @@ def test_extension_manager_handle_custom_extension_with_script(
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
-def test_extension_manager_category_case_insensitive(
-    mock_toolkits, mock_desktop, mock_aedt_app
-):
-    """Ensure load_extensions maps category names case-insensitively.
-    """
+def test_extension_manager_category_case_insensitive(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Ensure load_extensions maps category names case-insensitively."""
     mock_desktop.return_value = MagicMock()
     # Minimal toolkit structure required for the manager
     mock_toolkits.return_value = {"HFSS": {}}
@@ -470,9 +467,7 @@ def test_extension_manager_category_case_insensitive(
     "ansys.aedt.core.extensions.installer.extension_manager.AEDT_APPLICATIONS",
     new={"other": "FOO"},
 )
-def test_extension_manager_category_in_values(
-    mock_toolkits, mock_desktop, mock_aedt_app
-):
+def test_extension_manager_category_in_values(mock_toolkits, mock_desktop, mock_aedt_app):
     """Category present in AEDT_APPLICATIONS.values() branch."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
@@ -492,9 +487,7 @@ def test_extension_manager_category_in_values(
     "ansys.aedt.core.extensions.installer.extension_manager.AEDT_APPLICATIONS",
     new={"other": "MyApp"},
 )
-def test_extension_manager_category_matched_by_lower(
-    mock_toolkits, mock_desktop, mock_aedt_app
-):
+def test_extension_manager_category_matched_by_lower(mock_toolkits, mock_desktop, mock_aedt_app):
     """Case-insensitive matching of AEDT_APPLICATIONS values."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
