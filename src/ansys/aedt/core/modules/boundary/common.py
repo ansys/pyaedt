@@ -113,6 +113,8 @@ class BoundaryCommon(PropsManager):
         """
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
             self._app.omaxwell_parameters.DeleteParameters([self.name])
+        elif self.type == "Band":
+            self._app.omodelsetup.DeleteMotionSetup([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
             if self.name in self._app.design_excitations.keys():

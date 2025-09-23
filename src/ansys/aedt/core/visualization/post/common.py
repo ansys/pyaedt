@@ -2421,15 +2421,14 @@ class Reports(object):
                 self._post_app._app.logger.error("AMI analysis is needed to create this report.")
                 return False
 
-            if isinstance(expressions, list):
-                expressions = expressions[0]
-            report_cat = "Standard"
-            rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
-            rep.quantity_type = quantity_type
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        if isinstance(expressions, list):
+            expressions = expressions[0]
+        report_cat = "Standard"
+        rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
+        rep.quantity_type = quantity_type
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
 
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def eye_diagram(
