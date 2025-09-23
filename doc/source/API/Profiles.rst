@@ -1,20 +1,20 @@
 Profiles
 ========
 
-A pythonic interface to the profiles for an AEDT Design.
+An interface to simulation profiles.
 
 What is a Profile?
 ~~~~~~~~~~~~~~~~~~
 
-Each simulation *profile* provides access to
-performance metrics for a simulation process, including CPU time, real time (wall time),
-peak memory usage. The ``Profiles`` class is derived
-from``collections.abc.Mapping`` with each item providing
-information for a single profile that corresponds to a simulation setup and
+Each simulation *profile* provides
+performance metrics for a simulation, including CPU time, real time (wall time),
+and peak memory usage. The ``Profiles`` class is derived
+from :py:class:``collections.abc.Mapping``.
+Information for each profile which corresponds to a simulation setup and the
 parametric variation.
 
 The items in the ``Profiles`` class are instances of the
-``ansys.aedt.core.modules.SimulationProfile`` class.
+:class:``ansys.aedt.core.modules.SimulationProfile`` class.
 
 .. currentmodule:: ansys.aedt.core.modules.profile
 
@@ -93,7 +93,7 @@ For example
 
 The attribute values of a ``SimulationProfile`` instance
 depend on the type of simulation. The ``table()`` method
-can be used to retrieve a :class:`pandas.DataFrame` instance summarizing
+can be used to retrieve a :class:``pandas.DataFrame`` instance summarizing
 all simulation steps.
 
 +-------------------------+------------------+-----------------------------+
@@ -109,15 +109,15 @@ all simulation steps.
 
 Some methods and attributes in the ``Profiles`` class are:
 
-* `elapsed_time` (Measured elapsed time for the entire simulation.)
-* `real_time()` (Sum of real time for all process steps.)
-* `max_memory()` (Peak memory over all processes.)
-* `num_cores` (Number of compute cores.)
-* `product` (Which solver was used to generate the profile.)
-* `num_adaptive_passes` (Number of adaptive passes - only if adaptive refinement is used)
-* `has_frequency_sweep` (``True`` if a frequency sweep was run.)
-* `is_transient` (``True`` if the profile is for a transient solution.)
-* `os` (Operating system)
+* ``elapsed_time`` (Measured elapsed time for the entire simulation.)
+* ``real_time()`` (Sum of real time for all process steps.)
+* ``max_memory()`` (Peak memory over all processes.)
+* ``num_cores`` (Number of compute cores.)
+* ``product`` (Which solver was used to generate the profile.)
+* ``num_adaptive_passes`` (Number of adaptive passes - only if adaptive refinement is used)
+* ``has_frequency_sweep`` (``True`` if a frequency sweep was run.)
+* ``is_transient`` (``True`` if the profile is for a transient solution.)
+* ``os`` (Operating system)
 
 Main profile classes
 ~~~~~~~~~~~~~~~~~~~~
