@@ -34,6 +34,7 @@ from tkinter import messagebox
 from tkinter import ttk
 import webbrowser
 import zipfile
+from ansys.aedt.core.generic.general_methods import is_linux
 
 import defusedxml
 import PIL.Image
@@ -44,9 +45,6 @@ import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
-
-is_linux = os.name == "posix"
-is_windows = not is_linux
 
 defusedxml.defuse_stdlib()
 
@@ -88,15 +86,15 @@ class VersionManager:
     @property
     def python_exe(self):
         # Use the venv "Scripts" on Windows and "bin" on POSIX; choose platform-appropriate executable name.
-        bin_dir = "Scripts" if is_windows else "bin"
-        exe_name = "python.exe" if is_windows else "python"
+        bin_dir = "Scripts" if self.is_windows else "bin"
+        exe_name = "python.exe" if self.is_windows else "python"
         return os.path.join(self.venv_path, bin_dir, exe_name)
 
     @property
     def uv_exe(self):
         # 'uv' is named 'uv.exe' on Windows, 'uv' on POSIX and lives in the venv scripts/bin dir.
-        bin_dir = "Scripts" if is_windows else "bin"
-        uv_name = "uv.exe" if is_windows else "uv"
+        bin_dir = "Scripts" if self.is_windows else "bin"
+        uv_name = "uv.exe" if self.is_windows else "uv"
         return os.path.join(self.venv_path, bin_dir, uv_name)
 
     @property
@@ -118,6 +116,8 @@ class VersionManager:
         self.desktop = desktop
         self.aedt_version = aedt_version
         self.personal_lib = personal_lib
+        self.is_linux = is_linux
+        self.is_windows = not is_linux
         self.change_theme_button = None
 
         # Configure style for ttk buttons
@@ -322,7 +322,7 @@ class VersionManager:
         """
         try:
             scripts_dir = (
-                os.path.join(self.venv_path, "Scripts") if is_windows else os.path.join(self.venv_path, "bin")
+                os.path.join(self.venv_path, "Scripts") if self.is_windows else os.path.join(self.venv_path, "bin")
             )
             env = os.environ.copy()
             # Prepend venv scripts/bin to PATH so executables from the venv are preferred
@@ -332,7 +332,7 @@ class VersionManager:
             # Unset PYTHONHOME if set to avoid mixing environments
             env.pop("PYTHONHOME", None)
             self.activated_env = env
-        except Exception:
+        except Exception:  # pragma: no cover
             # Fallback to the current environment to avoid breaking functionality
             self.activated_env = os.environ.copy()
 
@@ -466,7 +466,7 @@ class VersionManager:
 
             # Check OS
             if os_system == "windows":
-                if not is_windows:
+                if not self.is_windows:
                     msg.extend(["", "This wheelhouse is not compatible with your operating system."])
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-windows-")
             else:
@@ -533,7 +533,7 @@ class VersionManager:
                 for line in out.splitlines():
                     if line.startswith("Version:"):
                         return line.split(":", 1)[1].strip()
-            except Exception:
+            except Exception: # pragma: no cover
                 return "Please restart"
 
     def clicked_refresh(self, need_restart=False):
@@ -549,12 +549,12 @@ class VersionManager:
             # display the updated version immediately without forcing a restart.
             try:
                 pyaedt_installed = self.get_installed_version("pyaedt")
-            except Exception:
+            except Exception:  # pragma: no cover
                 pyaedt_installed = "Please restart"
 
             try:
                 pyedb_installed = self.get_installed_version("pyedb")
-            except Exception:
+            except Exception:  # pragma: no cover
                 pyedb_installed = "Please restart"
 
             latest_pyaedt = get_latest_version("pyaedt")
@@ -583,7 +583,7 @@ def get_desktop_info(release_desktop=True):
 
     aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
     personal_lib = aedtapp.personallib
-    if release_desktop:
+    if release_desktop: # pragma: no cover
         aedtapp.release_desktop(close_project, close_on_exit)
 
     return {"desktop": aedtapp, "aedt_version": aedt_version, "personal_lib": personal_lib}

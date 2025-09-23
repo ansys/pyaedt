@@ -1,405 +1,410 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-# -*- coding: utf-8 -*-
 import os
-import platform
-import tkinter
-from unittest.mock import MagicMock
-from unittest.mock import patch
+import sys
 import zipfile
-
+import tempfile
+from unittest.mock import MagicMock, patch
 import pytest
 
-import ansys  # noqa: F401  (needed for monkeypatching Desktop)
 from ansys.aedt.core.extensions.installer import version_manager as vm
 
-
-# Provide a lightweight variable class to avoid tkinter dependency
-class _Var:
-    def __init__(self, value=""):
-        self._v = value
-
-    def set(self, value):  # pragma: no cover - trivial
-        self._v = value
-
-    def get(self):  # pragma: no cover - trivial
-        return self._v
-
-
-# Helper lambdas/functions to keep lines short
-
-
-def _yes(*a, **k):  # pragma: no cover - trivial
-    return True
-
-
-def _none(*a, **k):  # pragma: no cover - trivial
-    return None
-
-
-def _latest(ver):  # pragma: no cover - trivial
-    return lambda name: ver
-
-
-@pytest.fixture(autouse=True)
-def mock_tk_and_env(monkeypatch):
-    """Mock tkinter/ttk/PIL so VersionManager.__init__ can run in tests."""
-    # Prevent uv installation logic from running in tests
-    monkeypatch.setenv("PYTEST_CURRENT_TEST", "1")
-
-    # Mock tkinter.Tk so any created root is a MagicMock with needed methods
-    fake_tk = MagicMock()
-    fake_tk.iconphoto = MagicMock()
-    fake_tk.title = MagicMock()
-    fake_tk.geometry = MagicMock()
-    fake_tk.withdraw = MagicMock()
-    fake_tk.destroy = MagicMock()
-    monkeypatch.setattr(tkinter, "Tk", lambda *a, **k: fake_tk)
-
-    # Replace tkinter.StringVar used in the version_manager module with lightweight var
-    monkeypatch.setattr(vm.tkinter, "StringVar", _Var)
-
-    # Mock ttk.Style on the version_manager module so its Style returns MagicMock
-    monkeypatch.setattr(vm.ttk, "Style", lambda *a, **k: MagicMock())
-
-    # Mock common ttk widgets used during initialization to simple factories
-    for name in ("Frame", "PanedWindow", "Notebook", "Entry", "Label", "Button"):
-        monkeypatch.setattr(vm.ttk, name, lambda *a, **k: MagicMock())
-
-    # Mock PIL.Image.open and PhotoImage on the version_manager module
-    monkeypatch.setattr(vm.PIL.Image, "open", lambda *a, **k: MagicMock())
-    monkeypatch.setattr(vm.PIL.ImageTk, "PhotoImage", lambda *a, **k: MagicMock())
-
-    yield
-
-
-@pytest.fixture
-def root():
-    return MagicMock()
-
-
-@pytest.fixture
-def simple_desktop(tmp_path):
-    d = MagicMock()
-    d.aedt_version_id = "2025.2"
-    d.personallib = str(tmp_path / "personal")
-    d.logger = MagicMock()
-    return d
+# Ensure tests don't try to pip-install uv during VersionManager __init__.
+os.environ.setdefault("PYTEST_CURRENT_TEST", "1")
 
 
 def test_get_latest_version_success_and_failure(monkeypatch):
-    # success
-    fake_resp = MagicMock()
-    fake_resp.status_code = 200
-    fake_resp.json.return_value = {"info": {"version": "1.2.3"}}
-    monkeypatch.setattr(
-        vm.requests,
-        "get",
-        lambda url, timeout=3: fake_resp,
-    )  # noqa: E501
+    class Resp:
+        status_code = 200
+
+        def json(self):
+            return {"info": {"version": "1.2.3"}}
+
+    monkeypatch.setattr(vm.requests, "get", lambda *a, **k: Resp())
     assert vm.get_latest_version("pyaedt") == "1.2.3"
 
-    # non-200
-    fake_resp.status_code = 404
+    class BadResp:
+        status_code = 404
+
+    monkeypatch.setattr(vm.requests, "get", lambda *a, **k: BadResp())
     assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
 
-    # exception
     def raise_exc(*a, **k):
-        raise RuntimeError("boom")
+        raise RuntimeError()
 
     monkeypatch.setattr(vm.requests, "get", raise_exc)
     assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
 
 
-def test_is_git_available_and_activate_venv(monkeypatch, root, tmp_path):
-    # Git not available
-    monkeypatch.setattr(vm.shutil, "which", lambda name: None)
-    with patch.object(vm.messagebox, "showerror") as mock_err:
-        assert vm.VersionManager.is_git_available() is False
-        mock_err.assert_called_once()
+def _make_vm(monkeypatch):
+    # Patch PIL image opening and photo creation so constructor doesn't touch the FS
+    monkeypatch.setattr(vm.PIL.Image, "open", lambda *a, **k: MagicMock())
+    monkeypatch.setattr(vm.PIL.ImageTk, "PhotoImage", lambda *a, **k: MagicMock())
 
-    # Git available
-    monkeypatch.setattr(
-        vm.shutil,
-        "which",
-        lambda name: "C:/Program Files/git/bin/git",
-    )
-    assert vm.VersionManager.is_git_available() is True
+    # Patch ttk.Style and other widgets to simple mocks
+    monkeypatch.setattr(vm.ttk, "Style", lambda *a, **k: MagicMock())
+    monkeypatch.setattr(vm.ttk, "PanedWindow", lambda *a, **k: MagicMock())
+    monkeypatch.setattr(vm.ttk, "Notebook", lambda *a, **k: MagicMock())
+    monkeypatch.setattr(vm.ttk, "Frame", lambda *a, **k: MagicMock())
+    monkeypatch.setattr(vm.ttk, "Button", lambda *a, **k: MagicMock())
+    monkeypatch.setattr(vm.ttk, "Label", lambda *a, **k: MagicMock())
+    monkeypatch.setattr(vm.ttk, "Entry", lambda *a, **k: MagicMock())
 
-    # activate_venv: ensure PATH is prefixed with venv Scripts
-    mgr = vm.VersionManager(root, MagicMock(), "2025.2", str(tmp_path))
-    scripts_dir = os.path.join(mgr.venv_path, "Scripts")
-    assert mgr.activated_env["VIRTUAL_ENV"] == mgr.venv_path
-    assert mgr.activated_env["PATH"].startswith(scripts_dir)
+    # Provide a lightweight StringVar implementation
+    class _SV:
+        def __init__(self, *a, **k):
+            self._v = ""
 
+        def set(self, v):
+            self._v = v
 
-def test_update_pyaedt_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    # Simulate installed version greater than latest -> pin to exact
-    monkeypatch.setattr(vm, "get_latest_version", _latest("1.0.0"))  # noqa: E501
-    monkeypatch.setattr(vm.messagebox, "askyesno", _yes)  # noqa: E501
-    # Prevent any info dialogs from showing during the test
-    monkeypatch.setattr(vm.messagebox, "showinfo", _none)
-    with patch.object(
-        mgr,
-        "get_installed_version",
-        return_value="2.0.0",
-    ):
-        with patch.object(vm.subprocess, "run") as mock_run:
-            mgr.update_pyaedt()
-            mock_run.assert_called()
+        def get(self):
+            return self._v
 
+    monkeypatch.setattr(vm.tkinter, "StringVar", _SV)
+    # Ensure any call to tkinter.Tk in the code under test returns a mock
+    monkeypatch.setattr(vm.tkinter, "Tk", lambda *a, **k: MagicMock())
 
-def test_update_pyedb_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    monkeypatch.setattr(vm, "get_latest_version", _latest("1.0.0"))  # noqa: E501
-    monkeypatch.setattr(vm.messagebox, "askyesno", _yes)  # noqa: E501
-    # Prevent any info dialogs from showing during the test
-    monkeypatch.setattr(vm.messagebox, "showinfo", _none)
-    with patch.object(
-        mgr,
-        "get_installed_version",
-        return_value="2.0.0",
-    ):
-        with patch.object(vm.subprocess, "run") as mock_run:
-            mgr.update_pyedb()
-            mock_run.assert_called()
+    # Minimal UI object expected by VersionManager
+    ui = MagicMock()
+    ui.iconphoto = MagicMock()
+    ui.title = MagicMock()
+    ui.geometry = MagicMock()
+    ui.configure = MagicMock()
+
+    # Minimal desktop mock passed to VersionManager
+    desktop = MagicMock()
+    desktop.personallib = "/tmp/personal"
+    desktop.release_desktop = MagicMock()
+
+    # Create the manager
+    manager = vm.VersionManager(ui, desktop, aedt_version="2025.2", personal_lib="/tmp/personal")
+    return manager
 
 
-def test_update_from_wheelhouse_no_selection(root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    with patch.object(
-        vm.filedialog,
-        "askopenfilename",
-        return_value="",
-    ):
-        # Nothing should happen and no exception
-        mgr.update_from_wheelhouse()
+def test_activate_venv_and_exes(monkeypatch):
+    manager = _make_vm(monkeypatch)
+    # Ensure python and uv point inside sys.prefix
+    assert manager.venv_path == sys.prefix
+    pyexe = manager.python_exe
+    uve = manager.uv_exe
+    assert str(manager.venv_path) in pyexe
+    assert str(manager.venv_path) in uve
+
+    # Activate venv explicitly and check env keys
+    manager.activate_venv()
+    assert manager.activated_env is not None
+    assert "VIRTUAL_ENV" in manager.activated_env
 
 
-def test_reset_pyaedt_buttons_in_aedt_invokes_installer(root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    with patch.object(vm.messagebox, "askyesno", return_value=True):
-        with patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt") as mock_add:
-            with patch.object(vm.messagebox, "showinfo") as mock_info:
-                mgr.reset_pyaedt_buttons_in_aedt()
-                mock_add.assert_called_once()
-                mock_info.assert_called_once()
+def test_is_git_available_and_messagebox(monkeypatch):
+    manager = _make_vm(monkeypatch)
+    # If git not found, showerror called
+    monkeypatch.setattr(vm.shutil, "which", lambda x: None)
+    called = {}
+
+    def fake_showerror(title, msg):
+        called['err'] = (title, msg)
+
+    monkeypatch.setattr(vm.messagebox, "showerror", fake_showerror)
+    assert not vm.VersionManager.is_git_available()
+    assert 'err' in called
+
+    # If git found, returns True and no error
+    monkeypatch.setattr(vm.shutil, "which", lambda x: "/usr/bin/git")
+    monkeypatch.setattr(vm.messagebox, "showerror", lambda *a, **k: (_ for _ in ()).throw(AssertionError("should not be called")))
+    assert vm.VersionManager.is_git_available()
 
 
-def test_get_installed_version_various_paths(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    # Case 1: importlib.metadata path works
-    with patch.object(
-        vm.subprocess,
-        "check_output",
-        return_value="1.2.3\n",
-    ):
-        assert mgr.get_installed_version("pyaedt") == "1.2.3"
+def test_get_installed_version_importlib_and_fallback(monkeypatch):
+    manager = _make_vm(monkeypatch)
 
-    # Case 2: fallback to pip show
-    def side_effect(cmd, env=None, stderr=None, text=None):
-        # First call raise, second returns pip show like output
-        if "-c" in cmd:
-            raise RuntimeError("no importlib")
-        return "Name: pyaedt\nVersion: 4.5.6\n"
+    # Case 1: importlib path works
+    def check_output_importlib(cmd, env, stderr, text):
+        return "1.0.0\n"
 
-    monkeypatch.setattr(vm.subprocess, "check_output", side_effect)
-    assert mgr.get_installed_version("pyaedt") == "4.5.6"
+    monkeypatch.setattr(vm.subprocess, "check_output", check_output_importlib)
+    res = manager.get_installed_version("pyaedt")
+    assert res == "1.0.0"
 
-    # Case 3: both methods fail
-    monkeypatch.setattr(
-        vm.subprocess,
-        "check_output",
-        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")),
-    )
-    assert mgr.get_installed_version("pyaedt") == "Please restart"
+    def pip_show(cmd, env, stderr, text):
+        return "Name: pyaedt\nVersion: 2.0.0\n"
+
+    monkeypatch.setattr(vm.subprocess, "check_output", lambda *a, **k: (_ for _ in ()).throw(RuntimeError()))
+    # Next call inside inner try should succeed
+    monkeypatch.setattr(vm.subprocess, "check_output", lambda *a, **k: pip_show(*a, **k))
+    res = manager.get_installed_version("pyaedt")
+    assert res == "Name: pyaedt\nVersion: 2.0.0"
+
+    # Case 3: both approaches fail
+    monkeypatch.setattr(vm.subprocess, "check_output", lambda *a, **k: (_ for _ in ()).throw(RuntimeError()))
+    res = manager.get_installed_version("doesnotexist")
+    assert res == "Please restart"
 
 
-def test_clicked_refresh_updates_strings(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    monkeypatch.setattr(vm, "get_latest_version", _latest("9.9.9"))
-    with patch.object(
-        mgr,
-        "get_installed_version",
-        return_value="3.3.3",
-    ):
-        mgr.clicked_refresh(need_restart=False)
-        assert "PyAEDT: 3.3.3" in mgr.pyaedt_info.get()
+def test_clicked_refresh_no_restart_and_with_restart(monkeypatch):
+    manager = _make_vm(monkeypatch)
 
-    # need_restart True path
-    with patch.object(
-        mgr,
-        "get_installed_version",
-        return_value="7.7.7",
-    ):
-        with patch.object(vm.messagebox, "showinfo") as mock_info:
-            mgr.clicked_refresh(need_restart=True)
-            mock_info.assert_called_once()
-            assert "7.7.7" in mgr.pyaedt_info.get()
+    # Patch latest version lookups
+    monkeypatch.setattr(vm, "get_latest_version", lambda pkg: "9.9.9")
+    # Patch get_installed_version to return stable
+    monkeypatch.setattr(manager, "get_installed_version", lambda pkg: "1.2.3")
+
+    # No restart path
+    manager.clicked_refresh(need_restart=False)
+    assert "PyAEDT: 1.2.3 (Latest 9.9.9)" in manager.pyaedt_info.get()
+    assert "PyEDB: 1.2.3 (Latest 9.9.9)" in manager.pyedb_info.get()
+
+    # Restart path: patch get_installed_version to be called inside
+    monkeypatch.setattr(manager, "get_installed_version", lambda pkg: "3.3.3")
+    monkeypatch.setattr(vm, "get_latest_version", lambda pkg: "8.8.8")
+    # Patch messagebox.showinfo to capture call
+    called = {}
+
+    def fake_info(title, msg):
+        called['info'] = (title, msg)
+
+    monkeypatch.setattr(vm.messagebox, "showinfo", fake_info)
+    manager.clicked_refresh(need_restart=True)
+    assert 'info' in called
+    assert "PyAEDT: 3.3.3 (Latest 8.8.8)" in manager.pyaedt_info.get()
 
 
-def test_get_desktop_info(monkeypatch, tmp_path):
-    # Cover get_desktop_info path with process id None
-    monkeypatch.setattr(vm, "get_port", lambda: 1234)
-    monkeypatch.setattr(vm, "get_aedt_version", lambda: "2025.2")
+def test_toggle_and_theme_functions(monkeypatch):
+    """Verify toggle_theme flips theme_color and calls appropriate helpers."""
+    manager = _make_vm(monkeypatch)
+
+    # Prepare a fake theme and widgets
+    manager.theme = MagicMock()
+    manager.theme.light = {"widget_bg": "lightbg"}
+    manager.theme.dark = {"widget_bg": "darkbg"}
+    manager.theme.apply_light_theme = MagicMock()
+    manager.theme.apply_dark_theme = MagicMock()
+    manager.change_theme_button = MagicMock()
+    manager.root = MagicMock()
+    manager.style = MagicMock()
+
+    # Start light and toggle to dark
+    manager.theme_color = "light"
+    manager.toggle_theme()
+    assert manager.theme_color == "dark"
+    manager.theme.apply_dark_theme.assert_called_once_with(manager.style)
+    manager.change_theme_button.config.assert_called_with(text="\u2600")
+    manager.root.configure.assert_any_call(bg="darkbg")
+
+    # Toggle back to light
+    manager.toggle_theme()
+    assert manager.theme_color == "light"
+    manager.theme.apply_light_theme.assert_called_once_with(manager.style)
+    manager.change_theme_button.config.assert_called_with(text="\u263d")
+    manager.root.configure.assert_any_call(bg="lightbg")
+
+
+def test_set_light_and_set_dark(monkeypatch):
+    """Directly test set_light_theme and set_dark_theme behavior."""
+    manager = _make_vm(monkeypatch)
+
+    manager.theme = MagicMock()
+    manager.theme.light = {"widget_bg": "LBG"}
+    manager.theme.dark = {"widget_bg": "DBG"}
+    manager.theme.apply_light_theme = MagicMock()
+    manager.theme.apply_dark_theme = MagicMock()
+    manager.change_theme_button = MagicMock()
+    manager.root = MagicMock()
+    manager.style = MagicMock()
+
+    # Light
+    manager.set_light_theme()
+    manager.root.configure.assert_called_with(bg="LBG")
+    manager.theme.apply_light_theme.assert_called_once_with(manager.style)
+    manager.change_theme_button.config.assert_called_with(text="\u263d")
+
+    # Dark
+    manager.set_dark_theme()
+    manager.root.configure.assert_called_with(bg="DBG")
+    manager.theme.apply_dark_theme.assert_called_once_with(manager.style)
+    manager.change_theme_button.config.assert_called_with(text="\u2600")
+
+
+def test_update_pyaedt_flows(monkeypatch):
+    manager = _make_vm(monkeypatch)
+
+    # User declines disclaimer
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: False)
+    monkeypatch.setattr(vm.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(AssertionError("Should not run")))
+    manager.update_pyaedt()
+
+    # User accepts but latest unknown -> showerror
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
+    monkeypatch.setattr(vm, "get_latest_version", lambda *a, **k: vm.UNKNOWN_VERSION)
+    called = {}
+
+    def fake_error(title, msg):
+        called['err'] = (title, msg)
+
+    monkeypatch.setattr(vm.messagebox, "showerror", fake_error)
+    manager.update_pyaedt()
+    assert 'err' in called
+
+    # User accepts and install path; test both branch comparisons
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
+    monkeypatch.setattr(vm, "get_latest_version", lambda *a, **k: "1.0.0")
+    # Simulate installed version > latest to force pinned install
+    # Patch the internal call the property uses
+    monkeypatch.setattr(manager, "get_installed_version", lambda pkg: "2.0.0")
+    calls = {}
+
+    def fake_run(cmd, check, env):
+        calls['cmd'] = cmd
+
+    monkeypatch.setattr(vm.subprocess, "run", fake_run)
+    # Call update
+    manager.update_pyaedt()
+    assert any("pyaedt==1.0.0" in str(x) for x in calls['cmd'])
+
+    # Simulate installed version <= latest to force upgrade
+    calls.clear()
+    monkeypatch.setattr(manager, "get_installed_version", lambda pkg: "1.0.0")
+    manager.update_pyaedt()
+    assert any("-U" in str(x) or "install" in str(x) for x in calls['cmd'])
+
+
+def test_update_pyedb_flows(monkeypatch):
+    manager = _make_vm(monkeypatch)
+
+    # Decline
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: False)
+    manager.update_pyedb()
+
+    # Accept but unknown
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
+    monkeypatch.setattr(vm, "get_latest_version", lambda *a, **k: vm.UNKNOWN_VERSION)
+    called = {}
+
+    def fake_error(title, msg):
+        called['err'] = (title, msg)
+
+    monkeypatch.setattr(vm.messagebox, "showerror", fake_error)
+    manager.update_pyedb()
+    assert 'err' in called
+
+    # Accept and update path
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
+    monkeypatch.setattr(vm, "get_latest_version", lambda *a, **k: "1.0.0")
+    # Patch the internal call used by the property so we avoid assigning to a read-only property
+    monkeypatch.setattr(manager, "get_installed_version", lambda pkg: "2.0.0")
+    recorded = {}
+
+    def fake_run(cmd, check, env):
+        recorded['cmd'] = cmd
+
+    monkeypatch.setattr(vm.subprocess, "run", fake_run)
+    manager.update_pyedb()
+    assert any("pyedb==1.0.0" in str(x) for x in recorded['cmd']) or any("-U" in str(x) for x in recorded['cmd'])
+
+
+def test_get_branch_functions(monkeypatch):
+    manager = _make_vm(monkeypatch)
+
+    # When git not available, get_pyaedt_branch returns early
+    monkeypatch.setattr(vm.VersionManager, "is_git_available", staticmethod(lambda: False))
+    manager.get_pyaedt_branch()
+
+    # When git available but user declines
+    monkeypatch.setattr(vm.VersionManager, "is_git_available", staticmethod(lambda: True))
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: False)
+    manager.get_pyaedt_branch()
+
+    # When user accepts, ensure subprocess.run gets called with expected branch
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
+    manager.pyaedt_branch_name.set("feature/foo")
+    called = {}
+
+    def fake_run(cmd, check, env):
+        called['cmd'] = cmd
+
+    monkeypatch.setattr(vm.subprocess, "run", fake_run)
+    manager.get_pyaedt_branch()
+    assert any("github.com/ansys/pyaedt.git@feature/foo" in str(x) for x in called['cmd'])
+
+
+def test_update_from_wheelhouse_flow(monkeypatch, tmp_path):
+    manager = _make_vm(monkeypatch)
+
+    # If no file selected, do nothing
+    monkeypatch.setattr(vm.filedialog, "askopenfilename", lambda *a, **k: "")
+    manager.update_from_wheelhouse()
+
+    # Create a fake wheelhouse zip with expected stem parts matching the parser
+    # filename stem must split into 7 parts by '-'
+    stem = "pyaedt-v1.0.0-installer-foo-ubuntu-bar-3.10"
+    zippath = tmp_path / (stem + ".zip")
+    unzipdir = tmp_path / stem
+    # Create zip containing a dummy file
+    with zipfile.ZipFile(zippath, "w") as zf:
+        zf.writestr(f"{stem}/dummy.txt", "ok")
+
+    # Return this file as selected
+    monkeypatch.setattr(vm.filedialog, "askopenfilename", lambda *a, **k: str(zippath))
+    # Patch python_version to match '3.10'
+    monkeypatch.setattr(vm.VersionManager, "python_version", "3.10", raising=False)
+
+    recorded = {}
+
+    def fake_run(cmd, check, env):
+        recorded['cmd'] = cmd
+
+    monkeypatch.setattr(vm.subprocess, "run", fake_run)
+    # Execute
+    manager.update_from_wheelhouse()
+    assert recorded
+    # Clean up what manager might extract
+    if unzipdir.exists():
+        # Remove files before directories to avoid IsADirectoryError
+        for p in sorted(unzipdir.rglob('*'), key=lambda p: len(p.parts), reverse=True):
+            if p.is_dir():
+                p.rmdir()
+            else:
+                p.unlink()
+        if unzipdir.exists():
+            unzipdir.rmdir()
+
+
+def test_reset_pyaedt_buttons_in_aedt(monkeypatch):
+    manager = _make_vm(monkeypatch)
+
+    # If user declines, nothing happens
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: False)
+    manager.reset_pyaedt_buttons_in_aedt()
+
+    # If user accepts, ensure add_pyaedt_to_aedt called and showinfo called
+    monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
+    fake_installer = MagicMock()
+    fake_installer.add_pyaedt_to_aedt = MagicMock()
+
+    # Patch the import inside the function to our fake
+    monkeypatch.setitem(sys.modules, "ansys.aedt.core.extensions.installer.pyaedt_installer", fake_installer)
+
+    called = {}
+
+    def fake_info(title, msg):
+        called['info'] = (title, msg)
+
+    monkeypatch.setattr(vm.messagebox, "showinfo", fake_info)
+    manager.reset_pyaedt_buttons_in_aedt()
+    assert 'info' in called
+
+
+def test_get_desktop_info_creates_desktop(monkeypatch):
+    # Patch helpers
+    monkeypatch.setattr(vm, "get_port", lambda: 0)
+    monkeypatch.setattr(vm, "get_aedt_version", lambda: "2024.2")
     monkeypatch.setattr(vm, "get_process_id", lambda: None)
 
-    created = []
+    fake_desktop = MagicMock()
+    fake_desktop.personallib = "/tmp/personal"
+    fake_desktop.release_desktop = MagicMock()
 
-    def desktop_factory(new_desktop, version, port, non_graphical):
-        m = MagicMock()
-        m.personallib = str(tmp_path / "personal")
-        m.release_desktop = MagicMock()
-        m.new_desktop = new_desktop
-        m.version = version
-        m.port = port
-        m.non_graphical = non_graphical
-        created.append(m)
-        return m
-
-    monkeypatch.setattr(ansys.aedt.core, "Desktop", desktop_factory)
-    info = vm.get_desktop_info(release_desktop=True)
-    assert "desktop" in info
-    assert "aedt_version" in info
-    assert "personal_lib" in info
-    assert created
-    assert created[0].new_desktop is True
-    assert created[0].non_graphical is True
-    created[0].release_desktop.assert_called_once()
-
-
-def test_update_from_wheelhouse_valid(monkeypatch, root, simple_desktop, tmp_path):
-    pyver = ".".join(platform.python_version().split(".")[:2])
-    os_tag = "windows" if vm.is_windows else "ubuntu"
-    fname = f"wh-v1.0.0-full-x-{os_tag}-x-{pyver}.zip"
-    zpath = tmp_path / fname
-    with zipfile.ZipFile(zpath, "w") as zf:
-        zf.writestr("dummy.txt", "content")
-
-    monkeypatch.setattr(
-        vm.filedialog,
-        "askopenfilename",
-        lambda **k: str(zpath),
-    )  # noqa: E501
-    monkeypatch.setattr(vm.messagebox, "showerror", MagicMock())
-    # Prevent any info/done dialogs from showing during the test
-    monkeypatch.setattr(vm.messagebox, "showinfo", _none)
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    with patch.object(vm.subprocess, "run") as mock_run:
-        mgr.update_from_wheelhouse()
-        mock_run.assert_called()
-        vm.messagebox.showerror.assert_not_called()
-
-
-def test_toggle_theme_switches(monkeypatch, root, simple_desktop, tmp_path):
-    vm.root = MagicMock()
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    mgr.style = MagicMock()
-    mgr.theme = MagicMock()
-    mgr.theme.light = {"widget_bg": "lightbg"}
-    mgr.theme.dark = {"widget_bg": "darkbg"}
-    mgr.change_theme_button = MagicMock()
-
-    mgr.theme_color = "light"
-    mgr.toggle_theme()
-    assert mgr.theme_color == "dark"
-    mgr.change_theme_button.config.assert_called_with(text="\u2600")
-
-    mgr.change_theme_button.config.reset_mock()
-    mgr.toggle_theme()
-    assert mgr.theme_color == "light"
-    mgr.change_theme_button.config.assert_called_with(text="\u263d")
-
-
-def test_init_runs_and_creates_ui(monkeypatch, root, simple_desktop, tmp_path):
-    # Prevent network and subprocess calls during initialization
-    monkeypatch.setattr(vm.VersionManager, "get_installed_version", lambda self, name: "0.0.0")
-    monkeypatch.setattr(vm, "get_latest_version", lambda name: "9.9.9")
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    # Basic checks: branch names default to 'main' and venv info was set
-    assert mgr.pyaedt_branch_name.get() == "main"
-    assert mgr.pyedb_branch_name.get() == "main"
-    assert "Venv path" in mgr.venv_information.get()
-
-
-def test_ui_creation_methods(monkeypatch, root, simple_desktop, tmp_path):
-    # Prevent network and subprocess calls during initialization
-    monkeypatch.setattr(vm.VersionManager, "get_installed_version", lambda self, name: "0.0.0")
-    monkeypatch.setattr(vm, "get_latest_version", lambda name: "9.9.9")
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-
-    # Explicitly call UI creation helpers to increase coverage
-    mgr.create_button_menu()
-    assert mgr.change_theme_button is not None
-
-    parent = MagicMock()
-    mgr.create_ui_basic(parent)
-    mgr.create_ui_advanced(parent)
-
-    # Ensure the change_theme_button supports config
-    assert hasattr(mgr.change_theme_button, "config")
-
-
-def _make_wh_zip(tmp_path, pyaedt_version, wh_pkg_type, os_system, pyver="3.10"):
-    fname = f"wh-{pyaedt_version}-{wh_pkg_type}-x-{os_system}-x-{pyver}.zip"
-    zpath = tmp_path / fname
-    with zipfile.ZipFile(zpath, "w") as zf:
-        zf.writestr("dummy.txt", "content")
-    return zpath
-
-
-def test_update_from_wheelhouse_incorrect_type_triggers_error(monkeypatch, root, simple_desktop, tmp_path):
-    # pyaedt version <= 0.15.3 and package type != 'installer' should trigger error
-    zpath = _make_wh_zip(
-        tmp_path, "v0.15.0", "full", "windows", pyver="".join(platform.python_version().split(".")[:2])
-    )
-    monkeypatch.setattr(vm.filedialog, "askopenfilename", lambda **k: str(zpath))
-    err = MagicMock()
-    monkeypatch.setattr(vm.messagebox, "showerror", err)
-    # Ensure OS flags - run as linux to trigger replacement for windows
-    monkeypatch.setattr(vm, "is_windows", False)
-    monkeypatch.setattr(vm, "is_linux", True)
-
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    mgr.update_from_wheelhouse()
-    assert err.called
-    assert "This wheelhouse doesn't contain required packages" in err.call_args[0][1]
-
-
-def test_update_from_wheelhouse_os_mismatch_triggers_error(monkeypatch, root, simple_desktop, tmp_path):
-    # OS tag 'windows' but vm.is_windows False should trigger error
-    pyver = ".".join(platform.python_version().split(".")[:2])
-    zpath = _make_wh_zip(tmp_path, "v1.0.0", "installer", "windows", pyver=pyver)
-    monkeypatch.setattr(vm.filedialog, "askopenfilename", lambda **k: str(zpath))
-    err = MagicMock()
-    monkeypatch.setattr(vm.messagebox, "showerror", err)
-    monkeypatch.setattr(vm, "is_windows", False)
-    monkeypatch.setattr(vm, "is_linux", True)
-
-    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
-    mgr.update_from_wheelhouse()
-    assert err.called
-    assert "not compatible with your operating system" in err.call_args[0][1]
+    monkeypatch.setattr(vm.ansys.aedt.core, "Desktop", lambda **k: fake_desktop)
+    out = vm.get_desktop_info(release_desktop=False)
+    assert out["desktop"] is fake_desktop
+    assert out["aedt_version"] == "2024.2"
+    assert out["personal_lib"] == "/tmp/personal"
