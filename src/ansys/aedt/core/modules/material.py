@@ -2681,7 +2681,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is
+            less than the threshold, the material is
             considered dielectric.
 
         Returns
