@@ -104,7 +104,7 @@ def root():
 @pytest.fixture
 def simple_desktop(tmp_path):
     d = MagicMock()
-    d.aedt_version_id = "2025.1"
+    d.aedt_version_id = "2025.2"
     d.personallib = str(tmp_path / "personal")
     d.logger = MagicMock()
     return d
@@ -150,14 +150,14 @@ def test_is_git_available_and_activate_venv(monkeypatch, root, tmp_path):
     assert vm.VersionManager.is_git_available() is True
 
     # activate_venv: ensure PATH is prefixed with venv Scripts
-    mgr = vm.VersionManager(root, MagicMock(), "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, MagicMock(), "2025.2", str(tmp_path))
     scripts_dir = os.path.join(mgr.venv_path, "Scripts")
     assert mgr.activated_env["VIRTUAL_ENV"] == mgr.venv_path
     assert mgr.activated_env["PATH"].startswith(scripts_dir)
 
 
 def test_update_pyaedt_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     # Simulate installed version greater than latest -> pin to exact
     monkeypatch.setattr(vm, "get_latest_version", _latest("1.0.0"))  # noqa: E501
     monkeypatch.setattr(vm.messagebox, "askyesno", _yes)  # noqa: E501
@@ -174,7 +174,7 @@ def test_update_pyaedt_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
 
 
 def test_update_pyedb_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     monkeypatch.setattr(vm, "get_latest_version", _latest("1.0.0"))  # noqa: E501
     monkeypatch.setattr(vm.messagebox, "askyesno", _yes)  # noqa: E501
     # Prevent any info dialogs from showing during the test
@@ -190,7 +190,7 @@ def test_update_pyedb_calls_pip(monkeypatch, root, simple_desktop, tmp_path):
 
 
 def test_update_from_wheelhouse_no_selection(root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     with patch.object(
         vm.filedialog,
         "askopenfilename",
@@ -201,7 +201,7 @@ def test_update_from_wheelhouse_no_selection(root, simple_desktop, tmp_path):
 
 
 def test_reset_pyaedt_buttons_in_aedt_invokes_installer(root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     with patch.object(vm.messagebox, "askyesno", return_value=True):
         with patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt") as mock_add:
             with patch.object(vm.messagebox, "showinfo") as mock_info:
@@ -211,7 +211,7 @@ def test_reset_pyaedt_buttons_in_aedt_invokes_installer(root, simple_desktop, tm
 
 
 def test_get_installed_version_various_paths(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     # Case 1: importlib.metadata path works
     with patch.object(
         vm.subprocess,
@@ -240,7 +240,7 @@ def test_get_installed_version_various_paths(monkeypatch, root, simple_desktop, 
 
 
 def test_clicked_refresh_updates_strings(monkeypatch, root, simple_desktop, tmp_path):
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     monkeypatch.setattr(vm, "get_latest_version", _latest("9.9.9"))
     with patch.object(
         mgr,
@@ -265,7 +265,7 @@ def test_clicked_refresh_updates_strings(monkeypatch, root, simple_desktop, tmp_
 def test_get_desktop_info(monkeypatch, tmp_path):
     # Cover get_desktop_info path with process id None
     monkeypatch.setattr(vm, "get_port", lambda: 1234)
-    monkeypatch.setattr(vm, "get_aedt_version", lambda: "2025.1")
+    monkeypatch.setattr(vm, "get_aedt_version", lambda: "2025.2")
     monkeypatch.setattr(vm, "get_process_id", lambda: None)
 
     created = []
@@ -308,7 +308,7 @@ def test_update_from_wheelhouse_valid(monkeypatch, root, simple_desktop, tmp_pat
     monkeypatch.setattr(vm.messagebox, "showerror", MagicMock())
     # Prevent any info/done dialogs from showing during the test
     monkeypatch.setattr(vm.messagebox, "showinfo", _none)
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     with patch.object(vm.subprocess, "run") as mock_run:
         mgr.update_from_wheelhouse()
         mock_run.assert_called()
@@ -317,7 +317,7 @@ def test_update_from_wheelhouse_valid(monkeypatch, root, simple_desktop, tmp_pat
 
 def test_toggle_theme_switches(monkeypatch, root, simple_desktop, tmp_path):
     vm.root = MagicMock()
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     mgr.style = MagicMock()
     mgr.theme = MagicMock()
     mgr.theme.light = {"widget_bg": "lightbg"}
@@ -339,7 +339,7 @@ def test_init_runs_and_creates_ui(monkeypatch, root, simple_desktop, tmp_path):
     # Prevent network and subprocess calls during initialization
     monkeypatch.setattr(vm.VersionManager, "get_installed_version", lambda self, name: "0.0.0")
     monkeypatch.setattr(vm, "get_latest_version", lambda name: "9.9.9")
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     # Basic checks: branch names default to 'main' and venv info was set
     assert mgr.pyaedt_branch_name.get() == "main"
     assert mgr.pyedb_branch_name.get() == "main"
@@ -350,7 +350,7 @@ def test_ui_creation_methods(monkeypatch, root, simple_desktop, tmp_path):
     # Prevent network and subprocess calls during initialization
     monkeypatch.setattr(vm.VersionManager, "get_installed_version", lambda self, name: "0.0.0")
     monkeypatch.setattr(vm, "get_latest_version", lambda name: "9.9.9")
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
 
     # Explicitly call UI creation helpers to increase coverage
     mgr.create_button_menu()
@@ -384,7 +384,7 @@ def test_update_from_wheelhouse_incorrect_type_triggers_error(monkeypatch, root,
     monkeypatch.setattr(vm, "is_windows", False)
     monkeypatch.setattr(vm, "is_linux", True)
 
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     mgr.update_from_wheelhouse()
     assert err.called
     assert "This wheelhouse doesn't contain required packages" in err.call_args[0][1]
@@ -400,7 +400,7 @@ def test_update_from_wheelhouse_os_mismatch_triggers_error(monkeypatch, root, si
     monkeypatch.setattr(vm, "is_windows", False)
     monkeypatch.setattr(vm, "is_linux", True)
 
-    mgr = vm.VersionManager(root, simple_desktop, "2025.1", str(tmp_path))
+    mgr = vm.VersionManager(root, simple_desktop, "2025.2", str(tmp_path))
     mgr.update_from_wheelhouse()
     assert err.called
     assert "not compatible with your operating system" in err.call_args[0][1]

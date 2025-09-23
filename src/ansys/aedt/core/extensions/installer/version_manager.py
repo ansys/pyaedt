@@ -87,11 +87,17 @@ class VersionManager:
 
     @property
     def python_exe(self):
-        return os.path.join(self.venv_path, "Scripts", "python.exe")
+        # Use the venv "Scripts" on Windows and "bin" on POSIX; choose platform-appropriate executable name.
+        bin_dir = "Scripts" if is_windows else "bin"
+        exe_name = "python.exe" if is_windows else "python"
+        return os.path.join(self.venv_path, bin_dir, exe_name)
 
     @property
     def uv_exe(self):
-        return os.path.join(self.venv_path, "Scripts", "uv.exe")
+        # 'uv' is named 'uv.exe' on Windows, 'uv' on POSIX and lives in the venv scripts/bin dir.
+        bin_dir = "Scripts" if is_windows else "bin"
+        uv_name = "uv.exe" if is_windows else "uv"
+        return os.path.join(self.venv_path, bin_dir, uv_name)
 
     @property
     def python_version(self):
@@ -491,7 +497,7 @@ class VersionManager:
                     "--force-reinstall",
                     "--no-cache-dir",
                     "--no-index",
-                    f"--find-links=file:///{str(unzipped_path)}",
+                    f"--find-links={unzipped_path.as_uri()}",
                     "pyaedt[all]",
                 ],
                 check=True,
