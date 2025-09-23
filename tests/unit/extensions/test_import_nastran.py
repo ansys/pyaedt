@@ -209,3 +209,11 @@ def test_preview_raises_when_no_file_selected(mock_hfss_app):
         extension._ImportNastranExtension__preview()
 
     extension.root.destroy()
+
+
+def test_check_design_type_invalid(mock_circuit_app):
+    """Unsupported design types raise on init and call release_desktop."""
+    with patch.object(ImportNastranExtension, "release_desktop") as mock_release:
+        with pytest.raises(AEDTRuntimeError, match="This extension only works"):
+            ImportNastranExtension(withdraw=True)
+        mock_release.assert_called_once()
