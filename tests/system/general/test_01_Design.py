@@ -207,7 +207,7 @@ class TestClass:
         aedtapp.save_project(file_name=destin)
         aedtapp.save_project(file_name=origin, refresh_ids=True)
 
-        new_design = aedtapp.copy_design_from(destin, "ditto")
+        new_design = aedtapp.copy_design_from(destin, "ditto")  # Copies the design "ditto" into the current project.
         assert new_design in aedtapp.design_list
         for design_name in aedtapp.design_list:  # Revert app to original state while testing.
             if not design_name == original_design_name:  # Delete all designs except the original.
