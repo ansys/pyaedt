@@ -27,6 +27,7 @@ import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
+import threading
 
 import pytest
 
@@ -357,19 +358,22 @@ def test_clear_logs_and_export_behaviour(mock_toolkits, mock_desktop, mock_aedt_
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("subprocess.Popen")
-def test_extension_manager_launch_extension(mock_popen, mock_toolkits, mock_desktop, mock_aedt_app, monkeypatch):
-    """Test launching an extension."""
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_extension(
+    mock_desktop, mock_toolkits, mock_popen, mock_aedt_app
+):
+    """Minimal test for launching an extension without initializing tkinter UI.
+
+    Construct an ExtensionManager instance via __new__ and set only the
+    attributes required by launch_extension to avoid UI interactions or
+    background threads that can hang the test run.
+    """
     mock_desktop.return_value = MagicMock()
     toolkit_data = {
         "HFSS": {
-            "MyExt": {
-                "name": "My Extension",
-                "script": "dummy.py",
-                "icon": None,
-            }
+            "MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}
         }
     }
     mock_toolkits.return_value = toolkit_data
@@ -377,24 +381,31 @@ def test_extension_manager_launch_extension(mock_popen, mock_toolkits, mock_desk
     mock_process = MagicMock()
     mock_popen.return_value = mock_process
 
-    extension = ExtensionManager(withdraw=True)
-    # Set the toolkits attribute directly
+    # Create a minimal ExtensionManager instance without running __init__
+    extension = ExtensionManager.__new__(ExtensionManager)
     extension.toolkits = toolkit_data
+    extension.python_interpreter = "python"
+    extension.desktop = mock_desktop.return_value
+    extension.desktop.logger = MagicMock()
+    extension.active_process = None
+    extension.active_extension = None
+    extension.full_log_buffer = []
+    extension._log_stream_threads = []
+    extension.root = MagicMock()
+    extension.root.after = lambda *a, **k: None
+    extension.log_message = lambda *a, **k: None
+    extension.current_category = "HFSS"
 
-    # Mock the script file path resolution
-    with (
-        patch("pathlib.Path.exists", return_value=True),
-        patch("pathlib.Path.suffix", ".py"),
-        patch("pathlib.Path.is_dir", return_value=True),
-        patch("pathlib.Path.is_file", return_value=True),
-        patch(
-            "ansys.aedt.core.extensions.installer.extension_manager.get_custom_extension_script",
-            return_value="dummy.py",
-        ),
+    from pathlib import Path
+
+    script_path = Path("dummy.py")
+
+    with patch(
+        "ansys.aedt.core.extensions.installer.extension_manager.get_custom_extension_script",
+        return_value=script_path,
     ):
         extension.launch_extension("HFSS", "MyExt")
 
-    # Verify process was started
     mock_popen.assert_called_once()
     assert extension.active_extension == "MyExt"
     assert extension.active_process == mock_process
@@ -627,3 +638,27 @@ def test_extension_manager_handle_custom_extension_with_script(
         assert name == "My Custom Extension"
 
     extension.root.destroy()
+
+
+@pytest.fixture(autouse=True)
+def _patch_log_threads(monkeypatch, request):
+    """Disable real background log-stream threads in most tests to avoid
+    hangs and cross-thread interactions with mocks/tkinter. Tests that need
+    the real behavior can opt-out by name (listed in ALLOW_REAL).
+    """
+    ALLOW_REAL = {
+        "test_start_log_stream_threads_appends_stdout_and_stderr",
+    }
+
+    if request.node.name in ALLOW_REAL:
+        # Let that test control threading behavior itself
+        yield
+        return
+
+    # Replace the ExtensionManager._start_log_stream_threads with a noop
+    monkeypatch.setattr(
+        "ansys.aedt.core.extensions.installer.extension_manager.ExtensionManager._start_log_stream_threads",
+        lambda self: None,
+    )
+
+    yield
