@@ -155,6 +155,7 @@ def test_advanced_fields_calculator_extension_ok_button(
     assert AEDT_APPLICATION_SETUP == data.setup
     assert AEDT_APPLICATION_SELECTIONS == data.assignments
 
+
 def test_check_design_type_invalid(mock_circuit_app):
     """Unsupported design types raise on init and call release_desktop."""
     with patch.object(AdvancedFieldsCalculatorExtension, "release_desktop") as mock_release:
