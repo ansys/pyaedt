@@ -2643,7 +2643,7 @@ class Material(CommonMaterial, object):
         return self.get_magnetic_coercivity()
 
     @pyaedt_function_handler()
-    def is_conductor(self, threshold=100000):
+    def is_conductor(self, threshold: float = 100000) -> bool:
         """Check if the material is a conductor.
 
         Parameters
@@ -2673,7 +2673,7 @@ class Material(CommonMaterial, object):
         return False
 
     @pyaedt_function_handler()
-    def is_dielectric(self, threshold=100000):
+    def is_dielectric(self, threshold: float = 100000) -> bool:
         """Check if the material is dielectric.
 
         Parameters
@@ -2681,7 +2681,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is
+            less than the threshold, the material is
             considered dielectric.
 
         Returns
