@@ -118,7 +118,7 @@ def test_activate_venv_and_exes(monkeypatch):
 
 
 def test_is_git_available_and_messagebox(monkeypatch):
-    manager = _make_vm(monkeypatch)
+    _ = _make_vm(monkeypatch)
     # If git not found, showerror called
     monkeypatch.setattr(vm.shutil, "which", lambda x: None)
     called = {}
