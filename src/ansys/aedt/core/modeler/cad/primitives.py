@@ -4911,7 +4911,7 @@ class GeometryModeler(Modeler):
         reduce_error=0,
         merge_planar_faces=True,
         merge_angle=0.02,
-        input_file_unit = "Auto"
+        input_file_unit="Auto",
     ):
         """Import a CAD model.
 
@@ -4952,6 +4952,7 @@ class GeometryModeler(Modeler):
             Stl import angle in radians for which faces will be considered planar. Default is ``2e-2``.
         input_file_unit: str, optional
             Uinit for the stl file.
+
         Returns
         -------
          bool

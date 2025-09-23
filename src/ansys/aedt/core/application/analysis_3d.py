@@ -533,7 +533,7 @@ class FieldAnalysis3D(Analysis, object):
         reduce_percentage=0,
         reduce_error=0,
         merge_planar_faces=True,
-        input_file_unit="Auto"
+        input_file_unit="Auto",
     ):
         """Import a CAD model.
 
@@ -598,7 +598,7 @@ class FieldAnalysis3D(Analysis, object):
             reduce_percentage=reduce_percentage,
             reduce_error=reduce_error,
             merge_planar_faces=merge_planar_faces,
-            input_file_unit= input_file_unit
+            input_file_unit=input_file_unit,
         )
 
     @pyaedt_function_handler(
