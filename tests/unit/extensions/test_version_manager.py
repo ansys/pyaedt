@@ -24,9 +24,9 @@
 
 import os
 import sys
+import tempfile
 from unittest.mock import MagicMock
 import zipfile
-import tempfile
 
 from ansys.aedt.core.extensions.installer import version_manager as vm
 
@@ -157,6 +157,7 @@ def test_get_installed_version_importlib_and_fallback(monkeypatch):
         return "Name: pyaedt\nVersion: 2.0.0\n"
 
     monkeypatch.setattr(vm.subprocess, "check_output", lambda *a, **k: (_ for _ in ()).throw(RuntimeError()))
+
     # Simulate first approach failing then fallback succeeding using real functions
     def raise_runtime(*a, **k):
         raise RuntimeError()
