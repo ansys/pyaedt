@@ -27,7 +27,6 @@ import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
-import threading
 
 import pytest
 
@@ -361,9 +360,7 @@ def test_clear_logs_and_export_behaviour(mock_toolkits, mock_desktop, mock_aedt_
 @patch("subprocess.Popen")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_extension_manager_launch_extension(
-    mock_desktop, mock_toolkits, mock_popen, mock_aedt_app
-):
+def test_extension_manager_launch_extension(mock_desktop, mock_toolkits, mock_popen, mock_aedt_app):
     """Minimal test for launching an extension without initializing tkinter UI.
 
     Construct an ExtensionManager instance via __new__ and set only the
@@ -371,11 +368,7 @@ def test_extension_manager_launch_extension(
     background threads that can hang the test run.
     """
     mock_desktop.return_value = MagicMock()
-    toolkit_data = {
-        "HFSS": {
-            "MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}
-        }
-    }
+    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}}}
     mock_toolkits.return_value = toolkit_data
 
     mock_process = MagicMock()
