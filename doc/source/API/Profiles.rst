@@ -8,13 +8,14 @@ What is a Profile?
 
 Each simulation *profile* provides
 performance metrics for a simulation, including CPU time, real time (wall time),
-and peak memory usage. The ``Profiles`` class is derived
+and peak memory usage.
+The ``ansys.aedt.core.modules.profile.Profiles`` class is derived
 from :py:class:``collections.abc.Mapping``.
-Information for each profile which corresponds to a simulation setup and the
+Information for each profile corresponds to a simulation setup and the
 parametric variation.
 
 The items in the ``Profiles`` class are instances of the
-:class:``ansys.aedt.core.modules.SimulationProfile`` class.
+:class:``ansys.aedt.core.modules.profile.SimulationProfile`` class.
 
 .. currentmodule:: ansys.aedt.core.modules.profile
 
