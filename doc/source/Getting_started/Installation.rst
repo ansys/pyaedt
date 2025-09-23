@@ -73,7 +73,7 @@ There are three types of extensions supported:
 
 See `Extension Manager <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_ for more information.
 
-.. image:: ../Resources/toolkit_manager_1.png
+.. image:: ../Resources/extension_manager_1.png
   :width: 800
   :alt: PyAEDT toolkit manager 1
 
@@ -84,7 +84,7 @@ Pinned extensions are marked and appears in the corresponding AEDT design ribbon
 
 Selecting the **Custom** tile in the Extension Manager opens a dialog where you can add your own PyAEDT-based extension.
 
-.. image:: ../Resources/toolkit_manager_2.png
+.. image:: ../Resources/extension_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
