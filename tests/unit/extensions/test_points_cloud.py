@@ -139,3 +139,10 @@ def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
     extension._widgets["output_file_entry"].config(state="disabled")
     with pytest.raises(TclError):
         extension.root.children["buttons_frame"].children["generate"].invoke()
+
+def test_check_design_type_invalid(mock_circuit_app):
+    """Unsupported design types raise on init and call release_desktop."""
+    with patch.object(PointsCloudExtension, "release_desktop") as mock_release:
+        with pytest.raises(AEDTRuntimeError, match="This extension only works"):
+            PointsCloudExtension(withdraw=True)
+        mock_release.assert_called_once()
