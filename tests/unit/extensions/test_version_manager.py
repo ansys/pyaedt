@@ -1,9 +1,31 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import sys
+from unittest.mock import MagicMock
 import zipfile
-import tempfile
-from unittest.mock import MagicMock, patch
-import pytest
 
 from ansys.aedt.core.extensions.installer import version_manager as vm
 
@@ -102,15 +124,17 @@ def test_is_git_available_and_messagebox(monkeypatch):
     called = {}
 
     def fake_showerror(title, msg):
-        called['err'] = (title, msg)
+        called["err"] = (title, msg)
 
     monkeypatch.setattr(vm.messagebox, "showerror", fake_showerror)
     assert not vm.VersionManager.is_git_available()
-    assert 'err' in called
+    assert "err" in called
 
     # If git found, returns True and no error
     monkeypatch.setattr(vm.shutil, "which", lambda x: "/usr/bin/git")
-    monkeypatch.setattr(vm.messagebox, "showerror", lambda *a, **k: (_ for _ in ()).throw(AssertionError("should not be called")))
+    monkeypatch.setattr(
+        vm.messagebox, "showerror", lambda *a, **k: (_ for _ in ()).throw(AssertionError("should not be called"))
+    )
     assert vm.VersionManager.is_git_available()
 
 
@@ -160,11 +184,11 @@ def test_clicked_refresh_no_restart_and_with_restart(monkeypatch):
     called = {}
 
     def fake_info(title, msg):
-        called['info'] = (title, msg)
+        called["info"] = (title, msg)
 
     monkeypatch.setattr(vm.messagebox, "showinfo", fake_info)
     manager.clicked_refresh(need_restart=True)
-    assert 'info' in called
+    assert "info" in called
     assert "PyAEDT: 3.3.3 (Latest 8.8.8)" in manager.pyaedt_info.get()
 
 
@@ -238,11 +262,11 @@ def test_update_pyaedt_flows(monkeypatch):
     called = {}
 
     def fake_error(title, msg):
-        called['err'] = (title, msg)
+        called["err"] = (title, msg)
 
     monkeypatch.setattr(vm.messagebox, "showerror", fake_error)
     manager.update_pyaedt()
-    assert 'err' in called
+    assert "err" in called
 
     # User accepts and install path; test both branch comparisons
     monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
@@ -253,18 +277,18 @@ def test_update_pyaedt_flows(monkeypatch):
     calls = {}
 
     def fake_run(cmd, check, env):
-        calls['cmd'] = cmd
+        calls["cmd"] = cmd
 
     monkeypatch.setattr(vm.subprocess, "run", fake_run)
     # Call update
     manager.update_pyaedt()
-    assert any("pyaedt==1.0.0" in str(x) for x in calls['cmd'])
+    assert any("pyaedt==1.0.0" in str(x) for x in calls["cmd"])
 
     # Simulate installed version <= latest to force upgrade
     calls.clear()
     monkeypatch.setattr(manager, "get_installed_version", lambda pkg: "1.0.0")
     manager.update_pyaedt()
-    assert any("-U" in str(x) or "install" in str(x) for x in calls['cmd'])
+    assert any("-U" in str(x) or "install" in str(x) for x in calls["cmd"])
 
 
 def test_update_pyedb_flows(monkeypatch):
@@ -280,11 +304,11 @@ def test_update_pyedb_flows(monkeypatch):
     called = {}
 
     def fake_error(title, msg):
-        called['err'] = (title, msg)
+        called["err"] = (title, msg)
 
     monkeypatch.setattr(vm.messagebox, "showerror", fake_error)
     manager.update_pyedb()
-    assert 'err' in called
+    assert "err" in called
 
     # Accept and update path
     monkeypatch.setattr(vm.messagebox, "askyesno", lambda *a, **k: True)
@@ -294,11 +318,11 @@ def test_update_pyedb_flows(monkeypatch):
     recorded = {}
 
     def fake_run(cmd, check, env):
-        recorded['cmd'] = cmd
+        recorded["cmd"] = cmd
 
     monkeypatch.setattr(vm.subprocess, "run", fake_run)
     manager.update_pyedb()
-    assert any("pyedb==1.0.0" in str(x) for x in recorded['cmd']) or any("-U" in str(x) for x in recorded['cmd'])
+    assert any("pyedb==1.0.0" in str(x) for x in recorded["cmd"]) or any("-U" in str(x) for x in recorded["cmd"])
 
 
 def test_get_branch_functions(monkeypatch):
@@ -319,11 +343,11 @@ def test_get_branch_functions(monkeypatch):
     called = {}
 
     def fake_run(cmd, check, env):
-        called['cmd'] = cmd
+        called["cmd"] = cmd
 
     monkeypatch.setattr(vm.subprocess, "run", fake_run)
     manager.get_pyaedt_branch()
-    assert any("github.com/ansys/pyaedt.git@feature/foo" in str(x) for x in called['cmd'])
+    assert any("github.com/ansys/pyaedt.git@feature/foo" in str(x) for x in called["cmd"])
 
 
 def test_update_from_wheelhouse_flow(monkeypatch, tmp_path):
@@ -350,7 +374,7 @@ def test_update_from_wheelhouse_flow(monkeypatch, tmp_path):
     recorded = {}
 
     def fake_run(cmd, check, env):
-        recorded['cmd'] = cmd
+        recorded["cmd"] = cmd
 
     monkeypatch.setattr(vm.subprocess, "run", fake_run)
     # Execute
@@ -359,7 +383,7 @@ def test_update_from_wheelhouse_flow(monkeypatch, tmp_path):
     # Clean up what manager might extract
     if unzipdir.exists():
         # Remove files before directories to avoid IsADirectoryError
-        for p in sorted(unzipdir.rglob('*'), key=lambda p: len(p.parts), reverse=True):
+        for p in sorted(unzipdir.rglob("*"), key=lambda p: len(p.parts), reverse=True):
             if p.is_dir():
                 p.rmdir()
             else:
@@ -386,11 +410,11 @@ def test_reset_pyaedt_buttons_in_aedt(monkeypatch):
     called = {}
 
     def fake_info(title, msg):
-        called['info'] = (title, msg)
+        called["info"] = (title, msg)
 
     monkeypatch.setattr(vm.messagebox, "showinfo", fake_info)
     manager.reset_pyaedt_buttons_in_aedt()
-    assert 'info' in called
+    assert "info" in called
 
 
 def test_get_desktop_info_creates_desktop(monkeypatch):
