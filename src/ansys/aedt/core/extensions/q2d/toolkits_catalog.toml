@@ -1,10 +1,3 @@
-[FieldsDistribution]
-icon = "../maxwell3d/images/large/fields_distribution.png"
-name = "Fields distribution"
-script = "../maxwell3d/fields_distribution.py"
-template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/maxwell/fields_distribution.html"
-
 [FieldsCalculator] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Maxwell 2D, Q2D, Mechanical
 icon = "../common/images/large/fields.png"
 name = "Advanced Fields Calculator"
