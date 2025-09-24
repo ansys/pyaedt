@@ -24,11 +24,13 @@
 
 import math
 import os
+from pathlib import Path
 import re
 import shutil
 
 import pytest
 
+from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -45,13 +47,13 @@ test_subfolder = "T20"
 
 component = "RectProbe_ATK_251.a3dcomp"
 
-
 if config["desktopVersion"] > "2023.1":
     diff_proj_name = "differential_pairs_231"
 else:
     diff_proj_name = "differential_pairs"
 
 component_array = "Array_232"
+fresnel_name = "fresnel_test"
 
 
 @pytest.fixture(scope="class")
@@ -64,6 +66,13 @@ def aedtapp(add_app):
 def fall_back_name(aedtapp):
     name = aedtapp.design_name
     return name
+
+
+@pytest.fixture()
+def fresnel(add_app):
+    app = add_app(application=Hfss, project_name=fresnel_name, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
 
 
 class TestClass:
@@ -2083,3 +2092,53 @@ class TestClass:
             convert_farfield_data("non_existing_file.ffs")
         with pytest.raises(FileNotFoundError):
             convert_farfield_data("non_existing_file.ffe")
+
+    def test_get_fresnel_floquet_ports(self, fresnel):
+        fresnel.design_name = "two_ports"
+        ports = fresnel.get_fresnel_floquet_ports()
+        assert ports[0] == "Ptop"
+        assert len(ports) == 2
+
+        fresnel.design_name = "one_port"
+        ports = fresnel.get_fresnel_floquet_ports()
+        assert len(ports) == 1
+
+        fresnel.design_name = "three_ports"
+        with pytest.raises(AEDTRuntimeError):
+            fresnel.get_fresnel_floquet_ports()
+
+        fresnel.design_name = "wrong_modes"
+        with pytest.raises(AEDTRuntimeError):
+            fresnel.get_fresnel_floquet_ports()
+
+    def test_get_fresnel_coefficients(self, fresnel):
+        fresnel.design_name = "two_ports"
+        name = f"fresnel_coefficients_{fresnel.design_name}.rttbl"
+        file_name = Path(fresnel.toolkit_directory) / name
+
+        # Multi frequency
+        output1 = fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
+        assert output1.is_file()
+
+        # Duplicated file
+        output2 = fresnel.get_fresnel_coefficients(
+            setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P", output_file=file_name
+        )
+        assert output2 != output1
+
+        # Reflection and Single Freq
+        fresnel.design_name = "one_port"
+        output3 = fresnel.get_fresnel_coefficients(setup_sweep="Setup : Sweep", theta_name="scan_T", phi_name="scan_P")
+        assert output3.is_file()
+
+        # No parametric sweep
+        fresnel.design_name = "one_port"
+        with pytest.raises(AEDTRuntimeError):
+            fresnel.get_fresnel_coefficients(
+                setup_sweep="no_param : LastAdaptive", theta_name="scan_T", phi_name="scan_P"
+            )
+
+        # No correct floquet ports
+        fresnel.design_name = "three_ports"
+        with pytest.raises(AEDTRuntimeError):
+            fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
