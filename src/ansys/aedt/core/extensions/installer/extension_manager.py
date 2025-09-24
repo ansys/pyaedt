@@ -119,7 +119,7 @@ MIN_WIDTH = 600
 MIN_HEIGHT = 400
 
 AEDT_EXTENSION_APPLICATIONS = [
-    "Project",
+    "Common",
     "HFSS",
     "Maxwell3D",
     "Icepak",
@@ -154,12 +154,18 @@ class ExtensionManager(ExtensionProjectCommon):
         self.toolkits = None
         self.add_to_aedt_var = tkinter.BooleanVar(value=True)
         self.current_category = (
-            "Project"  # Default to Project application
+            "Common"  # Default to Project application
         )
 
         # Tkinter widgets
         self.right_panel = None
         self.images = []
+
+        # Log variables
+        self.full_log_buffer = []  # store tuples (text, tag)
+        self.logs_window = None
+        self.logs_text_widget = None
+        self._log_stream_threads = []
 
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
@@ -740,11 +746,207 @@ class ExtensionManager(ExtensionProjectCommon):
         self.active_extension = option
         self.active_process = subprocess.Popen([
             self.python_interpreter, str(script_file)
-        ], shell=True)  # nosec
+        ], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)  # nosec
 
-        # msg = f"Finished launching {option}."
-        # self.desktop.logger.info(msg)
-        # self.log_message(msg)
+        # Start streaming logs
+        self._start_log_stream_threads()
+
+    def _start_log_stream_threads(self):
+        """Start background threads to capture stdout and stderr."""
+        import threading
+        if not self.active_process:
+            return
+        def reader(stream, tag):
+            for line in iter(stream.readline, ''):
+                self._append_full_log(line.rstrip('\n'), tag)
+            stream.close()
+        for thr in self._log_stream_threads:
+            if thr.is_alive():
+                return  # already running
+        self._log_stream_threads = []
+        t_out = threading.Thread(
+            target=reader, args=(self.active_process.stdout, 'stdout'), daemon=True
+        )
+        t_err = threading.Thread(
+            target=reader, args=(self.active_process.stderr, 'stderr'), daemon=True
+        )
+        t_out.start()
+        t_err.start()
+        self._log_stream_threads.extend([t_out, t_err])
+        # Schedule periodic UI refresh
+        self.root.after(500, self._periodic_log_refresh)
+
+    def _append_full_log(self, text, tag):
+        self.full_log_buffer.append((text, tag))
+        # Keep size bounded (optional)
+        if len(self.full_log_buffer) > 10000:
+            self.full_log_buffer = self.full_log_buffer[-8000:]
+
+    def _periodic_log_refresh(self):
+        # If detached window open update it
+        if self.logs_window and self.logs_text_widget:
+            try:
+                self._update_logs_text_widget()
+            except Exception:
+                messagebox.showerror(
+                    "Error", "Logs window error. Closing it."
+                )
+        # Reschedule if process still running
+        if self.active_process and self.active_process.poll() is None:
+            self.root.after(500, self._periodic_log_refresh)
+
+    def _update_logs_text_widget(self):
+        widget = self.logs_text_widget
+        if not widget:
+            return
+        # Save current view to auto-scroll only if at bottom
+        at_end = False
+        if widget.index('end-1c') == widget.index('insert'):
+            at_end = True
+        widget.configure(state='normal')
+        widget.delete('1.0', 'end')
+        for line, tag in self.full_log_buffer:
+            if tag == 'stderr':
+                widget.insert('end', line + '\n', 'stderr')
+            else:
+                widget.insert('end', line + '\n')
+        widget.configure(state='disabled')
+        if at_end:
+            widget.see('end')
+
+    def _close_logs_window(self):  # pragma: no cover
+        """Close and cleanup the detached logs window."""
+        if self.logs_window:
+            try:
+                self.logs_window.destroy()
+            except Exception:
+                messagebox.showerror(
+                    "Error", "Failed to close logs window."
+                )
+            finally:
+                # Clear reference so future checks see it's closed
+                self.logs_window = None
+        self.logs_text_widget = None
+
+    def open_all_logs_window(self):  # override base
+        # Toggle behavior: if already open, close it on button click
+        if self.logs_window and tkinter.Toplevel.winfo_exists(
+            self.logs_window
+        ):
+            try:
+                self._close_logs_window()
+                return
+            except Exception:  # pragma: no cover
+                messagebox.showerror(
+                    "Error", "Failed to close existing logs window."
+                )
+                return
+        self.logs_window = tkinter.Toplevel(self.root)
+        self.logs_window.title('Extension Logs')
+        self.logs_window.geometry('700x400')
+        self.logs_window.protocol(
+            'WM_DELETE_WINDOW', self._close_logs_window
+        )
+
+        # Top-right buttons frame
+        top_btn_frame = ttk.Frame(self.logs_window, style='PyAEDT.TFrame')
+        top_btn_frame.pack(fill='x', padx=5, pady=(5, 0))
+
+        # Place buttons on the right side of the top bar
+        export_btn = ttk.Button(
+            top_btn_frame,
+            text='Export',
+            style='PyAEDT.TButton',
+            command=self._export_logs,
+            width=10,
+        )
+        export_btn.pack(side='right', padx=(5, 0))
+
+        clear_btn = ttk.Button(
+            top_btn_frame,
+            text='Clear',
+            style='PyAEDT.TButton',
+            command=self._clear_logs,
+            width=10,
+        )
+        clear_btn.pack(side='right')
+
+        # Text area + scrollbars container (below top buttons)
+        text_frame = ttk.Frame(self.logs_window, style='PyAEDT.TFrame')
+        text_frame.pack(fill='both', expand=True, padx=5, pady=(5, 5))
+
+        # Vertical and horizontal scrollbars
+        v_scroll = ttk.Scrollbar(text_frame, orient='vertical')
+        h_scroll = ttk.Scrollbar(text_frame, orient='horizontal')
+
+        txt = tkinter.Text(
+            text_frame, wrap='none',
+            xscrollcommand=h_scroll.set, yscrollcommand=v_scroll.set
+        )
+        # Attach scroll commands
+        v_scroll.config(command=txt.yview)
+        h_scroll.config(command=txt.xview)
+
+        # Layout: vertical scrollbar on right, horizontal at bottom
+        v_scroll.pack(side='right', fill='y')
+        h_scroll.pack(side='bottom', fill='x')
+        txt.pack(side='left', fill='both', expand=True)
+
+        # Apply theme colors
+        theme_colors = (
+            self.theme.light if self.root.theme == 'light'
+            else self.theme.dark
+        )
+        txt.configure(
+            background=theme_colors['pane_bg'],
+            foreground=theme_colors['text'],
+            font=self.theme.default_font,
+        )
+        txt.tag_config('stderr', foreground='red')
+        self.logs_text_widget = txt
+        self._update_logs_text_widget()
+
+    def _clear_logs(self):
+        """Clear full log buffer and update window."""
+        self.full_log_buffer.clear()
+        if self.logs_text_widget:
+            try:
+                self.logs_text_widget.configure(state='normal')
+                self.logs_text_widget.delete('1.0', 'end')
+                self.logs_text_widget.configure(state='disabled')
+            except Exception:  # pragma: no cover
+                messagebox.showerror(
+                    "Error", "Failed to clear logs window."
+                )
+
+    def _export_logs(self):
+        """Export logs to a text file."""
+        if not self.full_log_buffer:
+            messagebox.showinfo(
+                'Export Logs', 'No logs to export.'
+            )
+            return
+        file_path = filedialog.asksaveasfilename(
+            title='Save Logs',
+            defaultextension='.txt',
+            filetypes=[('Text Files', '*.txt'), ('All Files', '*.*')],
+        )
+        if not file_path:
+            return
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                for line, tag in self.full_log_buffer:
+                    if tag == 'stderr':
+                        f.write('[ERR] ' + line + '\n')
+                    else:
+                        f.write(line + '\n')
+            messagebox.showinfo(
+                'Export Logs', f'Logs saved to\n{file_path}'
+            )
+        except Exception as e:
+            messagebox.showerror(
+                'Export Logs', f'Failed to save logs: {e}'
+            )
 
     def pin_extension(self, category: str, option: str):
         """Pin extension to AEDT to bar."""

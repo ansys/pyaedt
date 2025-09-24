@@ -30,9 +30,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.points_cloud import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtension
-from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtensionData
+from ansys.aedt.core.extensions.common.points_cloud import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtension
+from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -98,7 +98,7 @@ def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with
     mock_filedialog.assert_called_once()
 
 
-@patch("ansys.aedt.core.extensions.project.points_cloud.generate_point_cloud")
+@patch("ansys.aedt.core.extensions.common.points_cloud.generate_point_cloud")
 def test_point_cloud_extension_preview_button(
     mock_generate_cloud, mock_hfss_app_with_objects_in_group, patch_graphics_modules
 ):
@@ -139,3 +139,11 @@ def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
     extension._widgets["output_file_entry"].config(state="disabled")
     with pytest.raises(TclError):
         extension.root.children["buttons_frame"].children["generate"].invoke()
+
+
+def test_check_design_type_invalid(mock_circuit_app):
+    """Unsupported design types raise on init and call release_desktop."""
+    with patch.object(PointsCloudExtension, "release_desktop") as mock_release:
+        with pytest.raises(AEDTRuntimeError, match="This extension only works"):
+            PointsCloudExtension(withdraw=True)
+        mock_release.assert_called_once()

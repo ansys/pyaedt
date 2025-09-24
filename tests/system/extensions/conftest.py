@@ -93,6 +93,10 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "close_desktop": True,
+    "remove_lock": False,
+    "local_example_folder": None,
+    "use_local_example_data": False,
 }
 
 # Check for the local config file, override defaults if found
