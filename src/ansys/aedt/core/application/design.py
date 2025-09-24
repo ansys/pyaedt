@@ -32,7 +32,6 @@ These classes are inherited in the main tool class.
 
 from abc import abstractmethod
 import gc
-import json
 import os
 from pathlib import Path
 import re
@@ -70,6 +69,7 @@ from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
@@ -88,6 +88,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+from ansys.aedt.core.modules.profile import Profiles
 
 if sys.version_info.major > 2:
     import base64
@@ -1260,11 +1261,13 @@ class Design(AedtObjects):
             elif Path(proj_name).exists() or (
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
-                if Path(proj_name).suffix == ".aedtz":
-                    name = available_file_name(Path(proj_name).with_suffix(".aedt"))
-                    self.odesktop.RestoreProjectArchive(str(proj_name), str(name), True, True)
+                if ".aedtz" in proj_name:
+                    p = Path(proj_name)
+                    save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.desktop_class.active_project(name.stem)
+                    proj_name = save_to_file.stem
+                    self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -1388,7 +1391,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name=None):
+    def get_profile(self, name=None) -> Profiles:
         """Get profile information.
 
         Parameters
@@ -1398,8 +1401,8 @@ class Design(AedtObjects):
 
         Returns
         -------
-        dict of :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-        ``False`` when failed.
+        :class:`ansys.aedt.core.modules.profile.Profiles`
+            Profile data when successful, ``False`` when failed.
         """
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -1419,11 +1422,25 @@ class Design(AedtObjects):
                         profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
                         if profile_setup_obj and self.get_oo_name(profile_setup_obj):
                             try:
-                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self._app)
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self)
                                 profile_objs[profile_setup_name] = profile_tree
-                            except Exception:  # pragma: no cover
-                                self.logger.error(f"{profile_setup_name} profile could not be obtained.")
-            return profile_objs
+                            except Exception as e:  # pragma: no cover
+                                error_message = f"Exception type: {type(e).__name__}\n"
+                                error_message += f"Message: {e}"
+                                error_message += f"{profile_setup_name} profile could not be obtained."
+                                self.logger.error(error_message)
+            if profile_objs:
+                if isinstance(profile_objs, dict):
+                    profiles = Profiles(profile_objs)
+                    for key, value in profiles.items():
+                        if value.product in self.solution_type:
+                            value.product = self.solution_type
+                    # TODO: Need to pass self.props["SetupType"]?
+                    return profiles
+                else:  # pragma: no cover
+                    raise Exception("Error retrieving solver profile.")
+            else:
+                return None
         else:  # pragma: no cover
             self.logger.error("Profile can not be obtained.")
             return False
@@ -3793,21 +3810,31 @@ class Design(AedtObjects):
         Returns
         -------
         dict
-            Dictionary of the design data.
+            Dictionary of design data.
 
+        Examples
+        --------
+        After generating design data and storing it as .json file, retrieve it as a dictionary.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> m2d["width"] = "10mm"
+        >>> m2d["height"] = "15mm"
+        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
+        >>> m2d.generate_design_data()
+        >>> data = m2d.read_design_data()
+        >>> m2d.release_desktop(True, True)
         """
         design_file = Path(self.working_directory) / "design_data.json"
-        with open_file(design_file, "r") as fps:
-            design_data = json.load(fps)
-        return design_data
+        return read_configuration_file(design_file)
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, file_name: Optional[Union[Path, str]] = None, overwrite=True, refresh_ids=False):
+    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
         ----------
-        file_name : str or :class:`pathlib.Path`, optional
+        file_name : str, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
