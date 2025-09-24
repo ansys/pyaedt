@@ -1,27 +1,34 @@
 [Export3D]
-name = "Export to 3D"
-script = "export_to_3d.py"
 icon = "images/large/cad3d.png"
-template = "run_pyaedt_toolkit_script"
+name = "Export to 3D"
 pip = ""
+script = "export_to_3d.py"
+template = "run_pyaedt_toolkit_script"
 
 [PushfromTransient]
-name = "Push Excitation from transient data"
-script = "push_excitation_from_file_3dl.py"
 icon = "images/large/push.png"
-template = "run_pyaedt_toolkit_script"
+name = "Push Excitation from transient data"
 pip = ""
+script = "push_excitation_from_file_3dl.py"
+template = "run_pyaedt_toolkit_script"
+
+[ImportNastran] # HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical
+icon = "../common/images/large/cad3d.png"
+name = "Import Nastran/STL"
+script = "../common/import_nastran.py"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/import_nastran.html"
 
 [ExportFiles]
-name = "Export Layout info"
-script = "export_layout.py"
 icon = "images/large/export.png"
-template = "run_pyaedt_toolkit_script"
+name = "Export Layout info"
 pip = ""
+script = "export_layout.py"
+template = "run_pyaedt_toolkit_script"
 
 [Cutout]
-name = "Advanced cutout"
-script = "cutout.py"
 icon = "images/large/cutout.png"
-template = "run_pyaedt_toolkit_script"
+name = "Advanced cutout"
 pip = ""
+script = "cutout.py"
+template = "run_pyaedt_toolkit_script"
