@@ -112,7 +112,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_resistor(value=10)
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -163,7 +163,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_inductor(value=10)
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -214,7 +214,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_capacitor(value=10)
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -262,7 +262,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_diode()
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -310,7 +310,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_winding(name="winding")
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
