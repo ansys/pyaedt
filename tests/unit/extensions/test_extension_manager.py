@@ -633,6 +633,71 @@ def test_extension_manager_handle_custom_extension_with_script(
     extension.root.destroy()
 
 
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_category_case_insensitive(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Ensure load_extensions maps category names case-insensitively."""
+    mock_desktop.return_value = MagicMock()
+    # Minimal toolkit structure required for the manager
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Lowercase input
+    extension.load_extensions("hfss")
+    assert extension.current_category == "HFSS"
+
+    # Mixed-case input
+    extension.load_extensions("hFsS")
+    assert extension.current_category == "HFSS"
+
+    # Proper-cased input
+    extension.load_extensions("HFSS")
+    assert extension.current_category == "HFSS"
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch(
+    "ansys.aedt.core.extensions.installer.extension_manager.AEDT_APPLICATIONS",
+    new={"other": "FOO"},
+)
+def test_extension_manager_category_in_values(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Category present in AEDT_APPLICATIONS.values() branch."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Provide a category string that is in AEDT_APPLICATIONS.values()
+    extension.load_extensions("FOO")
+    assert extension.current_category == "FOO"
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch(
+    "ansys.aedt.core.extensions.installer.extension_manager.AEDT_APPLICATIONS",
+    new={"other": "MyApp"},
+)
+def test_extension_manager_category_matched_by_lower(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Case-insensitive matching of AEDT_APPLICATIONS values."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Lowercase input should be matched to 'MyApp' value
+    extension.load_extensions("myapp")
+    assert extension.current_category == "MyApp"
+
+    extension.root.destroy()
+
+
 @pytest.fixture(autouse=True)
 def _patch_log_threads(monkeypatch, request):
     """Disable real background log-stream threads in most tests to avoid
