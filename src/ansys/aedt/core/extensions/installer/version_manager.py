@@ -573,18 +573,20 @@ def get_desktop_info(release_desktop=True):
     if aedt_process_id is not None: # pragma: no cover
         new_desktop = False
         ng = False
-        close_project = False
         close_on_exit = False
     else:
         new_desktop = True
         ng = True
-        close_project = True
         close_on_exit = True
 
     aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
     personal_lib = aedtapp.personallib
-    if release_desktop: # pragma: no cover
-        aedtapp.release_desktop(close_project, close_on_exit)
+
+    if release_desktop:
+        if close_on_exit:
+            aedtapp.close_desktop()
+        else:
+            aedtapp.release_desktop(False, False)
 
     return {"desktop": aedtapp, "aedt_version": aedt_version, "personal_lib": personal_lib}
 

@@ -304,7 +304,10 @@ class Design(AedtObjects):
         if self._desktop_class._connected_app_instances > 0:  # pragma: no cover
             self._desktop_class._connected_app_instances -= 1
         if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
-            self.release_desktop(self.close_on_exit, self.close_on_exit)
+            if self.close_on_exit:
+                self.desktop_class.close_desktop()
+            else:
+                self.desktop_class.release_desktop(False, False)
 
     def __enter__(self):  # pragma: no cover
         self._desktop_class._connected_app_instances += 1
@@ -821,6 +824,9 @@ class Design(AedtObjects):
     def project_list(self) -> List[str]:
         """Project list.
 
+        .. deprecated:: 0.19.1
+            This property is deprecated. Use the ``ansys.aedt.core.desktop.project_list`` property instead.
+
         Returns
         -------
         list
@@ -830,7 +836,13 @@ class Design(AedtObjects):
         ----------
         >>> oDesktop.GetProjectList
         """
-        return list(self.odesktop.GetProjectList())
+        warnings.warn(
+            "`design.project_list` is deprecated. The property is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.project_list`.",
+            DeprecationWarning,
+        )
+
+        return self.desktop_class.project_list
 
     @property
     def project_path(self) -> Optional[str]:
@@ -1253,7 +1265,7 @@ class Design(AedtObjects):
             if self._oproject:
                 self.logger.info(f"No project is defined. Project {self._oproject.GetName()} exists and has been read.")
         else:
-            prj_list = self.odesktop.GetProjectList()
+            prj_list = self.desktop_class.project_list
             if prj_list and proj_name in list(prj_list):
                 self._oproject = self.desktop_class.active_project(proj_name)
                 self._add_handler()
@@ -1326,10 +1338,10 @@ class Design(AedtObjects):
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
             else:
-                project_list = self.odesktop.GetProjectList()
+                project_list = self.desktop_class.project_list
                 self._oproject = self.odesktop.NewProject()
                 if not self._oproject:
-                    new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                    new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
                     if new_project_list:
                         self._oproject = self.desktop_class.active_project(new_project_list[0])
                 if proj_name.endswith(".aedt"):
@@ -1339,10 +1351,10 @@ class Design(AedtObjects):
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
-            project_list = self.odesktop.GetProjectList()
+            project_list = self.desktop_class.project_list
             self._oproject = self.odesktop.NewProject()
             if not self._oproject:
-                new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
                 if new_project_list:
                     self._oproject = self.desktop_class.active_project(new_project_list[0])
             self._add_handler()
@@ -2585,13 +2597,21 @@ class Design(AedtObjects):
     def close_desktop(self):
         """Close AEDT and release it.
 
+        .. deprecated:: 0.19.1
+            This method is deprecated. Use the ``ansys.aedt.core.desktop.close_desktop()`` method instead.
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.release_desktop()
+        warnings.warn(
+            "method `design.close_desktop` is deprecated. The method is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.close_desktop()`.",
+            DeprecationWarning,
+        )
+        self.desktop_class.close_desktop()
         return True
 
     @pyaedt_function_handler()
@@ -2630,6 +2650,9 @@ class Design(AedtObjects):
     def release_desktop(self, close_projects=True, close_desktop=True):
         """Release AEDT.
 
+        .. deprecated:: 0.19.1
+            This method is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
+
         Parameters
         ----------
         close_projects : bool, optional
@@ -2643,7 +2666,15 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.desktop_class.release_desktop(close_projects, close_desktop)
+        warnings.warn(
+            "method `design.release_desktop` is deprecated. The method is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.release_desktop()`.",
+            DeprecationWarning,
+        )
+        if close_desktop:
+            self.desktop_class.close_desktop()
+        else:
+            self.desktop_class.release_desktop(close_projects, False)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
@@ -3335,7 +3366,7 @@ class Design(AedtObjects):
         >>> oDesktop.CloseProject
         """
         legacy_name = self.project_name
-        if name and name not in self.project_list:
+        if name and name not in self.desktop_class.project_list:
             self.logger.warning("Project named '%s' was not found.", name)
             return False
         if not name:

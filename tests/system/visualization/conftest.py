@@ -169,7 +169,10 @@ def desktop():
 
     yield d
     try:
-        d.release_desktop(close_projects=True, close_on_exit=close_desktop)
+        if close_desktop:
+            d.close_desktop()
+        else:
+            d.release_desktop(close_projects=True, close_on_exit=False)
     except Exception:
         return False
 

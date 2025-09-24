@@ -2175,7 +2175,7 @@ class Material(CommonMaterial, object):
         ...     points_at_frequency={60: [[0, 0], [1, 3], [2, 7]]}, thickness="0.5mm", conductivity=0
         ... )
         >>> print(coefficients)
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
         """
         if not isinstance(points_at_frequency, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
@@ -2302,7 +2302,7 @@ class Material(CommonMaterial, object):
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
 
         The second case shows how to set properties for core losses versus frequencies:
 
@@ -2315,7 +2315,7 @@ class Material(CommonMaterial, object):
                                                     ...                      100 : [[0,0], [1,8], [2,9]],
                                                     ...                      150 : [[0,0], [1,10], [2,19]]}
                                                     ... )
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
 
         """
         if not isinstance(points_at_frequency, dict):
