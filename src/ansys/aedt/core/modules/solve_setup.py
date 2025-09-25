@@ -30,6 +30,7 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 
 import os.path
+from pathlib import Path
 import re
 import secrets
 import time
@@ -43,6 +44,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
@@ -339,18 +341,15 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         self.props["Name"] = name
 
     @pyaedt_function_handler()
-    def get_profile(self):
+    def get_profile(self) -> Profiles:
         """Solution profile.
 
         Returns
         -------
-        dict of :class:ansys.aedt.core.modeler.cad.elements_3d.BinaryTree when solved setups exist,
-        ``None`` when no solved setups or no compatible application exists.
+        :class:`ansys.aedt.core.modules.profile.Profiles`
+            Profile data when successful, ``False`` when failed.
         """
-        profile = self._app.get_profile(self.name)
-        if not isinstance(profile, dict) or not profile:
-            profile = None
-        return profile
+        return self._app.get_profile(self.name)  # Native API getter.
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
@@ -647,7 +646,6 @@ class Setup(CommonSetup):
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
         """
-
         self._app.delete_setup(self.name)
         return True
 
@@ -937,7 +935,7 @@ class Setup(CommonSetup):
         >>> m3d.set_active_design("target_design")
         The mesh link is assigned to the target design.
         >>> target_setup.add_mesh_link("source_design")
-        >>> m3d.release_desktop()
+        >>> m3d.desktop_class.close_desktop()
         """
         dkp = self._app.desktop_class
         source_design = design
@@ -1029,9 +1027,11 @@ class Setup(CommonSetup):
     def _parse_link_solution(self, project, design, solution):
         prev_solution = {}
 
+        if isinstance(project, Path):
+            project = str(project)
         # project name
         if project != "This Project*":
-            if os.path.exists(project):
+            if Path(project).exists():
                 prev_solution["Project"] = project
                 self.props["PathRelativeTo"] = "SourceProduct"
             else:
@@ -1084,7 +1084,7 @@ class Setup(CommonSetup):
             Dictionary of the parameters. This parameter is not considered if
             ``map_variables_by_name=True``. If ``None``, the default is
             ``appname.available_variations.nominal_values``.
-        project : str, optional
+        project : str or :class:`pathlib.Path`, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
         force_source_to_solve : bool, optional
@@ -2679,7 +2679,6 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearCountSetup"`` and use it in a linear count sweep
         named ``"LinearCountSweep"``.
 
@@ -2689,7 +2688,6 @@ class SetupHFSS(Setup, object):
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
         """
-
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
         if sweep_type in ["Interpolating", "Fast"]:
@@ -2772,7 +2770,6 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a linear step sweep
         named ``"LinearStepSweep"``.
 
@@ -2853,7 +2850,6 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a single point sweep
         named ``"SinglePointSweep"``.
 
@@ -3664,18 +3660,19 @@ class SetupMaxwell(Setup, object):
         :class:`ansys.aedt.core.modules.solve_sweeps.SweepMaxwellEC`
             Sweep object.
 
-        Example
-        -------
+        Examples
+        --------
         >>> import ansys.aedt.core
-        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
-        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.2")
+        >>> m2d.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         >>> setup = m2d.create_setup()
         >>> sweep = setup.add_eddy_current_sweep(
         ...     sweep_type="LinearStep", start_frequency=1, stop_frequency=20, step_size=2, units="Hz", clear=False
         ... )
         >>> sweep.props["RangeStart"] = "0.1Hz"
         >>> sweep.update()
-        >>> m2d.release_desktop()
+        >>> m2d.desktop_class.close_desktop()
         """
         if self.setuptype not in [7, 60]:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
@@ -3741,7 +3738,7 @@ class SetupMaxwell(Setup, object):
 
         Parameters
         ----------
-        control_program_path : str
+        control_program_path : str or :class:`pathlib.Path`
             File path of control program.
         control_program_args : str, optional
             Arguments to pass to control program.
@@ -3770,7 +3767,7 @@ class SetupMaxwell(Setup, object):
             self._app.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
             return False
 
-        if not os.path.exists(control_program_path):
+        if not Path(control_program_path).exists():
             self._app.logger.error("Control Program file does not exist.")
             return False
 
@@ -3780,7 +3777,7 @@ class SetupMaxwell(Setup, object):
 
         self.auto_update = False
         self.props["UseControlProgram"] = True
-        self.props["ControlProgramName"] = control_program_path
+        self.props["ControlProgramName"] = str(control_program_path)
         self.props["ControlProgramArg"] = control_program_args
         self.props["CallCtrlProgAfterLastStep"] = call_after_last_step
         self.auto_update = True
@@ -3825,16 +3822,16 @@ class SetupMaxwell(Setup, object):
         bool
             ``True`` if successful, ``False`` if it fails.
 
-        Example
-        -------
+        Examples
+        --------
         >>> import ansys.aedt.core
-        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
+        >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.2")
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
         >>> setup = m2d.create_setup()
         >>> setup.set_save_fields(
         ...     enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
         ... )
-        >>> m2d.release_desktop()
+        >>> m2d.desktop_class.close_desktop()
         """
         if self.setuptype != 5:
             if enable:
@@ -4058,7 +4055,7 @@ class SetupQ3D(Setup, object):
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearCountSetup")
         >>> sweep = setup.create_frequency_sweep(unit="GHz", start_frequency=0.5, stop_frequency=1.5, name="Sweep1")
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if sweep_type in ["Interpolating", "Fast"]:
             num_of_freq_points = num_of_freq_points or 401
@@ -4145,7 +4142,7 @@ class SetupQ3D(Setup, object):
         ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
         ... )
         >>> type(linear_step_sweep)
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
@@ -4222,7 +4219,7 @@ class SetupQ3D(Setup, object):
         >>> setup = q3d.create_setup("SinglePointSetup")
         >>> single_point_sweep = setup.create_single_point_sweep(name="SinglePointSweep", unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if name is None:
             name = generate_unique_name("SinglePoint")
@@ -4323,7 +4320,7 @@ class SetupQ3D(Setup, object):
         >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
         >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         >>> sweep = setup.get_sweep("Sweep1")
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if name:
             for sweep in self.sweeps:

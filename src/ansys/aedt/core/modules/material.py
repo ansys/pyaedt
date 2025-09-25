@@ -44,8 +44,8 @@ from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
 
 
 class MatProperties(object):
@@ -696,7 +696,6 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
@@ -728,13 +727,11 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_dataset("$ds1")
         """
-
         formula = f"pwl({dataset}, Temp)"
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
@@ -948,7 +945,7 @@ class MatProperty(object):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(version="2025.1")
+        >>> hfss = Hfss(version="2025.2")
         >>> B_value = [0.0, 0.1, 0.3, 0.4, 0.48, 0.55, 0.6, 0.61, 0.65]
         >>> H_value = [0.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3500.0, 5000.0, 10000.0]
         >>> mat = hfss.materials.add_material("newMat")
@@ -1183,7 +1180,6 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
@@ -2179,7 +2175,7 @@ class Material(CommonMaterial, object):
         ...     points_at_frequency={60: [[0, 0], [1, 3], [2, 7]]}, thickness="0.5mm", conductivity=0
         ... )
         >>> print(coefficients)
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
         """
         if not isinstance(points_at_frequency, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
@@ -2306,7 +2302,7 @@ class Material(CommonMaterial, object):
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
 
         The second case shows how to set properties for core losses versus frequencies:
 
@@ -2319,7 +2315,7 @@ class Material(CommonMaterial, object):
                                                     ...                      100 : [[0,0], [1,8], [2,9]],
                                                     ...                      150 : [[0,0], [1,10], [2,19]]}
                                                     ... )
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
 
         """
         if not isinstance(points_at_frequency, dict):
@@ -2647,7 +2643,7 @@ class Material(CommonMaterial, object):
         return self.get_magnetic_coercivity()
 
     @pyaedt_function_handler()
-    def is_conductor(self, threshold=100000):
+    def is_conductor(self, threshold: float = 100000) -> bool:
         """Check if the material is a conductor.
 
         Parameters
@@ -2677,7 +2673,7 @@ class Material(CommonMaterial, object):
         return False
 
     @pyaedt_function_handler()
-    def is_dielectric(self, threshold=100000):
+    def is_dielectric(self, threshold: float = 100000) -> bool:
         """Check if the material is dielectric.
 
         Parameters
@@ -2685,7 +2681,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is
+            less than the threshold, the material is
             considered dielectric.
 
         Returns

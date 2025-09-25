@@ -53,7 +53,7 @@ class FieldAnalysis3D(Analysis, object):
     ----------
     application : str
         3D application that is to initialize the call.
-    projectname : str, optional
+    projectname : str or :class:`pathlib.Path`, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
@@ -341,7 +341,9 @@ class FieldAnalysis3D(Analysis, object):
         dict
             Dictionary of variables in the component file.
         """
-        if str(name) not in self.components3d:
+        if isinstance(name, Path):
+            name = str(name)
+        if name not in self.components3d:
             return read_component_file(name)
         else:
             return read_component_file(self.components3d[name])
@@ -700,7 +702,6 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         >>> oModule.SetSourceContexts
         """
-
         contexts = []
         for s in sources:
             value = s
@@ -856,7 +857,6 @@ class FieldAnalysis3D(Analysis, object):
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
-        diel = self.materials.dielectrics
         obj_names = []
         for _, val in self.modeler.objects.items():
             try:
@@ -1285,7 +1285,7 @@ class FieldAnalysis3D(Analysis, object):
         defeature_distance : float, optional
             Defeature tolerance distance. The default is ``0``.
         round_coordinates : bool, optional
-            Whether to rounds all imported data to the number
+            Whether to round all imported data to the number
             of decimal points specified by the next parameter.
             The default is ``False``.
         round_num_digits : int, optional
@@ -1294,8 +1294,8 @@ class FieldAnalysis3D(Analysis, object):
         write_poly_with_width_as_filled_poly : bool, optional
             Imports wide polylines as polygons. The default is ``False``.
         import_method : int or bool, optional
-            Whether the import method is ``Script`` or ``Acis``.
-            The default is ``1``, which means that the ``Acis`` is used.
+            Whether the import method is ``Script`` or ``Parasolid``.
+            The default is ``1``, which means that the ``Parasolid`` is used.
 
         Returns
         -------
@@ -1388,7 +1388,6 @@ class FieldAnalysis3D(Analysis, object):
         >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
-
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False

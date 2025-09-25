@@ -29,7 +29,7 @@ from warnings import warn
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import get_filename_without_extension
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.modeler import Modeler
@@ -92,7 +92,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-        >>> oEditor = oDesign.SetActiveEditor("Layout")"""
+        >>> oEditor = oDesign.SetActiveEditor("Layout")
+        """
         return self._app.oeditor
 
     @property
@@ -156,7 +157,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             from pyedb import Edb
 
             self._edb = None
-            if Path(self._edb_file).exists() or inside_desktop:
+            if Path(self._edb_file).exists() or inside_desktop_ironpython_console:
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,
@@ -592,7 +593,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             name = Path(name).stem
 
         self._oimportexport.ImportIPC(
-            input_file, str(Pathn(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
+            input_file, str(Path(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
         )
         self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
@@ -648,7 +649,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
            String or list of the selections.
 
         """
-
         if not isinstance(assignment, list):
             assignment = [assignment]
         objnames = []
@@ -680,7 +680,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ----------
         >>> oEditor.Unite
         """
-
         vArg1 = ["NAME:primitives"]
         if len(assignment) >= 2:
             assignment = self.convert_to_selections(assignment, True)
@@ -865,7 +864,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
         >>> h3d.modeler.set_spice_model(assignment="A1",input_file=,subcircuit_name="SUBCK1")
@@ -969,13 +967,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
         >>> h3d.modeler.set_touchstone_model(assignment="C1", input_file="comp.s2p")
 
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:

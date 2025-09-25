@@ -28,7 +28,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 
 
 def test_quantity_initialization():

@@ -25,7 +25,7 @@
 """This module contains the ``Mechanical`` class."""
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -58,7 +58,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -118,7 +118,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical(version=25.1, project="myfile.aedt")
+    >>> aedtapp = Mechanical(version=25.2, project="myfile.aedt")
 
     """
 
@@ -216,9 +216,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignEMLoss
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -323,7 +323,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignThermalCondition
         """
-        if self.solution_type != SOLUTIONS.Mechanical.Structural:
+        if self.solution_type != SolutionsMechanical.Structural:
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
 
         if parameters is None:
@@ -403,9 +403,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignConvection
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -452,9 +452,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignTemperature
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -497,7 +497,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignFrictionlessSupport
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Structural, SOLUTIONS.Mechanical.Modal):
+        if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
 
         props = {}
@@ -536,7 +536,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignFixedSupport
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Structural, SOLUTIONS.Mechanical.Modal):
+        if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
 
         props = {}
@@ -594,9 +594,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignHeatFlux
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -641,9 +641,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignHeatGeneration
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -684,7 +684,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> mech = Mechanical()
         >>> setup = mech.create_setup()
         >>> mech.assign_2way_coupling(setup.name, 1)
-        >>> mech.release_desktop()
+        >>> mech.desktop_class.close_desktop()
 
         """
         if not setup:
@@ -734,7 +734,6 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Mechanical
         >>> app = Mechanical()
         >>> app.create_setup(name="Setup1", MaxModes=6)

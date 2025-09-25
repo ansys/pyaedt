@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
 import time
 
@@ -295,7 +296,6 @@ class TestClass:
         assert pad1.create()
 
     def test_11_create_via(self):
-        tmp = self.aedtapp.modeler.vias
         cvia = self.aedtapp.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
         via = cvia.name
         assert isinstance(via, str)
@@ -641,11 +641,8 @@ class TestClass:
         port.properties["Magnitude"] = "5V"
         assert port.properties["Magnitude"] == "5V"
 
-    def test_28_create_scattering(self):
-        assert self.aedtapp.create_scattering()
-
     def test_29_duplicate_material(self):
-        material = self.aedtapp.materials.add_material("FirstMaterial")
+        self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
         assert new_material.name == "SecondMaterial"
 
@@ -697,8 +694,8 @@ class TestClass:
 
     def test_35a_export_layout(self):
         self.aedtapp.insert_design("export_layout")
-        s1 = self.aedtapp.modeler.layers.add_layer(layer="Top")
-        n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
+        self.aedtapp.modeler.layers.add_layer(layer="Top")
+        self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         output = self.aedtapp.export_3d_model()
         time_out = 0
         while time_out < 10:
@@ -868,6 +865,9 @@ class TestClass:
 
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
+
+        assert pl1.export_image_from_aedtplt(Path(tempfile.gettempdir()))
+
         pl2 = test.post.create_fieldplot_nets(
             ["V3P3_S5"],
             "Mag_E",
@@ -878,6 +878,8 @@ class TestClass:
 
         assert pl2
         assert pl2.export_image_from_aedtplt(tempfile.gettempdir())
+
+        assert pl2.export_image_from_aedtplt(Path(tempfile.gettempdir()))
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self, hfss3dl):
@@ -997,3 +999,7 @@ class TestClass:
 
         # If CS is renamed, it can not be deleted
         assert not cs2.delete()
+
+    def test_create_scattering(self, hfss3dl):
+        hfss3dl.create_setup()
+        assert hfss3dl.create_scattering()

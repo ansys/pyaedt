@@ -33,13 +33,13 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
-from ansys.aedt.core.modules.boundary.circuit_boundary import Excitations
+from ansys.aedt.core.modeler.circuits.primitives_circuit import Excitations
 
 
 class NexximComponents(CircuitComponents):
@@ -834,7 +834,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_voltage_probe(name="probe")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -874,7 +874,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_current_probe(name="probe")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -1889,8 +1889,6 @@ class NexximComponents(CircuitComponents):
         self._app._odesign.AddCompInstance(comp_name)
         self.refresh_all_ids()
         for el in self.components:
-            item = comp_name
-            item2 = self.components[el].composed_name
             if comp_name in self.components[el].composed_name:
                 return self.components[el]
         return False
@@ -2049,10 +2047,10 @@ class NexximComponents(CircuitComponents):
         --------
         >>> from pathlib import Path
         >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(version="2025.1")
+        >>> cir = Circuit(version="2025.2")
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         if isinstance(input_file, str):
             input_file = Path(input_file)

@@ -44,6 +44,7 @@ directory as this module. An example of the contents of local_config.json
 
 import json
 import os
+from pathlib import Path
 import random
 import shutil
 import string
@@ -70,12 +71,13 @@ settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
 settings.enable_pandas_output = True
+settings.use_local_example_data = False
 
-local_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(local_path)
+local_path = Path(__file__).parent
+sys.path.append(str(local_path))
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
@@ -93,11 +95,15 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "close_desktop": True,
+    "remove_lock": False,
+    "local_example_folder": None,
+    "use_local_example_data": False,
 }
 
 # Check for the local config file, override defaults if found
-local_config_file = os.path.join(local_path, "local_config.json")
-if os.path.exists(local_config_file):
+local_config_file = Path(local_path) / "local_config.json"
+if local_config_file.exists():
     try:
         with open(local_config_file) as f:
             local_config = json.load(f)
@@ -110,6 +116,11 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
+close_desktop = config["close_desktop"]
+remove_lock = config["remove_lock"]
+settings.use_local_example_data = config["use_local_example_data"]
+if settings.use_local_example_data:
+    settings.local_example_folder = config["local_example_folder"]
 
 logger = pyaedt_logger
 
@@ -128,7 +139,7 @@ def generate_random_ident():
 @pytest.fixture(scope="session", autouse=True)
 def init_scratch():
     test_folder_name = "unit_test" + generate_random_ident()
-    test_folder = os.path.join(tempfile.gettempdir(), test_folder_name)
+    test_folder = Path(tempfile.gettempdir()) / test_folder_name
     try:
         os.makedirs(test_folder, mode=0o777)
     except FileExistsError as e:
@@ -158,7 +169,10 @@ def desktop():
 
     yield d
 
-    d.release_desktop(True, True)
+    if close_desktop:
+        d.close_desktop()
+    else:
+        d.release_desktop(close_projects=True, close_on_exit=False)
 
 
 @pytest.fixture(scope="module")
@@ -167,17 +181,17 @@ def add_app(local_scratch):
         project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False
     ):
         if project_name and not just_open:
-            example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
-            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
-            if os.path.exists(example_project):
-                test_project = local_scratch.copyfile(example_project)
-            elif os.path.exists(example_project + "z"):
-                example_project = example_project + "z"
-                test_project = local_scratch.copyfile(example_project)
+            example_project = Path(local_path) / "example_models" / subfolder / (project_name + ".aedt")
+            example_folder = Path(local_path) / "example_models" / subfolder / (project_name + ".aedb")
+            if example_project.exists():
+                test_project = local_scratch.copyfile(str(example_project))
+            elif example_project.with_suffix(".aedtz").exists():
+                example_project = example_project.with_suffix(".aedtz")
+                test_project = local_scratch.copyfile(str(example_project))
             else:
-                test_project = os.path.join(local_scratch.path, project_name + ".aedt")
-            if os.path.exists(example_folder):
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
+                test_project = Path(local_scratch.path) / (project_name + ".aedt")
+            if example_folder.exists():
+                target_folder = local_scratch.path / (project_name + ".aedb")
                 local_scratch.copyfolder(example_folder, target_folder)
         elif project_name and just_open:
             test_project = project_name
@@ -190,6 +204,8 @@ def add_app(local_scratch):
             design=design_name,
             solution_type=solution_type,
             version=desktop_version,
+            remove_lock=remove_lock,
+            non_graphical=NONGRAPHICAL,
         )
 
     return _method
@@ -199,10 +215,10 @@ def add_app(local_scratch):
 def test_project_file(local_scratch):
     def _method(project_name=None, subfolder=None):
         if subfolder:
-            project_file = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
+            project_file = Path(local_path) / "example_models" / subfolder / (project_name + ".aedt")
         else:
-            project_file = os.path.join(local_scratch.path, project_name + ".aedt")
-        if os.path.exists(project_file):
+            project_file = Path(local_scratch.path) / (project_name + ".aedt")
+        if project_file.exists():
             return project_file
         else:
             return None
@@ -214,14 +230,14 @@ def test_project_file(local_scratch):
 def add_edb(local_scratch):
     def _method(project_name=None, subfolder=""):
         if project_name:
-            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
-            if os.path.exists(example_folder):
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
+            example_folder = Path(local_path) / "example_models" / subfolder / (project_name + ".aedb")
+            if example_folder.exists():
+                target_folder = local_scratch.path / (project_name + ".aedb")
                 local_scratch.copyfolder(example_folder, target_folder)
             else:
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
+                target_folder = local_scratch.path / (project_name + ".aedb")
         else:
-            target_folder = os.path.join(local_scratch.path, generate_unique_name("TestEdb") + ".aedb")
+            target_folder = local_scratch.path / (generate_unique_name("TestEdb") + ".aedb")
         return Edb(
             target_folder,
             edbversion=desktop_version,

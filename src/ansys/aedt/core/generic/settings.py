@@ -39,16 +39,21 @@ The second class is intended for internal use only and shouldn't be modified by 
 import logging
 import os
 from pathlib import Path
+import platform
 import time
 from typing import Any
 from typing import List
 from typing import Optional
 from typing import Union
 import uuid
+import warnings
 
 from ansys.aedt.core import pyaedt_path
+from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
+from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
-is_linux = os.name == "posix"
+system = platform.system()
+is_linux = system == "Linux"
 
 # Settings allowed to be updated using a YAML configuration file.
 ALLOWED_LOG_SETTINGS = [
@@ -93,6 +98,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "enable_error_handler",
     "enable_pandas_output",
     "force_error_on_missing_project",
+    "local_example_folder",
     "number_of_grpc_api_retries",
     "release_on_exception",
     "retry_n_times_time_interval",
@@ -105,9 +111,12 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
     "skip_license_check",
+    "num_cores",
+    "use_local_example_data",
     "pyd_libraries_path",
     "pyd_libraries_user_path",
 ]
+
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
@@ -119,6 +128,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE",
     "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE",
     "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3",
+    "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE",
     "ANS_NODEPCHECK",
 ]
 
@@ -126,7 +136,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
 def generate_log_filename():
     """Generate a log filename."""
     base = "pyaedt"
-    username = os.path.split(os.path.expanduser("~"))[-1]
+    username = Path.home().name
     unique_id = uuid.uuid4()
     return f"{base}_{username}_{unique_id}.log"
 
@@ -167,7 +177,7 @@ class Settings(object):
         self.__global_log_file_size: int = 10
         self.__aedt_log_file: Optional[str] = None
         # Settings related to Linux systems running LSF scheduler
-        self.__lsf_num_cores: int = 2
+        self.__num_cores = DEFAULT_NUM_CORES
         self.__lsf_ram: int = 1000
         self.__use_lsf_scheduler: bool = False
         self.__lsf_osrel: Optional[str] = None
@@ -175,7 +185,7 @@ class Settings(object):
         self.__lsf_aedt_command: str = "ansysedt"
         self.__lsf_timeout: int = 3600
         self.__lsf_queue: Optional[str] = None
-        self.__custom_lsf_command: Optional[str] = None
+        self.__custom_lsf_command = DEFAULT_CUSTOM_SUBMISSION_STRING
         # Settings related to environment variables that are set before launching a new AEDT session
         # This includes those that enable the beta features!
         self.__aedt_environment_variables: dict[str, str] = {
@@ -189,6 +199,7 @@ class Settings(object):
             "ANSYSEM_FEATURE_F538630_MECH_TRANSIENT_THERMAL_ENABLE": "1",
             "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE": "1",
             "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
+            "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE": "1",
         }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
@@ -219,16 +230,18 @@ class Settings(object):
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
         self.__block_figure_plot = False
+        self.__local_example_folder = None
+        self.__use_local_example_data = False
         self.__pyd_libraries_path: Path = Path(pyaedt_path) / "syslib"
         self.__pyd_libraries_user_path: Optional[str] = None
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
         if not pyaedt_settings_path:
-            if os.name == "posix":
-                pyaedt_settings_path = os.path.join(os.environ["HOME"], "pyaedt_settings.yaml")
+            if is_linux:
+                pyaedt_settings_path = Path(os.environ["HOME"]) / "pyaedt_settings.yaml"
             else:
-                pyaedt_settings_path = os.path.join(os.environ["APPDATA"], "pyaedt_settings.yaml")
+                pyaedt_settings_path = Path(os.environ["APPDATA"]) / "pyaedt_settings.yaml"
         self.load_yaml_configuration(pyaedt_settings_path)
 
     # ########################## Logging properties ##########################
@@ -246,7 +259,8 @@ class Settings(object):
     def block_figure_plot(self):
         """Block matplotlib figure plot during python script run until the user close it manually.
 
-        Default is ``False``."""
+        Default is ``False``.
+        """
         return self.__block_figure_plot
 
     @block_figure_plot.setter
@@ -275,7 +289,8 @@ class Settings(object):
     def enable_global_log_file(self):
         """Enable or disable the global PyAEDT log file located in the global temp folder.
 
-        The default is ``True``."""
+        The default is ``True``.
+        """
         return self.__enable_global_log_file
 
     @enable_global_log_file.setter
@@ -286,7 +301,8 @@ class Settings(object):
     def enable_local_log_file(self):
         """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
 
-        The default is ``True``."""
+        The default is ``True``.
+        """
         return self.__enable_local_log_file
 
     @enable_local_log_file.setter
@@ -307,7 +323,8 @@ class Settings(object):
     def enable_debug_methods_argument_logger(self):
         """Flag for whether to write out the method's arguments in the debug logger.
 
-        The default is ``False``."""
+        The default is ``False``.
+        """
         return self.__enable_debug_methods_argument_logger
 
     @enable_debug_methods_argument_logger.setter
@@ -354,7 +371,8 @@ class Settings(object):
     def logger_formatter(self):
         """Message format of the log entries.
 
-        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``."""
+        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``.
+        """
         return self.__logger_formatter
 
     @logger_formatter.setter
@@ -365,7 +383,8 @@ class Settings(object):
     def logger_datefmt(self):
         """Date format of the log entries.
 
-        The default is ``'%Y/%m/%d %H.%M.%S'``"""
+        The default is ``'%Y/%m/%d %H.%M.%S'``
+        """
         return self.__logger_datefmt
 
     @logger_datefmt.setter
@@ -441,7 +460,8 @@ class Settings(object):
     def lsf_queue(self):
         """LSF queue name.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_queue
 
     @lsf_queue.setter
@@ -452,7 +472,8 @@ class Settings(object):
     def use_lsf_scheduler(self):
         """Whether to use LSF Scheduler.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
@@ -464,7 +485,8 @@ class Settings(object):
         """Command to launch the task in the LSF Scheduler.
 
         The default is ``"ansysedt"``.
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_aedt_command
 
     @lsf_aedt_command.setter
@@ -475,18 +497,31 @@ class Settings(object):
     def lsf_num_cores(self):
         """Number of LSF cores.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
-        return self.__lsf_num_cores
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
+        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
+        return self.__num_cores
 
     @lsf_num_cores.setter
     def lsf_num_cores(self, value):
-        self.__lsf_num_cores = int(value)
+        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
+        self.__num_cores = int(value)
+
+    @property
+    def num_cores(self):
+        """Number cores to use with the scheduler."""
+        return self.__num_cores
+
+    @num_cores.setter
+    def num_cores(self, value):
+        self.__num_cores = int(value)
 
     @property
     def lsf_ram(self):
         """RAM allocated for the LSF job.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_ram
 
     @lsf_ram.setter
@@ -515,7 +550,8 @@ class Settings(object):
     @property
     def lsf_osrel(self):
         """Operating system string.
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_osrel
 
     @lsf_osrel.setter
@@ -525,7 +561,8 @@ class Settings(object):
     @property
     def custom_lsf_command(self):
         """Command to launch in the LSF Scheduler. The default is ``None``.
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__custom_lsf_command
 
     @custom_lsf_command.setter
@@ -537,7 +574,8 @@ class Settings(object):
     @property
     def aedt_environment_variables(self):
         """Environment variables that are set before launching a new AEDT session,
-        including those that enable the beta features."""
+        including those that enable the beta features.
+        """
         return self.__aedt_environment_variables
 
     @aedt_environment_variables.setter
@@ -631,7 +669,8 @@ class Settings(object):
     def wait_for_license(self):
         """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
 
-        The default value is ``False``."""
+        The default value is ``False``.
+        """
         return self.__wait_for_license
 
     @wait_for_license.setter
@@ -669,7 +708,8 @@ class Settings(object):
     def aedt_version(self):
         """AEDT version in the form ``"2023.x"``.
 
-        In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled."""
+        In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled.
+        """
         return self.__aedt_version
 
     @aedt_version.setter
@@ -696,8 +736,8 @@ class Settings(object):
         - Release without closing the desktop is not possible,
         - The first desktop created must be the last to be closed.
 
-        Enabling multiple desktop sessions is a beta feature."""
-
+        Enabling multiple desktop sessions is a beta feature.
+        """
         return self.__use_multi_desktop
 
     @use_multi_desktop.setter
@@ -707,13 +747,17 @@ class Settings(object):
     @property
     def edb_dll_path(self):
         """Optional path for the EDB DLL file."""
-        return self.__edb_dll_path
+        if self.__edb_dll_path is not None:
+            # If the optional path is set, return it
+            return Path(self.__edb_dll_path)
+        return None
 
     @edb_dll_path.setter
     def edb_dll_path(self, value):
         if value is not None:
-            if os.path.exists(value):
-                self.__edb_dll_path = value
+            dll_path = Path(value)
+            if dll_path.exists():
+                self.__edb_dll_path = dll_path
 
     @property
     def enable_pandas_output(self):
@@ -785,12 +829,29 @@ class Settings(object):
     @property
     def skip_license_check(self):
         """Flag indicating whether to check for license availability when launching the Desktop."""
-
         return self.__skip_license_check
 
     @skip_license_check.setter
     def skip_license_check(self, value):
         self.__skip_license_check = value
+
+    @property
+    def use_local_example_data(self):
+        """Methods in downloads.py will use the local examples folder if this is set."""
+        return self.__use_local_example_data
+
+    @use_local_example_data.setter
+    def use_local_example_data(self, value):
+        self.__use_local_example_data = value
+
+    @property
+    def local_example_folder(self):
+        """Methods in downloads.py will use the local examples folder if this is set."""
+        return self.__local_example_folder
+
+    @local_example_folder.setter
+    def local_example_folder(self, value):
+        self.__local_example_folder = value
 
     @property
     def pyd_libraries_path(self):
@@ -837,8 +898,9 @@ class Settings(object):
                     raise KeyError(f"Key '{key}' is not part of the allowed keys {allowed_keys}")
                 yield key, value
 
-        if os.path.exists(path):
-            with open(path, "r") as yaml_file:
+        configuration_file = Path(path)
+        if configuration_file.exists():
+            with open(configuration_file, "r") as yaml_file:
                 local_settings = yaml.safe_load(yaml_file)
             pairs = [
                 ("log", ALLOWED_LOG_SETTINGS),
@@ -862,9 +924,11 @@ class Settings(object):
                     raise KeyError("An environment variable key is not part of the allowed keys.")
                 self.aedt_environment_variables = settings
 
-    def write_yaml_configuration(self, path: str):
+    def write_yaml_configuration(self, path: Union[Path, str]):
         """Write the current settings into a YAML configuration file."""
         import yaml
+
+        configuration_file = Path(path)
 
         data = {}
         data["log"] = {
@@ -879,7 +943,7 @@ class Settings(object):
             for key in ALLOWED_GENERAL_SETTINGS
         }
 
-        with open(path, "w") as file:
+        with open(configuration_file, "w") as file:
             yaml.safe_dump(data, file, sort_keys=False)
 
 

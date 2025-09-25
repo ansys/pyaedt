@@ -33,8 +33,9 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -62,7 +63,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -368,7 +369,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.1")
+        >>> tb = TwinBuilder(version="2025.2")
         >>> tb.create_subsheet("subsheet", "parentdesign")
         """
         try:
@@ -450,7 +451,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Examples
         --------
-
         Create an instance of Twin Builder.
 
         >>> from ansys.aedt.core import TwinBuilder
@@ -461,19 +461,19 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> tb.add_q3d_dynamic_component(
         ...     "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", "100mm"
         ... )
-        >>> tb.release_desktop()
+        >>> tb.desktop_class.close_desktop()
         """
         dkp = self.desktop_class
         is_loaded = False
         if Path(source_project).is_file():
             project_path = source_project
             project_name = Path(source_project).stem
-            if project_name in dkp.project_list():
+            if project_name in dkp.project_list:
                 app = dkp[[project_name, source_design_name]]
             else:
                 app = dkp.load_project(project_path, source_design_name)
                 is_loaded = True
-        elif source_project in self.project_list:
+        elif source_project in dkp.project_list:
             project_name = source_project
             project_path = Path(self.project_path) / str(project_name + ".aedt")
             app = dkp[[source_project, source_design_name]]
@@ -645,6 +645,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Error in creating the component.")
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def add_excitation_model(
         self,
         project,
@@ -712,32 +713,28 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ----------
         >>> oComponentManager.AddExcitationModel
 
-        Example
-        -------
+        Examples
+        --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(specified_version="2025.1")
+        >>> tb = TwinBuilder(specified_version="2025.2")
         >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
         >>> excitations = {}
         >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
         ...     excitations[e.name] = ["20", True, e.props["Type"], False]
         >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
-        >>> tb.release_desktop(False, False)
+        >>> tb.desktop_class.release_desktop(False, False)
         """
         dkp = self.desktop_class
-        if dkp.aedt_version_id < "2025.1":  # pragma: no cover
-            self.logger.error("This method only works for AEDT 2025 R1 and later.")
-            return False
-
         project_selection = 0
         if Path(project).is_file():
             project_path = project
             project_name = Path(project).stem
-            if project_name in dkp.project_list():
+            if project_name in dkp.project_list:
                 maxwell_app = dkp[[project_name, design]]
             else:
                 maxwell_app = dkp.load_project(project_path, design)
                 project_selection = 1
-        elif project in self.project_list:
+        elif project in self.desktop_class.project_list:
             project_name = "$PROJECTDIR/{}.aedt".format(project)
             maxwell_app = dkp[[project, design]]
         else:

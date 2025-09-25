@@ -27,6 +27,7 @@ import sys
 import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
@@ -131,7 +132,8 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
+        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")
+        """
         return self._app.oeditor
 
     @pyaedt_function_handler()
@@ -185,8 +187,10 @@ class ModelerCircuit(Modeler):
             components = self.schematic.components
         else:
             components = self.components
-        start = components[starting_component]
-        end = components[ending_component]
+        starting_component = self._get_components_selections(starting_component)
+        ending_component = self._get_components_selections(ending_component)
+        start = components[starting_component[0]]
+        end = components[ending_component[0]]
         if isinstance(pin_starting, (int, str)):
             pin_starting = [pin_starting]
         if isinstance(pin_ending, (int, str)):
@@ -476,7 +480,7 @@ class ModelerCircuit(Modeler):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
-                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                    if sel in [el.instance_name, el.composed_name, el.name]:
                         sels.append(el.composed_name)
         if not return_as_list:
             return ", ".join(sels)
@@ -554,7 +558,7 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
 
         """
-        # TODO Check why it crashes when multiple circuits are created
+        # TODO: Check why it crashes when multiple circuits are created
         return None
 
     @property
@@ -622,6 +626,10 @@ class ModelerNexxim(ModelerCircuit):
         ----------
         >>> oEditor.Move
         """
+        # TODO: Remove this once https://github.com/ansys/pyaedt/issues/6333 is fixed
+        if is_linux and self._app.desktop_class.non_graphical:
+            self.logger.error("Move is not supported in non-graphical mode on Linux.")
+            return False
         sels = self._get_components_selections(assignment)
         if not sels:
             self.logger.error("No Component Found.")
@@ -751,7 +759,7 @@ class ModelerEmit(ModelerCircuit):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
-                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                    if sel in [el.instance_name, el.composed_name, el.name]:
                         sels.append(el.composed_name)
         if not return_as_list:
             return ", ".join(sels)

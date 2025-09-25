@@ -21,16 +21,17 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
+import ast
 import os
 import re
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import _uname
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class ComponentArray(object):
@@ -83,6 +84,154 @@ class ComponentArray(object):
         self.__cells = None
         self.__post_processing_cells = {}
 
+    @classmethod
+    def create(cls, app, input_data, name=None):
+        """Create a component array.
+
+        Parameters
+        ----------
+        app : :class:`ansys.aedt.core.Hfss`
+            HFSS PyAEDT object.
+        input_data : dict
+            Properties of the component array.
+        name : str, optional
+            Name of the component array. The default is ``None``, in which case a random name is assigned.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
+            Component array object.
+        """
+        app.hybrid = True
+
+        json_dict = input_data
+
+        if not name:
+            name = generate_unique_name("Array")
+
+        cells_names = {}
+        cells_color = {}
+        cells_active = []
+        cells_rotation = {}
+        cells_post = {}
+        for k, v in json_dict["cells"].items():
+            if isinstance(k, (list, tuple)):
+                k1 = str(list(k))
+            else:
+                k1 = str(list(ast.literal_eval(k)))
+            if v["name"] in cells_names:
+                cells_names[v["name"]].append(k1)
+            else:
+                def_names = app.modeler.user_defined_component_names + app.oeditor.Get3DComponentDefinitionNames()
+                if v["name"] not in def_names:
+                    if v["name"] not in json_dict:
+                        raise AEDTRuntimeError(
+                            "3D component array is not present in design and not defined correctly in the JSON file."
+                        )
+
+                    geometryparams = app.get_component_variables(json_dict[v["name"]])
+                    ref = "Global"
+                    if json_dict.get("referencecs", None):
+                        ref = json_dict["referencecs"]
+                    app.modeler.insert_3d_component(
+                        json_dict[v["name"]], geometryparams, coordinate_system=ref, name=v["name"]
+                    )
+                cells_names[v["name"]] = [k1]
+            if v.get("color", None):
+                cells_color[v["name"]] = v.get("color", None)
+            if str(v.get("rotation", "0.0")) in cells_rotation:
+                cells_rotation[str(v.get("rotation", "0.0"))].append(k1)
+            else:
+                cells_rotation[str(v.get("rotation", "0.0"))] = [k1]
+
+            # By default, cell is active
+            if v.get("active", True):
+                cells_active.append(k1)
+
+            if v.get("postprocessing", False):
+                cells_post[v["name"]] = k1
+
+        primary_lattice = json_dict.get("primarylattice", None)
+        secondary_lattice = json_dict.get("secondarylattice", None)
+
+        # TODO: Obtain lattice pair names from 3D Component
+        if not primary_lattice:
+            raise AEDTRuntimeError("The primary lattice is not defined.")
+        if not secondary_lattice:
+            raise AEDTRuntimeError("The secondary lattice is not defined.")
+
+        args = [
+            "NAME:" + name,
+            "Name:=",
+            name,
+            "RowPrimaryBnd:=",
+            primary_lattice,
+            "ColumnPrimaryBnd:=",
+            secondary_lattice,
+            "RowDimension:=",
+            json_dict.get("rowdimension", 4),
+            "ColumnDimension:=",
+            json_dict.get("columndimension", 4),
+            "Visible:=",
+            json_dict.get("visible", True),
+            "ShowCellNumber:=",
+            json_dict.get("showcellnumber", True),
+            "RenderType:=",
+            0,
+            "Padding:=",
+            json_dict.get("paddingcells", 0),
+        ]
+        if "referencecs" in json_dict:
+            args.append("ReferenceCS:=")
+            args.append(json_dict["referencecs"])
+        else:
+            args.append("ReferenceCSID:=")
+            args.append(json_dict.get("referencecsid", 1))
+
+        cells = ["NAME:Cells"]
+        for k, v in cells_names.items():
+            cells.append(k + ":=")
+            cells.append([", ".join(v)])
+        rotations = ["NAME:Rotation"]
+        for k, v in cells_rotation.items():
+            if float(k) != 0.0:
+                rotations.append(k + " deg:=")
+                rotations.append([", ".join(v)])
+        args.append(cells)
+        args.append(rotations)
+        args.append("Active:=")
+        if cells_active:
+            args.append(", ".join(cells_active))
+        else:
+            args.append("All")
+        post = ["NAME:PostProcessingCells"]
+        for k, v in cells_post.items():
+            post.append(k + ":=")
+            post.append(str(ast.literal_eval(v)))
+        args.append(post)
+        args.append("Colors:=")
+        col = []
+        for k, v in cells_color.items():
+            col.append(k)
+            col.append(str(v).replace(",", " "))
+        args.append(col)
+        try:
+            names = app.omodelsetup.GetArrayNames()
+        except Exception:
+            names = []
+
+        if name in names:
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            app.save_project()
+            app.omodelsetup.EditArray(args)
+        else:
+            app.omodelsetup.AssignArray(args)
+            # Save project, because coordinate system information can not be obtained from AEDT API
+            app.save_project()
+            app.component_array[name] = ComponentArray(app, name)
+        app.component_array_names.append(name)
+        return app.component_array[name]
+
     @pyaedt_function_handler()
     def __getitem__(self, key):
         """Get cell object corresponding to a key (row, column).
@@ -96,7 +245,6 @@ class ComponentArray(object):
         -------
         :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
         """
-
         if key[0] > self.a_size or key[1] > self.b_size:
             self.logger.error("Specified cell does not exist.")
             return False
@@ -409,7 +557,6 @@ class ComponentArray(object):
         >>> array_csv = array.export_array_info()
         >>> array_info = array.array_info_parser(array_csv)
         """
-
         info = read_csv(input_file)
         if not info:
             self.logger.error("Data from CSV file is not loaded.")
@@ -501,7 +648,6 @@ class ComponentArray(object):
         ----------
         >>> oModule.EditArray
         """
-
         args = [
             "NAME:" + self.name,
             "Name:=",

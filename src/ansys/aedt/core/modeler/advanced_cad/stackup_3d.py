@@ -45,7 +45,6 @@ def _replace_by_underscore(character, string):
 
     Examples
     --------
-
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import _replace_by_underscore
     >>> name = "Duroid (tm)"
     >>> name = _replace_by_underscore(" ", name)
@@ -78,7 +77,6 @@ class NamedVariable(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
     >>> hfss = Hfss()
@@ -117,7 +115,8 @@ class NamedVariable(object):
         Parameters
         ----------
         expression: str
-            Value expression of the variable."""
+            Value expression of the variable.
+        """
         if isinstance(expression, str):
             self._expression = expression
             self._application[self.name] = expression
@@ -202,7 +201,6 @@ class DuplicatedParametrizedMaterial(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
     >>> hfss = Hfss()
@@ -386,7 +384,7 @@ class Layer3D(object):
 
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    constants.PLANE.XY,
+                    constants.Plane.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -402,7 +400,7 @@ class Layer3D(object):
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    constants.PLANE.XY,
+                    constants.Plane.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -736,7 +734,6 @@ class Layer3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss(new_desktop=True)
@@ -807,7 +804,6 @@ class Layer3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1162,7 +1158,6 @@ class Stackup3D(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop=True)
@@ -1481,7 +1476,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1559,7 +1553,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1599,7 +1592,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1644,7 +1636,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1750,7 +1741,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2331,7 +2321,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2361,10 +2350,10 @@ class Patch(CommonObject, object):
         )
         z_ref = reference_layer.elevation.name + " + " + reference_layer.thickness.name
         probe_pos = [x_probe, y_probe, z_ref]  # Probe base position.
-        probe_wire = self.application.modeler.create_cylinder(
+        self.application.modeler.create_cylinder(
             orientation="Z", origin=probe_pos, radius=r, height=probe_height, name=name, material="copper"
         )
-        probe_feed_wire = self.application.modeler.create_cylinder(
+        self.application.modeler.create_cylinder(
             orientation="Z",
             origin=probe_pos,
             radius=r,
@@ -2417,7 +2406,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2443,7 +2431,7 @@ class Patch(CommonObject, object):
             + reference_layer.elevation.name
         )
         rect = self.application.modeler.create_rectangle(
-            orientation=constants.PLANE.YZ,
+            orientation=constants.Plane.YZ,
             origin=[string_position_x, string_position_y, string_position_z],
             sizes=[string_width, string_length],
             name=self.name + "_port",
@@ -2474,7 +2462,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2515,7 +2502,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -3095,7 +3081,7 @@ class Trace(CommonObject, object):
             Variable Object.
         """
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
-        # TODO it is currently only available for mm
+        # TODO: it is currently only available for mm
         f = self._frequency.name
         er_e = self.effective_permittivity.name
         patch_wave_length_formula = "(c0 * 1000/(" + f + "* sqrt(" + er_e + ")))mm"
@@ -3184,7 +3170,7 @@ class Trace(CommonObject, object):
             + reference_layer.elevation.name
         )
         port = self.application.modeler.create_rectangle(
-            orientation=constants.PLANE.YZ,
+            orientation=constants.Plane.YZ,
             origin=[string_position_x, string_position_y, string_position_z],
             sizes=[string_width, string_length],
             name=self.name + "_port",
@@ -3232,7 +3218,6 @@ class Polygon(CommonObject, object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop=True)

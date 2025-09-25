@@ -73,7 +73,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 config = {
     "desktopVersion": default_version,
@@ -89,6 +89,8 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "local_example_folder": None,
+    "use_local_example_data": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -106,6 +108,7 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
+settings.local_example_folder = config["local_example_folder"]
 
 logger = pyaedt_logger
 

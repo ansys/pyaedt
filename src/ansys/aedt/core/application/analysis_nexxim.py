@@ -28,8 +28,8 @@ from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
 from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-from ansys.aedt.core.modules.boundary.circuit_boundary import Excitations
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
@@ -90,7 +90,7 @@ class FieldAnalysisCircuit(Analysis):
 
         self._modeler = None
         self._post = None
-        self._internal_excitations = None
+        self._internal_excitations = {}
         self._internal_sources = None
         self._configurations = ConfigurationsNexxim(self)
         if not settings.lazy_load:
@@ -240,7 +240,8 @@ class FieldAnalysisCircuit(Analysis):
 
         References
         ----------
-        >>> oModule.GetAllSolutionSetups"""
+        >>> oModule.GetAllSolutionSetups
+        """
         return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     @property
@@ -366,9 +367,11 @@ class FieldAnalysisCircuit(Analysis):
         >>> oModule.GetExcitations
         """
         props = {}
+
         if not self._internal_excitations:
-            for port in self.excitation_names:
-                props[port] = Excitations(self, port)
+            for comp in self.modeler.schematic.components.values():
+                if comp.name in self.excitation_names:
+                    props[comp.name] = comp
             self._internal_excitations = props
         else:
             props = self._internal_excitations
@@ -427,10 +430,10 @@ class FieldAnalysisCircuit(Analysis):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
+        >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Circuit()
-        >>> app.create_setup(name="Setup1", setup_type=app.SETUPS.NexximLNA, Data="LINC 0GHz 4GHz 501")
+        >>> app.create_setup(name="Setup1", setup_type=Setups.NexximLNA, Data="LINC 0GHz 4GHz 501")
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup

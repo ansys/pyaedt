@@ -32,6 +32,7 @@ from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from urllib.parse import quote
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 import urllib.request
@@ -70,10 +71,10 @@ def _build_safe_url(github_relative_path: str) -> str:
     """
     # Strip dangerous schemes
     parsed = urlparse(github_relative_path)
-    if parsed.scheme:
+    if parsed.scheme:  # pragma: no cover
         raise ValueError(f"User path contains a scheme: {parsed.scheme}")
 
-    url = urljoin(EXAMPLES_DATA_REPO + "/", github_relative_path + "/")
+    url = urljoin(EXAMPLES_DATA_REPO + "/", quote(github_relative_path) + "/")
 
     return url
 
@@ -100,9 +101,10 @@ def _download_file(
         if not local_path.exists():
             ssl_context = ssl.create_default_context()
             pyaedt_logger.debug(f"Downloading file from URL {url}")
-            with urllib.request.urlopen(url, context=ssl_context) as response, open(  # nosec
-                local_path, "wb"
-            ) as out_file:
+            with (
+                urllib.request.urlopen(url, context=ssl_context) as response,  # nosec
+                open(local_path, "wb") as out_file,
+            ):
                 shutil.copyfileobj(response, out_file)
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
@@ -110,6 +112,27 @@ def _download_file(
         raise AEDTRuntimeError(f"Failed to download file from URL {url}.") from e
 
     return local_path.resolve()
+
+
+def _copy_local_example(
+    source_relative_path: str,
+    target_path: Optional[Union[str, Path]] = None,
+) -> Path:  # pragma: no cover
+    """Copy a folder from a local copy of the examples repo."""
+    dst = Path(target_path) / Path(source_relative_path).name
+    dst.mkdir(parents=True, exist_ok=True)
+    pyaedt_logger.debug(f"Retrieving local folder from '{settings.local_example_folder}'")
+    source_folder = Path(settings.local_example_folder) / source_relative_path
+    for p in source_folder.rglob("*"):
+        target = dst / p.relative_to(source_folder)
+        if p.is_dir():
+            target.mkdir(parents=True, exist_ok=True)
+        else:
+            try:
+                shutil.copy2(p, target)
+            except Exception as e:
+                raise AEDTRuntimeError(f"Failed to copy {str(p)}.") from e
+    return dst
 
 
 def _download_folder(
@@ -188,12 +211,12 @@ def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
     >>> import ansys.aedt.core
     >>> path = ansys.aedt.core.examples.downloads.download_aedb()
     >>> path
-    r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/Galileo.aedb'
+    r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/ANSYS-HSD_V1.aedbb'
     """
     from ansys.aedt.core.examples.downloads import _download_file
 
-    _download_file("pyaedt/edb/Galileo.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path, strip_prefix="pyaedt/edb")
-    edbdef_path = _download_file("pyaedt/edb/Galileo.aedb/edb.def", local_path, strip_prefix="pyaedt/edb")
+    _download_file("pyaedt/edb/ANSYS-HSD_V1.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path, strip_prefix="pyaedt/edb")
+    edbdef_path = _download_file("pyaedt/edb/ANSYS-HSD_V1.aedb/edb.def", local_path, strip_prefix="pyaedt/edb")
     return str(edbdef_path.parent)
 
 
@@ -292,7 +315,6 @@ def download_antenna_array(local_path: Optional[Union[str, Path]] = None) -> str
 
     Examples
     --------
-
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
@@ -818,14 +840,19 @@ def download_file(source: str, name: Optional[str] = None, local_path: Optional[
     """
     if not source.startswith("pyaedt/"):
         source = "pyaedt/" + source
-
-    if not name:
-        path = _download_folder(source, local_path, strip_prefix="pyaedt")
+    if settings.use_local_example_data:  # pragma: no cover
+        # Use a local copy (i.e. repo) of the examples folder.
+        if name:
+            source = source + "/" + name
+        path = _copy_local_example(source, local_path)
     else:
-        source = source + "/" + name
-        path = _download_file(source, local_path, strip_prefix="pyaedt")
+        if not name:  # Download all files in the folder if name is not provided.
+            path = _download_folder(source, local_path, strip_prefix="pyaedt")
+        else:
+            source = source + "/" + name
+            path = _download_file(source, local_path, strip_prefix="pyaedt")
 
-    if settings.remote_rpc_session:
+    if settings.remote_rpc_session:  # pragma: no cover
         path = Path(settings.remote_rpc_session_temp_folder) / path.name
         if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
             settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)

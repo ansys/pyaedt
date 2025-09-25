@@ -40,7 +40,7 @@ from typing import Union
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -315,6 +315,33 @@ def generate_unique_project_name(
     return str(prj)
 
 
+@pyaedt_function_handler()
+def available_file_name(full_file_name: Union[str, Path]) -> Path:
+    """Provide a file name that doesn't exist.
+
+    If the input file name exists, increment the base
+    name and return a valid ``Path`` object with an updated name.
+
+    Parameters
+    ----------
+    full_file_name : str or :class:`pathlib.Path`
+        File to be saved.
+
+    Returns
+    -------
+    class:`pathlib.Path`
+        Valid file name with increment suffix `"_n.ext"`.  If the file doesn't
+        exist, the original file name will be returned as a ``Path`` object.
+    """
+    p = Path(full_file_name)
+    candidate = p
+    n = 1
+    while candidate.exists():
+        candidate = candidate.with_name(f"{p.stem}_{n}{p.suffix}")
+        n += 1
+    return candidate
+
+
 @pyaedt_function_handler(startpath="path", filepattern="file_pattern")
 def recursive_glob(path: Union[str, Path], file_pattern: str):
     """Get a list of files matching a pattern, searching recursively from a start path.
@@ -370,24 +397,20 @@ def open_file(
     Union[TextIO, None]
         Opened file object or ``None`` if the file or folder does not exist.
     """
-
-    file_path = str(file_path)
-    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
-
     file_path = Path(file_path)
-
     dir_name = file_path.parent
+
     if "r" in file_options:
         if file_path.exists():
-            return open(file_path, file_options, encoding=encoding)
+            return open(str(file_path), file_options, encoding=encoding)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
             str(file_path)
         ):  # pragma: no cover
             local_file = Path(tempfile.gettempdir()) / file_path.name
             settings.remote_rpc_session.filemanager.download_file(str(file_path), str(local_file))
-            return open(local_file, file_options, encoding=encoding)
+            return open(str(local_file), file_options, encoding=encoding)
     elif dir_name.exists():
-        return open(file_path, file_options, encoding=encoding)
+        return open(str(file_path), file_options, encoding=encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(str(dir_name)):
         if "w" in file_options:
             return settings.remote_rpc_session.create_file(
@@ -579,7 +602,8 @@ def read_xlsx(input_file: Union[str, Path]):
         import pandas as pd
 
         lines = pd.read_excel(file_name)
-    except ImportError:
+    except ImportError:  # pragma: no cover
+        pyaedt_logger.error("Pandas and openpyxl are required to read the XLSX file.")
         lines = []
     return lines
 
@@ -670,11 +694,7 @@ def parse_excitation_file(
     tuple or bool
         Frequency, magnitude and phase.
     """
-    try:
-        import numpy as np
-    except ImportError:  # pragma: no cover
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     try:
         import pandas
@@ -880,11 +900,7 @@ def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  #
     tuple or bool
         Frequency and values.
     """
-    try:
-        import numpy as np
-    except ImportError:
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     deltaT = time_values[-1] - time_values[0]
     num_points = len(time_values)

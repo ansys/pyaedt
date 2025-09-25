@@ -37,7 +37,7 @@ from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
 import ansys.aedt.core.visualization.report.emi
@@ -299,9 +299,8 @@ class PostProcessorCommon(object):
         >>> expressions = m3d.post.available_report_quantities(
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
-
         if not report_category:
             report_category = self.available_report_types[0]
         elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
@@ -1350,6 +1349,12 @@ class PostProcessorCommon(object):
             - For a far fields plot, specify the name of an infinite sphere.
             - For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
             where the key is the matrix name and value the reduced matrix.
+            - For Circuit Design, this can provide the plots' time range as a dictionary
+            where the keys are ``"time_start"`` and ``"time_stop"``.
+            By default ``"time_start"`` is 0ps and the ``"time_stop"`` is 10ns.
+            - For TDR analysis some dictionary options are "pulse_rise_time","step_time",
+            "time_windowing","maximum_time","use_pulse_in_tdr","differential_pairs". The default values
+            are as they appear manually in the UI.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
@@ -1387,7 +1392,7 @@ class PostProcessorCommon(object):
         ...     context="3D",
         ... )
         >>> hfss.post.create_report("S(1,1)", hfss.nominal_sweep, variations=variations, plot_type="Smith Chart")
-        >>> hfss.release_desktop(False, False)
+        >>> hfss.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1397,7 +1402,7 @@ class PostProcessorCommon(object):
         ...     primary_sweep_variable="Time",
         ...     plot_name="Winding Plot 1",
         ... )
-        >>> m2d.release_desktop(False, False)
+        >>> m2d.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1418,7 +1423,7 @@ class PostProcessorCommon(object):
         ...     plot_type="Data Table",
         ...     plot_name="reduced_matrix",
         ... )
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1546,7 +1551,7 @@ class PostProcessorCommon(object):
         ...    variations=variations,
         ...)
         >>> data2.plot()
-        >>> hfss.release_desktop(False, False)
+        >>> hfss.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1556,7 +1561,7 @@ class PostProcessorCommon(object):
         ...     primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
-        >>> m2d.release_desktop(False, False)
+        >>> m2d.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
@@ -1564,7 +1569,7 @@ class PostProcessorCommon(object):
         >>> spectralPlotData = circuit.post.get_solution_data(
         ...     expressions="V(Vprobe1)", domain="Spectral", primary_sweep_variable="Spectrum", context=context
         ... )
-        >>> circuit.release_desktop(False, False)
+        >>> circuit.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1580,7 +1585,7 @@ class PostProcessorCommon(object):
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
         >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1921,7 +1926,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(my_project)
         >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
@@ -1964,7 +1968,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak(my_project)
         >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
@@ -2003,7 +2006,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
@@ -2419,15 +2421,14 @@ class Reports(object):
                 self._post_app._app.logger.error("AMI analysis is needed to create this report.")
                 return False
 
-            if isinstance(expressions, list):
-                expressions = expressions[0]
-            report_cat = "Standard"
-            rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
-            rep.quantity_type = quantity_type
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        if isinstance(expressions, list):
+            expressions = expressions[0]
+        report_cat = "Standard"
+        rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
+        rep.quantity_type = quantity_type
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
 
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def eye_diagram(

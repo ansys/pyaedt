@@ -316,7 +316,7 @@ class VirtualComplianceGenerator:
         ----------
         design_name : str
             Design name.
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to ``cfg`` file.
         traces : list
             List of traces to compute com parameters.
@@ -337,7 +337,7 @@ class VirtualComplianceGenerator:
         pars = {
             "name": name,
             "design_name": design_name,
-            "config": config_file,
+            "config": str(config_file),
             "traces": traces,
             "trace_pins": pins,
             "pass_fail": pass_fail,
@@ -357,7 +357,7 @@ class VirtualComplianceGenerator:
         ----------
         design_name : str
             Design name.
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to ``cfg`` file.
         parameter: str,
             Parameter name. Allowed value are ``"skew"``.
@@ -377,7 +377,7 @@ class VirtualComplianceGenerator:
             "name": name,
             "design_name": design_name,
             "type": report_type,
-            "config": config_file,
+            "config": str(config_file),
             "traces": traces,
             "pass_fail": True,
             "pass_fail_criteria": pass_fail_criteria,
@@ -430,7 +430,7 @@ class VirtualComplianceGenerator:
 
         Parameters
         ----------
-        input_folder : str
+        input_folder : str or :class:`pathlib.Path`
             Full path to the folder containing configuration files.
         design_name : str
             Name of design to apply the configuration.
@@ -449,7 +449,7 @@ class VirtualComplianceGenerator:
             name = conf.get("plot_name", generate_unique_name("Report"))
             self.add_report(
                 design_name,
-                input_report,
+                str(input_report),
                 traces=expr,
                 report_type=rep_type,
                 pass_fail=pass_fail,
@@ -464,7 +464,7 @@ class VirtualComplianceGenerator:
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Full path of the output file.
 
         Returns
@@ -482,6 +482,7 @@ class VirtualComplianceChaptersData:
 
     def add_content(self, content, content_type=0) -> dict:
         """Add content to the chapter.
+
         Parameters
         ----------
         content : dict
@@ -522,11 +523,11 @@ class VirtualComplianceData:
     @property
     def chapters(self) -> List[VirtualComplianceChaptersData]:
         """Chapters list.
+
         Returns
         -------
         list[:class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`]
         """
-
         return self._chapters
 
     @chapters.setter
@@ -535,9 +536,11 @@ class VirtualComplianceData:
 
     def add_chapter(self, chapter, position=None) -> VirtualComplianceChaptersData:
         """Add a new chapter to the compliance data.
+
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`"""
+        :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`
+        """
         if position is None:
             self.chapters.append(VirtualComplianceChaptersData(chapter))
             return self.chapters[-1]
@@ -553,7 +556,7 @@ class VirtualCompliance:
     ----------
     desktop : :class:``ansys.aedt.core.desktop.Desktop``
         Desktop object.
-    template : str
+    template : str or :class:`pathlib.Path`
         Full path to the template. Supported formats are JSON and TOML.
 
     """
@@ -565,7 +568,7 @@ class VirtualCompliance:
         self._use_portrait = True
         self._template = template
         self._template_name = "Compliance"
-        self._template_folder = os.path.dirname(template)
+        self._template_folder = Path(template).parent
         self._project_file = None
         self._reports = {}
         self._reports_parameters = {}
@@ -606,7 +609,8 @@ class VirtualCompliance:
 
         Returns
         -------
-        str"""
+        str
+        """
         return self._dut
 
     @dut_image.setter
@@ -867,7 +871,7 @@ class VirtualCompliance:
             design_name = template_report.design_name
             report_type = template_report.report_type
             if template_report.project_name:
-                if template_report.project_name not in self._desktop_class.project_list():
+                if template_report.project_name not in self._desktop_class.project_list:
                     self._desktop_class.load_project(template_report.project)
             else:
                 template_report.project_name = self._project_name
@@ -1053,7 +1057,7 @@ class VirtualCompliance:
             design_name = template_report.design_name
             report_type = template_report.report_type
             if template_report.project_name:
-                if template_report.project_name not in self._desktop_class.project_list():
+                if template_report.project_name not in self._desktop_class.project_list:
                     self._desktop_class.load_project(template_report.project)
             else:
                 template_report.project_name = self._project_name
@@ -1153,7 +1157,7 @@ class VirtualCompliance:
                 report_type = template_report.report_type
                 group = template_report.group_plots
                 if template_report.project_name:
-                    if template_report.project_name not in self._desktop_class.project_list():
+                    if template_report.project_name not in self._desktop_class.project_list:
                         self._desktop_class.load_project(template_report.project)
                 else:
                     template_report.project_name = self._project_name
@@ -1763,7 +1767,7 @@ class VirtualCompliance:
             else:
                 summary.add_text("The virtual compliance on the project has successfully passed.")
             summary.add_table(
-                {"title": f"Simulation Summary", "content": self._summary, "formatting": self._summary_font}
+                {"title": "Simulation Summary", "content": self._summary, "formatting": self._summary_font}
             )
         return self.report_data
 

@@ -22,18 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 import uuid
 
 import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.generic.constants import LineStyle
+from ansys.aedt.core.generic.constants import SymbolStyle
+from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
-from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 
@@ -60,16 +62,16 @@ def m2d_app(add_app):
 
 class TestClass:
     def test_export_model_picture(self, aedtapp, local_scratch):
-        path = aedtapp.post.export_model_picture(full_name=os.path.join(local_scratch.path, "images2.jpg"))
+        path = aedtapp.post.export_model_picture(full_name=Path(local_scratch.path) / "images2.jpg")
         assert path
         path = aedtapp.post.export_model_picture(
-            full_name=os.path.join(local_scratch.path, "images3.jpg"),
+            full_name=Path(local_scratch.path) / "images3.jpg",
             show_axis=True,
             show_grid=False,
             show_ruler=True,
         )
-        assert os.path.exists(path)
-        path = aedtapp.post.export_model_picture(full_name=os.path.join(local_scratch.path, "images4.jpg"))
+        assert Path(path).is_file()
+        path = aedtapp.post.export_model_picture(full_name=Path(local_scratch.path) / "images4.jpg")
         assert path
 
     def test_create_fieldplot_cutplane(self, aedtapp):
@@ -80,7 +82,7 @@ class TestClass:
         frequency = Quantity("5GHz")
         phase = Quantity("180deg")
         intrinsic = {"Freq": frequency, "Phase": phase}
-        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         plot1.update_field_plot_settings()
@@ -144,7 +146,7 @@ class TestClass:
             plot_name=volume_plot.name, output_dir=aedtapp.working_directory, file_format="case"
         )
         assert export_status
-        assert os.path.splitext(export_status)[1] == ".case"
+        assert Path(export_status).suffix == ".case"
 
     def test_create_fieldplot_surface(self, aedtapp):
         frequency = Quantity("5GHz")
@@ -196,11 +198,11 @@ class TestClass:
         setup_name = aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": frequency, "Phase": phase}
         mesh_file_path = aedtapp.post.export_mesh_obj(setup_name, intrinsic)
-        assert os.path.exists(mesh_file_path)
+        assert Path(mesh_file_path).is_file()
         mesh_file_path2 = aedtapp.post.export_mesh_obj(
-            setup_name, intrinsic, export_air_objects=True, on_surfaces=False
+            setup_name, intrinsic, export_air_objects=False, on_surfaces=False
         )
-        assert os.path.exists(mesh_file_path2)
+        assert Path(mesh_file_path2).is_file()
 
     def test_get_scalar_field_value(self, aedtapp):
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -222,7 +224,7 @@ class TestClass:
             export_gif=True,
             export_path=local_scratch.path,
         )
-        assert os.path.exists(model_gif.gif_file)
+        assert Path(model_gif.gif_file).is_file()
 
     def test_animate_fields_from_aedtplt(self, aedtapp):
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -238,11 +240,11 @@ class TestClass:
             export_gif=False,
             show=False,
         )
-        model_gif2.gif_file = os.path.join(aedtapp.working_directory, "test2.gif")
+        model_gif2.gif_file = Path(aedtapp.working_directory) / "test2.gif"
         model_gif2.camera_position = [0, 50, 200]
         model_gif2.focal_point = [0, 50, 0]
-        model_gif2.animate()
-        assert os.path.exists(model_gif2.gif_file)
+        model_gif2.animate(show=False)
+        assert model_gif2.gif_file.is_file()
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_create_fieldplot_volume_2(self, aedtapp, local_scratch):
@@ -251,7 +253,9 @@ class TestClass:
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         vollist = ["NewObject_IJD39Q"]
         plot2 = aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
-        assert os.path.exists(plot2.export_image(os.path.join(local_scratch.path, "test_x.jpg")))
+        file_path = Path(local_scratch.path, "test_x.jpg")
+        exported_file = plot2.export_image(str(file_path))
+        assert Path(exported_file).is_file()
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_export_field_jpg(self, aedtapp, local_scratch):
@@ -260,8 +264,9 @@ class TestClass:
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         vollist = ["NewObject_IJD39Q"]
         plot2 = aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
-        aedtapp.post.export_field_jpg(os.path.join(local_scratch.path, "prova2.jpg"), plot2.name, plot2.plot_folder)
-        assert os.path.exists(os.path.join(local_scratch.path, "prova2.jpg"))
+        exported_file = Path(local_scratch.path) / "prova2.jpg"
+        aedtapp.post.export_field_jpg(exported_file, plot2.name, plot2.plot_folder)
+        assert exported_file.is_file()
 
     def test_create_scattering(self, aedtapp):
         portnames = ["1", "2"]
@@ -300,8 +305,9 @@ class TestClass:
         for key, value in nominal_values.items():
             families[key] = value
         my_data = aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
-        assert my_data.export_data_to_csv(os.path.join(local_scratch.path, "output.csv"))
-        assert os.path.exists(os.path.join(local_scratch.path, "output.csv"))
+        output_csv = Path(local_scratch.path) / "output.csv"
+        assert my_data.export_data_to_csv(str(output_csv))
+        assert output_csv.is_file()
 
     def test_get_touchstone_data(self, aedtapp):
         assert aedtapp.get_touchstone_data("Setup1")
@@ -309,20 +315,23 @@ class TestClass:
     def test_export_touchstone(self, aedtapp, local_scratch):
         setup_name = "Setup1"
         sweep_name = "Sweep"
-        aedtapp.export_touchstone(setup_name, sweep_name, os.path.join(local_scratch.path, "Setup1_Sweep.S2p"))
-        assert os.path.exists(os.path.join(local_scratch.path, "Setup1_Sweep.S2p"))
+        output_file = Path(local_scratch.path) / "Setup1_Sweep.S2p"
+        aedtapp.export_touchstone(setup_name, sweep_name, str(output_file))
+        assert output_file.is_file()
 
     def test_export_touchstone_1(self, aedtapp, local_scratch):
         setup_name = "Setup1"
         sweep_name = None
-        aedtapp.export_touchstone(setup_name, sweep_name, os.path.join(local_scratch.path, "Setup1_Sweep2.S2p"))
-        assert os.path.exists(os.path.join(local_scratch.path, "Setup1_Sweep2.S2p"))
+        output_file = Path(local_scratch.path) / "Setup1_Sweep2.S2p"
+        aedtapp.export_touchstone(setup_name, sweep_name, str(output_file))
+        assert output_file.is_file()
 
     def test_export_touchstone_2(self, aedtapp, local_scratch):
         setup_name = None
         sweep_name = None
-        aedtapp.export_touchstone(setup_name, sweep_name, os.path.join(local_scratch.path, "Setup1_Sweep3.S2p"))
-        assert os.path.exists(os.path.join(local_scratch.path, "Setup1_Sweep3.S2p"))
+        output_file = Path(local_scratch.path) / "Setup1_Sweep3.S2p"
+        aedtapp.export_touchstone(setup_name, sweep_name, str(output_file))
+        assert output_file.is_file()
 
     def test_export_touchstone_3(self, aedtapp):
         setup_name = None
@@ -331,7 +340,8 @@ class TestClass:
 
     def test_export_report_to_jpg(self, aedtapp, local_scratch):
         aedtapp.post.export_report_to_jpg(local_scratch.path, "MyTestScattering")
-        assert os.path.exists(os.path.join(local_scratch.path, "MyTestScattering.jpg"))
+        output_file = Path(local_scratch.path) / "MyTestScattering.jpg"
+        assert output_file.is_file()
 
     def test_export_report_to_csv(self, aedtapp, local_scratch):
         aedtapp.post.export_report_to_csv(
@@ -343,11 +353,13 @@ class TestClass:
             uniform=True,
             use_trace_number_format=False,
         )
-        assert os.path.exists(os.path.join(local_scratch.path, "MyTestScattering.csv"))
+        output_file = Path(local_scratch.path) / "MyTestScattering.csv"
+        assert output_file.is_file()
 
     def test_export_report_to_rdat(self, aedtapp, local_scratch):
+        output_file = Path(local_scratch.path) / "MyTestScattering.rdat"
         aedtapp.post.export_report_to_file(local_scratch.path, "MyTestScattering", ".rdat")
-        assert os.path.exists(os.path.join(local_scratch.path, "MyTestScattering.rdat"))
+        assert output_file.is_file()
 
     def test_export_field_file_on_grid(self, aedtapp, local_scratch):
         file_path = aedtapp.post.export_field_file_on_grid(
@@ -360,48 +372,51 @@ class TestClass:
             is_vector=True,
             intrinsics="5GHz",
         )
-        assert os.path.exists(file_path)
+        assert Path(file_path).is_file()
 
     def test_export_field_file_on_grid_1(self, aedtapp, local_scratch):
+        output_file = Path(local_scratch.path) / "Efield.fld"
         aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",
             aedtapp.available_variations.nominal_values,
-            os.path.join(local_scratch.path, "Efield.fld"),
+            str(output_file),
             grid_stop=[5, 5, 5],
             grid_step=[0.5, 0.5, 0.5],
             is_vector=True,
             intrinsics="5GHz",
         )
-        assert os.path.exists(os.path.join(local_scratch.path, "Efield.fld"))
+        assert output_file.is_file()
 
     def test_export_field_file_on_grid_spherical(self, aedtapp, local_scratch):
+        output_file = Path(local_scratch.path) / "MagEfieldSph.fld"
         aedtapp.post.export_field_file_on_grid(
             "Mag_E",
             "Setup1 : LastAdaptive",
             aedtapp.available_variations.nominal_values,
-            os.path.join(local_scratch.path, "MagEfieldSph.fld"),
+            str(output_file),
             grid_type="Spherical",
             grid_stop=[5, 300, 300],
             grid_step=[5, 50, 50],
             is_vector=False,
             intrinsics="5GHz",
         )
-        assert os.path.exists(os.path.join(local_scratch.path, "MagEfieldSph.fld"))
+        assert output_file.is_file()
 
     def test_export_field_file_on_grid_cylindrical(self, aedtapp, local_scratch):
+        output_file = Path(local_scratch.path) / "MagEfieldCyl.fld"
         aedtapp.post.export_field_file_on_grid(
             "Mag_E",
             "Setup1 : LastAdaptive",
             aedtapp.available_variations.nominal_values,
-            os.path.join(local_scratch.path, "MagEfieldCyl.fld"),
+            str(output_file),
             grid_type="Cylindrical",
             grid_stop=[5, 300, 5],
             grid_step=[5, 50, 5],
             is_vector=False,
             intrinsics="5GHz",
         )
-        assert os.path.exists(os.path.join(local_scratch.path, "MagEfieldCyl.fld"))
+        assert output_file.is_file()
 
     def test_ModelPlotter_plot(self, aedtapp, local_scratch):
         file_path = aedtapp.post.export_field_file_on_grid(
@@ -447,21 +462,34 @@ class TestClass:
     def test_create_report(self, aedtapp, local_scratch):
         plot = aedtapp.post.create_report("dB(S(1,1))")
         assert plot
+        plot_tdr = aedtapp.post.create_report(
+            expressions="TDRZ(1,1)",
+            report_category="TDR Impedance",
+            domain="Time",
+            primary_sweep_variable="Time",
+            plot_name="batch_1_TDR",
+            variations={"Time": ["All"]},
+        )
+        assert not plot_tdr.use_pulse_in_tdr
+        assert plot_tdr.maximum_time == 3.33333333333333e-10
+        assert plot_tdr.pulse_rise_time == 1.66666666666667e-11
+        assert plot_tdr.time_windowing == 4
 
     def test_create_report_from_configuration(self, aedtapp, local_scratch):
         plot = aedtapp.post.create_report("dB(S(1,1))")
         assert plot
-        assert plot.export_config(os.path.join(local_scratch.path, f"{plot.plot_name}.json"))
-        assert aedtapp.post.create_report_from_configuration(
-            os.path.join(local_scratch.path, f"{plot.plot_name}.json"), solution_name=aedtapp.nominal_sweep
-        )
+        output_file = Path(local_scratch.path) / f"{plot.plot_name}.json"
+        assert plot.export_config(str(output_file))
+        output_file = Path(local_scratch.path) / f"{plot.plot_name}.json"
+        assert aedtapp.post.create_report_from_configuration(str(output_file), solution_name=aedtapp.nominal_sweep)
 
     def test_create_report_from_configuration_1(self, aedtapp, local_scratch):
         plot = aedtapp.post.create_report("dB(S(1,1))")
         assert plot
-        assert plot.export_config(os.path.join(local_scratch.path, f"{plot.plot_name}.json"))
+        output_file = Path(local_scratch.path) / f"{plot.plot_name}.json"
+        assert plot.export_config(str(output_file))
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(local_scratch.path, f"{plot.plot_name}.json"),
+            str(output_file),
             solution_name=aedtapp.nominal_sweep,
             matplotlib=True,
         )
@@ -500,9 +528,9 @@ class TestClass:
 
         # get solution data and save in .csv file
         my_data = aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
-        my_data.export_data_to_csv(os.path.join(local_scratch.path, "output.csv"))
-        csv_solution_data_file_path = os.path.join(local_scratch.path, "output.csv")
-        assert not new_report.import_traces(csv_solution_data_file_path, plot_name)
+        output_csv = Path(local_scratch.path) / "output.csv"
+        my_data.export_data_to_csv(str(output_csv))
+        assert not new_report.import_traces(str(output_csv), plot_name)
 
         # test import with correct inputs from csv
         assert new_report.import_traces(csv_file_path, plot_name)
@@ -661,27 +689,28 @@ class TestClass:
     def test_set_trace_properties(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
-        style = new_report.traces[0].LINESTYLE
-        trace = new_report.traces[0].TRACETYPE
         assert new_report.traces[0].set_trace_properties(
-            style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
+            style=LineStyle.Dot, width=5, trace_type=TraceType.Digital, color=(0, 255, 0)
         )
 
     def test_set_symbol_properties(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
-        symbols = new_report.traces[0].SYMBOLSTYLE
         assert new_report.traces[0].set_symbol_properties(
-            show=True, style=symbols.Box, show_arrows=False, fill=False, color=(0, 0, 255)
+            show=True, style=SymbolStyle.Box, show_arrows=False, fill=False, color=(0, 0, 255)
         )
 
     def test_set_line_properties(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
-        style = new_report.traces[0].LINESTYLE
         new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
         assert new_report.limit_lines[0].set_line_properties(
-            style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
+            style=LineStyle.Dot,
+            width=4,
+            hatch_above=False,
+            violation_emphasis=True,
+            hatch_pixels=1,
+            color=(255, 255, 0),
         )
 
     def test_add_note(self, aedtapp):  # pragma: no cover
@@ -736,7 +765,7 @@ class TestClass:
             plot_label=plot1.name + " label",
             show=False,
         )
-        assert os.path.exists(plot_obj.image_file)
+        assert Path(plot_obj.image_file).is_file()
 
     def test_plot_field_from_fieldplot_scale(self, aedtapp, local_scratch):
         plot_obj = aedtapp.post.plot_field_from_fieldplot(
@@ -748,7 +777,7 @@ class TestClass:
             plot_label="plot_test" + " label",
             show=False,
         )
-        os.unlink(plot_obj.image_file)
+        Path(plot_obj.image_file).unlink()
         plot_obj.x_scale = 1.1
         plot_obj.y_scale = 0.9
         plot_obj.z_scale = 0.3
@@ -766,7 +795,7 @@ class TestClass:
             plot_label="plot_test" + " label",
             show=False,
         )
-        plot_obj.background_image = os.path.join(local_scratch.path, "file_not_exists.jpg")
+        plot_obj.background_image = Path(local_scratch.path) / "file_not_exists.jpg"
         assert not plot_obj.background_image
 
     def test_plot_field_from_fieldplot_configurations(self, aedtapp, local_scratch):
@@ -782,7 +811,7 @@ class TestClass:
         plot_obj.convert_fields_in_db = True
         plot_obj.log_multiplier = 20
         plot_obj.plot(plot_obj.image_file, show=False)
-        assert os.path.exists(plot_obj.image_file)
+        assert Path(plot_obj.image_file).is_file()
 
     def test_plot_field_from_fieldplot_aedtplt(self, aedtapp, local_scratch):
         plot_obj = aedtapp.post.plot_field_from_fieldplot(
@@ -795,7 +824,7 @@ class TestClass:
             show=False,
             file_format="aedtplt",
         )
-        assert os.path.exists(plot_obj.image_file)
+        assert Path(plot_obj.image_file).is_file()
 
     def test_create_fieldplot_cutplane_vector(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
@@ -827,7 +856,7 @@ class TestClass:
             export_path=local_scratch.path,
             image_format="jpg",
         )
-        assert os.path.exists(plot_obj.image_file)
+        assert Path(plot_obj.image_file).is_file()
         assert plot_obj.range_min is None
         assert plot_obj.range_max is None
 
@@ -848,7 +877,7 @@ class TestClass:
             image_format="jpg",
             log_scale=False,
         )
-        assert os.path.exists(plot_obj_1.image_file)
+        assert Path(plot_obj_1.image_file).is_file()
         assert plot_obj_1.range_min is None
         assert plot_obj_1.range_max is None
 
@@ -871,7 +900,7 @@ class TestClass:
             scale_min=0,
             scale_max=10e6,
         )
-        assert os.path.exists(plot_obj_2.image_file)
+        assert Path(plot_obj_2.image_file).is_file()
         assert plot_obj_2.range_min == 0
         assert plot_obj_2.range_max == 10e6
         assert plot_obj_2.range_max == 10e6
@@ -894,7 +923,7 @@ class TestClass:
             image_format="jpg",
             log_scale=False,
         )
-        assert os.path.exists(plot_obj_1.image_file)
+        assert Path(plot_obj_1.image_file).is_file()
         assert plot_obj_1.range_min is None
         assert plot_obj_1.range_max is None
 
@@ -918,7 +947,7 @@ class TestClass:
             scale_min=10e6,
             scale_max=0,
         )
-        assert os.path.exists(plot_obj_4.image_file)
+        assert Path(plot_obj_4.image_file).is_file()
         assert plot_obj_4.range_min is None
         assert plot_obj_4.range_max is None
 
@@ -940,25 +969,25 @@ class TestClass:
             log_scale=False,
             scale_min=0,
         )
-        assert os.path.exists(plot_obj_5.image_file)
+        assert Path(plot_obj_5.image_file).is_file()
         assert plot_obj_5.range_min is None
         assert plot_obj_5.range_max is None
 
     def test_plot_model_obj(self, aedtapp, local_scratch):
-        obj = aedtapp.post.plot_model_obj(show=False, export_path=os.path.join(local_scratch.path, "image.jpg"))
-        assert os.path.exists(obj.image_file)
+        obj = aedtapp.post.plot_model_obj(show=False, export_path=str(Path(local_scratch.path) / "image.jpg"))
+        assert Path(obj.image_file).is_file()
 
     def test_plot_model_obj_1(self, aedtapp, local_scratch):
         obj2 = aedtapp.post.plot_model_obj(
-            show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
+            show=False, export_path=local_scratch.path / "image2.jpg", plot_as_separate_objects=False
         )
-        assert os.path.exists(obj2.image_file)
+        assert Path(obj2.image_file).exists()
 
     def test_plot_model_obj_2(self, aedtapp, local_scratch):
         obj3 = aedtapp.post.plot_model_obj(
-            show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), clean_files=True
+            show=False, export_path=str(Path(local_scratch.path) / "image2.jpg"), clean_files=True
         )
-        assert os.path.exists(obj3.image_file)
+        assert Path(obj3.image_file).is_file()
 
     def test_create_field_plot(self, aedtapp):
         cutlist = ["Global:XY"]
@@ -993,33 +1022,31 @@ class TestClass:
         assert aedtapp.post.reports_by_category.eigenmode()
 
     def test_test_parse_vector(self):
-        out = _parse_aedtplt(
-            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
-        )
+        input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "test_vector.aedtplt"
+        out = _parse_aedtplt(str(input_file))
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
-        assert _parse_aedtplt(
-            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+        input_file = (
+            Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "test_vector_no_solutions.aedtplt"
         )
+        assert _parse_aedtplt(str(input_file))
 
     def test_export_mesh(self, aedtapp):
-        assert os.path.exists(aedtapp.export_mesh_stats("Setup1"))
+        assert Path(aedtapp.export_mesh_stats("Setup1")).is_file()
 
     def test_sweep_from_json(self, aedtapp):
-        dict_vals = read_json(
-            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
-        )
+        input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / "report_json" / "Modal_Report_Simple.json"
+        dict_vals = read_json(str(input_file))
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
 
     def test_sweep_from_json_1(self, aedtapp):
+        input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / "report_json" / "Modal_Report.json"
+        assert aedtapp.post.create_report_from_configuration(str(input_file))
         assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json")
-        )
-        assert aedtapp.post.create_report_from_configuration(
-            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json"),
+            str(input_file),
             matplotlib=True,
         )
 
@@ -1043,17 +1070,18 @@ class TestClass:
     def test_trace_export_table(self, m2d_app, local_scratch):
         m2d_app.set_active_design("Design2")
         plot_name = m2d_app.post.plots[0].plot_name
-        output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
-        assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
-        assert os.path.exists(output_file_path)
+
+        output_file_path = Path(local_scratch.path) / "zeroes.tab"
+        assert m2d_app.post.plots[0].export_table_to_file(plot_name, str(output_file_path), "Legend")
+        assert output_file_path.is_file()
 
     def test_trace_export_table_1(self, m2d_app, local_scratch):
         m2d_app.set_active_design("Design2")
         plot_name = m2d_app.post.plots[0].plot_name
-        output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
+        output_file_path = Path(local_scratch.path) / "zeroes.tab"
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.post.plots[0].export_table_to_file("Invalid Name", output_file_path, "Legend")
+            m2d_app.post.plots[0].export_table_to_file("Invalid Name", str(output_file_path), "Legend")
         with pytest.raises(AEDTRuntimeError):
             m2d_app.post.plots[0].export_table_to_file(plot_name, "Invalid Path", "Legend")
         with pytest.raises(AEDTRuntimeError):
-            m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Invalid Export Type")
+            m2d_app.post.plots[0].export_table_to_file(plot_name, str(output_file_path), "Invalid Export Type")

@@ -25,13 +25,12 @@
 import os
 import re
 import secrets
-import warnings
 
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -491,7 +490,6 @@ class UserDefinedComponent(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> hfss.modeler["UDM"].delete()
@@ -568,7 +566,7 @@ class UserDefinedComponent(object):
         Parameters
         ----------
         axis
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or the a value of the enum :class:`ansys.aedt.core.generic.constants.Axis`.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -629,7 +627,7 @@ class UserDefinedComponent(object):
 
         Parameters
         ----------
-        axis : Application.AXIS object
+        axis : Value of the :class:`ansys.aedt.core.generic.constants.Axis` enum
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.
@@ -656,7 +654,7 @@ class UserDefinedComponent(object):
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
-    @pyaedt_function_handler(nclones="clones", attach_object="attach")
+    @pyaedt_function_handler(nclones="clones", attach_object="attach", attachObject="attach")
     def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
         """Duplicate the object along a line.
 
@@ -679,13 +677,6 @@ class UserDefinedComponent(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        if "attachObject" in kwargs:
-            warnings.warn(
-                "``attachObject`` is deprecated. Use ``attach_object`` instead.",
-                DeprecationWarning,
-            )
-            attach_object = kwargs["attachObject"]
-
         if self.is3dcomponent:
             old_component_list = self._primitives.user_defined_component_names
             _, added_objects = self._primitives.duplicate_along_line(
@@ -705,7 +696,6 @@ class UserDefinedComponent(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         self.update_props = {}
         self.update_props["DefinitionName"] = self._props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self._props["GeometryDefinitionParameters"]
@@ -821,7 +811,6 @@ class UserDefinedComponent(object):
         str
             Path of the 3d component file.
         """
-
         return self._primitives._app.get_oo_object(self._primitives._app.oeditor, self.definition_name).GetPropValue(
             "3D Component File Path"
         )
@@ -883,7 +872,7 @@ class UserDefinedComponent(object):
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
 
-        project_list = [i for i in self._primitives._app.project_list]
+        project_list = [i for i in self._primitives._app.desktop_class.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(
             [
@@ -892,7 +881,7 @@ class UserDefinedComponent(object):
             ]
         )
 
-        new_project = [i for i in self._primitives._app.project_list if i not in project_list]
+        new_project = [i for i in self._primitives._app.desktop_class.project_list if i not in project_list]
 
         if new_project:
             from ansys.aedt.core.generic.design_types import get_pyaedt_app
@@ -1170,7 +1159,6 @@ class LayoutComponent(object):
         ----------
         >>> oEditor.ChangeProperty
         """
-
         vPropChange = [
             "NAME:Object Attributes",
             "ShowDielectric:=",

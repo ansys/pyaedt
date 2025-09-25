@@ -29,6 +29,7 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
@@ -190,7 +191,7 @@ class TestClass:
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-        assert aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
+        assert aedtapp.modeler.connect_schematic_components(myres.schematic_id, mycap.schematic_id, pin_starting=1)
         assert aedtapp.modeler.connect_schematic_components(
             myind2, myind3, pin_starting=["n1", "n2"], pin_ending=["n2", "n1"], use_wire=False
         )
@@ -205,14 +206,28 @@ class TestClass:
     def test_12a_connect_components(self, aedtapp):
         myind = aedtapp.modeler.schematic.create_inductor("L101", 1e-9)
         myres = aedtapp.modeler.schematic.create_resistor("R101", 50)
-        aedtapp.modeler.schematic.create_interface_port("Port2")
+        mycap = aedtapp.modeler.schematic.create_capacitor("C1", 1)
+        p2 = aedtapp.modeler.schematic.create_interface_port("Port2")
+        assert not p2.microwave_symbol
+        p2.microwave_symbol = True
+        assert p2.microwave_symbol
+
         assert "Port2" in aedtapp.modeler.schematic.nets
         assert myind.pins[1].connect_to_component(myres.pins[1], "port_name_test")
+        assert mycap.pins[0].connect_to_component(myres.pins[0], "port_name_test2")
+        p2.reference_node = myres.pins[1].net
+        assert p2.reference_node == myres.pins[1].net
+        p2.reference_node = mycap.pins[0].net
+        assert p2.reference_node == mycap.pins[0].net
+        p2.reference_node = "Ground"
+        assert p2.reference_node == "Ground"
         assert "port_name_test" in aedtapp.modeler.schematic.nets
 
     def test_13_properties(self, aedtapp):
         assert aedtapp.modeler.model_units
 
+    # TODO: Remove test skip once https://github.com/ansys/pyaedt/issues/6333 is fixed
+    @pytest.mark.skipif(is_linux, reason="Crashes on Linux in non-graphical when the component is connected.")
     def test_14_move(self, aedtapp):
         aedtapp.modeler.schematic_units = "mil"
         myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
@@ -237,8 +252,8 @@ class TestClass:
 
     def test_18_export_touchstone(self, aedtapp, local_scratch):
         myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
-        port1 = aedtapp.modeler.schematic.create_interface_port(name="Port1", location=myind.pins[0].location)
-        port2 = aedtapp.modeler.schematic.create_interface_port(name="Port2", location=myind.pins[1].location)
+        aedtapp.modeler.schematic.create_interface_port(name="Port1", location=myind.pins[0].location)
+        aedtapp.modeler.schematic.create_interface_port(name="Port2", location=myind.pins[1].location)
 
         setup_name = "Dom_LNA"
         LNA_setup = aedtapp.create_setup(setup_name)
@@ -313,6 +328,10 @@ class TestClass:
             )
             == "MyReport1"
         )
+        rep = ami_design.post.reports_by_category.statistical_eye_contour(
+            setup="AMIAnalysis", expressions=["b_output4_14"]
+        )
+        assert rep.create()
         assert (
             ami_design.post.create_statistical_eye_plot(
                 "Dom_Quick",
@@ -336,18 +355,18 @@ class TestClass:
         )
 
     def test_21_assign_voltage_sinusoidal_excitation_to_ports(self, aedtapp):
-        portname = aedtapp.modeler.schematic.create_interface_port("Port1")
-        portname2 = aedtapp.modeler.schematic.create_interface_port("Port2")
+        aedtapp.modeler.schematic.create_interface_port("Port1")
+        aedtapp.modeler.schematic.create_interface_port("Port2")
         ports_list = ["Port1", "Port2"]
         assert aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
     def test_22_assign_current_sinusoidal_excitation_to_ports(self, aedtapp):
-        portname = aedtapp.modeler.schematic.create_interface_port("Port1")
+        aedtapp.modeler.schematic.create_interface_port("Port1")
         ports_list = ["Port1"]
         assert aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list)
 
     def test_23_assign_power_sinusoidal_excitation_to_ports(self, aedtapp):
-        portname = aedtapp.modeler.schematic.create_interface_port("Port2")
+        aedtapp.modeler.schematic.create_interface_port("Port2")
         ports_list = ["Port2"]
         assert aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
@@ -380,9 +399,9 @@ class TestClass:
         assert len(t1.pins) == 26
 
     def test_25_zoom_to_fit(self, aedtapp):
-        myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
-        myres = aedtapp.modeler.components.create_resistor("R100", 50)
-        mycap = aedtapp.modeler.components.create_capacitor("C100", 1e-12)
+        aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
+        aedtapp.modeler.components.create_resistor("R100", 50)
+        aedtapp.modeler.components.create_capacitor("C100", 1e-12)
         aedtapp.modeler.zoom_to_fit()
 
     def test_26_component_catalog(self, aedtapp):
@@ -519,7 +538,7 @@ class TestClass:
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
 
-        lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
+        lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
         assert aedtapp.analyze()
 
@@ -538,7 +557,7 @@ class TestClass:
                 f.write(f"C{i} net_{i + 1} 0 5e-12\n")
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
-        lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
+        lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
         assert not aedtapp.browse_log_file()
         aedtapp.analyze()
@@ -710,7 +729,7 @@ class TestClass:
         port.angle = 90.0
 
         port.location = ["100mil", "200mil"]
-        assert port.location == ["100mil", "200mil"]
+        assert port.location == [100, 200]
         port.mirror = True
         assert port.mirror
         port.name = "Port3"
@@ -738,7 +757,7 @@ class TestClass:
 
         c.design_excitations["Port3"].enabled_sources = ["PowerTest"]
         assert len(c.design_excitations["Port3"].enabled_sources) == 1
-        setup1 = c.create_setup()
+        c.create_setup()
         setup2 = c.create_setup()
         c.design_excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
         assert c.design_excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
@@ -757,10 +776,8 @@ class TestClass:
     def test_42_create_wire(self, aedtapp):
         myind = aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
-        myres2 = aedtapp.modeler.components.get_component(myres.composed_name)
-        w1 = aedtapp.modeler.schematic.create_wire(
-            [myind.pins[0].location, myres.pins[1].location], name="wire_name_test"
-        )
+        aedtapp.modeler.components.get_component(myres.composed_name)
+        aedtapp.modeler.schematic.create_wire([myind.pins[0].location, myres.pins[1].location], name="wire_name_test")
         wire_names = []
         for key in aedtapp.modeler.schematic.wires.keys():
             wire_names.append(aedtapp.modeler.schematic.wires[key].name)
@@ -808,9 +825,9 @@ class TestClass:
         l3 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 2500], angle=90)
         l4 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 500], angle=90)
         l2 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
-        r2 = aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
+        aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
 
-        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
+        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True, offset=0.0512)
         assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
         assert l3.pins[0].connect_to_component(l2.pins[1], use_wire=True, clearance_units=2)
         assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
@@ -906,11 +923,50 @@ class TestClass:
             design_name="TDR",
         )
         assert result
+        result, tdr_probe_name = aedtapp.create_tdr_schematic_from_snp(
+            input_file=touchstone_file,
+            tx_schematic_pins=[
+                "A-MII-RXD1_30.SQFP28X28_208.P",
+                "A-MII-RXD2_32.SQFP28X28_208.P",
+                "A-MII-RXD3_33.SQFP28X28_208.P",
+            ],
+            tx_schematic_differential_pins=[],
+            termination_pins=[
+                "A-MII-RXD1_65.SQFP20X20_144.N",
+                "A-MII-RXD2_66.SQFP20X20_144.N",
+                "A-MII-RXD3_67.SQFP20X20_144.N",
+            ],
+            differential=False,
+            rise_time=35,
+            use_convolution=True,
+            analyze=False,
+            design_name="TDR_Single",
+        )
+        assert result
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_49_automatic_ami(self, aedtapp):
         touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
         ami_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "pcieg5_32gt.ibs"
+        result, eye_curve_tx, eye_curve_rx = aedtapp.create_ami_schematic_from_snp(
+            input_file=touchstone_file,
+            ibis_tx_file=ami_file,
+            tx_buffer_name="1p",
+            rx_buffer_name="2p",
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P", "A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
+            tx_schematic_differential_pins=[],
+            rx_schematic_differentialial_pins=[],
+            use_ibis_buffer=False,
+            differential=False,
+            bit_pattern="random_bit_count=2.5e3 random_seed=1",
+            unit_interval="31.25ps",
+            use_convolution=True,
+            analyze=False,
+            design_name="AMI",
+        )
+        assert result
+
         result, eye_curve_tx, eye_curve_rx = aedtapp.create_ami_schematic_from_snp(
             input_file=touchstone_file,
             ibis_tx_file=ami_file,
@@ -926,7 +982,7 @@ class TestClass:
             unit_interval="31.25ps",
             use_convolution=True,
             analyze=False,
-            design_name="AMI",
+            design_name="AMI_Differential",
         )
         assert result
 
@@ -1055,3 +1111,4 @@ class TestClass:
             circuitprj.create_output_variable(
                 variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
             )
+        assert circuitprj.remove_all_unused_definitions()

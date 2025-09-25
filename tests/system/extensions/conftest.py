@@ -75,7 +75,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
@@ -93,6 +93,10 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "close_desktop": True,
+    "remove_lock": False,
+    "local_example_folder": None,
+    "use_local_example_data": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -112,6 +116,8 @@ new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
 
 logger = pyaedt_logger
+
+os.environ["PYAEDT_SCRIPT_VERSION"] = config["desktopVersion"]
 
 
 def generate_random_string(length):
@@ -158,7 +164,7 @@ def desktop():
 
     yield d
     try:
-        d.release_desktop(True, True)
+        d.close_desktop()
     except Exception:
         return False
 

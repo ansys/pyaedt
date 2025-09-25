@@ -1,6 +1,5 @@
 import logging
 import os
-import random
 import shutil
 import signal
 import socket
@@ -184,7 +183,7 @@ class FileManagement(object):
 def check_port(port):
     """Check for an available port on the machine starting from input port.
 
-     Parameters
+    Parameters
     ----------
     port : int
         Ports to search.
@@ -242,14 +241,14 @@ class PyaedtServiceWindows(rpyc.Service):
         # (to finalize the service, if needed)
         if self.app:
             if not is_linux:
-                if self.app and "release_desktop" in dir(self.app[0]):
-                    self.app[0].release_desktop()
+                if self.app and "desktop_class" in dir(self.app[0]) and "close_desktop" in dir(self.app[0].desktop_class):
+                    self.app[0].desktop_class.close_desktop()
 
         pass
 
     def exposed_close_connection(self):
-        if self.app and "release_desktop" in dir(self.app[0]):
-            self.app[0].release_desktop()
+        if self.app and "desktop_class" in dir(self.app[0]) and "close_desktop" in dir(self.app[0].desktop_class):
+            self.app[0].close_desktop()
 
     def _beta(self):
         os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"

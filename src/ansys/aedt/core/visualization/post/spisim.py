@@ -29,9 +29,14 @@ from pathlib import Path
 import re
 import shutil
 from struct import unpack
+from typing import List
+from typing import Optional
+from typing import Union
 
 from numpy import float64
 from numpy import zeros
+from pydantic import BaseModel
+from pydantic import Field
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -40,7 +45,140 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+
+
+class ReportBase(BaseModel):
+    model_config = {"populate_by_name": True}
+
+
+class FrequencyFigure(ReportBase):
+    title: str = Field(..., alias="TITLE")
+    param: str = Field(..., alias="PARAM")
+    td_inp_delay: str = Field(..., alias="TDInpDelay")
+    skew_threshold: str = Field(..., alias="SkewThreshold")
+    dtcyc: str = Field(..., alias="DTCyc")
+    xlim: str = Field(..., alias="XLIM")
+    ylim: str = Field(..., alias="YLIM")
+    limitline: str = Field(..., alias="LIMITLINE")
+    gencsv: str = Field(..., alias="GENCSV")
+    fig_fq_axis_log: str = Field(..., alias="FigFqAxis Log")
+    fig_fq_unit: str = Field(..., alias="FigFqUnit")
+    phase: str = Field(..., alias="Phase")
+
+
+class AdvancedReport(ReportBase):
+    version: str = Field("1.0", alias="Version")
+    rpt_name: Optional[str] = Field("", alias="RptName")
+    touchstone: str = Field(..., alias="Touchstone")
+    expiration: str = Field(default="12/31/2100", alias="Expiration")
+    mode: str = Field(..., alias="Mode")
+    dpextract: Optional[str] = Field("", alias="DPExtract")
+    port: str = Field(..., alias="Port")
+    r: int = Field(50, alias="R")
+    report_dir: str = Field(..., alias="ReportDir")
+    extrapolate: str = Field(..., alias="Extrapolate")
+    watermark: Optional[str] = Field("", alias="WaterMark")
+    td_length: str = Field(..., alias="TDLength")
+    fq_axis_log: str = Field("F", alias="FqAxis Log")
+    fq_unit: str = Field("GHz", alias="FqUnit")
+    smoothing: str = Field("0%", alias="Smoothing")
+
+    trace_width: int = Field(4, alias="Trace  Width")  # Signal traces width in .param plot
+    title_font_size: int = Field(45, alias="Title  FontSize")  # Figure title font size
+    legend_font_size: int = Field(25, alias="Legend FontSize")  # Legend font size
+    axis_font_size: int = Field(35, alias="Axis   FontSize")  # X-Y axis font size
+    grid_width: int = Field(0, alias="Grid Width")  # Grid line width
+
+    var_list: str = Field(..., alias="VARList")
+    cascade: str = Field(default="", alias="CASCADE")  # additional file to be formed via cascading
+
+    frequency_domain: Optional[List[FrequencyFigure]] = Field(default=[], alias="[Frequency Domain]")
+
+    @classmethod
+    def from_spisim_cfg(cls, file_path: Union[str, Path]) -> "AdvancedReport":  # pragma: no cover
+        """Load SPIsim configuration file."""
+        with open(file_path, "r") as f:
+            content = f.read()
+
+        # Remove everything after % on any line, including full-line %
+        cleaned = re.sub(r"\s*%.*", "", content)
+
+        # Optionally remove empty lines (that were full-line % or left blank after stripping)
+        cleaned = re.sub(r"^\s*\n", "", cleaned, flags=re.MULTILINE)
+
+        # Convert into dict
+        config = {}
+        current_section = None
+        current_figure = None
+
+        freq_figures = []
+        time_figures = []
+
+        lines = cleaned.splitlines()
+
+        for line in lines:
+            line = line.strip()
+
+            if not line:
+                continue
+
+            # Section header
+            if line == "[Frequency Domain]":
+                current_section = "frequency_domain"
+                current_figure = None  # reset on new section
+                continue
+            elif current_section == "[Time Domain]":
+                current_section = "time_domain"
+                current_figure = None
+                continue
+
+            # Start of a new figure block
+            if line.startswith("[FIGURE"):
+                current_figure = {}
+                if current_section == "frequency_domain":
+                    freq_figures.append(current_figure)
+                elif current_section == "time_domain":
+                    time_figures.append(current_figure)
+                continue
+
+            # Key-value assignment
+            if "=" in line:
+                key, value = map(str.strip, line.split("=", 1))
+                if current_section == "frequency_domain" and current_figure is not None:
+                    current_figure[key] = value
+                elif current_section == "time_domain" and current_figure is not None:
+                    current_figure[key] = value
+                else:
+                    config[key] = value
+
+        # Assign section data to top-level keys
+        if freq_figures:
+            config["frequency_domain"] = freq_figures
+        if time_figures:
+            config["time_domain"] = time_figures
+
+        return cls(**config)
+
+    def dump_spisim_cfg(self, file_path: Union[str, Path]) -> str:
+        """Create a SPIsim configuration file."""
+        data = self.model_dump(by_alias=True)
+
+        lines = []
+        for k, v in data.items():
+            if k in ["[Frequency Domain]", "[Time Domain]"]:
+                lines.append(k + "\n")
+                figures = v
+                for idx, fig in enumerate(figures):
+                    lines.append(f"[FIGURE {idx + 1}]\n")
+                    for fig_k, fig_v in fig.items():
+                        lines.append(f"{fig_k}= {fig_v}\n")
+            else:
+                lines.append(f"{k}= {v}\n")
+        with open(file_path, "w") as f:
+            f.writelines(lines)
+        return str(file_path)
 
 
 class SpiSim:
@@ -85,15 +223,44 @@ class SpiSim:
                 self.logger.warning(f"Failed to copy {file_name}")
         return str(pathlib.Path(file_name).name)
 
+    @staticmethod
+    def __parser_spisim_cfg(file_path):
+        """Load a SPIsim configuration file.
+
+        Parameters
+        ----------
+        file_path : str
+            Path of the configuration file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        temp = {}
+        with open(file_path, "r") as fp:
+            lines = fp.readlines()
+            for line in lines:
+                if not line.startswith("#") and "=" in line:
+                    split_line = [i.strip() for i in line.split("=")]
+                    kw, value = split_line
+                    temp[kw] = value
+        return temp
+
     @pyaedt_function_handler()
-    def __compute_spisim(self, parameter, config_file, out_file=""):
+    def __compute_spisim(self, parameter, config_file, out_file="", in_file=""):
         import subprocess  # nosec
 
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
         command = [spisim_exe, parameter]
+
+        if in_file != "":
+            command += ["-i", str(in_file)]
+
         config_folder = os.path.dirname(config_file)
         cfg_file_only = os.path.split(config_file)[-1]
+
         if config_file != "":
             command += ["-v", f"CFGFILE={cfg_file_only}"]
         if out_file:
@@ -111,6 +278,7 @@ class SpiSim:
                 my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
 
         with open_file(out_processing, "w") as outfile:
+            settings.logger.info(f"Execute : {' '.join(command)}")
             subprocess.run(command, env=my_env, cwd=config_folder, stdout=outfile, stderr=outfile, check=True)  # nosec
         return out_processing
 
@@ -415,6 +583,136 @@ class SpiSim:
         """
         return COMParametersVer3p4(standard).export(file_path)
 
+    @pyaedt_function_handler()
+    def compute_ucie(
+        self,
+        tx_ports: list[int],
+        rx_ports: list[int],
+        victim_ports: list[int],
+        tx_resistance: Union[int, float, str] = 30,
+        tx_capacitance: str = "0.2p",
+        rx_resistance: Union[int, float, str] = 50,
+        rx_capacitance: str = "0.2p",
+        packaging_type="standard",
+        data_rate="GTS04",
+        report_directory: str = None,
+    ):
+        """Universal Chiplet Interface Express (UCIe) Compliance support.
+
+        Parameters
+        ----------
+        tx_ports : list
+            Transmitter port indexes.
+        rx_ports : list
+            Receiver port indexes.
+        victim_ports : list
+            Victim port indexes.
+        tx_resistance : float, str, optional
+            Transmitter termination resistance parameter.
+        tx_capacitance : str, optional
+            Transmitter termination capacitance parameter.
+        rx_resistance : float, str, optional
+            Receiver termination resistance parameter.
+        rx_capacitance : str, optional
+            Receiver termination capacitance parameter.
+        packaging_type : str, optional
+            Type of packaging. Available options are ``standard`` and ``advanced``.
+        data_rate : str, optional
+            Data rate. Available options are ``GTS04``, ``GTS08``.,``GTS12``.``GTS16``.``GTS24``. and ``GTS32``.
+        report_directory : str, optional
+            Directory to save report files.
+        """
+
+        class Ucie(BaseModel):
+            TxR: Union[str, int]
+            TxC: str
+            RxR: Union[str, int]
+            RxC: str
+            TxIdx: str
+            RxIdx: str
+            RxCal: str
+            PkgType: str
+            DatRate: str
+
+            def to_var_list(self):
+                string = "(Spec 'UCIE1P1_CHANNEL')"
+                for k, v in self.model_dump().items():
+                    string = string + f"({k} {v})"
+                return string
+
+        cfg_ucie = Ucie(
+            PkgType=packaging_type.upper(),
+            TxR=tx_resistance,
+            TxC=tx_capacitance,
+            RxR=rx_resistance,
+            RxC=rx_capacitance,
+            TxIdx="/".join([str(i) for i in tx_ports]),
+            RxIdx="/".join([str(i) for i in rx_ports]),
+            RxCal="/".join([str(i) for i in victim_ports]),
+            DatRate=data_rate,
+        )
+
+        if report_directory:
+            report_directory_ = Path(report_directory)
+            if not report_directory_.exists():
+                report_directory_.mkdir()
+        else:
+            report_directory_ = Path(self.working_directory)
+
+        cfg = AdvancedReport(
+            touchstone=Path(self.touchstone_file).suffix.lstrip("."),
+            mode="SINGLE",
+            port="INCREMENTAL",
+            report_dir=str(report_directory_),
+            var_list=cfg_ucie.to_var_list(),
+            extrapolate="100G",
+            td_length="200n",
+            frequency_domain=[
+                FrequencyFigure(
+                    TITLE="Voltage Transfer Function: Loss",
+                    PARAM="VTFLOSS",
+                    TDInpDelay="0.1n",
+                    SkewThreshold="0.2",
+                    DTCyc="0.5",
+                    XLIM="(1 32G)",
+                    YLIM="(0 -50)",
+                    LIMITLINE="LimitLine = VTF_Loss {Upper [1 -5], [24G -5]}",
+                    GENCSV="DB",
+                    fig_fq_axis_log="F",
+                    FigFqUnit="GHz",
+                    Phase="OFF",
+                ),
+                FrequencyFigure(
+                    TITLE="Voltage Transfer Function: Crosstalk",
+                    PARAM="VTFXTKS",
+                    TDInpDelay="0.1n",
+                    SkewThreshold="0.2",
+                    DTCyc="0.5",
+                    XLIM="(1 32G)",
+                    YLIM="(0 -80)",
+                    LIMITLINE="LimitLine = VTF_Xtks {Lower [1 -24],[24G -24]}",
+                    GENCSV="DB",
+                    fig_fq_axis_log="F",
+                    FigFqUnit="GHz",
+                    Phase="OFF",
+                ),
+            ],
+        )
+        fpath_cfg = cfg.dump_spisim_cfg(report_directory_ / "ucie.cfg")
+        log_file = self.__compute_spisim(parameter="REPORT", config_file=fpath_cfg, in_file=self.touchstone_file)
+        with open(log_file, "r") as f:
+            log = f.read()
+        for i in log.split("\n"):
+            settings.logger.info(i)
+        match = re.search(r"Execution status: .* status \b(FAILED|OK)\b", log)
+        try:
+            if match.groups()[0] == "OK":
+                return True
+            else:  # pragma: no cover
+                return False
+        except Exception:  # pragma: no cover
+            raise AEDTRuntimeError("SPIsim Failed")
+
 
 def detect_encoding(file_path, expected_pattern="", re_flags=0):
     """Check encoding of a file."""
@@ -446,8 +744,8 @@ class DataSet(object):
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.
     Data can be retrieved directly by using the [] operator.
-    If numpy is available, the numpy vector can be retrieved by using the get_wave() method.
-    The parameter whattype defines what is the trace representing in the simulation, Voltage, Current a Time or
+    The numpy vector can be retrieved by using the get_wave() method.
+    The parameter whattype defines what the trace is representing in the simulation, Voltage, Current a Time or
     Frequency.
     """
 
@@ -490,7 +788,7 @@ class Trace(DataSet):
     """This class is used to represent a trace.
 
     This class is constructed by the get_trace() command.
-    If numpy is available the get_wave() method will return a numpy array.
+    The get_wave() method will return a numpy array.
     """
 
     def __init__(

@@ -23,11 +23,14 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import re
 
 import pytest
 
 from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.constants import Gravity
+from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
@@ -500,7 +503,7 @@ class TestClass:
         ipk.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
         ipk.modeler.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = ipk.create_network_blocks(
-            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], ipk.GRAVITY.ZNeg, 1.05918, False
+            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], Gravity.ZNeg, 1.05918, False
         )
         assert (
             len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3
@@ -698,7 +701,7 @@ class TestClass:
         #     vertical_separation=5.5,
         #     material="Copper",
         #     center=[10, 0, 0],
-        #     plane_enum=ipk.PLANE.XY,
+        #     plane_enum=Plane.XY,
         #     rotation=45,
         #     tolerance=0.005,
         # )
@@ -788,8 +791,8 @@ class TestClass:
 
     def test043__surface_monitor(self, ipk):
         ipk.insert_design("MonitorTests")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [20, 20], name="surf2")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [20, 20], name="surf2")
         assert ipk.monitor.assign_surface_monitor("surf1", monitor_name="monitor_surf") == "monitor_surf"
         assert ipk.monitor.assign_surface_monitor(
             ["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_surfs"
@@ -867,7 +870,7 @@ class TestClass:
         cs2.props["OriginY"] = 20
         cs2.props["OriginZ"] = 20
         ipk.modeler.insert_3d_component(
-            input_file=os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Advanced3DComp"),
+            input_file=Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Advanced3DComp",
             coordinate_system="CS2",
             auxiliary_parameters=True,
         )
@@ -895,8 +898,8 @@ class TestClass:
 
     def test050__create_conduting_plate(self, ipk):
         box = ipk.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        ipk.modeler.create_rectangle(ipk.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [10, 20], name="surf2")
         box_fc_ids = ipk.modeler.get_object_faces(box.name)
         assert ipk.create_conduting_plate(
             ipk.modeler.get_object_from_name(box.name).faces[0].id,
@@ -929,7 +932,7 @@ class TestClass:
         )
 
     def test051__assign_stationary_wall(self, ipk):
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
         box = ipk.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
 
         assert ipk.assign_stationary_wall_with_htc(
@@ -1301,8 +1304,8 @@ class TestClass:
             )
 
     def test062__assign_symmetry_wall(self, ipk):
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        ipk.modeler.create_rectangle(ipk.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [10, 20], name="surf2")
         region_fc_ids = ipk.modeler.get_object_faces("Region")
         assert ipk.assign_symmetry_wall(
             geometry="surf1",
@@ -1325,7 +1328,7 @@ class TestClass:
     def test063__update_3d_component(self, ipk, local_scratch):
         file_path = local_scratch.path
         file_name = "3DComp.a3dcomp"
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
         ipk.modeler.create_3dcomponent(os.path.join(file_path, file_name))
         ipk.modeler.insert_3d_component(input_file=os.path.join(file_path, file_name), name="test")
         component_filepath = ipk.modeler.user_defined_components["test"].get_component_filepath()
@@ -1490,7 +1493,7 @@ class TestClass:
             box_face.id, total_power=1, high_side_rad_material="Steel-oxidised-surface"
         )
         assert ipk.assign_conducting_plate_with_resistance(box_face.id, low_side_rad_material="Steel-oxidised-surface")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surfPlateTest")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surfPlateTest")
         assert ipk.assign_conducting_plate_with_impedance("surfPlateTest")
         x = [1, 2, 3]
         y = [3, 4, 5]
@@ -1520,7 +1523,7 @@ class TestClass:
 
         ds_time = ipk.create_dataset("ds_time3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, x_unit="s", y_unit="W")
         bc2 = ipk.create_dataset_transient_assignment(ds_time.name)
-        rect = ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [20, 10])
+        rect = ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [20, 10])
         assert bc2
         assert ipk.assign_conducting_plate_with_resistance(rect.name, total_power=bc2)
 

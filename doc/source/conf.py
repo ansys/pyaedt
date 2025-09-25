@@ -8,7 +8,6 @@ import pathlib
 from pprint import pformat
 import shutil
 import sys
-import warnings
 
 from ansys_sphinx_theme import ansys_favicon
 from ansys_sphinx_theme import ansys_logo_white
@@ -19,7 +18,6 @@ from ansys_sphinx_theme import watermark
 from docutils import nodes
 from docutils.nodes import Element
 from docutils.parsers.rst import Directive
-import numpy as np
 from sphinx import addnodes
 
 # <-----------------Override the sphinx pdf builder---------------->
@@ -31,11 +29,10 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
-from sphinx_gallery.sorting import FileNameSortKey
-
-from ansys.aedt.core import is_windows
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
+
+os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
 
 
 def visit_desc_content(self, node: Element) -> None:
@@ -95,7 +92,6 @@ def directory_size(directory_path):
 
 def remove_doctree(app, exception):
     """Remove the ``.doctree`` directory created during the documentation build."""
-
     # Keep the ``doctree`` directory to avoid creating it twice. This is typically helpful in CI/CD
     # where we want to build both HTML and PDF pages.
     if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
@@ -104,7 +100,7 @@ def remove_doctree(app, exception):
         size = directory_size(app.doctreedir)
         logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
         shutil.rmtree(app.doctreedir, ignore_errors=True)
-        logger.info(f"Doctree removed.")
+        logger.info("Doctree removed.")
 
 
 def setup(app):
@@ -269,16 +265,17 @@ html_context = {
     "github_repo": "pyaedt",
     "github_version": "main",
     "doc_path": "doc/source",
+    "pyansys_tags": [
+        "Electronics"
+    ]
 }
 
 # specify the location of your github repo
 html_theme_options = {
     "logo": "pyansys",
     "github_url": "https://github.com/ansys/pyaedt",
-    "navigation_with_keys": False,
     "show_prev_next": False,
     "show_breadcrumbs": True,
-    "collapse_navigation": True,
     "use_edit_page_button": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),

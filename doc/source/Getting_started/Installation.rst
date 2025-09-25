@@ -43,12 +43,27 @@ Starting from 2023R2, buttons are available in the Automation Tab as in the exam
   :width: 800
   :alt: PyAEDT toolkit buttons available in AEDT
 
+If you have installation problems, visit :ref:`Troubleshooting<panel_error>`.
+
+You can watch the following video to see how to install PyAEDT:
+
+.. raw:: html
+
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/c-zl8iMjP4M?si=zpdREiZhzODW-kW1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 
 Extension manager
 ~~~~~~~~~~~~~~~~~
 
-The user can install or uninstall automated workflows using the extension manager.
-There are three options:
+The **PyAEDT Extension Manager** provides a centralized interface for accessing, launching, and managing automation workflows directly within AEDT.
+
+From this window, you can:
+
+- Browse and launch **project-level toolkits** organized by design type.
+- Add **custom extensions** from your local environment.
+- Control whether extensions appear in the **AEDT Automation ribbon** for quick access.
+
+There are three types of extensions supported:
 
 - **Pre-installed extensions** already available in the PyAEDT library.
 
@@ -58,20 +73,39 @@ There are three options:
 
 See `Extension Manager <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_ for more information.
 
-.. image:: ../Resources/toolkit_manager_1.png
+.. image:: ../Resources/extension_manager_1.png
   :width: 800
   :alt: PyAEDT toolkit manager 1
 
-The user can select the AEDT application to install the specific workflow.
+Each extension tile shows its name, icon, and a **Launch** button.
+Extensions that are not currently linked to the AEDT ribbon show a muted icon.
+Pinned extensions are marked and appears in the corresponding AEDT design ribbon tab.
 
-.. image:: ../Resources/toolkit_manager_2.png
+
+Selecting the **Custom** tile in the Extension Manager opens a dialog where you can add your own PyAEDT-based extension.
+
+.. image:: ../Resources/extension_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
-Once the toolkit is installed, its icon only appears in the ribbon when you either create a new design or open an existing one that is compatible with the toolkit. Toolkit icons are visible only within the corresponding design environment.
+In the dialog, you can:
+
+- **Browse for a Python script** that implements the extension behavior.
+- **Optionally leave the script path empty**. If no script is provided, a default extension script is automatically generated using a predefined template.
+
+You must also specify an **Extension Name**, which appears in the AEDT Automation.
+
+Once configured, click **OK** to register the extension. It then appears alongside other extensions in the manager interface.
+
+A message bar at the bottom provides real-time feedback about actions, such as launching extensions or errors.
 
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
+
+.. raw:: html
+
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/Et-mLCzaGno?si=TBzxvkhqg6Ep0_yR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 
 Version manager
 ~~~~~~~~~~~~~~~
@@ -138,7 +172,7 @@ Finally, in the Python console, run the following commands:
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
 
-- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.1").
+- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.2").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT.
 - If you use your PersonalLib, the PyAEDT icons are installed at user level in the AEDT ribbon.
 - If you use the syslib, the PyAEDT icons are installed at application level in the AEDT ribbon.
@@ -156,7 +190,7 @@ Finally, in the Python console, run the following commands:
 Linux support
 ~~~~~~~~~~~~~
 
-PyAEDT works with CPython 3.8 through 3.13 on Linux in AEDT 2022 R2 and later.
+PyAEDT works with CPython 3.10 through 3.13 on Linux in AEDT 2022 R2 and later.
 However, you must set up the following environment variables:
 
 .. code::
@@ -194,13 +228,84 @@ Finally, in the Python console, run the following commands:
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
 
-- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.1").
+- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.2").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT, depending if you want to install the PyAEDT icons at user level or application level.
 - You can skip the installation of the version manager by specifying the extra argument skip_version_manager=True:
 
   .. code::
 
       add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib", skip_version_manager=True)
+
+
+Using uv to manage virtual environments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The project and the PyAEDT installer support using the `uv` tool to manage
+package installation and speed up installs.
+`uv` can be used inside a virtual environment to perform pip installs, to
+install from local wheelhouses, and to improve reliability for long-running
+package downloads.
+
+You can use `uv` to install PyAEDT into your own virtual environment. The
+steps below show how to create a virtual environment, activate it, install `uv`, and then
+install PyAEDT. Examples are provided for Windows (PowerShell) and Linux (bash).
+
+Create and activate a virtual environment (Windows - PowerShell)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code:: powershell
+
+    python -m venv C:\path\to\pyaedt_venv
+    C:\path\to\pyaedt_venv\Scripts\Activate.ps1
+    python -m pip install --upgrade pip
+    pip install uv
+    uv pip install pyaedt[all]
+
+Create and activate a virtual environment (Linux)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code:: bash
+
+    python3 -m venv ~/pyaedt_venv
+    source ~/pyaedt_venv/bin/activate
+    python -m pip install --upgrade pip
+    pip install uv
+    uv pip install pyaedt[all]
+
+.. note::
+  Virtual environments should be created with `venv` and not directly with `uv` to avoid potential issues.
+
+Installing from a wheelhouse using uv
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you need to install from an offline wheelhouse, install `uv` and then use
+it to perform an offline install from the wheelhouse directory. Example (Windows):
+
+.. code:: powershell
+
+    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse> uv
+    uv pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse> pyaedt[all]
+
+Example (Linux):
+
+.. code:: bash
+
+    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse> uv
+    uv pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse> pyaedt[all]
+
+After installation
+~~~~~~~~~~~~~~~~~~
+Once PyAEDT is installed in your virtual environment, you can run the
+`add_pyaedt_to_aedt` helper to register the toolkits in AEDT (if applicable):
+
+.. code:: python
+
+    from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+    add_pyaedt_to_aedt("your_aedt_version", r"path_to_aedtlib")
+
+Note
+~~~~
+- Using `uv` inside a virtual environment improves installation reliability and
+  supports installation from offline wheelhouses.
+- If you manage a centralized installation or custom virtual environments, you
+  may choose to skip installing the Version Manager when linking PyAEDT into
+  AEDT (see `add_pyaedt_to_aedt` options).
 
 
 Install PyAEDT in Conda virtual environment

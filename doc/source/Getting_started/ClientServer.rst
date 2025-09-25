@@ -3,7 +3,7 @@ Client-server
 You can launch PyAEDT on a remote machine if these conditions are met:
 
 - AEDT and PyAEDT is installed on client and server machines.
-- The same Python version is used on the client and server machines. (CPython 3.8+
+- The same Python version is used on the client and server machines. (CPython 3.10+
   is embedded in the AEDT installation.)
 
 gRPC connection in AEDT 2022 R2 and later
@@ -44,15 +44,15 @@ On a CPython Server run the ``pyaedt_service_manager`` service that listens on p
 for incoming requests of connections from clients. The port is configurable.
 Requirements:
 
-- Python 3.8+ Virtual Environment.
+- Python 3.10+ Virtual Environment.
 - pyaedt > 0.6.0
 
 On Linux, in addition to the preceding requirements, these environments are needed:
 - You can use the CPython version in the AEDT installation folder if you first
 add the Python library folder to the ``LD_LIBRARY_PATH`` environment variable.
-- You can use the Python 3.8 or later version that is installed.
-- You can export ``ANSYSEM_ROOT251=/path/to/AnsysEM/v251/AnsysEM``.
-- You can export ``LD_LIBRARY_PATH=$ANSYSEM_ROOT251/common/mono/Linux64/lib:$LD_LIBRARY_PATH``.
+- You can use the Python 3.10 or later version that is installed.
+- You can export ``ANSYSEM_ROOT252=/path/to/AnsysEM/v252/AnsysEM``.
+- You can export ``LD_LIBRARY_PATH=$ANSYSEM_ROOT252/common/mono/Linux64/lib:$LD_LIBRARY_PATH``.
 
 On the server, the ``pyaedt_service_manager`` service listen for incoming connections:
 

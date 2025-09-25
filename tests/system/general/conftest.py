@@ -74,12 +74,13 @@ settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
 settings.enable_pandas_output = True
+settings.use_local_example_data = False
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 config = {
     "desktopVersion": default_version,
@@ -94,6 +95,7 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "use_local_example_data": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -112,6 +114,10 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
 settings.objects_lazy_load = False
+settings.use_local_example_data = config["use_local_example_data"]
+if settings.use_local_example_data:
+    settings.local_example_folder = config["local_example_folder"]
+
 logger = pyaedt_logger
 
 
@@ -175,7 +181,7 @@ def desktop():
         d.odesktop.SetSchematicEnvironment(0)
     yield d
     pid = d.aedt_process_id
-    d.release_desktop(True, True)
+    d.close_desktop()
     time.sleep(1)
     try:
         os.kill(pid, 9)
