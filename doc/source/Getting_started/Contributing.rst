@@ -295,18 +295,18 @@ is an example of how to create a unit test for your extension:
 
 .. code-block:: python
 
-    from unittest.mock import patch
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+  from unittest.mock import patch
+  from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
 
-    @patch("ansys.aedt.core.extensions.misc.Desktop")
-    def test_my_extension(mock_desktop):
-        extension = MyExtension()
+  @patch("ansys.aedt.core.extensions.misc.Desktop")
+  def test_my_extension(mock_desktop):
+    extension = MyExtension()
 
-      assert "My extension title" == extension.root.title()
-      assert "light" == extension.root.theme
-      assert "No active project" == extension.active_project_name
+    assert "My extension title" == extension.root.title()
+    assert "light" == extension.root.theme
+    assert "No active project" == extension.active_project_name
 
-      extension.root.destroy()
+    extension.root.destroy()
 
 Step 3: Add system tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -318,28 +318,108 @@ behaves as expected when integrated into the AEDT environment.
 
 .. code-block:: python
 
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
-    from ansys.aedt.core import Hfss
+  from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+  from ansys.aedt.core import Hfss
 
-    def test_my_extension_system(add_app):
-      
-      # Create some data in AEDT to test the extension
-      aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
-      aedt_app["p1"] = "100mm"
-      aedt_app["p2"] = "71mm"
-      test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
-      p = aedt_app.modeler.create_polyline(
-          points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
-      )
+  def test_my_extension_system(add_app):
+    
+    # Create some data in AEDT to test the extension
+    aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
+    aedt_app["p1"] = "100mm"
+    aedt_app["p2"] = "71mm"
+    test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+    p = aedt_app.modeler.create_polyline(
+      points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
+    )
 
-      # Create the extension and set its data by clicking on the "Generate" button
-      extension = MyExtension()
-      extension.root.nametowidget("generate").invoke()
+    # Create the extension and set its data by clicking on the "Generate" button
+    extension = MyExtension()
+    extension.root.nametowidget("generate").invoke()
 
-      # Check that the extension logic executes correctly
-      assert 2 == len(aedt_app.variable_manager.variables)
-      assert main(extension.data)
-      assert 7 == len(aedt_app.variable_manager.variables)
+    # Check that the extension logic executes correctly
+    assert 2 == len(aedt_app.variable_manager.variables)
+    assert main(extension.data)
+    assert 7 == len(aedt_app.variable_manager.variables)
+
+Running tests in VSCode and PyCharm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section explains how to run pytest unit and system tests in VSCode and PyCharm, and how to estimate coverage
+using the "Run with coverage" feature or pytest-cov.
+
+Prerequisites
+~~~~~~~~~~~~~
+- Install pytest and pytest-cov in your environment if you haven't already:
+
+.. code:: bash
+
+  pip install pytest pytest-cov
+
+- Ensure your IDE is configured to use the Python interpreter where the packages are installed.
+
+VSCode
+~~~~~~
+
+1. Use the Test Explorer (Python extension) to discover and run tests:
+  - Open the Testing side bar (beaker icon).
+  - Run or debug individual tests, test files, or test suites from the UI.
+
+.. image:: ../Resources/vscode_run_tests.png
+  :alt: VSCode Test Explorer (placeholder)
+
+2. Run tests and view coverage using the GUI
+  - VSCode:
+    - Click the "Run Test with Coverage" button in the Test Explorer toolbar to run one or more tests with coverage. 
+    - After the tests complete, a coverage summary appears in the Test Explorer (coverage % by file), and covered/uncovered lines are highlighted in the editor.
+
+.. image:: ../Resources/coverage_vscode.png
+  :alt: VSCode Test Explorer (placeholder)
+
+Brief note
+~~~~~~~~~~
+You can also run tests with coverage from a terminal in VSCode using pytest-cov:
+.. code:: bash
+
+  pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html
+
+This is an example command to run unit tests with coverage. Adjust the path to your test files as needed.
+
+PyCharm
+~~~~~~~
+
+1. Configure pytest as the test runner:
+   - Settings -> Tools -> Python Integrated Tools -> Default test runner -> pytest
+
+2. Run tests from the IDE:
+   - Right-click a test file, folder, or test function and choose Run or Debug.
+   - Use the dedicated test runner UI to run and inspect results.
+
+.. image:: ../Resources/pycharm_run_tests.png
+   :alt: PyCharm test runner (placeholder)
+
+3. Run with coverage in PyCharm:
+   - Right-click a test file or configuration and choose "Run 'pytest in ...' with Coverage".
+   - PyCharm will show a coverage summary and highlight covered and uncovered lines in the editor.
+
+4. Run with pytest-cov from a terminal in PyCharm (alternative):
+
+.. code:: bash
+
+  pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html
+
+Interpreting coverage results
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Coverage percentage shows the portion of executed lines compared to total executable lines in the source files.
+- Higher coverage is generally better, but 100% coverage does not guarantee bug-free code. We require at least 85% coverage for all the new code added to the repository.
+- Use ``--cov-report=term-missing`` to see which lines are not covered directly in the terminal.
+- Use ``--cov-report=html`` and open ``htmlcov/index.html`` in a browser for an easy-to-navigate, per-file coverage report.
+- Run unit and system tests separately to estimate their individual contributions:
+
+Best practices
+~~~~~~~~~~~~~~
+- Aim to keep unit tests fast and isolated; use mocks for external systems like AEDT.
+- Use the IDE "Run with coverage" feature for quick, visual feedback.
 
 Step 4: Add the extension to the catalog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
