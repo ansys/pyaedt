@@ -25,7 +25,8 @@
 import os
 import sys
 import tempfile
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import patch
 import zipfile
 
 from ansys.aedt.core.extensions.installer import version_manager as vm
@@ -251,7 +252,9 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
     mock_run.side_effect = fake_run
     # Call update
     manager.update_pyaedt()
-    assert any("pyaedt==1.0.0" in str(x) for x in captured["cmd"]) or any("-U" in str(x) or "install" in str(x) for x in captured["cmd"]) 
+    assert any("pyaedt==1.0.0" in str(x) for x in captured["cmd"]) or any(
+        "-U" in str(x) or "install" in str(x) for x in captured["cmd"]
+    )
 
     # Simulate installed version <= latest to force upgrade
     captured.clear()
@@ -290,7 +293,9 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
 
     mock_run.side_effect = fake_run
     manager.update_pyedb()
-    assert any("pyedb==1.0.0" in str(x) for x in recorded.get("cmd", [])) or any("-U" in str(x) for x in recorded.get("cmd", []))
+    assert any("pyedb==1.0.0" in str(x) for x in recorded.get("cmd", [])) or any(
+        "-U" in str(x) for x in recorded.get("cmd", [])
+    )
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.VersionManager.is_git_available")
@@ -320,6 +325,7 @@ def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available):
     mock_run.side_effect = fake_run
     manager.get_pyaedt_branch()
     assert any("github.com/ansys/pyaedt.git@feature/foo" in str(x) for x in called.get("cmd", []))
+
 
 def test_reset_pyaedt_buttons_in_aedt():
     manager = _make_vm()
