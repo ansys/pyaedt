@@ -63,22 +63,14 @@ def test_get_latest_version_success_and_failure(mock_get):
 
 
 def _make_vm():
-    """Create a VersionManager with UI fully stubbed so no real windows appear."""
-    # Start persistent patches so VersionManager constructor doesn't touch FS/UI
-    # Patch PIL image opening and photo creation
-    patch.object(vm.PIL.Image, "open", new=lambda *a, **k: MagicMock()).start()
-    patch.object(vm.PIL.ImageTk, "PhotoImage", new=lambda *a, **k: MagicMock()).start()
+    """Create a VersionManager with UI fully stubbed so no real windows appear.
 
-    # Patch ttk.Style and other widgets to simple mocks
-    patch.object(vm.ttk, "Style", new=lambda *a, **k: MagicMock()).start()
-    patch.object(vm.ttk, "PanedWindow", new=lambda *a, **k: MagicMock()).start()
-    patch.object(vm.ttk, "Notebook", new=lambda *a, **k: MagicMock()).start()
-    patch.object(vm.ttk, "Frame", new=lambda *a, **k: MagicMock()).start()
-    patch.object(vm.ttk, "Button", new=lambda *a, **k: MagicMock()).start()
-    patch.object(vm.ttk, "Label", new=lambda *a, **k: MagicMock()).start()
-    patch.object(vm.ttk, "Entry", new=lambda *a, **k: MagicMock()).start()
+    Replace only the modules referenced inside version_manager (tkinter, ttk, PIL, messagebox)
+    so other tests using real Tk aren’t affected.
+    """
+    from types import SimpleNamespace
 
-    # Provide a lightweight StringVar implementation
+    # --- Fake tkinter with required constants ---
     class _SV:
         def __init__(self, *a, **k):
             self._v = ""
@@ -89,13 +81,70 @@ def _make_vm():
         def get(self):
             return self._v
 
-    patch.object(vm.tkinter, "StringVar", new=_SV).start()
-    # Ensure any call to tkinter.Tk in the code under test returns a mock
-    patch.object(vm.tkinter, "Tk", new=lambda *a, **k: MagicMock()).start()
+    fake_tkinter = SimpleNamespace(
+        Tk=lambda *a, **k: MagicMock(),
+        StringVar=_SV,
+        # orientations
+        HORIZONTAL=1,
+        VERTICAL=2,
+        # sides/fill/anchors (some are strings in Tk, but any value works for the mocks)
+        LEFT="left",
+        RIGHT="right",
+        TOP="top",
+        BOTTOM="bottom",
+        X="x",
+        Y="y",
+        BOTH="both",
+        N="n",
+        S="s",
+        E="e",
+        W="w",
+        NE="ne",
+        NW="nw",
+        SE="se",
+        SW="sw",
+        # reliefs
+        FLAT="flat",
+        RAISED="raised",
+        SUNKEN="sunken",
+        GROOVE="groove",
+        RIDGE="ridge",
+        # booleans
+        TRUE=True,
+        FALSE=False,
+    )
 
-    # Globally no-op info/warning dialogs to avoid hangs when whole suite runs
-    patch.object(vm.messagebox, "showinfo", new=lambda *a, **k: None).start()
-    patch.object(vm.messagebox, "showwarning", new=lambda *a, **k: None).start()
+    # Fake ttk (only what VersionManager touches)
+    fake_ttk = SimpleNamespace(
+        Style=lambda *a, **k: MagicMock(),
+        PanedWindow=lambda *a, **k: MagicMock(),
+        Notebook=lambda *a, **k: MagicMock(),
+        Frame=lambda *a, **k: MagicMock(),
+        Button=lambda *a, **k: MagicMock(),
+        Label=lambda *a, **k: MagicMock(),
+        Entry=lambda *a, **k: MagicMock(),
+    )
+
+    # Fake PIL as imported by version_manager
+    fake_PIL = SimpleNamespace(
+        Image=SimpleNamespace(open=lambda *a, **k: MagicMock()),
+        ImageTk=SimpleNamespace(PhotoImage=lambda *a, **k: MagicMock()),
+    )
+
+    # --- Fake messagebox (don’t block) ---
+    fake_messagebox = SimpleNamespace(
+        showinfo=lambda *a, **k: None,
+        showwarning=lambda *a, **k: None,
+        # keep askyesno/showerror behavior overridable per-test
+        showerror=vm.messagebox.showerror,
+        askyesno=vm.messagebox.askyesno,
+    )
+
+    # Apply scoped patches (module-level, only inside version_manager)
+    patch("ansys.aedt.core.extensions.installer.version_manager.tkinter", new=fake_tkinter).start()
+    patch("ansys.aedt.core.extensions.installer.version_manager.ttk", new=fake_ttk).start()
+    patch("ansys.aedt.core.extensions.installer.version_manager.PIL", new=fake_PIL).start()
+    patch("ansys.aedt.core.extensions.installer.version_manager.messagebox", new=fake_messagebox).start()
 
     # Minimal UI object expected by VersionManager
     ui = MagicMock()
@@ -104,12 +153,13 @@ def _make_vm():
     ui.geometry = MagicMock()
     ui.configure = MagicMock()
 
-    # Minimal desktop mock passed to VersionManager
+    # Minimal desktop mock
     desktop = MagicMock()
     desktop.personallib = PERSONAL_LIB
+
     desktop.release_desktop = MagicMock()
 
-    # Create the manager
+    # Instantiate
     manager = vm.VersionManager(ui, desktop, aedt_version="2025.2", personal_lib=PERSONAL_LIB)
     return manager
 
@@ -163,7 +213,6 @@ def test_clicked_refresh_no_restart_and_with_restart(mock_showinfo, mock_get_lat
     # Restart path: patch get_installed_version to be called inside
     manager.get_installed_version = lambda pkg: "3.3.3"
     mock_get_latest.return_value = "8.8.8"
-    # Patch messagebox.showinfo to capture call (provided by decorator)
     manager.clicked_refresh(need_restart=True)
     assert "PyAEDT: 3.3.3 (Latest 8.8.8)" in manager.pyaedt_info.get()
 
@@ -243,7 +292,6 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
     # User accepts but latest unknown -> showerror
     mock_askyesno.return_value = True
     mock_get_latest.return_value = vm.UNKNOWN_VERSION
-    # Ensure run won't accidentally raise if code path still tries it
     mock_run.side_effect = lambda *a, **k: None
     manager.update_pyaedt()
     assert mock_showerror.called
@@ -260,7 +308,6 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
         captured["cmd"] = cmd
 
     mock_run.side_effect = fake_run
-    # Call update
     manager.update_pyaedt()
     assert any("pyaedt==1.0.0" in str(x) for x in captured["cmd"]) or any(
         "-U" in str(x) or "install" in str(x) for x in captured["cmd"]
@@ -293,7 +340,6 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
     # Accept and update path
     mock_askyesno.return_value = True
     mock_get_latest.return_value = "1.0.0"
-    # Patch the internal call used by the property so we avoid assigning to a read-only property
     manager.get_installed_version = lambda pkg: "2.0.0"
 
     recorded = {}
@@ -345,7 +391,7 @@ def test_reset_pyaedt_buttons_in_aedt():
     manager = _make_vm()
 
     # If user declines, nothing happens
-    with patch.object(vm.messagebox, "askyesno", return_value=False):
+    with patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno", return_value=False):
         manager.reset_pyaedt_buttons_in_aedt()
 
     # If user accepts, ensure add_pyaedt_to_aedt called and showinfo called
@@ -357,10 +403,9 @@ def test_reset_pyaedt_buttons_in_aedt():
     def fake_info(title, msg):
         called["info"] = (title, msg)
 
-    # Patch the import inside the function to our fake and simulate user acceptance
     with patch.dict(sys.modules, {"ansys.aedt.core.extensions.installer.pyaedt_installer": fake_installer}):
-        with patch.object(vm.messagebox, "askyesno", return_value=True):
-            with patch.object(vm.messagebox, "showinfo", new=fake_info):
+        with patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno", return_value=True):
+            with patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showinfo", new=fake_info):
                 manager.reset_pyaedt_buttons_in_aedt()
 
     assert "info" in called
@@ -413,7 +458,6 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_showerror.reset_mock()
     manager.update_from_wheelhouse()
     assert mock_showerror.called
-    # message is second arg to showerror(title, msg)
     assert "Wrong Python version" in mock_showerror.call_args[0][1]
 
     # 3) Old pyaedt (<=0.15.3) and wrong package type
@@ -448,7 +492,6 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_showerror.reset_mock()
 
     def ok_run(cmd, **kwargs):
-        # mimic success
         class _CP:
             returncode = 0
 
@@ -456,5 +499,4 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
 
     mock_run.side_effect = ok_run
     manager.update_from_wheelhouse()
-    # Ensure install was attempted; argument inspection is fragile across platforms
     assert mock_run.called
