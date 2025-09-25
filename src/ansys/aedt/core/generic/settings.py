@@ -883,7 +883,7 @@ class Settings(object):
 
     # yaml setting file IO methods
 
-    def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
+    def load_yaml_configuration(self, path: Union[Path, str], raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
         import yaml
 
