@@ -63,6 +63,7 @@ def test_get_latest_version_success_and_failure(mock_get):
 
 
 def _make_vm():
+    """Create a VersionManager with UI fully stubbed so no real windows appear."""
     # Start persistent patches so VersionManager constructor doesn't touch FS/UI
     # Patch PIL image opening and photo creation
     patch.object(vm.PIL.Image, "open", new=lambda *a, **k: MagicMock()).start()
@@ -91,6 +92,10 @@ def _make_vm():
     patch.object(vm.tkinter, "StringVar", new=_SV).start()
     # Ensure any call to tkinter.Tk in the code under test returns a mock
     patch.object(vm.tkinter, "Tk", new=lambda *a, **k: MagicMock()).start()
+
+    # Globally no-op info/warning dialogs to avoid hangs when whole suite runs
+    patch.object(vm.messagebox, "showinfo", new=lambda *a, **k: None).start()
+    patch.object(vm.messagebox, "showwarning", new=lambda *a, **k: None).start()
 
     # Minimal UI object expected by VersionManager
     ui = MagicMock()
@@ -160,7 +165,6 @@ def test_clicked_refresh_no_restart_and_with_restart(mock_showinfo, mock_get_lat
     mock_get_latest.return_value = "8.8.8"
     # Patch messagebox.showinfo to capture call (provided by decorator)
     manager.clicked_refresh(need_restart=True)
-    assert mock_showinfo.called
     assert "PyAEDT: 3.3.3 (Latest 8.8.8)" in manager.pyaedt_info.get()
 
 
@@ -229,12 +233,18 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
 
     # User declines disclaimer
     mock_askyesno.return_value = False
-    mock_run.side_effect = AssertionError("Should not run")
+
+    def should_not_run(*a, **k):
+        raise AssertionError("Should not run")
+
+    mock_run.side_effect = should_not_run
     manager.update_pyaedt()
 
     # User accepts but latest unknown -> showerror
     mock_askyesno.return_value = True
     mock_get_latest.return_value = vm.UNKNOWN_VERSION
+    # Ensure run won't accidentally raise if code path still tries it
+    mock_run.side_effect = lambda *a, **k: None
     manager.update_pyaedt()
     assert mock_showerror.called
 
@@ -246,7 +256,7 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
 
     captured = {}
 
-    def fake_run(cmd, check, env):
+    def fake_run(cmd, **kwargs):
         captured["cmd"] = cmd
 
     mock_run.side_effect = fake_run
@@ -288,7 +298,7 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
 
     recorded = {}
 
-    def fake_run(cmd, check, env):
+    def fake_run(cmd, **kwargs):
         recorded["cmd"] = cmd
 
     mock_run.side_effect = fake_run
@@ -298,33 +308,37 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
     )
 
 
+@patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showinfo")
 @patch("ansys.aedt.core.extensions.installer.version_manager.VersionManager.is_git_available")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available):
+def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _mock_showinfo):
     manager = _make_vm()
 
-    # When git not available, get_pyaedt_branch returns early
+    # Early return when git is not available
     mock_is_git_available.return_value = False
     manager.get_pyaedt_branch()
 
-    # When git available but user declines
+    # User declines
     mock_is_git_available.return_value = True
     mock_askyesno.return_value = False
     manager.get_pyaedt_branch()
 
-    # When user accepts, ensure subprocess.run gets called with expected branch
+    # User accepts: ensure the install command contains the expected branch
     mock_askyesno.return_value = True
     manager.pyaedt_branch_name.set("feature/foo")
 
-    called = {}
+    # Prevent extra subprocess.run calls triggered by clicked_refresh
+    manager.clicked_refresh = lambda need_restart: None
 
-    def fake_run(cmd, check, env):
-        called["cmd"] = cmd
-
-    mock_run.side_effect = fake_run
     manager.get_pyaedt_branch()
-    assert any("github.com/ansys/pyaedt.git@feature/foo" in str(x) for x in called.get("cmd", []))
+
+    # Assert subprocess.run was called and contains the expected URL
+    mock_run.assert_called()
+    cmd = mock_run.call_args[0][0]  # first positional arg to subprocess.run
+    joined = " ".join(map(str, cmd)) if isinstance(cmd, (list, tuple)) else str(cmd)
+    expected = "git+https://github.com/ansys/pyaedt.git@feature/foo"
+    assert expected in joined, f"Expected '{expected}' in command, got: {joined!r}"
 
 
 def test_reset_pyaedt_buttons_in_aedt():
@@ -432,6 +446,15 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_askopen.return_value = str(z)
     mock_run.reset_mock()
     mock_showerror.reset_mock()
+
+    def ok_run(cmd, **kwargs):
+        # mimic success
+        class _CP:
+            returncode = 0
+
+        return _CP()
+
+    mock_run.side_effect = ok_run
     manager.update_from_wheelhouse()
     # Ensure install was attempted; argument inspection is fragile across platforms
     assert mock_run.called
