@@ -22,17 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import itertools
 import math
 import os
+import time
 import warnings
 
 import numpy as np
 
-from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.constants import db10
-from ansys.aedt.core.generic.constants import db20
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -51,18 +48,20 @@ class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     def __init__(self, aedtdata):
+        start = time.time()
         self.units_sweeps = {}
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
         self._expressions = None
         self._intrinsics = None
-        self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
         self.active_expression = self.expressions[0]
         self._sweeps_names = []
         self.update_sweeps()
         self.variations = self._get_variations()
+        self._active_variation = self.variations[0]
+        self._compute_intrinsics()
         self.active_intrinsic = {}
         for k, v in self.intrinsics.items():
             self.active_intrinsic[k] = v[0]
@@ -70,9 +69,25 @@ class SolutionData(object):
             self._primary_sweep = list(self.intrinsics.keys())[0]
         else:
             self._primary_sweep = self._sweeps_names[0]
-        self.active_variation = self.variations[0]
+        end = time.time() - start
+        print(f"Time to initialize solution data:{end}")
         self.init_solutions_data()
         self._ifft = None
+        end = time.time() - start
+        print(f"Time to initialize solution data:{end}")
+
+    @property
+    def active_variation(self):
+        return self._active_variation
+
+    @active_variation.setter
+    def active_variation(self, value):
+        if value in self.variations:
+            self._active_variation = value
+            self.nominal_variation = self.variations.index(value)
+            self._expressions = None
+        else:
+            settings.logger.warning("Failed to set active variation")
 
     @property
     def enable_pandas_output(self):
@@ -91,7 +106,6 @@ class SolutionData(object):
     @enable_pandas_output.setter
     def enable_pandas_output(self, val):
         if val != self._enable_pandas_output and pd:
-            self._intrinsics = {}
             self._enable_pandas_output = val
             self.init_solutions_data()
 
@@ -113,7 +127,6 @@ class SolutionData(object):
             self.active_variation = self.variations[var_id]
             self.nominal_variation = var_id
             self._expressions = None
-            self._intrinsics = None
             return True
         return False
 
@@ -123,7 +136,7 @@ class SolutionData(object):
         for data in self._original_data:
             variations = {}
             for v in data.GetDesignVariableNames():
-                variations[v] = Quantity(data.GetDesignVariableValue(v), data.GetDesignVariableUnits(v))
+                variations[v] = data.GetDesignVariableValue(v)
             variations_lists.append(variations)
         return variations_lists
 
@@ -150,22 +163,40 @@ class SolutionData(object):
                     vars_vals.append(el[variation])
             return vars_vals
 
+    def _compute_intrinsics(self):
+        if not self._intrinsics:
+            self._intrinsics = []
+            first = True
+            for variation in self._original_data:
+                new_intrinsic = {}
+                intr = [i for i in self._sweeps_names if i not in variation.GetDesignVariableNames()]
+                for el in intr:
+                    values = np.unique(np.array(variation.GetSweepValues(el, False), dtype=float))
+                    new_intrinsic[el] = values
+                    if first:
+                        try:
+                            self.units_sweeps[el] = variation.GetSweepUnits(el)
+                        except Exception:
+                            self.units_sweeps[el] = None
+                first = False
+                self._intrinsics.append(new_intrinsic)
+        return True
+
     @property
     def intrinsics(self):
         """Get intrinsics dictionary on active variation."""
         if not self._intrinsics:
-            self._intrinsics = {}
-            intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
-            for el in intrinsics:
-                values = list(self.nominal_variation.GetSweepValues(el, False))
-                try:
-                    self.units_sweeps[el] = self.nominal_variation.GetSweepUnits(el)
-                except Exception:
-                    self.units_sweeps[el] = None
-                values = list(dict.fromkeys(values))
-                self._intrinsics[el] = [Quantity(i, self.units_sweeps[el]) for i in values]
+            self._compute_intrinsics()
+        return self._intrinsics[self.variations.index(self.active_variation)]
 
-        return self._intrinsics
+    def intrinsics_by_variation(self, variation):
+        """Get intrinsics dictionary on active variation."""
+        if not self._intrinsics:
+            self._compute_intrinsics()
+        if isinstance(variation, int):
+            return self._intrinsics[variation]
+        else:
+            return self._intrinsics[self.variations.index(variation)]
 
     @property
     def nominal_variation(self):
@@ -257,22 +288,28 @@ class SolutionData(object):
         for expr in self.expressions:
             _solutions_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
-            if self.enable_pandas_output:
-                _solutions_mag[expr] = np.sqrt(
-                    self._solutions_real[expr] * self._solutions_real[expr]
-                    + self._solutions_imag[expr] * self._solutions_imag[expr]
-                )
-            else:
-                for i in self._solutions_real[expr]:
-                    _solutions_mag[expr][i] = abs(complex(self._solutions_real[expr][i], self._solutions_imag[expr][i]))
-        if self.enable_pandas_output:
-            return pd.DataFrame.from_dict(_solutions_mag)
-        else:
-            return _solutions_mag
+            _solutions_mag[expr] = np.sqrt(
+                self._solutions_real[expr] * self._solutions_real[expr]
+                + self._solutions_imag[expr] * self._solutions_imag[expr]
+            )
+        return _solutions_mag
 
     @pyaedt_function_handler()
     def __get_index(self, input_data):
         return tuple([float(i) for i in input_data])
+
+    @pyaedt_function_handler()
+    def _full_keys(self, comb, solution, variation):
+        values = [np.array(val, dtype=float) for val in self.intrinsics_by_variation(variation).values()]
+        grids = np.meshgrid(*values, indexing="ij")
+        param_combinations = np.stack(grids, axis=-1).reshape(-1, len(values))  # shape: (N, num_intrinsics)
+        # Convert comb dict to NumPy array
+        comb_values = np.array([float(comb[k]) for k in comb], dtype=float)
+
+        # Broadcast comb_values to match param_combinations
+        full_keys = np.hstack([np.tile(comb_values, (param_combinations.shape[0], 1)), param_combinations])
+        combined_array = np.hstack([full_keys, solution.reshape(-1, 1)])
+        return combined_array
 
     @pyaedt_function_handler()
     def _init_solution_data_real(self):
@@ -280,26 +317,17 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_data = {}
-            for data, comb in zip(self._original_data, self.variations):
-                solution = list(data.GetRealDataValues(expression, False))
-                values = []
-                # for el in list(self.intrinsics.keys()):
-                #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
-                for _, val in self.intrinsics.items():
-                    values.append([float(i) for i in val])
-                i = 0
-                c = [float(comb[v]) for v in list(comb.keys())]
-                for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = solution[i]
-                    i += 1
-            sols_data[expression] = solution_data
-        if self.enable_pandas_output:
-            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
-            # return pd.DataFrame(series_list).T
-            return pd.DataFrame.from_dict(sols_data)
-        else:
-            return sols_data
+            solution_numpy = None
+            for idx, (data, comb) in enumerate(zip(self._original_data, self.variations)):
+                solution = np.array(data.GetRealDataValues(expression, False), dtype=float)
+                solution_numpy_temp = self._full_keys(comb, solution, idx)
+                solution_numpy = (
+                    np.vstack([solution_numpy, solution_numpy_temp])
+                    if solution_numpy is not None
+                    else solution_numpy_temp
+                )
+            sols_data[expression] = solution_numpy
+        return sols_data
 
     @pyaedt_function_handler()
     def _init_solution_data_imag(self):
@@ -307,45 +335,29 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_data = {}
-            for data, comb in zip(self._original_data, self.variations):
+            solution_numpy = None
+            for idx, (data, comb) in enumerate(zip(self._original_data, self.variations)):
                 if data.IsDataComplex(expression):
-                    solution = list(data.GetImagDataValues(expression, False))
+                    solution = np.array(data.GetImagDataValues(expression, False), dtype=float)
                 else:
                     real_data_length = len(list(data.GetRealDataValues(expression, False)))
-                    solution = [0] * real_data_length
-                values = []
-                for _, val in self.intrinsics.items():
-                    values.append([float(i) for i in val])
-                i = 0
-                c = [float(comb[v]) for v in list(comb.keys())]
-                for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = solution[i]
-                    i += 1
-            sols_data[expression] = solution_data
-        if self.enable_pandas_output:
-            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
-            # return pd.DataFrame(series_list).T
-            return pd.DataFrame.from_dict(sols_data)
-        else:
-            return sols_data
+                    solution = np.array([0] * real_data_length, dtype=float)
+                solution_numpy_temp = self._full_keys(comb, solution, idx)
+                solution_numpy = (
+                    np.vstack([solution_numpy, solution_numpy_temp])
+                    if solution_numpy is not None
+                    else solution_numpy_temp
+                )
+            sols_data[expression] = solution_numpy
+        return sols_data
 
     @pyaedt_function_handler()
     def _init_solution_data_phase(self):
         data_phase = {}
         for expr in self.expressions:
             data_phase[expr] = {}
-            if self.enable_pandas_output:
-                data_phase[expr] = np.arctan2(self._solutions_imag[expr], self._solutions_real[expr])
-            else:
-                for i in self._solutions_real[expr]:
-                    data_phase[expr][i] = math.atan2(self._solutions_imag[expr][i], self._solutions_real[expr][i])
-        if self.enable_pandas_output:
-            # series_list = [pd.Series(value, name=key) for key, value in data_phase.items()]
-            # return pd.DataFrame(series_list).T
-            return pd.DataFrame.from_dict(data_phase)
-        else:
-            return data_phase
+            data_phase[expr] = np.arctan2(self._solutions_imag[expr], self._solutions_real[expr])
+        return data_phase
 
     @property
     def full_matrix_real_imag(self):
@@ -444,21 +456,17 @@ class SolutionData(object):
             return False
         temp = self._variation_tuple()
         solution_data = self._solutions_mag[expression]
-        sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        sw = self.variation_values(self.primary_sweep)
-        for el in sw:
-            temp[position] = el
-            try:
-                sol.append(solution_data[self.__get_index(temp)])
-            except KeyError:
-                sol.append(None)
+        sol = self.lookup_column_value(
+            solution_data,
+            [temp.index(i) for i in temp if temp.index(i) != position],
+            [i for i in temp if temp.index(i) != position],
+        )
+
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
-        if self.enable_pandas_output:
-            return pd.Series(sol)
         return sol
 
     @staticmethod
@@ -507,9 +515,7 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
-        if self.enable_pandas_output:
-            return 10 * np.log10(self.data_magnitude(expression, convert_to_SI))
-        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+        return 10 * np.log10(self.data_magnitude(expression, convert_to_SI))
 
     @pyaedt_function_handler()
     def data_db20(self, expression=None, convert_to_SI=False):
@@ -531,9 +537,7 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
-        if self.enable_pandas_output:
-            return 20 * np.log10(self.data_magnitude(expression, convert_to_SI))
-        return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
+        return 20 * np.log10(self.data_magnitude(expression, convert_to_SI))
 
     @pyaedt_function_handler()
     def data_phase(self, expression=None, radians=True):
@@ -558,9 +562,7 @@ class SolutionData(object):
         coefficient = 1
         if not radians:
             coefficient = 180 / math.pi
-        if self.enable_pandas_output:
-            return coefficient * np.arctan2(self.data_imag(expression), self.data_real(expression))
-        return [coefficient * math.atan2(k, i) for i, k in zip(self.data_real(expression), self.data_imag(expression))]
+        return coefficient * np.arctan2(self.data_imag(expression), self.data_real(expression))
 
     @property
     def primary_sweep_values(self):
@@ -571,8 +573,6 @@ class SolutionData(object):
         list
             List of the primary sweep valid points for the expression.
         """
-        if self.enable_pandas_output:
-            return pd.Series(self.variation_values(self.primary_sweep), dtype=object)
         return self.variation_values(self.primary_sweep)
 
     @property
@@ -588,24 +588,44 @@ class SolutionData(object):
         expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_data = list(self._solutions_real[expression].keys())
-        sol = []
+        solution_data = self._solutions_real[expression]
         position = list(self._sweeps_names).index(self.primary_sweep)
-
-        for el in self.primary_sweep_values:
-            temp[position] = el
-            if self.__get_index(temp) in solution_data:
-                sol_dict = {}
-                i = 0
-                for sn in self._sweeps_names:
-                    sol_dict[sn] = temp[i]
-                    i += 1
-                sol.append(sol_dict)
-            else:
-                sol.append(None)
-        if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
+        sol = self.lookup_column_value(
+            solution_data,
+            [temp.index(i) for i in temp if temp.index(i) != position],
+            [i for i in temp if temp.index(i) != position],
+        )
         return sol
+
+    def lookup_column_value(self, array, match_columns, match_values, default=None):
+        """
+        Filters rows in a NumPy array based on column-value matches,
+        and returns the last column value of all matching rows.
+
+        Parameters
+        ----------
+        array : np.ndarray
+            The input array (2D).
+        match_columns : list of int
+            Column indices to match.
+        match_values : list
+            Values to match at each column.
+        default : any
+            Value to return if no match is found.
+
+        Returns
+        -------
+        np.ndarray or default
+            Array of last column values for matching rows, or default if none found.
+        """
+        mask = np.ones(len(array), dtype=bool)
+        for col, val in zip(match_columns, match_values):
+            mask &= array[:, col] == val
+
+        matched_rows = array[mask]
+        if matched_rows.size == 0:
+            return default
+        return matched_rows[:, -1]  # last column
 
     @pyaedt_function_handler()
     def data_real(self, expression=None, convert_to_SI=False):
@@ -630,22 +650,19 @@ class SolutionData(object):
         temp = self._variation_tuple()
 
         solution_data = self._solutions_real[expression]
-        sol = []
+
         position = list(self._sweeps_names).index(self.primary_sweep)
-        sw = self.variation_values(self.primary_sweep)
-        for el in sw:
-            temp[position] = el
-            try:
-                sol.append(solution_data[self.__get_index(temp)])
-            except KeyError:
-                sol.append(None)
+
+        sol = self.lookup_column_value(
+            solution_data,
+            [temp.index(i) for i in temp if temp.index(i) != position],
+            [i for i in temp if temp.index(i) != position],
+        )
 
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
-        if self.enable_pandas_output:
-            return pd.Series(sol)
         return sol
 
     @pyaedt_function_handler()
@@ -671,21 +688,17 @@ class SolutionData(object):
         temp = self._variation_tuple()
 
         solution_data = self._solutions_imag[expression]
-        sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        sw = self.variation_values(self.primary_sweep)
-        for el in sw:
-            temp[position] = el
-            try:
-                sol.append(solution_data[self.__get_index(temp)])
-            except KeyError:
-                sol.append(None)
+        sol = self.lookup_column_value(
+            solution_data,
+            [temp.index(i) for i in temp if temp.index(i) != position],
+            [i for i in temp if temp.index(i) != position],
+        )
+
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
-        if self.enable_pandas_output:
-            return pd.Series(sol)
         return sol
 
     @pyaedt_function_handler()
@@ -705,12 +718,7 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
-        if self.enable_pandas_output:
-            return True if self._solutions_imag[expression].abs().sum() > 0.0 else False
-        for v in list(self._solutions_imag[expression].values()):
-            if float(v) != 0.0:
-                return False
-        return True
+        return True if self._solutions_imag[expression].abs().sum() > 0.0 else False
 
     @pyaedt_function_handler()
     def export_data_to_csv(self, output, delimiter=";"):
@@ -995,14 +1003,9 @@ class SolutionData(object):
 
         min_r = 1e12
         max_r = -1e12
-        if self.enable_pandas_output:
-            for el in r:
-                min_r = min(min_r, el.min())
-                max_r = max(max_r, el.max())
-        else:
-            for el in r:
-                min_r = min(min_r, min(el))
-                max_r = max(max_r, max(el))
+        for el in r:
+            min_r = min(min_r, el.min())
+            max_r = max(max_r, el.max())
 
         if min_r < 0:
             r = [i + np.abs(min_r) for i in r]
@@ -1057,27 +1060,12 @@ class SolutionData(object):
         v = self.variation_values(v_axis)
 
         freq = self.variation_values("Freq")
-        if self.enable_pandas_output:
-            e_real_x = np.reshape(self._solutions_real[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
-            e_imag_x = np.reshape(self._solutions_imag[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
-            e_real_y = np.reshape(self._solutions_real[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
-            e_imag_y = np.reshape(self._solutions_imag[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
-            e_real_z = np.reshape(self._solutions_real[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
-            e_imag_z = np.reshape(self._solutions_imag[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
-        else:
-            vals_e_real_x = [j for j in self._solutions_real[curve_header + "X"].values()]
-            vals_e_imag_x = [j for j in self._solutions_imag[curve_header + "X"].values()]
-            vals_e_real_y = [j for j in self._solutions_real[curve_header + "Y"].values()]
-            vals_e_imag_y = [j for j in self._solutions_imag[curve_header + "Y"].values()]
-            vals_e_real_z = [j for j in self._solutions_real[curve_header + "Z"].values()]
-            vals_e_imag_z = [j for j in self._solutions_imag[curve_header + "Z"].values()]
-
-            e_real_x = np.reshape(vals_e_real_x, (len(freq), len(v), len(u)))
-            e_imag_x = np.reshape(vals_e_imag_x, (len(freq), len(v), len(u)))
-            e_real_y = np.reshape(vals_e_real_y, (len(freq), len(v), len(u)))
-            e_imag_y = np.reshape(vals_e_imag_y, (len(freq), len(v), len(u)))
-            e_real_z = np.reshape(vals_e_real_z, (len(freq), len(v), len(u)))
-            e_imag_z = np.reshape(vals_e_imag_z, (len(freq), len(v), len(u)))
+        e_real_x = np.reshape(self._solutions_real[curve_header + "X"][:, -1], (len(freq), len(v), len(u)))
+        e_imag_x = np.reshape(self._solutions_imag[curve_header + "X"][:, -1], (len(freq), len(v), len(u)))
+        e_real_y = np.reshape(self._solutions_real[curve_header + "Y"][:, -1], (len(freq), len(v), len(u)))
+        e_imag_y = np.reshape(self._solutions_imag[curve_header + "Y"][:, -1], (len(freq), len(v), len(u)))
+        e_real_z = np.reshape(self._solutions_real[curve_header + "Z"][:, -1], (len(freq), len(v), len(u)))
+        e_imag_z = np.reshape(self._solutions_imag[curve_header + "Z"][:, -1], (len(freq), len(v), len(u)))
 
         temp_e_comp_x = e_real_x.astype("float64") + complex(0, 1) * e_imag_x.astype("float64")
         temp_e_comp_y = e_real_y.astype("float64") + complex(0, 1) * e_imag_y.astype("float64")
