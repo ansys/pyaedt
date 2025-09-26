@@ -388,12 +388,6 @@ class VersionManager:
 
             print("Pyedb has been updated")
 
-            # Always reset PyAEDT panels after updating packages
-            try:
-                self.reset_pyaedt_buttons_in_aedt(confirm=False)
-            except Exception: # pragma: no cover
-                pass
-
             self.clicked_refresh(need_restart=True)
 
     def get_pyaedt_branch(self):
