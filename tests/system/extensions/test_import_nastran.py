@@ -52,6 +52,7 @@ def test_import_stl_success(add_app, local_scratch):
         lightweight=True,
         decimate=0.0,
         planar=True,
+        remove_multiple_connections=True,
     )
 
     assert main(data)
@@ -117,18 +118,21 @@ def test_import_nastran_extension_ui(add_app):
     dec_text = extension._ImportNastranExtension__decimation_text
     lw_var = extension._ImportNastranExtension__lightweight_var
     planar_var = extension._ImportNastranExtension__planar_var
+    remove_multiple_connections_var = extension._ImportNastranExtension__remove_multiple_connections_var
 
     # Test that all UI elements are created
     assert file_text is not None
     assert dec_text is not None
     assert lw_var is not None
     assert planar_var is not None
+    assert remove_multiple_connections_var is not None
 
     # Test default values
     decimation_val = dec_text.get("1.0", "end-1c").strip()
     assert decimation_val == "0.0"
     assert lw_var.get() == 0
     assert planar_var.get() == 1
+    assert remove_multiple_connections_var.get() == 0
 
     extension.root.destroy()
 
@@ -144,6 +148,7 @@ def test_import_nastran_data_class():
     assert data.lightweight is False
     assert data.decimate == 0.0
     assert data.planar is True
+    assert data.remove_multiple_connections is False
 
     # Test custom values
     data = ImportNastranExtensionData(
@@ -151,8 +156,10 @@ def test_import_nastran_data_class():
         lightweight=True,
         decimate=0.5,
         planar=False,
+        remove_multiple_connections=True,
     )
     assert data.file_path == "/test/path.nas"
     assert data.lightweight is True
     assert data.decimate == 0.5
     assert data.planar is False
+    assert data.remove_multiple_connections is True

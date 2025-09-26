@@ -65,6 +65,9 @@ def test_import_nastran_extension_import_button(mock_askopenfilename, mock_hfss_
     # Disable planar option
     extension._ImportNastranExtension__planar_var.set(0)
 
+    # Enable remove multiple connections option
+    extension._ImportNastranExtension__remove_multiple_connections_var.set(1)
+
     # Mock the file existence check
     with patch("pathlib.Path.is_file", return_value=True):
         extension.root.nametowidget("import_button").invoke()
@@ -74,6 +77,7 @@ def test_import_nastran_extension_import_button(mock_askopenfilename, mock_hfss_
     assert data.decimate == 0.1
     assert data.lightweight is True
     assert data.planar is False
+    assert data.remove_multiple_connections is True
     assert data.file_path == mock_file_path
 
 
@@ -190,10 +194,10 @@ def test_preview_calls_simplify_stl(mock_hfss_app):
 
     with (
         patch("pathlib.Path.is_file", return_value=True),
-        patch("ansys.aedt.core.extensions.common.import_nastran.simplify_stl") as mock_simplify_stl,
+        patch("ansys.aedt.core.visualization.advanced.misc.simplify_and_preview_stl") as mock_simplify_and_preview_stl,
     ):
         extension._ImportNastranExtension__preview()
-        mock_simplify_stl.assert_called_once_with(fp, decimation=0.3, preview=True)
+        mock_simplify_and_preview_stl.assert_called_once_with(fp, decimation=0.3, preview=True)
 
     extension.root.destroy()
 
