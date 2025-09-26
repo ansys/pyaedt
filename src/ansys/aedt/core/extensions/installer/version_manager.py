@@ -353,6 +353,12 @@ class VersionManager:
             else:
                 subprocess.run([self.uv_exe, "pip", "install", "-U", "pyaedt"], check=True, env=self.activated_env)  # nosec
 
+            # Always reset PyAEDT panels after updating packages
+            try:
+                self.reset_pyaedt_buttons_in_aedt(confirm=False)
+            except Exception:
+                pass
+
             self.clicked_refresh(need_restart=True)
 
     def update_pyedb(self):
@@ -381,6 +387,13 @@ class VersionManager:
                 )  # nosec
 
             print("Pyedb has been updated")
+
+            # Always reset PyAEDT panels after updating packages
+            try:
+                self.reset_pyaedt_buttons_in_aedt(confirm=False)
+            except Exception: # pragma: no cover
+                pass
+
             self.clicked_refresh(need_restart=True)
 
     def get_pyaedt_branch(self):
@@ -504,16 +517,35 @@ class VersionManager:
                 check=True,
                 env=self.activated_env,
             )  # nosec
+
+            # Always reset PyAEDT panels after installing from wheelhouse
+            try:
+                self.reset_pyaedt_buttons_in_aedt(confirm=False)
+            except Exception:  # pragma: no cover
+                pass
+
             self.clicked_refresh(need_restart=True)
 
-    def reset_pyaedt_buttons_in_aedt(self):
-        response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
+    def reset_pyaedt_buttons_in_aedt(self, confirm=True):
+        """Reset PyAEDT panels in AEDT.
 
-        if response:
+        If confirm is True, prompt the user before proceeding and show success/error dialogs.
+        If confirm is False, perform the reset silently (no confirmation dialog) and suppress dialogs on errors.
+        """
+        if confirm:
+            response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
+            if not response:
+                return
+
+        try:
             from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 
             add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
-            messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
+            if confirm:
+                messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
+        except Exception as e:  # pragma: no cover - best-effort panel reset
+            if confirm:
+                messagebox.showerror("Error", f"Failed to update PyAEDT panels: {e}")
 
     def get_installed_version(self, package_name):
         """Return the installed version of package_name inside the virtualenv.
