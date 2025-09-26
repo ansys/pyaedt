@@ -154,6 +154,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           target: 'all'
           attest-provenance: true
+          use-python-cache: false
       - name: Import python package
         shell: bash
         run: |
