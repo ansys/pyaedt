@@ -90,7 +90,7 @@ Below is the content that can be updated through the YAML file.
         # Enable or disable use LSF Scheduler
         use_lsf_scheduler: false
 
-    # Settings related to environment variables thare are set before launching a new AEDT session
+    # Settings related to environment variables that are set before launching a new AEDT session
     # This includes those that enable the beta features !
     aedt_env_var:
         ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE: '1'
@@ -114,7 +114,7 @@ Below is the content that can be updated through the YAML file.
         objects_lazy_load: true
         # AEDT installation path
         aedt_install_dir: null
-        # AEDT version in the form ``"2023.x"``
+        # AEDT version in the form ``"2025.x"``
         aedt_version: null
         # Timeout in seconds for trying to launch AEDT
         desktop_launch_timeout: 120
@@ -152,3 +152,7 @@ Below is the content that can be updated through the YAML file.
         block_figure_plot: false
         # Skip license check during Desktop initialization
         skip_license_check: false
+        # Get the path to the PyD libraries (not editable)
+        pyd_libraries_path
+        # Path to the user defined PyD libraries. If set, it overrides the default pyd_libraries_path
+        pyd_libraries_user_path
