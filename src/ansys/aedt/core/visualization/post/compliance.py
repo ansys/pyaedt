@@ -765,8 +765,10 @@ class VirtualCompliance:
 
     @pyaedt_function_handler()
     def _get_frequency_range(self, data_list, f1, f2):
-        filtered_range = [(freq, db_value) for freq, db_value in data_list if f1 <= freq <= f2]
-        return filtered_range
+        indices = np.where(f1 <= data_list[0] <= f2)
+        x_range = data_list[0][indices]
+        y_range = data_list[1][indices]
+        return x_range, y_range
 
     @pyaedt_function_handler()
     def _check_test_value(self, filtered_range, test_value, hatch_above):
@@ -974,10 +976,8 @@ class VirtualCompliance:
             ]
             reference_value = 1e12
             for trace_name in trace_data.expressions:
-                trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
-                time_vals = [i[0] for i in trace_values]
-                value = [i[1] for i in trace_values]
-                center = (max(value) + min(value)) / 2
+                time_vals, value = trace_data.get_expression_data(trace_name, formula="real")
+                center = (np.max(value) + np.min(value)) / 2
                 line_name = aedt_report.add_cartesian_y_marker(f"{center}{list(trace_data.units_data.values())[0]}")
                 _design.oreportsetup.ChangeProperty(
                     [
@@ -993,9 +993,10 @@ class VirtualCompliance:
                         ],
                     ]
                 )
-                neg_indices = [index for index, val in enumerate(value) if val < center]
-                pos_indices = [index for index, val in enumerate(value) if val > center]
-                if not (neg_indices and pos_indices):
+                neg_indices = np.where(value < center)[0]
+                pos_indices = np.where(value > center)[0]
+
+                if not (np.any(neg_indices) and np.any(pos_indices)):
                     settings.logger.warning("Error identifying transition to zero.")
                     continue
                 if pos_indices[0] < neg_indices[0]:
@@ -1461,7 +1462,7 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return pass_fail_table
         for trace_name in trace_data.expressions:
-            trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
+            trace_values = trace_data.get_expression_data(trace_name)
             for limit_v in pass_fail_criteria.values():
                 yy = 0
                 zones = 0
@@ -1526,7 +1527,10 @@ class VirtualCompliance:
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
             self._desktop_class.logger.error(msg)
             return
-        mag_data = [i for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0]
+        mag_data_in = sols.get_expression_data(sols.expressions[0], formula="magnitude")
+        filter_in = np.where(mag_data_in[1] > 0)
+        x_data = mag_data_in[0][filter_in]
+        y_data = mag_data_in[1][filter_in]
         # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
@@ -1543,10 +1547,10 @@ class VirtualCompliance:
         max_x = max(points_to_check[0])
         min_y = min(points_to_check[1])
         max_y = max(points_to_check[1])
-        for point in mag_data:
-            if not (min_x < point[0] < max_x and min_y < point[1] < max_y):
+        for x, y in zip(x_data, y_data):
+            if not (min_x < x < max_x and min_y < y < max_y):
                 continue
-            if GeometryOperators.point_in_polygon(point, points_to_check) >= 0:
+            if GeometryOperators.point_in_polygon([x, y], points_to_check) >= 0:
                 result_value = "FAIL"
                 num_failed += 1
                 # break
@@ -1557,11 +1561,11 @@ class VirtualCompliance:
         result_value = "PASS"
         if pass_fail_criteria["enable_limits"]:
             mystr = "Upper/Lower Mask Violation:"
-            for point in mag_data:
-                # checking if amplitude is overcoming limits.
-                if point[0] > pass_fail_criteria["upper_limit"] or point[0] < pass_fail_criteria["lower_limit"]:
-                    result_value = "FAIL"
-                    break
+            filter_ampl = np.where(
+                x_data > pass_fail_criteria["upper_limit"] or x_data < pass_fail_criteria["lower_limit"]
+            )
+            if np.any(filter_ampl):
+                result_value = "FAIL"
             font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
             pass_fail_table.append([mystr, result_value])
         chapter.add_table(
@@ -1622,13 +1626,15 @@ class VirtualCompliance:
             output_units=sols.units_sweeps["__Amplitude"],
         )
         for ber in bit_error_rates:
-            mag_data = [k for k, i in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if i <= ber]
+            mag_data_in = sols.get_expression_data(sols.expressions[0])
+            filter_in = np.where(mag_data_in[1] <= ber)
+            x_data = mag_data_in[0][filter_in]
             mystr = f"Eye Mask Violation BER at {ber}:"
             result_value = "PASS"
-            if not mag_data:
+            if np.any(x_data):
                 result_value = "FAILED. No BER obtained"
-            for point in mag_data:
-                if GeometryOperators.point_in_polygon(point[:2], points_to_check) >= 0:
+            for point in x_data:
+                if GeometryOperators.point_in_polygon(point, points_to_check) >= 0:
                     result_value = "FAILED. Mask Violation"
                     break
             font_table.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in result_value else ["", None])
