@@ -48,6 +48,7 @@ from typing import Union
 import uuid
 import warnings
 
+from ansys.aedt.core import pyaedt_path
 from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
@@ -112,6 +113,8 @@ ALLOWED_GENERAL_SETTINGS = [
     "skip_license_check",
     "num_cores",
     "use_local_example_data",
+    "pyd_libraries_path",
+    "pyd_libraries_user_path",
 ]
 
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
@@ -184,7 +187,7 @@ class Settings(object):
         self.__lsf_queue: Optional[str] = None
         self.__custom_lsf_command = DEFAULT_CUSTOM_SUBMISSION_STRING
         # Settings related to environment variables that are set before launching a new AEDT session
-        # This includes those that enable the beta features !
+        # This includes those that enable the beta features!
         self.__aedt_environment_variables: dict[str, str] = {
             "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
             "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
@@ -229,6 +232,8 @@ class Settings(object):
         self.__block_figure_plot = False
         self.__local_example_folder = None
         self.__use_local_example_data = False
+        self.__pyd_libraries_path: Path = Path(pyaedt_path) / "syslib"
+        self.__pyd_libraries_user_path: Optional[str] = None
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -848,6 +853,34 @@ class Settings(object):
     def local_example_folder(self, value):
         self.__local_example_folder = value
 
+    @property
+    def pyd_libraries_path(self):
+        if self.__pyd_libraries_user_path is not None:
+            # If the user path is set, return it
+            return Path(self.__pyd_libraries_user_path)
+        return Path(self.__pyd_libraries_path)
+
+    @property
+    def pyd_libraries_user_path(self):
+        # Get the user path for PyAEDT libraries.
+        if self.__pyd_libraries_user_path is not None:
+            return Path(self.__pyd_libraries_user_path)
+        return None
+
+    @pyd_libraries_user_path.setter
+    def pyd_libraries_user_path(self, val):
+        if val is None:
+            # If the user path is None, set it to None
+            self.__pyd_libraries_user_path = None
+        else:
+            lib_path = Path(str(val))
+            if not lib_path.exists():
+                # If the user path does not exist, return None
+                raise ValueError("The user path for PyAEDT libraries does not exist. Please set a valid path.")
+            else:
+                # If the user path exists, set it as a Path object
+                self.__pyd_libraries_user_path = lib_path
+
     # yaml setting file IO methods
 
     def load_yaml_configuration(self, path: Union[Path, str], raise_on_wrong_key: bool = False):
@@ -898,19 +931,17 @@ class Settings(object):
         configuration_file = Path(path)
 
         data = {}
-        data["log"] = {}
-        for key in ALLOWED_LOG_SETTINGS:
-            value = getattr(self, key)
-            data["log"][key] = str(value) if isinstance(value, Path) else value
-        data["lsf"] = {}
-        for key in ALLOWED_LSF_SETTINGS:
-            value = getattr(self, key)
-            data["lsf"][key] = str(value) if isinstance(value, Path) else value
+        data["log"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_LOG_SETTINGS
+        }
+        data["lsf"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_LSF_SETTINGS
+        }
         data["aedt_env_var"] = getattr(self, "aedt_environment_variables")
-        data["general"] = {}
-        for key in ALLOWED_GENERAL_SETTINGS:
-            value = getattr(self, key)
-            data["general"][key] = str(value) if isinstance(value, Path) else value
+        data["general"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value
+            for key in ALLOWED_GENERAL_SETTINGS
+        }
 
         with open(configuration_file, "w") as file:
             yaml.safe_dump(data, file, sort_keys=False)
