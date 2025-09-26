@@ -1,0 +1,84 @@
+title = "Package diff"
+
+general = {version = "2025.2",output_dir = "",outline_extent = "2mm",pitch = "1mm"}
+
+stackup = [
+    { name = "PKG_L1", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "22um" },
+    { name = "PKG_DE0", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L2", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE1", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L3", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE2", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L4", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE3", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L5", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE4", type = "dielectric", material = "FR4_epoxy", thickness = "1200um" },
+    { name = "PKG_L6", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE5", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L7", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE6", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L8", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE7", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L9", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "15um" },
+    { name = "PKG_DE8", type = "dielectric", material = "FR4_epoxy", thickness = "30um" },
+    { name = "PKG_L10", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "22um" },
+    { name = "AIR", type = "dielectric", material = "air", thickness = "400um" },
+    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "50um" },
+    { name = "PCB_DE0", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L2", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE1", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L3", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE2", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L4", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE3", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L5", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE4", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L6", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE5", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L7", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE6", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L8", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE7", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L9", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE8", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L10", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "50um" }
+]
+
+padstack_defs = [
+    { name = "CORE_VIA", shape = "circle", pad_diameter = "0.25mm", hole_diameter = "0.1mm", hole_range = "upper_pad_to_lower_pad" },
+    { name = "MICRO_VIA", shape = "circle", pad_diameter = "0.1mm", hole_diameter = "0.05mm", hole_range = "upper_pad_to_lower_pad" },
+    { name = "BGA", shape = "circle", pad_diameter = "0.5mm", hole_diameter = "0.4mm", hole_range = "upper_pad_to_lower_pad", solder_ball_parameters = { shape = "spheroid", diameter = "0.4mm", mid_diameter = "0.5mm", placement = "above_padstack", material = "solder" } }
+]
+
+pin_map = [
+    ["GND", "SIG_1_P", "SIG_1_N", "GND"]
+]
+
+[signals.GND]
+fanout_trace = {}
+stacked_vias = "TYPE_1"
+
+[differential_signals.SIG_1]
+signals = ["SIG_1_P", "SIG_1_N"]
+fanout_trace = [
+    { via_index = 0, layer = "PKG_L1", width = "0.05mm", separation = "0.05mm", clearance = "0.05mm", incremental_path_dy = ["0.3mm", "0.3mm"], end_cap_style = "flat", flip_dx = false, flip_dy = false, port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } },
+    { via_index = 4, layer = "PCB_L6", width = "0.1mm", separation = "0.15mm", clearance = "0.2mm", incremental_path_dy = ["0.1mm", "0.5mm"], end_cap_style = "flat", flip_dx = false, flip_dy = true, port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } }
+]
+
+stacked_vias = "TYPE_2"
+
+[stacked_vias]
+TYPE_1 = [
+    { padstack_def = "MICRO_VIA", start_layer = "PKG_L1", stop_layer = "PKG_L5", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
+    { padstack_def = "CORE_VIA", start_layer = "PKG_L5", stop_layer = "PKG_L6", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
+    { padstack_def = "MICRO_VIA", start_layer = "PKG_L6", stop_layer = "PKG_L10", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
+    { padstack_def = "BGA", start_layer = "PKG_L10", stop_layer = "PCB_L1", dx = "pitch/2", dy = "pitch/2", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.8mm", connection_trace = { width = "0.3mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
+    { padstack_def = "CORE_VIA", start_layer = "PCB_L1", stop_layer = "PCB_L10", dx = 0, dy = 0, flip_dx = false, flip_dy = true, anti_pad_diameter = "0.7mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false }
+]
+
+TYPE_2 = [{ padstack_def = "MICRO_VIA", start_layer = "PKG_L1", stop_layer = "PKG_L5", dx = "0.05mm", dy = "0.05mm", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = { width = "0.1mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
+    { padstack_def = "CORE_VIA", start_layer = "PKG_L5", stop_layer = "PKG_L6", dx = "0.2mm", dy = "0mm", flip_dx = false, flip_dy = false, anti_pad_diameter = "1mm", connection_trace = { width = "0.1mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = { start_angle = 90, step_angle = 45, number_of_vias = 5, distance = "0.125mm" } },
+    { padstack_def = "MICRO_VIA", start_layer = "PKG_L6", stop_layer = "PKG_L10", dx = "0.05mm", dy = "0.05mm", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = { width = "0.1mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
+    { padstack_def = "BGA", start_layer = "PKG_L10", stop_layer = "PCB_L1", dx = "pitch/2", dy = "pitch/2", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.8mm", connection_trace = { width = "0.3mm", clearance = "0.15mm" }, with_solder_ball = true, backdrill_parameters = false, stitching_vias = false },
+    { padstack_def = "CORE_VIA", start_layer = "PCB_L1", stop_layer = "PCB_L10", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.7mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false }]
+

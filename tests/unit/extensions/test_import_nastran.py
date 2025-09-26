@@ -27,14 +27,14 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.import_nastran import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtension
-from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtensionData
-from ansys.aedt.core.extensions.project.import_nastran import main
+from ansys.aedt.core.extensions.common.import_nastran import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtension
+from ansys.aedt.core.extensions.common.import_nastran import ImportNastranExtensionData
+from ansys.aedt.core.extensions.common.import_nastran import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_import_nastran_extension_default():
+def test_import_nastran_extension_default(mock_hfss_app):
     """Test instantiation of the Import Nastran extension."""
     extension = ImportNastranExtension(withdraw=True)
 
@@ -45,7 +45,7 @@ def test_import_nastran_extension_default():
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_import_nastran_extension_import_button(mock_askopenfilename):
+def test_import_nastran_extension_import_button(mock_askopenfilename, mock_hfss_app):
     """Test the Import button in the Import Nastran extension."""
     mock_file_path = "/mock/path/test_file.nas"
     mock_askopenfilename.return_value = mock_file_path
@@ -78,7 +78,7 @@ def test_import_nastran_extension_import_button(mock_askopenfilename):
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_import_nastran_switch_to_dark_theme(mock_askopenfilename):
+def test_import_nastran_switch_to_dark_theme(mock_askopenfilename, mock_hfss_app):
     """Test theme toggle button when switching to dark theme."""
     extension = ImportNastranExtension(withdraw=True)
     assert extension.root.theme == "light"
@@ -92,7 +92,7 @@ def test_import_nastran_switch_to_dark_theme(mock_askopenfilename):
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_import_nastran_switch_to_light_theme(mock_askopenfilename):
+def test_import_nastran_switch_to_light_theme(mock_askopenfilename, mock_hfss_app):
     """Test theme toggle button when switching to light theme."""
     extension = ImportNastranExtension(withdraw=True)
 
@@ -156,3 +156,64 @@ def test_main_function_no_active_design(mock_is_file, mock_desktop):
 
     with pytest.raises(AEDTRuntimeError, match="No active design found"):
         main(data)
+
+
+def test_preview_calls_nastran_to_stl(mock_hfss_app):
+    """Preview should call nastran_to_stl for .nas files."""
+    extension = ImportNastranExtension(withdraw=True)
+
+    fp = "/mock/path/test_file.nas"
+    extension._ImportNastranExtension__file_path_text.delete("1.0", tkinter.END)
+    extension._ImportNastranExtension__file_path_text.insert(tkinter.END, fp)
+    extension._ImportNastranExtension__decimation_text.delete("1.0", tkinter.END)
+    extension._ImportNastranExtension__decimation_text.insert(tkinter.END, "0.2")
+
+    with (
+        patch("pathlib.Path.is_file", return_value=True),
+        patch("ansys.aedt.core.extensions.common.import_nastran.nastran_to_stl") as mock_nastran_to_stl,
+    ):
+        extension._ImportNastranExtension__preview()
+        mock_nastran_to_stl.assert_called_once_with(fp, decimation=0.2, preview=True)
+
+    extension.root.destroy()
+
+
+def test_preview_calls_simplify_stl(mock_hfss_app):
+    """Preview should call simplify_stl for .stl files."""
+    extension = ImportNastranExtension(withdraw=True)
+
+    fp = "/mock/path/test_file.stl"
+    extension._ImportNastranExtension__file_path_text.delete("1.0", tkinter.END)
+    extension._ImportNastranExtension__file_path_text.insert(tkinter.END, fp)
+    extension._ImportNastranExtension__decimation_text.delete("1.0", tkinter.END)
+    extension._ImportNastranExtension__decimation_text.insert(tkinter.END, "0.3")
+
+    with (
+        patch("pathlib.Path.is_file", return_value=True),
+        patch("ansys.aedt.core.extensions.common.import_nastran.simplify_stl") as mock_simplify_stl,
+    ):
+        extension._ImportNastranExtension__preview()
+        mock_simplify_stl.assert_called_once_with(fp, decimation=0.3, preview=True)
+
+    extension.root.destroy()
+
+
+def test_preview_raises_when_no_file_selected(mock_hfss_app):
+    """Preview should raise ValueError when no file is selected."""
+    extension = ImportNastranExtension(withdraw=True)
+
+    # Ensure file path text is empty
+    extension._ImportNastranExtension__file_path_text.delete("1.0", tkinter.END)
+
+    with pytest.raises(ValueError, match=r"Please select a valid file\."):
+        extension._ImportNastranExtension__preview()
+
+    extension.root.destroy()
+
+
+def test_check_design_type_invalid(mock_circuit_app):
+    """Unsupported design types raise on init and call release_desktop."""
+    with patch.object(ImportNastranExtension, "release_desktop") as mock_release:
+        with pytest.raises(AEDTRuntimeError, match="This extension only works"):
+            ImportNastranExtension(withdraw=True)
+        mock_release.assert_called_once()

@@ -44,6 +44,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
@@ -340,18 +341,15 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         self.props["Name"] = name
 
     @pyaedt_function_handler()
-    def get_profile(self):
+    def get_profile(self) -> Profiles:
         """Solution profile.
 
         Returns
         -------
-        dict of :class:ansys.aedt.core.modeler.cad.elements_3d.BinaryTree when solved setups exist,
-        ``None`` when no solved setups or no compatible application exists.
+        :class:`ansys.aedt.core.modules.profile.Profiles`
+            Profile data when successful, ``False`` when failed.
         """
-        profile = self._app.get_profile(self.name)
-        if not isinstance(profile, dict) or not profile:
-            profile = None
-        return profile
+        return self._app.get_profile(self.name)  # Native API getter.
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
@@ -937,7 +935,7 @@ class Setup(CommonSetup):
         >>> m3d.set_active_design("target_design")
         The mesh link is assigned to the target design.
         >>> target_setup.add_mesh_link("source_design")
-        >>> m3d.release_desktop()
+        >>> m3d.desktop_class.close_desktop()
         """
         dkp = self._app.desktop_class
         source_design = design
@@ -3674,7 +3672,7 @@ class SetupMaxwell(Setup, object):
         ... )
         >>> sweep.props["RangeStart"] = "0.1Hz"
         >>> sweep.update()
-        >>> m2d.release_desktop()
+        >>> m2d.desktop_class.close_desktop()
         """
         if self.setuptype not in [7, 60]:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
@@ -3833,7 +3831,7 @@ class SetupMaxwell(Setup, object):
         >>> setup.set_save_fields(
         ...     enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
         ... )
-        >>> m2d.release_desktop()
+        >>> m2d.desktop_class.close_desktop()
         """
         if self.setuptype != 5:
             if enable:
@@ -4057,7 +4055,7 @@ class SetupQ3D(Setup, object):
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearCountSetup")
         >>> sweep = setup.create_frequency_sweep(unit="GHz", start_frequency=0.5, stop_frequency=1.5, name="Sweep1")
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if sweep_type in ["Interpolating", "Fast"]:
             num_of_freq_points = num_of_freq_points or 401
@@ -4144,7 +4142,7 @@ class SetupQ3D(Setup, object):
         ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
         ... )
         >>> type(linear_step_sweep)
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
@@ -4221,7 +4219,7 @@ class SetupQ3D(Setup, object):
         >>> setup = q3d.create_setup("SinglePointSetup")
         >>> single_point_sweep = setup.create_single_point_sweep(name="SinglePointSweep", unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if name is None:
             name = generate_unique_name("SinglePoint")
@@ -4322,7 +4320,7 @@ class SetupQ3D(Setup, object):
         >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
         >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         >>> sweep = setup.get_sweep("Sweep1")
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if name:
             for sweep in self.sweeps:

@@ -27,6 +27,7 @@ import datetime
 import difflib
 import functools
 from functools import update_wrapper
+import getpass
 import inspect
 import itertools
 import logging
@@ -48,7 +49,7 @@ from ansys.aedt.core.internal.errors import MethodNotSupportedError
 
 is_linux = os.name == "posix"
 is_windows = not is_linux
-inside_desktop = True if "4.0.30319.42000" in sys.version else False
+inside_desktop_ironpython_console = True if "4.0.30319.42000" in sys.version else False
 
 inclusion_list = [
     "CreateVia",
@@ -188,7 +189,10 @@ def raise_exception_or_return_false(e):
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
-                v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                if v.launched_by_pyaedt:
+                    v.close_desktop()
+                else:
+                    v.release_desktop(False, False)
         raise e
     elif "__init__" in str(e):  # pragma: no cover
         return
@@ -666,24 +670,46 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         version = version[-4:].replace(".", "")
     if version and version < "221":
         version = version[:2] + "." + version[2]
-    for p in psutil.process_iter():
+
+    def _normalize_user(u):
+        if not u:
+            return ""
+        # drop domain like DOMAIN\user or any path parts, compare case-insensitive
+        return str(u).split("\\")[-1].split("/")[-1].lower()
+
+    def _current_username():
         try:
-            if p.name() in keys:
-                cmd = p.cmdline()
+            return _normalize_user(psutil.Process(os.getpid()).username())
+        except Exception:
+            # fallback
+            return _normalize_user(getpass.getuser())
+
+    current_user = _current_username()
+
+    for p in psutil.process_iter(attrs=("pid", "name", "username", "cmdline")):
+        try:
+            p_user = _normalize_user(p.info.get("username"))
+            if p_user != current_user:
+                continue  # skip processes from other users
+            # process belongs to current user — safe to use p.info or p
+            pid = p.info["pid"]
+            name = p.info["name"]
+            cmd = p.info.get("cmdline", [])
+            if name in keys:
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
                         if "-grpcsrv" in cmd:
                             if not version or (version and version in cmd[0]):
                                 try:
-                                    return_dict[p.pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                                    return_dict[pid] = int(cmd[cmd.index("-grpcsrv") + 1])
                                 except (IndexError, ValueError):
                                     # default desktop grpc port.
-                                    return_dict[p.pid] = 50051
+                                    return_dict[pid] = 50051
                         else:
-                            return_dict[p.pid] = -1
+                            return_dict[pid] = -1
                             for i in psutil.net_connections():
-                                if i.pid == p.pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
-                                    return_dict[p.pid] = i.laddr.port
+                                if i.pid == pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
+                                    return_dict[pid] = i.laddr.port
                                     break
         except psutil.NoSuchProcess as e:  # pragma: no cover
             pyaedt_logger.debug(f"The process exited and cannot be an active session: {e}")

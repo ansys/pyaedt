@@ -29,7 +29,7 @@ from warnings import warn
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import get_filename_without_extension
 from ansys.aedt.core.generic.file_utils import open_file
-from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.modeler import Modeler
@@ -157,7 +157,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             from pyedb import Edb
 
             self._edb = None
-            if Path(self._edb_file).exists() or inside_desktop:
+            if Path(self._edb_file).exists() or inside_desktop_ironpython_console:
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,

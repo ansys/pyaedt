@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import io
 import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
@@ -166,42 +167,238 @@ def test_extension_manager_default_settings(mock_toolkits, mock_desktop, mock_ae
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
-@patch("subprocess.Popen")
-def test_extension_manager_launch_extension(mock_popen, mock_toolkits, mock_desktop, mock_aedt_app, monkeypatch):
-    """Test launching an extension."""
+def test_start_log_stream_threads_appends_stdout_and_stderr(mock_toolkits, mock_desktop, mock_aedt_app):
+    """_start_log_stream_threads should read from process streams and append to buffer."""
     mock_desktop.return_value = MagicMock()
-    toolkit_data = {
-        "HFSS": {
-            "MyExt": {
-                "name": "My Extension",
-                "script": "dummy.py",
-                "icon": None,
-            }
-        }
-    }
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Prepare fake process with stdout/stderr streams
+    out_stream = io.StringIO("out1\nout2\n")
+    err_stream = io.StringIO("err1\n")
+    fake_process = MagicMock()
+    fake_process.stdout = out_stream
+    fake_process.stderr = err_stream
+    # ensure periodic refresh does not re-schedule repeatedly
+    fake_process.poll.return_value = 1
+
+    extension.active_process = fake_process
+    # Prevent scheduling the periodic refresh from actually calling the function
+    extension.root.after = lambda delay, func: None
+
+    # Patch threading.Thread to run target synchronously on start
+    class DummyThread:
+        def __init__(self, target=None, args=(), daemon=False):
+            self._target = target
+            self._args = args
+            self._alive = False
+
+        def start(self):
+            # execute reader synchronously
+            self._target(*self._args)
+
+        def is_alive(self):
+            return False
+
+    with patch("threading.Thread", DummyThread):
+        extension._start_log_stream_threads()
+
+    # Verify full_log_buffer contains both stdout and stderr lines
+    texts = [t for t, _ in extension.full_log_buffer]
+    tags = [tag for _, tag in extension.full_log_buffer]
+    assert "out1" in texts and "out2" in texts and "err1" in texts
+    assert "stderr" in tags and "stdout" in tags
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_append_full_log_truncation(mock_toolkits, mock_desktop, mock_aedt_app):
+    """_append_full_log should truncate buffer when it grows beyond 10000 entries."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Add 10005 entries
+    total = 10005
+    for i in range(total):
+        extension._append_full_log(str(i), "stdout")
+
+    # Ensure truncation occurred (length is less than the total added)
+    assert len(extension.full_log_buffer) < total
+    # Last element should correspond to the last appended value
+    assert extension.full_log_buffer[-1][0] == str(total - 1)
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_update_logs_text_widget_inserts_and_autoscroll(mock_toolkits, mock_desktop, mock_aedt_app):
+    """_update_logs_text_widget should write buffer into the text widget and call see when at end."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Populate buffer with stdout and stderr entries
+    extension.full_log_buffer = [("line1", "stdout"), ("line2", "stderr")]
+
+    # Create a fake text widget
+    txt = MagicMock()
+    # Simulate being at end (index('end-1c') == index('insert'))
+    txt.index.return_value = "1.0"
+
+    extension.logs_text_widget = txt
+
+    extension._update_logs_text_widget()
+
+    # Should have enabled, cleared, inserted and disabled
+    txt.configure.assert_any_call(state="normal")
+    txt.delete.assert_called_once_with("1.0", "end")
+    # Two insert calls (one plain, one with stderr tag)
+    insert_calls = [c for c in txt.insert.call_args_list]
+    assert any("line1" in str(call) for call in insert_calls)
+    assert any("line2" in str(call) for call in insert_calls)
+    txt.configure.assert_any_call(state="disabled")
+    txt.see.assert_called_once_with("end")
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_open_all_logs_window_creates_widgets_and_updates(mock_toolkits, mock_desktop, mock_aedt_app):
+    """open_all_logs_window should create a logs window and a Text widget and set it to logs_text_widget."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Ensure update will be called but has empty buffer
+    extension.full_log_buffer = []
+
+    fake_toplevel = MagicMock()
+    fake_txt = MagicMock()
+    fake_txt.index.return_value = "1.0"
+
+    with (
+        patch("ansys.aedt.core.extensions.installer.extension_manager.tkinter.Toplevel", return_value=fake_toplevel),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.ttk.Frame", return_value=MagicMock()),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.ttk.Button", return_value=MagicMock()),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.ttk.Scrollbar", return_value=MagicMock()),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.tkinter.Text", return_value=fake_txt),
+    ):
+        extension.open_all_logs_window()
+
+    assert extension.logs_window is fake_toplevel
+    assert extension.logs_text_widget is fake_txt
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_clear_logs_and_export_behaviour(mock_toolkits, mock_desktop, mock_aedt_app, tmp_path):
+    """Test clearing logs and exporting logs to file as well as exporting when empty."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Test _clear_logs
+    extension.full_log_buffer = [("a", "stdout")]
+    fake_txt = MagicMock()
+    extension.logs_text_widget = fake_txt
+    extension._clear_logs()
+    assert extension.full_log_buffer == []
+    fake_txt.delete.assert_called_once_with("1.0", "end")
+
+    # Test _export_logs when no logs -> showinfo called
+    extension.full_log_buffer = []
+    with patch("ansys.aedt.core.extensions.installer.extension_manager.messagebox.showinfo") as mock_info:
+        extension._export_logs()
+        mock_info.assert_called_once()
+
+    # Test _export_logs writes file and shows info
+    extension.full_log_buffer = [("ok", "stdout"), ("bad", "stderr")]
+    save_file = tmp_path / "out_logs.txt"
+    with (
+        patch(
+            "ansys.aedt.core.extensions.installer.extension_manager.filedialog.asksaveasfilename",
+            return_value=str(save_file),
+        ),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.messagebox.showinfo") as mock_info,
+    ):
+        extension._export_logs()
+        # File should exist and contain expected lines
+        assert save_file.exists()
+        content = save_file.read_text(encoding="utf-8")
+        assert "ok" in content
+        assert "[ERR] bad" in content
+        mock_info.assert_called_once()
+
+    # Test _export_logs handles writing exception
+    extension.full_log_buffer = [("line", "stdout")]
+    with (
+        patch(
+            "ansys.aedt.core.extensions.installer.extension_manager.filedialog.asksaveasfilename",
+            return_value=str(tmp_path / "file.txt"),
+        ),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.open", side_effect=Exception("disk full")),
+        patch("ansys.aedt.core.extensions.installer.extension_manager.messagebox.showerror") as mock_err,
+    ):
+        extension._export_logs()
+        mock_err.assert_called_once()
+
+    extension.root.destroy()
+
+
+@patch("subprocess.Popen")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_extension(mock_desktop, mock_toolkits, mock_popen, mock_aedt_app):
+    """Minimal test for launching an extension without initializing tkinter UI.
+
+    Construct an ExtensionManager instance via __new__ and set only the
+    attributes required by launch_extension to avoid UI interactions or
+    background threads that can hang the test run.
+    """
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}}}
     mock_toolkits.return_value = toolkit_data
 
     mock_process = MagicMock()
     mock_popen.return_value = mock_process
 
-    extension = ExtensionManager(withdraw=True)
-    # Set the toolkits attribute directly
+    # Create a minimal ExtensionManager instance without running __init__
+    extension = ExtensionManager.__new__(ExtensionManager)
     extension.toolkits = toolkit_data
+    extension.python_interpreter = "python"
+    extension.desktop = mock_desktop.return_value
+    extension.desktop.logger = MagicMock()
+    extension.active_process = None
+    extension.active_extension = None
+    extension.full_log_buffer = []
+    extension._log_stream_threads = []
+    extension.root = MagicMock()
+    extension.root.after = lambda *a, **k: None
+    extension.log_message = lambda *a, **k: None
+    extension.current_category = "HFSS"
 
-    # Mock the script file path resolution
-    with (
-        patch("pathlib.Path.exists", return_value=True),
-        patch("pathlib.Path.suffix", ".py"),
-        patch("pathlib.Path.is_dir", return_value=True),
-        patch("pathlib.Path.is_file", return_value=True),
-        patch(
-            "ansys.aedt.core.extensions.installer.extension_manager.get_custom_extension_script",
-            return_value="dummy.py",
-        ),
+    from pathlib import Path
+
+    script_path = Path("dummy.py")
+
+    with patch(
+        "ansys.aedt.core.extensions.installer.extension_manager.get_custom_extension_script",
+        return_value=script_path,
     ):
         extension.launch_extension("HFSS", "MyExt")
 
-    # Verify process was started
     mock_popen.assert_called_once()
     assert extension.active_extension == "MyExt"
     assert extension.active_process == mock_process
@@ -434,3 +631,92 @@ def test_extension_manager_handle_custom_extension_with_script(
         assert name == "My Custom Extension"
 
     extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_category_case_insensitive(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Ensure load_extensions maps category names case-insensitively."""
+    mock_desktop.return_value = MagicMock()
+    # Minimal toolkit structure required for the manager
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Lowercase input
+    extension.load_extensions("hfss")
+    assert extension.current_category == "HFSS"
+
+    # Mixed-case input
+    extension.load_extensions("hFsS")
+    assert extension.current_category == "HFSS"
+
+    # Proper-cased input
+    extension.load_extensions("HFSS")
+    assert extension.current_category == "HFSS"
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch(
+    "ansys.aedt.core.extensions.installer.extension_manager.AEDT_APPLICATIONS",
+    new={"other": "FOO"},
+)
+def test_extension_manager_category_in_values(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Category present in AEDT_APPLICATIONS.values() branch."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Provide a category string that is in AEDT_APPLICATIONS.values()
+    extension.load_extensions("FOO")
+    assert extension.current_category == "FOO"
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch(
+    "ansys.aedt.core.extensions.installer.extension_manager.AEDT_APPLICATIONS",
+    new={"other": "MyApp"},
+)
+def test_extension_manager_category_matched_by_lower(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Case-insensitive matching of AEDT_APPLICATIONS values."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Lowercase input should be matched to 'MyApp' value
+    extension.load_extensions("myapp")
+    assert extension.current_category == "MyApp"
+
+    extension.root.destroy()
+
+
+@pytest.fixture(autouse=True)
+def _patch_log_threads(monkeypatch, request):
+    """Disable real background log-stream threads in most tests to avoid
+    hangs and cross-thread interactions with mocks/tkinter. Tests that need
+    the real behavior can opt-out by name (listed in ALLOW_REAL).
+    """
+    ALLOW_REAL = {
+        "test_start_log_stream_threads_appends_stdout_and_stderr",
+    }
+
+    if request.node.name in ALLOW_REAL:
+        # Let that test control threading behavior itself
+        yield
+        return
+
+    # Replace the ExtensionManager._start_log_stream_threads with a noop
+    monkeypatch.setattr(
+        "ansys.aedt.core.extensions.installer.extension_manager.ExtensionManager._start_log_stream_threads",
+        lambda self: None,
+    )
+
+    yield
