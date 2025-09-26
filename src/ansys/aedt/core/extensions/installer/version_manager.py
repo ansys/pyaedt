@@ -357,7 +357,10 @@ class VersionManager:
             try:
                 self.reset_pyaedt_buttons_in_aedt(confirm=False)
             except Exception:
-                pass
+                messagebox.showwarning(
+                    "Warning",
+                    "PyAEDT panels could not be updated in AEDT. You may need to reset them manually.",
+                )
 
             self.clicked_refresh(need_restart=True)
 
@@ -516,7 +519,10 @@ class VersionManager:
             try:
                 self.reset_pyaedt_buttons_in_aedt(confirm=False)
             except Exception:  # pragma: no cover
-                pass
+                messagebox.showwarning(
+                    "Warning",
+                    "PyAEDT panels could not be updated in AEDT. You may need to reset them manually.",
+                )
 
             self.clicked_refresh(need_restart=True)
 
