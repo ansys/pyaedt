@@ -49,7 +49,7 @@ from ansys.aedt.core.internal.errors import MethodNotSupportedError
 
 is_linux = os.name == "posix"
 is_windows = not is_linux
-inside_desktop = True if "4.0.30319.42000" in sys.version else False
+inside_desktop_ironpython_console = True if "4.0.30319.42000" in sys.version else False
 
 inclusion_list = [
     "CreateVia",
@@ -189,7 +189,10 @@ def raise_exception_or_return_false(e):
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
-                v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                if v.launched_by_pyaedt:
+                    v.close_desktop()
+                else:
+                    v.release_desktop(False, False)
         raise e
     elif "__init__" in str(e):  # pragma: no cover
         return

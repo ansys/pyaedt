@@ -164,7 +164,7 @@ def desktop():
 
     yield d
     try:
-        d.release_desktop(True, True)
+        d.close_desktop()
     except Exception:
         return False
 
