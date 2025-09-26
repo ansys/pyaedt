@@ -249,8 +249,8 @@ class TestClass:
         )
 
         assert data.primary_sweep == "Theta"
-        assert len(data.data_magnitude("GainTotal")) > 0
-        assert not data.data_magnitude("GainTotal2")
+        assert len(data.get_expression_data("GainTotal", formula="magnitude")[1]) > 0
+        assert not data.get_expression_data("GainTotal2")
 
     def test_create_report_nominal_sweep(self, h3d_potter_horn):
         variations = h3d_potter_horn.available_variations.get_independent_nominal_values()

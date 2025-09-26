@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.settings import settings
 
 try:
@@ -85,7 +86,6 @@ class SolutionData(object):
         if value in self.variations:
             self._active_variation = value
             self.nominal_variation = self.variations.index(value)
-            self._expressions = None
         else:
             settings.logger.warning("Failed to set active variation")
 
@@ -126,7 +126,6 @@ class SolutionData(object):
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
             self.nominal_variation = var_id
-            self._expressions = None
             return True
         return False
 
@@ -136,7 +135,12 @@ class SolutionData(object):
         for data in self._original_data:
             variations = {}
             for v in data.GetDesignVariableNames():
-                variations[v] = data.GetDesignVariableValue(v)
+                variations[v] = data.GetDesignVariableValue(v, False)
+                if v not in self.units_sweeps:
+                    try:
+                        self.units_sweeps[v] = data.GetDesignVariableUnits(v)
+                    except Exception:
+                        self.units_sweeps[v] = None
             variations_lists.append(variations)
         return variations_lists
 
@@ -281,20 +285,6 @@ class SolutionData(object):
         self._solutions_phase = self._init_solution_data_phase()
 
     @pyaedt_function_handler()
-    def _init_solution_data_mag(self):
-        _solutions_mag = {}
-        self.units_data = {}
-
-        for expr in self.expressions:
-            _solutions_mag[expr] = {}
-            self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
-            _solutions_mag[expr] = np.sqrt(
-                self._solutions_real[expr] * self._solutions_real[expr]
-                + self._solutions_imag[expr] * self._solutions_imag[expr]
-            )
-        return _solutions_mag
-
-    @pyaedt_function_handler()
     def __get_index(self, input_data):
         return tuple([float(i) for i in input_data])
 
@@ -355,9 +345,23 @@ class SolutionData(object):
     def _init_solution_data_phase(self):
         data_phase = {}
         for expr in self.expressions:
-            data_phase[expr] = {}
-            data_phase[expr] = np.arctan2(self._solutions_imag[expr], self._solutions_real[expr])
+            data_phase[expr] = np.copy(self._solutions_real[expr])
+            data_phase[expr][:, -1] = np.arctan2(self._solutions_imag[expr][:, -1], self._solutions_real[expr][:, -1])
         return data_phase
+
+    @pyaedt_function_handler()
+    def _init_solution_data_mag(self):
+        _solutions_mag = {}
+        self.units_data = {}
+
+        for expr in self.expressions:
+            _solutions_mag[expr] = np.copy(self._solutions_real[expr])
+            self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
+            _solutions_mag[expr][:, -1] = np.sqrt(
+                self._solutions_real[expr][:, -1] * self._solutions_real[expr][:, -1]
+                + self._solutions_imag[expr][:, -1] * self._solutions_imag[expr][:, -1]
+            )
+        return _solutions_mag
 
     @property
     def full_matrix_real_imag(self):
@@ -436,6 +440,9 @@ class SolutionData(object):
     def data_magnitude(self, expression=None, convert_to_SI=False):
         """Retrieve the data magnitude of an expression.
 
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
+
         Parameters
         ----------
         expression : str, optional
@@ -447,27 +454,11 @@ class SolutionData(object):
 
         Returns
         -------
-        list
+        np.array
             List of data.
         """
-        if not expression:
-            expression = self.active_expression
-        elif expression not in self.expressions:
-            return False
-        temp = self._variation_tuple()
-        solution_data = self._solutions_mag[expression]
-        position = list(self._sweeps_names).index(self.primary_sweep)
-        sol = self.lookup_column_value(
-            solution_data,
-            [temp.index(i) for i in temp if temp.index(i) != position],
-            [i for i in temp if temp.index(i) != position],
-        )
-
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        return sol
+        warnings.warn("Method `data_magnitude` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="magnitude", convert_to_SI=convert_to_SI)[1]
 
     @staticmethod
     @pyaedt_function_handler(datalist="data", dataunits="data_units")
@@ -486,19 +477,22 @@ class SolutionData(object):
 
         Returns
         -------
-        list
+        np.array
            List of the data converted to the SI unit system.
 
         """
         sol = data
         if data_units in AEDT_UNITS and units in AEDT_UNITS[data_units]:
-            sol = [i * AEDT_UNITS[data_units][units] for i in data]
+            sol = data * AEDT_UNITS[data_units][units]
         return sol
 
     @pyaedt_function_handler()
     def data_db10(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db10.
 
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
+
         Parameters
         ----------
         expression : str, optional
@@ -510,17 +504,19 @@ class SolutionData(object):
 
         Returns
         -------
-        list
+        np.array
             List of the data in the database for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        return 10 * np.log10(self.data_magnitude(expression, convert_to_SI))
+        warnings.warn("Method `data_db10` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="db10", convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def data_db20(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db20.
 
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
+
         Parameters
         ----------
         expression : str, optional
@@ -532,16 +528,18 @@ class SolutionData(object):
 
         Returns
         -------
-        list
+        np.array
             List of the data in the database for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        return 20 * np.log10(self.data_magnitude(expression, convert_to_SI))
+        warnings.warn("Method `data_db20` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="db20", convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def data_phase(self, expression=None, radians=True):
         """Retrieve the phase part of the data for an expression.
+
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
 
         Parameters
         ----------
@@ -554,15 +552,11 @@ class SolutionData(object):
 
         Returns
         -------
-        list
+        np.array
             Phase data for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        coefficient = 1
-        if not radians:
-            coefficient = 180 / math.pi
-        return coefficient * np.arctan2(self.data_imag(expression), self.data_real(expression))
+        warnings.warn("Method `data_phase` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="phaserad" if radians else "phase")[1]
 
     @property
     def primary_sweep_values(self):
@@ -570,34 +564,13 @@ class SolutionData(object):
 
         Returns
         -------
-        list
+        np.array
             List of the primary sweep valid points for the expression.
         """
         return self.variation_values(self.primary_sweep)
 
-    @property
-    def primary_sweep_variations(self):
-        """Retrieve the variations lists for a given primary variable.
-
-        Returns
-        -------
-        list
-            List of the primary sweep valid points for the expression.
-
-        """
-        expression = self.active_expression
-        temp = self._variation_tuple()
-
-        solution_data = self._solutions_real[expression]
-        position = list(self._sweeps_names).index(self.primary_sweep)
-        sol = self.lookup_column_value(
-            solution_data,
-            [temp.index(i) for i in temp if temp.index(i) != position],
-            [i for i in temp if temp.index(i) != position],
-        )
-        return sol
-
-    def lookup_column_value(self, array, match_columns, match_values, default=None):
+    @staticmethod
+    def lookup_column_value(array, match_columns, match_values, output_column=-1):
         """
         Filters rows in a NumPy array based on column-value matches,
         and returns the last column value of all matching rows.
@@ -610,7 +583,7 @@ class SolutionData(object):
             Column indices to match.
         match_values : list
             Values to match at each column.
-        default : any
+        output_column : any
             Value to return if no match is found.
 
         Returns
@@ -624,12 +597,90 @@ class SolutionData(object):
 
         matched_rows = array[mask]
         if matched_rows.size == 0:
-            return default
-        return matched_rows[:, -1]  # last column
+            return
+        return matched_rows[:, output_column]  # last column
+
+    @pyaedt_function_handler()
+    def get_expression_data(self, expression=None, formula="real", convert_to_SI=False, use_quantity=False):
+        """Retrieve the real part of the data for an expression.
+
+        Parameters
+        ----------
+        expression : str, None
+            Name of the expression. The default is ``None``,
+            in which case the active expression is used.
+        formula : str, optional
+            Data type to be retrieved. Default is ``real``. Options are ``real``, ``imag``, ``mag``, ``magnitude``,
+            ``db10``, ``db20``, ``phase``, ``phaserad``.
+        convert_to_SI : bool, optional
+            Whether to convert the data to the SI unit system.
+            The default is ``False``.
+        use_quantity : bool, optional
+            Whether to output data in ``Quantity`` format or not.
+            It impacts on performances as it returns array of objects.
+
+        Returns
+        -------
+        (np.array, np.array)
+            X and Y data for the expression.
+        """
+        if not expression:
+            expression = self.active_expression
+        if formula.lower() not in ["real", "imag", "db10", "db20", "magnitude", "phase", "phaserad", "phasedeg"]:
+            return False
+
+        temp = self._variation_tuple()
+        if formula.lower() == "real":
+            solution_data = self._solutions_real[expression]
+        elif formula.lower() == "imag":
+            solution_data = self._solutions_imag[expression]
+        elif formula.lower() in ["mag", "magnitude"]:
+            solution_data = self._solutions_mag[expression]
+        elif formula.lower() in ["phase", "phaserad", "phasedeg"]:
+            solution_data = self._solutions_phase[expression]
+        else:
+            solution_data = self._solutions_mag[expression]
+
+        position = list(self._sweeps_names).index(self.primary_sweep)
+        sol = self.lookup_column_value(
+            solution_data,
+            [temp.index(i) for i in temp if temp.index(i) != position],
+            [i for i in temp if temp.index(i) != position],
+        )
+        x_axis = self.lookup_column_value(
+            solution_data,
+            [temp.index(i) for i in temp if temp.index(i) != position],
+            [i for i in temp if temp.index(i) != position],
+            position,
+        )
+
+        if convert_to_SI and self._quantity(self.units_data[expression]):
+            sol = self._convert_list_to_SI(
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
+            )
+            x_axis = self._convert_list_to_SI(
+                x_axis, self._quantity(self.units_sweeps[self.primary_sweep]), self.units_sweeps[self.primary_sweep]
+            )
+        if use_quantity:
+            vec_func = np.frompyfunc(lambda x: Quantity(x, self.units_data[expression]), 1, 1)
+            sol = vec_func(sol)
+            vec_func = np.frompyfunc(lambda x: Quantity(x, self.units_sweeps[self.primary_sweep]), 1, 1)
+            x_axis = vec_func(x_axis)
+
+        if formula.lower() == "db10":
+            sol = 10 * np.log10(sol)
+        elif formula.lower() == "db20":
+            sol = 20 * np.log10(sol)
+        elif formula.lower() == "phaserad":
+            sol = sol * np.pi / 180
+        return x_axis, sol
 
     @pyaedt_function_handler()
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
+
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
 
         Parameters
         ----------
@@ -645,29 +696,15 @@ class SolutionData(object):
         list
             List of the real data for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        temp = self._variation_tuple()
-
-        solution_data = self._solutions_real[expression]
-
-        position = list(self._sweeps_names).index(self.primary_sweep)
-
-        sol = self.lookup_column_value(
-            solution_data,
-            [temp.index(i) for i in temp if temp.index(i) != position],
-            [i for i in temp if temp.index(i) != position],
-        )
-
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        return sol
+        warnings.warn("Method `data_real` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def data_imag(self, expression=None, convert_to_SI=False):
         """Retrieve the imaginary part of the data for an expression.
+
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
 
         Parameters
         ----------
@@ -683,23 +720,8 @@ class SolutionData(object):
         list
             List of the imaginary data for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        temp = self._variation_tuple()
-
-        solution_data = self._solutions_imag[expression]
-        position = list(self._sweeps_names).index(self.primary_sweep)
-        sol = self.lookup_column_value(
-            solution_data,
-            [temp.index(i) for i in temp if temp.index(i) != position],
-            [i for i in temp if temp.index(i) != position],
-        )
-
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        return sol
+        warnings.warn("Method `data_imag` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="imag", convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def is_real_only(self, expression=None):
@@ -779,20 +801,7 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def _get_data_formula(self, curve, formula=None):
-        if not formula or formula == "re":
-            return self.data_real(curve)
-        elif formula == "im":
-            return self.data_imag(curve)
-        elif formula == "db20":
-            return self.data_db20(curve)
-        elif formula == "db10":
-            return self.data_db10(curve)
-        elif formula == "mag":
-            return self.data_magnitude(curve)
-        elif formula == "phasedeg":
-            return curve
-        elif formula == "phaserad":
-            return self.data_phase(curve, True)
+        return self.get_expression_data(curve, formula=formula)[1]
 
     @pyaedt_function_handler()
     def get_report_plotter(self, curves=None, formula=None, to_radians=False, props=None):
@@ -987,20 +996,10 @@ class SolutionData(object):
             secondary_radians.append(el * math.pi / 180)
 
             if formula.lower() == "re":
-                r.append(self.data_real(curve))
+                formula = "real"
             elif formula.lower() == "im":
-                r.append(self.data_imag(curve))
-            elif formula.lower() == "db20":
-                r.append(self.data_db20(curve))
-            elif formula.lower() == "db10":
-                r.append(self.data_db10(curve))
-            elif formula.lower() == "mag":
-                r.append(self.data_magnitude(curve))
-            elif formula == "phasedeg":
-                r.append(self.data_phase(curve, False))
-            elif formula == "phaserad":
-                r.append(self.data_phase(curve, True))
-
+                formula = "imag"
+            r.append(self.get_expression_data(curve, formula=formula)[1])
         min_r = 1e12
         max_r = -1e12
         for el in r:

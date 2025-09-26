@@ -1826,7 +1826,7 @@ class PostProcessorCommon(object):
                     props["symbol_style"] = markers[pp["symbol_style"]]
                 except KeyError:
                     pass
-            report_plotter.add_trace([sw, sols.data_real(curve)], 0, properties=props, name=curve)
+            report_plotter.add_trace([sw, sols.get_expression_data(curve)[1]], 0, properties=props, name=curve)
         for name, line in report._legacy_props.get("limitLines", {}).items():
             props = {}
             try:
