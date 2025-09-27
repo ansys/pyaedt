@@ -1,0 +1,46 @@
+﻿SimulationProfile
+=================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: SimulationProfile
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      SimulationProfile.cpu_time
+      
+      
+      SimulationProfile.max_memory
+      
+      
+      SimulationProfile.real_time
+      
+      
+      SimulationProfile.time_keys
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      SimulationProfile.has_frequency_sweep
+      SimulationProfile.is_transient
+      SimulationProfile.max_time
+      SimulationProfile.num_adaptive_passes
+      SimulationProfile.product
+      SimulationProfile.product_version
+      SimulationProfile.time_steps
+   
+   
