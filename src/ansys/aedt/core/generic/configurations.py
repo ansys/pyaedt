@@ -2432,19 +2432,18 @@ class ConfigurationsNexxim(Configurations):
                         else:
                             ami = False
                         ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
-                        if j["component"] in ibis.buffers:
-                            new_comp = ibis.buffers[j["component"]].insert(
-                                j["position"][0], j["position"][1], j["angle"]
-                            )
+                        comp = j["properties"]["component"] if "component" in j["properties"] else j["component"]
+                        if comp in ibis.buffers:
+                            new_comp = ibis.buffers[comp].insert(j["position"][0], j["position"][1], j["angle"])
                         elif "diff_pin_name" in j["properties"]:
                             new_comp = (
-                                ibis.components[j["component"]]
+                                ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
                                 .insert(j["position"][0], j["position"][1], j["angle"])
                             )
                         else:
                             new_comp = (
-                                ibis.components[j["component"]]
+                                ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
                                 .insert(j["position"][0], j["position"][1], j["angle"])
                             )
