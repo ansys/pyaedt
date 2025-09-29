@@ -82,7 +82,6 @@ config = {
     "skip_desktop_test": False,
     "skip_circuits": False,
     "skip_modelithics": True,
-    "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
     "local_example_folder": None,
