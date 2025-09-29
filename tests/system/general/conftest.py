@@ -88,7 +88,6 @@ config = {
     "NewThread": True,
     "skip_desktop_test": False,
     "skip_circuits": False,
-    "skip_debug": False,
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,

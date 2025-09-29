@@ -81,7 +81,6 @@ config = {
     "NewThread": True,
     "skip_desktop_test": False,
     "skip_circuits": False,
-    "skip_debug": False,
     "skip_modelithics": True,
     "local": False,
     "use_grpc": True,
