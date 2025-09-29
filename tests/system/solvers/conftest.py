@@ -86,7 +86,6 @@ config = {
     "NonGraphical": True,
     "NewThread": True,
     "skip_desktop_test": False,
-    "skip_space_claim": False,
     "skip_circuits": False,
     "skip_edb": False,
     "skip_debug": False,
