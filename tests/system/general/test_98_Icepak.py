@@ -68,6 +68,8 @@ link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_Prese
 solution_freq = "2.5GHz"
 resolution = 2
 
+on_ci = os.getenv("ON_CI", "false").lower() == "true"
+
 
 @pytest.fixture(autouse=True)
 def ipk(add_app, request) -> Icepak:
@@ -742,7 +744,7 @@ class TestClass:
         real_bound = obj_2_bbox
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
 
-    @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
+    @pytest.mark.skipif(on_ci, reason="Needs Workbench to run.")
     @pytest.mark.parametrize("ipk", [cold_plate], indirect=True)
     def test037__export_fluent_mesh(self, ipk):
         assert ipk.get_liquid_objects() == ["Liquid"]
