@@ -5868,6 +5868,66 @@ class GeometryModeler(Modeler):
             self.cleanup_objects()
         return True
 
+    @pyaedt_function_handler(sheet_name="sheet", object_name="object")
+    def project_sheet(self, sheet, object, thickness, draft_angle=0, angle_unit="deg", keep_originals=True):
+        """Project sheet on an object.
+
+        If projection produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        sheet : str, int, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Sheet name, id, or sheet object.
+        object : list, str, int, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Object name, id, or solid object to be projected on.
+        thickness : float, str
+            Thickness of the projected sheet in model units.
+        draft_angle : float, str, optional
+            Draft angle for the projection. Default is ``0``.
+        angle_unit : str, optional
+            Angle unit. Default is ``deg``.
+        keep_originals : bool, optional
+            Whether to keep the original objects. Default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ProjectSheet
+        """
+        sheet = self.convert_to_selections(sheet, False)
+        object = self.convert_to_selections(object, False)
+
+        try:
+            unclassified = [i for i in self.unclassified_objects]
+            self.oeditor.ProjectSheet(
+                ["NAME:Selections", "Selections:=", f"{sheet},{object}"],
+                [
+                    "NAME:ProjectSheetParameters",
+                    "Thickness:=",
+                    self._app.value_with_units(thickness),
+                    "DraftAngle:=",
+                    self._app.value_with_units(draft_angle, angle_unit),
+                    "KeepOriginals:=",
+                    keep_originals,
+                ],
+            )
+            unclassified_new = [i for i in self.unclassified_objects if i not in unclassified]
+            if unclassified_new:  # pragma: no cover
+                self.logger.error("Failed to Project Sheet. Reverting to original objects.")
+                self._odesign.Undo()
+                return False
+        except Exception:  # pragma: no cover
+            self.logger.error("Failed to Project Sheet.")
+            return False
+
+        if not keep_originals:
+            self.cleanup_objects()
+        return True
+
     @pyaedt_function_handler(input_objects_list="assignment")
     def heal_objects(
         self,

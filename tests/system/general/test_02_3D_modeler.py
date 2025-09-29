@@ -1231,3 +1231,15 @@ class TestClass:
         assert go.is_vector_equal(x, [0.7053456158585983, 0.07053456158585983, 0.7053456158585983])
         assert go.is_vector_equal(y, [0.19470872568244801, 0.9374864569895649, -0.28845737138140465])
         assert go.is_vector_equal(z, [-0.681598176590997, 0.3407990882954985, 0.6475182677614472])
+
+    def test_65_project_sheet(self):
+        rect1 = self.aedtapp.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet1")
+        rect2 = self.aedtapp.modeler.create_rectangle(Plane.XY, [-3, -3, 15], [6, 16], "sheet2")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box1")
+        box2 = self.aedtapp.modeler.create_box([-1, -1, 10], [2, 2, 2], "box2")
+        assert self.aedtapp.modeler.project_sheet(rect1, box1, 1)
+        self.aedtapp.odesign.Undo()
+        assert self.aedtapp.modeler.project_sheet(rect1, [box1, box2], 1)
+        self.aedtapp.odesign.Undo()
+        self.aedtapp.modeler.subtract([rect1], [rect2])
+        assert not self.aedtapp.modeler.project_sheet(rect1, [box1, box2], 5)  # This projection will fail.
