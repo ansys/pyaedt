@@ -78,3 +78,26 @@ class CreateBoundaryMixin:
             return bound
         except GrpcApiError as e:
             raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e
+
+
+class DirMixin:
+    """
+    Mixin that adds a `.dir` property as a shorthand for the built-in `dir()` function.
+
+    This is primarily intended to make interactive exploration and autocomplete
+    faster. Instead of typing `dir(obj)`, you can type `obj.dir`.
+
+    Example
+    -------
+    >>> class Example(DirMixin):
+    ...     def foo(self):
+    ...         pass
+    >>> e = Example()
+    >>> e.dir  # same as dir(e)
+    ['__class__', ..., 'foo', 'dir']
+    """
+
+    @property
+    def dir(self):
+        """Shortcut for dir(self)."""
+        return dir(self)
