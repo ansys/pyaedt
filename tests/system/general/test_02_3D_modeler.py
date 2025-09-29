@@ -1250,7 +1250,7 @@ class TestClass:
             "unclassified_objects",
             new_callable=PropertyMock,
             side_effect=[["unclassified"], ["unclassified", "unclassified2"]],
-        ) as mock_modeler:
+        ):
             self.aedtapp.logger.clear_messages(level=2)
             result = self.aedtapp.modeler.project_sheet(rect1, box1, 1)
             assert [
