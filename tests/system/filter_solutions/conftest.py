@@ -37,7 +37,6 @@ directory as this module. An example of the contents of local_config.json
   "desktopVersion": "2022.2",
   "NonGraphical": false,
   "NewThread": false,
-  "skip_desktop_test": false
 }
 
 """
@@ -79,7 +78,6 @@ config = {
     "desktopVersion": default_version,
     "NonGraphical": True,
     "NewThread": True,
-    "skip_desktop_test": False,
     "skip_circuits": False,
     "skip_modelithics": True,
     "use_grpc": True,

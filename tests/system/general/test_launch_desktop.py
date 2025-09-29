@@ -48,7 +48,6 @@ settings.lazy_load = False
 settings.wait_for_license = True
 
 
-@pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
 class TestClass:
     def test_run_desktop_mechanical(self):
         aedtapp = Mechanical(solution_type=SolutionsMechanical.SteadyStateThermal)

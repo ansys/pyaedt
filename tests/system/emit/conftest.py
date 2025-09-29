@@ -37,7 +37,6 @@ directory as this module. An example of the contents of local_config.json
   "desktopVersion": "2022.2",
   "NonGraphical": false,
   "NewThread": false,
-  "skip_desktop_test": false
 }
 
 """
