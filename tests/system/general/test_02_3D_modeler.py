@@ -25,7 +25,8 @@
 import logging
 import secrets
 
-from mock import patch, PropertyMock
+from mock import PropertyMock
+from mock import patch
 import pytest
 
 from ansys.aedt.core.generic.constants import Axis
@@ -1246,7 +1247,7 @@ class TestClass:
 
         with patch.object(
             type(self.aedtapp.modeler),
-            'unclassified_objects',
+            "unclassified_objects",
             new_callable=PropertyMock,
             side_effect=[["unclassified"], ["unclassified", "unclassified2"]],
         ) as mock_modeler:
