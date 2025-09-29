@@ -22,8 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 import secrets
 
+from mock import patch, PropertyMock
 import pytest
 
 from ansys.aedt.core.generic.constants import Axis
@@ -1232,7 +1234,7 @@ class TestClass:
         assert go.is_vector_equal(y, [0.19470872568244801, 0.9374864569895649, -0.28845737138140465])
         assert go.is_vector_equal(z, [-0.681598176590997, 0.3407990882954985, 0.6475182677614472])
 
-    def test_65_project_sheet(self):
+    def test_65_project_sheet(self, caplog: pytest.LogCaptureFixture):
         rect1 = self.aedtapp.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet1")
         rect2 = self.aedtapp.modeler.create_rectangle(Plane.XY, [-3, -3, 15], [6, 16], "sheet2")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box1")
@@ -1241,5 +1243,22 @@ class TestClass:
         self.aedtapp.odesign.Undo()
         assert self.aedtapp.modeler.project_sheet(rect1, [box1, box2], 1)
         self.aedtapp.odesign.Undo()
+
+        with patch.object(
+            type(self.aedtapp.modeler),
+            'unclassified_objects',
+            new_callable=PropertyMock,
+            side_effect=[["unclassified"], ["unclassified", "unclassified2"]],
+        ) as mock_modeler:
+            self.aedtapp.logger.clear_messages(level=2)
+            result = self.aedtapp.modeler.project_sheet(rect1, box1, 1)
+            assert [
+                record
+                for record in caplog.records
+                if record.levelno == logging.ERROR
+                and record.message == "Failed to Project Sheet. Reverting to original objects."
+            ]
+            assert not result
+
         self.aedtapp.modeler.subtract([rect1], [rect2])
         assert not self.aedtapp.modeler.project_sheet(rect1, [box1, box2], 5)  # This projection will fail.

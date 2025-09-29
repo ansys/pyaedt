@@ -5868,7 +5868,6 @@ class GeometryModeler(Modeler):
             self.cleanup_objects()
         return True
 
-    @pyaedt_function_handler(sheet_name="sheet", object_name="object")
     def project_sheet(self, sheet, object, thickness, draft_angle=0, angle_unit="deg", keep_originals=True):
         """Project sheet on an object.
 
@@ -5916,11 +5915,11 @@ class GeometryModeler(Modeler):
                 ],
             )
             unclassified_new = [i for i in self.unclassified_objects if i not in unclassified]
-            if unclassified_new:  # pragma: no cover
+            if unclassified_new:
                 self.logger.error("Failed to Project Sheet. Reverting to original objects.")
                 self._odesign.Undo()
                 return False
-        except Exception:  # pragma: no cover
+        except Exception:
             self.logger.error("Failed to Project Sheet.")
             return False
 
