@@ -718,12 +718,28 @@ class Desktop(object):
         example_name : str
             Name of the example for which the full path is desired.
         folder_name : str, optional
-            Name of the example for which the full path is desired.
+            Name of the subfolder in the ``"Examples"`` folder where the example having
+            ``example_name`` can be found. The default is ``"."`` which points to
+            ``self.install_path / "Examples"``
 
         Returns
         -------
-        str
-            Return the full path and name of the example file if found, otherwise ``None``.
+        pathlib.Path
+            Return the path to the example file if found, otherwise ``None``.
+
+        Examples
+        --------
+        Create a copy of a built-in example.
+
+        >>> import shutil
+        >>> from ansys.aedt.core import Desktop
+        >>> from pathlib import Path
+        >>> working_folder = Path("C:\") / "path" / "to" / "target_folder"  # Windows
+        >>> d = Desktop(version=252)
+        >>> example_path = d.get_example("5G_SIW_Aperture_Antenna")
+        >>> new_project = working_folder / example_path.name
+        >>> working_folder.mkdir(parents=True, exist_ok=True)
+        >>> shutil.copytree(example_path, new_project)  # Copy example to new working folder.
         """
         root = Path(self.install_path) / "Examples" / folder_name
 
@@ -742,7 +758,7 @@ class Desktop(object):
             # Find the original Path object that matches the filename (case-insensitive)
             for file in all_files:
                 if file.name.lower() == match_name:
-                    return str(file.resolve())
+                    return file.resolve()
 
     @property
     def logger(self):
