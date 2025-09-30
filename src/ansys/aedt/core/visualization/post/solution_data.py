@@ -626,7 +626,16 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
-        if formula.lower() not in ["real", "imag", "db10", "db20", "magnitude", "phase", "phaserad", "phasedeg"]:
+        if formula and formula.lower() not in [
+            "real",
+            "imag",
+            "db10",
+            "db20",
+            "magnitude",
+            "phase",
+            "phaserad",
+            "phasedeg",
+        ]:
             return False
 
         temp = self._variation_tuple()
@@ -740,7 +749,7 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
-        return True if self._solutions_imag[expression].abs().sum() > 0.0 else False
+        return np.any(self._solutions_imag[expression][:, -1] != 0)
 
     @pyaedt_function_handler()
     def export_data_to_csv(self, output, delimiter=";"):
@@ -783,17 +792,15 @@ class SolutionData(object):
                 header.append(el + f"{data_unit}")
 
         list_full = [header]
-        for e, v in self._solutions_real[self.active_expression].items():
-            e = [float(i) for i in e]
-            list_full.append(list(e))
+        list_full.extend(self._solutions_real[self.active_expression][:, :-1].tolist())
         for el in self.expressions:
             i = 1
-            for e, v in self._solutions_real[el].items():
+            for v in self._solutions_real[el][:, -1]:
                 list_full[i].extend([v])
                 i += 1
             i = 1
             if not self.is_real_only(el):
-                for e, v in self._solutions_imag[el].items():
+                for v in self._solutions_imag[el][:, -1]:
                     list_full[i].extend([v])
                     i += 1
 
