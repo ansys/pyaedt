@@ -626,7 +626,9 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
-        if formula and formula.lower() not in [
+        if formula is None:
+            formula = "real"
+        if formula.lower() not in [
             "real",
             "imag",
             "db10",
