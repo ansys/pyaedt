@@ -630,10 +630,13 @@ class SolutionData(object):
             formula = "real"
         if formula.lower() not in [
             "real",
+            "re",
+            "im",
             "imag",
             "db10",
             "db20",
             "magnitude",
+            "mag",
             "phase",
             "phaserad",
             "phasedeg",
@@ -641,9 +644,9 @@ class SolutionData(object):
             return False
 
         temp = self._variation_tuple()
-        if formula.lower() == "real":
+        if formula.lower() in ["re", "real"]:
             solution_data = self._solutions_real[expression]
-        elif formula.lower() == "imag":
+        elif formula.lower() in ["im", "imag"]:
             solution_data = self._solutions_imag[expression]
         elif formula.lower() in ["mag", "magnitude"]:
             solution_data = self._solutions_mag[expression]
@@ -1004,10 +1007,6 @@ class SolutionData(object):
                 self.active_variation[secondary_sweep] = el
             secondary_radians.append(el * math.pi / 180)
 
-            if formula.lower() == "re":
-                formula = "real"
-            elif formula.lower() == "im":
-                formula = "imag"
             r.append(self.get_expression_data(curve, formula=formula)[1])
         min_r = 1e12
         max_r = -1e12
