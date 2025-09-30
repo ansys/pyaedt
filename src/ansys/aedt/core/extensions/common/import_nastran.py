@@ -39,8 +39,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
-from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -53,6 +52,7 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "lightweight": False,
     "decimate": 0.0,
     "planar": True,
+    "remove_multiple_connections": False,
 }
 EXTENSION_TITLE = "Import Nastran"
 
@@ -65,6 +65,7 @@ class ImportNastranExtensionData(ExtensionCommonData):
     lightweight: bool = EXTENSION_DEFAULT_ARGUMENTS["lightweight"]
     decimate: float = EXTENSION_DEFAULT_ARGUMENTS["decimate"]
     planar: bool = EXTENSION_DEFAULT_ARGUMENTS["planar"]
+    remove_multiple_connections: bool = EXTENSION_DEFAULT_ARGUMENTS["remove_multiple_connections"]
 
 
 class ImportNastranExtension(ExtensionProjectCommon):
@@ -85,6 +86,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
         self.__decimation_text = None
         self.__lightweight_var = None
         self.__planar_var = None
+        self.__remove_multiple_connections_var = None
 
         # Add extension content
         self.add_extension_content()
@@ -155,6 +157,21 @@ class ImportNastranExtension(ExtensionProjectCommon):
             name="check_planar_merge",
         ).grid(row=3, column=1, pady=10, padx=5)
 
+        # Remove multiple connections option
+        ttk.Label(
+            self.root,
+            text="Remove multiple connections:",
+            style="PyAEDT.TLabel",
+        ).grid(row=4, column=0, padx=15, pady=10)
+
+        self.__remove_multiple_connections_var = tkinter.IntVar(self.root, name="var_remove_multiple_connections")
+        ttk.Checkbutton(
+            self.root,
+            variable=self.__remove_multiple_connections_var,
+            style="PyAEDT.TCheckbutton",
+            name="check_remove_multiple_connections",
+        ).grid(row=4, column=1, pady=10, padx=5)
+
         # Preview button
         ttk.Button(
             self.root,
@@ -163,7 +180,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             command=self.__preview,
             style="PyAEDT.TButton",
             name="preview_button",
-        ).grid(row=4, column=0, pady=10, padx=10)
+        ).grid(row=5, column=0, pady=10, padx=10)
 
         # Import button
         ttk.Button(
@@ -173,10 +190,10 @@ class ImportNastranExtension(ExtensionProjectCommon):
             command=self.__import_callback,
             style="PyAEDT.TButton",
             name="import_button",
-        ).grid(row=4, column=1, pady=10, padx=10)
+        ).grid(row=5, column=1, pady=10, padx=10)
 
     def __browse_files(self):
-        """Open file dialog to select Nastran or STL file."""
+        """Open the file dialog to select Nastran or STL file."""
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select a Nastran or STL File",
@@ -205,13 +222,16 @@ class ImportNastranExtension(ExtensionProjectCommon):
         if file_path_ui.endswith(".nas"):
             nastran_to_stl(file_path_ui, decimation=decimate_ui, preview=True)
         else:
-            simplify_stl(file_path_ui, decimation=decimate_ui, preview=True)
+            from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
+
+            simplify_and_preview_stl(file_path_ui, decimation=decimate_ui, preview=True)
 
     def __import_callback(self):
         """Callback for import button."""
         file_path = self.__file_path_text.get("1.0", tkinter.END).strip()
         lightweight_val = self.__lightweight_var.get() == 1
         planar_val = self.__planar_var.get() == 1
+        remove_multiple_connections_val = self.__remove_multiple_connections_var.get() == 1
 
         # Validation
         if not file_path:
@@ -231,6 +251,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             decimate=decimate_val,
             lightweight=lightweight_val,
             planar=planar_val,
+            remove_multiple_connections=remove_multiple_connections_val,
         )
         self.root.destroy()
 
@@ -277,9 +298,12 @@ def main(data: ImportNastranExtensionData):
             import_as_light_weight=data.lightweight,
             decimation=data.decimate,
             enable_planar_merge=str(data.planar),
+            remove_multiple_connections=data.remove_multiple_connections,
         )
     else:
-        outfile = simplify_stl(str(file_path), decimation=data.decimate)
+        from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
+
+        outfile = simplify_and_preview_stl(str(file_path), decimation=data.decimate)
         aedtapp.modeler.import_3d_cad(
             outfile,
             healing=False,
