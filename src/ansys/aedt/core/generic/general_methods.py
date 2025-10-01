@@ -400,9 +400,13 @@ def get_version_and_release(input_version):
 def normalize_version_to_string(input_version):
     input_version_str = str(input_version)
     error_msg = (
-        "Version argument is not valid. \n"
-        "Use 3-digit (e.g., '232') or 5-digit (e.g., '2023.2') format. \n"
-        "You can also use float (e.g., 2023.2) or int (e.g., 232) format."
+        "Version argument is not valid.\n"
+        "Accepted formats are:\n"
+        " - 3-digit format (e.g., '232')\n"
+        " - 5-digit format (e.g., '2023.2')\n"
+        " - Float format (e.g., 2023.2 or 23.2)\n"
+        " - Integer format (e.g., 232)\n"
+        " - Release format with 'R' (e.g., '2023R2' or '23R2')"
     )
     if not isinstance(input_version, (str, int, float)):
         raise ValueError(error_msg)
