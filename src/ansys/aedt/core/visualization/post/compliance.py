@@ -1460,10 +1460,9 @@ class VirtualCompliance:
         # mag_data is a dictionary. The key isa tuple (__Amplitude, __UnitInterval), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
-        points_to_check = [i[::-1] for i in pass_fail_criteria["points"]]
-        points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
-        points_to_check[0] = unit_converter(
-            points_to_check[0],
+        points_to_check = [[i[0] for i in pass_fail_criteria["points"]], [i[1] for i in pass_fail_criteria["points"]]]
+        points_to_check[1] = unit_converter(
+            points_to_check[1],
             unit_system="Voltage",
             input_units=pass_fail_criteria.get("yunits", "V"),
             output_units=sols.units_sweeps["__Amplitude"],
@@ -1630,13 +1629,12 @@ class VirtualCompliance:
                             if hatch_above
                             else np.where(interpolated_values < test_value)
                         )
-                        result_x = freq[indices]
                         result_y = interpolated_values[indices]
                         result_value = "FAIL" if np.any(result_y) else "PASS"
 
                         worst_index = np.argmax(interpolated_values) if hatch_above else np.argmin(interpolated_values)
-                        x_value_worst = round(result_x[worst_index], 5)
-                        y_value_worst = round(result_y[worst_index], 5)
+                        x_value_worst = round(freq[worst_index], 5)
+                        y_value_worst = round(interpolated_values[worst_index], 5)
                         units = limit_v.get("yunits", "")
                         mystr = limit_name
                         font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
