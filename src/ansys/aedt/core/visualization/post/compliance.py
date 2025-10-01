@@ -765,7 +765,7 @@ class VirtualCompliance:
 
     @pyaedt_function_handler()
     def _get_frequency_range(self, data_list, f1, f2):
-        indices = np.where(f1 <= data_list[0] <= f2)
+        indices = np.where((f1 <= data_list[0]) & (data_list[0] <= f2))
         x_range = data_list[0][indices]
         y_range = data_list[1][indices]
         return x_range, y_range
@@ -1482,6 +1482,7 @@ class VirtualCompliance:
                         result_range = self._get_frequency_range(trace_values, limit_x[yy], limit_x[yy + 1])
                         freq = [i[0] for i in result_range]
                         if not freq:
+                            yy += 1
                             continue
                         hatch_above = False
                         if limit_v.get("hatch_above", True):
@@ -1634,7 +1635,7 @@ class VirtualCompliance:
             if np.any(x_data):
                 result_value = "FAILED. No BER obtained"
             for point in x_data:
-                if GeometryOperators.point_in_polygon(point, points_to_check) >= 0:
+                if GeometryOperators.point_in_polygon(point[:2], points_to_check) >= 0:
                     result_value = "FAILED. Mask Violation"
                     break
             font_table.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in result_value else ["", None])
