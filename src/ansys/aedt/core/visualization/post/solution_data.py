@@ -626,6 +626,9 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
+        if expression not in self.expressions:
+            settings.logger.error(f"Expression '{expression}' not found.")
+            return False
         if formula is None:
             formula = "real"
         if formula.lower() not in [
