@@ -98,13 +98,20 @@ def run_pyinstaller_from_c_python(oDesktop):
         command.extend([r"--wheel={}".format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
-    return_code = subprocess.call(command)  # nosec
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _, stderr = proc.communicate()
 
-    err_msg = "There was an error while installing PyAEDT."
-    if is_linux:
-        err_msg += " Refer to the Terminal window where AEDT was launched from."
-    if str(return_code) != "0":
+    if proc.returncode != 0:
+        from System.Windows.Forms import MessageBox
+        from System.Windows.Forms import MessageBoxButtons
+        from System.Windows.Forms import MessageBoxIcon
+
+        err_msg = "There was an error while installing PyAEDT. Please check the log " \
+            "in the terminal or console window for more details."
         oDesktop.AddMessage("", "", 2, err_msg)
+        err_msg = "There was an error while installing PyAEDT, below is the associated " \
+            "stderr:\n\n{}".format(stderr)
+        MessageBox.Show(err_msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         return
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
@@ -368,7 +375,7 @@ def install_pyaedt():
                 subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
 
         if args.version <= "231":
-            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True, env=env)  # nosec
+            subprocess.run([str(uv_exe), "pip", "uninstall", "pywin32"], check=True, env=env)  # nosec
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
@@ -404,7 +411,7 @@ def install_pyaedt():
         else:
             # Ensure uv is installed in the venv
             subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
-            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True, env=env)  # nosec
+            subprocess.run([str(uv_exe), "pip", "uninstall", "pyaedt"], check=True, env=env)  # nosec
             
             print("Installing PyAEDT using online sources with uv...")
             if args.version <= "231":
