@@ -397,21 +397,32 @@ def get_version_and_release(input_version):
 
 
 @pyaedt_function_handler()
-def get_string_version(input_version):
-    output_version = input_version
-    if isinstance(input_version, float):
-        output_version = str(input_version)
-        if len(output_version) == 4:
-            output_version = "20" + output_version
-    elif isinstance(input_version, int):
-        output_version = str(input_version)
-        output_version = f"20{output_version[:2]}.{output_version[-1]}"
-    elif isinstance(input_version, str):
-        if len(input_version) == 3:
-            output_version = f"20{input_version[:2]}.{input_version[-1]}"
-        elif len(input_version) == 4:
-            output_version = "20" + input_version
-    return output_version
+def normalize_version_to_string(input_version):
+    input_version_str = str(input_version)
+    error_msg = (
+        "Version argument is not valid. \n"
+        "Use 3-digit (e.g., '232') or 5-digit (e.g., '2023.2') format. \n"
+        "You can also use float (e.g., 2023.2) or int (e.g., 232) format."
+    )
+    if not isinstance(input_version, (str, int, float)):
+        raise ValueError(error_msg)
+    # Matches 2000.0 – 2099.9 style floats and strings
+    if re.match(r"^20\d{2}\.\d$", input_version_str):
+        return input_version_str
+    # Matches 00.0 – 99.9 style floats and strings
+    elif re.match(r"^\d{2}\.\d$", input_version_str):
+        return "20" + input_version_str
+    # Matches 000 – 999 style ints and strings
+    elif re.match(r"^\d{3}$", input_version_str):
+        return f"20{input_version_str[:2]}.{input_version_str[-1]}"
+    # Matches "2025R2" or "2025 R2" string
+    elif re.match(r"^20\d{2}\s?R\d$", input_version_str):
+        return input_version_str.replace("R", ".").replace(" ", "")
+    # Matches "25R2" or "25 R2" string
+    elif re.match(r"^\d{2}\s?R\d$", input_version_str):
+        return "20" + input_version_str.replace("R", ".").replace(" ", "")
+    else:
+        raise ValueError(error_msg)
 
 
 @pyaedt_function_handler()
