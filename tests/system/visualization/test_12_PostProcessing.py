@@ -220,7 +220,7 @@ class TestClass:
     def test_circuit_get_solution_data_2(self, circuit_test):
         data2 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
-        assert len(data2.get_expression_data(formula="magnitude")[1]) > 0
+        assert len(data2.get_expression_data(formula="magnitude", sweeps=["Time"])[1]) > 0
 
     def test_circuit_get_solution_data_3(self, circuit_test):
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}

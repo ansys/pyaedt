@@ -598,10 +598,16 @@ class SolutionData(object):
         matched_rows = array[mask]
         if matched_rows.size == 0:
             return
-        return matched_rows[:, output_column]  # last column
+        if isinstance(output_column, int):
+            output_column = [output_column]
+        return (
+            matched_rows[:, output_column] if len(output_column) > 1 else matched_rows[:, output_column[0]]
+        )  # last column
 
     @pyaedt_function_handler()
-    def get_expression_data(self, expression=None, formula="real", convert_to_SI=False, use_quantity=False):
+    def get_expression_data(
+        self, expression=None, formula="real", convert_to_SI=False, use_quantity=False, sweeps=None
+    ):
         """Retrieve the real part of the data for an expression.
 
         Parameters
@@ -618,6 +624,9 @@ class SolutionData(object):
         use_quantity : bool, optional
             Whether to output data in ``Quantity`` format or not.
             It impacts on performances as it returns array of objects.
+        sweeps : list, str, optional
+            List of sweeps to consider for the data retrieval.
+            The default is ``None``, which actually takes the primary sweep.
 
         Returns
         -------
@@ -657,17 +666,24 @@ class SolutionData(object):
             solution_data = self._solutions_phase[expression]
         else:
             solution_data = self._solutions_mag[expression]
+        if sweeps:
+            if isinstance(sweeps, str):
+                sweeps = [sweeps]
+            position = []
+            for sweep in sweeps:
+                position.append(list(self._sweeps_names).index(sweep))
+        else:
+            position = [list(self._sweeps_names).index(self.primary_sweep)]
 
-        position = list(self._sweeps_names).index(self.primary_sweep)
         sol = self.lookup_column_value(
             solution_data,
-            [temp.index(i) for i in temp if temp.index(i) != position],
-            [i for i in temp if temp.index(i) != position],
+            [temp.index(i) for i in temp if temp.index(i) not in position],
+            [i for i in temp if temp.index(i) not in position],
         )
         x_axis = self.lookup_column_value(
             solution_data,
-            [temp.index(i) for i in temp if temp.index(i) != position],
-            [i for i in temp if temp.index(i) != position],
+            [temp.index(i) for i in temp if temp.index(i) not in position],
+            [i for i in temp if temp.index(i) not in position],
             position,
         )
 
