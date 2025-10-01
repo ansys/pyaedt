@@ -46,11 +46,11 @@ class Waveform(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property("Enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
     def port(self):
@@ -443,3 +443,4 @@ class Waveform(EmitNode):
     def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Delay Skew", f"{value}")
+
