@@ -107,6 +107,7 @@
 * [Tadahiro Negishi](https://github.com/tadanegishi)
 * [Tejas Jeurkar](https://github.com/TejasJe)
 * [Tiziana Bertoncelli](https://github.com/tizianrot)
+* [Tushar Bana](https://github.com/tusharbana-ansys)
 * [Valérie Gelbgras](https://github.com/vgelbgras)
 * [Vinod_GPS_Ansys](https://github.com/pvinod13)
 * [voss70](https://github.com/voss70)

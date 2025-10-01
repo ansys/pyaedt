@@ -37,7 +37,7 @@ from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
+from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 
 class Modeler3D(Primitives3D):
@@ -1031,6 +1031,7 @@ class Modeler3D(Primitives3D):
         save_only_stl=False,
         preview=False,
         merge_angle=1e-3,
+        remove_multiple_connections=False,
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
 
@@ -1062,6 +1063,8 @@ class Modeler3D(Primitives3D):
             Whether to preview the model in pyvista or skip it.
         merge_angle : float, optional
             Angle in radians for which faces will be considered planar. Default is ``1e-3``.
+        remove_multiple_connections : bool, optional
+            Whether to remove multiple connections in the mesh. Default is ``False``.
 
         Returns
         -------
@@ -1080,6 +1083,7 @@ class Modeler3D(Primitives3D):
             output_folder=self._app.working_directory,
             enable_planar_merge=enable_planar_merge,
             preview=preview,
+            remove_multiple_connections=remove_multiple_connections,
         )
         if save_only_stl:
             return output_stls, nas_to_dict

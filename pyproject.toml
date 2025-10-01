@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "grpcio>=1.50.0,<1.75",
+    "grpcio>=1.50.0,<1.76",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
@@ -131,6 +131,12 @@ examples = [
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd", "**/*.license"]
 
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
