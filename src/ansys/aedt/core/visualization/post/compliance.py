@@ -1634,7 +1634,7 @@ class VirtualCompliance:
             x_data = mag_data_in[0][filter_in]
             mystr = f"Eye Mask Violation BER at {ber}:"
             result_value = "PASS"
-            if np.any(x_data):
+            if not np.any(x_data):
                 result_value = "FAILED. No BER obtained"
             for point in x_data:
                 if GeometryOperators.point_in_polygon(point[:2], points_to_check) >= 0:
