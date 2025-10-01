@@ -22,7 +22,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.mixins import DirMixin
+# from ansys.aedt.core.mixins import DirMixin
+
+
+class DirMixin:
+    """
+    Mixin that adds a `.dir` property as a shorthand for the built-in `dir()` function.
+
+    This is primarily intended to make interactive exploration and autocomplete
+    faster. Instead of typing `dir(obj)`, you can type `obj.dir`.
+
+    Example
+    -------
+    >>> class Example(DirMixin):
+    ...     def foo(self):
+    ...         pass
+    >>> e = Example()
+    >>> e.dir  # same as dir(e)
+    """
+
+    @property
+    def dir(self):
+        """Shortcut for dir(self)."""
+        return sorted(i for i in dir(self) if not i.startswith("_") and i != "dir")
 
 
 class PyAedtBase(DirMixin):

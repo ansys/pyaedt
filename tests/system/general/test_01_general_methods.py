@@ -33,7 +33,7 @@ def desktop():
     return
 
 
-class TestClass(object):
+class TestClass:
     def test_00_number_aware_string_key(self):
         assert number_aware_string_key("C1") == ("C", 1)
         assert number_aware_string_key("1234asdf") == (1234, "asdf")

@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -32,7 +33,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryProps
 from ansys.aedt.core.modules.boundary.common import disable_auto_update
 
 
-class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
+class NativeComponentObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages Native Component data and execution.
 
     Parameters
@@ -278,7 +279,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
         return True
 
 
-class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
+class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages boundary data and execution for Hfss3dLayout.
 
     Parameters
@@ -410,7 +411,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode):
         return True
 
 
-class NativeComponentPCB(NativeComponentObject, object):
+class NativeComponentPCB(NativeComponentObject):
     """Manages native component PCB data and execution.
 
     Parameters
@@ -869,7 +870,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return True
 
 
-class PCBSettingsPackageParts(object):
+class PCBSettingsPackageParts(PyAedtBase):
     """Handle package part settings of the PCB component.
 
     Parameters
@@ -1000,7 +1001,7 @@ class PCBSettingsPackageParts(object):
         return "Package"
 
 
-class PCBSettingsDeviceParts(object):
+class PCBSettingsDeviceParts(PyAedtBase):
     """Handle device part settings of the PCB component.
 
     Parameters

@@ -86,7 +86,6 @@ from ansys.aedt.core.generic.settings import inner_project_settings
 if ".NETFramework" not in sys.version:  # pragma: no cover
     import ansys.aedt.core.examples.downloads as downloads
 
-from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.circuit import Circuit
 from ansys.aedt.core.circuit_netlist import CircuitNetlist
 from ansys.aedt.core.desktop import Desktop
@@ -158,5 +157,4 @@ __all__ = [
     "online_help",
     "pyaedt_function_handler",
     "Quantity",
-    "PyAedtBase",
 ]

@@ -49,6 +49,7 @@ import uuid
 import warnings
 
 from ansys.aedt.core import pyaedt_path
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
@@ -151,7 +152,7 @@ class _InnerProjectSettings:  # pragma: no cover
     time_stamp: Union[int, float] = 0
 
 
-class Settings(object):
+class Settings(PyAedtBase):
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
