@@ -98,13 +98,20 @@ def run_pyinstaller_from_c_python(oDesktop):
         command.extend([r"--wheel={}".format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
-    return_code = subprocess.call(command)  # nosec
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _, stderr = proc.communicate()
 
-    err_msg = "There was an error while installing PyAEDT."
-    if is_linux:
-        err_msg += " Refer to the Terminal window where AEDT was launched from."
-    if str(return_code) != "0":
+    if proc.returncode != 0:
+        from System.Windows.Forms import MessageBox
+        from System.Windows.Forms import MessageBoxButtons
+        from System.Windows.Forms import MessageBoxIcon
+
+        err_msg = "There was an error while installing PyAEDT. Please check the log " \
+            "in the terminal or console window for more details."
         oDesktop.AddMessage("", "", 2, err_msg)
+        err_msg = "There was an error while installing PyAEDT, below is the associated " \
+            "stderr:\n\n{}".format(stderr)
+        MessageBox.Show(err_msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         return
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
