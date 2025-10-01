@@ -107,11 +107,11 @@ class ToolTip:
 EXTENSION_TITLE = "Extension Manager"
 
 # Default width and height for the extension window
-WIDTH = 800
+WIDTH = 900
 HEIGHT = 450
 
 # Maximum dimensions for the extension window
-MAX_WIDTH = 800
+MAX_WIDTH = 900
 MAX_HEIGHT = 550
 
 # Minimum dimensions for the extension window
