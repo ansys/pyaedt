@@ -1528,7 +1528,9 @@ class VirtualCompliance:
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
             self._desktop_class.logger.error(msg)
             return
-        mag_data_in = sols.get_expression_data(sols.expressions[0], formula="magnitude")
+        mag_data_in = sols.get_expression_data(
+            sols.expressions[0], formula="magnitude", sweeps=["__UnitInterval", "__Amplitude"]
+        )
         filter_in = np.where(mag_data_in[1] > 0)
         x_data = mag_data_in[0][filter_in]
         y_data = mag_data_in[1][filter_in]
@@ -1627,7 +1629,7 @@ class VirtualCompliance:
             output_units=sols.units_sweeps["__Amplitude"],
         )
         for ber in bit_error_rates:
-            mag_data_in = sols.get_expression_data(sols.expressions[0])
+            mag_data_in = sols.get_expression_data(sols.expressions[0], sweeps=["__UnitInterval", "__Amplitude"])
             filter_in = np.where(mag_data_in[1] <= ber)
             x_data = mag_data_in[0][filter_in]
             mystr = f"Eye Mask Violation BER at {ber}:"
