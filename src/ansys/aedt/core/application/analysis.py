@@ -1637,11 +1637,13 @@ class Analysis(Design, object):
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
             oModule.EditOutputVariable(
-                variable, expression, variable, solution, self.design_solutions.report_type, context
+                variable, expression, variable, solution, self.design_solutions.solution_type, context
             )
         else:
             try:
-                oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
+                oModule.CreateOutputVariable(
+                    variable, expression, solution, self.design_solutions.solution_type, context
+                )
             except Exception:
                 raise AEDTRuntimeError("Invalid commands.")
         return True
