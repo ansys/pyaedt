@@ -39,7 +39,6 @@ from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.filesystem import search_files
-from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 
@@ -1442,6 +1441,11 @@ class VirtualCompliance:
                 )
             settings.logger.info(f"Parameters {template_report.name} added to the report.")
 
+    @staticmethod
+    def points_in_polygon(points, polygon):
+        path = Path(polygon)
+        return path.contains_points(points)
+
     @pyaedt_function_handler()
     def _add_statistical_violations(self, report, chapter, image_name, pass_fail_criteria):
         font_table = [["", None]]
@@ -1468,14 +1472,10 @@ class VirtualCompliance:
             output_units=sols.units_sweeps["__Amplitude"],
         )
 
-        def points_in_polygon(points, polygon):
-            path = Path(polygon)
-            return path.contains_points(points)
-
         poly = np.array(points_to_check).T
 
-        mask = points_in_polygon(x_data, poly)
-        inside_points = x_data[mask]
+        mask = self.points_in_polygon(x_data, poly)
+        inside_points = x_data[np.where(mask)]
         num_failed = len(inside_points)
         output_array = np.empty((0, 3))
         if num_failed > 0:
@@ -1503,8 +1503,8 @@ class VirtualCompliance:
                 output_units=sols.units_sweeps["__Amplitude"],
             )
             # checking if amplitude is overcoming limits.
-            upper_violations = x_data[x_data[:, 0] > upper_limit]
-            lower_violations = x_data[x_data[:, 0] < lower_limit]
+            upper_violations = x_data[x_data[:, 1] > upper_limit]
+            lower_violations = x_data[x_data[:, 1] < lower_limit]
             if len(upper_violations) > 0:
                 result_value = "FAIL"
                 text_column = np.full((upper_violations.shape[0], 1), "UPPER")
@@ -1544,10 +1544,9 @@ class VirtualCompliance:
             return
         bit_error_rates = [1e-3, 1e-6, 1e-9, 1e-12]
         font_table = [["", None]]
-        points_to_check = [i[::-1] for i in pass_fail_criteria["points"]]
-        points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
-        points_to_check[0] = unit_converter(
-            points_to_check[0],
+        points_to_check = [[i[0] for i in pass_fail_criteria["points"]], [i[1] for i in pass_fail_criteria["points"]]]
+        points_to_check[1] = unit_converter(
+            points_to_check[1],
             unit_system="Voltage",
             input_units=pass_fail_criteria.get("yunits", "V"),
             output_units=sols.units_sweeps["__Amplitude"],
@@ -1563,10 +1562,12 @@ class VirtualCompliance:
                 min_ber = np.min(mag_data_in[1])
                 result_value = f"FAILED. Minimum available BER  is {min_ber}"
             else:
-                for point in x_data:
-                    if GeometryOperators.point_in_polygon(point[:2], points_to_check) >= 0:
-                        result_value = "FAILED. Mask Violation"
-                        break
+                poly = np.array(points_to_check).T
+                mask = self.points_in_polygon(x_data, poly)
+                inside_points = x_data[np.where(mask)]
+                num_failed = len(inside_points)
+                if num_failed > 0:
+                    result_value = "FAILED. Mask Violation"
             font_table.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in result_value else ["", None])
             pass_fail_table.append([mystr, result_value])
 
