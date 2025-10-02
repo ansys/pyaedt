@@ -157,7 +157,9 @@ class MonostaticRCSExporter:
         variations["IWavePhi"] = ["All"]
         frequencies = self.frequencies[::]
         if frequencies is not None:
-            frequencies = [f"{freq}{self.__frequency_unit}" for freq in frequencies]
+            frequencies = [
+                f"{freq}{self.__frequency_unit}" if isinstance(freq, (float, int)) else freq for freq in frequencies
+            ]
         variations["Freq"] = frequencies
 
         solution_data = self.__app.post.get_solution_data(
