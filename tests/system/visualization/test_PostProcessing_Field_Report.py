@@ -24,6 +24,7 @@
 
 import os
 
+import numpy as np
 import pytest
 
 
@@ -250,7 +251,7 @@ class TestClass:
 
         assert data.primary_sweep == "Theta"
         assert len(data.get_expression_data("GainTotal", formula="magnitude")[1]) > 0
-        assert not data.get_expression_data("GainTotal2")
+        assert not np.any(data.get_expression_data("GainTotal2")[0])
 
     def test_create_report_nominal_sweep(self, h3d_potter_horn):
         variations = h3d_potter_horn.available_variations.get_independent_nominal_values()

@@ -637,7 +637,7 @@ class SolutionData(object):
             expression = self.active_expression
         if expression not in self.expressions:
             settings.logger.error(f"Expression '{expression}' not found.")
-            return False
+            return np.array([]), np.array([])
         if formula is None:
             formula = "real"
         if formula.lower() not in [
@@ -653,7 +653,7 @@ class SolutionData(object):
             "phaserad",
             "phasedeg",
         ]:
-            return False
+            return np.array([]), np.array([])
 
         temp = self._variation_tuple()
         if formula.lower() in ["re", "real"]:
