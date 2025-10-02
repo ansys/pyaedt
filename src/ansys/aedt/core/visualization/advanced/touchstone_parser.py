@@ -110,6 +110,16 @@ class TouchstoneData(rf.Network):
 
         elif touchstone_file and touchstone_file.is_file():
             rf.Network.__init__(self, touchstone_file)
+            if not self.port_names:
+                with open(touchstone_file, "r") as f:
+                    lines = f.readlines()
+                    pnames = []
+                    for line in lines:
+                        if line.lower().startswith("! port"):
+                            pnames.append(line.split("=")[-1].strip())
+                    if not pnames:
+                        pnames = [f"Port{i + 1}" for i in range(self.nports)]
+                self.port_names = pnames
         self.log_x = True
 
     @pyaedt_function_handler()
