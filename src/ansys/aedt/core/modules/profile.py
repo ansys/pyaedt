@@ -46,7 +46,7 @@ except ImportError:  # pragma: no cover
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 
