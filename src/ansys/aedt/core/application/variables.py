@@ -730,24 +730,24 @@ class VariableManager(object):
     def __init__(self, app):
         # Global Desktop Environment
         self._app = app
-        self._independent_design_variables = {}
-        self._independent_project_variables = {}
-        self._dependent_design_variables = {}
-        self._dependent_project_variables = {}
+        self.__independent_design_variables = {}
+        self.__independent_project_variables = {}
+        self.__dependent_design_variables = {}
+        self.__dependent_project_variables = {}
 
     @property
     def _independent_variables(self):
         all_independent = {}
-        all_independent.update(self._independent_project_variables)
-        all_independent.update(self._independent_design_variables)
+        all_independent.update(self.__independent_project_variables)
+        all_independent.update(self.__independent_design_variables)
         return all_independent
 
     @property
     def _dependent_variables(self):
         all_dependent = {}
-        for k, v in self._dependent_project_variables.items():
+        for k, v in self.__dependent_project_variables.items():
             all_dependent[k] = v
-        for k, v in self._dependent_design_variables.items():
+        for k, v in self.__dependent_design_variables.items():
             all_dependent[k] = v
         return all_dependent
 
@@ -776,10 +776,10 @@ class VariableManager(object):
     def _cleanup_variables(self):
         variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(self._app.oproject)
         all_dicts = [
-            self._independent_project_variables,
-            self._independent_design_variables,
-            self._dependent_project_variables,
-            self._dependent_design_variables,
+            self.__independent_project_variables,
+            self.__independent_design_variables,
+            self.__dependent_project_variables,
+            self.__dependent_design_variables,
         ]
         for dict_var in all_dicts:
             for var_name in list(dict_var.keys()):
@@ -816,26 +816,26 @@ class VariableManager(object):
                     value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
                     is_number_flag = is_number(value._calculated_value)
                     if variable_name.startswith("$") and is_number_flag:
-                        self._independent_project_variables[variable_name] = value
+                        self.__independent_project_variables[variable_name] = value
                     elif variable_name.startswith("$"):
-                        self._dependent_project_variables[variable_name] = value
+                        self.__dependent_project_variables[variable_name] = value
                     elif is_number_flag:
-                        self._independent_design_variables[variable_name] = value
+                        self.__independent_design_variables[variable_name] = value
                     else:
-                        self._dependent_design_variables[variable_name] = value
+                        self.__dependent_design_variables[variable_name] = value
         self._cleanup_variables()
         vars_to_output = {}
         dicts_to_add = []
         if independent:
             if self._app.odesign in object_list:
-                dicts_to_add.append(self._independent_design_variables)
+                dicts_to_add.append(self.__independent_design_variables)
             if self._app.oproject in object_list:
-                dicts_to_add.append(self._independent_project_variables)
+                dicts_to_add.append(self.__independent_project_variables)
         if dependent:
             if self._app.odesign in object_list:
-                dicts_to_add.append(self._dependent_design_variables)
+                dicts_to_add.append(self.__dependent_design_variables)
             if self._app.oproject in object_list:
-                dicts_to_add.append(self._dependent_project_variables)
+                dicts_to_add.append(self.__dependent_project_variables)
         for dict_var in dicts_to_add:
             for k, v in dict_var.items():
                 vars_to_output[k] = v
@@ -970,20 +970,22 @@ class VariableManager(object):
 
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
         """
-        if name in self._independent_variables:
-            del self._independent_variables[name]
-            if name in self._independent_design_variables:
-                del self._independent_design_variables[name]
-            elif name in self._independent_project_variables:
-                del self._independent_project_variables[name]
-        elif name in self._dependent_variables:
-            del self._dependent_variables[name]
-            if name in self._dependent_design_variables:
-                del self._dependent_design_variables[name]
-            elif name in self._dependent_project_variables:
-                del self._dependent_project_variables[name]
+        if name in self.independent_variables:
+            if name in self.__independent_design_variables:
+                del self.__independent_design_variables[name]
+            elif name in self.__independent_project_variables:
+                del self.__independent_project_variables[name]
+        elif name in self.dependent_variables:
+            if name in self.__dependent_design_variables:
+                del self.__dependent_design_variables[name]
+            elif name in self.__dependent_project_variables:
+                del self.__dependent_project_variables[name]
         if not description:
             description = ""
+
+        if name in self.variables:
+            variable = self.variables[name]
+            circuit_parameter = variable.circuit_parameter
 
         desktop_object = self.aedt_object(name)
         if name.startswith("$"):
