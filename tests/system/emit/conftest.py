@@ -41,28 +41,12 @@ directory as this module. An example of the contents of local_config.json
 
 """
 
-import gc
 import json
-import os
 from pathlib import Path
-import random
-import shutil
-import string
 import sys
-import tempfile
-import time
 
-import pytest
-
-from ansys.aedt.core import Emit
-from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.desktop import Desktop
-from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.desktop_sessions import (
-    _desktop_sessions,
-)
-from ansys.aedt.core.internal.filesystem import Scratch
-from tests.conftest import config, apply_global_configuration
+from tests.conftest import apply_global_configuration
+from tests.conftest import config
 
 local_path = Path(__file__).parent
 sys.path.append(str(local_path))
@@ -78,4 +62,3 @@ if local_config_file.exists():
     config.update(local_config)
 
 apply_global_configuration(config)
-

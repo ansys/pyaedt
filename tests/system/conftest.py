@@ -50,6 +50,7 @@ def desktop():
     except Exception:
         return False
 
+
 @pytest.fixture(scope="module")
 def add_app(local_scratch):
     def _method(
@@ -89,6 +90,7 @@ def add_app(local_scratch):
 
     return _method
 
+
 @pytest.fixture(scope="module")
 def test_project_file(local_scratch):
     def _method(project_name=None, subfolder=None):
@@ -102,6 +104,7 @@ def test_project_file(local_scratch):
             return None
 
     return _method
+
 
 @pytest.fixture(scope="module")
 def add_edb(local_scratch):
@@ -121,6 +124,7 @@ def add_edb(local_scratch):
         )
 
     return _method
+
 
 @pytest.fixture(scope="function")
 def lumped_design():
