@@ -3660,7 +3660,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        project : str
+        project : pathlib.Path or str
             Full path and name for the project containing the design to copy.
             The active design is maintained.
         design : str
@@ -3865,7 +3865,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        file_name : str, optional
+        file_name : str or pathlib.Path, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
