@@ -372,12 +372,11 @@ dist/
 /htmlcov/
 /coverage.xml
 /tests/system/general/coverage.xml
-/tests/system/general/local_config.json
 /tests/system/solvers/coverage.xml
-/tests/system/solvers/local_config.json
 /tests/unit/coverage.xml
 test-results.xml
 test-output.xml
+*local_config.json
 
 # Scratch Jupyter Notebooks
 scratch_notebooks/
@@ -397,12 +396,10 @@ model.index\+
 
 # local environment settings used by e.g. Visual Studio Code
 /.env
-/doc/source/local_config.json
 /.venv*
 
 # test coverage output
 /.cov/
-/tests/system/visualization/local_config.json
 /tests/system/general/pyaedt_settings.yaml
 
 # Custom instructions for GitHub Copilot

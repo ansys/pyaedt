@@ -41,7 +41,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T98"
 board_3dl = "FilterBoard_H3DL"

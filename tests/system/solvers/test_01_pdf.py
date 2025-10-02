@@ -33,8 +33,8 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
-from tests.system.solvers.conftest import desktop_version
-from tests.system.solvers.conftest import local_path
+from tests.conftest import desktop_version
+from tests.conftest import local_path
 
 tol = 1e-12
 test_project_name = "ANSYS-HSD_V1_0_test"

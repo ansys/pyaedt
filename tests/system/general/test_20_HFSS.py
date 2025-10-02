@@ -36,8 +36,8 @@ from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
-from tests.system.general.conftest import config
-from tests.system.general.conftest import settings
+from tests.conftest import config
+from tests.conftest import settings
 
 small_number = 1e-10  # Used for checking equivalence.
 

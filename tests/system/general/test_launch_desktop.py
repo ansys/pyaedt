@@ -42,7 +42,7 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 settings.lazy_load = False
 settings.wait_for_license = True
