@@ -56,6 +56,8 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import _is_version_format_valid
+from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import deprecate_argument
@@ -63,7 +65,6 @@ from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
@@ -395,7 +396,7 @@ class Desktop(object):
 
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
-        specified_version = normalize_version_to_string(specified_version)
+        specified_version = _normalize_version_to_string(specified_version)
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
         if not settings.remote_api:
@@ -2123,6 +2124,7 @@ class Desktop(object):
     def __check_version(self, specified_version, student_version):
         if self.current_version == "" and aedt_versions.latest_version == "":
             raise AEDTRuntimeError("AEDT is not installed on your system. Install AEDT version 2022 R2 or higher.")
+        specified_version = _normalize_version_to_string(specified_version)
         if not specified_version:
             if student_version and self.current_student_version:
                 specified_version = self.current_student_version
@@ -2140,7 +2142,9 @@ class Desktop(object):
                     self.logger.warning("Only AEDT Student Version found on the system. Using Student Version.")
         elif student_version:
             specified_version += "SV"
-        specified_version = normalize_version_to_string(specified_version)
+
+        if not _is_version_format_valid(specified_version):
+            raise AEDTRuntimeError(f"Internal version format is not correct: specified_version: {specified_version}")
 
         if float(specified_version[0:6]) < 2019:
             raise ValueError("PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later.")
