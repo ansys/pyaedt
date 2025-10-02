@@ -64,9 +64,7 @@ settings.enable_pandas_output = True
 
 # Initialize default configuration - shared across all test types
 default_version = "2025.2"
-os.environ[
-    "ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"
-] = "1"
+os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
 DEFAULT_CONFIG = {
     "desktopVersion": default_version,
@@ -95,6 +93,7 @@ if local_config_file.exists():
     except Exception:  # pragma: no cover
         pass
 
+
 # Apply global configuration moved into a function for reuse and to support updates from nested conftest files
 def apply_global_configuration(cfg: dict):
     """Apply global configuration settings from a configuration dictionary.
@@ -113,24 +112,20 @@ def apply_global_configuration(cfg: dict):
     settings.use_grpc_api = cfg.get("use_grpc", DEFAULT_CONFIG.get("use_grpc"))
     close_desktop = cfg.get("close_desktop", DEFAULT_CONFIG.get("close_desktop"))
     remove_lock = cfg.get("remove_lock", DEFAULT_CONFIG.get("remove_lock"))
-    settings.use_local_example_data = cfg.get(
-        "use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data")
-    )
+    settings.use_local_example_data = cfg.get("use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data"))
     if settings.use_local_example_data:
-        settings.local_example_folder = cfg.get(
-            "local_example_folder", DEFAULT_CONFIG.get("local_example_folder")
-        )
+        settings.local_example_folder = cfg.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
 
     logger = pyaedt_logger
-    os.environ["PYAEDT_SCRIPT_VERSION"] = cfg.get(
-        "desktopVersion", DEFAULT_CONFIG.get("desktopVersion")
-    )
+    os.environ["PYAEDT_SCRIPT_VERSION"] = cfg.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
+
 
 # Call the function to apply the current config values
 apply_global_configuration(config)
 
 # Add current path to sys.path for imports
 sys.path.append(str(local_path))
+
 
 def generate_random_string(length):
     """Generate a random string of specified length."""
@@ -141,16 +136,11 @@ def generate_random_string(length):
 
 def generate_random_ident():
     """Generate a random identifier for test folders."""
-    ident = (
-        "-" + generate_random_string(6) + "-" +
-        generate_random_string(6) + "-" + generate_random_string(6)
-    )
+    ident = "-" + generate_random_string(6) + "-" + generate_random_string(6) + "-" + generate_random_string(6)
     return ident
 
 
-def pytest_collection_modifyitems(
-    config: pytest.Config, items: List[pytest.Item]
-):
+def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     """Hook used to apply marker on tests."""
     for item in items:
         # Mark unit, integration and system tests
@@ -178,6 +168,7 @@ def pytest_collection_modifyitems(
 # ================================
 # SHARED FIXTURES
 # ================================
+
 
 @pytest.fixture(scope="session", autouse=True)
 def init_scratch():
@@ -245,12 +236,8 @@ def patch_graphics_modules(monkeypatch):
     # Specific action to make a mock an attribute of another mock
     mocks["matplotlib"].pyplot = mocks["matplotlib.pyplot"]
     viz_interface = mocks["ansys.tools.visualization_interface"]
-    viz_backends = mocks[
-        "ansys.tools.visualization_interface.backends"
-    ]
+    viz_backends = mocks["ansys.tools.visualization_interface.backends"]
     viz_interface.backends = viz_backends
-    viz_backends.pyvista = mocks[
-        "ansys.tools.visualization_interface.backends.pyvista"
-    ]
+    viz_backends.pyvista = mocks["ansys.tools.visualization_interface.backends.pyvista"]
 
     yield mocks

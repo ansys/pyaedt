@@ -36,7 +36,9 @@ file in this directory with solver-specific parameters only.
 import json
 import os
 import sys
-from tests.conftest import config, apply_global_configuration
+
+from tests.conftest import apply_global_configuration
+from tests.conftest import config
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)

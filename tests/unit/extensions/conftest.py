@@ -31,7 +31,9 @@ It provides mock fixtures for testing extensions without requiring full
 AEDT applications. General configurations are inherited from top-level.
 """
 
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import PropertyMock
+from unittest.mock import patch
 
 import pytest
 
@@ -41,11 +43,7 @@ from ansys.aedt.core.extensions.misc import ExtensionCommon
 @pytest.fixture
 def mock_icepak_app():
     """Fixture to mock Icepak application."""
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "Icepak"
         mock_property.return_value = mock_instance
@@ -55,11 +53,7 @@ def mock_icepak_app():
 @pytest.fixture
 def mock_hfss_app():
     """Fixture to mock HFSS application."""
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "HFSS"
         mock_property.return_value = mock_instance
@@ -69,11 +63,7 @@ def mock_hfss_app():
 @pytest.fixture
 def mock_hfss_3d_layout_app():
     """Fixture to mock HFSS 3D Layout application."""
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "HFSS 3D Layout Design"
         mock_property.return_value = mock_instance
@@ -83,11 +73,7 @@ def mock_hfss_3d_layout_app():
 @pytest.fixture
 def mock_maxwell_3d_app():
     """Fixture to mock Maxwell 3D application."""
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "Maxwell 3D"
         mock_property.return_value = mock_instance
@@ -97,15 +83,12 @@ def mock_maxwell_3d_app():
 @pytest.fixture
 def mock_maxwell_2d_app():
     """Fixture to mock Maxwell 2D application."""
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_instance = MagicMock()
         mock_instance.design_type = "Maxwell 2D"
         mock_property.return_value = mock_instance
         yield mock_instance
+
 
 @pytest.fixture
 def mock_circuit_app():
