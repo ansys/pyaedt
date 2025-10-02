@@ -35,4 +35,3 @@ class CategoriesViewNode(EmitNode):
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
-
