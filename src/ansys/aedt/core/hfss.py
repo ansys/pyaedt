@@ -8046,14 +8046,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 "and must start from 0.\n"
             )
             ofile.write("# Maximum simulated theta value, deg.\n")
-            if is_isotropic:
+            if self.desktop.aedt_version_id < "2026.2":
                 ofile.write(f"# ThetaMax {theta_max.value}\n")  # until ThetaMax key becomes allowed
             else:
                 ofile.write(f"ThetaMax {theta_max.value}\n")
 
             ofile.write("# The angular sampling is specified by the number of theta steps.\n")
             ofile.write("# <num_theta_step> = number_of_theta_points – 1\n")
-            if is_isotropic:
+            if self.desktop.aedt_version_id < "2026.2":
                 nb_theta_points = int(90 / theta_step.value)  # until ThetaMax key becomes allowed
             else:
                 nb_theta_points = len(angles["0.0deg"]) - 1

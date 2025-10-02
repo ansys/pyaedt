@@ -121,27 +121,28 @@ class FresnelExtension(ExtensionHFSSCommon):
         anisotropic_button.grid(row=1, column=0, sticky="w")
         self._widgets["isotropic_button"] = anisotropic_button
 
-        # Advanced and automated workflows
+        # Extraction, advanced and automated workflows
         tabs = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self._widgets["tabs"] = tabs
 
         self._widgets["tabs"].grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
-        self._widgets["auto_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
-        self._widgets["advanced_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
         self._widgets["extraction_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
+        # self._widgets["auto_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
+        self._widgets["advanced_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
         self._widgets["settings_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
 
-        self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated")
+        self._widgets["tabs"].add(self._widgets["extraction_tab"], text="Extraction")
+
+        # self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated")
         # Disable Automated workflow until it is not implemented
-        self._widgets["tabs"].tab(self._widgets["auto_tab"], state="disabled")
+        # self._widgets["tabs"].tab(self._widgets["auto_tab"], state="disabled")
 
         self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced")
-        self._widgets["tabs"].add(self._widgets["extraction_tab"], text="Extraction")
         self._widgets["tabs"].add(self._widgets["settings_tab"], text="Simulation Settings")
 
         # Select the "Advanced Workflow" tab by default
-        self._widgets["tabs"].select(self._widgets["advanced_tab"])
+        self._widgets["tabs"].select(self._widgets["extraction_tab"])
 
         # Angle resolution
         self._widgets["elevation_resolution"] = tkinter.DoubleVar(value=7.5)
