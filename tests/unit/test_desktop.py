@@ -163,7 +163,7 @@ def test_desktop_check_version_failure(mock_aedt_versions, mock_desktop):
 def test_desktop_check_version_failure_with_old_specified_version(mock_aedt_versions, mock_desktop):
     mock_student_version = MagicMock()
     desktop = Desktop()
-    specified_version = "1989.6"
+    specified_version = "2001.6"
 
     with pytest.raises(
         ValueError, match="PyAEDT supports AEDT version 2021 R1 and later. Recommended version is 2022 R2 or later."
