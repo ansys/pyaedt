@@ -677,12 +677,12 @@ class SolutionData(object):
 
         sol = self.lookup_column_value(
             solution_data,
-            [temp.index(i) for i in temp if temp.index(i) not in position],
+            [i for i, _ in enumerate(temp) if i not in position],
             [i for i in temp if temp.index(i) not in position],
         )
         x_axis = self.lookup_column_value(
             solution_data,
-            [temp.index(i) for i in temp if temp.index(i) not in position],
+            [i for i, _ in enumerate(temp) if i not in position],
             [i for i in temp if temp.index(i) not in position],
             position,
         )

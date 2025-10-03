@@ -310,6 +310,8 @@ class TestClass:
             coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=os.path.join(sbr_test.working_directory, "csv")
         )
         assert os.path.exists(frames_list)
+        solution_data2 = sbr_test.post.get_solution_data(expressions=["NearEX", "NearEY", "NearEZ"])
+        assert solution_data2
 
     def test_sbr_plot_scene(self, sbr_test):
         solution_data = sbr_test.post.get_solution_data(

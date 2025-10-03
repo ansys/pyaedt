@@ -54,6 +54,10 @@ class TestClass:
             context=context,
         )
         assert nominal_report
+        nominal_report2 = h3d_potter_horn.post.create_report(
+            "db(GainTotal)",
+        )
+        assert nominal_report2
         h3d_potter_horn.post.delete_report(nominal_report.plot_name)
 
     def test_create_report_sweep(self, h3d_potter_horn):
