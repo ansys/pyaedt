@@ -29,7 +29,7 @@ import pytest
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-from tests.system.solvers.conftest import config
+from tests.conftest import config
 
 test_subfolder = "icepak_board"
 original_project_name = "FilterBoard"

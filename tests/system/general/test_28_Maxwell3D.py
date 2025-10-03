@@ -37,8 +37,8 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
-from tests.system.solvers.conftest import desktop_version
+from tests.conftest import config
+from tests.conftest import desktop_version
 
 try:
     from IPython.display import Image
