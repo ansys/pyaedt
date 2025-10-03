@@ -98,13 +98,20 @@ def run_pyinstaller_from_c_python(oDesktop):
         command.extend([r"--wheel={}".format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
-    return_code = subprocess.call(command)  # nosec
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _, stderr = proc.communicate()
 
-    err_msg = "There was an error while installing PyAEDT."
-    if is_linux:
-        err_msg += " Refer to the Terminal window where AEDT was launched from."
-    if str(return_code) != "0":
+    if proc.returncode != 0:
+        from System.Windows.Forms import MessageBox
+        from System.Windows.Forms import MessageBoxButtons
+        from System.Windows.Forms import MessageBoxIcon
+
+        err_msg = "There was an error while installing PyAEDT. Please check the log " \
+            "in the terminal or console window for more details."
         oDesktop.AddMessage("", "", 2, err_msg)
+        err_msg = "There was an error while installing PyAEDT, below is the associated " \
+            "stderr:\n\n{}".format(stderr)
+        MessageBox.Show(err_msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         return
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
@@ -352,23 +359,41 @@ def install_pyaedt():
                 command.append("pyaedt[all]")
             subprocess.run(command, check=True, env=env)  # nosec
         else:
-            # Install uv in the virtual environment
-            print("Installing uv in the virtual environment...")
-            subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
-
-            print("Installing PyAEDT using online sources with uv...")
-            subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
-            subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
-            if args.version <= "231":
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
-            else:
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
+            # Try to install uv and use it, fallback to pip if it fails
+            uv_available = True
+            try:
+                print("Installing uv in the virtual environment...")
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
+                print("Installing PyAEDT using online sources with uv...")
+                subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
+                if args.version <= "231":
+                    subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
+                else:
+                    subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
+            except subprocess.CalledProcessError as e:
+                print(f"uv installation failed with error: {e}")
+                print("Falling back to pip for package installation...")
+                uv_available = False
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "wheel"], check=True, env=env)  # nosec
+                if args.version <= "231":
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all,dotnet]=='0.9.0'"], check=True, env=env)  # nosec
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True, env=env)  # nosec
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True, env=env)  # nosec
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True, env=env)  # nosec
+                else:
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True, env=env)  # nosec
 
         if args.version <= "231":
-            subprocess.run([str(uv_exe), "pip", "uninstall", "pywin32"], check=True, env=env)  # nosec
+            try:
+                subprocess.run([str(uv_exe), "pip", "uninstall", "pywin32"], check=True, env=env)  # nosec
+            except subprocess.CalledProcessError:
+                # If uv fails, use pip instead
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "uninstall", "pywin32", "-y"], check=True, env=env)  # nosec
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
@@ -402,18 +427,31 @@ def install_pyaedt():
                 command.append("pyaedt[all]")
             subprocess.run(command, check=True, env=env)  # nosec
         else:
-            # Ensure uv is installed in the venv
-            subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
-            subprocess.run([str(uv_exe), "pip", "uninstall", "pyaedt"], check=True, env=env)  # nosec
-            
-            print("Installing PyAEDT using online sources with uv...")
-            if args.version <= "231":
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
-            else:
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
+            # Try to use uv for package installation, fallback to pip if it fails
+            try:
+                # Ensure uv is installed in the venv
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "uv"], check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "uninstall", "pyaedt"], check=True, env=env)  # nosec
+                
+                print("Installing PyAEDT using online sources with uv...")
+                if args.version <= "231":
+                    subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
+                else:
+                    subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
+            except subprocess.CalledProcessError as e:
+                print(f"uv installation failed with error: {e}")
+                print("Falling back to pip for package installation...")
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "uninstall", "pyaedt", "-y"], check=True, env=env)  # nosec
+                if args.version <= "231":
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all,dotnet]=='0.9.0'"], check=True, env=env)  # nosec
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True, env=env)  # nosec
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True, env=env)  # nosec
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True, env=env)  # nosec
+                else:
+                    subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True, env=env)  # nosec
     sys.exit(0)
 
 
