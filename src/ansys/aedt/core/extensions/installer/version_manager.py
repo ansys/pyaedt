@@ -217,7 +217,10 @@ class VersionManager:
 
     def create_ui_basic(self, parent):
         def create_ui_wheelhouse(frame):
-            buttons = [["Update from wheelhouse", self.update_from_wheelhouse]]
+            buttons = [
+                ["Update from wheelhouse", self.update_from_wheelhouse],
+                ["Update All", self.update_all],
+            ]
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
                 button.pack(side="left", padx=10, pady=10)
@@ -352,6 +355,7 @@ class VersionManager:
         """
         try:
             cmd = [self.uv_exe, "pip"] + pip_args
+            cmd = [arg.replace("-U", "--upgrade") for arg in cmd]
             if capture_output:
                 return subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
             else:
@@ -465,6 +469,47 @@ class VersionManager:
                 pip_args = ["install", "-U", "pyedb"]
 
             self.update_and_close(pip_args)
+
+    def update_all(self):
+        """Update both pyaedt and pyedb together.
+
+        This follows the same disclaimer and install flow as the individual update
+        methods and will attempt to pin to the latest PyPI version when a downgrade
+        is required.
+        """
+        response = messagebox.askyesno("Disclaimer", DISCLAIMER)
+
+        if not response:
+            return
+
+        latest_pyaedt = get_latest_version("pyaedt")
+        latest_pyedb = get_latest_version("pyedb")
+
+        if latest_pyaedt == UNKNOWN_VERSION or latest_pyedb == UNKNOWN_VERSION:
+            messagebox.showerror("Error: Installation Failed", "Could not retrieve latest versions from PyPI.")
+            return
+
+        pip_args = ["install"]
+
+        # Decide pyaedt install args (pin if current > latest, else upgrade)
+        try:
+            if self.pyaedt_version > latest_pyaedt:
+                pip_args.append(f"pyaedt=={latest_pyaedt}")
+            else:
+                pip_args.extend(["-U", "pyaedt"])
+        except Exception:
+            pip_args.extend(["-U", "pyaedt"])
+
+        # Decide pyedb install args (pin if current > latest, else upgrade)
+        try:
+            if self.pyedb_version > latest_pyedb:
+                pip_args.append(f"pyedb=={latest_pyedb}")
+            else:
+                pip_args.extend(["pyedb"])
+        except Exception:
+            pip_args.extend(["pyedb"])
+
+        self.update_and_close(pip_args)
 
     def get_pyaedt_branch(self):
         if not self.is_git_available():
