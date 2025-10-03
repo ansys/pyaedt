@@ -82,7 +82,7 @@ def test_export_rcs_with_no_monostatic_rcs(mock_settings, mock_monostatic_rcs, m
 
 
 @patch("ansys.aedt.core.generic.file_utils.check_and_download_folder", return_value=PATH)
-@patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_one_variations)
+@patch.object(MonostaticRCSExporter, "get_monostatic_rcs", return_value=mock_data_with_two_variations)
 @patch.object(Settings, "remote_rpc_session", new_callable=lambda: mock_settings)
 @patch("pathlib.Path.is_file", return_value=False)
 def test_export_rcs_with_data_file_not_a_file(mock_is_file, mock_settings, mock_monostatic_rcs, mock_download, caplog):

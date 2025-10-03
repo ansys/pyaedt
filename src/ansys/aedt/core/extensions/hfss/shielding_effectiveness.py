@@ -435,16 +435,16 @@ def main(data: ShieldingEffectivenessExtensionData):
     frequency_units = free_space_1meter.units_sweeps["Freq"]
 
     # 1 Meter shielding
-    original_1meter = np.array(original_1meter.data_magnitude())
-    free_space_1meter = np.array(free_space_1meter.data_magnitude())
+    original_1meter = original_1meter.get_expression_data(formula="magnitude")[1]
+    free_space_1meter = np.array(free_space_1meter.get_expression_data(formula="magnitude")[1])
 
     shielding_1meter = original_1meter / free_space_1meter
 
     shielding_1meter_db = -20 * np.log10(shielding_1meter)
 
     # 3 meter shielding
-    original_3meters = np.array(original_3meters.data_magnitude())
-    free_space_3meters = np.array(free_space_3meters.data_magnitude())
+    original_3meters = np.array(original_3meters.get_expression_data(formula="magnitude")[1])
+    free_space_3meters = np.array(free_space_3meters.get_expression_data(formula="magnitude")[1])
 
     shielding_3meters = original_3meters / free_space_3meters
 

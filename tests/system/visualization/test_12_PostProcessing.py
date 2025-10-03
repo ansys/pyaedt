@@ -220,13 +220,13 @@ class TestClass:
     def test_circuit_get_solution_data_2(self, circuit_test):
         data2 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
-        assert len(data2.data_magnitude()) > 0
+        assert len(data2.get_expression_data(formula="magnitude", sweeps=["Time"])[1]) > 0
 
     def test_circuit_get_solution_data_3(self, circuit_test):
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
         data3 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
         assert data3.units_sweeps["Spectrum"] == circuit_test.units.frequency
-        assert len(data3.data_real()) > 0
+        assert len(data3.get_expression_data()[1]) > 0
 
     def test_reports_by_category_standard_1(self, circuit_test):
         circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
@@ -297,7 +297,6 @@ class TestClass:
         )
         assert solution_data
         assert len(solution_data.primary_sweep_values) > 0
-        assert len(solution_data.primary_sweep_variations) > 0
         assert solution_data.set_active_variation(0)
         assert not solution_data.set_active_variation(99)
 
@@ -311,6 +310,8 @@ class TestClass:
             coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=os.path.join(sbr_test.working_directory, "csv")
         )
         assert os.path.exists(frames_list)
+        solution_data2 = sbr_test.post.get_solution_data(expressions=["NearEX", "NearEY", "NearEZ"])
+        assert solution_data2
 
     def test_sbr_plot_scene(self, sbr_test):
         solution_data = sbr_test.post.get_solution_data(
@@ -387,7 +388,7 @@ class TestClass:
         new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         sol = new_report.get_solution_data()
         sol.enable_pandas_output = True
-        sol.data_magnitude()
+        assert sol.get_expression_data(formula="magnitude", convert_to_SI=True, use_quantity=True)
         sol.enable_pandas_output = False
         new_report = q2dtest.post.reports_by_category.standard()
         assert new_report.get_solution_data()

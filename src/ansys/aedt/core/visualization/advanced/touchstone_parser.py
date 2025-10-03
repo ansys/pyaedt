@@ -94,8 +94,8 @@ class TouchstoneData(rf.Network):
                     p_b = m.group(2)
                 p_a_number = ports.index(p_a)
                 p_b_number = ports.index(p_b)
-                sdata_real = solution_data.data_real(expression, True)
-                sdata_img = solution_data.data_imag(expression, True)
+                sdata_real = solution_data.get_expression_data(expression, formula="real", convert_to_SI=True)[1]
+                sdata_img = solution_data.get_expression_data(expression, formula="imag", convert_to_SI=True)[1]
                 sdata_2d = np.array(sdata_real, dtype=complex) + 1j * np.array(sdata_img, dtype=complex)
                 sdata_3d[:, p_a_number, p_b_number] = sdata_2d
                 sdata_3d[:, p_b_number, p_a_number] = sdata_2d
