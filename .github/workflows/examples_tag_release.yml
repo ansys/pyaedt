@@ -1,0 +1,19 @@
+name: Notify PyAEDT examples repo
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  Dispatch:
+    runs-on: ubuntu-latest
+    permissions:  
+      contents: read
+    steps:
+      - name: Send dispatch to PyAEDT examples repo
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.PYAEDT_EXAMPLES_REPO_TOKEN }}
+          repository: ansys/pyaedt-examples
+          event-type: release_tag
+          client-payload: '{"tag": "${{ github.event.release.tag_name }}"}'
