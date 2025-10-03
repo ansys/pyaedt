@@ -138,7 +138,7 @@ class AppFilter(logging.Filter):
         return True
 
 
-class AedtLogger(object):
+class AedtLogger:
     """
     Specifies the logger to use for each AEDT logger.
 

@@ -41,6 +41,7 @@ import warnings
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -55,7 +56,7 @@ from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculato
 from ansys.aedt.core.visualization.report.constants import ORIENTATION_TO_VIEW
 
 
-class PostProcessor3D(PostProcessorCommon):
+class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     """Manages the main AEDT postprocessing functions.
 
     The inherited ``AEDTConfig`` class contains all ``_desktop``

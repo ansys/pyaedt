@@ -27,6 +27,8 @@ import threading
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
+
 
 class ThreadTrace(threading.Thread):
     """Control a thread with python"""
@@ -61,7 +63,7 @@ class ThreadTrace(threading.Thread):
         self.killed = True
 
 
-class GeneticAlgorithm(object):
+class GeneticAlgorithm(PyAedtBase):
     """Genetic Algorithm for Python
 
     Basic implementation of elitist genetic algorithm for solving problems with integers, continuous, boolean

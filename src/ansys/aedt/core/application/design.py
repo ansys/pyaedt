@@ -59,6 +59,7 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -108,7 +109,7 @@ def load_aedt_thread(project_path) -> None:
     inner_project_settings.time_stamp = Path(project_path).stat().st_mtime
 
 
-class Design(AedtObjects):
+class Design(AedtObjects, PyAedtBase):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it for
@@ -4323,7 +4324,7 @@ class Design(AedtObjects):
         return Desktop(*args, **kwargs)
 
 
-class DesignSettings:
+class DesignSettings(PyAedtBase):
     """Get design settings for the current AEDT app.
 
     References
@@ -4384,7 +4385,7 @@ class DesignSettings:
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
 
-class DesignSettingsManipulation:
+class DesignSettingsManipulation(PyAedtBase):
     @abstractmethod
     def execute(self, k: str, v: Any) -> Any:
         pass

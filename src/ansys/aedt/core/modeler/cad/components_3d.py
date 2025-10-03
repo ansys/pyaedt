@@ -26,6 +26,7 @@ import os
 import re
 import secrets
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
@@ -82,7 +83,7 @@ class UserDefinedComponentProps(dict):
         dict.__setitem__(self, key, value)
 
 
-class UserDefinedComponent(object):
+class UserDefinedComponent(PyAedtBase):
     """Manages object attributes for 3DComponent and User Defined Model.
 
     Parameters
@@ -899,7 +900,7 @@ class UserDefinedComponent(object):
         return False
 
 
-class LayoutComponent(object):
+class LayoutComponent(PyAedtBase):
     """Manages object attributes for Layout components.
 
     Parameters

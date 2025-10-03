@@ -31,6 +31,7 @@ import numpy as np
 from pyedb.generic.constants import unit_converter
 
 from ansys.aedt.core import settings
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -61,7 +62,7 @@ default_keys = [
 ]
 
 
-class CommonTemplate:
+class CommonTemplate(PyAedtBase):
     def __init__(self, report):
         self._name = report["name"]
         self.report_type = report.get("type", "frequency")
@@ -261,7 +262,7 @@ class ParametersTemplate(CommonTemplate):
         self._trace_pins = val
 
 
-class VirtualComplianceGenerator:
+class VirtualComplianceGenerator(PyAedtBase):
     """Class to generate a Virtual Compliance configuration."""
 
     def __init__(self, compliance_name, project_name, specification_folder=None):
@@ -475,7 +476,7 @@ class VirtualComplianceGenerator:
         return write_configuration_file(self.config, output_file)
 
 
-class VirtualComplianceChaptersData:
+class VirtualComplianceChaptersData(PyAedtBase):
     def __init__(self, title):
         self.title = title
         self.content = []
@@ -514,7 +515,7 @@ class VirtualComplianceChaptersData:
         return self.add_content(table_data, 3)
 
 
-class VirtualComplianceData:
+class VirtualComplianceData(PyAedtBase):
     """Virtual compliance data class."""
 
     def __init__(self):
@@ -549,7 +550,7 @@ class VirtualComplianceData:
             return self.chapters[position]
 
 
-class VirtualCompliance:
+class VirtualCompliance(PyAedtBase):
     """Provides automatic report generation with pass/fail criteria on virtual compliance.
 
     Parameters

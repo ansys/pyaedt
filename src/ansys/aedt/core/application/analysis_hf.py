@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class ScatteringMethods(object):
+class ScatteringMethods(PyAedtBase):
     """Class containing all methods related to scattering matrix management that are common to Hfss, Circuit and
     Hfss3dLayout classes.
     """

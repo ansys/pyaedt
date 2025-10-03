@@ -28,6 +28,7 @@ from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import settings
+from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
 from ansys.aedt.core.filtersolutions_core.distributed_geometry import DistributedGeometry
@@ -49,7 +50,7 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import TableFormat
 from ansys.aedt.core.filtersolutions_core.transmission_zeros import TransmissionZeros
 
 
-class FilterDesignBase:
+class FilterDesignBase(PyAedtBase):
     """Provides the `FilterSolutions` main parameters applicable for all design types."""
 
     _active_design = None

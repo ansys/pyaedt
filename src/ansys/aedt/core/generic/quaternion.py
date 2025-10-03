@@ -24,12 +24,13 @@
 
 import math
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.math_utils import MathUtils
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class Quaternion:
+class Quaternion(PyAedtBase):
     """
     Implements fundamental quaternion operations.
 

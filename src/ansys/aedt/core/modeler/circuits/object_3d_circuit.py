@@ -25,6 +25,7 @@
 import math
 import time
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -35,7 +36,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
 
-class CircuitPins(object):
+class CircuitPins(PyAedtBase):
     """Manages circuit component pins."""
 
     def __init__(self, circuit_comp, pinname, pin_number):
@@ -386,7 +387,7 @@ class ComponentParameters(dict):
         self._tab = tab
 
 
-class ModelParameters(object):
+class ModelParameters(PyAedtBase):
     """Manages model parameters."""
 
     def update(self):
@@ -413,7 +414,7 @@ class ModelParameters(object):
         self.name = name
 
 
-class CircuitComponent(object):
+class CircuitComponent(PyAedtBase):
     """Manages circuit components."""
 
     def __getitem__(self, item):
@@ -1216,7 +1217,7 @@ class CircuitComponent(object):
                                 return (data[1][12][1].split(" ")[1])[1:-1]
 
 
-class Wire(object):
+class Wire(PyAedtBase):
     """Creates and manipulates a wire."""
 
     def __init__(self, modeler, composed_name=None):

@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 
 
-class Polyline(Object3d):
+class Polyline(Object3d, PyAedtBase):
     """Creates and manipulates a polyline.
 
     The constructor for this class is intended to be called from the

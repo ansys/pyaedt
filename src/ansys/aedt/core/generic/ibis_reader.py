@@ -28,13 +28,14 @@ import re
 import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import check_if_path_exists
 from ansys.aedt.core.generic.file_utils import get_filename_without_extension
 from ansys.aedt.core.generic.file_utils import open_file
 
 
-class Component:
+class Component(PyAedtBase):
     """Component extracted from ibis model."""
 
     def __init__(self):
@@ -116,7 +117,7 @@ class Component:
         self._differential_pins = value
 
 
-class Pin:
+class Pin(PyAedtBase):
     """Pin from a component with all its data feature.
 
     Parameters
@@ -327,7 +328,7 @@ class Pin:
         )
 
 
-class DifferentialPin:
+class DifferentialPin(PyAedtBase):
     """Provides the differential pin from a component with all its data feature.
 
     Parameters
@@ -493,7 +494,7 @@ class DifferentialPin:
         )
 
 
-class Buffer:
+class Buffer(PyAedtBase):
     def __init__(self, ibis_name, short_name, app):
         self._ibis_name = ibis_name
         self._short_name = short_name
@@ -559,7 +560,7 @@ class Buffer:
         )
 
 
-class ModelSelector:
+class ModelSelector(PyAedtBase):
     def __init__(self):
         self._model_selector_items = []
         self._name = None
@@ -583,7 +584,7 @@ class ModelSelector:
         self._name = value
 
 
-class ModelSelectorItem:
+class ModelSelectorItem(PyAedtBase):
     def __init__(self):
         self._description = []
         self._name = None
@@ -607,7 +608,7 @@ class ModelSelectorItem:
         self._name = value
 
 
-class Model:
+class Model(PyAedtBase):
     def __init__(self):
         self._description = []
         self._name = None
@@ -671,7 +672,7 @@ class Model:
         self._c_comp = value
 
 
-class Ibis:
+class Ibis(PyAedtBase):
     """Ibis model with all data extracted: name, components, models.
 
     Parameters
@@ -733,7 +734,7 @@ class Ibis:
         self._buffers = value
 
 
-class AMI:
+class AMI(PyAedtBase):
     """Ibis-AMI model with all data extracted: name, components, models.
 
     Parameters
@@ -795,7 +796,7 @@ class AMI:
         self._buffers = value
 
 
-class IbisReader(object):
+class IbisReader(PyAedtBase):
     """Reads *.ibis file content.
 
     Setup an Ibis object exposing all the extracted data.
@@ -1229,7 +1230,7 @@ class IbisReader(object):
         return data[0].strip()
 
 
-class AMIReader(IbisReader):
+class AMIReader(IbisReader, PyAedtBase):
     """Reads *.ibis file content.
     Setup an Ibis object exposing all the extracted data.
 

@@ -24,6 +24,7 @@
 
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -31,7 +32,7 @@ from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class Matrix(object):
+class Matrix(PyAedtBase):
     """Manages Matrix in Q3d and Q2d Projects.
 
     Examples

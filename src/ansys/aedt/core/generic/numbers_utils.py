@@ -27,13 +27,14 @@ import re
 from typing import Any
 from typing import Dict
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.constants import unit_system
 
 
-class Quantity(float):
+class Quantity(float, PyAedtBase):
     """Stores a number with its unit.
 
     Parameters

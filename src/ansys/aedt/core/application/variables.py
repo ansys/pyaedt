@@ -43,6 +43,7 @@ import re
 import types
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import _resolve_unit_system
@@ -57,7 +58,7 @@ from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.errors import GrpcApiError
 
 
-class CSVDataset:
+class CSVDataset(PyAedtBase):
     """Reads in a CSV file and extracts data, which can be augmented with constant values.
 
     Parameters
@@ -304,7 +305,7 @@ def generate_validation_errors(property_names, expected_settings, actual_setting
     return validation_errors
 
 
-class VariableManager(object):
+class VariableManager(PyAedtBase):
     """Manages design properties and project variables.
 
     Design properties are the local variables in a design. Project
@@ -1334,7 +1335,7 @@ class VariableManager(object):
         return var_list
 
 
-class Variable(object):
+class Variable(PyAedtBase):
     """Stores design properties and project variables and provides operations to perform on them.
 
     Parameters
@@ -2099,7 +2100,7 @@ class Variable(object):
     #     return self.__rtruediv__(other)
 
 
-class DataSet(object):
+class DataSet(PyAedtBase):
     """Manages datasets.
 
     Parameters

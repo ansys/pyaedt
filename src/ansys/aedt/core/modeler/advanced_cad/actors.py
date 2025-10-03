@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
@@ -50,7 +51,7 @@ def read_actors(fn, actor_lib):
     return a
 
 
-class Generic(Actor, object):
+class Generic(Actor, PyAedtBase):
     """Provides an instance of an actor.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -77,7 +78,7 @@ class Generic(Actor, object):
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
 
-class Person(Actor, object):
+class Person(Actor, PyAedtBase):
     """Provides an instance of a person.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -169,7 +170,7 @@ class Person(Actor, object):
             self._add_walking(app)
 
 
-class Bird(Actor, object):
+class Bird(Actor, PyAedtBase):
     """Provides an instance of a bird.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -231,7 +232,7 @@ class Bird(Actor, object):
             self._add_flying(app)
 
 
-class Vehicle(Actor, object):
+class Vehicle(Actor, PyAedtBase):
     """Provides an instance of a vehicle.
 
     This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
@@ -297,7 +298,7 @@ class Vehicle(Actor, object):
         return True
 
 
-class Radar(MultiPartComponent, object):
+class Radar(MultiPartComponent, PyAedtBase):
     """Manages the radar definition and placement in the HFSS design.
 
     Parameters

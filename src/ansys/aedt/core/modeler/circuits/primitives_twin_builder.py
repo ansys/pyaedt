@@ -22,12 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 
 
-class TwinBuilderComponents(CircuitComponents):
+class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     """TwinBuilderComponents class.
 
     This class is for managing all circuit components for Twin Builder.

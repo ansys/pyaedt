@@ -26,6 +26,7 @@
 import os
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -40,7 +41,7 @@ except ImportError:
     )
 
 
-class PostProcessorCircuit(PostProcessorCommon):
+class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     """Manages the main schematic postprocessing functions.
 
     .. note::

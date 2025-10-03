@@ -31,6 +31,7 @@ import re
 import warnings
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -60,7 +61,7 @@ from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
+class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     """Provides the Icepak application interface.
 
     This class allows you to connect to an existing Icepak design or create a

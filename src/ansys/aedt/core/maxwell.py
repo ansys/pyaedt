@@ -30,6 +30,7 @@ import re
 import time
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -48,7 +49,7 @@ from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Maxwell(CreateBoundaryMixin):
+class Maxwell(CreateBoundaryMixin, PyAedtBase):
     def __init__(self):
         pass
 
@@ -2689,7 +2690,7 @@ class Maxwell(CreateBoundaryMixin):
         raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
 
-class Maxwell3d(Maxwell, FieldAnalysis3D, object):
+class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
     """Provides the Maxwell 3D app interface.
 
     This class allows you to connect to an existing Maxwell 3D design or create a
@@ -3689,7 +3690,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         return True
 
 
-class Maxwell2d(Maxwell, FieldAnalysis3D, object):
+class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
     """Provides the Maxwell 2D app interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a

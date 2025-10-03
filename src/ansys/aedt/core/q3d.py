@@ -31,6 +31,7 @@ from typing import Union
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -48,7 +49,7 @@ from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class QExtractor(FieldAnalysis3D, object):
+class QExtractor(FieldAnalysis3D, PyAedtBase):
     """Extracts a 2D or 3D field analysis.
 
     Parameters
@@ -1189,7 +1190,7 @@ class QExtractor(FieldAnalysis3D, object):
                 raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
 
 
-class Q3d(QExtractor, CreateBoundaryMixin):
+class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     """Provides the Q3D app interface.
 
     This class allows you to create an instance of Q3D and link to an
@@ -2574,7 +2575,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         return self._create_boundary(name, props, "NearFieldSphere")
 
 
-class Q2d(QExtractor, CreateBoundaryMixin):
+class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     """Provides the Q2D app interface.
 
     This class allows you to create an instance of Q2D and link to an

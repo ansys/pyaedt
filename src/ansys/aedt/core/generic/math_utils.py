@@ -25,10 +25,11 @@
 import math
 from sys import float_info
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class MathUtils:
+class MathUtils(PyAedtBase):
     """MathUtils is a utility class that provides methods for numerical comparisons and checks."""
 
     EPSILON = float_info.epsilon * 10.0

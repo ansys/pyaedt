@@ -24,6 +24,7 @@
 
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -87,7 +88,7 @@ quantities_type_dict = {  # pragma: no cover
 }
 
 
-class Monitor:
+class Monitor(PyAedtBase):
     """Provides Icepak monitor methods."""
 
     def __init__(self, p_app):
@@ -677,7 +678,7 @@ class Monitor:
         return m_name
 
 
-class ObjectMonitor:
+class ObjectMonitor(PyAedtBase):
     """Provides Icepak Monitor methods and properties."""
 
     def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):

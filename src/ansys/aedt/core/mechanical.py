@@ -25,6 +25,7 @@
 """This module contains the ``Mechanical`` class."""
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -33,7 +34,7 @@ from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
+class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
     """Provides the Mechanical application interface.
 
     Parameters

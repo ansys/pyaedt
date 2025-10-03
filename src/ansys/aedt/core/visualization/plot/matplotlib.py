@@ -29,6 +29,7 @@ import warnings
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
@@ -82,7 +83,7 @@ def is_ipython():
         return False  # Probably standard Python interpreter
 
 
-class Note:
+class Note(PyAedtBase):
     def __init__(self):
         self._position = (0, 0)
         self._text = ""
@@ -237,7 +238,7 @@ class Note:
         self._italic = value
 
 
-class Trace:
+class Trace(PyAedtBase):
     """Trace class."""
 
     def __init__(self):
@@ -446,7 +447,7 @@ class LimitLine(Trace):
         self.hatch_above = True
 
 
-class ReportPlotter:
+class ReportPlotter(PyAedtBase):
     """Matplotlib Report manager."""
 
     def __init__(self):

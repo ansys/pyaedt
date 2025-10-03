@@ -39,6 +39,7 @@ if (3, 7) < sys.version_info < (3, 13):
 else:  # pragma: no cover
     warnings.warn("EMIT API is only available for Python 3.8-3.12.")
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
@@ -46,7 +47,7 @@ from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.modules.layer_stackup import Layers
 
 
-class ModelerCircuit(Modeler):
+class ModelerCircuit(Modeler, PyAedtBase):
     """ModelerCircuit class.
 
     Parameters
@@ -487,7 +488,7 @@ class ModelerCircuit(Modeler):
         return sels
 
 
-class ModelerNexxim(ModelerCircuit):
+class ModelerNexxim(ModelerCircuit, PyAedtBase):
     """ModelerNexxim class.
 
     Parameters
@@ -696,7 +697,7 @@ class ModelerNexxim(ModelerCircuit):
         return True
 
 
-class ModelerTwinBuilder(ModelerCircuit):
+class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
     """ModelerTwinBuilder class.
 
     Parameters
@@ -732,7 +733,7 @@ class ModelerTwinBuilder(ModelerCircuit):
         return self._components
 
 
-class ModelerEmit(ModelerCircuit):
+class ModelerEmit(ModelerCircuit, PyAedtBase):
     """ModelerEmit class.
 
     Parameters
@@ -766,7 +767,7 @@ class ModelerEmit(ModelerCircuit):
         return sels
 
 
-class ModelerMaxwellCircuit(ModelerCircuit):
+class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
     """ModelerMaxwellCircuit class.
 
     Parameters

@@ -24,12 +24,13 @@
 from pathlib import Path
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
-class PostProcessor3DLayout(PostProcessor3D):
+class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
     """Manages the main schematic postprocessing functions.
 
     .. note::

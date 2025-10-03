@@ -29,6 +29,7 @@ import warnings
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import graphics_required
@@ -36,7 +37,7 @@ from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
 from ansys.aedt.core.visualization.plot.pyvista import ObjClass
 
 
-class HDMPlotter(CommonPlotter):
+class HDMPlotter(CommonPlotter, PyAedtBase):
     """
     Manages Hdm data to be plotted with ``pyvista``.
 

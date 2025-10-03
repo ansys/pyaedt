@@ -23,10 +23,11 @@
 # SOFTWARE.
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
 
-class AnalysisCircuitNetlist(Analysis, object):
+class AnalysisCircuitNetlist(Analysis, PyAedtBase):
     """Provides the Circuit Netlist (CircuitNetlist) interface.
 
     Circuit Netlist Editor has no setup, solution, analysis or postprocessor

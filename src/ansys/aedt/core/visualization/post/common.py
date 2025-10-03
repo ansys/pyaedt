@@ -33,6 +33,7 @@ import os
 import re
 
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -68,7 +69,7 @@ TEMPLATES_BY_NAME = {
 }
 
 
-class PostProcessorCommon(object):
+class PostProcessorCommon(PyAedtBase):
     """Manages the main AEDT postprocessing functions.
 
     This class is inherited in the caller application and is accessible through the post variable( eg. ``hfss.post`` or
@@ -1882,7 +1883,7 @@ class PostProcessorCommon(object):
         return props
 
 
-class Reports(object):
+class Reports(PyAedtBase):
     """Provides the names of default solution types."""
 
     def __init__(self, post_app, design_type):

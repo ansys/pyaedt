@@ -31,6 +31,7 @@ import re
 from typing import Optional
 from typing import Tuple
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -38,7 +39,7 @@ from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class Object3DLayout(object):
+class Object3DLayout(PyAedtBase):
     """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
@@ -407,7 +408,7 @@ class Object3DLayout(object):
         self.change_property(vMaterial)
 
 
-class ModelInfoRlc(object):
+class ModelInfoRlc(PyAedtBase):
     def __init__(self, component, name):
         self._comp = component
         self._name = name
@@ -454,7 +455,7 @@ class ModelInfoRlc(object):
             return self.rlc_model_type[6]
 
 
-class Components3DLayout(Object3DLayout, object):
+class Components3DLayout(Object3DLayout, PyAedtBase):
     """Contains components in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", edb_object=None):
@@ -890,7 +891,7 @@ class Components3DLayout(Object3DLayout, object):
             return ModelInfoRlc(self, self.name)
 
 
-class Nets3DLayout(object):
+class Nets3DLayout(PyAedtBase):
     """Contains Nets in HFSS 3D Layout."""
 
     def __init__(self, primitives, name=""):
@@ -978,7 +979,7 @@ class Nets3DLayout(object):
         )
 
 
-class Pins3DLayout(Object3DLayout, object):
+class Pins3DLayout(Object3DLayout, PyAedtBase):
     """Contains the pins in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", component_name=None, is_pin=True):
@@ -1033,7 +1034,7 @@ class Pins3DLayout(Object3DLayout, object):
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
 
 
-class Geometries3DLayout(Object3DLayout, object):
+class Geometries3DLayout(Object3DLayout, PyAedtBase):
     """Contains geometries in HFSS 3D Layout."""
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False):
@@ -1286,7 +1287,7 @@ class Geometries3DLayout(Object3DLayout, object):
             self.change_property(vMaterial)
 
 
-class Polygons3DLayout(Geometries3DLayout, object):
+class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout polygons."""
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False):
@@ -1320,7 +1321,7 @@ class Polygons3DLayout(Geometries3DLayout, object):
         return pvoids
 
 
-class Circle3dLayout(Geometries3DLayout, object):
+class Circle3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout circles."""
 
     def __init__(self, primitives, name, is_void=False):
@@ -1369,7 +1370,7 @@ class Circle3dLayout(Geometries3DLayout, object):
         self.change_property(vMaterial)
 
 
-class Rect3dLayout(Geometries3DLayout, object):
+class Rect3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout rectangles."""
 
     def __init__(self, primitives, name, is_void=False):
@@ -1536,7 +1537,7 @@ class Rect3dLayout(Geometries3DLayout, object):
             self.change_property(vMaterial)
 
 
-class Line3dLayout(Geometries3DLayout, object):
+class Line3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout lines."""
 
     def __init__(self, primitives, name, is_void=False):
@@ -1767,7 +1768,7 @@ class Line3dLayout(Geometries3DLayout, object):
         self._oeditor.Edit(arg_edit)
 
 
-class Points3dLayout(object):
+class Points3dLayout(PyAedtBase):
     """Manages HFSS 3D Layout points."""
 
     def __init__(self, primitives, point):
@@ -1816,7 +1817,7 @@ class Points3dLayout(object):
             return True
 
 
-class ComponentsSubCircuit3DLayout(Object3DLayout, object):
+class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
     """Contains 3d Components in HFSS 3D Layout.
 
     Parameters
@@ -1996,7 +1997,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
         self.change_property(props)
 
 
-class Padstack(object):
+class Padstack(PyAedtBase):
     """Manages properties of a padstack.
 
     Parameters
@@ -2027,7 +2028,7 @@ class Padstack(object):
         self.solder_mat = "solder"
         self.layerid = 1
 
-    class PDSHole(object):
+    class PDSHole(PyAedtBase):
         """Manages properties of a padstack hole.
 
         Parameters
@@ -2052,7 +2053,7 @@ class Padstack(object):
             self.y = ypos
             self.rot = rot
 
-    class PDSLayer(object):
+    class PDSLayer(PyAedtBase):
         """Manages properties of a padstack layer."""
 
         def __init__(self, layername="Default", id=1):
@@ -2365,7 +2366,7 @@ class Padstack(object):
         self.padstackmgr.Remove(self.name, True, "", "Project")
 
 
-class CoordinateSystems3DLayout(object):
+class CoordinateSystems3DLayout(PyAedtBase):
     """Coordinate systems in HFSS 3D Layout."""
 
     def __init__(self, primitives):

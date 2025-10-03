@@ -27,12 +27,13 @@ from ansys.aedt.core.generic.general_methods import env_path
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.filesystem import is_safe_path
+from ansys.aedt.core.base import PyAedtBase
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class FileManagement(object):
+class FileManagement(PyAedtBase):
     """Class to manage file transfer."""
 
     def __init__(self, client):
@@ -208,7 +209,7 @@ def check_port(port):
     return port
 
 
-class PyaedtServiceWindows(rpyc.Service):
+class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
     """Server Pyaedt rpyc Service."""
 
     def on_connect(self, connection):
@@ -860,7 +861,7 @@ class PyaedtServiceWindows(rpyc.Service):
         return aedtapp
 
 
-class GlobalService(rpyc.Service):
+class GlobalService(rpyc.Service, PyAedtBase):
     """Global class to manage rpyc Server of PyAEDT."""
 
     def on_connect(self, connection):
@@ -1124,7 +1125,7 @@ class GlobalService(rpyc.Service):
         return os.path.normpath(remotepath)
 
 
-class ServiceManager(rpyc.Service):
+class ServiceManager(rpyc.Service, PyAedtBase):
     """Global class to manage rpyc Server of PyAEDT."""
 
     def on_connect(self, connection):

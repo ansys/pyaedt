@@ -29,6 +29,7 @@ import sys
 import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -40,7 +41,7 @@ if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
 
-class FRTMData(object):
+class FRTMData(PyAedtBase):
     """Provides FRTM data.
 
     Read FRTM data and return the Python interface to analyze the data. All units are in SI.
@@ -854,7 +855,7 @@ class FRTMData(object):
                 self.__all_data[ch] = temp
 
 
-class FRTMPlotter(object):
+class FRTMPlotter(PyAedtBase):
     """Provides range doppler data.
 
     Read FRTM data and return the Python interface to analyze the range doppler data. All units are in SI.

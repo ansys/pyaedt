@@ -33,9 +33,10 @@ except ImportError:
     pass
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.base import PyAedtBase
 
 
-class Parser:
+class Parser(PyAedtBase):
     """Parser class that loads an HDM-format export file from HFSS SBR+, interprets its header and its binary content.
 
     Except for the header, the binary content is not parsed until an explicit call to parse_message.

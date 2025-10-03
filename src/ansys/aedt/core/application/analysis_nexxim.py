@@ -24,6 +24,7 @@
 import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -40,7 +41,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
 
-class FieldAnalysisCircuit(Analysis):
+class FieldAnalysisCircuit(Analysis, PyAedtBase):
     """FieldCircuitAnalysis class.
 
     This class is for circuit analysis setup in Nexxim.

@@ -29,6 +29,7 @@ import os.path
 import warnings
 
 from ansys.aedt.core.application.variables import generate_validation_errors
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -40,7 +41,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 
-class Modeler3D(Primitives3D):
+class Modeler3D(Primitives3D, PyAedtBase):
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable

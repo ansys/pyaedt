@@ -25,12 +25,13 @@
 import math
 
 from ansys.aedt.core import constants
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class TransmissionLine(object):
+class TransmissionLine(PyAedtBase):
     """Provides base methods common to transmission line calculation.
 
     Parameters
@@ -241,7 +242,7 @@ class TransmissionLine(object):
         return effective_permittivity
 
 
-class StandardWaveguide(object):
+class StandardWaveguide(PyAedtBase):
     """Provides base methods common to standard waveguides.
 
     Parameters

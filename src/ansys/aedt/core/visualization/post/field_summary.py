@@ -35,6 +35,7 @@ import os
 import tempfile
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -99,7 +100,7 @@ AVAILABLE_QUANTITIES = [
 ]
 
 
-class FieldSummary:
+class FieldSummary(PyAedtBase):
     """Provides Icepak field summary methods."""
 
     def __init__(self, app):

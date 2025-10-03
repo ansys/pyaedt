@@ -31,13 +31,14 @@ It contains all advanced postprocessing functionalities for creating and editing
 import secrets
 import string
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
 from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
-class PostProcessorMaxwell(PostProcessor3D):
+class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     """Manages the specific Maxwell postprocessing functions.
 
     .. note::

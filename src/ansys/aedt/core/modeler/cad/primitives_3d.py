@@ -37,6 +37,7 @@ import os
 from pathlib import Path
 
 from ansys.aedt.core import Edb
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import normalize_path
@@ -53,7 +54,7 @@ from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class Primitives3D(GeometryModeler):
+class Primitives3D(GeometryModeler, PyAedtBase):
     """Manages primitives in applications using the 3D modeler.
 
     Each Electonics Desktop application uses an instance of this class

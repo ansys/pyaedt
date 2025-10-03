@@ -28,6 +28,7 @@ import warnings
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.checks import graphics_required
@@ -42,7 +43,7 @@ except ImportError:  # pragma: no cover
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
 
-class BuildingsPrep(object):
+class BuildingsPrep(PyAedtBase):
     """Contains all basic functions needed to generate buildings stl files."""
 
     def __init__(self, cad_path):
@@ -251,7 +252,7 @@ class BuildingsPrep(object):
             return {"file_name": file_out, "mesh": building_meshes, "temp": temp}
 
 
-class RoadPrep(object):
+class RoadPrep(PyAedtBase):
     """Contains all basic functions needed to generate road stl files."""
 
     def __init__(self, cad_path):
@@ -373,7 +374,7 @@ class RoadPrep(object):
         return {"file_name": file_out, "mesh": roads, "graph": g_projected}
 
 
-class TerrainPrep(object):
+class TerrainPrep(PyAedtBase):
     """Contains all basic functions needed for creating a terrain stl mesh."""
 
     def __init__(self, cad_path="./"):

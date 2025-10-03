@@ -26,6 +26,7 @@ import itertools
 import json
 import os
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -34,7 +35,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 
 
-class Cable:
+class Cable(PyAedtBase):
     """Contains all common Cable features.
 
     Parameters

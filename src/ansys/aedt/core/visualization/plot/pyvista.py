@@ -35,6 +35,7 @@ import warnings
 import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.file_utils import open_file
@@ -290,7 +291,7 @@ def _parse_streamline(filepath):
     return streamlines
 
 
-class ObjClass(object):
+class ObjClass(PyAedtBase):
     """Manages mesh files to be plotted in pyvista.
 
     Parameters
@@ -330,7 +331,7 @@ class ObjClass(object):
             self._color = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
 
-class FieldClass(object):
+class FieldClass(PyAedtBase):
     """Class to manage Field data to be plotted in pyvista.
 
     Parameters
@@ -385,7 +386,7 @@ class FieldClass(object):
         self.scalar_name = None
 
 
-class CommonPlotter(object):
+class CommonPlotter(PyAedtBase):
     def __init__(self):
         self._objects = []
         self._fields = []

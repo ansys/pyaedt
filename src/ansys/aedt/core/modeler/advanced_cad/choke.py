@@ -30,6 +30,7 @@ import tempfile
 from typing import Any
 from typing import Dict
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
@@ -85,7 +86,7 @@ CHOKE_DEFAULT_PARAMETERS = {
 
 
 @dataclass
-class Choke:
+class Choke(PyAedtBase):
     """Class to create chokes in AEDT.
 
     Parameters

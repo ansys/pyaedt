@@ -24,11 +24,12 @@
 
 import os
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class Part(object):
+class Part(PyAedtBase):
     """Manages 3D component placement and definition.
 
     Parameters
@@ -456,7 +457,7 @@ class Part(object):
         return aedt_objects
 
 
-class Antenna(Part, object):
+class Antenna(Part, PyAedtBase):
     """Manages antennas.
 
     This class is derived from :class:`Part`.

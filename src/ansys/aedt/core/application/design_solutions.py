@@ -25,6 +25,7 @@
 import copy
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 solutions_defaults = {
@@ -664,7 +665,7 @@ model_names = {
 }
 
 
-class DesignSolution(object):
+class DesignSolution(PyAedtBase):
     def __init__(self, odesign, design_type, aedt_version):
         self._odesign = odesign
         self._aedt_version = aedt_version
@@ -758,7 +759,7 @@ class DesignSolution(object):
         return []
 
 
-class HFSSDesignSolution(DesignSolution, object):
+class HFSSDesignSolution(DesignSolution, PyAedtBase):
     def __init__(self, odesign, design_type, aedt_version):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._composite = False
@@ -908,7 +909,7 @@ class HFSSDesignSolution(DesignSolution, object):
         return True
 
 
-class Maxwell2DDesignSolution(DesignSolution, object):
+class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
     def __init__(self, odesign, design_type, aedt_version):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._geometry_mode = "XY"
@@ -968,7 +969,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
                 logger.error("Failed to set solution type.")
 
 
-class IcepakDesignSolution(DesignSolution, object):
+class IcepakDesignSolution(DesignSolution, PyAedtBase):
     def __init__(self, odesign, design_type, aedt_version):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._problem_type = "TemperatureAndFlow"
@@ -1047,7 +1048,7 @@ class IcepakDesignSolution(DesignSolution, object):
                     logger.error("Failed to set solution type.")
 
 
-class RmXprtDesignSolution(DesignSolution, object):
+class RmXprtDesignSolution(DesignSolution, PyAedtBase):
     def __init__(self, odesign, design_type, aedt_version):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
 

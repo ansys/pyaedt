@@ -25,12 +25,13 @@
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class RMXprtModule(object):
+class RMXprtModule(PyAedtBase):
     """Provides RMxprt module properties."""
 
     component = None
@@ -132,7 +133,7 @@ class Circuit(RMXprtModule):
     component = "Circuit"
 
 
-class Rmxprt(FieldAnalysisRMxprt):
+class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     """Provides the RMxprt app interface.
 
     Parameters
