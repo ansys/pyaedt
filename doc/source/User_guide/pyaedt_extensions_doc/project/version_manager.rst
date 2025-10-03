@@ -16,7 +16,7 @@ packages: ``pyaedt`` and ``pyedb``. It lets you see what is installed, compare
 with the latest PyPI releases, update (or downgrade to the latest official
 release), install from a Git branch, or install from a wheelhouse ZIP.
 
-Main Actions
+Main actions
 ============
 - Show virtual environment path and Python version
 - Show installed and latest PyPI versions of ``pyaedt`` and ``pyedb``
@@ -32,17 +32,17 @@ Basic: Versions, Update buttons, Update All, Wheelhouse install.
 
 Advanced: Git branch install fields and Reset AEDT panels.
 
-Quick: Install From Git Branch
+Quick: Install from Git branch
 ==============================
 1. Go to Advanced tab.
 2. Enter branch name (default is ``main``).
 3. Click Get Branch and confirm.
 
-Quick: Update From Wheelhouse
+Quick: Update from wheelhouse
 =============================
 1. Click Update from wheelhouse (Basic tab).
 2. Pick the wheelhouse ZIP.
-3. If compatible, it reinstalls ``pyaedt[all]`` and refreshes panels.
+3. If compatible, it will reinstall ``pyaedt[all]`` and refresh the panels.
 
 Notes
 =====
