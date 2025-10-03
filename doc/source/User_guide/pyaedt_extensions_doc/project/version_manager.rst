@@ -42,7 +42,7 @@ Quick: Update from wheelhouse
 =============================
 1. Click Update from wheelhouse (Basic tab).
 2. Pick the wheelhouse ZIP.
-3. If compatible, it will reinstall ``pyaedt[all]`` and refresh the panels.
+3. If compatible, it reinstalls ``pyaedt[all]`` and refreshes the panels.
 
 Notes
 =====
