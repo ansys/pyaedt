@@ -88,21 +88,21 @@ solutions_types = {
         "DCConduction": {
             "name": "DCConduction",
             "options": "XY",
-            "report_type": None,
+            "report_type": "DCConduction",
             "default_setup": 58,
             "default_adaptive": "LastAdaptive",
         },
         "DC Conduction": {
             "name": "DCConduction",
             "options": "XY",
-            "report_type": None,
+            "report_type": "DC Conduction",
             "default_setup": 58,
             "default_adaptive": "LastAdaptive",
         },
         "ACConduction": {
             "name": "ACConduction",
             "options": "XY",
-            "report_type": None,
+            "report_type": "ACConduction",
             "default_setup": 59,
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
@@ -110,7 +110,7 @@ solutions_types = {
         "AC Conduction": {
             "name": "ACConduction",
             "options": "XY",
-            "report_type": None,
+            "report_type": "AC Conduction",
             "default_setup": 59,
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
