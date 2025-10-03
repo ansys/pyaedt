@@ -2182,6 +2182,157 @@ class ConfigurationsIcepak(Configurations):
         return True
 
 
+class SimulationConfigNexxim:
+    def __init__(
+        self,
+    ):
+        self.config = {"general": {}, "setups": {}, "models": {}, "instance": {}, "pin_mapping": {}, "ports": {}}
+        self.file_path = None
+        self.import_variables = False
+
+    def add_model(
+        self, name: str, model_type: str = "Nexxim Component", model_path: str = "", pin_locations: dict = None
+    ):
+        """Add a model to the configuration.
+        Options are ``Nexxim Component``, ``ibis``, ``touchstone``, ``nexxim state space``, ``ami``.
+        """
+        self.config["models"][name] = {"component_type": model_type, "file_path": model_path}
+        if pin_locations:
+            self.config["models"][name]["pin_locations"] = pin_locations
+
+    def add_component(
+        self, name: str, model: str, properties: dict, location: list, angle: float = 0.0, mirror: bool = False
+    ):
+        self.config["instance"][name] = {
+            "component": model,
+            "properties": properties,
+            "position": location,
+            "angle": angle,
+            "mirror": mirror,
+        }
+        return True
+
+    def add_component_with_nets(
+        self,
+        probes,
+        model,
+        prefix,
+        differential,
+        properties,
+        start_x,
+        start_y,
+        offset_x,
+        offset_y,
+        angle,
+        mirror=False,
+        parallel_components=8,
+        add_port_on_terms=False,
+        port_impedance=50,
+        model_pin_names=None,
+    ):
+        idx = 0
+        gnd_nets = {}
+        components = []
+        ports = []
+        if not model_pin_names:
+            model_pin_names = ["positive", "negative"]
+        while idx < len(probes):
+            props = copy.deepcopy(properties)
+            probe_pin = probes[idx]
+            if "Name" in props:
+                props["Name"] = probe_pin if not differential else f"{probe_pin}_diff"
+            self.add_component(
+                f"{prefix}{idx}",
+                model=model,
+                location=[
+                    start_x + offset_x * (idx // parallel_components),
+                    start_y + idx % parallel_components * offset_y,
+                ],
+                angle=angle,
+                properties=props,
+                mirror=mirror,
+            )
+            components.append(f"{prefix}{idx}")
+            instance_name, net_name = probe_pin.split(".", 1)
+            if add_port_on_terms:
+                if differential:
+                    self.add_port(
+                        f"{probe_pin}_diff",
+                        {instance_name: [net_name], f"{prefix}{idx}": ["n1"]},
+                        impedance=float(port_impedance),
+                    )
+                    ports.append(f"{probe_pin}_diff")
+                    term_pin2 = probes[idx + 1]
+                    instance_name2, net_name2 = term_pin2.split(".", 1)
+
+                    self.add_port(
+                        f"{term_pin2}",
+                        {instance_name: [net_name2], f"{prefix}{idx}": ["n2"]},
+                        impedance=float(port_impedance),
+                    )
+                    ports.append("term_pin2")
+
+                    idx += 2
+                else:
+                    self.add_port(
+                        f"{probe_pin}",
+                        {instance_name: [net_name], f"{prefix}{idx}": ["n1"]},
+                        impedance=float(port_impedance),
+                    )
+                    ports.append(f"{probe_pin}")
+                    idx += 1
+            else:
+                if differential:
+                    self.add_net(
+                        f"{probe_pin}", {instance_name: [f"{net_name}"], f"{prefix}{idx}": [model_pin_names[0]]}
+                    )
+                    probe_pin_ref = probes[idx + 1]
+                    instance_name_ref, net_name_ref = probe_pin_ref.split(".", 1)
+                    self.add_net(
+                        f"{probe_pin_ref}",
+                        {instance_name_ref: [net_name_ref], f"{prefix}{idx}": [model_pin_names[1]]},
+                    )
+                    idx += 2
+                else:
+                    self.add_net(
+                        f"{probe_pin}", {instance_name: [f"{net_name}"], f"{prefix}{idx}": [model_pin_names[0]]}
+                    )
+                    if len(model_pin_names) == 2:
+                        gnd_nets[f"{prefix}{idx}"] = [model_pin_names[1]]
+                    idx += 1
+        if "gnd" not in self.config["pin_mapping"]:
+            self.config["pin_mapping"]["gnd"] = gnd_nets
+        else:
+            self.config["pin_mapping"]["gnd"].update(gnd_nets)
+        return components, ports
+
+    def add_net(self, name: str, connections: dict):
+        self.config["pin_mapping"][name] = connections
+
+    def add_port(self, name: str, connections: dict, impedance: float = 50.0):
+        self.config["ports"][name] = {}
+        self.config["ports"][name]["pin_mapping"] = connections
+        self.config["ports"][name]["properties"] = {"rz": impedance, "iz": 0.0}
+
+    def export_config(self, file: str):
+        if self.config.get("models", {}) and self.config.get("instance", {}):
+            file_handle = open(file, "w")
+            json.dump(self.config, file_handle, indent=4)
+            file_handle.close()
+            self.file_path = file
+            return True
+        return False
+
+    def import_config(self, design_name: str, project_name: str = None):
+        from ansys.aedt.core import Circuit
+
+        _app = Circuit(design=design_name, project=project_name)
+        if os.path.exists(self.file_path):
+            _app.configurations.import_variables = self.import_variables
+            _app.configurations.import_config(self.file_path)
+        return _app
+
+
 class ConfigurationsNexxim(Configurations):
     """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
 
@@ -2560,3 +2711,13 @@ class ConfigurationsNexxim(Configurations):
                     self.results.import_parametrics = False
 
         return data
+
+    @pyaedt_function_handler()
+    def new(self) -> SimulationConfigNexxim:
+        """Create a new Nexxim emptyconfiguration file.
+
+        Returns
+        -------
+        SimulationConfigNexxim
+        """
+        return SimulationConfigNexxim()
