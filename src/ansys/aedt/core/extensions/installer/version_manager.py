@@ -34,7 +34,6 @@ from tkinter import messagebox
 from tkinter import ttk
 import webbrowser
 import zipfile
-from ansys.aedt.core.generic.general_methods import is_linux
 
 import defusedxml
 import PIL.Image
@@ -45,7 +44,7 @@ import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
-
+from ansys.aedt.core.generic.general_methods import is_linux
 
 defusedxml.defuse_stdlib()
 
@@ -55,8 +54,7 @@ DISCLAIMER = (
     "Software is subject to separate terms and conditions and not the terms of your "
     "Ansys software license agreement. Ansys does not warrant or support such "
     "Third-Party Software.\n"
-    "Do you want to proceed?\n\n"
-    "Note: After the update completes the Version Manager will be closed"
+    "Do you want to proceed?\n"
 )
 UNKNOWN_VERSION = "Unknown"
 
@@ -111,13 +109,17 @@ class VersionManager:
     @property
     def pyedb_version(self):
         return self.get_installed_version("pyedb")
+    @property
+    def personal_lib(self):
+        from ansys.aedt.core.internal.desktop_sessions import (
+            _desktop_sessions,
+        )
+        d = list(_desktop_sessions.values())[0]
+        return d.personallib
 
-    def __init__(self, ui, desktop, aedt_version, personal_lib):
+    def __init__(self, ui):
         from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-        self.desktop = desktop
-        self.aedt_version = aedt_version
-        self.personal_lib = personal_lib
         self.is_linux = is_linux
         self.is_windows = not is_linux
         self.change_theme_button = None
@@ -368,35 +370,26 @@ class VersionManager:
             else:
                 subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
 
-    def update_and_close(self, pip_args, modules_to_unload=None):
-        """Attempt to release processes, unload modules, run pip, and close the Version Manager.
+    def update_and_reload(self, pip_args, modules_to_unload=None):
+        """Attempt to release processes, unload modules, run pip, and
+        reload the modules.
         """
         # Confirm action
-        response = messagebox.askyesno("Confirm Action", "This will close active AEDT resources, perform the installation and close the Version Manager. Continue?")
+        response = messagebox.askyesno(
+            "Confirm Action",
+            "This will temporarily unload active modules, perform the "
+            "installation, and reload them. Continue?"
+        )
         if not response:
             return
 
         # Default modules to try unloading to free file handles
-        modules = modules_to_unload or ["pyaedt", "pyedb"]
+        modules = modules_to_unload or ["ansys.aedt.core", "pyedb"]
 
-        # Try to gracefully release AEDT desktop
+        # Attempt to unload modules in current process to free handles
         try:
-            if getattr(self, "desktop", None) is not None:
-                try:
-                    # prefer release_desktop
-                    self.desktop.release_desktop(False, False)
-                except Exception:
-                    try:
-                        self.desktop.close_desktop()
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-
-        # Attempt to unload modules in current process to free file handles
-        try:
-            import sys as _sys
             import gc as _gc
+            import sys as _sys
 
             for m in modules:
                 if m in _sys.modules:
@@ -412,24 +405,41 @@ class VersionManager:
         try:
             self.run_uv_pip(pip_args)
         except Exception as exc:
-            messagebox.showerror("Error: Installation Failed", f"Installation failed: {exc}")
+            messagebox.showerror("Error: Installation Failed",
+                               f"Installation failed: {exc}")
             return
-        try:
-                self.reset_pyaedt_buttons_in_aedt(confirm=False)
-        except Exception:  # pragma: no cover
-            messagebox.showwarning(
-                "Warning",
-                "PyAEDT panels could not be updated in AEDT. You may need to reset them manually.",
-            )
 
-        # Inform user and close the Version Manager. No automatic restart.
+        # Attempt to reimport the modules that were unloaded
         try:
-            messagebox.showinfo("Message", "Update completed. The Version Manager will now close.")
+            import importlib
+            for m in modules:
+                try:
+                    importlib.import_module(m)
+                except Exception:
+                    # Module may not be available or have dependencies
+                    pass
         except Exception:
             pass
 
         try:
-            self.root.destroy()
+            self.reset_pyaedt_buttons_in_aedt(confirm=False)
+        except Exception:  # pragma: no cover
+            messagebox.showwarning(
+                "Warning",
+                "PyAEDT panels could not be updated in AEDT. You may "
+                "need to reset them manually.",
+            )
+
+        # Refresh the UI to show updated version information
+        self.clicked_refresh(need_restart=True)
+
+        # Inform user that update is complete
+        try:
+            messagebox.showinfo(
+                "Message",
+                "Update completed successfully. Module versions have "
+                "been refreshed."
+            )
         except Exception:
             pass
 
@@ -449,7 +459,7 @@ class VersionManager:
             else:
                 pip_args = ["install", "-U", "pyaedt"]
 
-            self.update_and_close(pip_args)
+            self.update_and_reload(pip_args)
 
     def update_pyedb(self):
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
@@ -468,7 +478,7 @@ class VersionManager:
             else:
                 pip_args = ["install", "-U", "pyedb"]
 
-            self.update_and_close(pip_args)
+            self.update_and_reload(pip_args)
 
     def update_all(self):
         """Update both pyaedt and pyedb together.
@@ -509,7 +519,7 @@ class VersionManager:
         except Exception:
             pip_args.extend(["pyedb"])
 
-        self.update_and_close(pip_args)
+        self.update_and_reload(pip_args)
 
     def get_pyaedt_branch(self):
         if not self.is_git_available():
@@ -520,7 +530,7 @@ class VersionManager:
         if response:
             branch_name = self.pyaedt_branch_name.get()
             pip_args = ["install", f"git+https://github.com/ansys/pyaedt.git@{branch_name}"]
-            self.update_and_close(pip_args)
+            self.update_and_reload(pip_args)
 
     def get_pyedb_branch(self):
         if not self.is_git_available():
@@ -531,7 +541,7 @@ class VersionManager:
         if response:
             branch_name = self.pyedb_branch_name.get()
             pip_args = ["install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"]
-            self.update_and_close(pip_args)
+            self.update_and_reload(pip_args)
 
     def update_from_wheelhouse(self):
         def version_is_leq(version, other_version):
@@ -632,7 +642,9 @@ class VersionManager:
                 return
 
         try:
-            from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+            from ansys.aedt.core.extensions.installer.pyaedt_installer import (
+                add_pyaedt_to_aedt,
+            )
 
             add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
             if confirm:
@@ -691,35 +703,8 @@ class VersionManager:
             messagebox.showinfo("Message", "Done")
 
 
-def get_desktop_info(release_desktop=True):
-    port = get_port()
-    aedt_version = get_aedt_version()
-    aedt_process_id = get_process_id()
-
-    if aedt_process_id is not None: # pragma: no cover
-        new_desktop = False
-        ng = False
-        close_on_exit = False
-    else:
-        new_desktop = True
-        ng = True
-        close_on_exit = True
-
-    aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
-    personal_lib = aedtapp.personallib
-
-    if release_desktop:
-        if close_on_exit:
-            aedtapp.close_desktop()
-        else:
-            aedtapp.release_desktop(False, False)
-
-    return {"desktop": aedtapp, "aedt_version": aedt_version, "personal_lib": personal_lib}
-
-
 if __name__ == "__main__": # pragma: no cover
-    kwargs = get_desktop_info()
     # Initialize tkinter root window and run the app
     root = tkinter.Tk()
-    app = VersionManager(root, **kwargs)
+    app = VersionManager(root)
     root.mainloop()
