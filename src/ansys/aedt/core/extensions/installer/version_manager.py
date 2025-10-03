@@ -389,17 +389,19 @@ class VersionManager:
         # Attempt to unload modules in current process to free handles
         try:
             import gc as _gc
-            import sys as _sys
+            import sys as _sys # nosec
 
             for m in modules:
                 if m in _sys.modules:
                     try:
                         del _sys.modules[m]
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        # Show error instead of silently passing so users see failures
+                        messagebox.showerror("Error", f"Failed to remove module {m}: {e}")
             _gc.collect()
-        except Exception:
-            pass
+        except Exception as e:
+            # Show error to inform the user that unloading modules failed
+            messagebox.showerror("Error", f"Failed to unload modules: {e}")
 
         # Run pip install/upgrade
         try:
@@ -415,11 +417,11 @@ class VersionManager:
             for m in modules:
                 try:
                     importlib.import_module(m)
-                except Exception:
-                    # Module may not be available or have dependencies
-                    pass
-        except Exception:
-            pass
+                except Exception as e:
+                    # Module may not be available or have dependencies — show error
+                    messagebox.showerror("Error", f"Failed to import module {m}: {e}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to reimport modules: {e}")
 
         try:
             self.reset_pyaedt_buttons_in_aedt(confirm=False)
@@ -440,8 +442,9 @@ class VersionManager:
                 "Update completed successfully. Module versions have "
                 "been refreshed."
             )
-        except Exception:
-            pass
+        except Exception as e:
+            # If showing the info fails, report it to the user
+            messagebox.showerror("Error", f"Failed to show completion message: {e}")
 
     def update_pyaedt(self):
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
