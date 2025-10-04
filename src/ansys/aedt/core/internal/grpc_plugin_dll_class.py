@@ -103,7 +103,7 @@ class AedtObjWrapper:
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
         self.dllapi = AedtAPI
-        self.is_linux = True if os.name == "posix" else False
+        self.is_linux = os.name == "posix"
 
     # print(self.objectID)
 
