@@ -53,15 +53,15 @@ class Cube(PyAedtBase):
 
 def test_instance_dir_contains_methods():
     cube = Cube()
-    d = cube.dir
+    d = cube.public_dir
     assert "faces" in d
     assert all(not i.startswith("_") for i in d)
-    assert "dir" not in d  # exclude the property itself
+    assert "public_dir" not in d  # exclude the property itself
 
 
 def test_chaining_dir():
     cube = Cube()
-    vertex_dir = cube.faces().edges().vertices().dir
+    vertex_dir = cube.faces().edges().vertices().public_dir
     assert "position" in vertex_dir
     assert all(not i.startswith("_") for i in vertex_dir)
 
@@ -74,5 +74,5 @@ def test_base_inheritance():
 
 def test_dir_sorted():
     cube = Cube()
-    d = cube.dir
+    d = cube.public_dir
     assert d == sorted(d)
