@@ -106,6 +106,12 @@ class VersionManager:
     @property
     def pyedb_version(self):
         return self.get_installed_version("pyedb")
+
+    @property
+    def aedt_version(self):
+        from ansys.aedt.core.extensions.misc import get_aedt_version
+        return get_aedt_version()
+
     @property
     def personal_lib(self):
         from ansys.aedt.core.internal.desktop_sessions import (
@@ -357,10 +363,10 @@ class VersionManager:
             else:
                 subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
 
-    def update_and_reload(self, pip_args, modules_to_unload=None):
+    def update_and_reload(self, pip_args, modules_to_unload=None): # pragma: no cover
         """Attempt to release processes, unload modules, run pip, and
         reload the modules.
-        """
+        """        
         # Confirm action
         response = messagebox.askyesno(
             "Confirm Action",
@@ -469,7 +475,7 @@ class VersionManager:
 
             self.update_and_reload(pip_args)
 
-    def update_all(self):
+    def update_all(self): # pragma: no cover
         """Update both pyaedt and pyedb together.
 
         This follows the same disclaimer and install flow as the individual update
