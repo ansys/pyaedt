@@ -41,9 +41,6 @@ import PIL.ImageTk
 import requests
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_port
-from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
 
 defusedxml.defuse_stdlib()
@@ -144,8 +141,6 @@ class VersionManager:
         self.ini_file_path = os.path.join(os.path.dirname(__file__), "settings.ini")
 
         # Prepare subprocess environment so the venv is effectively activated for all runs
-        # This prepends the venv Scripts (Windows) / bin (POSIX) directory to PATH and
-        # sets VIRTUAL_ENV so subprocesses use the correct interpreter/tools (uv, pip, etc.).
         self.activated_env = None
         self.activate_venv()
 
@@ -322,10 +317,6 @@ class VersionManager:
 
     def activate_venv(self):
         """Prepare a subprocess environment that has the virtual environment activated.
-
-        This function does not change the current Python process, but prepares an env
-        dictionary (stored in self.activated_env) that can be passed to subprocess.run
-        so that commands like uv and pip resolve to the ones inside the virtualenv.
         """
         try:
             scripts_dir = (
@@ -350,10 +341,6 @@ class VersionManager:
             pip_args: list of arguments to pip after the pip keyword, e.g. ['install', '-U', 'pyaedt']
             capture_output: when True returns the stdout string (uses check_output)
             check: passed to subprocess.run when not capturing output
-
-        This helper tries to run: [self.uv_exe, 'pip', *pip_args]
-        and if that fails (e.g. uv blocked by proxy), it falls back to:
-        [self.python_exe, '-m', 'pip', *pip_args]
         """
         try:
             cmd = [self.uv_exe, "pip"] + pip_args
@@ -396,7 +383,6 @@ class VersionManager:
                     try:
                         del _sys.modules[m]
                     except Exception as e:
-                        # Show error instead of silently passing so users see failures
                         messagebox.showerror("Error", f"Failed to remove module {m}: {e}")
             _gc.collect()
         except Exception as e:
