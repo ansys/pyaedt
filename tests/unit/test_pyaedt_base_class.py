@@ -46,9 +46,28 @@ class Cube(PyAedtBase):
         return Face()
 
 
+# Example classes for testing
+class Base(PyAedtBase):
+    def base_method(self):
+        pass
+
+    def _base_private(self):
+        pass
+
+
+class Child(Base):
+    def child_method(self):
+        pass
+
+    def _child_private(self):
+        pass
+
+
 # ---------------------------
 # UNIT TESTS
 # ---------------------------
+
+# tests for public_dir method and DirMixin functionality
 
 
 def test_instance_dir_contains_methods():
@@ -76,3 +95,49 @@ def test_dir_sorted():
     cube = Cube()
     d = cube.public_dir
     assert d == sorted(d)
+
+
+# tests for __dir__ method and DirMixin functionality
+
+
+def test_dir_includes_all_attributes():
+    """Ensure __dir__ returns all attributes, not just reordered subset."""
+    c = Child()
+    default_attrs = object.__dir__(c)
+    custom_attrs = c.__dir__()
+
+    # The sets should be identical — only order changes
+    assert set(default_attrs) <= set(custom_attrs)
+    # There must be at least one public and one private
+    assert any(not a.startswith("_") for a in custom_attrs)
+    assert any(a.startswith("_") for a in custom_attrs)
+
+
+def test_dir_orders_public_first():
+    """Public attributes should appear before private ones."""
+    c = Child()
+    attrs = c.__dir__()
+    # Find the first private index
+    first_private = next(i for i, a in enumerate(attrs) if a.startswith("_"))
+    # Ensure no public names appear after a private
+    assert all(a.startswith("_") for a in attrs[first_private:])
+
+
+def test_dir_preserves_methods_from_parents():
+    """Inherited public and private methods should appear."""
+    c = Child()
+    attrs = c.__dir__()
+    assert "base_method" in attrs
+    assert "_base_private" in attrs
+    assert "child_method" in attrs
+    assert "_child_private" in attrs
+
+
+def test_dir_is_sorted_within_groups():
+    """Public and private groups should each be alphabetically ordered."""
+    c = Child()
+    attrs = c.__dir__()
+    public = [a for a in attrs if not a.startswith("_")]
+    private = [a for a in attrs if a.startswith("_")]
+    assert public == sorted(public)
+    assert private == sorted(private)

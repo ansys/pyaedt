@@ -39,6 +39,15 @@ class DirMixin:
     >>> e.public_dir  # same as dir(e)
     """
 
+    def __dir__(self):
+        # Get default attribute list, there is a fallback for Python 2 or weird metaclasses
+        attrs = super().__dir__() if hasattr(super(), "__dir__") else dir(type(self))
+        # Split public vs private
+        private = sorted((a for a in attrs if a.startswith("_")), key=str.lower)
+        public = sorted((a for a in attrs if not a.startswith("_")), key=str.lower)
+        # Return public first, private at the end
+        return public + private
+
     @property
     def public_dir(self):
         """Shortcut for dir(self)."""
