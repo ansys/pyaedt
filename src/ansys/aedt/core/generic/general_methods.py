@@ -386,6 +386,9 @@ def _log_method(func, new_args, new_kwargs):
 
 @pyaedt_function_handler()
 def get_version_and_release(input_version):
+    """Convert the standard five-digit AEDT version format to a tuple of version and release.
+    Used for environment variable management.
+    """
     version = int(input_version[2:4])
     release = int(input_version[5])
     if version < 20:
@@ -397,21 +400,53 @@ def get_version_and_release(input_version):
 
 
 @pyaedt_function_handler()
-def get_string_version(input_version):
-    output_version = input_version
-    if isinstance(input_version, float):
-        output_version = str(input_version)
-        if len(output_version) == 4:
-            output_version = "20" + output_version
-    elif isinstance(input_version, int):
-        output_version = str(input_version)
-        output_version = f"20{output_version[:2]}.{output_version[-1]}"
-    elif isinstance(input_version, str):
-        if len(input_version) == 3:
-            output_version = f"20{input_version[:2]}.{input_version[-1]}"
-        elif len(input_version) == 4:
-            output_version = "20" + input_version
-    return output_version
+def _normalize_version_to_string(input_version):
+    """Convert various AEDT version formats to a standard five-digit string format.
+    Used to check and convert the version user input to a standard format.
+    If the input is ``None``, return ``None``.
+    """
+    error_msg = (
+        "Version argument is not valid.\n"
+        "Accepted formats are:\n"
+        " - 3-digit format (e.g., '232')\n"
+        " - 5-digit format (e.g., '2023.2')\n"
+        " - Float format (e.g., 2023.2 or 23.2)\n"
+        " - Integer format (e.g., 232)\n"
+        " - Release format with 'R' (e.g., '2023R2' or '23R2')"
+    )
+    if input_version is None:
+        return None
+    if not isinstance(input_version, (str, int, float)):
+        raise ValueError(error_msg)
+    input_version_str = str(input_version)
+    # Matches 2000.0 – 2099.9 style floats and strings
+    if re.match(r"^20\d{2}\.\d$", input_version_str):
+        return input_version_str
+    # Matches 00.0 – 99.9 style floats and strings
+    elif re.match(r"^\d{2}\.\d$", input_version_str):
+        return "20" + input_version_str
+    # Matches 000 – 999 style ints and strings
+    elif re.match(r"^\d{3}$", input_version_str):
+        return f"20{input_version_str[:2]}.{input_version_str[-1]}"
+    # Matches "2025R2" or "2025 R2" string
+    elif re.match(r"^20\d{2}\s?R\d$", input_version_str):
+        return input_version_str.replace("R", ".").replace(" ", "")
+    # Matches "25R2" or "25 R2" string
+    elif re.match(r"^\d{2}\s?R\d$", input_version_str):
+        return "20" + input_version_str.replace("R", ".").replace(" ", "")
+    else:
+        raise ValueError(error_msg)
+
+
+@pyaedt_function_handler()
+def _is_version_format_valid(version):
+    """Check if the internal version format is valid.
+    Version must be a string in the five-digit format (e.g., '2023.2').
+    It can optionally end with 'SV' for student versions.
+    """
+    if not isinstance(version, str):
+        return False
+    return bool(re.match(r"^\d{4}\.[1-9]\d*(SV)?$", version))
 
 
 @pyaedt_function_handler()
