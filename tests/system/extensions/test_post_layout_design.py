@@ -30,7 +30,7 @@ import ansys.aedt.core
 from ansys.aedt.core.extensions.hfss3dlayout import post_layout_design
 from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.system.extensions.conftest import local_path as extensions_local_path
+from tests.conftest import local_path as extensions_local_path
 
 # Get local path for test files
 local_path = os.path.dirname(os.path.realpath(__file__))

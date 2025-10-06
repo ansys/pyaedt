@@ -400,7 +400,6 @@ model.index\+
 
 # test coverage output
 /.cov/
-/tests/system/general/pyaedt_settings.yaml
 
 # Custom instructions for GitHub Copilot
 .github/copilot-instructions.md

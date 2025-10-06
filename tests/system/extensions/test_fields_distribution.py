@@ -28,7 +28,7 @@ from pathlib import Path
 import pytest
 
 import ansys.aedt.core
-from tests.system.extensions.conftest import local_path as extensions_local_path
+from tests.conftest import local_path as extensions_local_path
 
 # Test project constants
 fields_distribution_project = "transformer_loss_distribution"

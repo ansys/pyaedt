@@ -42,7 +42,6 @@ directory as this module. An example of the contents of local_config.json
 """
 
 import gc
-import json
 import os
 import sys
 import tempfile
@@ -53,25 +52,11 @@ import pytest
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
-from tests.conftest import apply_global_configuration
+from ansys.aedt.core.internal.desktop_sessions import (
+    _desktop_sessions,
+)
 from tests.conftest import config
 from tests.conftest import logger
-
-local_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(local_path)
-
-# Check for the local config file, override defaults if found
-local_config_file = os.path.join(local_path, "local_config.json")
-if os.path.exists(local_config_file):
-    try:
-        with open(local_config_file) as f:
-            local_config = json.load(f)
-    except Exception:  # pragma: no cover
-        local_config = {}
-    config.update(local_config)
-
-apply_global_configuration(config)
 
 
 def _delete_objects():

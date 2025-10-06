@@ -50,34 +50,21 @@ EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
 
-# Global settings configuration - applied to all tests
-settings.enable_local_log_file = False
-settings.enable_global_log_file = False
-settings.number_of_grpc_api_retries = 6
-settings.retry_n_times_time_interval = 0.5
-settings.enable_error_handler = False
-settings.enable_desktop_logs = False
-settings.desktop_launch_timeout = 180
-settings.release_on_exception = False
-settings.wait_for_license = True
-settings.enable_pandas_output = True
-
 # Initialize default configuration - shared across all test types
-default_version = "2025.2"
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
 DEFAULT_CONFIG = {
-    "desktopVersion": default_version,
+    "desktopVersion": "2025.2",
     "NonGraphical": True,
     "NewThread": True,
-    "skip_circuits": False,
-    "skip_modelithics": True,
     "use_grpc": True,
-    "disable_sat_bounding_box": True,
     "close_desktop": True,
     "remove_lock": False,
-    "local_example_folder": None,
+    "disable_sat_bounding_box": True,
     "use_local_example_data": False,
+    "local_example_folder": None,
+    "skip_circuits": False,
+    "skip_modelithics": True,
 }
 
 # Load top-level configuration
@@ -93,35 +80,22 @@ if local_config_file.exists():
     except Exception:  # pragma: no cover
         pass
 
+desktop_version = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
+NONGRAPHICAL = config.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))
+new_thread = config.get("NewThread", DEFAULT_CONFIG.get("NewThread"))
+settings.use_grpc_api = config.get("use_grpc", DEFAULT_CONFIG.get("use_grpc"))
+close_desktop = config.get("close_desktop", DEFAULT_CONFIG.get("close_desktop"))
+remove_lock = config.get("remove_lock", DEFAULT_CONFIG.get("remove_lock"))
+settings.disable_bounding_box_sat = config.get(
+    "disable_sat_bounding_box", DEFAULT_CONFIG.get("disable_sat_bounding_box")
+)
+settings.use_local_example_data = config.get("use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data"))
+if settings.use_local_example_data:
+    settings.local_example_folder = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
 
-# Apply global configuration moved into a function for reuse and to support updates from nested conftest files
-def apply_global_configuration(cfg: dict):
-    """Apply global configuration settings from a configuration dictionary.
+logger = pyaedt_logger
+os.environ["PYAEDT_SCRIPT_VERSION"] = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
 
-    This updates module-level variables, the shared `settings` object and environment
-    variables. Defaults are taken from DEFAULT_CONFIG when keys are missing.
-    """
-    global NONGRAPHICAL, desktop_version, new_thread, close_desktop, remove_lock, logger
-
-    NONGRAPHICAL = cfg.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))
-    settings.disable_bounding_box_sat = cfg.get(
-        "disable_sat_bounding_box", DEFAULT_CONFIG.get("disable_sat_bounding_box")
-    )
-    desktop_version = cfg.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
-    new_thread = cfg.get("NewThread", DEFAULT_CONFIG.get("NewThread"))
-    settings.use_grpc_api = cfg.get("use_grpc", DEFAULT_CONFIG.get("use_grpc"))
-    close_desktop = cfg.get("close_desktop", DEFAULT_CONFIG.get("close_desktop"))
-    remove_lock = cfg.get("remove_lock", DEFAULT_CONFIG.get("remove_lock"))
-    settings.use_local_example_data = cfg.get("use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data"))
-    if settings.use_local_example_data:
-        settings.local_example_folder = cfg.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
-
-    logger = pyaedt_logger
-    os.environ["PYAEDT_SCRIPT_VERSION"] = cfg.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
-
-
-# Call the function to apply the current config values
-apply_global_configuration(config)
 
 # Add current path to sys.path for imports
 sys.path.append(str(local_path))
@@ -144,24 +118,24 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
     """Hook used to apply marker on tests."""
     for item in items:
         # Mark unit, integration and system tests
-        if item.nodeid.startswith(UNIT_TEST_PREFIX):
+        if item.nodeid.startswith("UNIT_TEST_PREFIX"):
             item.add_marker(pytest.mark.unit)
-        elif item.nodeid.startswith(INTEGRATION_TEST_PREFIX):
+        elif item.nodeid.startswith("INTEGRATION_TEST_PREFIX"):
             item.add_marker(pytest.mark.integration)
-        elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
+        elif item.nodeid.startswith("SYSTEM_TEST_PREFIX"):
             item.add_marker(pytest.mark.system)
         # Finer markers for system tests
-        if item.nodeid.startswith(SYSTEM_SOLVERS_TEST_PREFIX):
+        if item.nodeid.startswith("SYSTEM_SOLVERS_TEST_PREFIX"):
             item.add_marker(pytest.mark.solvers)
-        elif item.nodeid.startswith(SYSTEM_GENERAL_TEST_PREFIX):
+        elif item.nodeid.startswith("SYSTEM_GENERAL_TEST_PREFIX"):
             item.add_marker(pytest.mark.general)
-        elif item.nodeid.startswith(VISUALIZATION_GENERAL_TEST_PREFIX):
+        elif item.nodeid.startswith("VISUALIZATION_GENERAL_TEST_PREFIX"):
             item.add_marker(pytest.mark.visualization)
-        elif item.nodeid.startswith(EXTENSIONS_GENERAL_TEST_PREFIX):
+        elif item.nodeid.startswith("EXTENSIONS_GENERAL_TEST_PREFIX"):
             item.add_marker(pytest.mark.extensions)
-        elif item.nodeid.startswith(FILTER_SOLUTIONS_TEST_PREFIX):
+        elif item.nodeid.startswith("FILTER_SOLUTIONS_TEST_PREFIX"):
             item.add_marker(pytest.mark.filter_solutions)
-        elif item.nodeid.startswith(EMIT_TEST_PREFIX):
+        elif item.nodeid.startswith("EMIT_TEST_PREFIX"):
             item.add_marker(pytest.mark.emit)
 
 
