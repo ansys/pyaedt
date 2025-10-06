@@ -52,9 +52,7 @@ import pytest
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.desktop_sessions import (
-    _desktop_sessions,
-)
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from tests.conftest import config
 from tests.conftest import logger
 

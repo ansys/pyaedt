@@ -9,6 +9,102 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.20.1 <https://github.com/ansys/pyaedt/releases/tag/v0.20.1>`_ - October 01, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Panels update automatically after update
+          - `#6690 <https://github.com/ansys/pyaedt/pull/6690>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.1.1 to 10.1.2
+          - `#6693 <https://github.com/ansys/pyaedt/pull/6693>`_
+
+        * - Update grpcio requirement from <1.75,>=1.50.0 to >=1.50.0,<1.76
+          - `#6694 <https://github.com/ansys/pyaedt/pull/6694>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add documentation for the pyd folder settings
+          - `#6689 <https://github.com/ansys/pyaedt/pull/6689>`_
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#6697 <https://github.com/ansys/pyaedt/pull/6697>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Increased width to fit elements
+          - `#6691 <https://github.com/ansys/pyaedt/pull/6691>`_
+
+        * - Add -- to uv to pass options to pip
+          - `#6696 <https://github.com/ansys/pyaedt/pull/6696>`_
+
+        * - Added point cloud generator extension to Maxwell 2D
+          - `#6699 <https://github.com/ansys/pyaedt/pull/6699>`_
+
+        * - Ibis import of models when multiple component have same name
+          - `#6705 <https://github.com/ansys/pyaedt/pull/6705>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.20.0
+          - `#6683 <https://github.com/ansys/pyaedt/pull/6683>`_
+
+        * - Fix nightly doc build (temporary)
+          - `#6684 <https://github.com/ansys/pyaedt/pull/6684>`_
+
+        * - Remove caching from wheelhouse
+          - `#6685 <https://github.com/ansys/pyaedt/pull/6685>`_
+
+        * - Bump v0.21.dev0
+          - `#6686 <https://github.com/ansys/pyaedt/pull/6686>`_
+
+        * - Remove ansys processes on self-hosted
+          - `#6687 <https://github.com/ansys/pyaedt/pull/6687>`_
+
+        * - Improve pyaedt installer script
+          - `#6702 <https://github.com/ansys/pyaedt/pull/6702>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Nastran import refactoring
+          - `#6236 <https://github.com/ansys/pyaedt/pull/6236>`_
+
+
 `0.20.0 <https://github.com/ansys/pyaedt/releases/tag/v0.20.0>`_ - September 26, 2025
 =====================================================================================
 
