@@ -40,7 +40,6 @@ from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.filesystem import search_files
-from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 
@@ -766,8 +765,10 @@ class VirtualCompliance(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_frequency_range(self, data_list, f1, f2):
-        filtered_range = [(freq, db_value) for freq, db_value in data_list if f1 <= freq <= f2]
-        return filtered_range
+        indices = np.where((f1 <= data_list[0]) & (data_list[0] <= f2))
+        x_range = data_list[0][indices]
+        y_range = data_list[1][indices]
+        return x_range, y_range
 
     @pyaedt_function_handler()
     def _check_test_value(self, filtered_range, test_value, hatch_above):
@@ -975,10 +976,8 @@ class VirtualCompliance(PyAedtBase):
             ]
             reference_value = 1e12
             for trace_name in trace_data.expressions:
-                trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
-                time_vals = [i[0] for i in trace_values]
-                value = [i[1] for i in trace_values]
-                center = (max(value) + min(value)) / 2
+                time_vals, value = trace_data.get_expression_data(trace_name, formula="real")
+                center = (np.max(value) + np.min(value)) / 2
                 line_name = aedt_report.add_cartesian_y_marker(f"{center}{list(trace_data.units_data.values())[0]}")
                 _design.oreportsetup.ChangeProperty(
                     [
@@ -994,9 +993,10 @@ class VirtualCompliance(PyAedtBase):
                         ],
                     ]
                 )
-                neg_indices = [index for index, val in enumerate(value) if val < center]
-                pos_indices = [index for index, val in enumerate(value) if val > center]
-                if not (neg_indices and pos_indices):
+                neg_indices = np.where(value < center)[0]
+                pos_indices = np.where(value > center)[0]
+
+                if not (np.any(neg_indices) and np.any(pos_indices)):
                     settings.logger.warning("Error identifying transition to zero.")
                     continue
                 if pos_indices[0] < neg_indices[0]:
@@ -1442,6 +1442,141 @@ class VirtualCompliance(PyAedtBase):
                 )
             settings.logger.info(f"Parameters {template_report.name} added to the report.")
 
+    @staticmethod
+    def points_in_polygon(points, polygon):
+        path = Path(polygon)
+        return path.contains_points(points)
+
+    @pyaedt_function_handler()
+    def _add_statistical_violations(self, report, chapter, image_name, pass_fail_criteria):
+        font_table = [["", None]]
+        pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
+        sols = report.get_solution_data()
+        if not sols:  # pragma: no cover
+            msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
+            self._desktop_class.logger.error(msg)
+            return
+        mag_data_in = sols.get_expression_data(
+            sols.expressions[0], formula="magnitude", sweeps=["__UnitInterval", "__Amplitude"]
+        )
+        filter_in = np.where(mag_data_in[1] > 0)
+        x_data = mag_data_in[0][filter_in]
+
+        # mag_data is a dictionary. The key isa tuple (__Amplitude, __UnitInterval), and the value is the eye value.
+        mystr = "Eye Mask Violation:"
+        result_value = "PASS"
+        points_to_check = [[i[0] for i in pass_fail_criteria["points"]], [i[1] for i in pass_fail_criteria["points"]]]
+        points_to_check[1] = unit_converter(
+            points_to_check[1],
+            unit_system="Voltage",
+            input_units=pass_fail_criteria.get("yunits", "V"),
+            output_units=sols.units_sweeps["__Amplitude"],
+        )
+
+        poly = np.array(points_to_check).T
+
+        mask = self.points_in_polygon(x_data, poly)
+        inside_points = x_data[np.where(mask)]
+        num_failed = len(inside_points)
+        output_array = np.empty((0, 3))
+        if num_failed > 0:
+            result_value = "FAIL"
+            text_column = np.full((inside_points.shape[0], 1), "EYE")
+            output_array = np.hstack((inside_points, text_column))
+
+        font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
+        if result_value == "FAIL":
+            result_value = f"FAIL on {num_failed} points."
+        pass_fail_table.append([mystr, result_value])
+        result_value = "PASS"
+        if pass_fail_criteria["enable_limits"]:
+            mystr = "Upper/Lower Mask Violation:"
+            upper_limit = unit_converter(
+                pass_fail_criteria.get("upper_limit", 1e12),
+                unit_system="Voltage",
+                input_units=pass_fail_criteria.get("yunits", "V"),
+                output_units=sols.units_sweeps["__Amplitude"],
+            )
+            lower_limit = unit_converter(
+                pass_fail_criteria.get("lower_limit", -1e12),
+                unit_system="Voltage",
+                input_units=pass_fail_criteria.get("yunits", "V"),
+                output_units=sols.units_sweeps["__Amplitude"],
+            )
+            # checking if amplitude is overcoming limits.
+            upper_violations = x_data[x_data[:, 1] > upper_limit]
+            lower_violations = x_data[x_data[:, 1] < lower_limit]
+            if len(upper_violations) > 0:
+                result_value = "FAIL"
+                text_column = np.full((upper_violations.shape[0], 1), "UPPER")
+                upper_violations = np.hstack((upper_violations, text_column))
+                output_array = np.vstack((output_array, upper_violations))
+            if len(lower_violations) > 0:
+                result_value = "FAIL"
+                text_column = np.full((lower_violations.shape[0], 1), "LOWER")
+                lower_violations = np.hstack((lower_violations, text_column))
+                output_array = np.vstack((output_array, lower_violations))
+            if len(output_array) > 0:
+                unit = sols.units_sweeps["__Amplitude"]
+                header = f"Value{unit},Unit Interval,Violation"
+                file_path = os.path.join(self._output_folder, f"{image_name}_statistical_eye_violations.csv")
+                np.savetxt(
+                    file_path,
+                    output_array,
+                    delimiter=",",
+                    header=header,
+                    comments="",
+                    fmt=("%s", "%s", "%s"),
+                )
+            font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
+            pass_fail_table.append([mystr, result_value])
+        chapter.add_table(
+            {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
+        )
+        return pass_fail_table
+
+    @pyaedt_function_handler()
+    def _add_contour_eye_diagram_violations(self, report, chapter, image_name, pass_fail_criteria):
+        pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
+        sols = report.get_solution_data()
+        if not sols:  # pragma: no cover
+            msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
+            self._desktop_class.logger.error(msg)
+            return
+        bit_error_rates = [1e-3, 1e-6, 1e-9, 1e-12]
+        font_table = [["", None]]
+        points_to_check = [[i[0] for i in pass_fail_criteria["points"]], [i[1] for i in pass_fail_criteria["points"]]]
+        points_to_check[1] = unit_converter(
+            points_to_check[1],
+            unit_system="Voltage",
+            input_units=pass_fail_criteria.get("yunits", "V"),
+            output_units=sols.units_sweeps["__Amplitude"],
+        )
+        for ber in bit_error_rates:
+            mag_data_in = sols.get_expression_data(sols.expressions[0], sweeps=["__UnitInterval", "__Amplitude"])
+            filter_in = np.where(mag_data_in[1] <= ber)
+            x_data = mag_data_in[0][filter_in]
+
+            mystr = f"Eye Mask Violation BER at {ber}:"
+            result_value = "PASS"
+            if not np.any(x_data):
+                min_ber = np.min(mag_data_in[1])
+                result_value = f"FAILED. Minimum available BER  is {min_ber}"
+            else:
+                poly = np.array(points_to_check).T
+                mask = self.points_in_polygon(x_data, poly)
+                inside_points = x_data[np.where(mask)]
+                num_failed = len(inside_points)
+                if num_failed > 0:
+                    result_value = "FAILED. Mask Violation"
+            font_table.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in result_value else ["", None])
+            pass_fail_table.append([mystr, result_value])
+
+        chapter.add_table(
+            {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
+        )
+        return pass_fail_table
+
     @pyaedt_function_handler()
     def _add_lna_violations(self, report, chapter, image_name, pass_fail_criteria):
         font_table = [["", None]]
@@ -1462,47 +1597,59 @@ class VirtualCompliance(PyAedtBase):
             self._desktop_class.logger.error(msg)
             return pass_fail_table
         for trace_name in trace_data.expressions:
-            trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
-            for limit_v in pass_fail_criteria.values():
+            trace_values = trace_data.get_expression_data(trace_name)
+            for limit_name, limit_v in pass_fail_criteria.items():
                 yy = 0
                 zones = 0
                 if trace_data.primary_sweep == "Freq":
                     default = "Hz"
                 else:
                     default = "s"
+                default = default if limit_v.get("xunits", "") == "" else limit_v["xunits"]
                 limit_x = unit_converter(
                     values=limit_v["xpoints"],
                     unit_system=trace_data.primary_sweep,
-                    input_units=default if limit_v.get("xunits", "") == "" else limit_v["xunits"],
+                    input_units=default,
                     output_units=trace_data.units_sweeps[trace_data.primary_sweep],
                 )
                 while yy < len(limit_x) - 1:
                     if limit_x[yy] != limit_x[yy + 1]:
                         zones += 1
-                        result_range = self._get_frequency_range(trace_values, limit_x[yy], limit_x[yy + 1])
-                        freq = [i[0] for i in result_range]
-                        if not freq:
+                        freq, interpolated_values = self._get_frequency_range(
+                            trace_values, limit_x[yy], limit_x[yy + 1]
+                        )
+                        if not np.any(freq):
+                            yy += 1
                             continue
                         hatch_above = False
                         if limit_v.get("hatch_above", True):
                             hatch_above = True
-                        interpolated_values = np.interp(
-                            freq, [freq[0], freq[-1]], [limit_v["ypoints"][yy], limit_v["ypoints"][yy + 1]]
-                        )
-                        ypoints = list(interpolated_values)
+
                         test_value = limit_v["ypoints"][yy]
-                        range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
+                        indices = (
+                            np.where(interpolated_values > test_value)
+                            if hatch_above
+                            else np.where(interpolated_values < test_value)
+                        )
+                        result_y = interpolated_values[indices]
+                        result_value = "FAIL" if np.any(result_y) else "PASS"
+
+                        worst_index = np.argmax(interpolated_values) if hatch_above else np.argmin(interpolated_values)
+                        x_value_worst = round(freq[worst_index], 5)
+                        y_value_worst = round(interpolated_values[worst_index], 5)
                         units = limit_v.get("yunits", "")
-                        mystr = f"Zone {zones}"
+                        mystr = limit_name
                         font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
+                        criteria = "Upper Limit:" if hatch_above else "Lower Limit:"
+                        criteria = criteria + f"{limit_x[yy]}-{limit_x[yy + 1]}{default}"
                         pass_fail_table.append(
                             [
                                 mystr,
                                 trace_name,
-                                "Upper Limit" if hatch_above else "Lower Limit",
+                                criteria,
                                 f"{test_value}{units}",
-                                f"{x_value}{trace_data.units_sweeps[trace_data.primary_sweep]}",
-                                f"{range_value}{units}",
+                                f"{x_value_worst}{trace_data.units_sweeps[trace_data.primary_sweep]}",
+                                f"{y_value_worst}{units}",
                                 result_value,
                             ]
                         )
@@ -1512,62 +1659,10 @@ class VirtualCompliance(PyAedtBase):
                 "title": f"Pass Fail Criteria on {image_name}",
                 "content": pass_fail_table,
                 "formatting": font_table,
-                "col_widths": [25, 45 if self.use_portrait else 195, 25, 25, 25, 25, 25],
+                "col_widths": [23, 45 if self.use_portrait else 165, 50, 23, 23, 23, 23],
             }
         )
 
-        return pass_fail_table
-
-    @pyaedt_function_handler()
-    def _add_statistical_violations(self, report, chapter, image_name, pass_fail_criteria):
-        font_table = [["", None]]
-        pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
-        sols = report.get_solution_data()
-        if not sols:  # pragma: no cover
-            msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
-            self._desktop_class.logger.error(msg)
-            return
-        mag_data = [i for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0]
-        # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
-        mystr = "Eye Mask Violation:"
-        result_value = "PASS"
-        points_to_check = [i[::-1] for i in pass_fail_criteria["points"]]
-        points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
-        points_to_check[0] = unit_converter(
-            points_to_check[0],
-            unit_system="Voltage",
-            input_units=pass_fail_criteria.get("yunits", "V"),
-            output_units=sols.units_sweeps["__Amplitude"],
-        )
-        num_failed = 0
-        min_x = min(points_to_check[0])
-        max_x = max(points_to_check[0])
-        min_y = min(points_to_check[1])
-        max_y = max(points_to_check[1])
-        for point in mag_data:
-            if not (min_x < point[0] < max_x and min_y < point[1] < max_y):
-                continue
-            if GeometryOperators.point_in_polygon(point, points_to_check) >= 0:
-                result_value = "FAIL"
-                num_failed += 1
-                # break
-        font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
-        if result_value == "FAIL":
-            result_value = f"FAIL on {num_failed} points."
-        pass_fail_table.append([mystr, result_value])
-        result_value = "PASS"
-        if pass_fail_criteria["enable_limits"]:
-            mystr = "Upper/Lower Mask Violation:"
-            for point in mag_data:
-                # checking if amplitude is overcoming limits.
-                if point[0] > pass_fail_criteria["upper_limit"] or point[0] < pass_fail_criteria["lower_limit"]:
-                    result_value = "FAIL"
-                    break
-            font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
-            pass_fail_table.append([mystr, result_value])
-        chapter.add_table(
-            {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
-        )
         return pass_fail_table
 
     @pyaedt_function_handler()
@@ -1599,42 +1694,6 @@ class VirtualCompliance(PyAedtBase):
         font_table.append([[255, 255, 255], [255, 0, 0]] if result_value_mask == "FAIL" else ["", None])
         pass_fail_table.append([mystr2, result_value_upper])
         font_table.append([[255, 255, 255], [255, 0, 0]] if result_value_upper == "FAIL" else ["", None])
-        chapter.add_table(
-            {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
-        )
-        return pass_fail_table
-
-    @pyaedt_function_handler()
-    def _add_contour_eye_diagram_violations(self, report, chapter, image_name, pass_fail_criteria):
-        pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
-        sols = report.get_solution_data()
-        if not sols:  # pragma: no cover
-            msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
-            self._desktop_class.logger.error(msg)
-            return
-        bit_error_rates = [1e-3, 1e-6, 1e-9, 1e-12]
-        font_table = [["", None]]
-        points_to_check = [i[::-1] for i in pass_fail_criteria["points"]]
-        points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
-        points_to_check[0] = unit_converter(
-            points_to_check[0],
-            unit_system="Voltage",
-            input_units=pass_fail_criteria.get("yunits", "V"),
-            output_units=sols.units_sweeps["__Amplitude"],
-        )
-        for ber in bit_error_rates:
-            mag_data = [k for k, i in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if i <= ber]
-            mystr = f"Eye Mask Violation BER at {ber}:"
-            result_value = "PASS"
-            if not mag_data:
-                result_value = "FAILED. No BER obtained"
-            for point in mag_data:
-                if GeometryOperators.point_in_polygon(point[:2], points_to_check) >= 0:
-                    result_value = "FAILED. Mask Violation"
-                    break
-            font_table.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in result_value else ["", None])
-            pass_fail_table.append([mystr, result_value])
-
         chapter.add_table(
             {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
         )

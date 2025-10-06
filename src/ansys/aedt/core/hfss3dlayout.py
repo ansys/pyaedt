@@ -2352,7 +2352,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         for i in terms:
             data2 = []
             for ex in [f"LoopRes({i},{j})" for j in terms]:
-                d = solution_data.data_magnitude(ex)
+                d = solution_data.get_expression_data(formula="magnitude", expression=ex)[1]
                 if d is not False:
                     data2.append(d[0])
                 else:
@@ -2390,7 +2390,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         data = {"Voltage": []}
         for t_name in terms:
             ex = f"V({t_name})"
-            value = solution_data.data_magnitude(ex, convert_to_SI=True)
+            value = solution_data.get_expression_data(formula="magnitude", expression=ex, convert_to_SI=True)[1]
             if value is not False:
                 data["Voltage"].append(value[0])
         df = pd.DataFrame(data)
@@ -2425,7 +2425,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                     tmp_via_names.append(matches[0])
 
             for ex in solution_data.expressions:
-                value = solution_data.data_magnitude(ex, convert_to_SI=True)[0]
+                value = solution_data.get_expression_data(formula="magnitude", expression=ex, convert_to_SI=True)[1][0]
                 data[cat].append(value)
 
             df_tmp = pd.DataFrame(data)

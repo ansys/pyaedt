@@ -26,6 +26,8 @@
 import os
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -484,7 +486,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         if isinstance(waveform_data, pd.Series):
             waveform_data = list(waveform_data)
 
-        sweep_filtered = waveform_sweep
+        sweep_filtered = np.copy(waveform_sweep)
         filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
 
         outputdata = []
@@ -493,9 +495,9 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
         for tic in filtered_tic:
             if tic >= sweep_filtered[0]:
-                sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
-                if sweep_filtered:
-                    waveform_index = waveform_sweep.index(sweep_filtered[0])
+                sweep_filtered = sweep_filtered[sweep_filtered >= tic]
+                if sweep_filtered.any():
+                    waveform_index = np.where(waveform_sweep == sweep_filtered[0])
                     voltage = waveform_data[waveform_index]
                     new_voltage.append(
                         unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
@@ -505,7 +507,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
                     )
                     if not pandas_enabled:
                         outputdata.append([tic_in_s[-1:][0], new_voltage[-1:][0]])
-                    del sweep_filtered[0]
+                    np.delete(sweep_filtered, 0)
                 else:
                     break
         if pandas_enabled:
@@ -592,11 +594,11 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
                     break
                 else:
                     samples_per_bit += 1
-            if samples_per_bit * ignore_bits > len(waveform_data.data_real()):
+            if samples_per_bit * ignore_bits > len(waveform_data.get_expression_data()[0]):
                 self._app.solution_type = initial_solution_type
                 self.logger.warning("Ignored bits are greater than generated bits.")
                 return None
-            waveform.append(waveform_data.data_real()[samples_per_bit * ignore_bits :])
+            waveform.append(waveform_data.get_expression_data()[1][samples_per_bit * ignore_bits :])
             waveform_sweep.append(waveform_data.primary_sweep_values[samples_per_bit * ignore_bits :])
             waveform_unit.append(waveform_data.units_data[exp])
             waveform_sweep_unit.append(waveform_data.units_sweeps["Time"])
@@ -610,7 +612,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
                 domain="Clock Times",
                 variations=variation_list_w_value,
             )
-            tics = clock_tic.data_real()
+            tics = clock_tic.get_expression_data()[1]
 
         outputdata = [[] for i in range(len(waveform))]
         is_pandas_enabled = False

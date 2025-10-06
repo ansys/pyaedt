@@ -293,19 +293,19 @@ class FfdSolutionDataExporter(PyAedtBase):
                     "IncidentPower", self.setup_name, self.sphere_name
                 )
                 data = report.get_solution_data()
-                incident_powers = data.data_magnitude()
+                incident_powers = data.get_expression_data(formula="magnitude")[1]
 
                 report = self.__app.post.reports_by_category.antenna_parameters(
                     "RadiatedPower", self.setup_name, self.sphere_name
                 )
                 data = report.get_solution_data()
-                radiated_powers = data.data_magnitude()
+                radiated_powers = data.get_expression_data(formula="magnitude")[1]
 
                 report = self.__app.post.reports_by_category.antenna_parameters(
                     "AcceptedPower", self.setup_name, self.sphere_name
                 )
                 data = report.get_solution_data()
-                accepted_powers = data.data_magnitude()
+                accepted_powers = data.get_expression_data(formula="magnitude")[1]
 
                 for freq_cont, freq_str in enumerate(self.frequencies):
                     frequency = freq_str

@@ -22,21 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import itertools
 import math
 import os
+import time
 import warnings
 
 import numpy as np
 
-from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.constants import db10
-from ansys.aedt.core.generic.constants import db20
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.settings import settings
 
 try:
@@ -52,18 +50,20 @@ class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     def __init__(self, aedtdata):
+        start = time.time()
         self.units_sweeps = {}
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
         self._expressions = None
         self._intrinsics = None
-        self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
         self.active_expression = self.expressions[0]
         self._sweeps_names = []
         self.update_sweeps()
         self.variations = self._get_variations()
+        self._active_variation = self.variations[0]
+        self._compute_intrinsics()
         self.active_intrinsic = {}
         for k, v in self.intrinsics.items():
             self.active_intrinsic[k] = v[0]
@@ -71,9 +71,24 @@ class SolutionData(PyAedtBase):
             self._primary_sweep = list(self.intrinsics.keys())[0]
         else:
             self._primary_sweep = self._sweeps_names[0]
-        self.active_variation = self.variations[0]
+        end = time.time() - start
+        print(f"Time to initialize solution data:{end}")
         self.init_solutions_data()
         self._ifft = None
+        end = time.time() - start
+        print(f"Time to initialize solution data:{end}")
+
+    @property
+    def active_variation(self):
+        return self._active_variation
+
+    @active_variation.setter
+    def active_variation(self, value):
+        if value in self.variations:
+            self._active_variation = value
+            self.nominal_variation = self.variations.index(value)
+        else:
+            settings.logger.warning("Failed to set active variation")
 
     @property
     def enable_pandas_output(self):
@@ -92,7 +107,6 @@ class SolutionData(PyAedtBase):
     @enable_pandas_output.setter
     def enable_pandas_output(self, val):
         if val != self._enable_pandas_output and pd:
-            self._intrinsics = {}
             self._enable_pandas_output = val
             self.init_solutions_data()
 
@@ -113,8 +127,6 @@ class SolutionData(PyAedtBase):
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
             self.nominal_variation = var_id
-            self._expressions = None
-            self._intrinsics = None
             return True
         return False
 
@@ -124,7 +136,12 @@ class SolutionData(PyAedtBase):
         for data in self._original_data:
             variations = {}
             for v in data.GetDesignVariableNames():
-                variations[v] = Quantity(data.GetDesignVariableValue(v), data.GetDesignVariableUnits(v))
+                variations[v] = data.GetDesignVariableValue(v, False)
+                if v not in self.units_sweeps:
+                    try:
+                        self.units_sweeps[v] = data.GetDesignVariableUnits(v)
+                    except Exception:
+                        self.units_sweeps[v] = None
             variations_lists.append(variations)
         return variations_lists
 
@@ -151,22 +168,40 @@ class SolutionData(PyAedtBase):
                     vars_vals.append(el[variation])
             return vars_vals
 
+    def _compute_intrinsics(self):
+        if not self._intrinsics:
+            self._intrinsics = []
+            first = True
+            for variation in self._original_data:
+                new_intrinsic = {}
+                intr = [i for i in self._sweeps_names if i not in variation.GetDesignVariableNames()]
+                for el in intr:
+                    values = np.unique(np.array(variation.GetSweepValues(el, False), dtype=float))
+                    new_intrinsic[el] = values
+                    if first:
+                        try:
+                            self.units_sweeps[el] = variation.GetSweepUnits(el)
+                        except Exception:
+                            self.units_sweeps[el] = None
+                first = False
+                self._intrinsics.append(new_intrinsic)
+        return True
+
     @property
     def intrinsics(self):
         """Get intrinsics dictionary on active variation."""
         if not self._intrinsics:
-            self._intrinsics = {}
-            intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
-            for el in intrinsics:
-                values = list(self.nominal_variation.GetSweepValues(el, False))
-                try:
-                    self.units_sweeps[el] = self.nominal_variation.GetSweepUnits(el)
-                except Exception:
-                    self.units_sweeps[el] = None
-                values = list(dict.fromkeys(values))
-                self._intrinsics[el] = [Quantity(i, self.units_sweeps[el]) for i in values]
+            self._compute_intrinsics()
+        return self._intrinsics[self.variations.index(self.active_variation)]
 
-        return self._intrinsics
+    def intrinsics_by_variation(self, variation):
+        """Get intrinsics dictionary on active variation."""
+        if not self._intrinsics:
+            self._compute_intrinsics()
+        if isinstance(variation, int):
+            return self._intrinsics[variation]
+        else:
+            return self._intrinsics[self.variations.index(variation)]
 
     @property
     def nominal_variation(self):
@@ -251,29 +286,21 @@ class SolutionData(PyAedtBase):
         self._solutions_phase = self._init_solution_data_phase()
 
     @pyaedt_function_handler()
-    def _init_solution_data_mag(self):
-        _solutions_mag = {}
-        self.units_data = {}
-
-        for expr in self.expressions:
-            _solutions_mag[expr] = {}
-            self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
-            if self.enable_pandas_output:
-                _solutions_mag[expr] = np.sqrt(
-                    self._solutions_real[expr] * self._solutions_real[expr]
-                    + self._solutions_imag[expr] * self._solutions_imag[expr]
-                )
-            else:
-                for i in self._solutions_real[expr]:
-                    _solutions_mag[expr][i] = abs(complex(self._solutions_real[expr][i], self._solutions_imag[expr][i]))
-        if self.enable_pandas_output:
-            return pd.DataFrame.from_dict(_solutions_mag)
-        else:
-            return _solutions_mag
-
-    @pyaedt_function_handler()
     def __get_index(self, input_data):
         return tuple([float(i) for i in input_data])
+
+    @pyaedt_function_handler()
+    def _full_keys(self, comb, solution, variation):
+        values = [np.array(val, dtype=float) for val in self.intrinsics_by_variation(variation).values()]
+        grids = np.meshgrid(*values, indexing="ij")
+        param_combinations = np.stack(grids, axis=-1).reshape(-1, len(values))  # shape: (N, num_intrinsics)
+        # Convert comb dict to NumPy array
+        comb_values = np.array([float(comb[k]) for k in comb], dtype=float)
+
+        # Broadcast comb_values to match param_combinations
+        full_keys = np.hstack([np.tile(comb_values, (param_combinations.shape[0], 1)), param_combinations])
+        combined_array = np.hstack([full_keys, solution.reshape(-1, 1)])
+        return combined_array
 
     @pyaedt_function_handler()
     def _init_solution_data_real(self):
@@ -281,26 +308,17 @@ class SolutionData(PyAedtBase):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_data = {}
-            for data, comb in zip(self._original_data, self.variations):
-                solution = list(data.GetRealDataValues(expression, False))
-                values = []
-                # for el in list(self.intrinsics.keys()):
-                #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
-                for _, val in self.intrinsics.items():
-                    values.append([float(i) for i in val])
-                i = 0
-                c = [float(comb[v]) for v in list(comb.keys())]
-                for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = solution[i]
-                    i += 1
-            sols_data[expression] = solution_data
-        if self.enable_pandas_output:
-            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
-            # return pd.DataFrame(series_list).T
-            return pd.DataFrame.from_dict(sols_data)
-        else:
-            return sols_data
+            solution_numpy = None
+            for idx, (data, comb) in enumerate(zip(self._original_data, self.variations)):
+                solution = np.array(data.GetRealDataValues(expression, False), dtype=float)
+                solution_numpy_temp = self._full_keys(comb, solution, idx)
+                solution_numpy = (
+                    np.vstack([solution_numpy, solution_numpy_temp])
+                    if solution_numpy is not None
+                    else solution_numpy_temp
+                )
+            sols_data[expression] = solution_numpy
+        return sols_data
 
     @pyaedt_function_handler()
     def _init_solution_data_imag(self):
@@ -308,45 +326,43 @@ class SolutionData(PyAedtBase):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_data = {}
-            for data, comb in zip(self._original_data, self.variations):
+            solution_numpy = None
+            for idx, (data, comb) in enumerate(zip(self._original_data, self.variations)):
                 if data.IsDataComplex(expression):
-                    solution = list(data.GetImagDataValues(expression, False))
+                    solution = np.array(data.GetImagDataValues(expression, False), dtype=float)
                 else:
                     real_data_length = len(list(data.GetRealDataValues(expression, False)))
-                    solution = [0] * real_data_length
-                values = []
-                for _, val in self.intrinsics.items():
-                    values.append([float(i) for i in val])
-                i = 0
-                c = [float(comb[v]) for v in list(comb.keys())]
-                for t in itertools.product(*values):
-                    solution_data[tuple(c + list(t))] = solution[i]
-                    i += 1
-            sols_data[expression] = solution_data
-        if self.enable_pandas_output:
-            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
-            # return pd.DataFrame(series_list).T
-            return pd.DataFrame.from_dict(sols_data)
-        else:
-            return sols_data
+                    solution = np.array([0] * real_data_length, dtype=float)
+                solution_numpy_temp = self._full_keys(comb, solution, idx)
+                solution_numpy = (
+                    np.vstack([solution_numpy, solution_numpy_temp])
+                    if solution_numpy is not None
+                    else solution_numpy_temp
+                )
+            sols_data[expression] = solution_numpy
+        return sols_data
 
     @pyaedt_function_handler()
     def _init_solution_data_phase(self):
         data_phase = {}
         for expr in self.expressions:
-            data_phase[expr] = {}
-            if self.enable_pandas_output:
-                data_phase[expr] = np.arctan2(self._solutions_imag[expr], self._solutions_real[expr])
-            else:
-                for i in self._solutions_real[expr]:
-                    data_phase[expr][i] = math.atan2(self._solutions_imag[expr][i], self._solutions_real[expr][i])
-        if self.enable_pandas_output:
-            # series_list = [pd.Series(value, name=key) for key, value in data_phase.items()]
-            # return pd.DataFrame(series_list).T
-            return pd.DataFrame.from_dict(data_phase)
-        else:
-            return data_phase
+            data_phase[expr] = np.copy(self._solutions_real[expr])
+            data_phase[expr][:, -1] = np.arctan2(self._solutions_imag[expr][:, -1], self._solutions_real[expr][:, -1])
+        return data_phase
+
+    @pyaedt_function_handler()
+    def _init_solution_data_mag(self):
+        _solutions_mag = {}
+        self.units_data = {}
+
+        for expr in self.expressions:
+            _solutions_mag[expr] = np.copy(self._solutions_real[expr])
+            self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
+            _solutions_mag[expr][:, -1] = np.sqrt(
+                self._solutions_real[expr][:, -1] * self._solutions_real[expr][:, -1]
+                + self._solutions_imag[expr][:, -1] * self._solutions_imag[expr][:, -1]
+            )
+        return _solutions_mag
 
     @property
     def full_matrix_real_imag(self):
@@ -425,6 +441,9 @@ class SolutionData(PyAedtBase):
     def data_magnitude(self, expression=None, convert_to_SI=False):
         """Retrieve the data magnitude of an expression.
 
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
+
         Parameters
         ----------
         expression : str, optional
@@ -436,31 +455,11 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
+        np.array
             List of data.
         """
-        if not expression:
-            expression = self.active_expression
-        elif expression not in self.expressions:
-            return False
-        temp = self._variation_tuple()
-        solution_data = self._solutions_mag[expression]
-        sol = []
-        position = list(self._sweeps_names).index(self.primary_sweep)
-        sw = self.variation_values(self.primary_sweep)
-        for el in sw:
-            temp[position] = el
-            try:
-                sol.append(solution_data[self.__get_index(temp)])
-            except KeyError:
-                sol.append(None)
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        if self.enable_pandas_output:
-            return pd.Series(sol)
-        return sol
+        warnings.warn("Method `data_magnitude` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="magnitude", convert_to_SI=convert_to_SI)[1]
 
     @staticmethod
     @pyaedt_function_handler(datalist="data", dataunits="data_units")
@@ -479,19 +478,22 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
+        np.array
            List of the data converted to the SI unit system.
 
         """
         sol = data
         if data_units in AEDT_UNITS and units in AEDT_UNITS[data_units]:
-            sol = [i * AEDT_UNITS[data_units][units] for i in data]
+            sol = data * AEDT_UNITS[data_units][units]
         return sol
 
     @pyaedt_function_handler()
     def data_db10(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db10.
 
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
+
         Parameters
         ----------
         expression : str, optional
@@ -503,19 +505,19 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
+        np.array
             List of the data in the database for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        if self.enable_pandas_output:
-            return 10 * np.log10(self.data_magnitude(expression, convert_to_SI))
-        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
+        warnings.warn("Method `data_db10` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="db10", convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def data_db20(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db20.
 
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
+
         Parameters
         ----------
         expression : str, optional
@@ -527,18 +529,18 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
+        np.array
             List of the data in the database for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        if self.enable_pandas_output:
-            return 20 * np.log10(self.data_magnitude(expression, convert_to_SI))
-        return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
+        warnings.warn("Method `data_db20` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="db20", convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def data_phase(self, expression=None, radians=True):
         """Retrieve the phase part of the data for an expression.
+
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
 
         Parameters
         ----------
@@ -551,17 +553,11 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
+        np.array
             Phase data for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        coefficient = 1
-        if not radians:
-            coefficient = 180 / math.pi
-        if self.enable_pandas_output:
-            return coefficient * np.arctan2(self.data_imag(expression), self.data_real(expression))
-        return [coefficient * math.atan2(k, i) for i, k in zip(self.data_real(expression), self.data_imag(expression))]
+        warnings.warn("Method `data_phase` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="phaserad" if radians else "phase")[1]
 
     @property
     def primary_sweep_values(self):
@@ -569,48 +565,156 @@ class SolutionData(PyAedtBase):
 
         Returns
         -------
-        list
+        np.array
             List of the primary sweep valid points for the expression.
         """
-        if self.enable_pandas_output:
-            return pd.Series(self.variation_values(self.primary_sweep), dtype=object)
         return self.variation_values(self.primary_sweep)
 
-    @property
-    def primary_sweep_variations(self):
-        """Retrieve the variations lists for a given primary variable.
+    @staticmethod
+    def lookup_column_value(array, match_columns, match_values, output_column=-1):
+        """
+        Filters rows in a NumPy array based on column-value matches,
+        and returns the last column value of all matching rows.
+
+        Parameters
+        ----------
+        array : np.ndarray
+            The input array (2D).
+        match_columns : list of int
+            Column indices to match.
+        match_values : list
+            Values to match at each column.
+        output_column : any
+            Value to return if no match is found.
 
         Returns
         -------
-        list
-            List of the primary sweep valid points for the expression.
-
+        np.ndarray or default
+            Array of last column values for matching rows, or default if none found.
         """
-        expression = self.active_expression
+        mask = np.ones(len(array), dtype=bool)
+        for col, val in zip(match_columns, match_values):
+            mask &= array[:, col] == val
+
+        matched_rows = array[mask]
+        if matched_rows.size == 0:
+            return
+        if isinstance(output_column, int):
+            output_column = [output_column]
+        return (
+            matched_rows[:, output_column] if len(output_column) > 1 else matched_rows[:, output_column[0]]
+        )  # last column
+
+    @pyaedt_function_handler()
+    def get_expression_data(
+        self, expression=None, formula="real", convert_to_SI=False, use_quantity=False, sweeps=None
+    ):
+        """Retrieve the real part of the data for an expression.
+
+        Parameters
+        ----------
+        expression : str, None
+            Name of the expression. The default is ``None``,
+            in which case the active expression is used.
+        formula : str, optional
+            Data type to be retrieved. Default is ``real``. Options are ``real``, ``imag``, ``mag``, ``magnitude``,
+            ``db10``, ``db20``, ``phase``, ``phaserad``.
+        convert_to_SI : bool, optional
+            Whether to convert the data to the SI unit system.
+            The default is ``False``.
+        use_quantity : bool, optional
+            Whether to output data in ``Quantity`` format or not.
+            It impacts on performances as it returns array of objects.
+        sweeps : list, str, optional
+            List of sweeps to consider for the data retrieval.
+            The default is ``None``, which actually takes the primary sweep.
+
+        Returns
+        -------
+        (np.array, np.array)
+            X and Y data for the expression.
+        """
+        if not expression:
+            expression = self.active_expression
+        if expression not in self.expressions:
+            settings.logger.error(f"Expression '{expression}' not found.")
+            return np.array([]), np.array([])
+        if formula is None:
+            formula = "real"
+        if formula.lower() not in [
+            "real",
+            "re",
+            "im",
+            "imag",
+            "db10",
+            "db20",
+            "magnitude",
+            "mag",
+            "phase",
+            "phaserad",
+            "phasedeg",
+        ]:
+            return np.array([]), np.array([])
+
         temp = self._variation_tuple()
+        if formula.lower() in ["re", "real"]:
+            solution_data = self._solutions_real[expression]
+        elif formula.lower() in ["im", "imag"]:
+            solution_data = self._solutions_imag[expression]
+        elif formula.lower() in ["mag", "magnitude"]:
+            solution_data = self._solutions_mag[expression]
+        elif formula.lower() in ["phase", "phaserad", "phasedeg"]:
+            solution_data = self._solutions_phase[expression]
+        else:
+            solution_data = self._solutions_mag[expression]
+        if sweeps:
+            if isinstance(sweeps, str):
+                sweeps = [sweeps]
+            position = []
+            for sweep in sweeps:
+                position.append(list(self._sweeps_names).index(sweep))
+        else:
+            position = [list(self._sweeps_names).index(self.primary_sweep)]
 
-        solution_data = list(self._solutions_real[expression].keys())
-        sol = []
-        position = list(self._sweeps_names).index(self.primary_sweep)
+        sol = self.lookup_column_value(
+            solution_data,
+            [i for i, _ in enumerate(temp) if i not in position],
+            [i for i in temp if temp.index(i) not in position],
+        )
+        x_axis = self.lookup_column_value(
+            solution_data,
+            [i for i, _ in enumerate(temp) if i not in position],
+            [i for i in temp if temp.index(i) not in position],
+            position,
+        )
 
-        for el in self.primary_sweep_values:
-            temp[position] = el
-            if self.__get_index(temp) in solution_data:
-                sol_dict = {}
-                i = 0
-                for sn in self._sweeps_names:
-                    sol_dict[sn] = temp[i]
-                    i += 1
-                sol.append(sol_dict)
-            else:
-                sol.append(None)
-        if self.enable_pandas_output:
-            return pd.Series(sol, dtype=object)
-        return sol
+        if convert_to_SI and self._quantity(self.units_data[expression]):
+            sol = self._convert_list_to_SI(
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
+            )
+            x_axis = self._convert_list_to_SI(
+                x_axis, self._quantity(self.units_sweeps[self.primary_sweep]), self.units_sweeps[self.primary_sweep]
+            )
+        if use_quantity:
+            vec_func = np.frompyfunc(lambda x: Quantity(x, self.units_data[expression]), 1, 1)
+            sol = vec_func(sol)
+            vec_func = np.frompyfunc(lambda x: Quantity(x, self.units_sweeps[self.primary_sweep]), 1, 1)
+            x_axis = vec_func(x_axis)
+
+        if formula.lower() == "db10":
+            sol = 10 * np.log10(sol)
+        elif formula.lower() == "db20":
+            sol = 20 * np.log10(sol)
+        elif formula.lower() == "phaserad":
+            sol = sol * np.pi / 180
+        return x_axis, sol
 
     @pyaedt_function_handler()
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
+
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
 
         Parameters
         ----------
@@ -626,32 +730,15 @@ class SolutionData(PyAedtBase):
         list
             List of the real data for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        temp = self._variation_tuple()
-
-        solution_data = self._solutions_real[expression]
-        sol = []
-        position = list(self._sweeps_names).index(self.primary_sweep)
-        sw = self.variation_values(self.primary_sweep)
-        for el in sw:
-            temp[position] = el
-            try:
-                sol.append(solution_data[self.__get_index(temp)])
-            except KeyError:
-                sol.append(None)
-
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        if self.enable_pandas_output:
-            return pd.Series(sol)
-        return sol
+        warnings.warn("Method `data_real` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def data_imag(self, expression=None, convert_to_SI=False):
         """Retrieve the imaginary part of the data for an expression.
+
+        .. deprecated:: 0.20.0
+           Use :func:`get_expression_data` property instead.
 
         Parameters
         ----------
@@ -667,27 +754,8 @@ class SolutionData(PyAedtBase):
         list
             List of the imaginary data for the expression.
         """
-        if not expression:
-            expression = self.active_expression
-        temp = self._variation_tuple()
-
-        solution_data = self._solutions_imag[expression]
-        sol = []
-        position = list(self._sweeps_names).index(self.primary_sweep)
-        sw = self.variation_values(self.primary_sweep)
-        for el in sw:
-            temp[position] = el
-            try:
-                sol.append(solution_data[self.__get_index(temp)])
-            except KeyError:
-                sol.append(None)
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        if self.enable_pandas_output:
-            return pd.Series(sol)
-        return sol
+        warnings.warn("Method `data_imag` is deprecated. Use :func:`get_expression_data` property instead.")
+        return self.get_expression_data(expression, formula="imag", convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
     def is_real_only(self, expression=None):
@@ -706,12 +774,7 @@ class SolutionData(PyAedtBase):
         """
         if not expression:
             expression = self.active_expression
-        if self.enable_pandas_output:
-            return True if self._solutions_imag[expression].abs().sum() > 0.0 else False
-        for v in list(self._solutions_imag[expression].values()):
-            if float(v) != 0.0:
-                return False
-        return True
+        return np.any(self._solutions_imag[expression][:, -1] != 0)
 
     @pyaedt_function_handler()
     def export_data_to_csv(self, output, delimiter=";"):
@@ -754,17 +817,15 @@ class SolutionData(PyAedtBase):
                 header.append(el + f"{data_unit}")
 
         list_full = [header]
-        for e, v in self._solutions_real[self.active_expression].items():
-            e = [float(i) for i in e]
-            list_full.append(list(e))
+        list_full.extend(self._solutions_real[self.active_expression][:, :-1].tolist())
         for el in self.expressions:
             i = 1
-            for e, v in self._solutions_real[el].items():
+            for v in self._solutions_real[el][:, -1]:
                 list_full[i].extend([v])
                 i += 1
             i = 1
             if not self.is_real_only(el):
-                for e, v in self._solutions_imag[el].items():
+                for v in self._solutions_imag[el][:, -1]:
                     list_full[i].extend([v])
                     i += 1
 
@@ -772,20 +833,7 @@ class SolutionData(PyAedtBase):
 
     @pyaedt_function_handler()
     def _get_data_formula(self, curve, formula=None):
-        if not formula or formula == "re":
-            return self.data_real(curve)
-        elif formula == "im":
-            return self.data_imag(curve)
-        elif formula == "db20":
-            return self.data_db20(curve)
-        elif formula == "db10":
-            return self.data_db10(curve)
-        elif formula == "mag":
-            return self.data_magnitude(curve)
-        elif formula == "phasedeg":
-            return curve
-        elif formula == "phaserad":
-            return self.data_phase(curve, True)
+        return self.get_expression_data(curve, formula=formula)[1]
 
     @pyaedt_function_handler()
     def get_report_plotter(self, curves=None, formula=None, to_radians=False, props=None):
@@ -979,31 +1027,12 @@ class SolutionData(PyAedtBase):
                 self.active_variation[secondary_sweep] = el
             secondary_radians.append(el * math.pi / 180)
 
-            if formula.lower() == "re":
-                r.append(self.data_real(curve))
-            elif formula.lower() == "im":
-                r.append(self.data_imag(curve))
-            elif formula.lower() == "db20":
-                r.append(self.data_db20(curve))
-            elif formula.lower() == "db10":
-                r.append(self.data_db10(curve))
-            elif formula.lower() == "mag":
-                r.append(self.data_magnitude(curve))
-            elif formula == "phasedeg":
-                r.append(self.data_phase(curve, False))
-            elif formula == "phaserad":
-                r.append(self.data_phase(curve, True))
-
+            r.append(self.get_expression_data(curve, formula=formula)[1])
         min_r = 1e12
         max_r = -1e12
-        if self.enable_pandas_output:
-            for el in r:
-                min_r = min(min_r, el.min())
-                max_r = max(max_r, el.max())
-        else:
-            for el in r:
-                min_r = min(min_r, min(el))
-                max_r = max(max_r, max(el))
+        for el in r:
+            min_r = min(min_r, el.min())
+            max_r = max(max_r, el.max())
 
         if min_r < 0:
             r = [i + np.abs(min_r) for i in r]
@@ -1058,27 +1087,12 @@ class SolutionData(PyAedtBase):
         v = self.variation_values(v_axis)
 
         freq = self.variation_values("Freq")
-        if self.enable_pandas_output:
-            e_real_x = np.reshape(self._solutions_real[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
-            e_imag_x = np.reshape(self._solutions_imag[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
-            e_real_y = np.reshape(self._solutions_real[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
-            e_imag_y = np.reshape(self._solutions_imag[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
-            e_real_z = np.reshape(self._solutions_real[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
-            e_imag_z = np.reshape(self._solutions_imag[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
-        else:
-            vals_e_real_x = [j for j in self._solutions_real[curve_header + "X"].values()]
-            vals_e_imag_x = [j for j in self._solutions_imag[curve_header + "X"].values()]
-            vals_e_real_y = [j for j in self._solutions_real[curve_header + "Y"].values()]
-            vals_e_imag_y = [j for j in self._solutions_imag[curve_header + "Y"].values()]
-            vals_e_real_z = [j for j in self._solutions_real[curve_header + "Z"].values()]
-            vals_e_imag_z = [j for j in self._solutions_imag[curve_header + "Z"].values()]
-
-            e_real_x = np.reshape(vals_e_real_x, (len(freq), len(v), len(u)))
-            e_imag_x = np.reshape(vals_e_imag_x, (len(freq), len(v), len(u)))
-            e_real_y = np.reshape(vals_e_real_y, (len(freq), len(v), len(u)))
-            e_imag_y = np.reshape(vals_e_imag_y, (len(freq), len(v), len(u)))
-            e_real_z = np.reshape(vals_e_real_z, (len(freq), len(v), len(u)))
-            e_imag_z = np.reshape(vals_e_imag_z, (len(freq), len(v), len(u)))
+        e_real_x = np.reshape(self._solutions_real[curve_header + "X"][:, -1], (len(freq), len(v), len(u)))
+        e_imag_x = np.reshape(self._solutions_imag[curve_header + "X"][:, -1], (len(freq), len(v), len(u)))
+        e_real_y = np.reshape(self._solutions_real[curve_header + "Y"][:, -1], (len(freq), len(v), len(u)))
+        e_imag_y = np.reshape(self._solutions_imag[curve_header + "Y"][:, -1], (len(freq), len(v), len(u)))
+        e_real_z = np.reshape(self._solutions_real[curve_header + "Z"][:, -1], (len(freq), len(v), len(u)))
+        e_imag_z = np.reshape(self._solutions_imag[curve_header + "Z"][:, -1], (len(freq), len(v), len(u)))
 
         temp_e_comp_x = e_real_x.astype("float64") + complex(0, 1) * e_imag_x.astype("float64")
         temp_e_comp_y = e_real_y.astype("float64") + complex(0, 1) * e_imag_y.astype("float64")

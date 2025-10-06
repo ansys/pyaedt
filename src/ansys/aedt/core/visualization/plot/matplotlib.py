@@ -403,7 +403,10 @@ class Trace(PyAedtBase):
         y = np.array(self.cartesian_data[1], dtype=float)
         z = np.array(self.cartesian_data[2], dtype=float)
         r = np.sqrt(x * x + y * y + z * z)
-        theta = np.arccos(z / r) * 180 / math.pi  # to degrees
+        with np.errstate(invalid="ignore", divide="ignore"):
+            ratio = np.where(r != 0, z / r, 0)  # or np.nan if you prefer
+            ratio = np.clip(ratio, -1.0, 1.0)  # ensure valid domain for arccos
+            theta = np.arccos(ratio) * 180 / math.pi
         phi = np.arctan2(y, x) * 180 / math.pi
         self._spherical_data = [r, theta, phi]
 
