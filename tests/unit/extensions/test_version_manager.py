@@ -162,7 +162,7 @@ def _make_vm():
     # Instantiate
     manager = vm.VersionManager(ui)
     manager.update_and_reload = MagicMock()
-   
+
     return manager
 
 
@@ -349,6 +349,7 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     manager.update_from_wheelhouse()
     assert mock_run.called
 
+
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version")
@@ -381,7 +382,7 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
     manager.update_pyaedt()
-    
+
     # Check that update_and_reload was called with correct pip_args
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]  # First positional argument
@@ -391,7 +392,7 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
     manager.get_installed_version = lambda pkg: "1.0.0"
     manager.update_and_reload.reset_mock()
     manager.update_pyaedt()
-    
+
     # Check that update_and_reload was called with upgrade arguments
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]  # First positional argument
@@ -423,7 +424,7 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
     manager.update_pyedb()
-    
+
     # Check that update_and_reload was called with correct pip_args
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]  # First positional argument
@@ -434,8 +435,7 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
 @patch("ansys.aedt.core.extensions.installer.version_manager.VersionManager.is_git_available")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_get_branch_functions(mock_run, mock_askyesno,
-                             mock_is_git_available, _mock_showinfo):
+def test_get_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _mock_showinfo):
     manager = _make_vm()
 
     # Early return when git is not available
@@ -462,17 +462,14 @@ def test_get_branch_functions(mock_run, mock_askyesno,
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]  # First positional argument
     expected = "git+https://github.com/ansys/pyaedt.git@feature/foo"
-    assert any(expected in str(x) for x in pip_args), \
-        f"Expected '{expected}' in pip_args, got: {pip_args!r}"
+    assert any(expected in str(x) for x in pip_args), f"Expected '{expected}' in pip_args, got: {pip_args!r}"
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showinfo")
 @patch("ansys.aedt.core.extensions.installer.version_manager.VersionManager.is_git_available")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
-def test_get_pyedb_branch_functions(mock_run, mock_askyesno,
-                                   mock_is_git_available,
-                                   _mock_showinfo):
+def test_get_pyedb_branch_functions(mock_run, mock_askyesno, mock_is_git_available, _mock_showinfo):
     manager = _make_vm()
 
     # Early return when git is not available
@@ -499,15 +496,13 @@ def test_get_pyedb_branch_functions(mock_run, mock_askyesno,
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]
     expected = "git+https://github.com/ansys/pyedb.git@feature/bar"
-    assert any(expected in str(x) for x in pip_args), \
-        f"Expected '{expected}' in pip_args, got: {pip_args!r}"
+    assert any(expected in str(x) for x in pip_args), f"Expected '{expected}' in pip_args, got: {pip_args!r}"
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_latest_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
-def test_update_all_flows(mock_showerror, mock_get_latest,
-                          mock_askyesno):
+def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     manager = _make_vm()
 
     # User declines disclaimer
@@ -516,30 +511,22 @@ def test_update_all_flows(mock_showerror, mock_get_latest,
 
     # User accepts but pyaedt latest unknown -> showerror
     mock_askyesno.return_value = True
-    mock_get_latest.side_effect = (
-        lambda pkg: vm.UNKNOWN_VERSION if pkg == "pyaedt" else "1.0.0"
-    )
+    mock_get_latest.side_effect = lambda pkg: vm.UNKNOWN_VERSION if pkg == "pyaedt" else "1.0.0"
     manager.update_all()
     assert mock_showerror.called
 
     # User accepts but pyedb latest unknown -> showerror
     mock_showerror.reset_mock()
-    mock_get_latest.side_effect = (
-        lambda pkg: "1.0.0" if pkg == "pyaedt" else vm.UNKNOWN_VERSION
-    )
+    mock_get_latest.side_effect = lambda pkg: "1.0.0" if pkg == "pyaedt" else vm.UNKNOWN_VERSION
     manager.update_all()
     assert mock_showerror.called
 
     # User accepts both versions - pin older pyaedt, upgrade pyedb
     mock_askyesno.return_value = True
-    mock_get_latest.side_effect = (
-        lambda pkg: "1.0.0" if pkg == "pyaedt" else "2.0.0"
-    )
+    mock_get_latest.side_effect = lambda pkg: "1.0.0" if pkg == "pyaedt" else "2.0.0"
     # Simulate installed pyaedt > latest to force pinned install
     # Simulate installed pyedb <= latest to force upgrade
-    manager.get_installed_version = (
-        lambda pkg: "2.0.0" if pkg == "pyaedt" else "1.5.0"
-    )
+    manager.get_installed_version = lambda pkg: "2.0.0" if pkg == "pyaedt" else "1.5.0"
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
@@ -552,13 +539,9 @@ def test_update_all_flows(mock_showerror, mock_get_latest,
     assert any("pyedb" in str(x) for x in pip_args)
 
     # User accepts both versions available - both need upgrade
-    mock_get_latest.side_effect = (
-        lambda pkg: "3.0.0" if pkg == "pyaedt" else "3.5.0"
-    )
+    mock_get_latest.side_effect = lambda pkg: "3.0.0" if pkg == "pyaedt" else "3.5.0"
     # Simulate installed versions <= latest to force upgrade for both
-    manager.get_installed_version = (
-        lambda pkg: "2.0.0" if pkg == "pyaedt" else "2.5.0"
-    )
+    manager.get_installed_version = lambda pkg: "2.0.0" if pkg == "pyaedt" else "2.5.0"
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
@@ -567,8 +550,7 @@ def test_update_all_flows(mock_showerror, mock_get_latest,
     # Check that update_and_reload was called with correct pip_args
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]
-    assert any("-U" in str(x) for x in pip_args) and \
-        any("pyaedt" in str(x) for x in pip_args)
+    assert any("-U" in str(x) for x in pip_args) and any("pyaedt" in str(x) for x in pip_args)
     assert any("pyedb" in str(x) for x in pip_args)
 
     # Test exception handling during version comparison
@@ -587,7 +569,5 @@ def test_update_all_flows(mock_showerror, mock_get_latest,
     # Check update_and_reload called with fallback upgrade args
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]
-    assert any("-U" in str(x) for x in pip_args) and \
-        any("pyaedt" in str(x) for x in pip_args)
+    assert any("-U" in str(x) for x in pip_args) and any("pyaedt" in str(x) for x in pip_args)
     assert any("pyedb" in str(x) for x in pip_args)
-
