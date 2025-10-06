@@ -33,6 +33,8 @@ from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 import webbrowser
+import requests
+import threading
 
 import PIL.Image
 import PIL.ImageTk
@@ -56,6 +58,24 @@ PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
+
+
+def get_latest_version(package_name, timeout=3):
+    """Return latest version string from PyPI or 'Unknown' on failure.
+
+    A lightweight copy of the helper in version_manager so the extension
+    manager can perform update checks without importing the entire
+    installer module at runtime.
+    """
+    UNKNOWN_VERSION = "Unknown"
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("info", {}).get("version", UNKNOWN_VERSION)
+        return UNKNOWN_VERSION
+    except Exception:
+        return UNKNOWN_VERSION
 
 
 class ToolTip:
@@ -177,6 +197,12 @@ class ExtensionManager(ExtensionProjectCommon):
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
         self.root.update()
+
+        # After UI initialization schedule the non-blocking update check
+        try:
+            self.check_for_pyaedt_update_on_startup()
+        except Exception:  # don't let update checker break the UI
+            logging.getLogger("Global").debug("Failed to start pyaedt update checker", exc_info=True)
 
     def add_extension_content(self):
         """Add custom content to the extension."""
@@ -1337,6 +1363,144 @@ class ExtensionManager(ExtensionProjectCommon):
             self.desktop.logger.error(f"Error opening web URL: {e}")
             messagebox.showerror("Error", msg)
             return False
+
+    def check_for_pyaedt_update_on_startup(self):
+        """Spawn a background thread to check PyPI for a newer PyAEDT release.
+
+        A popup is displayed only if PyPI reports a newer version than the one
+        recorded in <personal lib>/Toolkits/.pyaedt_version. Selecting Decline
+        stores the latest version so the user is not asked again until a newer
+        release exists. Remind later dismisses without recording.
+        """
+        def compare_versions(local: str, remote: str) -> bool:
+            """Return True if local < remote (very loose numeric comparison)."""
+            def to_tuple(v: str):
+                out = []
+                for token in v.split("."):
+                    try:
+                        out.append(int(token))
+                    except Exception:
+                        break
+                return tuple(out)
+            try:
+                return to_tuple(local) < to_tuple(remote)
+            except Exception:
+                return False
+
+        def worker():
+            log = logging.getLogger("Global")
+            latest = get_latest_version("pyaedt")
+            if not latest or latest == "Unknown":
+                log.debug("PyAEDT update check: latest version unavailable.")
+                return
+
+            # Resolve user toolkit directory
+            try:
+                toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
+            except Exception:
+                log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
+                return
+
+            declined_file = toolkit_dir / ".pyaedt_version"
+            declined_version = None
+            if declined_file.is_file():
+                try:
+                    declined_version = declined_file.read_text(encoding="utf-8").strip()
+                except Exception:
+                    declined_version = None
+
+            prompt_user = (
+                declined_version is None or
+                compare_versions(declined_version, latest)
+            )
+
+            if not prompt_user:
+                return
+
+            try:
+                self.root.after(
+                    0,
+                    lambda: self.show_pyaedt_update_popup(latest, declined_file)
+                )
+            except Exception:
+                log.debug("PyAEDT update check: failed to schedule popup.", exc_info=True)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path):
+        """Display a modal dialog offering Decline, Remind later, or Update."""
+        try:
+            dlg = tkinter.Toplevel(self.root)
+            dlg.title("PyAEDT Update")
+            dlg.resizable(False, False)
+
+            # Center dialog
+            try:
+                self.root.update_idletasks()
+                width, height = 420, 140
+                x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
+                y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
+                dlg.geometry(f"{width}x{height}+{x}+{y}")
+            except Exception:
+                logging.getLogger("Global").debug("Failed to center update popup", exc_info=True)
+
+            ttk.Label(
+                dlg,
+                text=f"A new version of PyAEDT is available: {latest_version}\nWould you like to update now?",
+                style="PyAEDT.TLabel",
+                anchor="center",
+                justify="center",
+            ).pack(padx=20, pady=(20, 10), expand=True, fill="both")
+
+            btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
+            btn_frame.pack(padx=10, pady=(0, 10), fill="x")
+
+            def decline():
+                try:
+                    declined_file_path.parent.mkdir(parents=True, exist_ok=True)
+                    declined_file_path.write_text(latest_version, encoding="utf-8")
+                except Exception:
+                    logging.getLogger("Global").debug(
+                        "PyAEDT update popup: failed to record declined version.",
+                        exc_info=True,
+                    )
+                dlg.destroy()
+
+            def remind():
+                dlg.destroy()
+
+            def update():
+                try:
+                    # Try to locate Version Manager in the user's personal Toolkits and run it
+                    toolkit_dir = Path(self.desktop.personallib) / "Toolkits" / "Project" / "Version Manager" / "Lib"
+                    version_manager = toolkit_dir / "version_manager.py"
+                    if version_manager.is_file():
+                        # Launch with the same Python interpreter used by the extension manager
+                        subprocess.Popen([str(self.python_interpreter), str(version_manager)], shell=False)  # nosec
+                        self.desktop.logger.info(f"Launched Version Manager: {version_manager}")
+                    else:
+                        messagebox.showinfo("Update", "Version Manager not found in personal Toolkits.")
+                except Exception:
+                    logging.getLogger("Global").debug("Failed to launch Version Manager", exc_info=True)
+                    messagebox.showerror("Error", "Failed to launch Version Manager. See log for details.")
+                finally:
+                    dlg.destroy()
+
+            ttk.Button(btn_frame, text="Decline", command=decline, style="PyAEDT.TButton").pack(
+                side="left", expand=True, fill="x", padx=5
+            )
+            ttk.Button(btn_frame, text="Remind later", command=remind, style="PyAEDT.TButton").pack(
+                side="left", expand=True, fill="x", padx=5
+            )
+            ttk.Button(btn_frame, text="Update", command=update, style="PyAEDT.TButton").pack(
+                side="left", expand=True, fill="x", padx=5
+            )
+
+            dlg.transient(self.root)
+            dlg.grab_set()
+            self.root.wait_window(dlg)
+        except Exception:
+            logging.getLogger("Global").debug("PyAEDT update popup: failed to display.", exc_info=True)
 
 
 if __name__ == "__main__":  # pragma: no cover
