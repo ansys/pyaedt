@@ -167,6 +167,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run unit tests
+        env:
+          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         uses: ansys/actions/tests-pytest@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           pytest-postargs: 'tests/unit'
