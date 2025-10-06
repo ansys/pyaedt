@@ -31,6 +31,8 @@ from typing import Optional
 from typing import Union
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.constants import InfiniteSphereType
@@ -6266,8 +6268,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 ]
 
         if frequencies is not None:
-            if not isinstance(frequencies, list):
+            if not isinstance(frequencies, (list, np.ndarray)):
                 frequencies = [frequencies]
+            elif isinstance(frequencies, np.ndarray):
+                frequencies = frequencies.tolist()
             frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")

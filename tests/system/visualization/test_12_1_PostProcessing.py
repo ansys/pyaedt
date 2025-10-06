@@ -289,10 +289,10 @@ class TestClass:
         my_data = aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
         assert my_data
         assert my_data.expressions
-        assert len(my_data.data_db10(trace_names[0])) > 0
-        assert len(my_data.data_imag(trace_names[0])) > 0
-        assert len(my_data.data_real(trace_names[0])) > 0
-        assert len(my_data.data_magnitude(trace_names[0])) > 0
+        assert len(my_data.get_expression_data(trace_names[0], formula="db10")[1]) > 0
+        assert len(my_data.get_expression_data(trace_names[0], formula="imag")[1]) > 0
+        assert len(my_data.get_expression_data(trace_names[0])[1]) > 0
+        assert len(my_data.get_expression_data(trace_names[0], formula="magnitude")[1]) > 0
 
     def test_export_data_to_csv(self, aedtapp, local_scratch):
         trace_names = []
