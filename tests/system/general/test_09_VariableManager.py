@@ -72,6 +72,13 @@ def hfss_app(add_app):
     app.close_project(app.project_name)
 
 
+@pytest.fixture
+def maxwell_circuit_app(add_app):
+    app = add_app(application=pyaedt.MaxwellCircuit)
+    yield app
+    app.close_project(app.project_name)
+
+
 class TestClass:
     def test_set_project_variables(self, hfss_app):
         hfss_app["$Test_Global1"] = "5rad"
@@ -267,6 +274,9 @@ class TestClass:
         assert app.variable_manager.delete_variable("Var1")
 
     def test_postprocessing(self, app):
+        if app.design_type == "Twin Builder":
+            pytest.skip("Twin Builder is crashing for this test.")
+
         v1 = app.variable_manager.set_variable("test_post1", 10, is_post_processing=True, circuit_parameter=False)
         assert v1
         assert not app.variable_manager.set_variable("test2", "v1+1")
@@ -292,17 +302,17 @@ class TestClass:
         assert app.variable_manager["getvalue1"].numeric_value == 1.0
         assert app.variable_manager["getvalue2"].numeric_value == 1.0
 
-    def test_maxwell_circuit_variables(self, app):
-        app["var2"] = "10mm"
-        assert app["var2"] == "10mm"
-        v_circuit = app.variable_manager
+    def test_maxwell_circuit_variables(self, maxwell_circuit_app):
+        maxwell_circuit_app["var2"] = "10mm"
+        assert maxwell_circuit_app["var2"] == "10mm"
+        v_circuit = maxwell_circuit_app.variable_manager
         var_circuit = v_circuit.variable_names
         assert "var2" in var_circuit
         assert v_circuit.independent_variables["var2"].units == "mm"
-        app["var3"] = "10deg"
-        app["var4"] = "10rad"
-        assert app["var3"] == "10deg"
-        assert app["var4"] == "10rad"
+        maxwell_circuit_app["var3"] = "10deg"
+        maxwell_circuit_app["var4"] = "10rad"
+        assert maxwell_circuit_app["var3"] == "10deg"
+        assert maxwell_circuit_app["var4"] == "10rad"
 
     def test_project_variable_operation(self, app):
         app["$my_proj_test"] = "1mm"
