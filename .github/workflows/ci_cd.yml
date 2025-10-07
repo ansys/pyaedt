@@ -252,7 +252,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -383,7 +383,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -461,7 +461,7 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -534,7 +534,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -613,7 +613,7 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -683,7 +683,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -761,7 +761,7 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: "Install X Virtual Frame Buffer"
         run: |
@@ -836,7 +836,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -909,7 +909,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
