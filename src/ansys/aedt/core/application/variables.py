@@ -1848,23 +1848,12 @@ class Variable(object):
                 and evaluated_value.strip().endswith("]")
             ):
                 evaluated_value = ast.literal_eval(evaluated_value)
+            elif evaluated_value is None:
+                return self._value_fallback()
             val, _ = decompose_variable_value(evaluated_value)
             return val
         except Exception:
-            # Fall back to local cached value
-            if is_number(self._value):
-                try:
-                    scale = AEDT_UNITS[self.unit_system][self._units]
-                except Exception:
-                    scale = 1
-                if isinstance(scale, tuple):
-                    return scale[0](self._value, True)
-                elif isinstance(scale, types.FunctionType):
-                    return scale(self._value, True)
-                else:
-                    return self._value / scale
-            val, _ = decompose_variable_value(self._value)
-            return val
+            self._value_fallback()
 
     @property
     def unit_system(self) -> str:
@@ -1877,11 +1866,10 @@ class Variable(object):
         try:
             evaluated_value = self._get_prop_evaluated_val()
             _, self._units = decompose_variable_value(evaluated_value)
-            return self._units
+            if evaluated_value is None:
+                self._units = self._units_fallback()
         except Exception:
-            if not is_number(self._value):
-                _, self._units = decompose_variable_value(self._value)
-                return self._units
+            self._units = self._units_fallback()
         return self._units
 
     @property
@@ -2055,6 +2043,31 @@ class Variable(object):
             result_value = other.numeric_value / self.numeric_value
             result_units = _resolve_unit_system(other.unit_system, self.unit_system, "divide")
         return Variable(f"{result_value}{result_units}")
+
+    @pyaedt_function_handler()
+    def _value_fallback(self):
+        # Fall back to local cached value
+        if is_number(self._value):
+            try:
+                scale = AEDT_UNITS[self.unit_system][self._units]
+            except Exception:
+                scale = 1
+            if isinstance(scale, tuple):
+                return scale[0](self._value, True)
+            elif isinstance(scale, types.FunctionType):
+                return scale(self._value, True)
+            else:
+                return self._value / scale
+        val, _ = decompose_variable_value(self._value)
+        return val
+
+    @pyaedt_function_handler()
+    def _units_fallback(self):
+        unit = None
+        if not is_number(self._value):
+            _, unit = decompose_variable_value(self._value)
+        self._units = unit
+        return self._units
 
 
 class DataSet(object):
