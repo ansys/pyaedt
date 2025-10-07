@@ -1377,7 +1377,7 @@ class ExtensionManager(ExtensionProjectCommon):
             # Center dialog
             try:
                 self.root.update_idletasks()
-                width, height = 420, 120
+                width, height = 500, 120
                 x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
                 y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
                 dlg.geometry(f"{width}x{height}+{x}+{y}")
@@ -1388,7 +1388,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 dlg,
                 text=(
                     f"A new version of PyAEDT is available: {latest_version}\n"
-                    "To update PyAEDT, please open the Version Manager from AEDT Toolkits."
+                    "To update PyAEDT, please open the Version Manager."
                 ),
                 style="PyAEDT.TLabel",
                 anchor="center",
