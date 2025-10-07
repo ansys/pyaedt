@@ -33,7 +33,6 @@ from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 import webbrowser
-import requests
 import threading
 
 import PIL.Image
