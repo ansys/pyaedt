@@ -1367,7 +1367,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path):
+    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path): # pragma: no cover
         """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager."""
         try:
             dlg = tkinter.Toplevel(self.root)

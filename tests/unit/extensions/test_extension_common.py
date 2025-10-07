@@ -23,16 +23,20 @@
 # SOFTWARE.
 
 import tkinter
+from pathlib import Path
 from tkinter import ttk
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
+import requests
 
 from ansys.aedt.core.extensions.misc import MOON
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
 from ansys.aedt.core.extensions.misc import SUN
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import ExtensionIcepakCommon
@@ -208,3 +212,90 @@ def test_common_maxwell_3d_extension_with_invalid_design_type(mock_maxwell_3d_ap
     mock_maxwell_3d_app.design_type = INVALID_DESIGN_TYPE
     with pytest.raises(AEDTRuntimeError):
         DummyMaxwell3DExtension(EXTENSION_TITLE, withdraw=True)
+
+
+# Tests for get_latest_version function
+@patch("requests.get")
+def test_get_latest_version_success(mock_get):
+    """Test successful retrieval of latest version from PyPI."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"info": {"version": "0.12.34"}}
+    mock_get.return_value = mock_response
+
+    result = get_latest_version("pyaedt")
+    
+    assert result == "0.12.34"
+    mock_get.assert_called_once_with(
+        "https://pypi.org/pypi/pyaedt/json", timeout=3
+    )
+
+
+@patch("requests.get")
+def test_get_latest_version_http_error(mock_get):
+    """Test get_latest_version with HTTP error status code."""
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_get.return_value = mock_response
+
+    result = get_latest_version("nonexistent-package")
+    
+    assert result == "Unknown"
+
+
+@patch("requests.get")
+def test_get_latest_version_network_error(mock_get):
+    """Test get_latest_version with network error."""
+    mock_get.side_effect = requests.exceptions.RequestException("Network error")
+
+    result = get_latest_version("pyaedt")
+    
+    assert result == "Unknown"
+
+
+# Tests for check_for_pyaedt_update function
+@patch("ansys.aedt.core.extensions.misc.get_latest_version")
+@patch("logging.getLogger")
+def test_check_for_pyaedt_update_no_latest_version(mock_logger, mock_get_latest_version):
+    """Test when latest version is unavailable."""
+    mock_get_latest_version.return_value = "Unknown"
+    mock_log = MagicMock()
+    mock_logger.return_value = mock_log
+
+    result = check_for_pyaedt_update("/fake/personallib")
+    
+    assert result == (None, None)
+    mock_log.debug.assert_called_once_with(
+        "PyAEDT update check: latest version unavailable."
+    )
+
+
+@patch("ansys.aedt.core.extensions.misc.get_latest_version")
+@patch("pathlib.Path.is_file")
+def test_check_for_pyaedt_update_no_declined_file(mock_is_file, mock_get_latest_version):
+    """Test when no declined version file exists."""
+    mock_get_latest_version.return_value = "0.12.34"
+    mock_is_file.return_value = False
+
+    result = check_for_pyaedt_update("/fake/personallib")
+    
+    latest_version, declined_file_path = result
+    assert latest_version == "0.12.34"
+    assert isinstance(declined_file_path, Path)
+    assert str(declined_file_path).endswith(".pyaedt_version")
+
+
+@patch("ansys.aedt.core.extensions.misc.get_latest_version")
+@patch("pathlib.Path.is_file") 
+@patch("pathlib.Path.read_text")
+def test_check_for_pyaedt_update_declined_version_same(
+    mock_read_text, mock_is_file, mock_get_latest_version
+):
+    """Test when declined version is same as latest."""
+    mock_get_latest_version.return_value = "0.12.34"
+    mock_is_file.return_value = True
+    mock_read_text.return_value = "0.12.34"
+
+    result = check_for_pyaedt_update("/fake/personallib")
+    
+    assert result == (None, None)

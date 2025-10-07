@@ -700,14 +700,14 @@ class VersionManager:
                     desktop_obj.release_desktop(False, False)
                 except Exception:
                     # Swallow all exceptions to avoid preventing the UI from closing.
-                    pass
+                    logging.getLogger("Global").debug("Failed to release desktop", exc_info=True)
         finally:
             try:
                 # Attempt to close the Tk window regardless of desktop release outcome.
                 if getattr(self, "root", None) is not None:
                     self.root.destroy()
             except Exception:
-                pass
+                logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
     def check_for_pyaedt_update_on_startup(self):
         """Spawn a background thread to check PyPI for a newer PyAEDT release."""
@@ -730,7 +730,7 @@ class VersionManager:
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
         """Display a notification dialog informing the user about a new PyAEDT version."""
         try:
             dlg = tkinter.Toplevel(self.root)
