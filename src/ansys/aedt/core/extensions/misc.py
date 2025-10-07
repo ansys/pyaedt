@@ -29,6 +29,7 @@ from __future__ import annotations
 from abc import abstractmethod
 import argparse
 from dataclasses import dataclass
+import logging
 import os
 from pathlib import Path
 import sys
@@ -43,6 +44,7 @@ from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
+import requests
 
 from ansys.aedt.core import Desktop
 import ansys.aedt.core.extensions
@@ -85,6 +87,74 @@ def is_student():
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
+
+def get_latest_version(package_name, timeout=3):
+    """Return latest version string from PyPI or 'Unknown' on failure. """
+    UNKNOWN_VERSION = "Unknown"
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("info", {}).get("version", UNKNOWN_VERSION)
+        return UNKNOWN_VERSION
+    except Exception:
+        return UNKNOWN_VERSION
+
+def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
+    """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
+
+    Returns
+    -------
+    tuple[str | None, pathlib.Path | None]
+        (latest_version, declined_file_path) if the UI should prompt the user,
+        otherwise (None, None).
+    """
+    def compare_versions(local: str, remote: str) -> bool:
+        """Return True if local < remote (very loose numeric comparison)."""
+        def to_tuple(v: str):
+            out = []
+            for token in v.split("."):
+                try:
+                    out.append(int(token))
+                except Exception:
+                    break
+            return tuple(out)
+        try:
+            return to_tuple(local) < to_tuple(remote)
+        except Exception:
+            return False
+
+    log = logging.getLogger("Global")
+
+    latest = get_latest_version("pyaedt")
+    if not latest or latest == "Unknown":
+        log.debug("PyAEDT update check: latest version unavailable.")
+        return None, None
+
+    # Resolve user toolkit directory
+    try:
+        toolkit_dir = Path(personallib) / "Toolkits"
+    except Exception:
+        log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
+        return None, None
+
+    declined_file = toolkit_dir / ".pyaedt_version"
+    declined_version = None
+    if declined_file.is_file():
+        try:
+            declined_version = declined_file.read_text(encoding="utf-8").strip()
+        except Exception:
+            declined_version = None
+
+    prompt_user = (
+        declined_version is None or
+        compare_versions(declined_version, latest)
+    )
+
+    if not prompt_user:
+        return None, None
+
+    return latest, declined_file
 
 
 @dataclass

@@ -38,9 +38,9 @@ import zipfile
 import defusedxml
 import PIL.Image
 import PIL.ImageTk
-import requests
 
 import ansys.aedt.core
+from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.generic.general_methods import is_linux
 
 defusedxml.defuse_stdlib()
@@ -54,19 +54,6 @@ DISCLAIMER = (
     "Do you want to proceed?\n"
 )
 UNKNOWN_VERSION = "Unknown"
-
-
-def get_latest_version(package_name, timeout=3):
-    try:
-        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
-        if response.status_code == 200:
-            data = response.json()
-            return data["info"]["version"]
-        else:
-            return UNKNOWN_VERSION
-    except Exception:
-        return UNKNOWN_VERSION
-
 
 class VersionManager:
     TITLE = "Version Manager"
