@@ -1471,7 +1471,7 @@ class Variable(object):
     @property
     def _aedt_obj(self):
         """Return the correct AEDT object based on variable scope."""
-        if "$" in self._variable_name and self._app:
+        if self._variable_name and "$" in self._variable_name and self._app:
             return self._app._oproject
         elif self._app:
             return self._app._odesign
@@ -1818,9 +1818,10 @@ class Variable(object):
     @property
     def expression(self) -> str:
         """Raw AEDT expression."""
+        expression = self._expression
         if self._aedt_obj:
-            return self._aedt_obj.GetVariableValue(self._variable_name)
-        return None
+            expression = self._aedt_obj.GetVariableValue(self._variable_name)
+        return expression
 
     @expression.setter
     def expression(self, value: str):
@@ -1865,9 +1866,10 @@ class Variable(object):
         """Unit string associated with the expression."""
         try:
             evaluated_value = self._get_prop_evaluated_val()
-            _, self._units = decompose_variable_value(evaluated_value)
             if evaluated_value is None:
                 self._units = self._units_fallback()
+            else:
+                _, self._units = decompose_variable_value(evaluated_value)
         except Exception:
             self._units = self._units_fallback()
         return self._units
@@ -2063,10 +2065,10 @@ class Variable(object):
 
     @pyaedt_function_handler()
     def _units_fallback(self):
-        unit = None
+        units = self._units
         if not is_number(self._value):
             _, unit = decompose_variable_value(self._value)
-        self._units = unit
+        self._units = units
         return self._units
 
 

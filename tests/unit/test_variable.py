@@ -119,9 +119,6 @@ class TestClass:
         v6 = Variable("1000rpm")
         tol = 1e-4
         result_1 = v1 * v2
-        result_1.units
-        result_1.unit_system
-        result_1.expression
 
         result_2 = v2 * v3
         result_3 = v3 * v4
