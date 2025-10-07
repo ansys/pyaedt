@@ -88,8 +88,9 @@ def is_student():
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
 
+
 def get_latest_version(package_name, timeout=3):
-    """Return latest version string from PyPI or 'Unknown' on failure. """
+    """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
     try:
         response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
@@ -100,6 +101,7 @@ def get_latest_version(package_name, timeout=3):
     except Exception:
         return UNKNOWN_VERSION
 
+
 def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
     """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
 
@@ -109,8 +111,10 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         (latest_version, declined_file_path) if the UI should prompt the user,
         otherwise (None, None).
     """
+
     def compare_versions(local: str, remote: str) -> bool:
         """Return True if local < remote (very loose numeric comparison)."""
+
         def to_tuple(v: str):
             out = []
             for token in v.split("."):
@@ -119,6 +123,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
                 except Exception:
                     break
             return tuple(out)
+
         try:
             return to_tuple(local) < to_tuple(remote)
         except Exception:
@@ -146,10 +151,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:
             declined_version = None
 
-    prompt_user = (
-        declined_version is None or
-        compare_versions(declined_version, latest)
-    )
+    prompt_user = declined_version is None or compare_versions(declined_version, latest)
 
     if not prompt_user:
         return None, None
