@@ -36,10 +36,10 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 @pytest.fixture(
     params=[
-        pyaedt.MaxwellCircuit,
-        pyaedt.Hfss,
         pyaedt.Circuit,
+        pyaedt.MaxwellCircuit,
         pyaedt.TwinBuilder,
+        pyaedt.Hfss,
         pyaedt.Icepak,
         pyaedt.Mechanical,
         pyaedt.Maxwell3d,
@@ -50,10 +50,10 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         pyaedt.Rmxprt,
     ],
     ids=[
-        "hfss",
         "circuit",
         "maxwell_circuit",
         "twin_builder",
+        "hfss",
         "icepak",
         "mechanical",
         "maxwell_3d",
@@ -216,9 +216,18 @@ class TestClass:
         app["Var1"] = 3
         app["Var2"] = "12deg"
         app["Var3"] = "Var1 * Var2"
-        assert app.variable_manager.variables["Var3"].numeric_value == 36
-        assert app.variable_manager.variables["Var3"].circuit_parameter
-        assert app.variable_manager.variables["Var3"].units == "deg"
+        if app.design_type in ["Maxwell Circuit"]:
+            assert app.variable_manager.variables["Var3"].numeric_value is None
+        else:
+            assert app.variable_manager.variables["Var3"].numeric_value == 36.0
+        if app.design_type in ["Circuit Design", "Maxwell Circuit", "Twin Builder", "HFSS 3D Layout Design"]:
+            assert app.variable_manager.variables["Var3"].circuit_parameter
+        else:
+            assert not app.variable_manager.variables["Var3"].circuit_parameter
+        if app.design_type in ["Maxwell Circuit"]:
+            assert app.variable_manager.variables["Var3"].units == ""
+        else:
+            assert app.variable_manager.variables["Var3"].units == "deg"
 
         app["$PrjVar1"] = "2*pi"
         app["$PrjVar2"] = 45
@@ -228,10 +237,13 @@ class TestClass:
         c2pi = math.pi * 2.0
         assert abs(app.variable_manager.variables["$PrjVar1"].numeric_value - c2pi) < tol
         assert abs(app.variable_manager.variables["$PrjVar3"].numeric_value - math.sqrt(34 * 45.0 / c2pi)) < tol
-        assert abs(app.variable_manager.variables["Var3"].numeric_value - 3.0 * 12.0) < tol
-        assert app.variable_manager.variables["Var3"].units == "deg"
+        if app.design_type not in ["Maxwell Circuit"]:
+            assert abs(app.variable_manager.variables["Var3"].numeric_value - 3.0 * 12.0) < tol
+            assert app.variable_manager.variables["Var3"].units == "deg"
 
     def test_evaluated_value(self, app):
+        if app.design_type == "Maxwell Circuit":
+            pytest.skip("Maxwell Circuit does not have object-oriented API.")
         app["p1"] = "10mm"
         app.variable_manager.set_variable("p2", "20mm", circuit_parameter=False)
         app["p3"] = "p1 * p2"
@@ -239,6 +251,7 @@ class TestClass:
 
         eval_p3_nom = v._app.get_evaluated_value("p3")
         assert is_close(eval_p3_nom, 0.0002)
+
         eval_p3_nom_mm = v._app.get_evaluated_value("p3", "mm")
         assert is_close(eval_p3_nom_mm, 0.2)
 
@@ -247,19 +260,49 @@ class TestClass:
         v_app["p2"].sweep = False
         assert not v_app["p2"].sweep
 
+        if app.design_type in ["Circuit Design", "Maxwell Circuit", "Twin Builder", "HFSS 3D Layout Design"]:
+            # Circuit parameter
+            assert v_app["p1"].sweep is None
+            v_app["p1"].sweep = False
+            assert v_app["p1"] is not None
+
         assert not v_app["p2"].read_only
         v_app["p2"].read_only = True
         assert v_app["p2"].read_only
+
+        if app.design_type in ["Circuit Design", "Maxwell Circuit", "Twin Builder", "HFSS 3D Layout Design"]:
+            # Circuit parameter
+            assert v_app["p1"].read_only is None
+            v_app["p1"].read_only = True
+            assert v_app["p1"] is not None
+
         assert not v_app["p2"].hidden
         v_app["p2"].hidden = True
         assert v_app["p2"].hidden
 
+        if app.design_type in ["Circuit Design", "Maxwell Circuit", "Twin Builder", "HFSS 3D Layout Design"]:
+            # Circuit parameter
+            assert v_app["p1"].hidden is None
+            v_app["p1"].hidden = False
+            assert v_app["p1"] is not None
+
         assert v_app["p2"].description == ""
         v_app["p2"].description = "myvar"
         assert v_app["p2"].description == "myvar"
+
+        if app.design_type in ["Circuit Design", "Maxwell Circuit", "Twin Builder", "HFSS 3D Layout Design"]:
+            # Circuit parameter
+            assert v_app["p1"].description is None
+            v_app["p1"].description = False
+            assert v_app["p1"] is not None
+
         assert v_app["p2"].expression == "20mm"
         v_app["p2"].expression = "5rad"
         assert v_app["p2"].expression == "5rad"
+
+        assert v_app["p1"].expression == "10mm"
+        v_app["p1"].expression = "5mm"
+        assert v_app["p1"].expression == "5mm"
 
     def test_set_variable(self, app):
         assert app.variable_manager.set_variable("p1", expression="10mm", circuit_parameter=False)
@@ -270,6 +313,7 @@ class TestClass:
         assert app["p1"] == "10mm"
         assert app.variable_manager.set_variable("p1", expression="30mm")
         assert app["p1"] == "30mm"
+
         assert app.variable_manager.set_variable(
             name="p2",
             expression="10mm",
@@ -277,7 +321,6 @@ class TestClass:
             hidden=True,
             description="This is a description of this variable",
         )
-        assert app.variable_manager.variables["p2"].circuit_parameter
         assert app.variable_manager.set_variable("$p1", expression="10mm")
         assert app.variable_manager.set_variable("$p1", expression="12mm")
 

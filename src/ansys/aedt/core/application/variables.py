@@ -912,7 +912,7 @@ class VariableManager(object):
         read_only : bool, optional
             Whether to set the design property or project variable to
             read-only. The default is ``False``.
-        hidden :  bool, optional
+        hidden : bool, optional
             Whether to hide the design property or project variable. The
             default is ``False``.
         description : str, optional
@@ -1379,11 +1379,11 @@ class Variable(object):
     app : object, optional
         AEDT application of type :class:`ansys.aedt.core.application`.
     readonly : bool, optional
-        Flag controlling read only property.
+        Flag controlling read only property. The default is ``False``.
     hidden : bool, optional
-        Flags controlling hidden property.
+        Flags controlling hidden property. The default is ``False``.
     sweep : bool, optional
-        Flags controlling sweep property.
+        Flags controlling sweep property. The default is ``True``.
     postprocessing : bool, optional
         Flags controlling postprocessing property.
     circuit_parameter : bool, optional
@@ -1417,8 +1417,8 @@ class Variable(object):
         full_variables: Optional[dict] = None,
         name: Optional[str] = None,
         app=None,
-        readonly: Optional[bool] = None,
-        hidden: Optional[bool] = None,
+        readonly: Optional[bool] = False,
+        hidden: Optional[bool] = False,
         sweep: Optional[bool] = True,
         description: Optional[str] = None,
         postprocessing: Optional[bool] = False,

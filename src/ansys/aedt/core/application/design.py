@@ -4060,6 +4060,8 @@ class Design(AedtObjects):
                     var_obj = self.get_oo_object(app, f"Variables/{name}")
                 elif name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
                     val = self.get_oo_object(app, "DefinitionParameters").GetPropSIValue(name)
+            elif self.design_type in ["Maxwell Circuit"]:
+                return None
             else:
                 var_obj = self.get_oo_object(app, f"Variables/{name}")
         if var_obj:
