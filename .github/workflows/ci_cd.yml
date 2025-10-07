@@ -23,6 +23,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {} # Disable default permissions
+
 jobs:
 
   update-changelog:
@@ -43,6 +45,8 @@ jobs:
   vulnerabilities:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: ansys/actions/check-vulnerabilities@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
@@ -87,6 +91,8 @@ jobs:
     name: Check the title of the PR (if needed)
     runs-on: ubuntu-latest
     needs: [block-pyansys-ci-bot]
+    permissions:
+      contents: read
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
@@ -103,6 +109,8 @@ jobs:
     name: Documentation style check
     runs-on: ubuntu-latest
     needs: [pr-title]
+    permissions:
+      contents: read
     steps:
       - name: Check documentation style
         uses: ansys/actions/doc-style@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
@@ -1053,6 +1061,8 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     needs: [release]
+    permissions:
+      contents: write
     steps:
       - name: Deploy the stable documentation
         uses: ansys/actions/doc-deploy-stable@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4

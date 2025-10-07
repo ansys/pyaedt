@@ -36,6 +36,8 @@ env:
   MAIN_PYTHON_VERSION: '3.10'
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
+permissions: {} # Disable default permissions
+  
 jobs:
 
   system-test-solvers-windows:
