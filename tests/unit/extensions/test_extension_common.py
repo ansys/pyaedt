@@ -44,6 +44,7 @@ from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
 from ansys.aedt.core.extensions.misc import get_latest_version
+from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXTENSION_TITLE = "Dummy title"
@@ -293,3 +294,134 @@ def test_check_for_pyaedt_update_declined_version_same(mock_read_text, mock_is_f
     result = check_for_pyaedt_update("/fake/personallib")
 
     assert result == (None, None)
+
+
+# Tooltip tests
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_tooltip_shows_and_hides(mock_label, mock_toplevel):
+    # Prepare a dummy widget with the methods ToolTip expects
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    top_instance = MagicMock()
+    mock_toplevel.return_value = top_instance
+    label_instance = MagicMock()
+    mock_label.return_value = label_instance
+
+    tooltip = ToolTip(widget, text="Hello")
+    assert tooltip.tipwindow is None
+
+    # Simulate mouse enter
+    tooltip.enter()
+
+    mock_toplevel.assert_called_once_with(widget)
+    assert tooltip.tipwindow is top_instance
+
+    # Simulate leave/hide
+    tooltip.leave()
+    top_instance.destroy.assert_called_once()
+    assert tooltip.tipwindow is None
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_tooltip_no_text_does_not_create_window(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    mock_toplevel.reset_mock()
+    mock_label.return_value = MagicMock()
+
+    tooltip = ToolTip(widget, text="")
+    assert tooltip.tipwindow is None
+
+    tooltip.enter()
+
+    # No Toplevel should be created when there is no text
+    mock_toplevel.assert_not_called()
+    assert tooltip.tipwindow is None
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_tooltip_enter_idempotent(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    top_instance = MagicMock()
+    mock_toplevel.return_value = top_instance
+    mock_label.return_value = MagicMock()
+
+    tooltip = ToolTip(widget, text="X")
+
+    tooltip.enter()
+    first = tooltip.tipwindow
+
+    # Calling enter again should not create a new window
+    tooltip.enter()
+    mock_toplevel.assert_called_once()  # still only one creation
+    assert tooltip.tipwindow is first
+
+    tooltip.leave()
+    top_instance.destroy.assert_called_once()
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_show_tooltip_calls_toplevel_methods(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    top_instance = MagicMock()
+    mock_toplevel.return_value = top_instance
+    label_instance = MagicMock()
+    mock_label.return_value = label_instance
+
+    tooltip = ToolTip(widget, text="TooltipText")
+
+    # Call show_tooltip directly
+    tooltip.show_tooltip()
+
+    mock_toplevel.assert_called_once_with(widget)
+    top_instance.wm_overrideredirect.assert_called_once_with(True)
+    top_instance.wm_geometry.assert_called_once_with("+%d+%d" % (10 + 25, 20 + 25))
+
+    mock_label.assert_called()
+    label_instance.pack.assert_called_once_with(ipadx=1)
+
+    # Now hide
+    tooltip.hide_tooltip()
+    top_instance.destroy.assert_called_once()
+    assert tooltip.tipwindow is None
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_show_tooltip_early_return_when_tip_exists_or_no_text(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 0
+    widget.winfo_rooty.return_value = 0
+
+    mock_toplevel.reset_mock()
+    mock_label.reset_mock()
+
+    # Case 1: tipwindow already exists -> early return
+    tooltip = ToolTip(widget, text="X")
+    tooltip.tipwindow = MagicMock()
+    tooltip.show_tooltip()
+    mock_toplevel.assert_not_called()
+
+    # Case 2: no text -> early return
+    tooltip2 = ToolTip(widget, text="")
+    tooltip2.show_tooltip()
+    mock_toplevel.assert_not_called()
