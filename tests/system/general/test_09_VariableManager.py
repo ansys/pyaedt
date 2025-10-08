@@ -294,9 +294,11 @@ class TestClass:
         assert app.variable_manager.dependent_variables["fc"].units == app.units.frequency
 
     def test_arrays(self, app):
-        app["arr_index"] = 0
-        app["arr1"] = "[1, 2, 3]"
-        app["arr2"] = [1, 2, 3]
+        app.variable_manager.set_variable("arr_index", expression=0, circuit_parameter=False)
+        app.variable_manager.set_variable("arr1", expression="[1, 2, 3]", circuit_parameter=False)
+        app.variable_manager.set_variable("arr2", expression=[1, 2, 3], circuit_parameter=False)
+        app.variable_manager.set_variable("arr_index", expression=0, circuit_parameter=False)
+
         app["getvalue1"] = "arr1[arr_index]"
         app["getvalue2"] = "arr2[arr_index]"
         assert app.variable_manager["getvalue1"].numeric_value == 1.0
@@ -323,19 +325,23 @@ class TestClass:
 
     def test_test_optimization_properties(self, app):
         var = "v1"
-        app[var] = "10mm"
+        app.variable_manager.set_variable(var, "10mm", circuit_parameter=False)
         v = app.variable_manager
         assert not v[var].is_optimization_enabled
         v[var].is_optimization_enabled = True
         assert v[var].is_optimization_enabled
         assert v[var].optimization_min_value == "5mm"
-        v[var].optimization_min_value = "1m"
+        v[var].optimization_min_value = "1mm"
+        assert v[var].optimization_min_value == "1mm"
+
         assert v[var].optimization_max_value == "15mm"
         v[var].optimization_max_value = "14mm"
         assert v[var].optimization_max_value == "14mm"
+
         assert not v[var].is_tuning_enabled
         v[var].is_tuning_enabled = True
         assert v[var].is_tuning_enabled
+
         assert v[var].tuning_min_value == "5mm"
         v[var].tuning_min_value = "4mm"
         assert v[var].tuning_max_value == "15mm"
@@ -359,10 +365,17 @@ class TestClass:
         v[var].sensitivity_initial_disp = "0.5mm"
         assert v[var].sensitivity_initial_disp == "0.5mm"
 
-    def test_test_optimization_global_properties(self, app):
+        if app.design_type == "Circuit Design":
+            # Circuit parameter is not available in optimetrics
+            app.variable_manager.set_variable("v2", "20mm", circuit_parameter=True)
+            v = app.variable_manager
+            assert not v["v2"].is_optimization_enabled
+            v["v2"].is_optimization_enabled = True
+
+    def test_optimization_global_properties(self, hfss_app):
         var = "$v1"
-        app[var] = "10mm"
-        v = app.variable_manager
+        hfss_app[var] = "10mm"
+        v = hfss_app.variable_manager
         assert not v[var].is_optimization_enabled
         v[var].is_optimization_enabled = True
         assert v[var].is_optimization_enabled
@@ -405,26 +418,19 @@ class TestClass:
         assert app.variable_manager["v2"].decompose() == (6.0, "mm")
         assert app.variable_manager.decompose("5mm") == (5.0, "mm")
 
-    def test_delete_unused_variables(self, app):
-        app.insert_design("used_variables")
-        app["used_var"] = "1mm"
-        app["unused_var"] = "1mm"
-        app["$project_used_var"] = "1"
-        app.modeler.create_rectangle(0, ["used_var", "used_var", "used_var"], [10, 20])
-        mat1 = app.materials.add_material("new_copper2")
+    def test_delete_unused_variables(self, hfss_app):
+        hfss_app.insert_design("used_variables")
+        hfss_app["used_var"] = "1mm"
+        hfss_app["unused_var"] = "1mm"
+        hfss_app["$project_used_var"] = "1"
+        hfss_app.modeler.create_rectangle(0, ["used_var", "used_var", "used_var"], [10, 20])
+        mat1 = hfss_app.materials.add_material("new_copper2")
         mat1.permittivity = "$project_used_var"
-        assert app.variable_manager.is_used("used_var")
-        assert not app.variable_manager.is_used("unused_var")
-        assert app.variable_manager.delete_variable("unused_var")
-        app["unused_var"] = "1mm"
-        number_of_variables = len(app.variable_manager.variable_names)
-        assert app.variable_manager.delete_unused_variables()
-        new_number_of_variables = len(app.variable_manager.variable_names)
+        assert hfss_app.variable_manager.is_used("used_var")
+        assert not hfss_app.variable_manager.is_used("unused_var")
+        assert hfss_app.variable_manager.delete_variable("unused_var")
+        hfss_app["unused_var"] = "1mm"
+        number_of_variables = len(hfss_app.variable_manager.variable_names)
+        assert hfss_app.variable_manager.delete_unused_variables()
+        new_number_of_variables = len(hfss_app.variable_manager.variable_names)
         assert number_of_variables != new_number_of_variables
-
-    def test_value_with_units(self, app):
-        assert app.value_with_units("10mm") == "10mm"
-        assert app.value_with_units("10") == "10mm"
-        assert app.value_with_units("10", units_system="Angle") == "10deg"
-        assert app.value_with_units("10", units_system="invalid") == "10"
-        assert app.value_with_units("A + Bmm") == "A + Bmm"

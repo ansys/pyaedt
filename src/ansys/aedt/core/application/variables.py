@@ -1522,16 +1522,16 @@ class Variable(object):
         )
 
     def __target_container_name(self):
-        """Resolve the OO property container name for this variable."""
+        """Resolve the property container name for this variable."""
         name = "Variables"
         if not self._app:
             return name
-        if self.__has_definition_parameters:
+        if self.__has_definition_parameters and self.circuit_parameter:
             # If the variable lives in DefinitionParameters, return that
             try:
                 if self._variable_name in list(self._oo(self._app.odesign, "DefinitionParameters").GetPropNames()):
                     return "DefinitionParameters"
-            except Exception:
+            except Exception:  # pragma: no cover
                 pass
             # Otherwise it is either LocalVariables or Variables
             return "LocalVariables"
@@ -1545,13 +1545,29 @@ class Variable(object):
         try:
             container = self.__target_container_name()
             if container == "DefinitionParameters":
-                _retry_ntimes(n_times, self._oo(self._aedt_obj, container).SetPropValue(prop, val))
-
-            # Fallback to variable-specific path
-            path = (
-                f"{container}/{self._variable_name}" if container != "Variables" else f"Variables/{self._variable_name}"
-            )
-            return _retry_ntimes(n_times, self._oo(self._aedt_obj, path).SetPropValue(prop, val))
+                prop_name, prop_to_set = prop.split("/")
+                self._app.odesign.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:DefinitionParameterTab",
+                            ["NAME:PropServers", f"Instance:{self._app.odesign.GetName()}"],
+                            [
+                                "NAME:ChangedProps",
+                                [f"NAME:{self.name}", [f"NAME:{prop_name}", f"{prop_to_set}:=", val]],
+                            ],
+                        ],
+                    ]
+                )
+            else:
+                # Object-oriented set property value
+                path = (
+                    f"{container}/{self._variable_name}"
+                    if container != "Variables"
+                    else f"Variables/{self._variable_name}"
+                )
+                _retry_ntimes(n_times, self._oo(self._aedt_obj, path).SetPropValue, prop, val)
+            return True
         except Exception:
             if self._app:
                 raise AEDTRuntimeError(f"Failed to set property '{prop}' value.")
@@ -1565,7 +1581,7 @@ class Variable(object):
             # container = self.__target_container_name()
             app = self._app.odesign
 
-            # DefinitionParameters only available in circuit and Hfss 3d layout design type
+            # DefinitionParameters only available in circuit and HFSS 3D Layout design type
             if self.__has_definition_parameters:
                 inst_name = f"Instance:{app.GetName()}"
                 if self.circuit_parameter:
@@ -1573,7 +1589,7 @@ class Variable(object):
                     obj = self._oo(self._aedt_obj, "DefinitionParameters")
                     if not obj or prop != self.name:
                         self._app.logger.error(
-                            "Parameter Default variable properties can not be load. AEDT API limitation"
+                            "Parameter Default variable properties can not be load. AEDT API limitation."
                         )
                         return None
                     return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
