@@ -793,22 +793,13 @@ class VariableManager(object):
                     del dict_var[var_name]
 
     @pyaedt_function_handler()
-    def _variable_dict(self, object_list, dependent=True, independent=True):
-        """Retrieve the variable dictionary.
+    def _update_variable_dict(self, object_list):
+        """Update variable dictionary.
 
         Parameters
         ----------
         object_list : list
             List of objects.
-        dependent : bool, optional
-             Whether to include dependent variables. The default is ``True``.
-        independent : bool, optional
-             Whether to include independent variables. The default is ``True``.
-
-        Returns
-        -------
-        dict
-            Dictionary of the specified variables.
 
         """
         all_names = {}
@@ -829,6 +820,27 @@ class VariableManager(object):
                         self.__independent_design_variables[variable_name] = value
                     else:
                         self.__dependent_design_variables[variable_name] = value
+
+    @pyaedt_function_handler()
+    def _variable_dict(self, object_list, dependent=True, independent=True):
+        """Retrieve the variable dictionary.
+
+        Parameters
+        ----------
+        object_list : list
+            List of objects.
+        dependent : bool, optional
+             Whether to include dependent variables. The default is ``True``.
+        independent : bool, optional
+             Whether to include independent variables. The default is ``True``.
+
+        Returns
+        -------
+        dict
+            Dictionary of the specified variables.
+
+        """
+        self._update_variable_dict(object_list)
         self._cleanup_variables()
         vars_to_output = {}
         dicts_to_add = []
@@ -1132,6 +1144,7 @@ class VariableManager(object):
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if name.lower() not in lower_case_vars:
             return False
+
         return True
 
     @pyaedt_function_handler(separator_name="name")
@@ -1900,7 +1913,7 @@ class Variable(object):
         """Concatenated numeric value and unit string."""
         if self.numeric_value is None:
             return None
-        return f"{self.numeric_value}{self._units}"
+        return f"{self.numeric_value}{self.units}"
 
     @pyaedt_function_handler()
     def decompose(self) -> tuple:
