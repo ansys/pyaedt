@@ -57,6 +57,52 @@ DISCLAIMER = (
 )
 UNKNOWN_VERSION = "Unknown"
 
+
+class ToolTip:
+    """Create a tooltip for a given widget."""
+
+    def __init__(self, widget, text="Widget info"):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.tipwindow = None
+
+    def enter(self, event=None):
+        """Show tooltip on mouse enter."""
+        self.show_tooltip()
+
+    def leave(self, event=None):
+        """Hide tooltip on mouse leave."""
+        self.hide_tooltip()
+
+    def show_tooltip(self):  # pragma: no cover
+        """Display tooltip."""
+        if self.tipwindow or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tkinter.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffe0",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("Arial", 9, "normal"),
+        )
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self):  # pragma: no cover
+        """Hide tooltip."""
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
 class VersionManager:
     TITLE = "Version Manager"
     USER_GUIDE = (
@@ -740,23 +786,54 @@ class VersionManager:
             # Center dialog
             try:
                 self.root.update_idletasks()
-                width, height = 450, 150
+                width, height = 500, 150
                 x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
                 y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
                 dlg.geometry(f"{width}x{height}+{x}+{y}")
             except Exception:
                 logging.getLogger("Global").debug("Failed to center update notification", exc_info=True)
 
+            # Create frame for label and changelog button
+            label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
+            label_frame.pack(
+                padx=20, pady=(20, 10), expand=True, fill="both"
+            )
+
             ttk.Label(
-                dlg,
+                label_frame,
                 text=(
-                    f"A new version of PyAEDT is available: {latest_version}\n"
-                    "You can update it using the buttons in this Version Manager."
+                    f"A new version of PyAEDT is available: "
+                    f"{latest_version}\n"
+                    "You can update it using the buttons in this "
+                    "Version Manager."
                 ),
                 style="PyAEDT.TLabel",
                 anchor="center",
                 justify="center",
-            ).pack(padx=20, pady=(20, 10), expand=True, fill="both")
+            ).pack(side="left", expand=True, fill="both")
+
+            def open_changelog():
+                try:
+                    url = ("https://aedt.docs.pyansys.com/version/stable/"
+                           "changelog.html")
+                    webbrowser.open(str(url))
+                    logging.getLogger("Global").info(
+                        "Opened PyAEDT changelog."
+                    )
+                except Exception:
+                    logging.getLogger("Global").debug(
+                        "Failed to open changelog", exc_info=True
+                    )
+
+            changelog_btn = ttk.Button(
+                label_frame,
+                text="?",
+                command=open_changelog,
+                style="PyAEDT.TButton",
+                width=3
+            )
+            changelog_btn.pack(side="right", padx=(5, 0))
+            ToolTip(changelog_btn, "View changelog")
 
             btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
             btn_frame.pack(padx=10, pady=(0, 10), fill="x")

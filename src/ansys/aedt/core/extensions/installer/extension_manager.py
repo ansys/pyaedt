@@ -1383,27 +1383,63 @@ class ExtensionManager(ExtensionProjectCommon):
             except Exception:
                 logging.getLogger("Global").debug("Failed to center update popup", exc_info=True)
 
+            # Create frame for label and changelog button
+            label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
+            label_frame.pack(
+                padx=20, pady=(20, 10), expand=True, fill="both"
+            )
+
             ttk.Label(
-                dlg,
+                label_frame,
                 text=(
-                    f"A new version of PyAEDT is available: {latest_version}\n"
-                    "To update PyAEDT, please open the Version Manager."
+                    f"A new version of PyAEDT is available: "
+                    f"{latest_version}\n"
+                    "To update PyAEDT, please open the "
+                    "Version Manager."
                 ),
                 style="PyAEDT.TLabel",
                 anchor="center",
                 justify="center",
-            ).pack(padx=20, pady=(20, 10), expand=True, fill="both")
+            ).pack(side="left", expand=True, fill="both")
+
+            def open_changelog():
+                try:
+                    url = ("https://aedt.docs.pyansys.com/version/stable/"
+                           "changelog.html")
+                    webbrowser.open(str(url))
+                    logging.getLogger("Global").info(
+                        "Opened PyAEDT changelog."
+                    )
+                except Exception:
+                    logging.getLogger("Global").debug(
+                        "Failed to open changelog", exc_info=True
+                    )
+
+            changelog_btn = ttk.Button(
+                label_frame,
+                text="?",
+                command=open_changelog,
+                style="PyAEDT.TButton",
+                width=3
+            )
+            changelog_btn.pack(side="right", padx=(5, 0))
+            ToolTip(changelog_btn, "View changelog")
 
             btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
             btn_frame.pack(padx=10, pady=(0, 10), fill="x")
 
             def decline():
                 try:
-                    declined_file_path.parent.mkdir(parents=True, exist_ok=True)
-                    declined_file_path.write_text(latest_version, encoding="utf-8")
+                    declined_file_path.parent.mkdir(
+                        parents=True, exist_ok=True
+                    )
+                    declined_file_path.write_text(
+                        latest_version, encoding="utf-8"
+                    )
                 except Exception:
                     logging.getLogger("Global").debug(
-                        "PyAEDT update popup: failed to record declined version.",
+                        "PyAEDT update popup: failed to record "
+                        "declined version.",
                         exc_info=True,
                     )
                 dlg.destroy()
@@ -1411,22 +1447,29 @@ class ExtensionManager(ExtensionProjectCommon):
             def remind():
                 dlg.destroy()
 
-            ttk.Button(btn_frame, text="Decline", command=decline, style="PyAEDT.TButton").pack(
-                side="left", expand=True, fill="x", padx=5
-            )
-            ttk.Button(btn_frame, text="Remind later", command=remind, style="PyAEDT.TButton").pack(
-                side="left", expand=True, fill="x", padx=5
-            )
+            ttk.Button(
+                btn_frame, text="Decline", command=decline,
+                style="PyAEDT.TButton"
+            ).pack(side="left", expand=True, fill="x", padx=5)
+            ttk.Button(
+                btn_frame, text="Remind later", command=remind,
+                style="PyAEDT.TButton"
+            ).pack(side="left", expand=True, fill="x", padx=5)
 
             dlg.transient(self.root)
             dlg.grab_set()
             self.root.wait_window(dlg)
         except Exception:
-            logging.getLogger("Global").debug("PyAEDT update popup: failed to display.", exc_info=True)
+            logging.getLogger("Global").debug(
+                "PyAEDT update popup: failed to display.",
+                exc_info=True
+            )
 
 
 if __name__ == "__main__":  # pragma: no cover
     # Open UI
-    extension: ExtensionProjectCommon = ExtensionManager(withdraw=False)
+    extension: ExtensionProjectCommon = ExtensionManager(
+        withdraw=False
+    )
 
     tkinter.mainloop()
