@@ -42,9 +42,9 @@ from ansys.aedt.core.extensions.misc import ExtensionMaxwell2DCommon
 from ansys.aedt.core.extensions.misc import ExtensionMaxwell3DCommon
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
 from ansys.aedt.core.extensions.misc import get_latest_version
-from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXTENSION_TITLE = "Dummy title"

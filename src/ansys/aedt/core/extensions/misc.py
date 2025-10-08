@@ -120,13 +120,13 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
             for token in v.split("."):
                 try:
                     out.append(int(token))
-                except Exception: # pragma: no cover
+                except Exception:  # pragma: no cover
                     break
             return tuple(out)
 
         try:
             return to_tuple(local) < to_tuple(remote)
-        except Exception: # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
 
     log = logging.getLogger("Global")
@@ -139,7 +139,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
     # Resolve user toolkit directory
     try:
         toolkit_dir = Path(personallib) / "Toolkits"
-    except Exception: # pragma: no cover
+    except Exception:  # pragma: no cover
         log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
         return None, None
 
@@ -148,7 +148,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
     if declined_file.is_file():
         try:
             declined_version = declined_file.read_text(encoding="utf-8").strip()
-        except Exception: # pragma: no cover
+        except Exception:  # pragma: no cover
             declined_version = None
 
     prompt_user = declined_version is None or compare_versions(declined_version, latest)
@@ -996,6 +996,7 @@ def __parse_arguments(args=None, description=""):  # pragma: no cover
             parser.add_argument(f"--{arg}", default=args[arg])
     parsed_args = parser.parse_args()
     return parsed_args
+
 
 class ToolTip:
     """Create a tooltip for a given widget."""
