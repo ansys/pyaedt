@@ -111,6 +111,9 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         self.antipad_race_track_var = tkinter.BooleanVar()
         self.microvia_signal_only_var = tkinter.BooleanVar()
         self.microvia_split_via_var = tkinter.BooleanVar()
+        
+        # Initialize shared pedb instance
+        self._pedb = None
 
         # Set initial values based on defaults
         self.antipad_race_track_var.set(EXTENSION_DEFAULT_ARGUMENTS["race_track"])
@@ -119,6 +122,17 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
 
         # Trigger manually since add_extension_content requires loading info first
         self.add_extension_content()
+
+    @property
+    def pedb(self):
+        if self._pedb is None:
+            self._pedb = self.aedt_application.modeler.primitives.edb
+        return self._pedb
+
+    def __del__(self):
+        """Destructor to ensure pedb instance is properly closed."""
+        if hasattr(self, '_pedb') and self._pedb is not None:
+            self._pedb.close()
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
@@ -251,15 +265,13 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         """Get selections for microvia operation."""
         try:
             selected = self.aedt_application.oeditor.GetSelections()
-            pedb = self.aedt_application.modeler.primitives.edb
             temp = []
             for i in selected:
-                if i in pedb.padstacks.instances_by_name:
-                    inst = pedb.padstacks.instances_by_name[i]
+                if i in self.pedb.padstacks.instances_by_name:
+                    inst = self.pedb.padstacks.instances_by_name[i]
                     pdef_name = inst.definition.name
                     if pdef_name not in temp:
                         temp.append(pdef_name)
-            pedb.close()
 
             self._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
             self._widgets["microvia_selection_entry"].insert(tkinter.END, ",".join(temp))
@@ -297,6 +309,11 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
     def _microvia_callback(self):
         """Handle microvia creation."""
         try:
+            # Close the shared pedb instance when entering microvia callback
+            if self._pedb is not None:
+                self._pedb.close()
+                self._pedb = None
+                
             selections_text = self._widgets["microvia_selection_entry"].get(1.0, tkinter.END).strip()
             angle_text = self._widgets["microvia_angle_entry"].get(1.0, tkinter.END).strip()
             signal_only = self.microvia_signal_only_var.get()
