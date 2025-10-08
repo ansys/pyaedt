@@ -24,6 +24,12 @@
 
 import tkinter
 from tkinter import ttk
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+
+import numpy as np
 
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
@@ -70,10 +76,19 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Attributes
         self.fresnel_type = tkinter.StringVar(value="isotropic")
         self.setups = self.aedt_application.design_setups
+        self.setup_sweep_names = []
+        self.setup_names = list(self.setups.keys())
+
         if not self.setups:
             self.setups = {"No Setup": None}
-
-        self.setup_names = list(self.setups.keys())
+            self.setup_sweep_names = ["No Setup : No Sweep"]
+        else:
+            for setup_name, setup in self.setups.items():
+                self.setup_sweep_names.append(f"{setup_name} : LastAdaptive")
+                if setup.children:
+                    sweeps = list(setup.children.keys())
+                    for sweep in sweeps:
+                        self.setup_sweep_names.append(f"{setup_name} : {sweep}")
 
         self.active_setup = None
         self.sweep = None
@@ -422,26 +437,22 @@ class FresnelExtension(ExtensionHFSSCommon):
 
     def build_extraction_tab(self):
         # Setup
-        label = ttk.Label(self._widgets["extraction_tab"], text="Parametric setup", style="PyAEDT.TLabel")
+        label = ttk.Label(self._widgets["extraction_tab"], text="Simulation setup", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 
-        self._widgets["parametric_combo"] = ttk.Combobox(
+        self._widgets["setup_sweep_combo"] = ttk.Combobox(
             self._widgets["extraction_tab"],
             width=30,
             style="PyAEDT.TCombobox",
-            name="parametric_setup",
+            name="simulation_setup",
             state="readonly",
         )
-        self._widgets["parametric_combo"].grid(row=0, column=1, padx=15, pady=10)
+        self._widgets["setup_sweep_combo"].grid(row=0, column=1, padx=15, pady=10)
 
-        parametric_names = list(self.aedt_application.parametrics.design_setups.keys())
+        self._widgets["setup_sweep_combo"]["values"] = self.setup_sweep_names
+        self._widgets["setup_sweep_combo"].current(0)
 
-        if parametric_names:
-            self._widgets["parametric_combo"]["values"] = parametric_names
-            self.active_parametric = self.aedt_application.parametrics.design_setups[parametric_names[0]]
-        else:
-            self._widgets["parametric_combo"]["values"] = "No parametric setup"
-        self._widgets["parametric_combo"].current(0)
+        self.active_setup = self.setups[self.setup_sweep_names[0].split(" : ")[0]]
 
         # Validate button
         self._widgets["validate_button"] = ttk.Button(
@@ -722,47 +733,37 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["design_validation_label_extraction"].config(text="N/A")
         self._widgets["start_button_extraction"].grid_remove()
 
-        simulation_setup = self._widgets["parametric_combo"].get()
+        simulation_setup = self._widgets["setup_sweep_combo"].get()
 
-        if simulation_setup == "No parametric setup":
-            self.aedt_application.logger.error("No parametric setup selected.")
+        if simulation_setup == "No setup":
+            self.aedt_application.logger.error("No setup selected.")
             self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
             return
 
-        # Create sweep
-        self.active_parametric = self.aedt_application.parametrics.design_setups[simulation_setup]
+        setup_name = simulation_setup.split(" : ")[0]
+        sweep_name = simulation_setup.split(" : ")[1]
 
-        # Parametric setup must have only one Simulation setup
+        self.active_setup = self.setups[setup_name]
 
-        setups = self.active_parametric.props["Sim. Setups"]
+        self.active_setup_sweep = simulation_setup
 
-        if len(setups) != 1:
-            self.aedt_application.logger.error("Parametric setup must have only one Simulation setup.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-            return
+        if sweep_name != "LastAdaptive":
+            # Setup has only one frequency sweep
+            sweeps = self.active_setup.sweeps
+            if len(sweeps) != 1:
+                self.aedt_application.logger.error(f"Setup {self.active_setup.name} must have only one sweep setup.")
+                self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                return
 
-        self.active_setup = self.setups[setups[0]]
+            sweep = sweeps[0]
 
-        # Setup has only one frequency sweep
+            # Frequency sweep has linearly frequency samples
+            sweep_type = sweep.props.get("RangeType", None)
 
-        sweeps = self.active_setup.sweeps
-
-        if len(sweeps) != 1:
-            self.aedt_application.logger.error(f"Setup {self.active_setup.name} must have only one sweep setup.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-            return
-
-        sweep = sweeps[0]
-
-        self.active_setup_sweep = self.active_setup.name + " : " + sweep.name
-
-        # Frequency sweep has linearly frequency samples
-        sweep_type = sweep.props.get("RangeType", None)
-
-        if sweep_type not in ["LinearStep", "LinearCount", "SinglePoints"]:
-            self.aedt_application.logger.error(f"{sweep.name} does not have linearly frequency samples.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-            return
+            if sweep_type not in ["LinearStep", "LinearCount", "SinglePoints"]:
+                self.aedt_application.logger.error(f"{sweep.name} does not have linearly frequency samples.")
+                self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                return
 
         # We can not get the frequency points with the AEDT API
 
@@ -876,30 +877,124 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.root.destroy()
 
     @staticmethod
-    def validate_even_and_divides_90(values):
-        """Validates if list is equally spaced."""
-        if len(values) < 2:
-            return True, None
-        step = values[1] - values[0]
+    def validate_even_and_divides_90(
+        values: Sequence[float],
+        float_precision: float = 1e-5,
+        min_step_possible: float = 0.01,
+    ) -> Tuple[bool, Optional[float], List[float]]:
+        """
+        Validate and extract an evenly-spaced theta sequence in [0, 90] that divides 90.
 
-        evenly = all((values[i] - values[i - 1]) == step for i in range(1, len(values)))
+        It sorts and filters values to [0, 90]. Requires that 0.0 is present. It searches for a step size `step` such
+        that a sequence starting at 0deg is (approximately) on a uniform grid, and that 90° is a multiple of `step`.
+        Returns validity, the detected `step` (if valid), and the filtered list
+        of input values that fall on the detected grid (up to 90°).
 
-        divides_90 = (90.0 / step).is_integer()
+        Parameters
+        ----------
+        values : Sequence[float]
+            Input angles (degrees), possibly unsorted and with out-of-range values.
+        float_precision : float, optional
+            Tolerance used for “close to integer multiple” checks.
+        min_step_possible : float, optional
+            Minimum step allowed during the step search.
 
-        return (evenly and divides_90), step
+        Returns
+        -------
+        is_valid : bool
+            True if an evenly-spaced sequence is detected and 90° is divisible by the step.
+        step : float or None
+            Detected step (degrees) if valid, otherwise None.
+        filtered_list : list of float
+            Values from the input that lie in [0, 90] and align with the detected grid.
+            If not valid, returns just the input values filtered to [0, 90] (sorted).
+        """
+        # Sort & filter to [0, 90]
+        th_input = np.sort(np.asarray(values, dtype=float))
+        th_090 = th_input[(th_input >= 0.0) & (th_input <= 90.0)]
+
+        # Must start at exactly 0.0 (as in your final code)
+        if th_090.size == 0 or th_090[0] != 0.0:
+            return False, None, th_090.tolist()
+
+        # Need at least two points to reason about spacing
+        if th_090.size < 2:
+            return False, None, th_090.tolist()
+
+        # Step search setup
+        # non-zero points relative to 0
+        delta_0 = th_090[1:]
+        # consecutive differences
+        delta_opt = th_090[1:] - th_090[:-1]
+        min_step_check = max(delta_opt.min(), min_step_possible)
+
+        n_max = int(np.ceil(90.0 / min_step_check) + 1)
+        step = 90.0 / n_max
+        number_of_steps = n_max
+
+        search_flag = True
+
+        # Search loop (vectorized point selection per candidate step)
+        while (n_max > 1) and search_flag:
+            n_max -= 1
+            step_check = 90.0 / n_max
+            # Distances normalized by candidate step
+            delta_rel = delta_0 / step_check
+
+            # Points close to integer grid (within tolerance)
+            k = np.rint(delta_rel)
+            close_mask = np.abs(delta_rel - k) < float_precision
+            k_sel = k[close_mask]
+
+            if k_sel.size > 0:
+                # Require first integer index < 2 and successive increments < 2
+                # (equivalent to “exactly one step apart” with tolerance logic)
+                diffs = np.diff(k_sel)
+                if (k_sel[0] < 2) and np.all(diffs < 2):
+                    step = step_check
+                    number_of_steps = int(k_sel.size)
+                    search_flag = False
+
+        # If nothing worked, return not valid
+        if search_flag:
+            return False, None, th_090.tolist()
+
+        # Build theoretical sequence and filter inputs that match it
+        th_syn = np.arange(0, number_of_steps + 1, dtype=float) * step
+
+        # Compute ratios for all values in [0,90], check closeness to nearest int
+        in_range_mask = (th_input >= 0.0) & (th_input <= 90.0)
+        cand = th_input[in_range_mask]
+        ratios = np.divide(cand, step, out=np.zeros_like(cand), where=step != 0)
+        nearest = np.rint(ratios)
+        on_grid_mask = np.abs(ratios - nearest) < float_precision
+
+        # Keep at most number_of_steps + 1 values, in order
+        idx = np.flatnonzero(on_grid_mask)
+        if idx.size > (number_of_steps + 1):
+            idx = idx[: number_of_steps + 1]
+        th_res = cand[idx].tolist()
+
+        # Final validation
+        divides_90 = abs((90.0 / step) - np.rint(90.0 / step)) < float_precision
+        same_len = len(th_res) == th_syn.size
+        close_seq = same_len and np.allclose(np.asarray(th_res, float), th_syn, atol=float_precision)
+
+        is_valid = bool(divides_90 and close_seq)
+        return is_valid, (float(step) if is_valid else None), th_res
 
     def extract_parametric_fresnel(self, rows, theta_key="scan_T", phi_key="scan_P"):
         if not rows:
             return {"has_phi": False, "theta": [], "phi": [], "theta_by_phi": {}}
 
-        # Is phi key defined?
+        # Check if phi is defined
         has_phi = any(phi_key in r for r in rows)
 
         if not has_phi:
             # Only theta
-            thetas = [r[theta_key].value for r in rows if theta_key in r]
+            thetas = [r[theta_key] for r in rows if theta_key in r]
             thetas = sorted(set(thetas))
-            valid, step = self.validate_even_and_divides_90(thetas)
+            valid, step, thetas = self.validate_even_and_divides_90(thetas)
             return {
                 "has_phi": False,
                 "theta": thetas,
@@ -914,8 +1009,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         for r in rows:
             if theta_key not in r or phi_key not in r:
                 continue
-            phi = r[phi_key].value
-            theta = r[theta_key].value
+            phi = r[phi_key]
+            theta = r[theta_key]
             theta_by_phi.setdefault(phi, []).append(theta)
 
         # Order list
@@ -929,7 +1024,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         theta_resolution_by_phi = {}
         theta_valid_by_phi = {}
         for phi, lst in theta_by_phi.items():
-            valid, step = self.validate_even_and_divides_90(lst)
+            valid, step, _ = self.validate_even_and_divides_90(lst)
             theta_resolution_by_phi[phi] = step
             theta_valid_by_phi[phi] = valid
 
