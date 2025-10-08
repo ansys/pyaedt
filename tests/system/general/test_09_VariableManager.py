@@ -35,11 +35,8 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
     params=[
         pyaedt.Circuit,
         pyaedt.Hfss,
-        pyaedt.Icepak,
-        pyaedt.Mechanical,
         pyaedt.Maxwell3d,
         pyaedt.Maxwell2d,
-        pyaedt.Q3d,
         pyaedt.Q2d,
         pyaedt.Hfss3dLayout,
         pyaedt.Rmxprt,
@@ -48,11 +45,8 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
     ids=[
         "circuit",
         "hfss",
-        "icepak",
-        "mechanical",
         "maxwell_3d",
         "maxwell_2d",
-        "q3d",
         "q2d",
         "hfss3d_layout",
         "rmxprt",
