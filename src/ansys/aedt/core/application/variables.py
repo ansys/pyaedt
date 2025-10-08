@@ -1505,18 +1505,6 @@ class Variable(object):
     def _oo(self, obj, path):
         return self._app.get_oo_object(obj, path)
 
-    @staticmethod
-    def __with_retries(func, n_times=10):
-        """Retry a no-arg callable up to and return its result or None."""
-        for _ in range(max(1, n_times)):
-            try:
-                out = func()
-                if out:
-                    return out
-            except Exception:
-                pass
-        return None
-
     # Low-level property read/write
     @pyaedt_function_handler()
     def update_var(self):
