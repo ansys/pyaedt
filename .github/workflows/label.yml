@@ -80,6 +80,7 @@ jobs:
         labels: testing
 
   commenter:
+    name: Suggest labels if none assigned
     runs-on: ubuntu-latest
     permissions:
       contents: read
