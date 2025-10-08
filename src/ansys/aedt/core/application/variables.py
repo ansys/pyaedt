@@ -1587,19 +1587,18 @@ class Variable(object):
 
     def _get_prop_generic(self, prop, evaluated=False):
         """Generic property getter. If *evaluated* is True, returns the evaluated value."""
-        if not self._app:
+        if not self._aedt_obj:
             return None
         prop = prop or self.name
         try:
-            # container = self.__target_container_name()
-            app = self._app.odesign
+            app = self._aedt_obj
 
             # DefinitionParameters only available in circuit and HFSS 3D Layout design type
             if self.__has_definition_parameters:
                 inst_name = f"Instance:{app.GetName()}"
                 if self.circuit_parameter:
                     # Definition parameters properties do not work with Object-Oriented-Programming API
-                    obj = self._oo(self._aedt_obj, "DefinitionParameters")
+                    obj = self._oo(app, "DefinitionParameters")
                     if not obj or prop != self.name:
                         self._app.logger.error(
                             "Parameter Default variable properties can not be load. AEDT API limitation."
@@ -1621,7 +1620,7 @@ class Variable(object):
                 return var_obj.GetPropValue(prop)
 
             # Fallback: simple path
-            obj = self._oo(self._aedt_obj, "Variables")
+            obj = self._oo(app, "Variables")
             return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
         except Exception:
             if self._app:
