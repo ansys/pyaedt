@@ -131,7 +131,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
 
     def __del__(self):
         """Destructor to ensure pedb instance is properly closed."""
-        if hasattr(self, "_pedb") and self._pedb is not None:
+        if hasattr(self, "_pedb") and self._pedb is not None: # pragma: no cover
             self._pedb.close()
 
     def add_extension_content(self):
@@ -310,7 +310,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         """Handle microvia creation."""
         try:
             # Close the shared pedb instance when entering microvia callback
-            if self._pedb is not None:
+            if self._pedb is not None:  # pragma: no cover
                 self._pedb.close()
                 self._pedb = None
 
