@@ -120,13 +120,13 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
             for token in v.split("."):
                 try:
                     out.append(int(token))
-                except Exception:
+                except Exception: # pragma: no cover
                     break
             return tuple(out)
 
         try:
             return to_tuple(local) < to_tuple(remote)
-        except Exception:
+        except Exception: # pragma: no cover
             return False
 
     log = logging.getLogger("Global")
@@ -139,7 +139,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
     # Resolve user toolkit directory
     try:
         toolkit_dir = Path(personallib) / "Toolkits"
-    except Exception:
+    except Exception: # pragma: no cover
         log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
         return None, None
 
@@ -148,7 +148,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
     if declined_file.is_file():
         try:
             declined_version = declined_file.read_text(encoding="utf-8").strip()
-        except Exception:
+        except Exception: # pragma: no cover
             declined_version = None
 
     prompt_user = declined_version is None or compare_versions(declined_version, latest)
@@ -996,3 +996,48 @@ def __parse_arguments(args=None, description=""):  # pragma: no cover
             parser.add_argument(f"--{arg}", default=args[arg])
     parsed_args = parser.parse_args()
     return parsed_args
+
+class ToolTip:
+    """Create a tooltip for a given widget."""
+
+    def __init__(self, widget, text="Widget info"):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.tipwindow = None
+
+    def enter(self, event=None):
+        """Show tooltip on mouse enter."""
+        self.show_tooltip()
+
+    def leave(self, event=None):
+        """Hide tooltip on mouse leave."""
+        self.hide_tooltip()
+
+    def show_tooltip(self):  # pragma: no cover
+        """Display tooltip."""
+        if self.tipwindow or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tkinter.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffe0",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("Arial", 9, "normal"),
+        )
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self):  # pragma: no cover
+        """Hide tooltip."""
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
