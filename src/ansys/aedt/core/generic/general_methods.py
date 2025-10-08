@@ -27,10 +27,12 @@ import datetime
 import difflib
 import functools
 from functools import update_wrapper
+import getpass
 import inspect
 import itertools
 import logging
 import os
+import platform
 import re
 import sys
 import time
@@ -46,9 +48,12 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 
-is_linux = os.name == "posix"
-is_windows = not is_linux
-inside_desktop = True if "4.0.30319.42000" in sys.version else False
+system = platform.system()
+is_linux = system == "Linux"
+is_windows = system == "Windows"
+is_macos = system == "Darwin"
+
+inside_desktop_ironpython_console = True if "4.0.30319.42000" in sys.version else False
 
 inclusion_list = [
     "CreateVia",
@@ -188,7 +193,10 @@ def raise_exception_or_return_false(e):
             from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
             for v in list(_desktop_sessions.values())[:]:
-                v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
+                if v.launched_by_pyaedt:
+                    v.close_desktop()
+                else:
+                    v.release_desktop(False, False)
         raise e
     elif "__init__" in str(e):  # pragma: no cover
         return
@@ -378,6 +386,9 @@ def _log_method(func, new_args, new_kwargs):
 
 @pyaedt_function_handler()
 def get_version_and_release(input_version):
+    """Convert the standard five-digit AEDT version format to a tuple of version and release.
+    Used for environment variable management.
+    """
     version = int(input_version[2:4])
     release = int(input_version[5])
     if version < 20:
@@ -389,21 +400,53 @@ def get_version_and_release(input_version):
 
 
 @pyaedt_function_handler()
-def get_string_version(input_version):
-    output_version = input_version
-    if isinstance(input_version, float):
-        output_version = str(input_version)
-        if len(output_version) == 4:
-            output_version = "20" + output_version
-    elif isinstance(input_version, int):
-        output_version = str(input_version)
-        output_version = f"20{output_version[:2]}.{output_version[-1]}"
-    elif isinstance(input_version, str):
-        if len(input_version) == 3:
-            output_version = f"20{input_version[:2]}.{input_version[-1]}"
-        elif len(input_version) == 4:
-            output_version = "20" + input_version
-    return output_version
+def _normalize_version_to_string(input_version):
+    """Convert various AEDT version formats to a standard five-digit string format.
+    Used to check and convert the version user input to a standard format.
+    If the input is ``None``, return ``None``.
+    """
+    error_msg = (
+        "Version argument is not valid.\n"
+        "Accepted formats are:\n"
+        " - 3-digit format (e.g., '232')\n"
+        " - 5-digit format (e.g., '2023.2')\n"
+        " - Float format (e.g., 2023.2 or 23.2)\n"
+        " - Integer format (e.g., 232)\n"
+        " - Release format with 'R' (e.g., '2023R2' or '23R2')"
+    )
+    if input_version is None:
+        return None
+    if not isinstance(input_version, (str, int, float)):
+        raise ValueError(error_msg)
+    input_version_str = str(input_version)
+    # Matches 2000.0 – 2099.9 style floats and strings
+    if re.match(r"^20\d{2}\.\d$", input_version_str):
+        return input_version_str
+    # Matches 00.0 – 99.9 style floats and strings
+    elif re.match(r"^\d{2}\.\d$", input_version_str):
+        return "20" + input_version_str
+    # Matches 000 – 999 style ints and strings
+    elif re.match(r"^\d{3}$", input_version_str):
+        return f"20{input_version_str[:2]}.{input_version_str[-1]}"
+    # Matches "2025R2" or "2025 R2" string
+    elif re.match(r"^20\d{2}\s?R\d$", input_version_str):
+        return input_version_str.replace("R", ".").replace(" ", "")
+    # Matches "25R2" or "25 R2" string
+    elif re.match(r"^\d{2}\s?R\d$", input_version_str):
+        return "20" + input_version_str.replace("R", ".").replace(" ", "")
+    else:
+        raise ValueError(error_msg)
+
+
+@pyaedt_function_handler()
+def _is_version_format_valid(version):
+    """Check if the internal version format is valid.
+    Version must be a string in the five-digit format (e.g., '2023.2').
+    It can optionally end with 'SV' for student versions.
+    """
+    if not isinstance(version, str):
+        return False
+    return bool(re.match(r"^\d{4}\.[1-9]\d*(SV)?$", version))
 
 
 @pyaedt_function_handler()
@@ -666,24 +709,46 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         version = version[-4:].replace(".", "")
     if version and version < "221":
         version = version[:2] + "." + version[2]
-    for p in psutil.process_iter():
+
+    def _normalize_user(u):
+        if not u:
+            return ""
+        # drop domain like DOMAIN\user or any path parts, compare case-insensitive
+        return str(u).split("\\")[-1].split("/")[-1].lower()
+
+    def _current_username():
         try:
-            if p.name() in keys:
-                cmd = p.cmdline()
+            return _normalize_user(psutil.Process(os.getpid()).username())
+        except Exception:
+            # fallback
+            return _normalize_user(getpass.getuser())
+
+    current_user = _current_username()
+
+    for p in psutil.process_iter(attrs=("pid", "name", "username", "cmdline")):
+        try:
+            p_user = _normalize_user(p.info.get("username"))
+            if p_user != current_user:
+                continue  # skip processes from other users
+            # process belongs to current user — safe to use p.info or p
+            pid = p.info["pid"]
+            name = p.info["name"]
+            cmd = p.info.get("cmdline", [])
+            if name in keys:
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
                         if "-grpcsrv" in cmd:
                             if not version or (version and version in cmd[0]):
                                 try:
-                                    return_dict[p.pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                                    return_dict[pid] = int(cmd[cmd.index("-grpcsrv") + 1])
                                 except (IndexError, ValueError):
                                     # default desktop grpc port.
-                                    return_dict[p.pid] = 50051
+                                    return_dict[pid] = 50051
                         else:
-                            return_dict[p.pid] = -1
+                            return_dict[pid] = -1
                             for i in psutil.net_connections():
-                                if i.pid == p.pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
-                                    return_dict[p.pid] = i.laddr.port
+                                if i.pid == pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
+                                    return_dict[pid] = i.laddr.port
                                     break
         except psutil.NoSuchProcess as e:  # pragma: no cover
             pyaedt_logger.debug(f"The process exited and cannot be an active session: {e}")

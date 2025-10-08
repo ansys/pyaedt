@@ -9,6 +9,313 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.20.1 <https://github.com/ansys/pyaedt/releases/tag/v0.20.1>`_ - October 01, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Panels update automatically after update
+          - `#6690 <https://github.com/ansys/pyaedt/pull/6690>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.1.1 to 10.1.2
+          - `#6693 <https://github.com/ansys/pyaedt/pull/6693>`_
+
+        * - Update grpcio requirement from <1.75,>=1.50.0 to >=1.50.0,<1.76
+          - `#6694 <https://github.com/ansys/pyaedt/pull/6694>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add documentation for the pyd folder settings
+          - `#6689 <https://github.com/ansys/pyaedt/pull/6689>`_
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#6697 <https://github.com/ansys/pyaedt/pull/6697>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Increased width to fit elements
+          - `#6691 <https://github.com/ansys/pyaedt/pull/6691>`_
+
+        * - Add -- to uv to pass options to pip
+          - `#6696 <https://github.com/ansys/pyaedt/pull/6696>`_
+
+        * - Added point cloud generator extension to Maxwell 2D
+          - `#6699 <https://github.com/ansys/pyaedt/pull/6699>`_
+
+        * - Ibis import of models when multiple component have same name
+          - `#6705 <https://github.com/ansys/pyaedt/pull/6705>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.20.0
+          - `#6683 <https://github.com/ansys/pyaedt/pull/6683>`_
+
+        * - Fix nightly doc build (temporary)
+          - `#6684 <https://github.com/ansys/pyaedt/pull/6684>`_
+
+        * - Remove caching from wheelhouse
+          - `#6685 <https://github.com/ansys/pyaedt/pull/6685>`_
+
+        * - Bump v0.21.dev0
+          - `#6686 <https://github.com/ansys/pyaedt/pull/6686>`_
+
+        * - Remove ansys processes on self-hosted
+          - `#6687 <https://github.com/ansys/pyaedt/pull/6687>`_
+
+        * - Improve pyaedt installer script
+          - `#6702 <https://github.com/ansys/pyaedt/pull/6702>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Nastran import refactoring
+          - `#6236 <https://github.com/ansys/pyaedt/pull/6236>`_
+
+
+`0.20.0 <https://github.com/ansys/pyaedt/releases/tag/v0.20.0>`_ - September 26, 2025
+=====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update create_setup method
+          - `#6279 <https://github.com/ansys/pyaedt/pull/6279>`_
+
+        * - Install pyaedt via uv
+          - `#6338 <https://github.com/ansys/pyaedt/pull/6338>`_
+
+        * - 6290 add profile class
+          - `#6478 <https://github.com/ansys/pyaedt/pull/6478>`_
+
+        * - Allow pass AEDT installation directory
+          - `#6494 <https://github.com/ansys/pyaedt/pull/6494>`_
+
+        * - Add Profile class
+          - `#6593 <https://github.com/ansys/pyaedt/pull/6593>`_
+
+        * - Added test iframe to the docs
+          - `#6618 <https://github.com/ansys/pyaedt/pull/6618>`_
+
+        * - Add emit_schematic and emitter_node classes
+          - `#6639 <https://github.com/ansys/pyaedt/pull/6639>`_
+
+        * - 6620 bug located in export image
+          - `#6641 <https://github.com/ansys/pyaedt/pull/6641>`_
+
+        * - Delete motion setup
+          - `#6652 <https://github.com/ansys/pyaedt/pull/6652>`_
+
+        * - Version-manager-uv-support
+          - `#6655 <https://github.com/ansys/pyaedt/pull/6655>`_
+
+        * - Display-all-logs-extension-manager
+          - `#6661 <https://github.com/ansys/pyaedt/pull/6661>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump pyvista from <0.46 to <0.47
+          - `#6602 <https://github.com/ansys/pyaedt/pull/6602>`_
+
+        * - Bump actions/checkout from 4.2.2 to 5.0.0
+          - `#6613 <https://github.com/ansys/pyaedt/pull/6613>`_
+
+        * - Bump ansys/actions from 10.0.15 to 10.0.20
+          - `#6614 <https://github.com/ansys/pyaedt/pull/6614>`_
+
+        * - Bump actions/setup-python from 5.6.0 to 6.0.0
+          - `#6642 <https://github.com/ansys/pyaedt/pull/6642>`_
+
+        * - Bump actions/labeler from 5.0.0 to 6.0.1
+          - `#6643 <https://github.com/ansys/pyaedt/pull/6643>`_
+
+        * - Bump codecov/codecov-action from 5.4.3 to 5.5.1
+          - `#6644 <https://github.com/ansys/pyaedt/pull/6644>`_
+
+        * - Bump pypa/gh-action-pypi-publish from 1.12.4 to 1.13.0
+          - `#6645 <https://github.com/ansys/pyaedt/pull/6645>`_
+
+        * - Bump ansys/actions from 10.0.20 to 10.1.1
+          - `#6668 <https://github.com/ansys/pyaedt/pull/6668>`_
+
+        * - Update pytest-cov requirement from <6.3,>=4.0.0 to >=4.0.0,<7.1
+          - `#6669 <https://github.com/ansys/pyaedt/pull/6669>`_
+
+        * - Update cffi requirement from <1.18,>=1.16.0 to >=1.16.0,<2.1
+          - `#6670 <https://github.com/ansys/pyaedt/pull/6670>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix typo in env variable
+          - `#6626 <https://github.com/ansys/pyaedt/pull/6626>`_
+
+        * - Added via design video iframe
+          - `#6634 <https://github.com/ansys/pyaedt/pull/6634>`_
+
+        * - Fix doc link
+          - `#6640 <https://github.com/ansys/pyaedt/pull/6640>`_
+
+        * - Fix is_dielectric docstring
+          - `#6677 <https://github.com/ansys/pyaedt/pull/6677>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - MATLAB script amp2db.m
+          - `#6559 <https://github.com/ansys/pyaedt/pull/6559>`_
+
+        * - Aligned ports to the same plane
+          - `#6605 <https://github.com/ansys/pyaedt/pull/6605>`_
+
+        * - Fixed configurations.py for circuit import when no port_names is passed
+          - `#6610 <https://github.com/ansys/pyaedt/pull/6610>`_
+
+        * - Some minor updates to PyAedt
+          - `#6621 <https://github.com/ansys/pyaedt/pull/6621>`_
+
+        * - Improve analyze method
+          - `#6624 <https://github.com/ansys/pyaedt/pull/6624>`_
+
+        * - Page connector
+          - `#6636 <https://github.com/ansys/pyaedt/pull/6636>`_
+
+        * - Moved fpdf2 and rpyc in optional dependencies
+          - `#6647 <https://github.com/ansys/pyaedt/pull/6647>`_
+
+        * - Fixed bug in variations which prevented eye diagram plot
+          - `#6653 <https://github.com/ansys/pyaedt/pull/6653>`_
+
+        * - Fixes and improvements in edit_sources() for q3d
+          - `#6660 <https://github.com/ansys/pyaedt/pull/6660>`_
+
+        * - Fix an issue with psutil on machine with multiple users running aedt
+          - `#6665 <https://github.com/ansys/pyaedt/pull/6665>`_
+
+        * - Fixed theme switching bug
+          - `#6674 <https://github.com/ansys/pyaedt/pull/6674>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Make EMIT tests independent
+          - `#6546 <https://github.com/ansys/pyaedt/pull/6546>`_
+
+        * - Update CHANGELOG for v0.19.0
+          - `#6607 <https://github.com/ansys/pyaedt/pull/6607>`_
+
+        * - Update v0.20.dev0
+          - `#6608 <https://github.com/ansys/pyaedt/pull/6608>`_
+
+        * - Improve visualization failure handling
+          - `#6617 <https://github.com/ansys/pyaedt/pull/6617>`_
+
+        * - Improve Touchstone parser test
+          - `#6629 <https://github.com/ansys/pyaedt/pull/6629>`_
+
+        * - Temporary fix doc-build
+          - `#6672 <https://github.com/ansys/pyaedt/pull/6672>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Migrate kernel converter extension
+          - `#6536 <https://github.com/ansys/pyaedt/pull/6536>`_
+
+        * - Optimize field plot test
+          - `#6597 <https://github.com/ansys/pyaedt/pull/6597>`_
+
+        * - Migrate convert to circuit extension
+          - `#6619 <https://github.com/ansys/pyaedt/pull/6619>`_
+
+        * - Add terminal support
+          - `#6622 <https://github.com/ansys/pyaedt/pull/6622>`_
+
+        * - Migrate maxwell extension fields distribution
+          - `#6625 <https://github.com/ansys/pyaedt/pull/6625>`_
+
+        * - Migrate via clustering extension
+          - `#6627 <https://github.com/ansys/pyaedt/pull/6627>`_
+
+        * - Migrate post layout design toolkit
+          - `#6638 <https://github.com/ansys/pyaedt/pull/6638>`_
+
+        * - Move project section applications
+          - `#6666 <https://github.com/ansys/pyaedt/pull/6666>`_
+
+        * - Separate methods for releasing the desktop and closing the AEDT application
+          - `#6667 <https://github.com/ansys/pyaedt/pull/6667>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added missing microvia test
+          - `#6649 <https://github.com/ansys/pyaedt/pull/6649>`_
+
+
 `0.19.0 <https://github.com/ansys/pyaedt/releases/tag/v0.19.0>`_ - September 04, 2025
 =====================================================================================
 

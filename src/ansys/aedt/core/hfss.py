@@ -34,6 +34,8 @@ from typing import Optional
 from typing import Union
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.constants import InfiniteSphereType
@@ -2828,7 +2830,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.create_sbr_custom_array_file()
-        >>> hfss.release_desktop()
+        >>> hfss.desktop_class.close_desktop()
         """
         if output_file is None:
             output_file = Path(self.working_directory) / "custom_array.sarr"
@@ -6269,8 +6271,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 ]
 
         if frequencies is not None:
-            if not isinstance(frequencies, list):
+            if not isinstance(frequencies, (list, np.ndarray)):
                 frequencies = [frequencies]
+            elif isinstance(frequencies, np.ndarray):
+                frequencies = frequencies.tolist()
             frequencies = _units_assignment(frequencies)
         else:  # pragma: no cover
             self.logger.info("Frequencies could not be obtained.")

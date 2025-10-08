@@ -24,8 +24,12 @@
 from copy import copy
 import itertools
 import os
+from pathlib import Path
 import re
 import tempfile
+from typing import List
+from typing import Optional
+from typing import Union
 import warnings
 
 import numpy as np
@@ -36,6 +40,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 try:
     import skrf as rf
@@ -54,9 +59,20 @@ keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20
 
 
 class TouchstoneData(rf.Network):
-    """Contains data information from Touchstone Read call."""
+    """Contains data information from Touchstone Read call.
+
+    Parameters
+    ----------
+    solution_data : :class:`ansys.aedt.core.modules.solutions.SolutionData`, optional
+        HFSS solution data. The default is ``None``.
+    touchstone_file : str or :class:'pathlib.Path', optional
+        Path for the touchstone file. The default is ``None``.
+    """
 
     def __init__(self, solution_data=None, touchstone_file=None):
+        if touchstone_file is not None:
+            touchstone_file = Path(touchstone_file)
+
         if solution_data is not None:
             self.solution_data = solution_data
             freq_points = solution_data.primary_sweep_values
@@ -78,8 +94,8 @@ class TouchstoneData(rf.Network):
                     p_b = m.group(2)
                 p_a_number = ports.index(p_a)
                 p_b_number = ports.index(p_b)
-                sdata_real = solution_data.data_real(expression, True)
-                sdata_img = solution_data.data_imag(expression, True)
+                sdata_real = solution_data.get_expression_data(expression, formula="real", convert_to_SI=True)[1]
+                sdata_img = solution_data.get_expression_data(expression, formula="imag", convert_to_SI=True)[1]
                 sdata_2d = np.array(sdata_real, dtype=complex) + 1j * np.array(sdata_img, dtype=complex)
                 sdata_3d[:, p_a_number, p_b_number] = sdata_2d
                 sdata_3d[:, p_b_number, p_a_number] = sdata_2d
@@ -92,19 +108,31 @@ class TouchstoneData(rf.Network):
             rf.stylely()
             self.port_names = ports
 
-        elif os.path.exists(touchstone_file):
+        elif touchstone_file and touchstone_file.is_file():
             rf.Network.__init__(self, touchstone_file)
+            if not self.port_names:
+                with open(touchstone_file, "r") as f:
+                    lines = f.readlines()
+                    pnames = []
+                    for line in lines:
+                        if line.lower().startswith("! port"):
+                            pnames.append(line.split("=")[-1].strip())
+                    if not pnames:
+                        pnames = [f"Port{i + 1}" for i in range(self.nports)]
+                self.port_names = pnames
         self.log_x = True
 
     @pyaedt_function_handler()
-    def reduce(self, ports, output_file=None, reordered=True):
+    def reduce(
+        self, ports: Union[List[str], List[int]], output_file: Optional[Union[str, Path]] = None, reordered: bool = True
+    ) -> str:
         """Reduce the Touchstone file and export it.
 
         Parameters
         ----------
         ports : list
             List of ports or port indexes to use for the reduction.
-        output_file : str, optional
+        output_file : str or :class:'pathlib.Path', optional
             Output file path. The default is ``None``.
         reordered : bool, optional
             Whether to reorder the ports in the output file with given input order or not. The default is ``True``.
@@ -115,9 +143,10 @@ class TouchstoneData(rf.Network):
             Output file path
 
         """
-        temp_touch = os.path.join(tempfile.gettempdir(), f"temp_touchstone.s{len(self.port_names)}p")
+        name = f"temp_touchstone.s{len(self.port_names)}p"
+        temp_touch = Path(tempfile.gettempdir()) / name
         self.write_touchstone(temp_touch)
-        network = rf.Network(temp_touch)
+        network = rf.Network(str(temp_touch))
         reduced = []
         reduced_names = []
         for p in ports:
@@ -131,15 +160,19 @@ class TouchstoneData(rf.Network):
             network = network.renumbered(reduced, sorted(reduced))
         reduced_network = network.subnetwork(sorted(reduced))
 
+        if output_file:
+            output_file = Path(output_file)
+
         if not output_file:
-            output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
-        elif f"s{len(reduced)}p" not in output_file:
-            logger.error(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
-            return
+            new_name = temp_touch.stem + f"_reduced.s{len(reduced)}p"
+            output_file = temp_touch.parent / new_name
+        elif output_file and f"s{len(reduced)}p" not in output_file.suffix:
+            raise AEDTRuntimeError(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
+
         # Save the reduced 4-port network to a new Touchstone file
         reduced_network.write_touchstone(output_file)
 
-        return output_file
+        return str(output_file)
 
     @pyaedt_function_handler()
     def get_coupling_in_range(
@@ -165,7 +198,7 @@ class TouchstoneData(rf.Network):
             Specify range higher loss. The default is ``-60``.
         frequency_sample : integer, optional
             Specify frequency sample at which coupling check will be done. The default is ``5``.
-        output_file : path, optional
+        output_file : str, or :class:'pathlib.Path', optional
             Output file path to save where identified coupling will be listed. The default is ``None``.
         aedb_path : path, optional
             Full path to the ``aedb`` folder. This project is used to identify ports location. The default is ``None``.
@@ -243,12 +276,13 @@ class TouchstoneData(rf.Network):
                             temp_file.append(line)
                             break
         if output_file is not None:
-            if os.path.exists(output_file):
-                logger.info("File " + output_file + " exist and we be replace by new one.")
+            output_file = Path(output_file)
+            if output_file.is_file():
+                logger.info("File " + str(output_file) + " exist and we be replace by new one.")
             with open_file(output_file, "w") as f:
                 for s in temp_file:
                     f.write(s)
-            logger.info("File " + output_file + " created.")
+            logger.info("File " + str(output_file) + " created.")
             f.close()
         return temp_list
 
@@ -651,7 +685,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
 
     Parameters
     ----------
-    input_dir : str
+    input_dir : str or :class:'pathlib.Path', optional
         Folder path. The default is ``""``.
     passivity : bool, optional
         Whether the passivity check is enabled, The default is ``True``.
@@ -677,10 +711,10 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
     for file_name, path in snp_files.items():
         out[file_name] = []
         if os.name == "nt":
-            genequiv_path = os.path.join(aedt_install_folder, "genequiv.exe")
+            genequiv_path = Path(aedt_install_folder) / "genequiv.exe"
         else:
-            genequiv_path = os.path.join(aedt_install_folder, "genequiv")
-        cmd = [genequiv_path]
+            genequiv_path = Path(aedt_install_folder) / "genequiv"
+        cmd = [str(genequiv_path)]
         if passivity:
             cmd.append("-checkpassivity")
         if causality:
@@ -721,8 +755,8 @@ def find_touchstone_files(input_dir):
 
     Parameters
     ----------
-    input_dir : str
-        Folder path. The default is ``""``.
+    input_dir : str or :class:'pathlib.Path'
+        Folder path.
 
     Returns
     -------
@@ -730,12 +764,15 @@ def find_touchstone_files(input_dir):
         Dictionary with the SNP file names as the key and the absolute path as the value.
     """
     out = {}
-    if not os.path.exists(input_dir):
+    input_dir = Path(input_dir)
+    if not input_dir.exists():
         return out
     pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
-    files = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
+    files = {f.name: input_dir / f.name for f in input_dir.iterdir() if f.is_file() and re.search(pat_snp, f.name)}
+
     pat_ts = re.compile(r"\.ts$")
-    for f in os.listdir(input_dir):
-        if re.search(pat_ts, f):
-            files[f] = os.path.abspath(os.path.join(input_dir, f))
+    for f in input_dir.iterdir():
+        if f.is_file() and re.search(pat_ts, f.name):
+            files[f.name] = f.resolve()
+
     return files

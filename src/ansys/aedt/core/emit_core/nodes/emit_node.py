@@ -89,20 +89,29 @@ class EmitNode:
         str
             Name of the node.
         """
-        return self._get_property("Name")
+        return self._get_property("Name", True)
+
+    @property
+    def _node_type(self) -> str:
+        """Type of the node.
+
+        Returns
+        -------
+        str
+            Type of the node.
+        """
+        return self._get_property("Type", True)
 
     @property
     def _parent(self):
-        """Parent node of this node.
+        """Parent node name of this node.
 
         Returns
         -------
         EmitNode
-            Parent node.
+            Parent node name.
         """
-        parent_id = 1
-        parent_node = self._get_node(parent_id)
-        return parent_node
+        return self._get_property("Parent", True)
 
     @property
     def properties(self) -> dict:
@@ -194,7 +203,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks=False) -> Union[str, List[str]]:
         """Fetch the value of a given property.
 
         Parameters
@@ -208,10 +217,10 @@ class EmitNode:
             Property value.
         """
         try:
-            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
+            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
-            selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
-            if len(selected_kv_pairs) != 1:
+            selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
+            if len(selected_kv_pairs) < 1:
                 return ""
 
             selected_kv_pair = selected_kv_pairs[0]

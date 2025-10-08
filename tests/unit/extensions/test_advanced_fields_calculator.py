@@ -29,10 +29,11 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import EXTENSION_TITLE
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
+from ansys.aedt.core.extensions.common.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
 from ansys.aedt.core.generic.file_utils import read_toml
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 AEDT_APPLICATION_SETUP = "Setup1 : LastAdaptive"
 AEDT_APPLICATION_SELECTIONS = ["Polyline1", "Polyline2"]
@@ -153,3 +154,11 @@ def test_advanced_fields_calculator_extension_ok_button(
     assert EXPRESSION_TAG == data.calculation
     assert AEDT_APPLICATION_SETUP == data.setup
     assert AEDT_APPLICATION_SELECTIONS == data.assignments
+
+
+def test_check_design_type_invalid(mock_circuit_app):
+    """Unsupported design types raise on init and call release_desktop."""
+    with patch.object(AdvancedFieldsCalculatorExtension, "release_desktop") as mock_release:
+        with pytest.raises(AEDTRuntimeError, match="This extension only works"):
+            AdvancedFieldsCalculatorExtension(withdraw=True)
+        mock_release.assert_called_once()
