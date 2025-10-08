@@ -118,24 +118,24 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
     """Hook used to apply marker on tests."""
     for item in items:
         # Mark unit, integration and system tests
-        if item.nodeid.startswith("UNIT_TEST_PREFIX"):
+        if item.nodeid.startswith(UNIT_TEST_PREFIX):
             item.add_marker(pytest.mark.unit)
-        elif item.nodeid.startswith("INTEGRATION_TEST_PREFIX"):
+        elif item.nodeid.startswith(INTEGRATION_TEST_PREFIX):
             item.add_marker(pytest.mark.integration)
-        elif item.nodeid.startswith("SYSTEM_TEST_PREFIX"):
+        elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
             item.add_marker(pytest.mark.system)
         # Finer markers for system tests
-        if item.nodeid.startswith("SYSTEM_SOLVERS_TEST_PREFIX"):
+        if item.nodeid.startswith(SYSTEM_SOLVERS_TEST_PREFIX):
             item.add_marker(pytest.mark.solvers)
-        elif item.nodeid.startswith("SYSTEM_GENERAL_TEST_PREFIX"):
+        elif item.nodeid.startswith(SYSTEM_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.general)
-        elif item.nodeid.startswith("VISUALIZATION_GENERAL_TEST_PREFIX"):
+        elif item.nodeid.startswith(VISUALIZATION_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.visualization)
-        elif item.nodeid.startswith("EXTENSIONS_GENERAL_TEST_PREFIX"):
+        elif item.nodeid.startswith(EXTENSIONS_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.extensions)
-        elif item.nodeid.startswith("FILTER_SOLUTIONS_TEST_PREFIX"):
+        elif item.nodeid.startswith(FILTER_SOLUTIONS_TEST_PREFIX):
             item.add_marker(pytest.mark.filter_solutions)
-        elif item.nodeid.startswith("EMIT_TEST_PREFIX"):
+        elif item.nodeid.startswith(EMIT_TEST_PREFIX):
             item.add_marker(pytest.mark.emit)
 
 
