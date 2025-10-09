@@ -8158,7 +8158,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                     last_theta = angles["0.0deg"][-1]
                     if last_theta != 90:
                         next_theta = last_theta + theta_step
-                        while next_theta.value <= 90.0:
+                        while next_theta <= 90.0:
                             next_theta += theta_step
                             for _ in frequencies:
                                 if is_reflection:
@@ -8254,7 +8254,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                     if not is_reflection:
                         theta_list.reverse()
                         for t in theta_list:
-                            vkey = (t.value, phi_q.value)
+                            vkey = (t, phi_q.value)
                             # R TE TE (inverse)
                             r_te_inv.active_variation = var_index[vkey]
                             re_r_te_te = r_te_inv.get_expression_data(formula="real")[1]

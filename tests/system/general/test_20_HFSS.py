@@ -2120,6 +2120,11 @@ class TestClass:
         output1 = fresnel.get_fresnel_coefficients(setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P")
         assert output1.is_file()
 
+        output1_anisotropic = fresnel.get_fresnel_coefficients(
+            setup_sweep="Anisotropic : LastAdaptive", theta_name="scan_T", phi_name="scan_P"
+        )
+        assert output1_anisotropic.is_file()
+
         # Duplicated file
         output2 = fresnel.get_fresnel_coefficients(
             setup_sweep="Setup2 : Sweep", theta_name="scan_T", phi_name="scan_P", output_file=file_name
@@ -2130,6 +2135,11 @@ class TestClass:
         fresnel.design_name = "one_port"
         output3 = fresnel.get_fresnel_coefficients(setup_sweep="Setup : Sweep", theta_name="scan_T", phi_name="scan_P")
         assert output3.is_file()
+
+        output3_anisotropic = fresnel.get_fresnel_coefficients(
+            setup_sweep="Anisotropic : LastAdaptive", theta_name="scan_T", phi_name="scan_P"
+        )
+        assert output3_anisotropic.is_file()
 
         # No parametric sweep
         fresnel.design_name = "one_port"
