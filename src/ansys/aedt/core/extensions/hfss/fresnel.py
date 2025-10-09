@@ -77,12 +77,13 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.fresnel_type = tkinter.StringVar(value="isotropic")
         self.setups = self.aedt_application.design_setups
         self.setup_sweep_names = []
-        self.setup_names = list(self.setups.keys())
 
         if not self.setups:
             self.setups = {"No Setup": None}
             self.setup_sweep_names = ["No Setup : No Sweep"]
+            self.setup_names = ["No Setup"]
         else:
+            self.setup_names = list(self.setups.keys())
             for setup_name, setup in self.setups.items():
                 self.setup_sweep_names.append(f"{setup_name} : LastAdaptive")
                 if setup.children:
