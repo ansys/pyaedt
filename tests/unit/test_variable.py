@@ -164,10 +164,10 @@ class TestClass:
         v3 = Variable("3mA")
         v4 = Variable("10A")
         with pytest.raises(ValueError):
-            v1 + v2
+            _ = v1 + v2
 
         with pytest.raises(ValueError):
-            v2 + v1
+            _ = v2 + v1
         result_1 = v2 + v2
         result_2 = v3 + v4
         result_3 = v3 + v3
@@ -190,10 +190,10 @@ class TestClass:
         v4 = Variable("10A")
 
         with pytest.raises(ValueError):
-            v1 - v2
+            _ = v1 - v2
 
         with pytest.raises(ValueError):
-            v2 - v1
+            _ = v2 - v1
 
         result_1 = v2 - v2
         result_2 = v3 - v4

@@ -1533,7 +1533,7 @@ class Variable(object):
                 if self._variable_name in list(self._oo(self._app.odesign, "DefinitionParameters").GetPropNames()):
                     return "DefinitionParameters"
             except Exception:  # pragma: no cover
-                pass
+                return "LocalVariables"
             # Otherwise it is either LocalVariables or Variables
             return "LocalVariables"
         return name
@@ -2083,7 +2083,7 @@ class Variable(object):
     def _units_fallback(self):
         units = self._units
         if not is_number(self._value):
-            _, unit = decompose_variable_value(self._value)
+            _, units = decompose_variable_value(self._value)
         self._units = units
         return self._units
 
