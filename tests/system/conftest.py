@@ -33,11 +33,11 @@ from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.hfss import Hfss
+from tests import TESTS_EXTENSIONS_PATH
+from tests import TESTS_FILTER_SOLUTIONS_PATH
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests import TESTS_VISUALIZATION_PATH
-from tests import TESTS_EXTENSIONS_PATH
-from tests import TESTS_FILTER_SOLUTIONS_PATH
 from tests.conftest import NONGRAPHICAL
 from tests.conftest import config
 
@@ -61,28 +61,28 @@ def desktop():
 def _get_test_path_from_caller():
     """Determine the appropriate test path based on the calling test's location."""
     import inspect
-    
+
     # Get the calling frame (skip this function and the fixture)
     frame = inspect.currentframe()
     try:
         # Go up the call stack to find the test file
         while frame:
             filename = frame.f_code.co_filename
-            if 'test_' in os.path.basename(filename) and 'tests' in filename:
-                if 'visualization' in filename:
+            if "test_" in os.path.basename(filename) and "tests" in filename:
+                if "visualization" in filename:
                     return TESTS_VISUALIZATION_PATH
-                elif 'solvers' in filename:
+                elif "solvers" in filename:
                     return TESTS_SOLVERS_PATH
-                elif 'extensions' in filename:
+                elif "extensions" in filename:
                     return TESTS_EXTENSIONS_PATH
-                elif 'filter_solutions' in filename:
+                elif "filter_solutions" in filename:
                     return TESTS_FILTER_SOLUTIONS_PATH
                 else:
                     return TESTS_GENERAL_PATH
             frame = frame.f_back
     finally:
         del frame
-    
+
     # Default fallback
     return TESTS_GENERAL_PATH
 
@@ -95,7 +95,7 @@ def add_app(local_scratch):
         if project_name and not just_open:
             # Dynamically determine the correct test path
             test_path = _get_test_path_from_caller()
-            
+
             example_project = os.path.join(test_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(test_path, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_project):
