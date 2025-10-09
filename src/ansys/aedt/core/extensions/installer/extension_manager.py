@@ -33,6 +33,7 @@ from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 import webbrowser
+import threading
 
 import PIL.Image
 import PIL.ImageTk
@@ -46,7 +47,7 @@ from ansys.aedt.core.extensions.customize_automation_tab import get_custom_exten
 from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
 from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
-from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon, ToolTip, check_for_pyaedt_update
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -56,52 +57,6 @@ PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
-
-
-class ToolTip:
-    """Create a tooltip for a given widget."""
-
-    def __init__(self, widget, text="Widget info"):
-        self.widget = widget
-        self.text = text
-        self.widget.bind("<Enter>", self.enter)
-        self.widget.bind("<Leave>", self.leave)
-        self.tipwindow = None
-
-    def enter(self, event=None):
-        """Show tooltip on mouse enter."""
-        self.show_tooltip()
-
-    def leave(self, event=None):
-        """Hide tooltip on mouse leave."""
-        self.hide_tooltip()
-
-    def show_tooltip(self):  # pragma: no cover
-        """Display tooltip."""
-        if self.tipwindow or not self.text:
-            return
-        x = self.widget.winfo_rootx() + 25
-        y = self.widget.winfo_rooty() + 25
-        self.tipwindow = tw = tkinter.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry("+%d+%d" % (x, y))
-        label = tkinter.Label(
-            tw,
-            text=self.text,
-            justify=tkinter.LEFT,
-            background="#ffffe0",
-            relief=tkinter.SOLID,
-            borderwidth=1,
-            font=("Arial", 9, "normal"),
-        )
-        label.pack(ipadx=1)
-
-    def hide_tooltip(self):  # pragma: no cover
-        """Hide tooltip."""
-        tw = self.tipwindow
-        self.tipwindow = None
-        if tw:
-            tw.destroy()
 
 
 EXTENSION_TITLE = "Extension Manager"
@@ -178,6 +133,12 @@ class ExtensionManager(ExtensionProjectCommon):
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
         self.root.update()
 
+        # After UI initialization schedule the non-blocking update check
+        try:
+            self.check_for_pyaedt_update_on_startup()
+        except Exception:  # don't let update checker break the UI
+            logging.getLogger("Global").debug("Failed to start pyaedt update checker", exc_info=True)
+
     def add_extension_content(self):
         """Add custom content to the extension."""
         # Main container (horizontal layout)
@@ -233,7 +194,7 @@ class ExtensionManager(ExtensionProjectCommon):
             left_canvas.configure(
                 scrollregion=left_canvas.bbox("all")
             )
-            # Show/hide scrollbar based on content overflow
+            # Show/hide scrollbar based on content overflows
             if _left_content_overflows():
                 left_scrollbar.grid(row=0, column=1, sticky="ns")
             else:
@@ -1338,9 +1299,132 @@ class ExtensionManager(ExtensionProjectCommon):
             messagebox.showerror("Error", msg)
             return False
 
+    def check_for_pyaedt_update_on_startup(self):
+        """Spawn a background thread to check PyPI for a newer PyAEDT release.
+        """
+        def worker():
+            log = logging.getLogger("Global")
+            try:
+                latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
+                if not latest:
+                    log.debug("PyAEDT update check: no prompt required or latest unavailable.")
+                    return
+                try:
+                    self.root.after(
+                        0,
+                        lambda: self.show_pyaedt_update_popup(latest, declined_file)
+                    )
+                except Exception:
+                    log.debug("PyAEDT update check: failed to schedule popup.", exc_info=True)
+            except Exception:
+                log.debug("PyAEDT update check: worker failed.", exc_info=True)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def show_pyaedt_update_popup(self, latest_version: str, declined_file_path: Path): # pragma: no cover
+        """Display a modal dialog offering Decline or Remind later and instruct user to open Version Manager."""
+        try:
+            dlg = tkinter.Toplevel(self.root)
+            dlg.title("PyAEDT Update")
+            dlg.resizable(False, False)
+
+            # Center dialog
+            try:
+                self.root.update_idletasks()
+                width, height = 500, 120
+                x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
+                y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
+                dlg.geometry(f"{width}x{height}+{x}+{y}")
+            except Exception:
+                logging.getLogger("Global").debug("Failed to center update popup", exc_info=True)
+
+            # Create frame for label and changelog button
+            label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
+            label_frame.pack(
+                padx=20, pady=(20, 10), expand=True, fill="both"
+            )
+
+            ttk.Label(
+                label_frame,
+                text=(
+                    f"A new version of PyAEDT is available: "
+                    f"{latest_version}\n"
+                    "To update PyAEDT, please open the "
+                    "Version Manager."
+                ),
+                style="PyAEDT.TLabel",
+                anchor="center",
+                justify="center",
+            ).pack(side="left", expand=True, fill="both")
+
+            def open_changelog():
+                try:
+                    url = ("https://aedt.docs.pyansys.com/version/stable/"
+                           "changelog.html")
+                    webbrowser.open(str(url))
+                    logging.getLogger("Global").info(
+                        "Opened PyAEDT changelog."
+                    )
+                except Exception:
+                    logging.getLogger("Global").debug(
+                        "Failed to open changelog", exc_info=True
+                    )
+
+            changelog_btn = ttk.Button(
+                label_frame,
+                text="?",
+                command=open_changelog,
+                style="PyAEDT.TButton",
+                width=3
+            )
+            changelog_btn.pack(side="right", padx=(5, 0))
+            ToolTip(changelog_btn, "View changelog")
+
+            btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
+            btn_frame.pack(padx=10, pady=(0, 10), fill="x")
+
+            def decline():
+                try:
+                    declined_file_path.parent.mkdir(
+                        parents=True, exist_ok=True
+                    )
+                    declined_file_path.write_text(
+                        latest_version, encoding="utf-8"
+                    )
+                except Exception:
+                    logging.getLogger("Global").debug(
+                        "PyAEDT update popup: failed to record "
+                        "declined version.",
+                        exc_info=True,
+                    )
+                dlg.destroy()
+
+            def remind():
+                dlg.destroy()
+
+            ttk.Button(
+                btn_frame, text="Decline", command=decline,
+                style="PyAEDT.TButton"
+            ).pack(side="left", expand=True, fill="x", padx=5)
+            ttk.Button(
+                btn_frame, text="Remind later", command=remind,
+                style="PyAEDT.TButton"
+            ).pack(side="left", expand=True, fill="x", padx=5)
+
+            dlg.transient(self.root)
+            dlg.grab_set()
+            self.root.wait_window(dlg)
+        except Exception:
+            logging.getLogger("Global").debug(
+                "PyAEDT update popup: failed to display.",
+                exc_info=True
+            )
+
 
 if __name__ == "__main__":  # pragma: no cover
     # Open UI
-    extension: ExtensionProjectCommon = ExtensionManager(withdraw=False)
+    extension: ExtensionProjectCommon = ExtensionManager(
+        withdraw=False
+    )
 
     tkinter.mainloop()
