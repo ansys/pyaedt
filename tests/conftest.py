@@ -50,8 +50,6 @@ EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
 
-# Initialize default configuration - shared across all test types
-os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
 DEFAULT_CONFIG = {
     "desktopVersion": "2025.2",
