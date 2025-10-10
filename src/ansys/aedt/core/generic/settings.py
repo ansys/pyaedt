@@ -39,7 +39,6 @@ The second class is intended for internal use only and shouldn't be modified by 
 import logging
 import os
 from pathlib import Path
-import platform
 import time
 from typing import Any
 from typing import List
@@ -53,8 +52,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
-system = platform.system()
-is_linux = system == "Linux"
+is_linux = os.name == "posix"
 
 # Settings allowed to be updated using a YAML configuration file.
 ALLOWED_LOG_SETTINGS = [

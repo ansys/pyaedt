@@ -29,6 +29,7 @@ from __future__ import annotations
 from abc import abstractmethod
 import argparse
 from dataclasses import dataclass
+import logging
 import os
 from pathlib import Path
 import sys
@@ -43,6 +44,7 @@ from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
+import requests
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core.base import PyAedtBase
@@ -86,6 +88,76 @@ def is_student():
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
+
+
+def get_latest_version(package_name, timeout=3):
+    """Return latest version string from PyPI or 'Unknown' on failure."""
+    UNKNOWN_VERSION = "Unknown"
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("info", {}).get("version", UNKNOWN_VERSION)
+        return UNKNOWN_VERSION
+    except Exception:
+        return UNKNOWN_VERSION
+
+
+def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
+    """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
+
+    Returns
+    -------
+    tuple[str | None, pathlib.Path | None]
+        (latest_version, declined_file_path) if the UI should prompt the user,
+        otherwise (None, None).
+    """
+
+    def compare_versions(local: str, remote: str) -> bool:
+        """Return True if local < remote (very loose numeric comparison)."""
+
+        def to_tuple(v: str):
+            out = []
+            for token in v.split("."):
+                try:
+                    out.append(int(token))
+                except Exception:  # pragma: no cover
+                    break
+            return tuple(out)
+
+        try:
+            return to_tuple(local) < to_tuple(remote)
+        except Exception:  # pragma: no cover
+            return False
+
+    log = logging.getLogger("Global")
+
+    latest = get_latest_version("pyaedt")
+    if not latest or latest == "Unknown":
+        log.debug("PyAEDT update check: latest version unavailable.")
+        return None, None
+
+    # Resolve user toolkit directory
+    try:
+        toolkit_dir = Path(personallib) / "Toolkits"
+    except Exception:  # pragma: no cover
+        log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
+        return None, None
+
+    declined_file = toolkit_dir / ".pyaedt_version"
+    declined_version = None
+    if declined_file.is_file():
+        try:
+            declined_version = declined_file.read_text(encoding="utf-8").strip()
+        except Exception:  # pragma: no cover
+            declined_version = None
+
+    prompt_user = declined_version is None or compare_versions(declined_version, latest)
+
+    if not prompt_user:
+        return None, None
+
+    return latest, declined_file
 
 
 @dataclass
@@ -925,3 +997,49 @@ def __parse_arguments(args=None, description=""):  # pragma: no cover
             parser.add_argument(f"--{arg}", default=args[arg])
     parsed_args = parser.parse_args()
     return parsed_args
+
+
+class ToolTip:
+    """Create a tooltip for a given widget."""
+
+    def __init__(self, widget, text="Widget info"):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.tipwindow = None
+
+    def enter(self, event=None):
+        """Show tooltip on mouse enter."""
+        self.show_tooltip()
+
+    def leave(self, event=None):
+        """Hide tooltip on mouse leave."""
+        self.hide_tooltip()
+
+    def show_tooltip(self):  # pragma: no cover
+        """Display tooltip."""
+        if self.tipwindow or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tkinter.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffe0",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("Arial", 9, "normal"),
+        )
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self):  # pragma: no cover
+        """Hide tooltip."""
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
