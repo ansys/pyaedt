@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [block-pyansys-ci-bot]
     permissions:
-      contents: read
+      pull-requests: read
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
