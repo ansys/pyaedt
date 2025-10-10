@@ -32,7 +32,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeE
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.system.extensions.conftest import local_path as extensions_local_path
+from tests.conftest import local_path as extensions_local_path
 
 pytest.importorskip("pyedb", "0.21.0")
 

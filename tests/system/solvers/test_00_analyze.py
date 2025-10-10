@@ -41,8 +41,8 @@ from ansys.aedt.core.modules.profile import MemoryGB
 from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.profile import SimulationProfile
 from ansys.aedt.core.visualization.post.spisim import SpiSim
-from tests.system.solvers.conftest import desktop_version
-from tests.system.solvers.conftest import local_path
+from tests.conftest import desktop_version
+from tests.conftest import local_path
 
 sbr_platform_name = "satellite_231"
 icepak_solved_name = "icepak_summary_solved"

@@ -31,10 +31,10 @@ from ansys.aedt.core import Desktop
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import NONGRAPHICAL
-from tests.system.general.conftest import config
-from tests.system.general.conftest import desktop_version
-from tests.system.general.conftest import new_thread
+from tests.conftest import NONGRAPHICAL
+from tests.conftest import config
+from tests.conftest import desktop_version
+from tests.conftest import new_thread
 
 test_subfolder = "T34"
 

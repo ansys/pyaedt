@@ -30,7 +30,7 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosRespons
 from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.filter_solutions.conftest import config
+from tests.conftest import config
 from tests.system.filter_solutions.resources import read_resource_file
 
 

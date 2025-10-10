@@ -32,7 +32,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClustering
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.system.extensions.conftest import local_path as extensions_local_path
+from tests.conftest import local_path as extensions_local_path
 
 
 def test_via_clustering_main_function(local_scratch):

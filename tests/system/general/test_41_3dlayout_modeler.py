@@ -36,7 +36,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
