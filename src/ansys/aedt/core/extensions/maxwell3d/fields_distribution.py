@@ -289,13 +289,14 @@ class FieldsDistributionExtension(ExtensionCommon):
 
             def submit():
                 if option_var.get() == "Option 1":
-                    from ansys.aedt.core.extensions.common.points_cloud import main as points_main
+                    from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionData, main as points_main
 
                     selected_objects = self._widgets["objects_list_lb"].curselection()
                     objects_list = [self._widgets["objects_list_lb"].get(i) for i in selected_objects]
                     points = points_entry.get("1.0", tkinter.END).strip()
                     try:
-                        pts_path = points_main({"is_test": False, "choice": objects_list, "points": int(points)})
+                        data = PointsCloudExtensionData(choice=objects_list, points=int(points))
+                        pts_path = points_main(data)
                         self._text_size(pts_path, self._widgets["sample_points_entry"])
                     except Exception as e:
                         messagebox.showerror("Error", f"Failed to generate points: {str(e)}")
