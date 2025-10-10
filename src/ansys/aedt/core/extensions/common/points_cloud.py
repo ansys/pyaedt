@@ -98,7 +98,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         ]:
             self.release_desktop()
             raise AEDTRuntimeError(
-                "This extension only works with HFSS, Icepak, HFSS 3D, " \
+                "This extension only works with HFSS, Icepak, HFSS 3D, "
                 "Maxwell 3D, Maxwell 2D, Q3D, or Mechanical designs."
             )
 
