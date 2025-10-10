@@ -22,12 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 import os
 from pathlib import Path
 import platform
 import shutil
 import subprocess  # nosec
 import sys
+import threading
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -38,9 +40,9 @@ import zipfile
 import defusedxml
 import PIL.Image
 import PIL.ImageTk
-import requests
 
 import ansys.aedt.core
+from ansys.aedt.core.extensions.misc import ToolTip, check_for_pyaedt_update, get_aedt_version, get_latest_version, get_port, get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
 
 defusedxml.defuse_stdlib()
@@ -54,19 +56,6 @@ DISCLAIMER = (
     "Do you want to proceed?\n"
 )
 UNKNOWN_VERSION = "Unknown"
-
-
-def get_latest_version(package_name, timeout=3):
-    try:
-        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
-        if response.status_code == 200:
-            data = response.json()
-            return data["info"]["version"]
-        else:
-            return UNKNOWN_VERSION
-    except Exception:
-        return UNKNOWN_VERSION
-
 
 class VersionManager:
     TITLE = "Version Manager"
@@ -114,15 +103,12 @@ class VersionManager:
 
     @property
     def personal_lib(self):
-        from ansys.aedt.core.internal.desktop_sessions import (
-            _desktop_sessions,
-        )
-        d = list(_desktop_sessions.values())[0]
-        return d.personallib
+        return self.desktop.personallib
 
-    def __init__(self, ui):
+    def __init__(self, ui, desktop):
         from ansys.aedt.core.extensions.misc import ExtensionTheme
 
+        self.desktop = desktop
         self.is_linux = is_linux
         self.is_windows = not is_linux
         self.change_theme_button = None
@@ -184,6 +170,10 @@ class VersionManager:
         self.create_ui_advanced(tab_advanced)
 
         self.clicked_refresh()
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+
+        # Check for PyAEDT updates on startup
+        self.check_for_pyaedt_update_on_startup()
 
     def toggle_theme(self):
         if self.theme_color == "light":
@@ -696,10 +686,155 @@ class VersionManager:
             self.pyaedt_info.set(f"PyAEDT: {pyaedt_installed} (Latest {latest_pyaedt})")
             self.pyedb_info.set(f"PyEDB: {pyedb_installed} (Latest {latest_pyedb})")
             messagebox.showinfo("Message", "Done")
+    def _on_close(self):
+        """Best-effort cleanup when the extension window is closed.
+
+        If a Desktop instance was provided, attempt to release it (without
+        closing AEDT). Finally, destroy the Tk root window.
+        """
+        try:
+            desktop_obj = getattr(self, "desktop", None)
+            if desktop_obj is not None:
+                try:
+                    # Release desktop without closing projects or AEDT app.
+                    desktop_obj.release_desktop(False, False)
+                except Exception:
+                    # Swallow all exceptions to avoid preventing the UI from closing.
+                    logging.getLogger("Global").debug("Failed to release desktop", exc_info=True)
+        finally:
+            try:
+                # Attempt to close the Tk window regardless of desktop release outcome.
+                if getattr(self, "root", None) is not None:
+                    self.root.destroy()
+            except Exception:
+                logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
+
+    def check_for_pyaedt_update_on_startup(self):
+        """Spawn a background thread to check PyPI for a newer PyAEDT release."""
+        def worker():
+            log = logging.getLogger("Global")
+            try:
+                latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
+                if not latest:
+                    log.debug("PyAEDT update check: no prompt required or latest unavailable.")
+                    return
+                try:
+                    self.root.after(
+                        0,
+                        lambda: self.show_pyaedt_update_notification(latest, declined_file)
+                    )
+                except Exception:
+                    log.debug("PyAEDT update check: failed to schedule notification.", exc_info=True)
+            except Exception:
+                log.debug("PyAEDT update check: worker failed.", exc_info=True)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
+        """Display a notification dialog informing the user about a new PyAEDT version."""
+        try:
+            dlg = tkinter.Toplevel(self.root)
+            dlg.title("PyAEDT Update Available")
+            dlg.resizable(False, False)
+
+            # Center dialog
+            try:
+                self.root.update_idletasks()
+                width, height = 500, 150
+                x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
+                y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
+                dlg.geometry(f"{width}x{height}+{x}+{y}")
+            except Exception:
+                logging.getLogger("Global").debug("Failed to center update notification", exc_info=True)
+
+            # Create frame for label and changelog button
+            label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
+            label_frame.pack(
+                padx=20, pady=(20, 10), expand=True, fill="both"
+            )
+
+            ttk.Label(
+                label_frame,
+                text=(
+                    f"A new version of PyAEDT is available: "
+                    f"{latest_version}\n"
+                    "You can update it using the buttons in this "
+                    "Version Manager."
+                ),
+                style="PyAEDT.TLabel",
+                anchor="center",
+                justify="center",
+            ).pack(side="left", expand=True, fill="both")
+
+            def open_changelog():
+                try:
+                    url = ("https://aedt.docs.pyansys.com/version/stable/"
+                           "changelog.html")
+                    webbrowser.open(str(url))
+                    logging.getLogger("Global").info(
+                        "Opened PyAEDT changelog."
+                    )
+                except Exception:
+                    logging.getLogger("Global").debug(
+                        "Failed to open changelog", exc_info=True
+                    )
+
+            changelog_btn = ttk.Button(
+                label_frame,
+                text="?",
+                command=open_changelog,
+                style="PyAEDT.TButton",
+                width=3
+            )
+            changelog_btn.pack(side="right", padx=(5, 0))
+            ToolTip(changelog_btn, "View changelog")
+
+            btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
+            btn_frame.pack(padx=10, pady=(0, 10), fill="x")
+
+            def close_notification():
+                # Save the declined version to avoid showing again
+                try:
+                    declined_file_path.parent.mkdir(parents=True, exist_ok=True)
+                    declined_file_path.write_text(latest_version, encoding="utf-8")
+                except Exception:
+                    logging.getLogger("Global").debug(
+                        "PyAEDT update notification: failed to record declined version.",
+                        exc_info=True,
+                    )
+                dlg.destroy()
+
+            ttk.Button(btn_frame, text="Close", command=close_notification, style="PyAEDT.TButton").pack(
+                expand=True, fill="x", padx=5
+            )
+
+            dlg.transient(self.root)
+            dlg.grab_set()
+            self.root.wait_window(dlg)
+        except Exception:
+            logging.getLogger("Global").debug("PyAEDT update notification: failed to display.", exc_info=True)
+
+
+def get_desktop():
+    port = get_port()
+    aedt_version = get_aedt_version()
+    aedt_process_id = get_process_id()
+
+    if aedt_process_id is not None:
+        new_desktop = False
+        ng = False
+    else:
+        new_desktop = True
+        ng = True
+
+    aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
+
+    return aedtapp
 
 
 if __name__ == "__main__": # pragma: no cover
     # Initialize tkinter root window and run the app
+    desktop = get_desktop()
     root = tkinter.Tk()
-    app = VersionManager(root)
+    app = VersionManager(root, desktop)
     root.mainloop()

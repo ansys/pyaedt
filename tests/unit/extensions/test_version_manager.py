@@ -30,6 +30,7 @@ from unittest.mock import patch
 import zipfile
 
 from ansys.aedt.core.extensions.installer import version_manager as vm
+from ansys.aedt.core.extensions.misc import get_latest_version
 
 # Use a platform-safe temporary personal lib path instead of hard-coded '/tmp/personal'
 PERSONAL_LIB = os.path.join(tempfile.gettempdir(), "personal")
@@ -38,7 +39,7 @@ PERSONAL_LIB = os.path.join(tempfile.gettempdir(), "personal")
 os.environ.setdefault("PYTEST_CURRENT_TEST", "1")
 
 
-@patch("ansys.aedt.core.extensions.installer.version_manager.requests.get")
+@patch("ansys.aedt.core.extensions.misc.requests.get")
 def test_get_latest_version_success_and_failure(mock_get):
     class Resp:
         status_code = 200
@@ -47,19 +48,19 @@ def test_get_latest_version_success_and_failure(mock_get):
             return {"info": {"version": "1.2.3"}}
 
     mock_get.return_value = Resp()
-    assert vm.get_latest_version("pyaedt") == "1.2.3"
+    assert get_latest_version("pyaedt") == "1.2.3"
 
     class BadResp:
         status_code = 404
 
     mock_get.return_value = BadResp()
-    assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
+    assert get_latest_version("pyaedt") == "Unknown"
 
     def raise_exc(*a, **k):
         raise RuntimeError()
 
     mock_get.side_effect = raise_exc
-    assert vm.get_latest_version("pyaedt") == vm.UNKNOWN_VERSION
+    assert get_latest_version("pyaedt") == "Unknown"
 
 
 def _make_vm():
@@ -160,7 +161,7 @@ def _make_vm():
     desktop.release_desktop = MagicMock()
 
     # Instantiate
-    manager = vm.VersionManager(ui)
+    manager = vm.VersionManager(ui, desktop)
     manager.update_and_reload = MagicMock()
 
     return manager
@@ -571,3 +572,272 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     pip_args = manager.update_and_reload.call_args[0][0]
     assert any("-U" in str(x) for x in pip_args) and any("pyaedt" in str(x) for x in pip_args)
     assert any("pyedb" in str(x) for x in pip_args)
+
+
+def test_on_close_normal_operation():
+    """Test _on_close method under normal operation."""
+    manager = _make_vm()
+
+    # Mock desktop and root objects
+    manager.desktop = MagicMock()
+    manager.root = MagicMock()
+
+    # Call _on_close
+    manager._on_close()
+
+    # Verify desktop.release_desktop was called with correct arguments
+    manager.desktop.release_desktop.assert_called_once_with(False, False)
+
+    # Verify root.destroy was called
+    manager.root.destroy.assert_called_once()
+
+
+def test_on_close_desktop_exception():
+    """Test _on_close method when desktop raises an exception."""
+    manager = _make_vm()
+
+    # Mock desktop to raise exception and root
+    manager.desktop = MagicMock()
+    manager.desktop.release_desktop.side_effect = Exception("Desktop release failed")
+    manager.root = MagicMock()
+
+    # Call _on_close - should not raise exception
+    manager._on_close()
+
+    # Verify desktop.release_desktop was called
+    manager.desktop.release_desktop.assert_called_once_with(False, False)
+
+    # Verify root.destroy was still called despite desktop exception
+    manager.root.destroy.assert_called_once()
+
+
+def test_on_close_root_exception():
+    """Test _on_close method when root.destroy raises an exception."""
+    manager = _make_vm()
+
+    # Mock desktop and root that raises exception
+    manager.desktop = MagicMock()
+    manager.root = MagicMock()
+    manager.root.destroy.side_effect = Exception("Root destroy failed")
+
+    # Call _on_close - should not raise exception
+    manager._on_close()
+
+    # Verify desktop.release_desktop was called
+    manager.desktop.release_desktop.assert_called_once_with(False, False)
+
+    # Verify root.destroy was called
+    manager.root.destroy.assert_called_once()
+
+
+def test_on_close_no_desktop():
+    """Test _on_close method when desktop is None."""
+    manager = _make_vm()
+
+    # Set desktop to None and mock root
+    manager.desktop = None
+    manager.root = MagicMock()
+
+    # Call _on_close
+    manager._on_close()
+
+    # Verify root.destroy was called
+    manager.root.destroy.assert_called_once()
+
+
+def test_on_close_no_root():
+    """Test _on_close method when root is None."""
+    manager = _make_vm()
+
+    # Mock desktop and set root to None
+    manager.desktop = MagicMock()
+    manager.root = None
+
+    # Call _on_close
+    manager._on_close()
+
+    # Verify desktop.release_desktop was called
+    manager.desktop.release_desktop.assert_called_once_with(False, False)
+
+
+def test_on_close_both_exceptions():
+    """Test _on_close when both desktop and root raise exceptions."""
+    manager = _make_vm()
+
+    # Mock both to raise exceptions
+    manager.desktop = MagicMock()
+    manager.desktop.release_desktop.side_effect = Exception("Desktop failed")
+    manager.root = MagicMock()
+    manager.root.destroy.side_effect = Exception("Root failed")
+
+    # Call _on_close - should not raise exception
+    manager._on_close()
+
+    # Verify both were called despite exceptions
+    manager.desktop.release_desktop.assert_called_once_with(False, False)
+    manager.root.destroy.assert_called_once()
+
+
+@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
+@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
+def test_check_for_pyaedt_update_on_startup_success(mock_check_update, mock_thread):
+    """Test check_for_pyaedt_update_on_startup when update is available."""
+    manager = _make_vm()
+
+    # Mock check_for_pyaedt_update to return an update
+    mock_check_update.return_value = ("1.5.0", "/path/to/declined.txt")
+
+    # Mock root.after to capture the scheduled callback
+    manager.root.after = MagicMock()
+
+    # Call the method
+    manager.check_for_pyaedt_update_on_startup()
+
+    # Verify thread was created and started
+    assert mock_thread.called
+    thread_args = mock_thread.call_args
+    assert thread_args[1]["daemon"] is True
+
+    # Get the worker function and call it
+    worker_func = thread_args[1]["target"]
+    worker_func()
+
+    # Verify check_for_pyaedt_update was called with personal lib path
+    mock_check_update.assert_called_once_with(manager.desktop.personallib)
+
+    # Verify root.after was called to schedule notification
+    manager.root.after.assert_called_once()
+    assert manager.root.after.call_args[0][0] == 0  # First argument should be 0
+
+
+@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
+@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
+def test_check_for_pyaedt_update_on_startup_no_update(mock_check_update, mock_thread):
+    """Test check_for_pyaedt_update_on_startup when no update is needed."""
+    manager = _make_vm()
+
+    # Mock check_for_pyaedt_update to return no update
+    mock_check_update.return_value = (None, "/path/to/declined.txt")
+
+    # Mock root.after to verify it's not called
+    manager.root.after = MagicMock()
+
+    # Call the method
+    manager.check_for_pyaedt_update_on_startup()
+
+    # Get the worker function and call it
+    worker_func = mock_thread.call_args[1]["target"]
+    worker_func()
+
+    # Verify check_for_pyaedt_update was called
+    mock_check_update.assert_called_once_with(manager.desktop.personallib)
+
+    # Verify root.after was NOT called since no update available
+    manager.root.after.assert_not_called()
+
+
+@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
+@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
+@patch("ansys.aedt.core.extensions.installer.version_manager.logging.getLogger")
+def test_check_for_pyaedt_update_on_startup_exception_in_worker(mock_get_logger, mock_check_update, mock_thread):
+    """Test check_for_pyaedt_update_on_startup when worker encounters exception."""
+    manager = _make_vm()
+
+    # Mock logger
+    mock_logger = MagicMock()
+    mock_get_logger.return_value = mock_logger
+
+    # Mock check_for_pyaedt_update to raise exception
+    mock_check_update.side_effect = Exception("Check update failed")
+
+    # Call the method
+    manager.check_for_pyaedt_update_on_startup()
+
+    # Get the worker function and call it
+    worker_func = mock_thread.call_args[1]["target"]
+    worker_func()
+
+    # Verify exception was logged
+    mock_logger.debug.assert_called_with("PyAEDT update check: worker failed.", exc_info=True)
+
+
+@patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
+@patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
+@patch("ansys.aedt.core.extensions.installer.version_manager.logging.getLogger")
+def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, mock_check_update, mock_thread):
+    """Test check_for_pyaedt_update_on_startup when root.after fails."""
+    manager = _make_vm()
+
+    # Mock logger
+    mock_logger = MagicMock()
+    mock_get_logger.return_value = mock_logger
+
+    # Mock check_for_pyaedt_update to return an update
+    mock_check_update.return_value = ("1.5.0", "/path/to/declined.txt")
+
+    # Mock root.after to raise exception
+    manager.root.after = MagicMock(side_effect=Exception("After failed"))
+
+    # Call the method
+    manager.check_for_pyaedt_update_on_startup()
+
+    # Get the worker function and call it
+    worker_func = mock_thread.call_args[1]["target"]
+    worker_func()
+
+    # Verify exception was logged
+    mock_logger.debug.assert_called_with("PyAEDT update check: failed to schedule notification.", exc_info=True)
+
+
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_port")
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_aedt_version")
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_process_id")
+@patch("ansys.aedt.core.extensions.installer.version_manager.ansys.aedt.core.Desktop")
+def test_get_desktop_with_existing_process(
+    mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
+):
+    """Test get_desktop when AEDT process already exists."""
+    # Mock return values
+    mock_get_port.return_value = 12345
+    mock_get_aedt_version.return_value = "2024.1"
+    mock_get_process_id.return_value = 9876  # Existing process
+
+    # Mock Desktop instance
+    mock_desktop_instance = MagicMock()
+    mock_desktop_class.return_value = mock_desktop_instance
+
+    # Call get_desktop
+    result = vm.get_desktop()
+
+    # Verify Desktop was called with correct parameters for existing process
+    mock_desktop_class.assert_called_once_with(new_desktop=False, version="2024.1", port=12345, non_graphical=False)
+
+    # Verify the result is the mock instance
+    assert result == mock_desktop_instance
+
+
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_port")
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_aedt_version")
+@patch("ansys.aedt.core.extensions.installer.version_manager.get_process_id")
+@patch("ansys.aedt.core.extensions.installer.version_manager.ansys.aedt.core.Desktop")
+def test_get_desktop_without_existing_process(
+    mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
+):
+    """Test get_desktop when no AEDT process exists."""
+    # Mock return values
+    mock_get_port.return_value = 54321
+    mock_get_aedt_version.return_value = "2023.2"
+    mock_get_process_id.return_value = None  # No existing process
+
+    # Mock Desktop instance
+    mock_desktop_instance = MagicMock()
+    mock_desktop_class.return_value = mock_desktop_instance
+
+    # Call get_desktop
+    result = vm.get_desktop()
+
+    # Verify Desktop was called with correct parameters for new process
+    mock_desktop_class.assert_called_once_with(new_desktop=True, version="2023.2", port=54321, non_graphical=True)
+
+    # Verify the result is the mock instance
+    assert result == mock_desktop_instance
