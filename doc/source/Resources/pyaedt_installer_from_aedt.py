@@ -375,7 +375,7 @@ def install_pyaedt():
                 else:
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
             except subprocess.CalledProcessError as e:
-                print(f"uv installation failed with error: {e}")
+                print("uv installation failed")
                 print("Falling back to pip for package installation...")
                 uv_available = False
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
@@ -442,7 +442,7 @@ def install_pyaedt():
                 else:
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
             except subprocess.CalledProcessError as e:
-                print(f"uv installation failed with error: {e}")
+                print("uv installation failed with")
                 print("Falling back to pip for package installation...")
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "uninstall", "pyaedt", "-y"], check=True, env=env)  # nosec
                 if args.version <= "231":
