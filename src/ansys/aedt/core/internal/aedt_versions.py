@@ -34,12 +34,13 @@ from pathlib import Path
 import re
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
 CURRENT_STABLE_AEDT_VERSION = 2025.2
 
 
-class AedtVersions:
+class AedtVersions(PyAedtBase):
     """Class to get the AEDT versions on the system.
 
     It caches the data to avoid inspecting the environment variables multiple times.

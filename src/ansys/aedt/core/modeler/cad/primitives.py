@@ -34,6 +34,7 @@ import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane as PlaneEnum
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.file_utils import _uname
@@ -220,7 +221,7 @@ class Objects(dict):
         self.__refreshed = False
 
 
-class GeometryModeler(Modeler):
+class GeometryModeler(Modeler, PyAedtBase):
     """Manages the main AEDT Modeler functionalities for geometry-based designs.
 
     Parameters
@@ -379,7 +380,7 @@ class GeometryModeler(Modeler):
                 except Exception:
                     self.Z = 0
 
-    class SweepOptions(object):
+    class SweepOptions(PyAedtBase):
         """Manages sweep options.
 
         Parameters
@@ -9079,7 +9080,7 @@ class GeometryModeler(Modeler):
         return True
 
 
-class PrimitivesBuilder(object):
+class PrimitivesBuilder(PyAedtBase):
     """Create primitives from a JSON file or dictionary of properties.
 
     Parameters
