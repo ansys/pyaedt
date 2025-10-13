@@ -1029,12 +1029,12 @@ class ExtensionManager(ExtensionProjectCommon):
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
 
             existing_keys = {k.lower() for k in self.toolkits.get(product, {}).keys()}
-            if name.lower() in existing_keys:
-                messagebox.showerror( # pragma: no cover
+            if name.lower() in existing_keys:  # pragma: no cover
+                messagebox.showerror(
                     "Error",
                     f"An extension named '{name}' already exists in {product}. Please choose a different name.",
                 )
-                return # pragma: no cover
+                return
 
             if is_extension_in_panel(str(toolkit_dir), product, name):  # pragma: no cover
                 messagebox.showerror(
