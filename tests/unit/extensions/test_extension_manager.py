@@ -44,6 +44,7 @@ def disable_pyaedt_update_check(monkeypatch):
     )
     yield
 
+
 @pytest.fixture
 def mock_aedt_app():
     """Fixture que crea una aplicación AEDT falsa."""
@@ -774,9 +775,7 @@ def test_extension_manager_launch_web_url_custom(mock_desktop, mock_toolkits, mo
 
     result = extension.launch_web_url("HFSS", "Custom")
 
-    mock_webbrowser.assert_called_once_with(
-        "https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html"
-    )
+    mock_webbrowser.assert_called_once_with("https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html")
     assert result is True
 
     extension.root.destroy()
@@ -807,7 +806,9 @@ def test_extension_manager_launch_web_url_no_url(mock_toolkits, mock_desktop, mo
 def test_extension_manager_launch_web_url_exception(mock_webbrowser, mock_toolkits, mock_desktop, mock_aedt_app):
     """If opening the browser raises, show an error and return False."""
     mock_desktop.return_value = MagicMock()
-    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "url": "https://example.com"}}}
+    toolkit_data = {
+        "HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "url": "https://example.com"}}
+    }
     mock_toolkits.return_value = toolkit_data
 
     extension = ExtensionManager(withdraw=True)
