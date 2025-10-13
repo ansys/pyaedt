@@ -1036,12 +1036,12 @@ class ExtensionManager(ExtensionProjectCommon):
                 )
                 return # pragma: no cover
 
-            if is_extension_in_panel(str(toolkit_dir), product, name):
-                messagebox.showerror( # pragma: no cover
+            if is_extension_in_panel(str(toolkit_dir), product, name):  # pragma: no cover
+                messagebox.showerror(
                     "Error",
                     f"An extension named '{name}' already exists in {product}. Please choose a different name.",
                 )
-                return # pragma: no cover
+                return
 
             result["script_file"] = script_path.resolve()
             result["display_name"] = name
