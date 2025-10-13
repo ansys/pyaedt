@@ -22,11 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import logging
 import secrets
 
-from mock import PropertyMock
-from mock import patch
 import pytest
 
 from ansys.aedt.core.generic.constants import Axis
@@ -1235,31 +1232,82 @@ class TestClass:
         assert go.is_vector_equal(y, [0.19470872568244801, 0.9374864569895649, -0.28845737138140465])
         assert go.is_vector_equal(z, [-0.681598176590997, 0.3407990882954985, 0.6475182677614472])
 
-    def test_65_project_sheet(self, caplog: pytest.LogCaptureFixture):
-        rect1 = self.aedtapp.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet1")
-        rect2 = self.aedtapp.modeler.create_rectangle(Plane.XY, [-3, -3, 15], [6, 16], "sheet2")
-        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box1")
-        box2 = self.aedtapp.modeler.create_box([-1, -1, 10], [2, 2, 2], "box2")
-        assert self.aedtapp.modeler.project_sheet(rect1, box1, 1)
-        self.aedtapp.odesign.Undo()
-        assert self.aedtapp.modeler.project_sheet(rect1, [box1, box2], 1)
-        self.aedtapp.odesign.Undo()
+    def test_project_sheet_success_with_single_object(self):
+        """Test project sheet method with a single object."""
+        EXPECTED_POSITIONS = [
+            [5.0, -5.0, 11.0],
+            [5.0, -5.0, 10.0],
+            [-5.0, -5.0, 11.0],
+            [-5.0, -5.0, 10.0],
+            [-5.0, 10.0, 10.0],
+            [5.0, 10.0, 10.0],
+            [5.0, 11.0, 11.0],
+            [-5.0, 11.0, 11.0],
+            [5.0, 10.0, -10.0],
+            [-5.0, 10.0, -10.0],
+            [-5.0, 11.0, -11.0],
+            [5.0, 11.0, -11.0],
+        ]
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet_project_operation")
+        box = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation")
 
-        with patch.object(
-            type(self.aedtapp.modeler),
-            "unclassified_objects",
-            new_callable=PropertyMock,
-            side_effect=[["unclassified"], ["unclassified", "unclassified2"]],
-        ):
-            self.aedtapp.logger.clear_messages(level=2)
-            result = self.aedtapp.modeler.project_sheet(rect1, box1, 1)
-            assert [
-                record
-                for record in caplog.records
-                if record.levelno == logging.ERROR
-                and record.message == "Failed to Project Sheet. Reverting to original objects."
-            ]
-            assert not result
+        assert self.aedtapp.modeler.project_sheet(rect, box, 1, keep_originals=False)
 
-        self.aedtapp.modeler.subtract([rect1], [rect2])
-        assert not self.aedtapp.modeler.project_sheet(rect1, [box1, box2], 5)  # This projection will fail.
+        obj = self.aedtapp.modeler.get_object_from_name("sheet_project_operation")
+        assert obj is not None, "Expected object not found"
+        assert 12 == len(obj.vertices), "Object has not the number of expected vertices"
+        positions = [vertex.position for vertex in list(obj.vertices)]
+        assert sorted(EXPECTED_POSITIONS) == sorted(positions), "Object has not the expected vertices positions"
+        self.aedtapp.modeler.delete(self.aedtapp.modeler.object_names)
+
+    def test_project_sheet_success_with_multiple_objects(self):
+        """Test project sheet method with multiple objects."""
+        EXPECTED_POSITIONS = [
+            [5.0, -5.0, 11.0],
+            [5.0, -5.0, 10.0],
+            [-5.0, -5.0, 11.0],
+            [-5.0, -5.0, 10.0],
+            [-5.0, 10.0, 10.0],
+            [5.0, 10.0, 10.0],
+            [5.0, 11.0, 11.0],
+            [-5.0, 11.0, 11.0],
+            [5.0, 10.0, -10.0],
+            [-5.0, 10.0, -10.0],
+            [-5.0, 11.0, -11.0],
+            [5.0, 11.0, -11.0],
+            [-2.0, 2, 13.0],
+            [-2.0, -2, 13.0],
+            [-2.0, -2, 11.0],
+            [-2.0, 2, 11.0],
+            [2.0, -2, 13.0],
+            [2.0, 2, 13.0],
+            [2.0, -2, 11.0],
+            [2.0, 2, 11.0],
+            [-1.0, 1.0, 10.0],
+            [-1.0, -1.0, 10.0],
+            [1.0, 1.0, 10.0],
+            [1.0, -1.0, 10.0],
+            [1.0, -1.0, 12.0],
+            [-1.0, -1.0, 12.0],
+            [1.0, 1.0, 12.0],
+            [-1.0, 1.0, 12.0],
+        ]
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet_project_operation")
+        box_0 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation_0")
+        box_1 = self.aedtapp.modeler.create_box([-1, -1, 10], [2, 2, 2], "box_project_operation_1")
+
+        assert self.aedtapp.modeler.project_sheet(rect, [box_0, box_1], 1, keep_originals=False)
+
+        obj = self.aedtapp.modeler.get_object_from_name("sheet_project_operation")
+        assert obj is not None, "Expected object not found"
+        assert 28 == len(obj.vertices), "Object has not the number of expected vertices"
+        positions = [vertex.position for vertex in list(obj.vertices)]
+        assert sorted(EXPECTED_POSITIONS) == sorted(positions), "Object has not the expected vertices positions"
+        self.aedtapp.modeler.delete(self.aedtapp.modeler.object_names)
+
+    def test_project_sheet_failure(self):
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [-5, -5, 15], [10, 20], "sheet_project_operation")
+        box_0 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_project_operation_0")
+
+        assert not self.aedtapp.modeler.project_sheet(rect, box_0, 5, "10deg")
+        self.aedtapp.modeler.delete(self.aedtapp.modeler.object_names)
