@@ -1020,7 +1020,7 @@ class ExtensionManager(ExtensionProjectCommon):
             if name.lower() == "custom" or name.lower() == "custom_extension":
                 messagebox.showerror( # pragma: no cover
                     "Error",
-                    "The name 'Custom' is reserved. Please choose a different name.",
+                    "The names 'custom' and 'custom_extension' are reserved. Please choose a different name.",
                 )
                 return # pragma: no cover
 
