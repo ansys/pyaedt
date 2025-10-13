@@ -404,8 +404,19 @@ def add_script_to_menu(
         build_file_data = build_file_data.replace("##JUPYTER_EXE##", str(jupyter_executable))
         build_file_data = build_file_data.replace("##TOOLKIT_NAME##", str(name))
         build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
-        if dest_script_path:
-            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(dest_script_path))
+        if copy_to_personal_lib and dest_script_path:
+            extension_dir = dest_script_path.parent
+        else:
+            extension_dir = (
+                Path(ansys.aedt.core.extensions.__file__)
+                .parent
+            / "installer"
+        )
+        build_file_data = build_file_data.replace(
+            "##BASE_EXTENSION_LOCATION##", str(extension_dir)
+        )
+        if script_file:
+            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(os.path.basename(script_file)))
         if version_agnostic:
             build_file_data = build_file_data.replace(" % version", "")
         with open(tool_dir / (template_file + ".py"), "w") as out_file:
