@@ -400,14 +400,8 @@ def add_script_to_menu(
         if copy_to_personal_lib and dest_script_path:
             extension_dir = dest_script_path.parent
         else:
-            extension_dir = (
-                Path(ansys.aedt.core.extensions.__file__)
-                .parent
-            / "installer"
-        )
-        build_file_data = build_file_data.replace(
-            "##BASE_EXTENSION_LOCATION##", str(extension_dir)
-        )
+            extension_dir = Path(ansys.aedt.core.extensions.__file__).parent / "installer"
+        build_file_data = build_file_data.replace("##BASE_EXTENSION_LOCATION##", str(extension_dir))
         if script_file:
             build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(os.path.basename(script_file)))
         if version_agnostic:
