@@ -32,6 +32,7 @@ import re
 import sys
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -46,7 +47,7 @@ from ansys.aedt.core.modules.material import SurfaceMaterial
 from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
 
 
-class Materials(object):
+class Materials(PyAedtBase):
     """Contains the AEDT materials database and all methods for creating and editing materials.
 
     Parameters

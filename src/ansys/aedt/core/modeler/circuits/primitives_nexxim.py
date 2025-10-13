@@ -28,6 +28,7 @@ import secrets
 import time
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -42,7 +43,7 @@ from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 from ansys.aedt.core.modeler.circuits.primitives_circuit import Excitations
 
 
-class NexximComponents(CircuitComponents):
+class NexximComponents(CircuitComponents, PyAedtBase):
     """Manages circuit components for Nexxim.
 
     Parameters

@@ -47,6 +47,7 @@ import PIL.ImageTk
 import requests
 
 from ansys.aedt.core import Desktop
+from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -160,11 +161,11 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
 
 
 @dataclass
-class ExtensionCommonData:
+class ExtensionCommonData(PyAedtBase):
     """Data class containing user input and computed data."""
 
 
-class ExtensionCommon:
+class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
@@ -681,7 +682,7 @@ def get_arguments(args=None, description=""):  # pragma: no cover
     return output_args
 
 
-class ExtensionTheme:  # pragma: no cover
+class ExtensionTheme(PyAedtBase):  # pragma: no cover
     def __init__(self):
         # Define light and dark theme colors
         self.light = {
