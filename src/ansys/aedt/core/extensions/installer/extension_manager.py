@@ -1017,8 +1017,8 @@ class ExtensionManager(ExtensionProjectCommon):
                 return
 
             # Prevent using reserved option name
-            if name.lower() == "custom" or name.lower() == "custom_extension":
-                messagebox.showerror( # pragma: no cover
+            if name.lower() == "custom" or name.lower() == "custom_extension":  # pragma: no cover
+                messagebox.showerror(
                     "Error",
                     "The names 'custom' and 'custom_extension' are reserved. Please choose a different name.",
                 )
