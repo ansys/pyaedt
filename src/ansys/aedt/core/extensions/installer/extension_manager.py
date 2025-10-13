@@ -1022,7 +1022,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     "Error",
                     "The names 'custom' and 'custom_extension' are reserved. Please choose a different name.",
                 )
-                return # pragma: no cover
+                return
 
             # Check for conflicts in existing toolkits / program extension folder
             product = self.current_category
