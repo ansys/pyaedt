@@ -957,8 +957,7 @@ class ExtensionManager(ExtensionProjectCommon):
     def handle_custom_extension(self):
         """Handle custom extension pin to the top bar."""
         # Prompt user for script file and extension name
-        # Use a mutable container to store the result from the dialog
-        result = {"script_file": None}
+        result = {"script_file": None, "display_name": None}
         # Create a single dialog window for all inputs
         dialog = tkinter.Toplevel(self.root)
         dialog.title("Custom Extension Setup")
@@ -970,21 +969,17 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         script_var = tkinter.StringVar()
         script_entry = ttk.Entry(
-            dialog, textvariable=script_var, width=40
+            dialog, textvariable=script_var, width=60
         )
         script_entry.pack(padx=10, pady=2, fill="x")
 
-        def browse_script():  # pragma: no cover
-            file = filedialog.askopenfilename(
-                title="Select Extension Script",
-                filetypes=[
-                    ("Python files", "*.py"),
-                    ("Executable files", "*.exe"),
-                    ("All files", "*.*"),
-                ],
+        def browse_script():
+            file_path = filedialog.askopenfilename(
+                title="Select Python script",
+                filetypes=[("Python Files", "*.py"), ("All Files", "*.*")],
             )
-            if file:
-                script_var.set(file)
+            if file_path:
+                script_var.set(file_path)
 
         browse_btn = ttk.Button(
             dialog, text="Browse...", command=browse_script
@@ -997,34 +992,77 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         name_var = tkinter.StringVar(value="Custom Extension")
         name_entry = ttk.Entry(
-            dialog, textvariable=name_var, width=40
+            dialog, textvariable=name_var, width=60
         )
         name_entry.pack(padx=10, pady=2, fill="x")
 
-        # OK button
+        # Buttons frame (OK / Cancel)
+        btn_frame = ttk.Frame(dialog)
+        btn_frame.pack(padx=10, pady=10, fill="x")
+
         def on_ok():
-            script = script_var.get()
+            script = script_var.get().strip()
+            name = name_var.get().strip()
+
+            # Basic validation
             if not script:
                 script = (
                     EXTENSIONS_PATH
                     / "templates"
                     / "template_get_started.py"
                 )
-            else:
-                script = Path(script)
-            result["script_file"] = script
+            script_path = Path(script)
+            if not name:
+                messagebox.showerror("Error", "Please enter an extension name.")
+                return
+
+            # Prevent using reserved option name
+            if name.lower() == "custom" or name.lower() == "custom_extension":
+                messagebox.showerror(
+                    "Error",
+                    "The name 'Custom' is reserved. Please choose a different name.",
+                )
+                return
+
+            # Check for conflicts in existing toolkits / program extension folder
+            product = self.current_category
+            toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
+
+            existing_keys = {k.lower() for k in self.toolkits.get(product, {}).keys()}
+            if name.lower() in existing_keys:
+                messagebox.showerror(
+                    "Error",
+                    f"An extension named '{name}' already exists in {product}. Please choose a different name.",
+                )
+                return
+
+            if is_extension_in_panel(str(toolkit_dir), product, name):
+                messagebox.showerror(
+                    "Error",
+                    f"An extension named '{name}' already exists in {product}. Please choose a different name.",
+                )
+                return
+
+            result["script_file"] = script_path.resolve()
+            result["display_name"] = name
             dialog.destroy()
 
-        ttk.Button(dialog, text="OK", command=on_ok).pack(
-            padx=10, pady=10
-        )
+        def on_cancel():
+            result["script_file"] = None
+            result["display_name"] = None
+            dialog.destroy()
+
+        ok_btn = ttk.Button(btn_frame, text="OK", command=on_ok)
+        ok_btn.pack(side="right", padx=(5, 0))
+        cancel_btn = ttk.Button(btn_frame, text="Cancel", command=on_cancel)
+        cancel_btn.pack(side="right")
 
         dialog.grab_set()
         self.root.wait_window(dialog)
 
-        extension_name = name_var.get() or "Custom Extension"
-
-        return result["script_file"], extension_name
+        if result["script_file"]:
+            return result["script_file"], result["display_name"]
+        return None, None
 
     def create_theme_background_image(self, img, target_size=None):
         """Create a background image with theme color for transparency.
