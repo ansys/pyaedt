@@ -673,21 +673,33 @@ class ExtensionManager(ExtensionProjectCommon):
                 return
         icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
         if is_custom and script_field is None:
-            add_script_to_menu(
-                name=option_label,
-                script_file=str(script_file),
-                product=category,
-                executable_interpreter=sys.executable,
-                personal_lib=self.desktop.personallib,
-                aedt_version=self.desktop.aedt_version_id,
-                copy_to_personal_lib=False,
-                icon_file=str(icon),
-                is_custom=is_custom
-            )
+            try:
+                add_script_to_menu(
+                    name=option_label,
+                    script_file=str(script_file),
+                    product=category,
+                    executable_interpreter=sys.executable,
+                    personal_lib=self.desktop.personallib,
+                    aedt_version=self.desktop.aedt_version_id,
+                    copy_to_personal_lib=True,
+                    icon_file=str(icon),
+                    is_custom=True,
+                )
+            except Exception as e:
+                self.desktop.logger.error(
+                    "Failed to install custom extension %s: %s",
+                    option_label,
+                    e,
+                )
+                messagebox.showerror("Error", f"Failed to pin custom extension: {e}")
+                return
+
             # Refresh the custom extensions
             self.load_extensions(category)
-            self.desktop.logger.info(f"Extension {option_label} pinned successfully. If the extension is not visible,"
-                                     f" create a new AEDT session or create a new project.")
+            self.desktop.logger.info(
+                "Extension %s pinned successfully. If the extension is not visible, create a new AEDT session or create a new project.",
+                option_label,
+            )
 
             # if hasattr(self.desktop, "odesktop"):
             #     self.desktop.odesktop.RefreshToolkitUI()
@@ -916,6 +928,30 @@ class ExtensionManager(ExtensionProjectCommon):
             icon = (
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
+            # If the user selected a script, copy it into personal lib Toolkits/<product>/<option>/Lib
+            if not script_file:
+                self.desktop.logger.info("No script selected for custom extension. Aborting pin.")
+                return
+            try:
+                add_script_to_menu(
+                    name=option,
+                    script_file=str(script_file),
+                    product=category,
+                    executable_interpreter=sys.executable,
+                    personal_lib=self.desktop.personallib,
+                    aedt_version=self.desktop.aedt_version_id,
+                    copy_to_personal_lib=True,
+                    icon_file=str(icon),
+                    is_custom=True,
+                )
+                msg = (f"Extension {option} pinned successfully.\n"
+                       f"If the extension is not visible create a new AEDT session or create a new project.")
+                self.desktop.logger.info(msg)
+                self.log_message(msg)
+            except Exception as e:
+                self.desktop.logger.error(f"Failed to pin custom extension {option}: {e}")
+                messagebox.showerror("Error", f"Failed to pin custom extension: {e}")
+                return
         else:
             if self.toolkits[self.current_category][option].get("script", None):
                 script_file = (
