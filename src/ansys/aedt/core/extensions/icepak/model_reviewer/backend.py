@@ -18,13 +18,12 @@ def import_config_file(aedtapp, json_data):
     full_path = os.path.abspath("load.json")
     with open(full_path, 'w') as file:
         json.dump(json_data, file)
-    print(f"json file path is {full_path}")
     out = aedtapp.configurations.import_config(full_path)
     result = aedtapp.configurations.validate(out)
     if result:
-        print("sucessfully imported configuration")
+        aedtapp.logger.info("sucessfully imported configuration")
     else:
-        print("import has issues")
+        aedtapp.logger.info("import has issues")
     return None
 
 def get_object_id_mapping(aedtapp):

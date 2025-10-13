@@ -24,6 +24,7 @@ aedt_process_id = get_process_id()
 theme = ExtensionTheme()
 EXTENSION_TITLE = "Icepak Model Reviewer"
 
+
 def flatten_list(mixed_list):
     flat_list = []
     for row in mixed_list:
@@ -111,14 +112,14 @@ def add_table_to_tab(tab, table_data):
     return table
 
 
-class Table(tk.Frame):
+class Table(ttk.Frame):
     def __init__(self, parent, headers, types, read_only_data):
-        super().__init__(parent)
+        super().__init__(parent, style="PyAEDT.TFrame")
         self.headers = ["✔"] + headers
         self.types = ["checkbox"] + types
         self.read_only_data = [set(r) for r in read_only_data]
         #style.configure("Treeview", font=theme.default_font)
-        self.tree = ttk.Treeview(self, columns=self.headers, show="headings", selectmode="browse")
+        self.tree = ttk.Treeview(self, columns=self.headers, show="headings", selectmode="browse", style="PyAEDT.Treeview")
         for i, header in enumerate(self.headers):
             self.tree.heading(header, text=header)
             self.tree.column(header, width=50 if i == 0 else 140, anchor=tk.CENTER)
@@ -257,7 +258,7 @@ class IcepakModelReviewer(ExtensionCommon):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
-            theme_color="light",
+            theme_color="dark",
             withdraw=withdraw,
             add_custom_content=False,
         )
@@ -282,11 +283,16 @@ class IcepakModelReviewer(ExtensionCommon):
         self.load_button.pack(side=tk.LEFT,padx=5)
         self.update_button = ttk.Button(button_frame, text="Update Project", command=self.update_project, style="PyAEDT.TButton")
         self.update_button.pack(side=tk.LEFT, padx=5)
+        lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        lower_frame.pack(fill=tk.X, padx=10, pady=5)
+        self.add_toggle_theme_button(lower_frame,0,0)
 
     def check_design_type(self):
         """Check if the active design is an Icepak design."""
         if self.aedt_application.design_type != "Icepak":
             raise AEDTRuntimeError("This extension can only be used with Icepak designs.")
+
+
 
     def get_project_data(self):
         desktop = Desktop(
@@ -363,6 +369,5 @@ class IcepakModelReviewer(ExtensionCommon):
 
 # === Main Application ===
 if __name__ == "__main__":
-    #main()
     extension = IcepakModelReviewer(withdraw=False)
     tk.mainloop()

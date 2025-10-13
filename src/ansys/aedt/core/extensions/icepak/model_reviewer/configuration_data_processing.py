@@ -94,9 +94,6 @@ def extract_boundary_data(data):
                 value1 = boundary_details.get("Surface Heat", "0kW_per_m2")
                 value2 = "0.0"
                 object_ids = boundary_details.get("Faces", [])  # Default to empty list if missing
-                print(f"Faces id {object_ids}")
-                # selected_objects = [id_to_name[str(obj_id)] for obj_id in object_ids]
-                # print(f"converted faces id {selected_objects}")
                 selected_objects = [str(ids) for ids in object_ids]
                 boundary_data.append(
                     [boundary_name, boundary_type, selected_objects, bc_name1, value1, bc_name2, value2]
@@ -262,9 +259,7 @@ def compare_and_update_boundary_data(original_data, modified_object_data, object
         updated_data["boundaries"][boundary_name] = copy.deepcopy(original_data["boundaries"][boundary_name])
 
         # Convert string values back to boolean where necessary
-        print("printing selected objects")
-        print(selected_objects)
-        print(object_mapping)
+
 
         # Check for differences and update
         if isinstance(selected_objects, list):

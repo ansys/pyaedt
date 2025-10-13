@@ -766,6 +766,18 @@ class ExtensionTheme:  # pragma: no cover
             foreground=[("active", "black"), ("!active", "black")],
         )
 
+        style.configure("PyAEDT.Treeview",
+                        background=colors["widget_bg"],
+                        fieldbackground = colors["widget_bg"],
+                        foreground=colors["text"],
+                        font=self.default_font)
+
+        # Treeview headings
+        style.configure("PyAEDT.Treeview.Heading",
+                        background=colors["widget_bg"],
+                        foreground=colors["text"],
+                        font=self.default_font)
+
 
 def __string_to_bool(v):  # pragma: no cover
     """Change string to bool."""
