@@ -35,6 +35,11 @@ from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.generic.settings import is_linux
 
 
+@pytest.fixture(autouse=True)
+def disable_pyaedt_update(monkeypatch):
+    monkeypatch.setattr("ansys.aedt.core.extensions.misc.check_for_pyaedt_update", lambda personallib: (None, None))
+    yield
+
 @pytest.fixture
 def mock_aedt_app():
     """Fixture que crea una aplicación AEDT falsa."""
