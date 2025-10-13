@@ -307,6 +307,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         bool
             ``True`` if solutions are available, ``False`` otherwise.
         """
+        if self._app.design_type == "Circuit Design":
+            return True if self.omodule.ListVariations(self.name) else False
         if self._app.design_solutions.default_adaptive:
             expressions = [
                 i
@@ -2592,7 +2594,7 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-        >>> from ansys.aed.core import Hfss
+        >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss["der_var"] = "1mm"
         >>> setup = hfss.create_setup(setup_type=1)
