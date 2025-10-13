@@ -142,17 +142,10 @@ def add_automation_tab(
             icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
         else:
             icon_file = Path(icon_file)
-        file_name = icon_file.name
-        dest_dir = lib_dir / product / toolkit_name / "images" / "large"
-        dest_file = dest_dir / file_name
-        dest_dir.parent.mkdir(parents=True, exist_ok=True)
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy(str(icon_file), str(dest_file))
-        relative_image_path = dest_file.relative_to(lib_dir / product)
         button_kwargs = dict(
             label=name,
             isLarge="1",
-            image=str(relative_image_path.as_posix()),
+            image=str(icon_file.as_posix()),
             script=f"{toolkit_name}/{template}",
         )
     ET.SubElement(panel_element, "button", **button_kwargs)
