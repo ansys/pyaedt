@@ -35,6 +35,15 @@ from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.generic.settings import is_linux
 
 
+@pytest.fixture(autouse=True)
+def disable_pyaedt_update_check(monkeypatch):
+    # Prevent ExtensionManager from starting the update-check thread during tests
+    monkeypatch.setattr(
+        "ansys.aedt.core.extensions.installer.extension_manager.ExtensionManager.check_for_pyaedt_update_on_startup",
+        lambda self: None,
+    )
+    yield
+
 @pytest.fixture
 def mock_aedt_app():
     """Fixture que crea una aplicación AEDT falsa."""
@@ -715,3 +724,99 @@ def _patch_log_threads(monkeypatch, request):
     )
 
     yield
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_handle_custom_extension_on_cancel(mock_desktop, mock_toolkits, mock_aedt_app):
+    """Ensure Cancel button sets result to None and dialog is closed."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Capture button commands
+    commands = []
+
+    def mock_button(*args, **kwargs):
+        if "command" in kwargs:
+            commands.append(kwargs["command"])
+        return MagicMock()
+
+    def mock_wait_window(dialog):
+        # Call only cancel
+        if len(commands) > 2:
+            commands[2]()
+
+    with (
+        patch("tkinter.Toplevel", return_value=MagicMock()),
+        patch("tkinter.StringVar", side_effect=[MagicMock(), MagicMock()]),
+        patch("tkinter.ttk.Label"),
+        patch("tkinter.ttk.Entry"),
+        patch("tkinter.ttk.Button", side_effect=mock_button),
+        patch.object(extension.root, "wait_window", side_effect=mock_wait_window),
+    ):
+        script_file, name = extension.handle_custom_extension()
+        assert script_file is None and name is None
+
+    extension.root.destroy()
+
+
+@patch("webbrowser.open")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_web_url_custom(mock_desktop, mock_toolkits, mock_webbrowser, mock_aedt_app):
+    """Custom option should open the PyAEDT documentation URL."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    result = extension.launch_web_url("HFSS", "Custom")
+
+    mock_webbrowser.assert_called_once_with(
+        "https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html"
+    )
+    assert result is True
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_web_url_no_url(mock_toolkits, mock_desktop, mock_aedt_app):
+    """If no URL is defined, show an info message and return False."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}}}
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager(withdraw=True)
+    extension.toolkits = toolkit_data
+
+    with patch("tkinter.messagebox.showinfo") as mock_info:
+        result = extension.launch_web_url("HFSS", "MyExt")
+        mock_info.assert_called_once()
+        assert result is False
+
+    extension.root.destroy()
+
+
+@patch("webbrowser.open", side_effect=Exception("boom"))
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_web_url_exception(mock_webbrowser, mock_toolkits, mock_desktop, mock_aedt_app):
+    """If opening the browser raises, show an error and return False."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "url": "https://example.com"}}}
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager(withdraw=True)
+    extension.toolkits = toolkit_data
+    extension.desktop.logger = MagicMock()
+
+    with patch("tkinter.messagebox.showerror") as mock_err:
+        result = extension.launch_web_url("HFSS", "MyExt")
+        mock_err.assert_called_once()
+        assert result is False
+
+    extension.root.destroy()

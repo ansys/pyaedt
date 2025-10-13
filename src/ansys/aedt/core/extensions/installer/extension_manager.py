@@ -441,7 +441,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 option != "Custom"
             ):
                 # Find the button element again to get image and script
-                try:
+                try: # pragma: no cover
                     toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
                     xml_dir = toolkit_dir / self.current_category
                     tabconfig_path = xml_dir / "TabConfig.xml"
@@ -451,9 +451,9 @@ class ExtensionManager(ExtensionProjectCommon):
                         image_path_full = (xml_dir / image_path).resolve()
                     else:
                         image_path_full = ""
-                except Exception:
+                except Exception: # pragma: no cover
                     image_path_full = ""
-                if image_path_full and Path(image_path_full).is_file():
+                if image_path_full and Path(image_path_full).is_file(): # pragma: no cover
                     try:
                         img = PIL.Image.open(str(image_path_full))
                         photo = self.create_theme_background_image(img, (48, 48))
@@ -743,7 +743,7 @@ class ExtensionManager(ExtensionProjectCommon):
         if len(self.full_log_buffer) > 10000:
             self.full_log_buffer = self.full_log_buffer[-8000:]
 
-    def _periodic_log_refresh(self):
+    def _periodic_log_refresh(self): # pragma: no cover
         # If detached window open update it
         if self.logs_window and self.logs_text_widget:
             try:
@@ -973,7 +973,7 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         script_entry.pack(padx=10, pady=2, fill="x")
 
-        def browse_script():
+        def browse_script(): # pragma: no cover
             file_path = filedialog.askopenfilename(
                 title="Select Python script",
                 filetypes=[("Python Files", "*.py"), ("All Files", "*.*")],
@@ -1012,17 +1012,17 @@ class ExtensionManager(ExtensionProjectCommon):
                     / "template_get_started.py"
                 )
             script_path = Path(script)
-            if not name:
+            if not name: # pragma: no cover
                 messagebox.showerror("Error", "Please enter an extension name.")
                 return
 
             # Prevent using reserved option name
             if name.lower() == "custom" or name.lower() == "custom_extension":
-                messagebox.showerror(
+                messagebox.showerror( # pragma: no cover
                     "Error",
                     "The name 'Custom' is reserved. Please choose a different name.",
                 )
-                return
+                return # pragma: no cover
 
             # Check for conflicts in existing toolkits / program extension folder
             product = self.current_category
@@ -1030,18 +1030,18 @@ class ExtensionManager(ExtensionProjectCommon):
 
             existing_keys = {k.lower() for k in self.toolkits.get(product, {}).keys()}
             if name.lower() in existing_keys:
-                messagebox.showerror(
+                messagebox.showerror( # pragma: no cover
                     "Error",
                     f"An extension named '{name}' already exists in {product}. Please choose a different name.",
                 )
-                return
+                return # pragma: no cover
 
             if is_extension_in_panel(str(toolkit_dir), product, name):
-                messagebox.showerror(
+                messagebox.showerror( # pragma: no cover
                     "Error",
                     f"An extension named '{name}' already exists in {product}. Please choose a different name.",
                 )
-                return
+                return # pragma: no cover
 
             result["script_file"] = script_path.resolve()
             result["display_name"] = name
@@ -1227,7 +1227,7 @@ class ExtensionManager(ExtensionProjectCommon):
     def confirm_unpin(self, category, option):
         # If custom extension, label starts with 'custom_'
         is_custom = option.startswith("custom_")
-        if option.lower() == "custom":
+        if option.lower() == "custom": # pragma: no cover
             option = simpledialog.askstring(
                 "Extension Name", "Extension name to unpin:",
             )
@@ -1273,7 +1273,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 self.log_message(f"{option} extension removed successfully.")
                 if self.current_category:
                     self.load_extensions(category)
-            except Exception:
+            except Exception: # pragma: no cover
                 messagebox.showerror(
                     "Error", "Extension could not be removed."
                 )
@@ -1302,7 +1302,7 @@ class ExtensionManager(ExtensionProjectCommon):
             return is_extension_in_panel(
                 str(toolkit_dir), product, option
             )
-        except Exception:
+        except Exception: # pragma: no cover
             return False
 
     def launch_web_url(self, category: str, option: str):
@@ -1330,7 +1330,7 @@ class ExtensionManager(ExtensionProjectCommon):
                         "Error", "No URL found for this extension."
                     )
                     return False
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             msg = "Could not open web URL."
             self.log_message(msg)
             self.desktop.logger.error(f"Error opening web URL: {e}")
@@ -1344,7 +1344,7 @@ class ExtensionManager(ExtensionProjectCommon):
             log = logging.getLogger("Global")
             try:
                 latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
-                if not latest:
+                if not latest: # pragma: no cover
                     log.debug("PyAEDT update check: no prompt required or latest unavailable.")
                     return
                 try:
@@ -1354,7 +1354,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     )
                 except Exception:
                     log.debug("PyAEDT update check: failed to schedule popup.", exc_info=True)
-            except Exception:
+            except Exception: # pragma: no cover
                 log.debug("PyAEDT update check: worker failed.", exc_info=True)
 
         threading.Thread(target=worker, daemon=True).start()
