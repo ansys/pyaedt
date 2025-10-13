@@ -28,11 +28,12 @@ from pathlib import Path
 import shutil
 
 from ansys.aedt.core.application.analysis_circuit_netlist import AnalysisCircuitNetlist
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.filesystem import search_files
 
 
-class CircuitNetlist(AnalysisCircuitNetlist, object):
+class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
     """Provides the Circuit Netlist application interface.
 
     Parameters

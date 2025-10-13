@@ -28,6 +28,7 @@ import os
 import shutil
 
 from ansys.aedt.core.application.design_solutions import model_names
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -107,7 +108,7 @@ class MeshProps(dict):
         dict.__setitem__(self, key, value)
 
 
-class MeshOperation(BinaryTreeNode):
+class MeshOperation(BinaryTreeNode, PyAedtBase):
     """MeshOperation class.
 
     Parameters
@@ -412,7 +413,7 @@ class MeshOperation(BinaryTreeNode):
         return False
 
 
-class Mesh(object):
+class Mesh(PyAedtBase):
     """Manages AEDT mesh functions for 2D and 3D solvers (HFSS, Maxwell, and Q3D).
 
     Parameters
