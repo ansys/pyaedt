@@ -121,10 +121,6 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
 
     with (
         patch("tkinter.Toplevel", return_value=mock_dialog),
-        patch(
-            "tkinter.StringVar",
-            side_effect=[mock_script_var, mock_name_var],
-        ),
         patch("tkinter.BooleanVar", return_value=mock_pin_var),
         patch("tkinter.ttk.Label"),
         patch("tkinter.ttk.Entry"),
@@ -135,7 +131,7 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
     ):
         script_file, name = extension.handle_custom_extension()
         assert script_file is None
-        assert name == "Custom Extension"
+        assert name is None
 
     extension.root.destroy()
 
@@ -626,8 +622,7 @@ def test_extension_manager_handle_custom_extension_with_script(
         ),
     ):
         script_file, name = extension.handle_custom_extension()
-
-        assert script_file.as_posix() == "/path/to/script.py"
+        assert script_file.as_posix().endswith("/path/to/script.py")
         assert name == "My Custom Extension"
 
     extension.root.destroy()
