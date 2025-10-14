@@ -36,6 +36,7 @@ import secrets
 import time
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -54,7 +55,7 @@ from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
-class CommonSetup(PropsManager, BinaryTreeNode):
+class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = app
@@ -307,6 +308,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         bool
             ``True`` if solutions are available, ``False`` otherwise.
         """
+        if self._app.design_type == "Circuit Design":
+            return True if self.omodule.ListVariations(self.name) else False
         if self._app.design_solutions.default_adaptive:
             expressions = [
                 i
@@ -2509,7 +2512,7 @@ class Setup3DLayout(CommonSetup):
         return self.update()
 
 
-class SetupHFSS(Setup, object):
+class SetupHFSS(Setup, PyAedtBase):
     """Initializes, creates, and updates an HFSS setup.
 
     Parameters
@@ -2592,7 +2595,7 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-        >>> from ansys.aed.core import Hfss
+        >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss["der_var"] = "1mm"
         >>> setup = hfss.create_setup(setup_type=1)
@@ -3235,7 +3238,7 @@ class SetupHFSS(Setup, object):
         return False
 
 
-class SetupHFSSAuto(Setup, object):
+class SetupHFSSAuto(Setup, PyAedtBase):
     """Initializes, creates, and updates an HFSS SBR+ or  HFSS Auto setup.
 
     Parameters
@@ -3523,7 +3526,7 @@ class SetupHFSSAuto(Setup, object):
         return self.update()
 
 
-class SetupSBR(Setup, object):
+class SetupSBR(Setup, PyAedtBase):
     """Initializes, creates, and updates an HFSS SBR+ or HFSS Auto setup.
 
     Parameters
@@ -3602,7 +3605,7 @@ class SetupSBR(Setup, object):
         return self.update()
 
 
-class SetupMaxwell(Setup, object):
+class SetupMaxwell(Setup, PyAedtBase):
     """Initializes, creates, and updates a Maxwell setup.
 
     Parameters
@@ -3973,7 +3976,7 @@ class SetupMaxwell(Setup, object):
             raise AEDTRuntimeError("Invalid matrix type. It has to be either 'RL' or 'C'.")
 
 
-class SetupQ3D(Setup, object):
+class SetupQ3D(Setup, PyAedtBase):
     """Initializes, creates, and updates an Q3D setup.
 
     Parameters
@@ -4434,7 +4437,7 @@ class SetupQ3D(Setup, object):
         return True
 
 
-class SetupIcepak(Setup, object):
+class SetupIcepak(Setup, PyAedtBase):
     def __init__(self, app, solution_type, setup_name, is_new_setup=True):
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 

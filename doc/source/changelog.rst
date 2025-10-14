@@ -9,6 +9,86 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.21.0 <https://github.com/ansys/pyaedt/releases/tag/v0.21.0>`_ - October 09, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add background update check for PyAEDT with user notification
+          - `#6739 <https://github.com/ansys/pyaedt/pull/6739>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.1.2 to 10.1.4
+          - `#6735 <https://github.com/ansys/pyaedt/pull/6735>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix a bug in TouchstoneData class that occurs when the port names are not correctly parsed.
+          - `#6715 <https://github.com/ansys/pyaedt/pull/6715>`_
+
+        * - Removed duplicated numbers.py
+          - `#6721 <https://github.com/ansys/pyaedt/pull/6721>`_
+
+        * - Fix issue 6719 get_string_version
+          - `#6722 <https://github.com/ansys/pyaedt/pull/6722>`_
+
+        * - Update some emit params
+          - `#6728 <https://github.com/ansys/pyaedt/pull/6728>`_
+
+        * - Fixed generated jsons test issue
+          - `#6729 <https://github.com/ansys/pyaedt/pull/6729>`_
+
+        * - Enhance package installation process with fallback to pip if uv fails
+          - `#6730 <https://github.com/ansys/pyaedt/pull/6730>`_
+
+        * - Version manager pip fallback
+          - `#6732 <https://github.com/ansys/pyaedt/pull/6732>`_
+
+        * - Enable to import the lib again from MacOS
+          - `#6738 <https://github.com/ansys/pyaedt/pull/6738>`_
+
+        * - Fixed pedb bug
+          - `#6741 <https://github.com/ansys/pyaedt/pull/6741>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.20.1
+          - `#6714 <https://github.com/ansys/pyaedt/pull/6714>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Solution Data
+          - `#6706 <https://github.com/ansys/pyaedt/pull/6706>`_
+
+
 `0.20.1 <https://github.com/ansys/pyaedt/releases/tag/v0.20.1>`_ - October 01, 2025
 ===================================================================================
 

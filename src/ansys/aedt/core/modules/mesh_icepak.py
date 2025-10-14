@@ -25,6 +25,7 @@ from abc import abstractmethod
 import os.path
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -38,7 +39,7 @@ from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh import meshers
 
 
-class CommonRegion(object):
+class CommonRegion(PyAedtBase):
     def __init__(self, app, name):
         self._app = app
         self._name = name
@@ -437,7 +438,7 @@ class SubRegion(CommonRegion):
         self._app.modeler.reassign_subregion(self, parts)
 
 
-class MeshSettings(object):
+class MeshSettings(PyAedtBase):
     """Manages mesh settings.
 
     It can be used like a dictionary. Available keys change according
@@ -608,7 +609,7 @@ class MeshSettings(object):
         return x in self.keys()
 
 
-class MeshRegionCommon(BinaryTreeNode):
+class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
     """
     Manages Icepak mesh region settings.
 
@@ -1063,7 +1064,7 @@ class MeshRegion(MeshRegionCommon):
         self.assignment = objects
 
 
-class IcepakMesh(object):
+class IcepakMesh(PyAedtBase):
     """Manages Icepak meshes.
 
     Parameters

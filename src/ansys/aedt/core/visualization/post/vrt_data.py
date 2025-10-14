@@ -24,10 +24,11 @@
 
 import os
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class VRTFieldPlot:
+class VRTFieldPlot(PyAedtBase):
     """Creates and edits VRT field plots for SBR+ and Creeping Waves.
 
     Parameters

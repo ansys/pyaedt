@@ -29,6 +29,7 @@ import warnings
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
@@ -45,7 +46,7 @@ except ImportError:
     )
 
 
-class SolutionData(object):
+class SolutionData(PyAedtBase):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     def __init__(self, aedtdata):
