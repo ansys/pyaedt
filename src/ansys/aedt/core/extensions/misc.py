@@ -118,7 +118,9 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
 
         def to_tuple(v: str):
             out = []
-            for token in v.split("."):
+            # Remove dev/rc suffixes and split by dots
+            version_clean = v.split("dev")[0].split("rc")[0]
+            for token in version_clean.split("."):
                 try:
                     out.append(int(token))
                 except Exception:  # pragma: no cover
@@ -130,7 +132,48 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:  # pragma: no cover
             return False
 
+    def read_version_file(file_path: Path) -> Tuple[Optional[str], bool]:
+        """Read version file and return (last_known_version, show_updates).
+
+        File format:
+        Line 1: last known version
+        Line 2: show_updates preference ("true" or "false")
+        """
+        if not file_path.is_file():
+            return None, True  # First start - don't show popup
+
+        try:
+            content = file_path.read_text(encoding="utf-8").strip()
+            lines = content.split("\n")
+            if len(lines) >= 2:
+                last_version = lines[0].strip()
+                show_updates = lines[1].strip().lower() == "true"
+                return last_version, show_updates
+            elif len(lines) == 1:
+                # Legacy format - only version, assume user wants updates
+                return lines[0].strip(), True
+            else:  # pragma: no cover
+                return None, True
+        except Exception:  # pragma: no cover
+            return None, True
+
+    def write_version_file(file_path: Path, version: str, show_updates: bool):
+        """Write version and preference to file."""
+        try:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            content = f"{version}\n{str(show_updates).lower()}"
+            file_path.write_text(content, encoding="utf-8")
+        except Exception:  # pragma: no cover
+            log.debug("PyAEDT update check: failed to write version file.", exc_info=True)
+
     log = logging.getLogger("Global")
+
+    # Get current PyAEDT version
+    try:
+        from ansys.aedt.core import __version__ as current_version
+    except ImportError:  # pragma: no cover
+        log.debug("PyAEDT update check: could not import version.")
+        return None, None
 
     latest = get_latest_version("pyaedt")
     if not latest or latest == "Unknown":
@@ -144,20 +187,36 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
         return None, None
 
-    declined_file = toolkit_dir / ".pyaedt_version"
-    declined_version = None
-    if declined_file.is_file():
-        try:
-            declined_version = declined_file.read_text(encoding="utf-8").strip()
-        except Exception:  # pragma: no cover
-            declined_version = None
+    version_file = toolkit_dir / ".pyaedt_version"
+    last_known_version, show_updates = read_version_file(version_file)
 
-    prompt_user = declined_version is None or compare_versions(declined_version, latest)
+    # If this is first start (no file exists), record the latest known release
+    # (not the installed version) so we won't prompt until a newer release appears.
+    if last_known_version is None:
+        write_version_file(version_file, latest, False)
+        log.debug("PyAEDT update check: first start, recording latest release.")
+        return None, None
+
+    # If the user already has the latest version installed, never show the popup.
+    if current_version == latest:  # pragma: no cover
+        if last_known_version != latest:
+            write_version_file(version_file, latest, False)
+        return None, None
+
+    # Check if there's a newer version available compared to installed package
+    has_newer_version = compare_versions(current_version, latest)
+
+    if not has_newer_version:
+        if last_known_version != latest:
+            write_version_file(version_file, latest, show_updates)
+        return None, None
+    version_changed = compare_versions(last_known_version, latest)
+    prompt_user = show_updates or version_changed
 
     if not prompt_user:
         return None, None
 
-    return latest, declined_file
+    return latest, version_file
 
 
 @dataclass
@@ -1043,3 +1102,15 @@ class ToolTip:
         self.tipwindow = None
         if tw:
             tw.destroy()
+
+
+def decline_pyaedt_update(declined_file_path: Path, latest_version: str):
+    """Record that the user declined the update notification."""
+    try:
+        declined_file_path.parent.mkdir(parents=True, exist_ok=True)
+        if latest_version is None:
+            return
+        content = f"{latest_version}\nfalse"
+        declined_file_path.write_text(content, encoding="utf-8")
+    except Exception:  # pragma: no cover
+        logging.getLogger("Global").debug("Failed to write declined update file", exc_info=True)

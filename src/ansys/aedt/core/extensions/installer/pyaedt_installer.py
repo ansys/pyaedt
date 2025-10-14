@@ -89,7 +89,7 @@ def __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager):
                 template_name,
                 icon_file=icon_file,
                 product="Project",
-                copy_to_personal_lib=True,
+                copy_to_personal_lib=False,
                 executable_interpreter=None,
                 panel="Panel_PyAEDT_Installer",
                 personal_lib=personal_lib,

@@ -48,13 +48,12 @@ def main():
     proj_dir = oDesktop.GetProjectDirectory()
     os.chdir(proj_dir)
     # Extension directory
-    current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-    pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+    base_extensions_loc = r"##BASE_EXTENSION_LOCATION##"
     # Jupyter interpreter
     jupyter_exe = r"##JUPYTER_EXE##" % version
     # Check if Jupyter version and AEDT release match
     python_exe = pyaedt_utils.sanitize_interpreter_path(jupyter_exe, version_short)
-    template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
+    template = os.path.join(base_extensions_loc, "jupyter_template.ipynb")
     target = os.path.join(proj_dir, pyaedt_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
     # Check executable
     jupyter_exe_flag = pyaedt_utils.check_file(jupyter_exe, oDesktop)
@@ -86,7 +85,7 @@ def main():
         subprocess.Popen(command)
     else:
         if notebook_dir:
-            command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target),"--notebook-dir",'"{0}"'.format(notebook_dir)]
+            command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target), "--notebook-dir", '"{0}"'.format(notebook_dir)]
         else:
             command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
         subprocess.Popen(" ".join(command))

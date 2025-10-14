@@ -51,8 +51,10 @@ def aedt_script():
         oDesktop.AddMessage("", "", 0, "Toolkit launched. Wait.")
         # CPython interpreter
         python_exe = r"##PYTHON_EXE##"
-        # Python script
-        extension_pyaedt_script = os.path.normpath(__file__)
+        # Python script: base location (venv) + script basename
+        base_extensions_loc = r"##BASE_EXTENSION_LOCATION##"
+        script_basename = r"##PYTHON_SCRIPT##"
+        extension_pyaedt_script = os.path.normpath(os.path.join(base_extensions_loc, script_basename))
         # Check if CPython interpreter and AEDT release match
         python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, short_version)
         # Check python executable
@@ -78,8 +80,10 @@ def pyaedt_script():
     import subprocess
     # CPython interpreter
     python_exe = r"##PYTHON_EXE##"
-    # Python script
-    pyaedt_script_file = r"##PYTHON_SCRIPT##"
+    # Python script in base extensions location
+    base_extensions_loc = r"##BASE_EXTENSION_LOCATION##"
+    script_basename = r"##PYTHON_SCRIPT##"
+    pyaedt_script_file = os.path.normpath(os.path.join(base_extensions_loc, script_basename))
     command = [python_exe, pyaedt_script_file]
     my_env = dict(os.environ.copy())
     subprocess.Popen(command, env=my_env)
