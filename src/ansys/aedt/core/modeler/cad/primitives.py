@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -272,13 +273,13 @@ class GeometryModeler(Modeler, PyAedtBase):
                 obj_name = self.oeditor.GetObjectNameByFaceID(partId)
                 if obj_name:
                     return FacePrimitive(self.objects[obj_name], partId)
-            except AttributeError:  # pragma: no cover
+            except (AttributeError, GrpcApiError):  # pragma: no cover
                 pass
             try:
                 obj_name = self.oeditor.GetObjectNameByEdgeID(partId)
                 if obj_name:
                     return EdgePrimitive(self.objects[obj_name], partId)
-            except Exception:  # nosec B110 # pragma: no cover
+            except (AttributeError, GrpcApiError):  # pragma: no cover
                 pass
         return
 
