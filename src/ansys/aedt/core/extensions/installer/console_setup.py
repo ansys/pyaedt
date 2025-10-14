@@ -129,4 +129,30 @@ if not error:
     print(" ")
     print(" ")
     print(" ")
-    atexit.register(release, desktop)
+    if is_windows:
+        try:
+            import win32api
+            import win32con
+
+            def handler(ctrl_type):
+                if ctrl_type == win32con.CTRL_CLOSE_EVENT:
+                    release(desktop)
+                    return False
+                return True
+
+            win32api.SetConsoleCtrlHandler(handler, 1)
+        except ImportError:
+            atexit.register(release, desktop)
+    else:
+        try:
+            import signal
+
+            def signal_handler(sig, frame):
+                release(desktop)
+                sys.exit(0)
+
+            signal.signal(signal.SIGHUP, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
+        except ImportError:
+            pass
+        atexit.register(release, desktop)
