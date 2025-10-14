@@ -31,6 +31,7 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 import ansys.aedt.core.generic.constants as consts
 
+
 class EmitNode:
     """Emit node class for managing and interacting with EMIT nodes."""
 
@@ -189,7 +190,7 @@ class EmitNode:
                 # else:
                 #    type_class = ReadOnlyEmitterNode
                 node = type_class(self._emit_obj, self._result_id, node_id)
-            elif node_type == 'Band' and props["IsEmitterBand"] == "true":
+            elif node_type == "Band" and props["IsEmitterBand"] == "true":
                 type_class = getattr(generated, f"{prefix}Waveform")
                 node = type_class(self._emit_obj, self._result_id, node_id)
             else:
@@ -492,7 +493,7 @@ class EmitNode:
                 # Node Prop tables
                 # Data formatted using compact string serialization
                 # with ';' separating rows and '|' separating columns
-                table_key = self._get_property('TableKey', True)
+                table_key = self._get_property("TableKey", True)
                 string_table = self._get_property(table_key, True, True)
 
                 def try_float(val):
@@ -526,7 +527,7 @@ class EmitNode:
                 # Node Prop tables
                 # Data formatted using compact string serialization
                 # with ';' separating rows and '|' separating columns
-                table_key = self._get_property('TableKey', True)
+                table_key = self._get_property("TableKey", True)
                 data = ";".join("|".join(map(str, row)) for row in table)
                 self._set_property(table_key, data)
         except Exception as e:

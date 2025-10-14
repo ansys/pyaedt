@@ -1811,12 +1811,12 @@ class TestClass:
     def test_tables(self, emit_app):
         # Emit has 2 different types of tables: Node Prop Tables and ColumnData Tables
         # this test confirms that the table_data properties work for both
-        radio = emit_app.schematic.create_component('New Radio')
+        radio = emit_app.schematic.create_component("New Radio")
         radio = cast(RadioNode, radio)
 
         children = radio.children
         for child in children:
-            if child.node_type == 'SamplingNode':
+            if child.node_type == "SamplingNode":
                 sampling = cast(SamplingNode, child)
 
         # Sampling node's use NodeProp tables
@@ -1846,16 +1846,16 @@ class TestClass:
 
         # Test BB Emissions Node since it can be either a NodeProp or
         # ColumnData Table
-        radio2 = emit_app.schematic.create_component('New Radio')
+        radio2 = emit_app.schematic.create_component("New Radio")
         radio2 = cast(RadioNode, radio2)
 
         children = radio2.children
         tx_spec = None
         for child in children:
-            if child.node_type == 'Band':
+            if child.node_type == "Band":
                 band_children = child.children
                 for band_child in band_children:
-                    if band_child.node_type == 'TxSpectralProfNode':
+                    if band_child.node_type == "TxSpectralProfNode":
                         tx_spec = cast(TxSpectralProfNode, band_child)
 
         bb_noise = tx_spec.add_tx_broadband_noise_profile()
