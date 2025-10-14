@@ -1459,11 +1459,12 @@ class ExtensionManager(ExtensionProjectCommon):
 
             def decline():
                 try:
-                    declined_file_path.parent.mkdir(
-                        parents=True, exist_ok=True
+                    from ansys.aedt.core.extensions.misc import (
+                        decline_pyaedt_update,
                     )
-                    declined_file_path.write_text(
-                        latest_version, encoding="utf-8"
+
+                    decline_pyaedt_update(
+                        declined_file_path, latest_version
                     )
                 except Exception:
                     logging.getLogger("Global").debug(
