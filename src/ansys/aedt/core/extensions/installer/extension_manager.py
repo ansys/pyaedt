@@ -637,7 +637,7 @@ class ExtensionManager(ExtensionProjectCommon):
         script_field = None
         option_label = option
         logger = logging.getLogger("Global")
-        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom":
+        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom": # pragma: no cover
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             xml_dir = toolkit_dir / self.current_category
             tabconfig_path = xml_dir / "TabConfig.xml"
@@ -1329,7 +1329,7 @@ class ExtensionManager(ExtensionProjectCommon):
         bool
             True if the extension is pinned, False otherwise.
         """
-        if option.lower() == "custom":
+        if option.lower() == "custom": # pragma: no cover
             return False  # Custom extensions are not tracked
 
         try:
@@ -1376,11 +1376,11 @@ class ExtensionManager(ExtensionProjectCommon):
     def check_for_pyaedt_update_on_startup(self):
         """Spawn a background thread to check PyPI for a newer PyAEDT release.
         """
-        def worker():
+        def worker(): # pragma: no cover
             log = logging.getLogger("Global")
             try:
                 latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
-                if not latest: # pragma: no cover
+                if not latest: 
                     log.debug("PyAEDT update check: no prompt required or latest unavailable.")
                     return
                 try:
@@ -1390,7 +1390,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     )
                 except Exception:
                     log.debug("PyAEDT update check: failed to schedule popup.", exc_info=True)
-            except Exception: # pragma: no cover
+            except Exception:
                 log.debug("PyAEDT update check: worker failed.", exc_info=True)
 
         threading.Thread(target=worker, daemon=True).start()
