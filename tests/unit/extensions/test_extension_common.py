@@ -32,7 +32,7 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from ansys.aedt.core.extensions.misc import MOON
+from ansys.aedt.core.extensions.misc import MOON, decline_pyaedt_update
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
 from ansys.aedt.core.extensions.misc import SUN
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
@@ -44,6 +44,7 @@ from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.misc import ToolTip
 from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import decline_pyaedt_update
 from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -279,6 +280,43 @@ def test_check_for_pyaedt_update_declined_version_same(mock_read_text, mock_is_f
     result = check_for_pyaedt_update("/fake/personallib")
 
     assert result == (None, None)
+
+
+@patch("ansys.aedt.core.extensions.misc.get_latest_version")
+@patch("pathlib.Path.write_text")
+@patch("pathlib.Path.read_text")
+@patch("pathlib.Path.is_file")
+def test_check_for_pyaedt_update_prompt_user(
+    mock_is_file, mock_read_text, mock_write_text, mock_get_latest_version
+):
+    """Test the logic for prompting the user to update."""
+    mock_get_latest_version.return_value = "1.0.0"
+    mock_is_file.return_value = True
+    mock_read_text.return_value = "0.9.0\ntrue"  # last_known_version, show_updates
+
+    with patch("ansys.aedt.core.__version__", "0.9.0"):
+        result = check_for_pyaedt_update("/fake/personallib")
+
+    assert result[0] == "1.0.0"
+    assert isinstance(result[1], Path)
+    assert result[1].name == ".pyaedt_version"
+
+
+@patch("pathlib.Path.write_text")
+@patch("pathlib.Path.parent")
+def test_decline_pyaedt_update(mock_parent, mock_write_text):
+    """Test that declining an update writes the correct file."""
+    # Arrange
+    fake_path = Path("/fake/personallib/Toolkits/.pyaedt_version")
+    latest_version = "1.2.3"
+    mock_parent.mkdir = MagicMock()
+
+    # Act
+    decline_pyaedt_update(fake_path, latest_version)
+
+    # Assert
+    mock_parent.mkdir.assert_called_once_with(parents=True, exist_ok=True)
+    mock_write_text.assert_called_once_with("1.2.3\nfalse", encoding="utf-8")
 
 
 # Tooltip tests
