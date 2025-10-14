@@ -25,6 +25,7 @@ import ast
 import os
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -34,7 +35,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-class ComponentArray(object):
+class ComponentArray(PyAedtBase):
     """Manages object attributes for a 3D component array.
 
     Parameters
@@ -883,7 +884,7 @@ class ComponentArray(object):
         return res
 
 
-class CellArray(object):
+class CellArray(PyAedtBase):
     """Manages object attributes for a 3D component and a user-defined model.
 
     Parameters

@@ -44,6 +44,7 @@ import warnings
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Gravity
@@ -79,7 +80,7 @@ from ansys.aedt.core.modules.solve_setup import SetupSBR
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 
-class Analysis(Design, object):
+class Analysis(Design, PyAedtBase):
     """Contains all common analysis functions.
 
     This class is inherited in the caller application and is accessible through it ( eg. ``hfss.method_name``).
@@ -2571,7 +2572,7 @@ class Analysis(Design, object):
         return self.value_with_units(value, units)
 
 
-class AvailableVariations(object):
+class AvailableVariations(PyAedtBase):
     def __init__(self, app):
         """Contains available variations.
 

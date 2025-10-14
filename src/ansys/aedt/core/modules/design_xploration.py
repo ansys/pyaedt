@@ -29,6 +29,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -47,7 +48,7 @@ from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetu
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 
-class CommonOptimetrics(PropsManager, object):
+class CommonOptimetrics(PropsManager, PyAedtBase):
     """Creates and sets up optimizations.
 
     Parameters
@@ -558,7 +559,7 @@ class CommonOptimetrics(PropsManager, object):
         )
 
 
-class SetupOpti(CommonOptimetrics, object):
+class SetupOpti(CommonOptimetrics, PyAedtBase):
     """Sets up an optimization in Opimetrics."""
 
     def __init__(self, app, name, dictinputs=None, optim_type="OptiDesignExplorer"):
@@ -782,7 +783,7 @@ class SetupOpti(CommonOptimetrics, object):
         return True
 
 
-class SetupParam(CommonOptimetrics, object):
+class SetupParam(CommonOptimetrics, PyAedtBase):
     """Sets up a parametric analysis in Optimetrics."""
 
     def __init__(self, p_app, name, dictinputs=None, optim_type="OptiParametric"):
@@ -951,7 +952,7 @@ class SetupParam(CommonOptimetrics, object):
         return True
 
 
-class ParametricSetups(object):
+class ParametricSetups(PyAedtBase):
     """Sets up Parametrics analyses. It includes Parametrics, Sensitivity and Statistical Analysis.
 
     Examples
@@ -1145,7 +1146,7 @@ class ParametricSetups(object):
         return setup
 
 
-class OptimizationSetups(object):
+class OptimizationSetups(PyAedtBase):
     """Sets up optimizations. It includes Optimization, DOE and DesignXplorer Analysis.
 
     Examples
