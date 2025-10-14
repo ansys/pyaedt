@@ -1412,9 +1412,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         elif Path(xml_path).suffix == ".tech":
             xml_path = Path(tech_to_control_file(xml_path))
         if cad_format == "gds":
-            method(str(cad_path), str(aedb_path), str(xml_path), "")
+            method(str(cad_path), str(aedb_path), xml_path.name, "")
         else:
-            method(str(cad_path), str(aedb_path), str(xml_path))
+            method(str(cad_path), str(aedb_path), xml_path.name)
 
         if set_as_active:
             self._close_edb()

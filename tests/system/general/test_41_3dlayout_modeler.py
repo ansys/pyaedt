@@ -728,6 +728,7 @@ class TestClass:
             os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "GDS", "gds1.tech")
         )
         aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gds_out") + ".aedb")
+        assert self.aedtapp.import_gds(gds_file, output_dir=aedb_file)
         assert self.aedtapp.import_gds(gds_file, output_dir=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
