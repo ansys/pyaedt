@@ -152,7 +152,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
             elif len(lines) == 1:
                 # Legacy format - only version, assume user wants updates
                 return lines[0].strip(), True
-            else: # pragma: no cover
+            else:  # pragma: no cover
                 return None, True
         except Exception:  # pragma: no cover
             return None, True
@@ -198,7 +198,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         return None, None
 
     # If the user already has the latest version installed, never show the popup.
-    if current_version == latest: # pragma: no cover
+    if current_version == latest:  # pragma: no cover
         if last_known_version != latest:
             write_version_file(version_file, latest, False)
         return None, None

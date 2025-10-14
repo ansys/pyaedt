@@ -31,18 +31,10 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    add_script_to_menu,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    get_custom_extension_image,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    get_custom_extension_script,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    get_custom_extensions_from_tabconfig,
-)
+from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
+from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
+from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_script
+from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
 
 
 @pytest.fixture
@@ -52,6 +44,7 @@ def mock_desktop_session():
     mock_desktop.personallib = tempfile.gettempdir()
     mock_desktop.aedt_version_id = "2024.1"
     return mock_desktop
+
 
 @pytest.fixture
 def sample_tabconfig_xml():
@@ -319,6 +312,7 @@ def test_get_custom_extension_image_no_logger(invalid_tabconfig_xml):
     result = get_custom_extension_image(invalid_tabconfig_xml, "Custom Extension 1", logger=None)
 
     assert result == ""
+
 
 @patch("ansys.aedt.core.generic.settings.is_linux", False)
 @patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
