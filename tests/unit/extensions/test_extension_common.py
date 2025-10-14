@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from pathlib import Path
 import tkinter
 from tkinter import ttk
 from unittest.mock import MagicMock
@@ -31,10 +32,12 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from ansys.aedt.core.extensions.misc import MOON, decline_pyaedt_update
+from ansys.aedt.core.extensions.misc import MOON
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
 from ansys.aedt.core.extensions.misc import SUN
-from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
+from ansys.aedt.core.extensions.misc import (
+    ExtensionHFSS3DLayoutCommon,
+)
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import ExtensionIcepakCommon
 from ansys.aedt.core.extensions.misc import ExtensionMaxwell2DCommon
