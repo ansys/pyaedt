@@ -144,7 +144,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
 
         try:
             content = file_path.read_text(encoding="utf-8").strip()
-            lines = content.split('\n')
+            lines = content.split("\n")
             if len(lines) >= 2:
                 last_version = lines[0].strip()
                 show_updates = lines[1].strip().lower() == "true"
@@ -157,9 +157,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
         except Exception:  # pragma: no cover
             return None, True
 
-    def write_version_file(
-        file_path: Path, version: str, show_updates: bool
-    ):
+    def write_version_file(file_path: Path, version: str, show_updates: bool):
         """Write version and preference to file."""
         try:
             file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -186,10 +184,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
     try:
         toolkit_dir = Path(personallib) / "Toolkits"
     except Exception:  # pragma: no cover
-        log.debug(
-            "PyAEDT update check: personal lib path not found.",
-            exc_info=True
-        )
+        log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
         return None, None
 
     version_file = toolkit_dir / ".pyaedt_version"
@@ -1110,8 +1105,7 @@ class ToolTip:
 
 
 def decline_pyaedt_update(declined_file_path: Path, latest_version: str):
-    """Record that the user declined the update notification.
-    """
+    """Record that the user declined the update notification."""
     try:
         declined_file_path.parent.mkdir(parents=True, exist_ok=True)
         if latest_version is None:
