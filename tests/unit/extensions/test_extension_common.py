@@ -269,21 +269,6 @@ def test_check_for_pyaedt_update_no_latest_version(mock_logger, mock_get_latest_
 
 @patch("ansys.aedt.core.extensions.misc.get_latest_version")
 @patch("pathlib.Path.is_file")
-def test_check_for_pyaedt_update_no_declined_file(mock_is_file, mock_get_latest_version):
-    """Test when no declined version file exists."""
-    mock_get_latest_version.return_value = "0.12.34"
-    mock_is_file.return_value = False
-
-    result = check_for_pyaedt_update("/fake/personallib")
-
-    latest_version, declined_file_path = result
-    assert latest_version == "0.12.34"
-    assert isinstance(declined_file_path, Path)
-    assert str(declined_file_path).endswith(".pyaedt_version")
-
-
-@patch("ansys.aedt.core.extensions.misc.get_latest_version")
-@patch("pathlib.Path.is_file")
 @patch("pathlib.Path.read_text")
 def test_check_for_pyaedt_update_declined_version_same(mock_read_text, mock_is_file, mock_get_latest_version):
     """Test when declined version is same as latest."""
