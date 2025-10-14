@@ -51,6 +51,21 @@ class Amplifier(EmitNode):
         self._delete()
 
     @property
+    def table_data(self):
+        """Harmonic Intercept Points, Ref. Input Table.
+        Table consists of 2 columns.
+        Harmonic:
+            Value should be between 2 and 20.
+        Intercept Point:
+            Value should be between -1000 and 1000.
+        """
+        return self._get_table_data()
+
+    @table_data.setter
+    def table_data(self, value):
+        self._set_table_data(value)
+
+    @property
     def filename(self) -> str:
         """Name of file defining the outboard component.
 
@@ -85,21 +100,6 @@ class Amplifier(EmitNode):
     @notes.setter
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
-
-    class AmplifierTypeOption(Enum):
-        TRANSMIT_AMPLIFIER = "Transmit Amplifier"
-        RECEIVE_AMPLIFIER = "Receive Amplifier"
-
-    @property
-    def amplifier_type(self) -> AmplifierTypeOption:
-        """Configures the amplifier as a Tx or Rx amplifier."""
-        val = self._get_property("Amplifier Type")
-        val = self.AmplifierTypeOption[val.upper()]
-        return val
-
-    @amplifier_type.setter
-    def amplifier_type(self, value: AmplifierTypeOption):
-        self._set_property("Amplifier Type", f"{value.value}")
 
     @property
     def gain(self) -> float:

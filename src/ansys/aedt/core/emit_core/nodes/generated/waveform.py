@@ -52,16 +52,6 @@ class Waveform(EmitNode):
     def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
-    @property
-    def port(self):
-        """Radio Port associated with this Band."""
-        val = self._get_property("Port")
-        return val
-
-    @port.setter
-    def port(self, value):
-        self._set_property("Port", f"{value}")
-
     class WaveformOption(Enum):
         PERIODIC_CLOCK = "Periodic Clock"
         SPREAD_SPECTRUM_CLOCK = "Spread Spectrum Clock"
@@ -443,3 +433,4 @@ class Waveform(EmitNode):
     def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Delay Skew", f"{value}")
+

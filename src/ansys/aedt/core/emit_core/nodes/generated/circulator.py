@@ -105,21 +105,6 @@ class Circulator(EmitNode):
     def type(self, value: TypeOption):
         self._set_property("Type", f"{value.value}")
 
-    class Port1LocationOption(Enum):
-        RADIO_SIDE = "Radio Side"
-        ANTENNA_SIDE = "Antenna Side"
-
-    @property
-    def port_1_location(self) -> Port1LocationOption:
-        """Defines the orientation of the circulator."""
-        val = self._get_property("Port 1 Location")
-        val = self.Port1LocationOption[val.upper()]
-        return val
-
-    @port_1_location.setter
-    def port_1_location(self, value: Port1LocationOption):
-        self._set_property("Port 1 Location", f"{value.value}")
-
     @property
     def insertion_loss(self) -> float:
         """Circulator in-band loss in forward direction.
@@ -256,3 +241,4 @@ class Circulator(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

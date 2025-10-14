@@ -86,36 +86,6 @@ class TR_Switch(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class TxPortOption(Enum):
-        PORT_1 = "Port 1"
-        PORT_2 = "Port 2"
-
-    @property
-    def tx_port(self) -> TxPortOption:
-        """Specifies which port on the TR Switch is part of the Tx path."""
-        val = self._get_property("Tx Port")
-        val = self.TxPortOption[val.upper()]
-        return val
-
-    @tx_port.setter
-    def tx_port(self, value: TxPortOption):
-        self._set_property("Tx Port", f"{value.value}")
-
-    class CommonPortLocationOption(Enum):
-        RADIO_SIDE = "Radio Side"
-        ANTENNA_SIDE = "Antenna Side"
-
-    @property
-    def common_port_location(self) -> CommonPortLocationOption:
-        """Defines the orientation of the tr switch."""
-        val = self._get_property("Common Port Location")
-        val = self.CommonPortLocationOption[val.upper()]
-        return val
-
-    @common_port_location.setter
-    def common_port_location(self, value: CommonPortLocationOption):
-        self._set_property("Common Port Location", f"{value.value}")
-
     @property
     def insertion_loss(self) -> float:
         """TR Switch in-band loss in forward direction.

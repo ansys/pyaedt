@@ -52,10 +52,13 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+    from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import Band
     from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1804,10 +1807,129 @@ class TestClass:
         band_node.freq_deviation = 1e4
         assert band_node.freq_deviation == 1e4
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_tables(self, emit_app):
+        # Emit has 2 different types of tables: Node Prop Tables and ColumnData Tables
+        # this test confirms that the table_data properties work for both
+        radio = emit_app.schematic.create_component('New Radio')
+        radio = cast(RadioNode, radio)
+
+        children = radio.children
+        for child in children:
+            if child.node_type == 'SamplingNode':
+                sampling = cast(SamplingNode, child)
+
+        # Sampling node's use NodeProp tables
+        # Verify the table is empty by default
+        assert sampling.table_data == []
+
+        # Set the sampling table
+        sampling_data = [(100000000.0, 100000000.0), (200000000.0, 200000000.0)]
+        sampling.table_data = sampling_data
+
+        # Get the sampling table and verify the data was set properly
+        assert sampling.table_data == sampling_data
+
+        # Now add an amplifier and set its table to test ColumnData Tables
+        amp = emit_app.schematic.create_component("Amplifier")
+        amp = cast(Amplifier, amp)
+
+        # Verify the table is empty by default
+        assert amp.table_data == []
+
+        # Set the amplifier table
+        amp_data = [(2, -50.0), (3, -60.0)]
+        amp.table_data = amp_data
+
+        # Get the amplifier table and verify the data was set properly
+        assert amp.table_data == amp_data
+
+        # Test BB Emissions Node since it can be either a NodeProp or
+        # ColumnData Table
+        radio2 = emit_app.schematic.create_component('New Radio')
+        radio2 = cast(RadioNode, radio2)
+
+        children = radio2.children
+        tx_spec = None
+        for child in children:
+            if child.node_type == 'Band':
+                band_children = child.children
+                for band_child in band_children:
+                    if band_child.node_type == 'TxSpectralProfNode':
+                        tx_spec = cast(TxSpectralProfNode, band_child)
+
+        bb_noise = tx_spec.add_tx_broadband_noise_profile()
+        bb_noise = cast(TxBbEmissionNode, bb_noise)
+
+        # verify the table is empty by default
+        assert bb_noise.table_data == []
+
+        # Set the ColumnData Table
+        bb_data = [(100000.0, -170.0), (100000000.0, -160.0), (200000000.0, -170.0)]
+        bb_noise.table_data = bb_data
+
+        # Verify the ColumnData Table was set
+        assert bb_noise.table_data == bb_data
+
+        # Change it to a NodeProp Table (Equation based)
+        bb_data = [("RF+10", -160), ("RF+100", -166)]
+        bb_noise.noise_behavior = TxBbEmissionNode.NoiseBehaviorOption.EQUATION
+        bb_noise.table_data = bb_data
+
+        # Verify the NodeProp Table was set
+        assert bb_noise.table_data == bb_data
+
+    @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
+    def test_units(self, emit_app):
+        new_radio = emit_app.schematic.create_component("New Radio")
+        band_node = [band for band in new_radio.children if "Band" == band.node_type][0]
+        band_node = cast(Band, band_node)
+        band_node.modulation = Band.ModulationOption.MSK
+        band_node.bit_rate = "600 bps"
+        assert band_node.bit_rate == 600.0
+
+        band_node.bit_rate = "600 Mbps"
+        assert band_node.bit_rate == 600000000.0
+
+        band_node.stop_frequency = 2000000000
+        assert band_node.stop_frequency == 2000000000.0
+
+        band_node.stop_frequency = "1000000000"
+        assert band_node.stop_frequency == 1000000000.0
+
+        cable = emit_app.schematic.create_component("Cable")
+        cable.length = "5.4681 yd"
+        assert round(cable.length, 4) == 5.0000
+
+        cable.length = "0.0031 mile"
+        assert round(cable.length, 4) == 4.9890
+
+    @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
         assert comp_list[12].name == "LTE BTS"
         assert comp_list[13].name == "LTE Mobile Station"
+
+        # test that every EMIT component can be added to the schematic
+        # Components_catalog returns a list in the form Library:CompName
+        comp_list = emit_app.modeler.components.components_catalog
+
+        for comp in comp_list.components:
+            comp_to_add = comp.split(":")[1]
+            # try to add just based on the CompName
+            comp_added = emit_app.schematic.create_component(comp_to_add)
+            if not comp_added:
+                # if CompName has multiple matches, then we need to
+                # also specify the library
+                library_name = comp.split(":")[0]
+                comp_added = emit_app.schematic.create_component(component_type=comp_to_add, library=library_name)
+
+            assert comp_added
+
+            # Delete the component
+            emit_app.schematic.delete_component(comp_added.name)
+
+        rev = emit_app.results.analyze()
+        comps_in_schematic = rev.get_all_component_nodes()
+        assert comps_in_schematic == 0

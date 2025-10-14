@@ -29,6 +29,7 @@ from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes import generated
+from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
@@ -1014,7 +1015,13 @@ class Revision:
         node = None
         try:
             if node_type == "RadioNode" and props["IsEmitter"] == "true":
-                type_class = getattr(generated, f"{prefix}EmitterNode")
+                if prefix == "":
+                    type_class = EmitterNode
+                #else:
+                #    type_class = ReadOnlyEmitterNode
+                node = type_class(self.emit_project, self.results_index, node_id)
+            elif node_type == 'Band' and props["IsEmitterBand"] == "true":
+                type_class = getattr(generated, f"{prefix}Waveform")
                 node = type_class(self.emit_project, self.results_index, node_id)
             else:
                 type_class = getattr(generated, f"{prefix}{node_type}")

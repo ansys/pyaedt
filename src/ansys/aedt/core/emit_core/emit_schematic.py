@@ -94,11 +94,19 @@ class EmitSchematic:
 
         try:
             # Retrieve matching components from the catalog
+            matching_components = []
             matching_components = self.emit_instance.modeler.components.components_catalog[component_type]
 
             if not matching_components:
-                self.emit_instance.logger.error(f"No component found for type '{component_type}'.")
-                raise ValueError(f"No component found for type '{component_type}'.")
+                # couldn't find a component match, try looking at all component names
+                catalog_comps = self.emit_instance.modeler.components.components_catalog.components
+                for value in catalog_comps.values():
+                    if value.name == component_type:
+                        matching_components.append(value)
+
+                if not matching_components:
+                    self.emit_instance.logger.error(f"No component found for type '{component_type}'.")
+                    raise ValueError(f"No component found for type '{component_type}'.")
 
             if len(matching_components) == 1:
                 # Use the single matching component
@@ -123,6 +131,7 @@ class EmitSchematic:
             revision = self.emit_instance.results.get_revision()
 
             # Create the component using the EmitCom module
+            component.name = component.name.strip("'")
             new_component_id = self._emit_com_module.CreateEmitComponent(
                 name, component.name, component.component_library
             )
@@ -203,3 +212,28 @@ class EmitSchematic:
                 f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}"
             )
             raise RuntimeError(f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}")
+
+    @pyaedt_function_handler
+    def delete_component(self, name: str):
+        """Delete a component from the schematic.
+
+                Parameters
+                ----------
+                name : str
+                    Name of the component.
+
+                Raises
+                ------
+                RuntimeError
+                    If the deletion fails.
+                """
+        try:
+            self._emit_com_module.DeleteEmitComponent(name)
+            self.emit_instance.logger.info(
+                f"Successfully deleted component '{name}'."
+            )
+        except Exception as e:
+            self.emit_instance.logger.error(
+                f"Failed to delete component '{name}': {e}"
+            )
+            raise RuntimeError(f"Failed to delete component '{name}': {e}")

@@ -51,6 +51,23 @@ class Terminator(EmitNode):
         self._delete()
 
     @property
+    def table_data(self):
+        """Parametric VSWR Table.
+        Table consists of 3 columns.
+        Min:
+            Value should be between 1 and 100e9.
+        Max:
+            Value should be between 1 and 100e9.
+        VSWR:
+        
+        """
+        return self._get_table_data()
+
+    @table_data.setter
+    def table_data(self, value):
+        self._set_table_data(value)
+
+    @property
     def filename(self) -> str:
         """Name of file defining the Terminator.
 
@@ -105,21 +122,6 @@ class Terminator(EmitNode):
     def type(self, value: TypeOption):
         self._set_property("Type", f"{value.value}")
 
-    class PortLocationOption(Enum):
-        RADIO_SIDE = "Radio Side"
-        ANTENNA_SIDE = "Antenna Side"
-
-    @property
-    def port_location(self) -> PortLocationOption:
-        """Defines the orientation of the terminator."""
-        val = self._get_property("Port Location")
-        val = self.PortLocationOption[val.upper()]
-        return val
-
-    @port_location.setter
-    def port_location(self, value: PortLocationOption):
-        self._set_property("Port Location", f"{value.value}")
-
     @property
     def vswr(self) -> float:
         """VSWR.
@@ -142,3 +144,4 @@ class Terminator(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

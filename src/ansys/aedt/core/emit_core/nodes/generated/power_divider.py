@@ -106,21 +106,6 @@ class PowerDivider(EmitNode):
     def type(self, value: TypeOption):
         self._set_property("Type", f"{value.value}")
 
-    class OrientationOption(Enum):
-        DIVIDER = "Divider"
-        COMBINER = "Combiner"
-
-    @property
-    def orientation(self) -> OrientationOption:
-        """Defines the orientation of the Power Divider."""
-        val = self._get_property("Orientation")
-        val = self.OrientationOption[val.upper()]
-        return val
-
-    @orientation.setter
-    def orientation(self, value: OrientationOption):
-        self._set_property("Orientation", f"{value.value}")
-
     @property
     def insertion_loss_above_ideal(self) -> float:
         """Insertion Loss Above Ideal.
@@ -260,3 +245,4 @@ class PowerDivider(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+
