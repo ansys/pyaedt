@@ -164,7 +164,7 @@ def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[P
             content = f"{version}\n{str(show_updates).lower()}"
             file_path.write_text(content, encoding="utf-8")
         except Exception:  # pragma: no cover
-            pass
+            log.debug("PyAEDT update check: failed to write version file.", exc_info=True)
 
     log = logging.getLogger("Global")
 
@@ -1113,4 +1113,4 @@ def decline_pyaedt_update(declined_file_path: Path, latest_version: str):
         content = f"{latest_version}\nfalse"
         declined_file_path.write_text(content, encoding="utf-8")
     except Exception:  # pragma: no cover
-        pass
+        logging.getLogger("Global").debug("Failed to write declined update file", exc_info=True)
