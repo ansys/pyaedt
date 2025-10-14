@@ -1380,7 +1380,7 @@ class ExtensionManager(ExtensionProjectCommon):
             log = logging.getLogger("Global")
             try:
                 latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
-                if not latest: 
+                if not latest:
                     log.debug("PyAEDT update check: no prompt required or latest unavailable.")
                     return
                 try:

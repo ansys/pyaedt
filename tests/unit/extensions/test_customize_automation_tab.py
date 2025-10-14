@@ -358,7 +358,6 @@ def test_add_script_to_menu_success(
     )
 
     # Verify the generated script content
-    tool_dir = Path(personal_lib) / "Toolkits" / "Project" / toolkit_name
     written_content = m().write.call_args[0][0]
     assert sys.executable in written_content
     assert script_file.name in written_content
