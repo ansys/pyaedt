@@ -637,7 +637,7 @@ class ExtensionManager(ExtensionProjectCommon):
         script_field = None
         option_label = option
         logger = logging.getLogger("Global")
-        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom":
+        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom": # pragma: no cover
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             xml_dir = toolkit_dir / self.current_category
             tabconfig_path = xml_dir / "TabConfig.xml"
@@ -673,21 +673,33 @@ class ExtensionManager(ExtensionProjectCommon):
                 return
         icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
         if is_custom and script_field is None:
-            add_script_to_menu(
-                name=option_label,
-                script_file=str(script_file),
-                product=category,
-                executable_interpreter=sys.executable,
-                personal_lib=self.desktop.personallib,
-                aedt_version=self.desktop.aedt_version_id,
-                copy_to_personal_lib=False,
-                icon_file=str(icon),
-                is_custom=is_custom
-            )
+            try:
+                add_script_to_menu(
+                    name=option_label,
+                    script_file=str(script_file),
+                    product=category,
+                    executable_interpreter=sys.executable,
+                    personal_lib=self.desktop.personallib,
+                    aedt_version=self.desktop.aedt_version_id,
+                    copy_to_personal_lib=True,
+                    icon_file=str(icon),
+                    is_custom=True,
+                )
+            except Exception as e:
+                self.desktop.logger.error(
+                    "Failed to install custom extension %s: %s",
+                    option_label,
+                    e,
+                )
+                messagebox.showerror("Error", f"Failed to pin custom extension: {e}")
+                return
+
             # Refresh the custom extensions
             self.load_extensions(category)
-            self.desktop.logger.info(f"Extension {option_label} pinned successfully. If the extension is not visible,"
-                                     f" create a new AEDT session or create a new project.")
+            self.desktop.logger.info(
+                "Extension %s pinned successfully. If the extension is not visible, create a new AEDT session or create a new project.",
+                option_label,
+            )
 
             # if hasattr(self.desktop, "odesktop"):
             #     self.desktop.odesktop.RefreshToolkitUI()
@@ -916,6 +928,30 @@ class ExtensionManager(ExtensionProjectCommon):
             icon = (
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
+            # If the user selected a script, copy it into personal lib Toolkits/<product>/<option>/Lib
+            if not script_file:
+                self.desktop.logger.info("No script selected for custom extension. Aborting pin.")
+                return
+            try:
+                add_script_to_menu(
+                    name=option,
+                    script_file=str(script_file),
+                    product=category,
+                    executable_interpreter=sys.executable,
+                    personal_lib=self.desktop.personallib,
+                    aedt_version=self.desktop.aedt_version_id,
+                    copy_to_personal_lib=True,
+                    icon_file=str(icon),
+                    is_custom=True,
+                )
+                msg = (f"Extension {option} pinned successfully.\n"
+                       f"If the extension is not visible create a new AEDT session or create a new project.")
+                self.desktop.logger.info(msg)
+                self.log_message(msg)
+            except Exception as e:
+                self.desktop.logger.error(f"Failed to pin custom extension {option}: {e}")
+                messagebox.showerror("Error", f"Failed to pin custom extension: {e}")
+                return
         else:
             if self.toolkits[self.current_category][option].get("script", None):
                 script_file = (
@@ -1293,7 +1329,7 @@ class ExtensionManager(ExtensionProjectCommon):
         bool
             True if the extension is pinned, False otherwise.
         """
-        if option.lower() == "custom":
+        if option.lower() == "custom": # pragma: no cover
             return False  # Custom extensions are not tracked
 
         try:
@@ -1340,11 +1376,11 @@ class ExtensionManager(ExtensionProjectCommon):
     def check_for_pyaedt_update_on_startup(self):
         """Spawn a background thread to check PyPI for a newer PyAEDT release.
         """
-        def worker():
+        def worker(): # pragma: no cover
             log = logging.getLogger("Global")
             try:
                 latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
-                if not latest: # pragma: no cover
+                if not latest:
                     log.debug("PyAEDT update check: no prompt required or latest unavailable.")
                     return
                 try:
@@ -1354,7 +1390,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     )
                 except Exception:
                     log.debug("PyAEDT update check: failed to schedule popup.", exc_info=True)
-            except Exception: # pragma: no cover
+            except Exception:
                 log.debug("PyAEDT update check: worker failed.", exc_info=True)
 
         threading.Thread(target=worker, daemon=True).start()
@@ -1423,11 +1459,12 @@ class ExtensionManager(ExtensionProjectCommon):
 
             def decline():
                 try:
-                    declined_file_path.parent.mkdir(
-                        parents=True, exist_ok=True
+                    from ansys.aedt.core.extensions.misc import (
+                        decline_pyaedt_update,
                     )
-                    declined_file_path.write_text(
-                        latest_version, encoding="utf-8"
+
+                    decline_pyaedt_update(
+                        declined_file_path, latest_version
                     )
                 except Exception:
                     logging.getLogger("Global").debug(
