@@ -26,6 +26,7 @@ from typing import Optional
 from typing import Union
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
@@ -34,8 +35,14 @@ from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class Matrix(object):
-    """Manages Matrix in Q3d and Q2d Projects."""
+class Matrix(PyAedtBase):
+    """Manages Matrix in Q3d and Q2d Projects.
+
+    Examples
+    --------
+
+
+    """
 
     def __init__(self, app, name, operations=None):
         self._app = app

@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
@@ -30,7 +31,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class EdgeTypePrimitive(object):
+class EdgeTypePrimitive(PyAedtBase):
     """Provides common methods for EdgePrimitive and FacePrimitive."""
 
     @pyaedt_function_handler()
@@ -178,7 +179,7 @@ class EdgeTypePrimitive(object):
         return True
 
 
-class VertexPrimitive(EdgeTypePrimitive, object):
+class VertexPrimitive(EdgeTypePrimitive, PyAedtBase):
     """Contains the vertex object within the AEDT Desktop Modeler.
 
     Parameters
@@ -233,7 +234,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         return str(self.id)
 
 
-class EdgePrimitive(EdgeTypePrimitive, object):
+class EdgePrimitive(EdgeTypePrimitive, PyAedtBase):
     """Contains the edge object within the AEDT Desktop Modeler.
 
     Parameters
@@ -412,7 +413,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return self._object3d._primitives.move_edge(self, offset)
 
 
-class FacePrimitive(object):
+class FacePrimitive(PyAedtBase):
     """Contains the face object within the AEDT Desktop Modeler.
 
     Parameters
@@ -926,7 +927,7 @@ class FacePrimitive(object):
         return self._object3d._primitives.create_object_from_face(self, non_model)
 
 
-class Point(object):
+class Point(PyAedtBase):
     """Manages point attributes for the AEDT 3D Modeler.
 
     Parameters
@@ -1120,7 +1121,7 @@ class Point(object):
         return self._primitives._change_point_property(vPropChange, self.name)
 
 
-class Plane(object):
+class Plane(PyAedtBase):
     """Manages plane attributes for the AEDT 3D Modeler.
 
     Parameters

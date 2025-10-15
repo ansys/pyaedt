@@ -84,6 +84,7 @@
 * [Patrick J. O'Brien](https://github.com/obrienpja)
 * [pblarsen-ansys](https://github.com/pblarsen-ansys)
 * [Peter Elmers](https://github.com/pelmers)
+* [PositroniumJS](https://github.com/PositroniumJS)
 * [Pumichat (Kla)](https://github.com/anspraksaph)
 * [Ramin Aghajafari](https://github.com/ramin4667)
 * [Revathy Venugopal](https://github.com/Revathyvenugopal162)

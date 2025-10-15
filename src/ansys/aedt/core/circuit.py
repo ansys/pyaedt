@@ -33,6 +33,7 @@ import time
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic import ibis_reader
 from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.constants import unit_converter
@@ -56,7 +57,7 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
 
 
-class Circuit(FieldAnalysisCircuit, ScatteringMethods):
+class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     """Provides the Circuit application interface.
 
     Parameters

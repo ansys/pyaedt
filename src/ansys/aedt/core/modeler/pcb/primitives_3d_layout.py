@@ -27,6 +27,7 @@ import os
 # import sys
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -44,7 +45,7 @@ from ansys.aedt.core.modeler.pcb.object_3d_layout import Polygons3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Rect3dLayout
 
 
-class Primitives3DLayout(object):
+class Primitives3DLayout(PyAedtBase):
     """Manages primitives in HFSS 3D Layout.
 
     This class is inherited in the caller application and is accessible through the primitives variable part

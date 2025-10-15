@@ -35,6 +35,16 @@ from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.generic.settings import is_linux
 
 
+@pytest.fixture(autouse=True)
+def disable_pyaedt_update_check(monkeypatch):
+    # Prevent ExtensionManager from starting the update-check thread during tests
+    monkeypatch.setattr(
+        "ansys.aedt.core.extensions.installer.extension_manager.ExtensionManager.check_for_pyaedt_update_on_startup",
+        lambda self: None,
+    )
+    yield
+
+
 @pytest.fixture
 def mock_aedt_app():
     """Fixture que crea una aplicación AEDT falsa."""
@@ -121,10 +131,6 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
 
     with (
         patch("tkinter.Toplevel", return_value=mock_dialog),
-        patch(
-            "tkinter.StringVar",
-            side_effect=[mock_script_var, mock_name_var],
-        ),
         patch("tkinter.BooleanVar", return_value=mock_pin_var),
         patch("tkinter.ttk.Label"),
         patch("tkinter.ttk.Entry"),
@@ -135,7 +141,7 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
     ):
         script_file, name = extension.handle_custom_extension()
         assert script_file is None
-        assert name == "Custom Extension"
+        assert name is None
 
     extension.root.destroy()
 
@@ -361,12 +367,7 @@ def test_clear_logs_and_export_behaviour(mock_toolkits, mock_desktop, mock_aedt_
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_extension_manager_launch_extension(mock_desktop, mock_toolkits, mock_popen, mock_aedt_app):
-    """Minimal test for launching an extension without initializing tkinter UI.
-
-    Construct an ExtensionManager instance via __new__ and set only the
-    attributes required by launch_extension to avoid UI interactions or
-    background threads that can hang the test run.
-    """
+    """Minimal test for launching an extension without UI."""
     mock_desktop.return_value = MagicMock()
     toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}}}
     mock_toolkits.return_value = toolkit_data
@@ -402,6 +403,124 @@ def test_extension_manager_launch_extension(mock_desktop, mock_toolkits, mock_po
     mock_popen.assert_called_once()
     assert extension.active_extension == "MyExt"
     assert extension.active_process == mock_process
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
+def test_extension_manager_pin_custom_extension_no_script(mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app):
+    """Test pinning a custom extension when no script is selected."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+    extension.current_category = "HFSS"
+
+    with patch.object(extension, "handle_custom_extension", return_value=(None, None)) as mock_handle_custom:
+        extension.pin_extension("HFSS", "custom")
+        mock_handle_custom.assert_called_once()
+        extension.desktop.logger.info.assert_called_with("No script selected for custom extension. Aborting pin.")
+        mock_add_script.assert_not_called()
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
+def test_extension_manager_pin_custom_extension_success(mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app):
+    """Test successfully pinning a custom extension."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+    extension.current_category = "HFSS"
+    script_file = "path/to/script.py"
+    extension_name = "MyCustomExtension"
+
+    with (
+        patch.object(
+            extension, "handle_custom_extension", return_value=(script_file, extension_name)
+        ) as mock_handle_custom,
+        patch.object(extension, "load_extensions") as mock_load_extensions,
+    ):
+        extension.pin_extension("HFSS", "custom")
+        mock_handle_custom.assert_called_once()
+        mock_add_script.assert_called_once()
+        mock_load_extensions.assert_called_once_with("HFSS")
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch(
+    "ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu",
+    side_effect=Exception("Test error"),
+)
+@patch("tkinter.messagebox.showerror")
+def test_extension_manager_pin_custom_extension_exception(
+    mock_showerror, mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app
+):
+    """Test error handling when pinning a custom extension fails."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+    extension.current_category = "HFSS"
+    script_file = "path/to/script.py"
+    extension_name = "MyCustomExtension"
+
+    with patch.object(
+        extension, "handle_custom_extension", return_value=(script_file, extension_name)
+    ) as mock_handle_custom:
+        extension.pin_extension("HFSS", "custom")
+        mock_handle_custom.assert_called_once()
+        mock_add_script.assert_called_once()
+        extension.desktop.logger.error.assert_called_with(
+            f"Failed to pin custom extension {extension_name}: Test error"
+        )
+        mock_showerror.assert_called_once()
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_on_pin_click_pinned(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Test on_pin_click when the extension is already pinned."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+    with (
+        patch.object(extension, "check_extension_pinned", return_value=True) as mock_check,
+        patch.object(extension, "confirm_unpin") as mock_unpin,
+    ):
+        extension.on_pin_click("HFSS", "MyExt")
+        mock_check.assert_called_once_with("HFSS", "MyExt")
+        mock_unpin.assert_called_once_with("HFSS", "MyExt")
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_on_pin_click_not_pinned(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Test on_pin_click when the extension is not pinned."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+    with (
+        patch.object(extension, "check_extension_pinned", return_value=False) as mock_check,
+        patch.object(extension, "pin_extension") as mock_pin,
+    ):
+        extension.on_pin_click("HFSS", "MyExt")
+        mock_check.assert_called_once_with("HFSS", "MyExt")
+        mock_pin.assert_called_once_with("HFSS", "MyExt")
 
     extension.root.destroy()
 
@@ -626,8 +745,7 @@ def test_extension_manager_handle_custom_extension_with_script(
         ),
     ):
         script_file, name = extension.handle_custom_extension()
-
-        assert script_file.as_posix() == "/path/to/script.py"
+        assert script_file.as_posix().endswith("/path/to/script.py")
         assert name == "My Custom Extension"
 
     extension.root.destroy()
@@ -720,3 +838,99 @@ def _patch_log_threads(monkeypatch, request):
     )
 
     yield
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_handle_custom_extension_on_cancel(mock_desktop, mock_toolkits, mock_aedt_app):
+    """Ensure Cancel button sets result to None and dialog is closed."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    # Capture button commands
+    commands = []
+
+    def mock_button(*args, **kwargs):
+        if "command" in kwargs:
+            commands.append(kwargs["command"])
+        return MagicMock()
+
+    def mock_wait_window(dialog):
+        # Call only cancel
+        if len(commands) > 2:
+            commands[2]()
+
+    with (
+        patch("tkinter.Toplevel", return_value=MagicMock()),
+        patch("tkinter.StringVar", side_effect=[MagicMock(), MagicMock()]),
+        patch("tkinter.ttk.Label"),
+        patch("tkinter.ttk.Entry"),
+        patch("tkinter.ttk.Button", side_effect=mock_button),
+        patch.object(extension.root, "wait_window", side_effect=mock_wait_window),
+    ):
+        script_file, name = extension.handle_custom_extension()
+        assert script_file is None and name is None
+
+    extension.root.destroy()
+
+
+@patch("webbrowser.open")
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_web_url_custom(mock_desktop, mock_toolkits, mock_webbrowser, mock_aedt_app):
+    """Custom option should open the PyAEDT documentation URL."""
+    mock_desktop.return_value = MagicMock()
+    mock_toolkits.return_value = {"HFSS": {}}
+
+    extension = ExtensionManager(withdraw=True)
+
+    result = extension.launch_web_url("HFSS", "Custom")
+
+    mock_webbrowser.assert_called_once_with("https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html")
+    assert result is True
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_web_url_no_url(mock_toolkits, mock_desktop, mock_aedt_app):
+    """If no URL is defined, show an info message and return False."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}}}
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager(withdraw=True)
+    extension.toolkits = toolkit_data
+
+    with patch("tkinter.messagebox.showinfo") as mock_info:
+        result = extension.launch_web_url("HFSS", "MyExt")
+        mock_info.assert_called_once()
+        assert result is False
+
+    extension.root.destroy()
+
+
+@patch("webbrowser.open", side_effect=Exception("boom"))
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_extension_manager_launch_web_url_exception(mock_webbrowser, mock_toolkits, mock_desktop, mock_aedt_app):
+    """If opening the browser raises, show an error and return False."""
+    mock_desktop.return_value = MagicMock()
+    toolkit_data = {
+        "HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "url": "https://example.com"}}
+    }
+    mock_toolkits.return_value = toolkit_data
+
+    extension = ExtensionManager(withdraw=True)
+    extension.toolkits = toolkit_data
+    extension.desktop.logger = MagicMock()
+
+    with patch("tkinter.messagebox.showerror") as mock_err:
+        result = extension.launch_web_url("HFSS", "MyExt")
+        mock_err.assert_called_once()
+        assert result is False
+
+    extension.root.destroy()

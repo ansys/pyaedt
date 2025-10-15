@@ -35,6 +35,7 @@ import numpy as np
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import InfiniteSphereType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -62,7 +63,7 @@ from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObje
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
+class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     """Provides the HFSS application interface.
 
     This class allows you to create an interactive instance of HFSS and
@@ -292,7 +293,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         """
         return self.odesign.GetChildObject("Radiation").GetChildNames()
 
-    class BoundaryType(CreateBoundaryMixin):
+    class BoundaryType(CreateBoundaryMixin, PyAedtBase):
         """Creates and manages boundaries."""
 
         (
