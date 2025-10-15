@@ -40,6 +40,7 @@ This module contains these data classes for creating a material library:
 import copy
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -48,7 +49,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 
 
-class MatProperties(object):
+class MatProperties(PyAedtBase):
     """Contains a list of constant names for all materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
@@ -203,7 +204,7 @@ class MatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
-class SurfMatProperties(object):
+class SurfMatProperties(PyAedtBase):
     """Contains a list of constant names for all surface materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
@@ -259,7 +260,7 @@ class SurfMatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
-class ClosedFormTM(object):
+class ClosedFormTM:
     """Manages closed-form thermal modifiers."""
 
     Tref = "22cel"
@@ -272,7 +273,7 @@ class ClosedFormTM(object):
     TMU = 1000
 
 
-class Dataset(object):
+class Dataset:
     """Manages datasets."""
 
     ds = []
@@ -285,7 +286,7 @@ class Dataset(object):
     namez = None
 
 
-class BasicValue(object):
+class BasicValue:
     """Manages thermal and spatial modifier calculations."""
 
     def __init__(self):
@@ -295,7 +296,7 @@ class BasicValue(object):
         self.spatialmodifier = None
 
 
-class MatProperty(object):
+class MatProperty(PyAedtBase):
     """Manages simple, anisotropic, tensor, and non-linear properties.
 
     Parameters
@@ -1221,7 +1222,7 @@ class MatProperty(object):
         return self._add_spatial_modifier(formula, index)
 
 
-class CommonMaterial(object):
+class CommonMaterial(PyAedtBase):
     """Manages datasets with frequency-dependent materials.
 
     Parameters
@@ -1377,7 +1378,7 @@ class CommonMaterial(object):
         return False
 
 
-class Material(CommonMaterial, object):
+class Material(CommonMaterial, PyAedtBase):
     """Manages material properties.
 
     Parameters
@@ -2175,7 +2176,7 @@ class Material(CommonMaterial, object):
         ...     points_at_frequency={60: [[0, 0], [1, 3], [2, 7]]}, thickness="0.5mm", conductivity=0
         ... )
         >>> print(coefficients)
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
         """
         if not isinstance(points_at_frequency, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
@@ -2302,7 +2303,7 @@ class Material(CommonMaterial, object):
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
 
         The second case shows how to set properties for core losses versus frequencies:
 
@@ -2315,7 +2316,7 @@ class Material(CommonMaterial, object):
                                                     ...                      100 : [[0,0], [1,8], [2,9]],
                                                     ...                      150 : [[0,0], [1,10], [2,19]]}
                                                     ... )
-        >>> m3d.release_desktop(True, True)
+        >>> m3d.desktop_class.close_desktop()
 
         """
         if not isinstance(points_at_frequency, dict):
@@ -2643,7 +2644,7 @@ class Material(CommonMaterial, object):
         return self.get_magnetic_coercivity()
 
     @pyaedt_function_handler()
-    def is_conductor(self, threshold=100000):
+    def is_conductor(self, threshold: float = 100000) -> bool:
         """Check if the material is a conductor.
 
         Parameters
@@ -2673,7 +2674,7 @@ class Material(CommonMaterial, object):
         return False
 
     @pyaedt_function_handler()
-    def is_dielectric(self, threshold=100000):
+    def is_dielectric(self, threshold: float = 100000) -> bool:
         """Check if the material is dielectric.
 
         Parameters
@@ -2681,7 +2682,7 @@ class Material(CommonMaterial, object):
         threshold : float, optional
             Threshold to define if a material is dielectric. The
             default is ``100000``. If the conductivity is equal to or
-            greater than the threshold, the material is
+            less than the threshold, the material is
             considered dielectric.
 
         Returns
@@ -2763,7 +2764,7 @@ class Material(CommonMaterial, object):
             return False
 
 
-class SurfaceMaterial(CommonMaterial, object):
+class SurfaceMaterial(CommonMaterial, PyAedtBase):
     """Manages surface material properties for Icepak only.
 
     Parameters

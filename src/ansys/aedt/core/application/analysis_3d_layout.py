@@ -26,6 +26,7 @@ from pathlib import Path
 import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -33,7 +34,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 
 
-class FieldAnalysis3DLayout(Analysis):
+class FieldAnalysis3DLayout(Analysis, PyAedtBase):
     """Manages 3D field analysis setup in HFSS 3D Layout.
 
     This class is automatically initialized by an application call from this

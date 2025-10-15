@@ -244,7 +244,7 @@ They are small automated workflows with a simple GUI.
             Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
    .. grid-item-card:: Vertical and flat coil geometries
-            :link: pyaedt_extensions_doc/maxwell/vertical_flat_coil
+            :link: pyaedt_extensions_doc/maxwell/create_coil
             :link-type: doc
             :margin: 2 2 0 0
 
@@ -298,7 +298,7 @@ Custom extensions
 Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
 From the Extension manager select the target destination and `Custom` as the extension type:
 
-.. image:: ../Resources/toolkit_manager_1.png
+.. image:: ../Resources/extension_manager_1.png
   :width: 500
   :alt: PyAEDT toolkit manager 1
 
@@ -306,7 +306,7 @@ Provide the path of the Python script containing the workflow. If you do not spe
 
 Enter the extension name. This is the name that appears beneath the button in the Automation tab after a successful installation.
 
-.. image:: ../Resources/toolkit_manager_2.png
+.. image:: ../Resources/extension_manager_2.png
   :width: 500
   :alt: PyAEDT toolkit manager 2
 

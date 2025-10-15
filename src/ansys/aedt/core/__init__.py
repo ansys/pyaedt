@@ -73,7 +73,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.20.dev0"
+__version__ = "0.22.dev0"
 version = __version__
 
 # isort: off
@@ -102,7 +102,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 import ansys.aedt.core.generic.general_methods as general_methods
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
-from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import online_help
@@ -151,7 +151,7 @@ __all__ = [
     "generate_unique_project_name",
     "general_methods",
     "_retry_ntimes",
-    "inside_desktop",
+    "inside_desktop_ironpython_console",
     "is_linux",
     "is_windows",
     "online_help",

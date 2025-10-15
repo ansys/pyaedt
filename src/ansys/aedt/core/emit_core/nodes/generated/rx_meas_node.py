@@ -38,6 +38,11 @@ class RxMeasNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -330,8 +335,8 @@ class RxMeasNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property("Enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property("Enabled", f"{str(value).lower()}")

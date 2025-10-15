@@ -32,14 +32,12 @@ classifiers = [
 ]
 
 dependencies = [
-    "fpdf2",
-    "grpcio>=1.50.0,<1.75",
+    "grpcio>=1.50.0,<1.76",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
     "tomli; python_version < '3.11'",
     "tomli-w",
-    "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
@@ -49,8 +47,10 @@ dependencies = [
 [project.optional-dependencies]
 unit-tests = [
     "pytest>=7.4.0,<8.5",
-    "pytest-cov>=4.0.0,<6.3",
+    "pytest-cov>=4.0.0,<7.1",
     "mock>=5.1.0,<5.3",
+    "fpdf2",
+    "requests",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
@@ -67,10 +67,11 @@ tests = [
     "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.9",
     "tables",
+    "rpyc>=6.0.0,<6.1",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
-    "cffi>=1.16.0,<1.18; platform_system=='Linux'",
+    "cffi>=1.16.0,<2.1; platform_system=='Linux'",
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
@@ -86,12 +87,15 @@ doc = [
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
 ]
 graphics = [
     "ansys-tools-visualization-interface",
     "pyvista[io]>=0.38.0,<0.47",
     "matplotlib>=3.5.0,<3.11",
     "vtk>=9.0,<9.6",
+    "fpdf2",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
@@ -109,6 +113,9 @@ all = [
     "scikit-rf>=0.30.0,<1.9",
     "pyaedt[jupyter]",
     "requests",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
+    "uv>=0.8.17",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
@@ -121,7 +128,15 @@ examples = [
     "joblib>=1.4.0,<1.6",
     "plotly>=6.0,<6.4",
     "scikit-rf>=0.30.0,<1.9",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
 ]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd", "**/*.license"]
 
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
