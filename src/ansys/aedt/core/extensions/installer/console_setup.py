@@ -113,7 +113,7 @@ else:
     print("Error. AEDT should be started in gRPC mode in Linux to connect to PyAEDT")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
-if not error:
+if not error: # pragma: no cover
     print(" ")
 
     print("\033[92m****************************************************************")
