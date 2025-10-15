@@ -2228,7 +2228,6 @@ class ConfigurationsNexxim(Configurations):
             "CoSimulator",
             "InstanceName",
             "NexximNetlist",
-            "InstanceName",
             "Name",
             "COMPONENT",
             "EyeMeasurementFunctions",
@@ -2279,7 +2278,11 @@ class ConfigurationsNexxim(Configurations):
                     component_type = "ami"
                 else:
                     component_type = "ibis"
-                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"][1:-1]
+                component = (
+                    parameters["comp_name"]
+                    if parameters.get("comp_name", None)
+                    else parameters.get("model"[1:-1], component)
+                )
                 for prop, value in parameters.items():
                     if value and value[-1] == '"' and value[0] == '"':
                         value = value[1:-1]
@@ -2339,7 +2342,7 @@ class ConfigurationsNexxim(Configurations):
         port_dict = {}
         temp = pin_mapping.copy()
         for key, value in temp.items():
-            if key not in ["gnd", "ports"] and len(value) == 1:
+            if key not in ["gnd"] and len(value) == 1:
                 if key not in port_dict:
                     port_dict[key] = value
                 else:
