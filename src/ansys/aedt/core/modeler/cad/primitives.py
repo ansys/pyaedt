@@ -4913,6 +4913,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         reduce_error=0,
         merge_planar_faces=True,
         merge_angle=0.02,
+        input_file_unit="Auto",
     ):
         """Import a CAD model.
 
@@ -4951,6 +4952,8 @@ class GeometryModeler(Modeler, PyAedtBase):
             Stl automatic planar face merge during import. Default is ``True``.
         merge_angle : float, optional
             Stl import angle in radians for which faces will be considered planar. Default is ``2e-2``.
+        input_file_unit: str, optional
+            Uinit for the stl file.
 
         Returns
         -------
@@ -4975,7 +4978,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         vArg1.append("ImportFreeSurfaces:="), vArg1.append(import_free_surfaces)
         vArg1.append("GroupByAssembly:="), vArg1.append(group_by_assembly)
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
-        vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         (
             vArg1.append("MergeFacesAngle:="),
             vArg1.append(merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1),
@@ -4990,6 +4992,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(separate_disjoints_lumped_object)
         vArg1.append("SourceFile:="), vArg1.append(input_file)
+        vArg1.append("STLFileUnit:="), vArg1.append(input_file_unit)
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.refresh_all_ids()
