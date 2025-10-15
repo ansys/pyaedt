@@ -25,6 +25,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 
 import pytest
 
@@ -32,9 +33,10 @@ from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeE
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.conftest import local_path as extensions_local_path
 
 pytest.importorskip("pyedb", "0.21.0")
+
+extensions_local_path = Path(__file__).parent
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
