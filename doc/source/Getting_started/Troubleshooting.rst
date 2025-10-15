@@ -259,9 +259,9 @@ Extensions and panels
 
 If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the environment. 
 
-We updated how the extensions are managed in AEDT. Previously, we copied the extensions in the PersonalLib folder. This leaded to inconsistencies when updating PyAEDT extensions, as the old extensions were not updated until resetting the panels, which copied again the extensions from the virtual environment to the PersonalLib folder. Now, the extensions are loaded directly from the virtual environment, so they are always up to date when updating PyAEDT.
+The management of extensions in AEDT was changed. Previously, extensions were copied to the PersonalLib folder, which led to inconsistencies when updating PyAEDT extensions because old extensions were not replaced until panels were reset (which copied the extensions from the virtual environment back into the PersonalLib folder). Extensions are now loaded directly from the virtual environment and remain up to date when PyAEDT is updated.
 
-In case you face issues with the extensions, please follow these steps:
+If issues occur with the extensions, follow these steps:
 
 - Delete the virtual environment folder. On Windows: located in your APPDATA directory. On Linux: located in your HOME directory.
 - Delete the Toolkits directory in your PersonalLib folder.
