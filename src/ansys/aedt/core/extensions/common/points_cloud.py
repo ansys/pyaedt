@@ -86,11 +86,20 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.add_extension_content()
 
     def check_design_type(self):
-        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
-        if self.aedt_application.design_type not in ["HFSS", "Icepak", "HFSS 3D", "Maxwell 3D", "Q3D", "Mechanical"]:
+        """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Maxwell 2D, Q3D, Mechanical"""
+        if self.aedt_application.design_type not in [
+            "HFSS",
+            "Icepak",
+            "HFSS 3D",
+            "Maxwell 3D",
+            "Maxwell 2D",
+            "Q3D",
+            "Mechanical",
+        ]:
             self.release_desktop()
             raise AEDTRuntimeError(
-                "This extension only works with HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, or Mechanical designs."
+                "This extension only works with HFSS, Icepak, HFSS 3D, "
+                "Maxwell 3D, Maxwell 2D, Q3D, or Mechanical designs."
             )
 
     def __load_aedt_info(self):

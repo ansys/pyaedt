@@ -38,6 +38,7 @@ from numpy import zeros
 from pydantic import BaseModel
 from pydantic import Field
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import env_value
@@ -49,7 +50,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
 
-class ReportBase(BaseModel):
+class ReportBase(BaseModel, PyAedtBase):
     model_config = {"populate_by_name": True}
 
 
@@ -181,7 +182,7 @@ class AdvancedReport(ReportBase):
         return str(file_path)
 
 
-class SpiSim:
+class SpiSim(PyAedtBase):
     """Provides support to SpiSim batch mode."""
 
     def __init__(self, touchstone_file=""):
@@ -738,7 +739,7 @@ def detect_encoding(file_path, expected_pattern="", re_flags=0):
             return encoding
 
 
-class DataSet(object):
+class DataSet(PyAedtBase):
     """Base class for storing all traces of a RAW file. Returned by the get_trace() or by the get_axis() methods.
 
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
@@ -818,7 +819,7 @@ class SpiSimRawException(Exception):
     ...
 
 
-class SpiSimRawRead(object):
+class SpiSimRawRead(PyAedtBase):
     """Class for reading SPISim wave Files. It can read all types of Files."""
 
     @staticmethod

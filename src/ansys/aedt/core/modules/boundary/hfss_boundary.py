@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -29,7 +30,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
 
 
-class FieldSetup(BoundaryCommon, BinaryTreeNode):
+class FieldSetup(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages far field and near field component data and execution.
 
     Examples
@@ -187,7 +188,7 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
         return True
 
 
-class FarFieldSetup(FieldSetup, object):
+class FarFieldSetup(FieldSetup):
     """Manages Far Field Component data and execution.
 
     Examples
@@ -514,7 +515,7 @@ class FarFieldSetup(FieldSetup, object):
             self.update()
 
 
-class NearFieldSetup(FieldSetup, object):
+class NearFieldSetup(FieldSetup):
     """Manages Near Field Component data and execution.
 
     Examples

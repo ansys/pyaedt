@@ -217,23 +217,19 @@ class EmitSchematic:
     def delete_component(self, name: str):
         """Delete a component from the schematic.
 
-                Parameters
-                ----------
-                name : str
-                    Name of the component.
+        Parameters
+        ----------
+        name : str
+            Name of the component.
 
-                Raises
-                ------
-                RuntimeError
-                    If the deletion fails.
-                """
+        Raises
+        ------
+        RuntimeError
+            If the deletion fails.
+        """
         try:
             self._emit_com_module.DeleteEmitComponent(name)
-            self.emit_instance.logger.info(
-                f"Successfully deleted component '{name}'."
-            )
+            self.emit_instance.logger.info(f"Successfully deleted component '{name}'.")
         except Exception as e:
-            self.emit_instance.logger.error(
-                f"Failed to delete component '{name}': {e}"
-            )
+            self.emit_instance.logger.error(f"Failed to delete component '{name}': {e}")
             raise RuntimeError(f"Failed to delete component '{name}': {e}")

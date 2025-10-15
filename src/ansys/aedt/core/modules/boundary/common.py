@@ -24,6 +24,7 @@
 
 """This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -70,7 +71,7 @@ class BoundaryProps(dict):
         dict.__setitem__(self, key, value)
 
 
-class BoundaryCommon(PropsManager):
+class BoundaryCommon(PropsManager, PyAedtBase):
     """ """
 
     @pyaedt_function_handler()
@@ -190,7 +191,7 @@ def disable_auto_update(func):
     return wrapper
 
 
-class BoundaryObject(BoundaryCommon, BinaryTreeNode):
+class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages boundary data and execution.
 
     Parameters

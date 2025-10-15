@@ -23,10 +23,11 @@
 # SOFTWARE.
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
 
 
-class AnalysisMaxwellCircuit(Analysis):
+class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
     """Provides the Maxwell Circuit (MaxwellCircuit) interface.
 
     Maxwell Circuit Editor has no setup, solution, analysis or postprocessor
