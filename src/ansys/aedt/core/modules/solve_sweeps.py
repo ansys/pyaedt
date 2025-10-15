@@ -29,6 +29,7 @@ import os
 import sys
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -84,7 +85,7 @@ def identify_setup(props):
     return False
 
 
-class SweepCommon:
+class SweepCommon(PyAedtBase):
     def __repr__(self):
         return f"{self.setup_name} : {self.name}"
 

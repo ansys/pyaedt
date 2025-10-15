@@ -31,13 +31,14 @@ This module provides all functionalities for creating and editing reports.
 
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
 
 
-class Standard(CommonReport):
+class Standard(CommonReport, PyAedtBase):
     """Provides a reporting class that fits most of the app's standard reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
@@ -539,7 +540,7 @@ class Standard(CommonReport):
         return ctxt
 
 
-class Spectral(CommonReport):
+class Spectral(CommonReport, PyAedtBase):
     """Provides for managing spectral reports from transient data."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
