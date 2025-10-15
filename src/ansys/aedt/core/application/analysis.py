@@ -962,7 +962,7 @@ class Analysis(Design, PyAedtBase):
             self.logger.warning("Touchstone format not valid. ``MagPhase`` will be set as default")
             touchstone_format_value = 0
 
-        nominal_variation = self.available_variations.get_independent_nominal_values()
+        nominal_variation = self.available_variations.nominal_variation(dependent_params=False)
 
         for s in self.setups:
             if self.design_type == "Circuit Design":
@@ -1133,7 +1133,7 @@ class Analysis(Design, PyAedtBase):
         if not output_file:
             output_file = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         if not variations:
-            nominal_variation = self.available_variations.get_independent_nominal_values()
+            nominal_variation = self.available_variations.nominal_variation(dependent_params=False)
             val_str = []
             for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
@@ -2327,7 +2327,7 @@ class Analysis(Design, PyAedtBase):
             file name when successful, ``False`` when failed.
         """
         if variations is None:
-            variations = self.available_variations.get_independent_nominal_values()
+            variations = self.available_variations.nominal_variation()
             variations_keys = list(variations.keys())
             if variations_value is None:
                 variations_value = [str(x) for x in list(variations.values())]
@@ -2802,14 +2802,42 @@ class AvailableVariations(PyAedtBase):
     def get_independent_nominal_values(self) -> Dict:
         """Retrieve variations for a given setup.
 
+        .. deprecated:: 0.22.0
+           Use :func:`nominal_variations` method instead.
+
         Returns
         -------
         dict
             Dictionary of independent nominal variations with values.
         """
+        return self.nominal_variation(dependent_params=False)
+
+    @pyaedt_function_handler()
+    def nominal_variation(self, dependent_params=True, expressions=False) -> Dict:
+        """Retrieve variations for a given setup.
+
+        Parameters
+        ----------
+        dependent_params : bool, optional
+            Return dependent parameters. The default is ``True``.
+        expressions : bool, optional
+            Return dependent parameter values as their expression. The default is ``False``
+            in which case the parameter value is returned.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the nominal variation for the current design.
+        """
         independent_flag = self.independent
-        self.independent = True
-        variations = self.nominal_values
+        self.independent = not dependent_params
+
+        available_variables = self.__available_variables()
+        if expressions:
+            variations = {k: v.expression for k, v in list(available_variables.items())}
+        else:
+            variations = {k: v.evaluated_value for k, v in list(available_variables.items())}
+
         self.independent = independent_flag
         return variations
 
