@@ -1017,9 +1017,9 @@ class Revision:
             if node_type == "RadioNode" and props["IsEmitter"] == "true":
                 type_class = EmitterNode
                 # TODO: enable when we add ReadOnlyNodes
-                #if prefix == "":
-                    #type_class = EmitterNode
-                #else:
+                # if prefix == "":
+                # type_class = EmitterNode
+                # else:
                 #    type_class = ReadOnlyEmitterNode
                 node = type_class(self.emit_project, self.results_index, node_id)
             elif node_type == "Band" and props["IsEmitterBand"] == "true":
