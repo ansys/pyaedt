@@ -77,10 +77,7 @@ if local_config_file.exists():
         config.update(local_config)
     except Exception as e:  # pragma: no cover
         # Failed to load local_config.json; report error
-        print(
-            "Failed to load local_config.json "
-            f"({local_config_file}): {e}"
-        )
+        print(f"Failed to load local_config.json ({local_config_file}): {e}")
 
 desktop_version = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
 NONGRAPHICAL = config.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))

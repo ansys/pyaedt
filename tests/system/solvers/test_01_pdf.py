@@ -35,7 +35,6 @@ from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
 from tests.conftest import desktop_version
 
-
 extensions_local_path = Path(__file__).parent
 tol = 1e-12
 test_project_name = "ANSYS-HSD_V1_0_test"
@@ -76,7 +75,9 @@ class TestClass:
         report.add_text("hola", True, True)
         report.add_empty_line(2)
         report.add_page_break()
-        report.add_image(os.path.join(extensions_local_path, "example_models", test_subfolder, "Coax_HFSS.jpg"), "Coaxial Cable")
+        report.add_image(
+            os.path.join(extensions_local_path, "example_models", test_subfolder, "Coax_HFSS.jpg"), "Coaxial Cable"
+        )
         report.add_section(portrait=False, page_format="a3")
         report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
         report.add_section()
@@ -91,21 +92,39 @@ class TestClass:
 
     def test_virtual_compliance(self, local_scratch, aedtapp):
         template = (
-            Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "general_compliance_template.json"
+            Path(extensions_local_path)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "general_compliance_template.json"
         )
         template = local_scratch.copyfile(template)
         local_scratch.copyfile(
-            Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "ContourEyeDiagram_Custom.json"
+            Path(extensions_local_path)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "ContourEyeDiagram_Custom.json"
         )
-        local_scratch.copyfile(Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "spisim_erl.cfg")
+        local_scratch.copyfile(
+            Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "spisim_erl.cfg"
+        )
         local_scratch.copyfile(
             Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Custom.json"
         )
         local_scratch.copyfile(
-            Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Insertion_Custom.json"
+            Path(extensions_local_path)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "Sparameter_Insertion_Custom.json"
         )
         local_scratch.copyfile(
-            Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "StatisticalEyeDiagram_Custom.json"
+            Path(extensions_local_path)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "StatisticalEyeDiagram_Custom.json"
         )
         local_scratch.copyfile(
             Path(extensions_local_path) / "example_models" / test_subfolder / "compliance" / "EyeDiagram_Custom.json"
@@ -167,7 +186,9 @@ class TestClass:
     def test_spisim_raw_read(self, local_scratch):
         from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
 
-        raw_file = os.path.join(extensions_local_path, "example_models", test_subfolder, "SerDes_Demo_02_Thru.s4p_ERL.raw")
+        raw_file = os.path.join(
+            extensions_local_path, "example_models", test_subfolder, "SerDes_Demo_02_Thru.s4p_ERL.raw"
+        )
         raw_file = local_scratch.copyfile(raw_file)
 
         raw_file = SpiSimRawRead(raw_file)
