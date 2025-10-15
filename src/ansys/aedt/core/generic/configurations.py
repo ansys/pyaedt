@@ -2279,9 +2279,7 @@ class ConfigurationsNexxim(Configurations):
                 else:
                     component_type = "ibis"
                 component = (
-                    parameters["comp_name"]
-                    if parameters.get("comp_name", None)
-                    else parameters.get("model"[1:-1], component)
+                    parameters.get("comp_name") or parameters.get("Model") or parameters.get("model") or component
                 )
                 for prop, value in parameters.items():
                     if value and value[-1] == '"' and value[0] == '"':
