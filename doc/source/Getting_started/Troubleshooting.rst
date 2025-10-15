@@ -252,12 +252,12 @@ If you encounter such issue, you can try patching it by importing PyAEDT or PyED
 
 .. note::
 
-    If you use gRPC or previous Numpy releases, you shouldn't be impacted with this issue.
+    If you use gRPC or previous Numpy releases, you shouldn't be impacted by this issue.
 
 Extensions and panels
 ~~~~~~~~~~~~~~~~~~~~~~
 
-If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the environment. 
+If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the virtual environment. 
 
 The management of extensions in AEDT was changed. Previously, extensions were copied to the PersonalLib folder, which led to inconsistencies when updating PyAEDT extensions because old extensions were not replaced until panels were reset (which copied the extensions from the virtual environment back into the PersonalLib folder). Extensions are now loaded directly from the virtual environment and remain up to date when PyAEDT is updated.
 
