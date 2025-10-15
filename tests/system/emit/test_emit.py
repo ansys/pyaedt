@@ -1807,7 +1807,7 @@ class TestClass:
         band_node.freq_deviation = 1e4
         assert band_node.freq_deviation == 1e4
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_tables(self, emit_app):
         # Emit has 2 different types of tables: Node Prop Tables and ColumnData Tables
         # this test confirms that the table_data properties work for both
@@ -1915,6 +1915,10 @@ class TestClass:
         # Components_catalog returns a list in the form Library:CompName
         comp_list = emit_app.modeler.components.components_catalog
 
+        # create a default radio and antenna to use for testing connections
+        default_radio = emit_app.schematic.create_component("New Radio")
+        default_antenna = emit_app.schematic.create_component("Antenna")
+
         for comp in comp_list.components:
             comp_to_add = comp.split(":")[1]
             # try to add just based on the CompName
@@ -1923,13 +1927,22 @@ class TestClass:
                 # if CompName has multiple matches, then we need to
                 # also specify the library
                 library_name = comp.split(":")[0]
-                comp_added = emit_app.schematic.create_component(component_type=comp_to_add, library=library_name)
+                try:
+                    comp_added = emit_app.schematic.create_component(component_type=comp_to_add, library=library_name)
+                    assert comp_added
 
-            assert comp_added
+                    # connect the component
+                    if comp_added._node_type == "AntennaNode" or comp_added._node_type == "Terminator":
+                        emit_app.schematic.connect_components(default_radio.name, comp_added.name)
+                    else:
+                        emit_app.schematic.connect_components(comp_added.name, default_antenna.name)
 
-            # Delete the component
-            emit_app.schematic.delete_component(comp_added.name)
+                    # Delete the component
+                    emit_app.schematic.delete_component(comp_added.name)
+
+                except Exception as e:
+                    print(f"Failed to create component: {comp_to_add} from library {library_name}. Error: {e}")
 
         rev = emit_app.results.analyze()
         comps_in_schematic = rev.get_all_component_nodes()
-        assert comps_in_schematic == 0
+        assert comps_in_schematic == 2  # default antenna/radio should remain

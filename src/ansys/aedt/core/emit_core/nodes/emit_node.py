@@ -184,8 +184,10 @@ class EmitNode:
         node = None
         try:
             if node_type == "RadioNode" and props["IsEmitter"] == "true":
-                if prefix == "":
-                    type_class = EmitterNode
+                type_class = EmitterNode
+                # TODO: enable when we add ReadOnlyNodes
+                # if prefix == "":
+                # type_class = EmitterNode
                 # else:
                 #    type_class = ReadOnlyEmitterNode
                 node = type_class(self._emit_obj, self._result_id, node_id)
