@@ -36,6 +36,11 @@ class RadioNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_band(self):
         """Create a New Band"""
         return self._add_child_node("Band")
@@ -55,21 +60,6 @@ class RadioNode(EmitNode):
     def delete(self):
         """Delete this node"""
         self._delete()
-
-    @property
-    def table_data(self):
-        """Table.
-        Table consists of 2 columns.
-        Name:
-
-        Type:
-
-        """
-        return self._get_table_data()
-
-    @table_data.setter
-    def table_data(self, value):
-        self._set_table_data(value)
 
     @property
     def notes(self) -> str:

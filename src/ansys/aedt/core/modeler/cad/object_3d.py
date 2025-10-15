@@ -37,6 +37,7 @@ import math
 from pathlib import Path
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import unit_converter
@@ -57,7 +58,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class Object3d(object):
+class Object3d(PyAedtBase):
     """Manages object attributes for the AEDT 3D Modeler.
 
     Parameters
@@ -2991,7 +2992,7 @@ class Object3d(object):
         return True
 
 
-class PolylineSegment(object):
+class PolylineSegment(PyAedtBase):
     """Creates and manipulates a segment of a polyline.
 
     Parameters

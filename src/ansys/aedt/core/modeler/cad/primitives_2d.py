@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
 
-class Primitives2D(GeometryModeler, object):
+class Primitives2D(GeometryModeler, PyAedtBase):
     """Manages primitives in 2D tools.
 
     This class is inherited in the caller application and is accessible through the primitives variable part

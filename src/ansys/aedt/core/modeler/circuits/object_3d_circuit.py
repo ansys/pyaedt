@@ -25,6 +25,7 @@
 import math
 import time
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -35,7 +36,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
 
-class CircuitPins(object):
+class CircuitPins(PyAedtBase):
     """Manages circuit component pins."""
 
     def __init__(self, circuit_comp, pinname, pin_number):
@@ -52,7 +53,23 @@ class CircuitPins(object):
     @property
     def total_angle(self):
         """Return the pin orientation in the schematic."""
-        return int(self.angle + self._circuit_comp.angle)
+        loc = self.location[::]
+        bounding = self._circuit_comp.bounding_box
+        left = abs(loc[0] - bounding[0])
+        right = abs(loc[0] - bounding[2])
+        top = abs(loc[1] - bounding[1])
+        bottom = abs(loc[1] - bounding[3])
+        min_val = min(left, right, top, bottom)
+        if min_val == left:
+            return 0
+        if min_val == right:
+            return 180
+        if min_val == top:
+            return 90
+        if min_val == bottom:
+            return 270
+        angle = int(self.angle + self._circuit_comp.angle)
+        return angle
 
     @property
     def location(self):
@@ -165,7 +182,7 @@ class CircuitPins(object):
         wire_name="",
         clearance_units=1,
         page_port_angle=None,
-        offset=0,
+        offset=0.00254,
     ):
         """Connect schematic components.
 
@@ -370,7 +387,7 @@ class ComponentParameters(dict):
         self._tab = tab
 
 
-class ModelParameters(object):
+class ModelParameters(PyAedtBase):
     """Manages model parameters."""
 
     def update(self):
@@ -397,7 +414,7 @@ class ModelParameters(object):
         self.name = name
 
 
-class CircuitComponent(object):
+class CircuitComponent(PyAedtBase):
     """Manages circuit components."""
 
     def __getitem__(self, item):
@@ -435,13 +452,28 @@ class CircuitComponent(object):
         self._mirror = None
         self.usesymbolcolor = True
         self.tabname = tabname
-        self.InstanceName = None
+        self._InstanceName = None
         self._pins = None
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
         self._refdes = None
         self.is_port = False
+
+    @property
+    def instance_name(self):
+        """Instance name."""
+        if self._InstanceName:
+            return self._InstanceName
+        if "InstanceName" in self.parameters:
+            self._InstanceName = self.parameters["InstanceName"]
+        return self._InstanceName
+
+    @instance_name.setter
+    def instance_name(self, value):
+        if "InstanceName" in self.parameters:
+            self.parameters["InstanceName"] = value
+            self._InstanceName = value
 
     @pyaedt_function_handler()
     def _get_property_value(self, prop_name, tab_name=None):
@@ -1185,7 +1217,7 @@ class CircuitComponent(object):
                                 return (data[1][12][1].split(" ")[1])[1:-1]
 
 
-class Wire(object):
+class Wire(PyAedtBase):
     """Creates and manipulates a wire."""
 
     def __init__(self, modeler, composed_name=None):

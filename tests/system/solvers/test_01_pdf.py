@@ -55,7 +55,7 @@ def circuit_test(add_app):
     app.close_project(save=False)
 
 
-class TestClass(object):
+class TestClass:
     def test_create_pdf(self, local_scratch):
         report = AnsysReport(design_name="Design1", project_name="Coaxial")
         report.aedt_version = desktop_version

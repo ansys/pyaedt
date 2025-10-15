@@ -38,6 +38,11 @@ class TxSpectralProfNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_narrowband_emissions_mask(self):
         """Add a Transmitter Narrowband Emission Profile"""
         return self._add_child_node("Narrowband Emissions Mask")
@@ -57,14 +62,14 @@ class TxSpectralProfNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property("Enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     class SpectrumTypeOption(Enum):
-        NARROWBAND__BROADBAND = "Narrowband & Broadband"
+        NARROWBAND_AND_BROADBAND = "Narrowband & Broadband"
         BROADBAND_ONLY = "Broadband Only"
 
     @property
