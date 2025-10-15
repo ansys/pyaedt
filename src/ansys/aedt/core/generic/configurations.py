@@ -2340,7 +2340,7 @@ class ConfigurationsNexxim(Configurations):
         port_dict = {}
         temp = pin_mapping.copy()
         for key, value in temp.items():
-            if key not in ["gnd"] and len(value) == 1:
+            if key not in ["gnd", "ports"] and len(value) == 1:
                 if key not in port_dict:
                     port_dict[key] = value
                 else:
