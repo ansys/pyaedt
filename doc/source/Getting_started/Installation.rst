@@ -208,10 +208,6 @@ From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
 
-There are two kinds of wheelhouses: `all` and `installer`.
-
-The `all` wheelhouse contains all PyAEDT dependencies. And the `installer` one includes `ipython` and `jupyter lab`.
-
 You can then install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
 
