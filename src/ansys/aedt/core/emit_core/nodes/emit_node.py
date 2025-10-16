@@ -326,11 +326,20 @@ class EmitNode:
         """
         if isinstance(value, float) or isinstance(value, int):
             # unitless, so assume SI Units
-            units = consts.SI_UNITS[unit_system]
+            if unit_system == "Data Rate":
+                # Data rate isn't included as part of PyAedt's unit class
+                units = 'bps'
+            else:
+                units = consts.SI_UNITS[unit_system]
         else:
             value, units = self._string_to_value_units(value)
+            # make sure units were specified, if not use SI Units
             if units == "":
-                units = consts.SI_UNITS[unit_system]
+                if unit_system == "Data Rate":
+                    # Data rate isn't included as part of PyAedt unit class
+                    units = 'bps'
+                else:
+                    units = consts.SI_UNITS[unit_system]
             # verify the units are valid for the specified type
             if units not in EMIT_VALID_UNITS[unit_system]:
                 raise ValueError(f"{units} are not valid units for this property.")

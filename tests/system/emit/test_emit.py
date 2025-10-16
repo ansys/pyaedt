@@ -1891,11 +1891,20 @@ class TestClass:
         band_node.bit_rate = "600 Mbps"
         assert band_node.bit_rate == 600000000.0
 
+        band_node.bit_rate = 500
+        assert band_node.bit_rate == 500.0
+
+        band_node.bit_rate = "750"
+        assert band_node.bit_rate == 750.0
+
         band_node.stop_frequency = 2000000000
         assert band_node.stop_frequency == 2000000000.0
 
         band_node.stop_frequency = "1000000000"
         assert band_node.stop_frequency == 1000000000.0
+
+        band_node.start_frequency = "100 MHz"
+        assert band_node.start_frequency == 100000000.0
 
         cable = emit_app.schematic.create_component("Cable")
         cable.length = "5.4681 yd"
