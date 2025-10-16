@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import pytest
 
@@ -32,29 +32,24 @@ from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClustering
 from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.conftest import local_path as extensions_local_path
+from tests import TESTS_EXTENSIONS_PATH
 
 
 def test_via_clustering_main_function(local_scratch):
     """Test the main function of the Via Clustering extension."""
     # Copy test model to scratch directory
-    file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
-    new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
+    file_path = Path(local_scratch.path) / "test_via_merging.aedb"
+    new_file = Path(local_scratch.path) / "new_test_via_merging.aedb"
     local_scratch.copyfolder(
-        os.path.join(
-            extensions_local_path,
-            "example_models",
-            "T45",
-            "test_via_merging.aedb",
-        ),
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "T45" / "test_via_merging.aedb",
         file_path,
     )
 
     # Create test data following the reference pattern
     data = ViaClusteringExtensionData(
-        aedb_path=file_path,
+        aedb_path=str(file_path),
         design_name="test",
-        new_aedb_path=new_file,
+        new_aedb_path=str(new_file),
         start_layer="TOP",
         stop_layer="INT5",
         contour_list=[
@@ -71,21 +66,16 @@ def test_via_clustering_main_function(local_scratch):
     assert main(data)
 
     # Verify the new AEDB file was created
-    assert os.path.exists(new_file)
+    assert new_file.exists()
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_via_clustering_extension_ui(add_app, local_scratch):
     """Test the Via Clustering extension UI components."""
     # Copy the test model to scratch directory
-    file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
+    file_path = Path(local_scratch.path) / "test_via_merging.aedb"
     local_scratch.copyfolder(
-        os.path.join(
-            extensions_local_path,
-            "example_models",
-            "T45",
-            "test_via_merging.aedb",
-        ),
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "T45" / "test_via_merging.aedb",
         file_path,
     )
 
@@ -149,14 +139,9 @@ def test_via_clustering_exceptions():
 def test_via_clustering_button_functions(add_app, local_scratch):
     """Test the button functions in the Via Clustering extension."""
     # Copy the test model to scratch directory
-    file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
+    file_path = Path(local_scratch.path) / "test_via_merging.aedb"
     local_scratch.copyfolder(
-        os.path.join(
-            extensions_local_path,
-            "example_models",
-            "T45",
-            "test_via_merging.aedb",
-        ),
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "T45" / "test_via_merging.aedb",
         file_path,
     )
 

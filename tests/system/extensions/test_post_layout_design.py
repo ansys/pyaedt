@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import pytest
 
@@ -30,11 +30,7 @@ import ansys.aedt.core
 from ansys.aedt.core.extensions.hfss3dlayout import post_layout_design
 from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayoutDesignExtensionData
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.conftest import local_path as extensions_local_path
-
-# Get local path for test files
-local_path = os.path.dirname(os.path.realpath(__file__))
-
+from tests import TESTS_EXTENSIONS_PATH
 
 def test_post_layout_design_data_class(add_app):
     """Test the PostLayoutDesignExtensionData class."""
@@ -77,15 +73,10 @@ def test_post_layout_design_main_function_exceptions(add_app):
 
 def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
     """Test antipad creation with racetrack enabled."""
-    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
+    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_antipad_1.aedb"
 
     local_scratch.copyfolder(
-        os.path.join(
-            extensions_local_path,
-            "example_models",
-            "post_layout_design",
-            "ANSYS_SVP_V1_1_SFP.aedb",
-        ),
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
         file_path,
     )
 
@@ -113,15 +104,10 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
 
 def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
     """Test antipad creation with racetrack disabled."""
-    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
+    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_antipad_2.aedb"
 
     local_scratch.copyfolder(
-        os.path.join(
-            extensions_local_path,
-            "example_models",
-            "post_layout_design",
-            "ANSYS_SVP_V1_1_SFP.aedb",
-        ),
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
         file_path,
     )
 
@@ -149,15 +135,10 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
 
 def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
     """Test main function with unknown action."""
-    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_unknown_action.aedb")
+    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_unknown_action.aedb"
 
     local_scratch.copyfolder(
-        os.path.join(
-            extensions_local_path,
-            "example_models",
-            "post_layout_design",
-            "ANSYS_SVP_V1_1_SFP.aedb",
-        ),
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
         file_path,
     )
 
@@ -184,15 +165,10 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
 
 def test_layout_design_toolkit_microvia(add_app, local_scratch):
     """Test microvia creation with conical shape."""
-    file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_microvia.aedb")
+    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_microvia.aedb"
 
     local_scratch.copyfolder(
-        os.path.join(
-            extensions_local_path,
-            "example_models",
-            "post_layout_design",
-            "ANSYS_SVP_V1_1_SFP.aedb",
-        ),
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
         file_path,
     )
 
