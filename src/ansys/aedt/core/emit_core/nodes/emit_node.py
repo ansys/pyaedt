@@ -328,7 +328,7 @@ class EmitNode:
             # unitless, so assume SI Units
             if unit_system == "Data Rate":
                 # Data rate isn't included as part of PyAedt's unit class
-                units = 'bps'
+                units = "bps"
             else:
                 units = consts.SI_UNITS[unit_system]
         else:
@@ -337,7 +337,7 @@ class EmitNode:
             if units == "":
                 if unit_system == "Data Rate":
                     # Data rate isn't included as part of PyAedt unit class
-                    units = 'bps'
+                    units = "bps"
                 else:
                     units = consts.SI_UNITS[unit_system]
             # verify the units are valid for the specified type
