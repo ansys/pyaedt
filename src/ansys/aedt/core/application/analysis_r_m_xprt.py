@@ -23,11 +23,12 @@
 # SOFTWARE.
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 
 
-class FieldAnalysisRMxprt(Analysis):
+class FieldAnalysisRMxprt(Analysis, PyAedtBase):
     """Manages RMXprt field analysis setup. (To be implemented.)
 
     This class is automatically initialized by an application call (like HFSS,

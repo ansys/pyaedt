@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core import constants
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.material_lib import Material
@@ -62,7 +63,7 @@ def _replace_by_underscore(character, string):
     return "".join(reformat_name)
 
 
-class NamedVariable(object):
+class NamedVariable(PyAedtBase):
     """Cast PyAEDT variable object to simplify getters and setters in Stackup3D.
 
     Parameters
@@ -181,7 +182,7 @@ class NamedVariable(object):
         return True
 
 
-class DuplicatedParametrizedMaterial(object):
+class DuplicatedParametrizedMaterial(PyAedtBase):
     """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT.
 
     For each material property a NamedVariable is created as attribute.
@@ -286,7 +287,7 @@ class DuplicatedParametrizedMaterial(object):
         return self._magnetic_loss_tangent
 
 
-class Layer3D(object):
+class Layer3D(PyAedtBase):
     """Provides a class for a management of a parametric layer in 3D Modeler.
 
     The Layer3D class is not intended to be used with its constructor,
@@ -852,7 +853,7 @@ class Layer3D(object):
         return polygon
 
 
-class PadstackLayer(object):
+class PadstackLayer(PyAedtBase):
     """Provides a data class for the definition of a padstack layer and relative pad and antipad values."""
 
     def __init__(self, padstack, layer_name, elevation, thickness):
@@ -906,7 +907,7 @@ class PadstackLayer(object):
         self._antipad_radius = value
 
 
-class Padstack(object):
+class Padstack(PyAedtBase):
     """Provides the ``Padstack`` class member of Stackup3D."""
 
     def __init__(self, app, stackup, name, material="copper"):
@@ -1146,7 +1147,7 @@ class Padstack(object):
                 return
 
 
-class Stackup3D(object):
+class Stackup3D(PyAedtBase):
     """Main Stackup3D Class.
 
     Parameters
@@ -1763,7 +1764,7 @@ class Stackup3D(object):
         return True
 
 
-class CommonObject(object):
+class CommonObject(PyAedtBase):
     """CommonObject Class in Stackup3D. This class must not be directly used."""
 
     def __init__(self, application):
@@ -1875,7 +1876,7 @@ class CommonObject(object):
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]
 
 
-class Patch(CommonObject, object):
+class Patch(CommonObject, PyAedtBase):
     """Patch Class in Stackup3D. Create a parametrized patch.
 
     It is preferable to use the add_patch method
@@ -2519,7 +2520,7 @@ class Patch(CommonObject, object):
         self.width.expression = "(c0 * 1000/(2 * " + f + " * sqrt((" + er + " + 1)/2)))mm"
 
 
-class Trace(CommonObject, object):
+class Trace(CommonObject, PyAedtBase):
     """Trace Class in Stackup3D. Create a parametrized trace.
 
     It is preferable to use the add_trace method in the class Layer3D
@@ -3193,7 +3194,7 @@ class Trace(CommonObject, object):
         return port
 
 
-class Polygon(CommonObject, object):
+class Polygon(CommonObject, PyAedtBase):
     """Polygon Class in Stackup3D. It is preferable to use the add_polygon method in the class Layer3D than directly
     the class constructor.
 

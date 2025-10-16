@@ -53,6 +53,7 @@ import grpc
 from ansys.aedt.core import __version__
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -323,7 +324,7 @@ def is_student_version(oDesktop):
     return False
 
 
-class Desktop(object):
+class Desktop(PyAedtBase):
     """Provides the Ansys Electronics Desktop (AEDT) interface.
 
     Parameters
