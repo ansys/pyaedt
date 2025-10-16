@@ -44,7 +44,6 @@ from ansys.aedt.core.visualization.post.spisim import SpiSim
 from tests import TESTS_EXTENSIONS_PATH
 from tests.conftest import desktop_version
 
-
 sbr_platform_name = "satellite_231"
 icepak_solved_name = "icepak_summary_solved"
 sbr_platform_solved_name = "satellite_solved"

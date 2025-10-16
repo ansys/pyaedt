@@ -32,6 +32,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import PostLayou
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
+
 def test_post_layout_design_data_class(add_app):
     """Test the PostLayoutDesignExtensionData class."""
     # Test default values

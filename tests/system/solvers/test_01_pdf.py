@@ -44,9 +44,7 @@ test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(
-        test_project_name, application=Circuit, subfolder=str(Path(test_subfolder) / "compliance")
-    )
+    app = add_app(test_project_name, application=Circuit, subfolder=str(Path(test_subfolder) / "compliance"))
     return app
 
 
@@ -188,12 +186,7 @@ class TestClass:
     def test_spisim_raw_read(self, local_scratch):
         from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
 
-        raw_file = (
-            Path(TESTS_EXTENSIONS_PATH)
-            / "example_models"
-            / test_subfolder
-            / "SerDes_Demo_02_Thru.s4p_ERL.raw"
-        )
+        raw_file = Path(TESTS_EXTENSIONS_PATH) / "example_models" / test_subfolder / "SerDes_Demo_02_Thru.s4p_ERL.raw"
         raw_file = local_scratch.copyfile(raw_file)
 
         raw_file = SpiSimRawRead(raw_file)

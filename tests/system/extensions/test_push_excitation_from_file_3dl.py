@@ -24,9 +24,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+from pathlib import Path
 import shutil
 import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -43,7 +43,9 @@ def test_push_excitation_3dl_generate_button(local_scratch, desktop):
     """Test the Generate button in the Push Excitation 3D Layout extension."""
     project_path = Path(
         shutil.copy(
-            Path(TESTS_EXTENSIONS_PATH, "..", "general", "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"),
+            Path(
+                TESTS_EXTENSIONS_PATH, "..", "general", "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"
+            ),
             Path(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"),
         )
     )
@@ -162,7 +164,9 @@ def test_push_excitation_3dl_with_sinusoidal_input(local_scratch, desktop):
     """Test HFSS 3D Layout push excitation with sinusoidal data from file."""
     project_path = Path(
         shutil.copy(
-            Path(TESTS_EXTENSIONS_PATH, "..", "general", "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"),
+            Path(
+                TESTS_EXTENSIONS_PATH, "..", "general", "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"
+            ),
             Path(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"),
         )
     )
@@ -217,7 +221,9 @@ def test_push_excitation_3dl_main_function(local_scratch, desktop):
     """Test the main function directly based on the provided test example."""
     project_path = Path(
         shutil.copy(
-            Path(TESTS_EXTENSIONS_PATH, "..", "general", "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"),
+            Path(
+                TESTS_EXTENSIONS_PATH, "..", "general", "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"
+            ),
             Path(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"),
         )
     )
