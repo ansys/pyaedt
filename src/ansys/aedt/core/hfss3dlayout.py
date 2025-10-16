@@ -1408,13 +1408,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             aedb_path = aedb_path.replace(old_name, project_name)
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
         if xml_path is None:
-            xml_path = Path("")
+            xml_path = Path("").name
         elif Path(xml_path).suffix == ".tech":
-            xml_path = Path(tech_to_control_file(xml_path))
+            xml_path = Path(tech_to_control_file(xml_path)).name
         if cad_format == "gds":
-            method(str(cad_path), str(aedb_path), str(xml_path), "")
+            method(str(cad_path), str(aedb_path), xml_path, "")
         else:
-            method(str(cad_path), str(aedb_path), str(xml_path))
+            method(str(cad_path), str(aedb_path), xml_path)
 
         if set_as_active:
             self._close_edb()
