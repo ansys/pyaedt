@@ -83,6 +83,7 @@ class TestClass:
         report.add_section()
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
         report.add_toc()
+        report.save_pdf(Path(local_scratch.path) / "my_firstpdf.pdf")
         assert (Path(local_scratch.path) / "my_firstpdf.pdf").exists()
 
     def test_create_pdf_schematic(self, circuit_test):
