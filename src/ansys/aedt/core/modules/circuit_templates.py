@@ -573,7 +573,7 @@ DCProps = [
 ]
 
 
-class SourceKeys(object):
+class SourceKeys:
     """Provides source keys."""
 
     SourceTemplates = {

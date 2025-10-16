@@ -25,12 +25,13 @@
 import math
 from warnings import warn
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.cad.primitives_2d import Primitives2D
 
 
-class ModelerRMxprt(Modeler):
+class ModelerRMxprt(Modeler, PyAedtBase):
     """Provides the Modeler RMxprt application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
@@ -54,7 +55,7 @@ class ModelerRMxprt(Modeler):
         return self._app.oeditor
 
 
-class Modeler2D(Primitives2D):
+class Modeler2D(Primitives2D, PyAedtBase):
     """Provides the Modeler 2D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
