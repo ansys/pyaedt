@@ -46,14 +46,14 @@ test_circuit_name = "Switching_Speed_FET_And_Diode"
 test_subfolder = "T12"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def m2d_app(add_app):
     app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder, application=ansys.aedt.core.Maxwell2d)
     yield app
@@ -194,14 +194,6 @@ class TestClass:
         setup_name = aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": frequency, "Phase": phase}
         assert not aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
-
-    def test_create_fieldplot_surface_5(self, m2d_blank):
-        circ = m2d_blank.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
-        m2d_blank.assign_current(assignment=circ.name, amplitude=5)
-        region = m2d_blank.modeler.create_region(pad_value=100)
-        m2d_blank.assign_balloon(assignment=region.edges)
-        m2d_blank.create_setup()
-        assert m2d_blank.post.create_fieldplot_surface(assignment=m2d_blank.modeler.object_list, quantity="Flux_Lines")
 
     def test_design_setups(self, aedtapp):
         assert len(aedtapp.design_setups["Setup1"].sweeps[0].frequencies) > 0
@@ -1100,3 +1092,11 @@ class TestClass:
             m2d_app.post.plots[0].export_table_to_file(plot_name, "Invalid Path", "Legend")
         with pytest.raises(AEDTRuntimeError):
             m2d_app.post.plots[0].export_table_to_file(plot_name, str(output_file_path), "Invalid Export Type")
+
+    def test_create_fieldplot_surface_5(self, m2d_blank):
+        circ = m2d_blank.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
+        m2d_blank.assign_current(assignment=circ.name, amplitude=5)
+        region = m2d_blank.modeler.create_region(pad_value=100)
+        m2d_blank.assign_balloon(assignment=region.edges)
+        m2d_blank.create_setup()
+        assert m2d_blank.post.create_fieldplot_surface(assignment=m2d_blank.modeler.object_list, quantity="Flux_Lines")
