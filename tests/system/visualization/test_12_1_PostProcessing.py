@@ -346,11 +346,13 @@ class TestClass:
         assert aedtapp.export_touchstone(setup_name, sweep_name)
 
     def test_export_report_to_jpg(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         aedtapp.post.export_report_to_jpg(local_scratch.path, "MyTestScattering")
         output_file = Path(local_scratch.path) / "MyTestScattering.jpg"
         assert output_file.is_file()
 
     def test_export_report_to_csv(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         aedtapp.post.export_report_to_csv(
             local_scratch.path,
             "MyTestScattering",
@@ -364,6 +366,7 @@ class TestClass:
         assert output_file.is_file()
 
     def test_export_report_to_rdat(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         output_file = Path(local_scratch.path) / "MyTestScattering.rdat"
         aedtapp.post.export_report_to_file(local_scratch.path, "MyTestScattering", ".rdat")
         assert output_file.is_file()
@@ -457,14 +460,17 @@ class TestClass:
         assert model_pv.clean_cache_and_files(clean_cache=True)
 
     def test_copydata(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         assert aedtapp.post.copy_report_data("MyTestScattering")
 
     def test_rename_report(self, aedtapp):
+        aedtapp.create_scattering("MyTestScattering")
         assert aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
 
     def test_rename_report_1(self, aedtapp):
-        assert [plot for plot in aedtapp.post.plots if plot.plot_name == "MyNewScattering"]
-        assert not aedtapp.post.rename_report("invalid", "MyNewScattering")
+        aedtapp.create_scattering("MyTestScattering")
+        assert [plot for plot in aedtapp.post.plots if plot.plot_name == "MyTestScattering"]
+        assert not aedtapp.post.rename_report("invalid", "MyTestScattering")
 
     def test_create_report(self, aedtapp, local_scratch):
         plot = aedtapp.post.create_report("dB(S(1,1))")
@@ -511,6 +517,7 @@ class TestClass:
         )
 
     def test_get_solution_data_2(self, aedtapp):
+        aedtapp.post.create_report("dB(S(1,1))")
         data = aedtapp.post.get_solution_data("S(1,1)")
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
@@ -736,9 +743,11 @@ class TestClass:
         )
 
     def test_delete_report(self, aedtapp):
+        aedtapp.create_scattering("MyTestScattering")
         plots_number = len(aedtapp.post.plots)
-        assert aedtapp.post.delete_report("MyNewScattering")
+        assert aedtapp.post.delete_report("MyTestScattering")
         assert len(aedtapp.post.plots) == plots_number - 1
+        aedtapp.create_scattering("MyTestScattering1")
         assert aedtapp.post.delete_report()
         assert len(aedtapp.post.plots) == 0
 
