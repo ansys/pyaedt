@@ -35,7 +35,7 @@ except ImportError:
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import desktop_version
+from tests.conftest import desktop_version
 
 if desktop_version > "2022.2":
     test_project_name = "Cassegrain_231"

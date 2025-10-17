@@ -39,7 +39,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 from tests import TESTS_VISUALIZATION_PATH
-from tests.system.visualization.conftest import config
+from tests.conftest import config
 
 test_field_name = "Potter_Horn_242"
 q3d_file = "via_gsg_solved"

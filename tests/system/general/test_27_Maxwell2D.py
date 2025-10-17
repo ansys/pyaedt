@@ -33,7 +33,7 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "TMaxwell"
 
