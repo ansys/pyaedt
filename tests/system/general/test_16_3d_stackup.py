@@ -45,7 +45,7 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_create_stackup(self):
-        self.st.dielectic_x_postion = "10mm"
+        self.st.dielectic_x_position = "10mm"
         gnd = self.st.add_ground_layer("gnd1")
         self.st.add_dielectric_layer("diel1", thickness=1)
         assert self.st.thickness.numeric_value == 1.035
@@ -143,7 +143,9 @@ class TestClass:
         assert poly4
 
     def test_05_resize(self):
+        self.st.application.variable_manager.variables["dielectric_x_position"].value
         assert self.st.resize(20)
+        self.st.application.variable_manager.variables["dielectric_x_position"].value
         assert self.st.dielectric_x_position
         self.st.dielectric_x_position = "10mm"
         assert self.st.dielectric_x_position.evaluated_value == "10.0mm"
