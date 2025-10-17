@@ -63,13 +63,10 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
+
 @pytest.fixture()
 def interference(add_app):
-    app = add_app(
-        project_name="interference",
-        application=ansys.aedt.core.Emit,
-        subfolder=TEST_SUBFOLDER
-    )
+    app = add_app(project_name="interference", application=ansys.aedt.core.Emit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
