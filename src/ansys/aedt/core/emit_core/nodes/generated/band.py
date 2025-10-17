@@ -53,16 +53,6 @@ class Band(EmitNode):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
-    def port(self):
-        """Radio Port associated with this Band."""
-        val = self._get_property("Port")
-        return val
-
-    @port.setter
-    def port(self, value):
-        self._set_property("Port", f"{value}")
-
-    @property
     def use_dd_1494_mode(self) -> bool:
         """Uses DD-1494 parameters to define the Tx/Rx spectrum.
 

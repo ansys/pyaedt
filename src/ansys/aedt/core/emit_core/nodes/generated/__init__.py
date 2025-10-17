@@ -30,7 +30,6 @@ from .band import Band
 from .band_folder import BandFolder
 from .cable import Cable
 from .cad_node import CADNode
-from .categories_view_node import CategoriesViewNode
 from .circulator import Circulator
 from .coupling_link_node import CouplingLinkNode
 from .couplings_node import CouplingsNode
@@ -61,7 +60,6 @@ from .scene_group_node import SceneGroupNode
 from .solution_coupling_node import SolutionCouplingNode
 from .solutions_node import SolutionsNode
 from .terminator import Terminator
-from .top_level_simulation import TopLevelSimulation
 from .touchstone_coupling_node import TouchstoneCouplingNode
 from .tr_switch import TR_Switch
 from .two_ray_path_loss_coupling_node import TwoRayPathLossCouplingNode
@@ -83,7 +81,6 @@ __all__ = [
     "BandFolder",
     "CADNode",
     "Cable",
-    "CategoriesViewNode",
     "Circulator",
     "CouplingLinkNode",
     "CouplingsNode",
@@ -115,7 +112,6 @@ __all__ = [
     "SolutionsNode",
     "TR_Switch",
     "Terminator",
-    "TopLevelSimulation",
     "TouchstoneCouplingNode",
     "TwoRayPathLossCouplingNode",
     "TxBbEmissionNode",
