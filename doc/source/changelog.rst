@@ -9,6 +9,35 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.21.2 <https://github.com/ansys/pyaedt/releases/tag/v0.21.2>`_ - October 17, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update Report type according to Solution Type in CreateOutputVariable
+          - `#6726 <https://github.com/ansys/pyaedt/pull/6726>`_
+
+        * - Update extension directory path handling in add_script_to_menu function
+          - `#6779 <https://github.com/ansys/pyaedt/pull/6779>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.21.1
+          - `#6777 <https://github.com/ansys/pyaedt/pull/6777>`_
+
+
 `0.21.1 <https://github.com/ansys/pyaedt/releases/tag/v0.21.1>`_ - October 16, 2025
 ===================================================================================
 
