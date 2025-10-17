@@ -14,5 +14,6 @@ general:
   release_on_exception: false
   wait_for_license: true
   enable_pandas_output: true
+  objects_lazy_load: false
 lsf: {}
   # LSF settings are kept at defaults for test environment
