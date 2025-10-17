@@ -56,6 +56,8 @@ from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from tests.conftest import config
 from tests.conftest import logger
 
+settings.objects_lazy_load = False
+
 
 def _delete_objects():
     settings.remote_api = False
