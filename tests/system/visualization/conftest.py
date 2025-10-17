@@ -42,6 +42,7 @@ directory as this module. An example of the contents of local_config.json
 
 """
 
+import gc
 import json
 import os
 import random
@@ -49,6 +50,7 @@ import shutil
 import string
 import sys
 import tempfile
+import time
 
 import pytest
 
@@ -60,7 +62,9 @@ from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.filesystem import Scratch
+from tests import TESTS_VISUALIZATION_PATH
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -92,14 +96,11 @@ config = {
     "skip_circuits": False,
     "skip_edb": False,
     "skip_debug": False,
-    "skip_modelithics": True,
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
-    "close_desktop": True,
-    "remove_lock": False,
-    "local_example_folder": None,
     "use_local_example_data": False,
+    "close_desktop": True,
 }
 
 # Check for the local config file, override defaults if found
@@ -120,7 +121,6 @@ settings.use_grpc_api = config["use_grpc"]
 if settings.use_local_example_data:
     settings.local_example_folder = config["local_example_folder"]
 close_desktop = config["close_desktop"]
-remove_lock = config["remove_lock"]
 
 logger = pyaedt_logger
 
@@ -134,6 +134,16 @@ def generate_random_string(length):
 def generate_random_ident():
     ident = "-" + generate_random_string(6) + "-" + generate_random_string(6) + "-" + generate_random_string(6)
     return ident
+
+
+def _delete_objects():
+    settings.remote_api = False
+    pyaedt_logger.remove_all_project_file_logger()
+    try:
+        del sys.modules["glob"]
+    except Exception:
+        logger.debug("Failed to delete glob module")
+    gc.collect()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -163,18 +173,24 @@ def local_scratch(init_scratch):
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
+    _delete_objects()
+    keys = list(_desktop_sessions.keys())
+    for key in keys:
+        del _desktop_sessions[key]
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
     d.odesktop.SetTempDirectory(tempfile.gettempdir())
     d.disable_autosave()
-
+    if desktop_version > "2022.2":
+        d.odesktop.SetDesktopConfiguration("All")
+        d.odesktop.SetSchematicEnvironment(0)
     yield d
+    pid = d.aedt_process_id
+    d.close_desktop()
+    time.sleep(1)
     try:
-        if close_desktop:
-            d.close_desktop()
-        else:
-            d.release_desktop(close_projects=True, close_on_exit=False)
-    except Exception:
-        return False
+        os.kill(pid, 9)
+    except OSError:
+        pass
 
 
 @pytest.fixture(scope="module")
@@ -183,8 +199,10 @@ def add_app(local_scratch):
         project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False
     ):
         if project_name and not just_open:
-            example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
-            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
+            example_project = os.path.join(
+                TESTS_VISUALIZATION_PATH, "example_models", subfolder, project_name + ".aedt"
+            )
+            example_folder = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_project):
                 test_project = local_scratch.copyfile(example_project)
             elif os.path.exists(example_project + "z"):
@@ -201,13 +219,17 @@ def add_app(local_scratch):
             test_project = None
         if not application:
             application = Hfss
-        return application(
-            project=test_project,
-            design=design_name,
-            solution_type=solution_type,
-            version=desktop_version,
-            remove_lock=remove_lock,
-        )
+
+        args = {
+            "project": test_project,
+            "design": design_name,
+            "version": desktop_version,
+            "non_graphical": NONGRAPHICAL,
+            "remove_lock": True,
+        }
+        if solution_type:
+            args["solution_type"] = solution_type
+        return application(**args)
 
     return _method
 
@@ -216,7 +238,7 @@ def add_app(local_scratch):
 def test_project_file(local_scratch):
     def _method(project_name=None, subfolder=None):
         if subfolder:
-            project_file = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
+            project_file = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", subfolder, project_name + ".aedt")
         else:
             project_file = os.path.join(local_scratch.path, project_name + ".aedt")
         if os.path.exists(project_file):
@@ -231,7 +253,7 @@ def test_project_file(local_scratch):
 def add_edb(local_scratch):
     def _method(project_name=None, subfolder=""):
         if project_name:
-            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
+            example_folder = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_folder):
                 target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
                 local_scratch.copyfolder(example_folder, target_folder)
