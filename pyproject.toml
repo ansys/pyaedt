@@ -41,7 +41,7 @@ dependencies = [
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
-    "pydantic>=2.6.4,<2.12",
+    "pydantic>=2.6.4,<2.13",
 ]
 
 [project.optional-dependencies]
