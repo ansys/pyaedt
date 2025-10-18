@@ -1,0 +1,6 @@
+frequencies
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: FrequencySweepProfile.frequencies

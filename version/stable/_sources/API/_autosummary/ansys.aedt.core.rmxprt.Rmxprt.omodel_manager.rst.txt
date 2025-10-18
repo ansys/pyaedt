@@ -1,0 +1,6 @@
+omodel\_manager
+===============
+
+.. currentmodule:: ansys.aedt.core.rmxprt
+
+.. autoproperty:: Rmxprt.omodel_manager

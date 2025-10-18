@@ -1,0 +1,6 @@
+thinning\_points
+================
+
+.. currentmodule:: ansys.aedt.core.visualization.report.field
+
+.. autoproperty:: AntennaParameters.thinning_points
