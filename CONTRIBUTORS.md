@@ -114,5 +114,6 @@
 * [voss70](https://github.com/voss70)
 * [vossleon](https://github.com/vossleon)
 * [vpipidis](https://github.com/vpipidis)
+* [Xiaoyang Ma](https://github.com/boltma)
 * [XZ](https://github.com/atlanswer)
 * [Zeba](https://github.com/zebanaqviWAT)
