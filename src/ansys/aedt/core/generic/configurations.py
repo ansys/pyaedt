@@ -2282,7 +2282,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 component: str = (
                     parameters.get("comp_name") or parameters.get("Model") or parameters.get("model") or component
                 )
-                component = component.replace('"', '')
+                component = component.replace('"', "")
                 for prop, value in parameters.items():
                     if value and value[-1] == '"' and value[0] == '"':
                         value = value[1:-1]
