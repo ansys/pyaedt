@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Exit if dependabot triggered the workflow
-        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        if: github.triggering_actor == 'dependabot[bot]'
         run: |
           echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
           exit 1
