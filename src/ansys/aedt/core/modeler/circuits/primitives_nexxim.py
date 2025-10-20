@@ -225,7 +225,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             name = match[0].split(";")
             o.name = name[0]
             o.schematic_id = int(name[2])
-            o.id = int(name[1])
+            o.id = name[1]
             return o
         self.refresh_all_ids()
         for el in self.components:
