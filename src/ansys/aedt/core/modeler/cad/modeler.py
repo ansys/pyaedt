@@ -30,6 +30,7 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
@@ -94,7 +95,7 @@ class ListsProps(dict):
         dict.__setitem__(self, key, value)
 
 
-class BaseCoordinateSystem(PropsManager, object):
+class BaseCoordinateSystem(PropsManager, PyAedtBase):
     """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
     Parameters
@@ -392,7 +393,7 @@ class BaseCoordinateSystem(PropsManager, object):
         return True
 
 
-class FaceCoordinateSystem(BaseCoordinateSystem, object):
+class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     """Manages face coordinate system data and execution.
 
     Parameters
@@ -662,7 +663,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         return True
 
 
-class CoordinateSystem(BaseCoordinateSystem, object):
+class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     """Manages the coordinate system data and execution.
 
     Parameters
@@ -1234,7 +1235,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         return coordinateSystemAttributes
 
 
-class ObjectCoordinateSystem(BaseCoordinateSystem, object):
+class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     """Manages object coordinate system data and execution.
 
     Parameters
@@ -1701,7 +1702,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             return pos
 
 
-class Lists(PropsManager, object):
+class Lists(PropsManager, PyAedtBase):
     """Manages list data and execution.
 
     Parameters
@@ -1874,7 +1875,7 @@ class Lists(PropsManager, object):
         return object_list_new
 
 
-class Modeler(object):
+class Modeler(PyAedtBase):
     """Provides the `Modeler` application class that other `Modeler` classes inherit.
 
     This class is inherited in the caller application and is accessible through the modeler variable

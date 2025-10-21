@@ -36,6 +36,7 @@ from typing import Literal
 from typing import Optional
 from typing import Tuple
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -47,7 +48,7 @@ from ansys.aedt.core.visualization.post.field_summary import FieldSummary
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
-class PostProcessorIcepak(PostProcessor3D):
+class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
     """Manages the specific Icepak postprocessing functions.
 
     .. note::

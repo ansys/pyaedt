@@ -31,13 +31,14 @@ from fpdf import FPDF
 from fpdf import FontFace
 
 from ansys.aedt.core import __version__
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.internal.checks import graphics_required
 
 
 @dataclass
-class ReportSpec:
+class ReportSpec(PyAedtBase):
     """Data class containing all report template specifications."""
 
     document_prefix: str = "ANSS"
@@ -74,7 +75,7 @@ class ReportSpec:
     font_caption_color: list = field(default_factory=lambda: [0, 0, 0])
 
 
-class AnsysReport(FPDF):
+class AnsysReport(FPDF, PyAedtBase):
     def __init__(self, version="2025R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         super().__init__()
         self.report_specs = ReportSpec()

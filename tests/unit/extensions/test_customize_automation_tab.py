@@ -23,14 +23,27 @@
 # SOFTWARE.
 
 from pathlib import Path
+import sys
 import tempfile
 from unittest.mock import MagicMock
+from unittest.mock import mock_open
+from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_script
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
+
+
+@pytest.fixture
+def mock_desktop_session():
+    """Fixture for a mocked desktop session."""
+    mock_desktop = MagicMock()
+    mock_desktop.personallib = tempfile.gettempdir()
+    mock_desktop.aedt_version_id = "2024.1"
+    return mock_desktop
 
 
 @pytest.fixture
@@ -299,3 +312,108 @@ def test_get_custom_extension_image_no_logger(invalid_tabconfig_xml):
     result = get_custom_extension_image(invalid_tabconfig_xml, "Custom Extension 1", logger=None)
 
     assert result == ""
+
+
+@patch("ansys.aedt.core.generic.settings.is_linux", False)
+@patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
+@patch("shutil.copy2")
+def test_add_script_to_menu_success(
+    mock_copy,
+    mock_add_automation_tab,
+    mock_desktop_session,
+):
+    """Test the successful addition of a script to the menu."""
+    # Arrange
+    toolkit_name = "MyTestToolkit"
+    script_file = Path(tempfile.gettempdir()) / "test_script.py"
+    with open(script_file, "w") as f:
+        f.write("print('Hello from test script')")
+
+    personal_lib = mock_desktop_session.personallib
+    aedt_version = mock_desktop_session.aedt_version_id
+
+    template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
+    m = mock_open(read_data=template_content)
+
+    with patch("builtins.open", m):
+        # Act
+        result = add_script_to_menu(
+            name=toolkit_name,
+            script_file=str(script_file),
+            personal_lib=personal_lib,
+            aedt_version=aedt_version,
+        )
+
+    # Assert
+    assert result is True
+    mock_copy.assert_called_once()
+    mock_add_automation_tab.assert_called_once_with(
+        toolkit_name,
+        Path(personal_lib) / "Toolkits",
+        icon_file=None,
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        panel="Panel_PyAEDT_Extensions",
+        is_custom=False,
+    )
+
+    # Verify the generated script content
+    written_content = m().write.call_args[0][0]
+    assert sys.executable in written_content
+    assert script_file.name in written_content
+
+    # Cleanup
+    script_file.unlink()
+
+
+@patch("logging.getLogger")
+def test_add_script_to_menu_no_session_failure(mock_logger):
+    """Test failure when no desktop session is available and no paths are provided."""
+    with patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions", {}):
+        result = add_script_to_menu("Test")
+        assert result is False
+        mock_logger.return_value.error.assert_called_with(
+            "Personallib or AEDT version is not provided and there is no available desktop session."
+        )
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
+def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_session):
+    """Test that the script is not copied when copy_to_personal_lib is False."""
+    with patch("shutil.copy2") as mock_copy:
+        template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
+        m = mock_open(read_data=template_content)
+        with patch("builtins.open", m):
+            add_script_to_menu(
+                "MyToolkit",
+                script_file=__file__,
+                copy_to_personal_lib=False,
+                personal_lib=mock_desktop_session.personallib,
+                aedt_version=mock_desktop_session.aedt_version_id,
+            )
+        mock_copy.assert_not_called()
+
+
+@patch("ansys.aedt.core.extensions.customize_automation_tab.add_automation_tab")
+@patch("shutil.copy2")
+def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_desktop_session):
+    """Test that add_automation_tab is called with is_custom=True."""
+    template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
+    m = mock_open(read_data=template_content)
+    with patch("builtins.open", m):
+        add_script_to_menu(
+            "MyCustomToolkit",
+            script_file=__file__,
+            is_custom=True,
+            personal_lib=mock_desktop_session.personallib,
+            aedt_version=mock_desktop_session.aedt_version_id,
+        )
+    mock_add_automation_tab.assert_called_with(
+        "MyCustomToolkit",
+        Path(mock_desktop_session.personallib) / "Toolkits",
+        icon_file=None,
+        product="Project",
+        template="run_pyaedt_toolkit_script",
+        panel="Panel_PyAEDT_Extensions",
+        is_custom=True,
+    )

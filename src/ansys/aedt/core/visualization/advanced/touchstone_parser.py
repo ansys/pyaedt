@@ -36,6 +36,7 @@ import numpy as np
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -58,7 +59,7 @@ DB_ANGLE = "DB"
 keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20", "deg")}
 
 
-class TouchstoneData(rf.Network):
+class TouchstoneData(rf.Network, PyAedtBase):
     """Contains data information from Touchstone Read call.
 
     Parameters
@@ -94,8 +95,8 @@ class TouchstoneData(rf.Network):
                     p_b = m.group(2)
                 p_a_number = ports.index(p_a)
                 p_b_number = ports.index(p_b)
-                sdata_real = solution_data.data_real(expression, True)
-                sdata_img = solution_data.data_imag(expression, True)
+                sdata_real = solution_data.get_expression_data(expression, formula="real", convert_to_SI=True)[1]
+                sdata_img = solution_data.get_expression_data(expression, formula="imag", convert_to_SI=True)[1]
                 sdata_2d = np.array(sdata_real, dtype=complex) + 1j * np.array(sdata_img, dtype=complex)
                 sdata_3d[:, p_a_number, p_b_number] = sdata_2d
                 sdata_3d[:, p_b_number, p_a_number] = sdata_2d

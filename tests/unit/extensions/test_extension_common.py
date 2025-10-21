@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from pathlib import Path
 import tkinter
 from tkinter import ttk
 from unittest.mock import MagicMock
@@ -29,6 +30,7 @@ from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
+import requests
 
 from ansys.aedt.core.extensions.misc import MOON
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
@@ -40,6 +42,10 @@ from ansys.aedt.core.extensions.misc import ExtensionMaxwell2DCommon
 from ansys.aedt.core.extensions.misc import ExtensionMaxwell3DCommon
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core.extensions.misc import ToolTip
+from ansys.aedt.core.extensions.misc import check_for_pyaedt_update
+from ansys.aedt.core.extensions.misc import decline_pyaedt_update
+from ansys.aedt.core.extensions.misc import get_latest_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXTENSION_TITLE = "Dummy title"
@@ -208,3 +214,235 @@ def test_common_maxwell_3d_extension_with_invalid_design_type(mock_maxwell_3d_ap
     mock_maxwell_3d_app.design_type = INVALID_DESIGN_TYPE
     with pytest.raises(AEDTRuntimeError):
         DummyMaxwell3DExtension(EXTENSION_TITLE, withdraw=True)
+
+
+# Tests for get_latest_version function
+@patch("requests.get")
+def test_get_latest_version_success(mock_get):
+    """Test successful retrieval of latest version from PyPI."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"info": {"version": "0.12.34"}}
+    mock_get.return_value = mock_response
+
+    result = get_latest_version("pyaedt")
+
+    assert result == "0.12.34"
+    mock_get.assert_called_once_with("https://pypi.org/pypi/pyaedt/json", timeout=3)
+
+
+@patch("requests.get")
+def test_get_latest_version_http_error(mock_get):
+    """Test get_latest_version with HTTP error status code."""
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_get.return_value = mock_response
+
+    result = get_latest_version("nonexistent-package")
+
+    assert result == "Unknown"
+
+
+@patch("requests.get")
+def test_get_latest_version_network_error(mock_get):
+    """Test get_latest_version with network error."""
+    mock_get.side_effect = requests.exceptions.RequestException("Network error")
+
+    result = get_latest_version("pyaedt")
+
+    assert result == "Unknown"
+
+
+# Tests for check_for_pyaedt_update function
+@patch("ansys.aedt.core.extensions.misc.get_latest_version")
+@patch("logging.getLogger")
+def test_check_for_pyaedt_update_no_latest_version(mock_logger, mock_get_latest_version):
+    """Test when latest version is unavailable."""
+    mock_get_latest_version.return_value = "Unknown"
+    mock_log = MagicMock()
+    mock_logger.return_value = mock_log
+
+    result = check_for_pyaedt_update("/fake/personallib")
+
+    assert result == (None, None)
+    mock_log.debug.assert_called_once_with("PyAEDT update check: latest version unavailable.")
+
+
+@patch("ansys.aedt.core.extensions.misc.get_latest_version")
+@patch("pathlib.Path.is_file")
+@patch("pathlib.Path.read_text")
+def test_check_for_pyaedt_update_declined_version_same(mock_read_text, mock_is_file, mock_get_latest_version):
+    """Test when declined version is same as latest."""
+    mock_get_latest_version.return_value = "0.12.34"
+    mock_is_file.return_value = True
+    mock_read_text.return_value = "0.12.34"
+
+    result = check_for_pyaedt_update("/fake/personallib")
+
+    assert result == (None, None)
+
+
+@patch("ansys.aedt.core.extensions.misc.get_latest_version")
+@patch("pathlib.Path.write_text")
+@patch("pathlib.Path.read_text")
+@patch("pathlib.Path.is_file")
+def test_check_for_pyaedt_update_prompt_user(mock_is_file, mock_read_text, mock_write_text, mock_get_latest_version):
+    """Test the logic for prompting the user to update."""
+    mock_get_latest_version.return_value = "1.0.0"
+    mock_is_file.return_value = True
+    mock_read_text.return_value = "0.9.0\ntrue"  # last_known_version, show_updates
+
+    with patch("ansys.aedt.core.__version__", "0.9.0"):
+        result = check_for_pyaedt_update("/fake/personallib")
+
+    assert result[0] == "1.0.0"
+    assert isinstance(result[1], Path)
+    assert result[1].name == ".pyaedt_version"
+
+
+@patch("pathlib.Path.write_text")
+@patch("pathlib.Path.parent")
+def test_decline_pyaedt_update(mock_parent, mock_write_text):
+    """Test that declining an update writes the correct file."""
+    # Arrange
+    fake_path = Path("/fake/personallib/Toolkits/.pyaedt_version")
+    latest_version = "1.2.3"
+    mock_parent.mkdir = MagicMock()
+
+    # Act
+    decline_pyaedt_update(fake_path, latest_version)
+
+    # Assert
+    mock_parent.mkdir.assert_called_once_with(parents=True, exist_ok=True)
+    mock_write_text.assert_called_once_with("1.2.3\nfalse", encoding="utf-8")
+
+
+# Tooltip tests
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_tooltip_shows_and_hides(mock_label, mock_toplevel):
+    # Prepare a dummy widget with the methods ToolTip expects
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    top_instance = MagicMock()
+    mock_toplevel.return_value = top_instance
+    label_instance = MagicMock()
+    mock_label.return_value = label_instance
+
+    tooltip = ToolTip(widget, text="Hello")
+    assert tooltip.tipwindow is None
+
+    # Simulate mouse enter
+    tooltip.enter()
+
+    mock_toplevel.assert_called_once_with(widget)
+    assert tooltip.tipwindow is top_instance
+
+    # Simulate leave/hide
+    tooltip.leave()
+    top_instance.destroy.assert_called_once()
+    assert tooltip.tipwindow is None
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_tooltip_no_text_does_not_create_window(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    mock_toplevel.reset_mock()
+    mock_label.return_value = MagicMock()
+
+    tooltip = ToolTip(widget, text="")
+    assert tooltip.tipwindow is None
+
+    tooltip.enter()
+
+    # No Toplevel should be created when there is no text
+    mock_toplevel.assert_not_called()
+    assert tooltip.tipwindow is None
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_tooltip_enter_idempotent(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    top_instance = MagicMock()
+    mock_toplevel.return_value = top_instance
+    mock_label.return_value = MagicMock()
+
+    tooltip = ToolTip(widget, text="X")
+
+    tooltip.enter()
+    first = tooltip.tipwindow
+
+    # Calling enter again should not create a new window
+    tooltip.enter()
+    mock_toplevel.assert_called_once()  # still only one creation
+    assert tooltip.tipwindow is first
+
+    tooltip.leave()
+    top_instance.destroy.assert_called_once()
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_show_tooltip_calls_toplevel_methods(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 10
+    widget.winfo_rooty.return_value = 20
+
+    top_instance = MagicMock()
+    mock_toplevel.return_value = top_instance
+    label_instance = MagicMock()
+    mock_label.return_value = label_instance
+
+    tooltip = ToolTip(widget, text="TooltipText")
+
+    # Call show_tooltip directly
+    tooltip.show_tooltip()
+
+    mock_toplevel.assert_called_once_with(widget)
+    top_instance.wm_overrideredirect.assert_called_once_with(True)
+    top_instance.wm_geometry.assert_called_once_with("+%d+%d" % (10 + 25, 20 + 25))
+
+    mock_label.assert_called()
+    label_instance.pack.assert_called_once_with(ipadx=1)
+
+    # Now hide
+    tooltip.hide_tooltip()
+    top_instance.destroy.assert_called_once()
+    assert tooltip.tipwindow is None
+
+
+@patch("ansys.aedt.core.extensions.misc.tkinter.Toplevel")
+@patch("ansys.aedt.core.extensions.misc.tkinter.Label")
+def test_show_tooltip_early_return_when_tip_exists_or_no_text(mock_label, mock_toplevel):
+    widget = MagicMock()
+    widget.bind = MagicMock()
+    widget.winfo_rootx.return_value = 0
+    widget.winfo_rooty.return_value = 0
+
+    mock_toplevel.reset_mock()
+    mock_label.reset_mock()
+
+    # Case 1: tipwindow already exists -> early return
+    tooltip = ToolTip(widget, text="X")
+    tooltip.tipwindow = MagicMock()
+    tooltip.show_tooltip()
+    mock_toplevel.assert_not_called()
+
+    # Case 2: no text -> early return
+    tooltip2 = ToolTip(widget, text="")
+    tooltip2.show_tooltip()
+    mock_toplevel.assert_not_called()
