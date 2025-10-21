@@ -8,7 +8,7 @@ jobs:
   Dispatch:
     runs-on: ubuntu-latest
     permissions:  
-      contents: read
+      contents: write
     steps:
       - name: Send dispatch to PyAEDT examples repo
         uses: peter-evans/repository-dispatch@v4
