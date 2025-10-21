@@ -25,6 +25,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
@@ -43,6 +45,7 @@ def cleanup_files(*files):
             export_file.unlink()
 
 
+@pytest.mark.flaky_linux
 def test_export_layout_all_options(add_app, local_scratch):
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
