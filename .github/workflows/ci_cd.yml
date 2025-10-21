@@ -18,6 +18,7 @@ env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
+  PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -189,8 +190,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run unit tests
-        env:
-          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         uses: ansys/actions/tests-pytest@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           pytest-postargs: 'tests/unit'
@@ -293,7 +292,6 @@ jobs:
       - name: Run tests marked with 'solvers'
         env:
           PYTHONMALLOC: malloc
-          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         run: |
           .venv\Scripts\Activate.ps1
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
@@ -364,12 +362,10 @@ jobs:
       - name: Run tests marked with 'solvers'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+          pytest ${env.PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -438,7 +434,6 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
-          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         with:
           max_attempts: 2
           retry_on: error
@@ -525,7 +520,6 @@ jobs:
           timeout_minutes: 40
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-            export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
@@ -599,7 +593,6 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
-          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         with:
           max_attempts: 2
           retry_on: error
@@ -687,7 +680,6 @@ jobs:
           timeout_minutes: 40
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-            export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
@@ -758,7 +750,6 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
-          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         with:
           max_attempts: 2
           retry_on: error
@@ -850,7 +841,6 @@ jobs:
           timeout_minutes: 120
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-            export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
             source .venv/bin/activate
             xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
@@ -921,7 +911,6 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
-          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         with:
           max_attempts: 2
           retry_on: error
@@ -997,7 +986,6 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
-          PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
         with:
           max_attempts: 2
           retry_on: error
