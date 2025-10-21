@@ -100,6 +100,7 @@ def test_get_active_db(extension_under_test, test_folder, add_app):
     app.close_project(app.project_name)
 
 
+@pytest.mark.flaky_linux
 @patch(
     "ansys.aedt.core.extensions.hfss3dlayout.configure_layout.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
