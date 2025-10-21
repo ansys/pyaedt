@@ -24,7 +24,7 @@ log:
   # Enable or disable the logging to a file
   enable_file_logs: true
   # Enable or disable the global PyAEDT log file located in the global temp folder
-  enable_global_log_file: false
+  enable_global_log_file: true
   # Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder
   enable_local_log_file: false
   # Enable or disable the logging overall
@@ -92,29 +92,29 @@ general:
   # AEDT version in the form ``"2023.x"``
   aedt_version: null
   # Timeout in seconds for trying to launch AEDT
-  desktop_launch_timeout: 180
+  desktop_launch_timeout: 120
   # Enable or disable bounding box evaluation by exporting a SAT file
   disable_bounding_box_sat: false
   # Optional path for the EDB DLL file
   edb_dll_path: null
   # Enable or disable the internal PyAEDT error handling
-  enable_error_handler: false
+  enable_error_handler: true
   # Enable or disable the use of Pandas to export dictionaries and lists
-  enable_pandas_output: true
+  enable_pandas_output: false
   # Enable or disable the check of the project path
   force_error_on_missing_project: false
   # Number of gRPC API retries
   number_of_grpc_api_retries: 6
   # Enable or disable the release of AEDT on exception
-  release_on_exception: false
+  release_on_exception: true
   # Time interval between the retries by the ``_retry_n_times`` inner method
-  retry_n_times_time_interval: 0.5
+  retry_n_times_time_interval: 0.1
   # Enable or disable the use of the gRPC API or legacy COM object
   use_grpc_api: null
   # Enable or disable the use of multiple desktop sessions in the same Python script
   use_multi_desktop: false
   # Enable or disable the use of the flag `-waitforlicense` when launching AEDT
-  wait_for_license: true
+  wait_for_license: false
   # State whether the remote API is used or not
   remote_api: false
   # Specify the port the RPyC server is to listen to
