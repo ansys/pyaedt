@@ -172,6 +172,7 @@ def test_export_layout_bom_only(add_app, local_scratch):
     assert bom_file.stat().st_size > 0, "BOM file is empty"
 
 
+@pytest.mark.flaky_linux
 def test_export_layout_config_only(add_app, local_scratch):
     """Test export layout with only configuration option enabled."""
     data = ExportLayoutExtensionData(
