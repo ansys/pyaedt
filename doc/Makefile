@@ -60,5 +60,5 @@ pdf: .install-deps
 	@echo "Build finished. The PDF pages are in $(BUILDDIR)."
 
 livehtml: .install-deps
-   	@echo "Building live HTML pages."
-   	sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo "Building live HTML pages."
+	@sphinx-autobuild -M livehtml "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)	
