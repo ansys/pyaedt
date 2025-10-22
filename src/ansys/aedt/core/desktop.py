@@ -388,7 +388,9 @@ class Desktop(PyAedtBase):
     def __new__(cls, *args, **kwargs):
         # The following commented lines will be useful when we will need to search among multiple saved desktop.
         specified_version = (
-            kwargs.get("specified_version") or kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
+            kwargs.get("specified_version")
+            or kwargs.get("version")
+            or (settings.aedt_version if (not args or args[0] is None) else args[0])
         )
         if "new_desktop_session" in kwargs or "new_desktop" in kwargs:
             new_desktop = kwargs.get("new_desktop_session") or kwargs.get("new_desktop")
