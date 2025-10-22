@@ -142,7 +142,7 @@ def add_automation_tab(
             icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
         else:
             icon_file = Path(icon_file)
-        
+
         # For Linux, create symbolic link and use relative path (if not, AEDT panels break)
         if is_linux:
             images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
@@ -151,20 +151,22 @@ def add_automation_tab(
                 try:
                     images_target.symlink_to(images_source)
                 except Exception:
-                    logging.getLogger("Global").warning(f"Could not create symlink from {images_source} to {images_target}")
+                    logging.getLogger("Global").warning(
+                        f"Could not create symlink from {images_source} to {images_target}"
+                    )
             icon_relative = f"images/{icon_file.name}"
             button_kwargs = dict(
-            label=name,
-            isLarge="1",
-            image=icon_relative,
-            script=f"{toolkit_name}/{template}",
+                label=name,
+                isLarge="1",
+                image=icon_relative,
+                script=f"{toolkit_name}/{template}",
             )
         else:
             button_kwargs = dict(
-            label=name,
-            isLarge="1",
-            image=str(icon_file.as_posix()),
-            script=f"{toolkit_name}/{template}",
+                label=name,
+                isLarge="1",
+                image=str(icon_file.as_posix()),
+                script=f"{toolkit_name}/{template}",
             )
     ET.SubElement(panel_element, "button", **button_kwargs)
     # Backup any existing file if present
