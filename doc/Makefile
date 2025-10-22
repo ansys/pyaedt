@@ -9,6 +9,8 @@ SOURCEDIR     = source
 BUILDDIR      = _build
 LINKCHECKDIR  = $(BUILDDIR)/linkcheck
 LINKCHECKOPTS = -d $(BUILDDIR)/.doctrees -W --keep-going --color
+
+# Skip building the cheat sheet
 SKIP_BUILD_CHEAT_SHEET = False
 
 # Put it first so that "make" without argument is like "make help".
@@ -61,4 +63,4 @@ pdf: .install-deps
 
 livehtml: .install-deps
 	@echo "Building live HTML pages."
-	@sphinx-autobuild -M livehtml "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)	
+	@sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)

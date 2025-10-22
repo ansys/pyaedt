@@ -14,6 +14,8 @@ set SOURCEDIR=source
 set BUILDDIR=_build
 set LINKCHECKDIR=\%BUILDDIR%\linkcheck
 set LINKCHECKOPTS=-d %BUILDDIR%\.doctrees -W --keep-going --color
+
+::Skip building the cheat sheet
 set SKIP_BUILD_CHEAT_SHEET=False
 
 REM This LOCs are used to uninstall and install specific package(s) during CI/CD
