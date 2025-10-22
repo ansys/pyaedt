@@ -144,7 +144,7 @@ def add_automation_tab(
             icon_file = Path(icon_file)
 
         # For Linux, create symbolic link and use relative path (if not, AEDT panels break)
-        if is_linux:
+        if is_linux: # pragma: no cover
             images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
             images_target = lib_dir / product / "images"
             if not images_target.exists() and images_source.exists():
