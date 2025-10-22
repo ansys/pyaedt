@@ -306,7 +306,7 @@ html_theme_options = {
     },
     "ansys_sphinx_theme_autoapi": {
         "project": "PyAEDT",
-        "output": "api_ref"
+        "output": "api_full"
     }
 }
 

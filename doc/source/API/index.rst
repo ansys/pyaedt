@@ -15,6 +15,10 @@ and Mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
 
+.. note::
+  For the complete API reference and additional documentation, please visit:
+  :doc:`../api_ref/index`
+
 .. image:: ../Resources/aedt_2.png
   :width: 800
   :alt: AEDT Applications

@@ -86,6 +86,7 @@ doc = [
     "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
     "sphinx-jinja>=2.0.2",
+    "sphinx-autoapi>3.6.0",
     "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
     "fpdf2",
