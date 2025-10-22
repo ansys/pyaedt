@@ -151,6 +151,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx_copybutton",
     "sphinx_design",
+    "ansys_sphinx_theme.extension.autoapi",
 ]
 
 # Intersphinx mapping
@@ -303,7 +304,16 @@ html_theme_options = {
         "file": "cheatsheet/cheat_sheet.qmd",
         "title": "PyAEDT cheat sheet",
     },
+    "ansys_sphinx_theme_autoapi": {
+        "project": "PyAEDT",
+        "output": "api_ref"
+    }
 }
+
+
+# Determine whether to skip cheat sheet build or not
+if os.environ.get("SKIP_BUILD_CHEAT_SHEET"):
+    html_theme_options.pop("cheatsheet")
 
 # # Add button to download PDF
 # html_theme_options["icon_links"].append(

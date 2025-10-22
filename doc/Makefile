@@ -9,6 +9,7 @@ SOURCEDIR     = source
 BUILDDIR      = _build
 LINKCHECKDIR  = $(BUILDDIR)/linkcheck
 LINKCHECKOPTS = -d $(BUILDDIR)/.doctrees -W --keep-going --color
+SKIP_BUILD_CHEAT_SHEET = False
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -57,3 +58,7 @@ pdf: .install-deps
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
 	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
 	@echo "Build finished. The PDF pages are in $(BUILDDIR)."
+
+livehtml: .install-deps
+   	@echo "Building live HTML pages."
+   	sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
