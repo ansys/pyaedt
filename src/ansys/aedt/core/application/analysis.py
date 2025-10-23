@@ -2803,7 +2803,7 @@ class AvailableVariations(PyAedtBase):
         """Retrieve variations for a given setup.
 
         .. deprecated:: 0.22.0
-           Use :func:`nominal_variations` method instead.
+           Use :func:`nominal_variation` method instead.
 
         Returns
         -------
