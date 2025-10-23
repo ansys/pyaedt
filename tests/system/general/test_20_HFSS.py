@@ -787,13 +787,16 @@ class TestClass:
 
     def test_18_create_sources_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxVolt1", "Copper")
-        self.aedtapp.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
+        box2 = self.aedtapp.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
         port = self.aedtapp.create_voltage_source_from_objects(
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
         assert port.name in self.aedtapp.excitation_names
         port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos)
         assert port.name in self.aedtapp.excitation_names
+        port2 = self.aedtapp.create_current_source_from_objects(box1, box2, name="Port2")
+        assert port2
+        assert port2.name in self.aedtapp.excitation_names
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 2], name="lump_port", material="Copper")
