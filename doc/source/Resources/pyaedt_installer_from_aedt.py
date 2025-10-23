@@ -350,8 +350,6 @@ def install_pyaedt():
                 "uv",
             ]
             subprocess.run(command, check=True, env=env)  # nosec
-            print("Activating uv in the virtual environment...")
-            subprocess.run([str(activate_script)], check=True, env=env)  # nosec
             print("Installing PyAEDT using provided wheels argument")
             command = [
                 str(uv_exe),
