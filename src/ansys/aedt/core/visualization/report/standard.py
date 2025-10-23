@@ -555,6 +555,7 @@ class Spectral(CommonReport, PyAedtBase):
         self.max_frequency = "10MHz"
         self.plot_continous_spectrum = False
         self.primary_sweep = "Spectrum"
+        self.noise_threshold = "60"
 
     @property
     def time_start(self):
@@ -662,6 +663,21 @@ class Spectral(CommonReport, PyAedtBase):
         self._legacy_props["context"]["max_frequency"] = value
 
     @property
+    def noise_threshold(self):
+        """Noise Threshold in dB.
+
+        Returns
+        -------
+        str
+            Noise Threshold.
+        """
+        return self._legacy_props["context"].get("noise_threshold", 0)
+
+    @noise_threshold.setter
+    def noise_threshold(self, value):
+        self._legacy_props["context"]["noise_threshold"] = value
+
+    @property
     def _context(self):
         if self.algorithm == "FFT":
             it = "1"
@@ -681,56 +697,111 @@ class Spectral(CommonReport, PyAedtBase):
             "Lanzcos": "8",
         }
         wt = WT[self.window]
-        arg = [
-            "NAME:Context",
-            "SimValueContext:=",
-            [
-                2,
-                0,
-                2,
-                0,
-                False,
-                False,
-                -1,
-                1,
-                0,
-                1,
-                1,
-                "",
-                0,
-                0,
-                "CP",
-                False,
-                "1" if self.plot_continous_spectrum else "0",
-                "IT",
-                False,
-                it,
-                "MF",
-                False,
-                self.max_frequency,
-                "NUMLEVELS",
-                False,
-                "0",
-                "TE",
-                False,
-                self.time_stop,
-                "TS",
-                False,
-                self.time_start,
-                "WT",
-                False,
-                wt,
-                "WW",
-                False,
-                "100",
-                "KP",
-                False,
-                str(self.kaiser_coeff),
-                "CG",
-                False,
-                "1" if self.adjust_coherent_gain else "0",
-            ],
-        ]
+        if self._app.design_type == "Circuit Design":
+            arg = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    2,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "CP",
+                    False,
+                    "1" if self.plot_continous_spectrum else "0",
+                    "IT",
+                    False,
+                    it,
+                    "MF",
+                    False,
+                    self.max_frequency,
+                    "NUMLEVELS",
+                    False,
+                    "0",
+                    "TE",
+                    False,
+                    self.time_stop,
+                    "TS",
+                    False,
+                    self.time_start,
+                    "WT",
+                    False,
+                    wt,
+                    "WW",
+                    False,
+                    "100",
+                    "KP",
+                    False,
+                    str(self.kaiser_coeff),
+                    "CG",
+                    False,
+                    "1" if self.adjust_coherent_gain else "0",
+                ],
+            ]
+        elif self._app.design_type == "Twinbuilder":
+            arg = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    2,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "CF",
+                    False,
+                    self.max_frequency,
+                    "CG",
+                    False,
+                    "0",
+                    "CP",
+                    False,
+                    "0",
+                    "IT",
+                    False,
+                    it,
+                    "KP",
+                    False,
+                    str(self.kaiser_coeff),
+                    "NTC",
+                    False,
+                    "1",
+                    "TE",
+                    False,
+                    self.time_stop,
+                    "TH",
+                    False,
+                    self.noise_threshold,
+                    "TS",
+                    False,
+                    self.time_start,
+                    "WT",
+                    False,
+                    wt,
+                    "WW",
+                    False,
+                    "100",
+                ],
+            ]
         return arg
 
     @property
