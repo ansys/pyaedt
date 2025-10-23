@@ -142,17 +142,10 @@ def add_automation_tab(
             icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
         else:
             icon_file = Path(icon_file)
-        file_name = icon_file.name
-        dest_dir = lib_dir / product / toolkit_name / "images" / "large"
-        dest_file = dest_dir / file_name
-        dest_dir.parent.mkdir(parents=True, exist_ok=True)
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy(str(icon_file), str(dest_file))
-        relative_image_path = dest_file.relative_to(lib_dir / product)
         button_kwargs = dict(
             label=name,
             isLarge="1",
-            image=str(relative_image_path.as_posix()),
+            image=str(icon_file.as_posix()),
             script=f"{toolkit_name}/{template}",
         )
     ET.SubElement(panel_element, "button", **button_kwargs)
@@ -405,7 +398,12 @@ def add_script_to_menu(
         build_file_data = build_file_data.replace("##TOOLKIT_NAME##", str(name))
         build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
         if dest_script_path:
-            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(dest_script_path))
+            extension_dir = Path(dest_script_path).parent
+        else:
+            extension_dir = Path(ansys.aedt.core.extensions.__file__).parent / "installer"
+        build_file_data = build_file_data.replace("##BASE_EXTENSION_LOCATION##", str(extension_dir))
+        if script_file:
+            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(os.path.basename(script_file)))
         if version_agnostic:
             build_file_data = build_file_data.replace(" % version", "")
         with open(tool_dir / (template_file + ".py"), "w") as out_file:

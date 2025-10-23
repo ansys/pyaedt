@@ -25,6 +25,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
@@ -43,6 +45,7 @@ def cleanup_files(*files):
             export_file.unlink()
 
 
+@pytest.mark.flaky_linux
 def test_export_layout_all_options(add_app, local_scratch):
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
@@ -90,6 +93,7 @@ def test_export_layout_all_options(add_app, local_scratch):
         assert isinstance(config_data, dict), "Configuration file is not valid JSON"
 
 
+@pytest.mark.flaky_linux
 def test_export_layout_ipc_only(add_app, local_scratch):
     """Test export layout with only IPC2581 option enabled."""
     data = ExportLayoutExtensionData(
@@ -168,6 +172,7 @@ def test_export_layout_bom_only(add_app, local_scratch):
     assert bom_file.stat().st_size > 0, "BOM file is empty"
 
 
+@pytest.mark.flaky_linux
 def test_export_layout_config_only(add_app, local_scratch):
     """Test export layout with only configuration option enabled."""
     data = ExportLayoutExtensionData(

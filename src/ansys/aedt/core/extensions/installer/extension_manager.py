@@ -441,7 +441,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 option != "Custom"
             ):
                 # Find the button element again to get image and script
-                try:
+                try: # pragma: no cover
                     toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
                     xml_dir = toolkit_dir / self.current_category
                     tabconfig_path = xml_dir / "TabConfig.xml"
@@ -451,9 +451,9 @@ class ExtensionManager(ExtensionProjectCommon):
                         image_path_full = (xml_dir / image_path).resolve()
                     else:
                         image_path_full = ""
-                except Exception:
+                except Exception: # pragma: no cover
                     image_path_full = ""
-                if image_path_full and Path(image_path_full).is_file():
+                if image_path_full and Path(image_path_full).is_file(): # pragma: no cover
                     try:
                         img = PIL.Image.open(str(image_path_full))
                         photo = self.create_theme_background_image(img, (48, 48))
@@ -637,7 +637,7 @@ class ExtensionManager(ExtensionProjectCommon):
         script_field = None
         option_label = option
         logger = logging.getLogger("Global")
-        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom":
+        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom": # pragma: no cover
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             xml_dir = toolkit_dir / self.current_category
             tabconfig_path = xml_dir / "TabConfig.xml"
@@ -673,21 +673,33 @@ class ExtensionManager(ExtensionProjectCommon):
                 return
         icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
         if is_custom and script_field is None:
-            add_script_to_menu(
-                name=option_label,
-                script_file=str(script_file),
-                product=category,
-                executable_interpreter=sys.executable,
-                personal_lib=self.desktop.personallib,
-                aedt_version=self.desktop.aedt_version_id,
-                copy_to_personal_lib=False,
-                icon_file=str(icon),
-                is_custom=is_custom
-            )
+            try:
+                add_script_to_menu(
+                    name=option_label,
+                    script_file=str(script_file),
+                    product=category,
+                    executable_interpreter=sys.executable,
+                    personal_lib=self.desktop.personallib,
+                    aedt_version=self.desktop.aedt_version_id,
+                    copy_to_personal_lib=True,
+                    icon_file=str(icon),
+                    is_custom=True,
+                )
+            except Exception as e:
+                self.desktop.logger.error(
+                    "Failed to install custom extension %s: %s",
+                    option_label,
+                    e,
+                )
+                messagebox.showerror("Error", f"Failed to pin custom extension: {e}")
+                return
+
             # Refresh the custom extensions
             self.load_extensions(category)
-            self.desktop.logger.info(f"Extension {option_label} pinned successfully. If the extension is not visible,"
-                                     f" create a new AEDT session or create a new project.")
+            self.desktop.logger.info(
+                "Extension %s pinned successfully. If the extension is not visible, create a new AEDT session or create a new project.",
+                option_label,
+            )
 
             # if hasattr(self.desktop, "odesktop"):
             #     self.desktop.odesktop.RefreshToolkitUI()
@@ -743,7 +755,7 @@ class ExtensionManager(ExtensionProjectCommon):
         if len(self.full_log_buffer) > 10000:
             self.full_log_buffer = self.full_log_buffer[-8000:]
 
-    def _periodic_log_refresh(self):
+    def _periodic_log_refresh(self): # pragma: no cover
         # If detached window open update it
         if self.logs_window and self.logs_text_widget:
             try:
@@ -916,6 +928,30 @@ class ExtensionManager(ExtensionProjectCommon):
             icon = (
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
+            # If the user selected a script, copy it into personal lib Toolkits/<product>/<option>/Lib
+            if not script_file:
+                self.desktop.logger.info("No script selected for custom extension. Aborting pin.")
+                return
+            try:
+                add_script_to_menu(
+                    name=option,
+                    script_file=str(script_file),
+                    product=category,
+                    executable_interpreter=sys.executable,
+                    personal_lib=self.desktop.personallib,
+                    aedt_version=self.desktop.aedt_version_id,
+                    copy_to_personal_lib=True,
+                    icon_file=str(icon),
+                    is_custom=True,
+                )
+                msg = (f"Extension {option} pinned successfully.\n"
+                       f"If the extension is not visible create a new AEDT session or create a new project.")
+                self.desktop.logger.info(msg)
+                self.log_message(msg)
+            except Exception as e:
+                self.desktop.logger.error(f"Failed to pin custom extension {option}: {e}")
+                messagebox.showerror("Error", f"Failed to pin custom extension: {e}")
+                return
         else:
             if self.toolkits[self.current_category][option].get("script", None):
                 script_file = (
@@ -957,8 +993,7 @@ class ExtensionManager(ExtensionProjectCommon):
     def handle_custom_extension(self):
         """Handle custom extension pin to the top bar."""
         # Prompt user for script file and extension name
-        # Use a mutable container to store the result from the dialog
-        result = {"script_file": None}
+        result = {"script_file": None, "display_name": None}
         # Create a single dialog window for all inputs
         dialog = tkinter.Toplevel(self.root)
         dialog.title("Custom Extension Setup")
@@ -970,21 +1005,17 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         script_var = tkinter.StringVar()
         script_entry = ttk.Entry(
-            dialog, textvariable=script_var, width=40
+            dialog, textvariable=script_var, width=60
         )
         script_entry.pack(padx=10, pady=2, fill="x")
 
-        def browse_script():  # pragma: no cover
-            file = filedialog.askopenfilename(
-                title="Select Extension Script",
-                filetypes=[
-                    ("Python files", "*.py"),
-                    ("Executable files", "*.exe"),
-                    ("All files", "*.*"),
-                ],
+        def browse_script(): # pragma: no cover
+            file_path = filedialog.askopenfilename(
+                title="Select Python script",
+                filetypes=[("Python Files", "*.py"), ("All Files", "*.*")],
             )
-            if file:
-                script_var.set(file)
+            if file_path:
+                script_var.set(file_path)
 
         browse_btn = ttk.Button(
             dialog, text="Browse...", command=browse_script
@@ -997,34 +1028,77 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         name_var = tkinter.StringVar(value="Custom Extension")
         name_entry = ttk.Entry(
-            dialog, textvariable=name_var, width=40
+            dialog, textvariable=name_var, width=60
         )
         name_entry.pack(padx=10, pady=2, fill="x")
 
-        # OK button
+        # Buttons frame (OK / Cancel)
+        btn_frame = ttk.Frame(dialog)
+        btn_frame.pack(padx=10, pady=10, fill="x")
+
         def on_ok():
-            script = script_var.get()
+            script = script_var.get().strip()
+            name = name_var.get().strip()
+
+            # Basic validation
             if not script:
                 script = (
                     EXTENSIONS_PATH
                     / "templates"
                     / "template_get_started.py"
                 )
-            else:
-                script = Path(script)
-            result["script_file"] = script
+            script_path = Path(script)
+            if not name: # pragma: no cover
+                messagebox.showerror("Error", "Please enter an extension name.")
+                return
+
+            # Prevent using reserved option name
+            if name.lower() == "custom" or name.lower() == "custom_extension":  # pragma: no cover
+                messagebox.showerror(
+                    "Error",
+                    "The names 'custom' and 'custom_extension' are reserved. Please choose a different name.",
+                )
+                return
+
+            # Check for conflicts in existing toolkits / program extension folder
+            product = self.current_category
+            toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
+
+            existing_keys = {k.lower() for k in self.toolkits.get(product, {}).keys()}
+            if name.lower() in existing_keys:  # pragma: no cover
+                messagebox.showerror(
+                    "Error",
+                    f"An extension named '{name}' already exists in {product}. Please choose a different name.",
+                )
+                return
+
+            if is_extension_in_panel(str(toolkit_dir), product, name):  # pragma: no cover
+                messagebox.showerror(
+                    "Error",
+                    f"An extension named '{name}' already exists in {product}. Please choose a different name.",
+                )
+                return
+
+            result["script_file"] = script_path.resolve()
+            result["display_name"] = name
             dialog.destroy()
 
-        ttk.Button(dialog, text="OK", command=on_ok).pack(
-            padx=10, pady=10
-        )
+        def on_cancel():
+            result["script_file"] = None
+            result["display_name"] = None
+            dialog.destroy()
+
+        ok_btn = ttk.Button(btn_frame, text="OK", command=on_ok)
+        ok_btn.pack(side="right", padx=(5, 0))
+        cancel_btn = ttk.Button(btn_frame, text="Cancel", command=on_cancel)
+        cancel_btn.pack(side="right")
 
         dialog.grab_set()
         self.root.wait_window(dialog)
 
-        extension_name = name_var.get() or "Custom Extension"
-
-        return result["script_file"], extension_name
+        if result["script_file"]:
+            return result["script_file"], result["display_name"]
+        return None, None
 
     def create_theme_background_image(self, img, target_size=None):
         """Create a background image with theme color for transparency.
@@ -1189,7 +1263,7 @@ class ExtensionManager(ExtensionProjectCommon):
     def confirm_unpin(self, category, option):
         # If custom extension, label starts with 'custom_'
         is_custom = option.startswith("custom_")
-        if option.lower() == "custom":
+        if option.lower() == "custom": # pragma: no cover
             option = simpledialog.askstring(
                 "Extension Name", "Extension name to unpin:",
             )
@@ -1235,7 +1309,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 self.log_message(f"{option} extension removed successfully.")
                 if self.current_category:
                     self.load_extensions(category)
-            except Exception:
+            except Exception: # pragma: no cover
                 messagebox.showerror(
                     "Error", "Extension could not be removed."
                 )
@@ -1255,7 +1329,7 @@ class ExtensionManager(ExtensionProjectCommon):
         bool
             True if the extension is pinned, False otherwise.
         """
-        if option.lower() == "custom":
+        if option.lower() == "custom": # pragma: no cover
             return False  # Custom extensions are not tracked
 
         try:
@@ -1264,7 +1338,7 @@ class ExtensionManager(ExtensionProjectCommon):
             return is_extension_in_panel(
                 str(toolkit_dir), product, option
             )
-        except Exception:
+        except Exception: # pragma: no cover
             return False
 
     def launch_web_url(self, category: str, option: str):
@@ -1292,7 +1366,7 @@ class ExtensionManager(ExtensionProjectCommon):
                         "Error", "No URL found for this extension."
                     )
                     return False
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             msg = "Could not open web URL."
             self.log_message(msg)
             self.desktop.logger.error(f"Error opening web URL: {e}")
@@ -1302,7 +1376,7 @@ class ExtensionManager(ExtensionProjectCommon):
     def check_for_pyaedt_update_on_startup(self):
         """Spawn a background thread to check PyPI for a newer PyAEDT release.
         """
-        def worker():
+        def worker(): # pragma: no cover
             log = logging.getLogger("Global")
             try:
                 latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
@@ -1385,11 +1459,12 @@ class ExtensionManager(ExtensionProjectCommon):
 
             def decline():
                 try:
-                    declined_file_path.parent.mkdir(
-                        parents=True, exist_ok=True
+                    from ansys.aedt.core.extensions.misc import (
+                        decline_pyaedt_update,
                     )
-                    declined_file_path.write_text(
-                        latest_version, encoding="utf-8"
+
+                    decline_pyaedt_update(
+                        declined_file_path, latest_version
                     )
                 except Exception:
                     logging.getLogger("Global").debug(

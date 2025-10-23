@@ -2434,14 +2434,14 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                             ami = False
                         ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if comp in ibis.buffers:
-                            new_comp = ibis.buffers[comp].insert(j["position"][0], j["position"][1], j["angle"])
-                        elif "diff_pin_name" in j["properties"]:
+                        if "diff_pin_name" in j["properties"]:
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
                                 .insert(j["position"][0], j["position"][1], j["angle"])
                             )
+                        elif comp in ibis.buffers:
+                            new_comp = ibis.buffers[comp].insert(j["position"][0], j["position"][1], j["angle"])
                         else:
                             new_comp = (
                                 ibis.components[comp]
