@@ -390,7 +390,8 @@ class Desktop(PyAedtBase):
         specified_version = (
             kwargs.get("specified_version")
             or kwargs.get("version")
-            or (settings.aedt_version if (not args or args[0] is None) else args[0])
+            or settings.aedt_version
+            or (None if (not args or args[0] is None) else args[0])
         )
         if "new_desktop_session" in kwargs or "new_desktop" in kwargs:
             new_desktop = kwargs.get("new_desktop_session") or kwargs.get("new_desktop")
