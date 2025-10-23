@@ -75,6 +75,8 @@ def _show_error_message(oDesktop, message):
     MessageBox.Show(err_msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
 
 def run_pyinstaller_from_c_python(oDesktop):
+    import tempfile
+
     # Iron Python script to create the virtual environment and install PyAEDT
     # Get AEDT information
     version = oDesktop.GetVersion()[2:6].replace(".", "")
@@ -110,19 +112,37 @@ def run_pyinstaller_from_c_python(oDesktop):
         command.extend([r"--wheel={}".format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
+    # Redirect stdout and stderr to temporary files to avoid deadlocks on pipes
+    stdout_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.out')
+    stderr_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.err')
     try:
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            command, 
+            stdout=stdout_file, 
+            stderr=stderr_file
+        )
         proc.wait()
     except Exception as e:
+        message = "Installation process failed, please check the log files:\n" \
+            "STDOUT: {}\nSTDERR: {}".format(stdout_file.name, stderr_file.name)
         _show_error_message(oDesktop, str(e))
         return
+    finally:
+        stdout_file.close()
+        stderr_file.close()
 
     if proc.returncode != 0:
-        message = proc.stderr.read().decode("utf-8")
+        message = "Installation process failed, please check the log files:\n" \
+            "STDOUT: {}\nSTDERR: {}".format(stdout_file.name, stderr_file.name)
         _show_error_message(oDesktop, message)
         return
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
+        try:
+            os.unlink(stdout_file.name)
+            os.unlink(stderr_file.name)
+        except Exception as e:
+            oDesktop.AddMessage("", "", 1, "Error cleaning temp files: {}".format(str(e)))
 
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
