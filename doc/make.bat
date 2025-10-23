@@ -31,7 +31,6 @@ if "%1" == "" goto help
 if "%1" == "clean" goto clean
 if "%1" == "html" goto html
 if "%1" == "pdf" goto pdf
-if "%1" == "livehtml" goto livehtml
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
@@ -76,11 +75,6 @@ cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
 xelatex "%%f" --interaction=nonstopmode)
 echo "Build finished. The PDF pages are in %BUILDDIR%."
-goto end
-
-:livehtml
-echo Building live HTML pages
-sphinx-autobuild "%SOURCEDIR%" "%BUILDDIR%" %SPHINXOPTS% %O%
 goto end
 
 :end
