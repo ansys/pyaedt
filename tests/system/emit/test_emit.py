@@ -1848,7 +1848,7 @@ class TestClass:
         # Get the amplifier table and verify the data was set properly
         assert amp.table_data == amp_data
 
-        if config["desktopVersion"] < "2026.1":
+        if config["desktopVersion"] >= "2026.1":
             # Test BB Emissions Node since it can be either a NodeProp or
             # ColumnData Table
             radio2 = emit_app.schematic.create_component("New Radio")
