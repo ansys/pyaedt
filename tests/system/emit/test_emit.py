@@ -1949,7 +1949,7 @@ class TestClass:
         cable.length = "0.0031 mile"
         assert round(cable.length, 4) == 4.9890
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
@@ -1991,4 +1991,4 @@ class TestClass:
 
         rev = emit_app.results.analyze()
         comps_in_schematic = rev.get_all_component_nodes()
-        assert comps_in_schematic == 2  # default antenna/radio should remain
+        assert len(comps_in_schematic) == 2  # default antenna/radio should remain
