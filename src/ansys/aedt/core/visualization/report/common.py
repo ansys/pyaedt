@@ -605,10 +605,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 else:
                     self._legacy_props["expressions"].append({"name": el})
         elif isinstance(value, str):
-            if isinstance(self._legacy_props["expressions"], list):
-                self._legacy_props["expressions"].append({"name": value})
-            else:
-                self._legacy_props["expressions"] = [{"name": value}]
+            self._legacy_props["expressions"] = []
+            self._legacy_props["expressions"].append({"name": value})
 
     @property
     def report_category(self):
