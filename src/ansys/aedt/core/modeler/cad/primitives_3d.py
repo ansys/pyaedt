@@ -35,6 +35,7 @@ from math import sqrt
 from math import tan
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core.base import PyAedtBase
@@ -52,6 +53,9 @@ from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
 class Primitives3D(GeometryModeler, PyAedtBase):
@@ -111,7 +115,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         self.multiparts = []
 
     @pyaedt_function_handler(position="origin", dimensions_list="sizes", matname="material")
-    def create_box(self, origin, sizes, name=None, material=None, **kwargs):
+    def create_box(self, origin, sizes, name=None, material=None, **kwargs) -> "Object3d":
         """Create a box.
 
         Parameters
