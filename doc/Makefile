@@ -10,6 +10,9 @@ BUILDDIR      = _build
 LINKCHECKDIR  = $(BUILDDIR)/linkcheck
 LINKCHECKOPTS = -d $(BUILDDIR)/.doctrees -W --keep-going --color
 
+# Skip building the cheat sheet
+SKIP_BUILD_CHEAT_SHEET = False
+
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
