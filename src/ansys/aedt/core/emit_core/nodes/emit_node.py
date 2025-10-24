@@ -197,7 +197,7 @@ class EmitNode:
             elif node_type == "Band" and props["IsEmitterBand"] == "true":
                 type_class = getattr(generated, f"{prefix}Waveform")
             elif node_type == "TxSpectralProfNode":
-                if self.properties['IsEmitterBand'] == 'true':
+                if self.properties["IsEmitterBand"] == "true":
                     type_class = getattr(generated, f"{prefix}TxSpectralProfEmitterNode")
                 else:
                     type_class = getattr(generated, f"{prefix}TxSpectralProfNode")
