@@ -171,9 +171,13 @@ class TestClass:
         assert profile[key0].product == "HFSS3DLayout"
         assert profile[key0].max_memory() > MemoryGB(0.01)
 
-    def test_3dl_export_profile(self, hfss3dl_solved):
-        assert Path(hfss3dl_solved.export_profile("Setup1")).exists()
-        assert Path(hfss3dl_solved.export_mesh_stats("Setup1")).exists()
+    def test_3dl_export_profile(self, hfss3dl_solved, local_scratch):
+        profile_file = local_scratch.path / "temp.prof"
+        profile_file = Path(hfss3dl_solved.export_profile("Setup1", output_file=profile_file))
+        assert profile_file.exists()
+        mesh_file = local_scratch.path / "temp.msh"
+        mesh_file = Path(hfss3dl_solved.export_mesh_stats("Setup1", output_file=mesh_file))
+        assert mesh_file.exists()
         setup = hfss3dl_solved.setups[0]
         profiles = setup.get_profile()
         key0 = list(profiles.keys())[0]
@@ -186,7 +190,9 @@ class TestClass:
         sweep_names = list(profile.frequency_sweeps.keys())
         assert len(sweep_names) == 1
         sweep_name = sweep_names[0]
-        assert len(profile.frequency_sweeps[sweep_name].frequencies) == 16
+        assert (
+            len(profile.frequency_sweeps[sweep_name].frequencies) > 0
+        )  # This value depends on AEDT version used to solve.
         assert profile.frequency_sweeps[sweep_name].elapsed_time > timedelta(seconds=1)
         assert profile.num_adaptive_passes
         adaptive_passes = profile.num_adaptive_passes

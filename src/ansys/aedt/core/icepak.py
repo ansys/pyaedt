@@ -1795,7 +1795,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             intr = []
 
         argparam = {}
-        nominal_variation = self.available_variations.get_independent_nominal_values()
+        nominal_variation = self.available_variations.nominal_variation(dependent_params=False)
         for key, value in nominal_variation.items():
             argparam[key] = value
 

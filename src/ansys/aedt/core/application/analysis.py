@@ -2834,9 +2834,9 @@ class AvailableVariations(PyAedtBase):
 
         available_variables = self.__available_variables()
         if expressions:
-            variations = {k: v.expression for k, v in list(available_variables.items())}
+            variations = {k: "'" + v.expression + "'" for k, v in list(available_variables.items())}
         else:
-            variations = {k: v.evaluated_value for k, v in list(available_variables.items())}
+            variations = {k: "'" + v.evaluated_value + "'" for k, v in list(available_variables.items())}
 
         self.independent = independent_flag
         return variations
