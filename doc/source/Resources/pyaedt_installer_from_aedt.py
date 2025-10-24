@@ -67,8 +67,7 @@ def _show_error_message(oDesktop, message):
     from System.Windows.Forms import MessageBoxButtons
     from System.Windows.Forms import MessageBoxIcon
 
-    err_msg = "There was an error while installing PyAEDT. Please check the log " \
-        "in the terminal or console window for more details."
+    err_msg = "There was an error while installing PyAEDT. Please check the log files."
     oDesktop.AddMessage("", "", 2, err_msg)
     err_msg = "There was an error while installing PyAEDT, below is the associated " \
         "stderr:\n\n{}".format(message)
@@ -111,10 +110,13 @@ def run_pyinstaller_from_c_python(oDesktop):
     if wheelpyaedt:
         command.extend([r"--wheel={}".format(wheelpyaedt)])
 
-    oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
+    oDesktop.AddMessage("", "", 0, "Installing PyAEDT...")
     # Redirect stdout and stderr to temporary files to avoid deadlocks on pipes
     stdout_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.out')
     stderr_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.err')
+    oDesktop.AddMessage("", "", 0, "Log files associated with the installation:")
+    oDesktop.AddMessage("", "", 0, "STDOUT: {}".format(stdout_file.name))
+    oDesktop.AddMessage("", "", 0, "STDERR: {}".format(stderr_file.name))
     try:
         proc = subprocess.Popen(
             command, 
@@ -123,8 +125,6 @@ def run_pyinstaller_from_c_python(oDesktop):
         )
         proc.wait()
     except Exception as e:
-        message = "Installation process failed, please check the log files:\n" \
-            "STDOUT: {}\nSTDERR: {}".format(stdout_file.name, stderr_file.name)
         _show_error_message(oDesktop, str(e))
         return
     finally:
@@ -132,8 +132,7 @@ def run_pyinstaller_from_c_python(oDesktop):
         stderr_file.close()
 
     if proc.returncode != 0:
-        message = "Installation process failed, please check the log files:\n" \
-            "STDOUT: {}\nSTDERR: {}".format(stdout_file.name, stderr_file.name)
+        message = "Installation process failed, please check the log files content."
         _show_error_message(oDesktop, message)
         return
     else:
