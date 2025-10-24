@@ -141,3 +141,25 @@ def test_dir_is_sorted_within_groups():
     private = [a for a in attrs if a.startswith("_")]
     assert public == sorted(public)
     assert private == sorted(private)
+
+
+def test_public_dir_with_deprecated_method():
+    """Test that deprecated methods are excluded from public_dir."""
+
+    class VertexWithDeprecatedMethod(PyAedtBase):
+        def position(self):
+            """Method that is not deprecated."""
+
+        def position_deprecated(self):
+            """Method that is deprecated.
+
+            .. deprecated:: X.Y.Z
+                This method is deprecated. Use something else instead.
+            """
+            pass
+
+    vertex = VertexWithDeprecatedMethod()
+
+    assert "position_deprecated" not in vertex.public_dir
+    assert "position" in vertex.public_dir
+    assert "position_deprecated" in dir(vertex)
