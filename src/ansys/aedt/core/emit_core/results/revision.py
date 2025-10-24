@@ -1015,6 +1015,7 @@ class Revision:
 
         node = None
         try:
+            type_class = EmitNode
             if node_type == "RadioNode" and props["IsEmitter"] == "true":
                 type_class = EmitterNode
                 # TODO: enable when we add ReadOnlyNodes

@@ -59,6 +59,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import Terminator
     from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfEmitterNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
@@ -1948,7 +1949,7 @@ class TestClass:
         cable.length = "0.0031 mile"
         assert round(cable.length, 4) == 4.9890
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
@@ -1972,10 +1973,11 @@ class TestClass:
                 assert comp_added
 
                 # connect the component
-                if comp_added.node_type == "EmitterNode":
+                if isinstance(comp_added, EmitterNode):
                     # can't connect Emitters since they have no ports
+                    emit_app.schematic.delete_component(comp_added.name)
                     continue
-                elif comp_added._node_type == "AntennaNode" or comp_added._node_type == "Terminator":
+                elif isinstance(comp_added, AntennaNode) or isinstance(comp_added, Terminator):
                     emit_app.schematic.connect_components(default_radio.name, comp_added.name)
                 else:
                     emit_app.schematic.connect_components(comp_added.name, default_antenna.name)
