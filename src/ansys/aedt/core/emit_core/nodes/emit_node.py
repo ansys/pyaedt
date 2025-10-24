@@ -109,9 +109,12 @@ class EmitNode:
         Returns
         -------
         EmitNode
-            Parent node name.
+            Parent node.
         """
-        return self._get_property("Parent", True)
+        parent_name = self._get_property("Parent", True)
+        parent_name = parent_name.replace("NODE-*-", "")
+        node_id = self._oRevisionData.GetTopLevelNodeID(0, parent_name)
+        return self._get_node(node_id)
 
     @property
     def properties(self) -> dict:
@@ -127,7 +130,7 @@ class EmitNode:
         return props
 
     @property
-    def node_warnings(self) -> str:
+    def warnings(self) -> str:
         """Warnings for the node, if any.
 
         Returns
@@ -191,13 +194,16 @@ class EmitNode:
                 # type_class = EmitterNode
                 # else:
                 #    type_class = ReadOnlyEmitterNode
-                node = type_class(self._emit_obj, self._result_id, node_id)
             elif node_type == "Band" and props["IsEmitterBand"] == "true":
                 type_class = getattr(generated, f"{prefix}Waveform")
-                node = type_class(self._emit_obj, self._result_id, node_id)
+            elif node_type == "TxSpectralProfNode":
+                if self.properties['IsEmitterBand'] == 'true':
+                    type_class = getattr(generated, f"{prefix}TxSpectralProfEmitterNode")
+                else:
+                    type_class = getattr(generated, f"{prefix}TxSpectralProfNode")
             else:
                 type_class = getattr(generated, f"{prefix}{node_type}")
-                node = type_class(self._emit_obj, self._result_id, node_id)
+            node = type_class(self._emit_obj, self._result_id, node_id)
         except AttributeError:
             node = EmitNode(self._emit_obj, self._result_id, node_id)
         return node

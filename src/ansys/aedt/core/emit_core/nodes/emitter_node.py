@@ -26,8 +26,11 @@ from typing import cast
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
+from ansys.aedt.core.emit_core.nodes.generated import Band
+from ansys.aedt.core.emit_core.nodes.generated import BandFolder
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
+
 
 
 class EmitterNode(EmitNode):
@@ -65,6 +68,18 @@ class EmitterNode(EmitNode):
                 ant_id = self._oRevisionData.GetChildNodeID(result_id, scene_node_id, ant)
                 self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
 
+    def node_type(self) -> str:
+        """The type of this emit node"""
+        return "EmitterNode"
+
+    def duplicate(self, new_name: str):
+        """Duplicate this node"""
+        return self._duplicate(new_name)
+
+    def delete(self):
+        """Delete this node"""
+        self._delete()
+
     def get_radio(self) -> RadioNode:
         """Get the radio associated with this Emitter.
 
@@ -93,6 +108,20 @@ class EmitterNode(EmitNode):
         """
         return self._antenna_node
 
+    def children(self):
+        """Overridden to return the Waveforms
+
+        Returns
+        -------
+        waveforms: list[Waveform]
+            list of waveform nodes defined for the Emitter.
+
+        Examples
+        --------
+        >>> waveforms = emitter.get_waveforms()
+        """
+        return self.get_waveforms()
+
     def get_waveforms(self) -> list[Waveform]:
         """Get the waveform nodes for the Emitter.
 
@@ -110,12 +139,12 @@ class EmitterNode(EmitNode):
         waveforms = []
         # check for folders and recurse them if needed
         for child in radio_children:
-            if child.type == "BandFolder":
+            if isinstance(child, BandFolder):
                 grandchildren = child.children
                 for grandchild in grandchildren:
-                    # don't allow nested folders, so can add these
+                    # we don't allow nested folders, so can add these
                     # directly to the waveform list
                     waveforms.append(cast(Waveform, grandchild))
-            elif child.type == "Band":
+            elif isinstance(child, Waveform):
                 waveforms.append(cast(Waveform, child))
         return waveforms

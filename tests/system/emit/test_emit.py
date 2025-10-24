@@ -52,13 +52,17 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+    from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
     from ansys.aedt.core.emit_core.nodes.generated import Amplifier
+    from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
     from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfEmitterNode
+    from ansys.aedt.core.emit_core.nodes.generated import Waveform
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1807,7 +1811,7 @@ class TestClass:
         band_node.freq_deviation = 1e4
         assert band_node.freq_deviation == 1e4
 
-    @pytest.mark.skipif(config["desktopVersion"] <= "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_tables(self, emit_app):
         # Emit has 2 different types of tables: Node Prop Tables and ColumnData Tables
         # this test confirms that the table_data properties work for both
@@ -1844,40 +1848,71 @@ class TestClass:
         # Get the amplifier table and verify the data was set properly
         assert amp.table_data == amp_data
 
-        # Test BB Emissions Node since it can be either a NodeProp or
-        # ColumnData Table
-        radio2 = emit_app.schematic.create_component("New Radio")
-        radio2 = cast(RadioNode, radio2)
+        if config["desktopVersion"] < "2026.1":
+            # Test BB Emissions Node since it can be either a NodeProp or
+            # ColumnData Table
+            radio2 = emit_app.schematic.create_component("New Radio")
+            radio2 = cast(RadioNode, radio2)
 
-        children = radio2.children
-        tx_spec = None
-        for child in children:
-            if child.node_type == "Band":
-                band_children = child.children
-                for band_child in band_children:
-                    if band_child.node_type == "TxSpectralProfNode":
-                        tx_spec = cast(TxSpectralProfNode, band_child)
+            children = radio2.children
+            tx_spec = None
+            for child in children:
+                if child.node_type == "Band":
+                    band_children = child.children
+                    for band_child in band_children:
+                        if band_child.node_type == "TxSpectralProfNode":
+                            tx_spec = cast(TxSpectralProfNode, band_child)
 
-        bb_noise = tx_spec.add_tx_broadband_noise_profile()
-        bb_noise = cast(TxBbEmissionNode, bb_noise)
+            bb_noise = tx_spec.add_tx_broadband_noise_profile()
+            bb_noise = cast(TxBbEmissionNode, bb_noise)
 
-        # verify the table is empty by default
-        assert bb_noise.table_data == []
+            # verify the table is empty by default
+            assert bb_noise.table_data == []
 
-        # Set the ColumnData Table
-        bb_data = [(100000.0, -170.0), (100000000.0, -160.0), (200000000.0, -170.0)]
-        bb_noise.table_data = bb_data
+            # Set the ColumnData Table
+            bb_data = [(100000.0, -170.0), (100000000.0, -160.0), (200000000.0, -170.0)]
+            bb_noise.table_data = bb_data
 
-        # Verify the ColumnData Table was set
-        assert bb_noise.table_data == bb_data
+            # Verify the ColumnData Table was set
+            assert bb_noise.table_data == bb_data
 
-        # Change it to a NodeProp Table (Equation based)
-        bb_data = [("RF+10", -160), ("RF+100", -166)]
-        bb_noise.noise_behavior = TxBbEmissionNode.NoiseBehaviorOption.EQUATION
-        bb_noise.table_data = bb_data
+            # Change it to a NodeProp Table (Equation based)
+            bb_data = [("RF+10", -160), ("RF+100", -166)]
+            bb_noise.noise_behavior = TxBbEmissionNode.NoiseBehaviorOption.EQUATION
+            bb_noise.table_data = bb_data
 
-        # Verify the NodeProp Table was set
-        assert bb_noise.table_data == bb_data
+            # Verify the NodeProp Table was set
+            assert bb_noise.table_data == bb_data
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_emitters_radios(self, emit_app):
+        emitter_node: EmitterNode = emit_app.schematic.create_component("New Emitter", "Emitters")
+
+        # Test that you can get the emitter's radio and antenna nodes
+        emitter_radio: RadioNode = emitter_node.get_radio()
+        assert isinstance(emitter_radio, RadioNode)
+
+        emitter_ant: AntennaNode = emitter_node.get_antenna()
+        assert isinstance(emitter_ant, AntennaNode)
+
+        emitter_band: Waveform = emitter_node.get_waveforms()[0]
+        assert emitter_band.warnings == ""
+
+        assert emitter_node.children() == emitter_node.get_waveforms()
+
+        emitter_band.waveform = Waveform.WaveformOption.PRBS
+        assert emitter_band.waveform == Waveform.WaveformOption.PRBS
+
+        tx_spec: TxSpectralProfEmitterNode = emitter_band.children[0]
+        assert isinstance(tx_spec, TxSpectralProfEmitterNode)
+
+        radio_node: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
+
+        band: Band = radio_node.children[0]
+        assert isinstance(band, Band)
+
+        radio_tx_spec: TxSpectralProfNode = band.children[0]
+        assert isinstance(radio_tx_spec, TxSpectralProfNode)
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
     def test_units(self, emit_app):
@@ -1913,7 +1948,7 @@ class TestClass:
         cable.length = "0.0031 mile"
         assert round(cable.length, 4) == 4.9890
 
-    @pytest.mark.skipif(config["desktopVersion"] <= "2025.2", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
@@ -1929,28 +1964,28 @@ class TestClass:
         default_antenna = emit_app.schematic.create_component("Antenna")
 
         for comp in comp_list.components:
+            library_name = comp.split(":")[0]
             comp_to_add = comp.split(":")[1]
             # try to add just based on the CompName
-            comp_added = emit_app.schematic.create_component(comp_to_add)
-            if not comp_added:
-                # if CompName has multiple matches, then we need to
-                # also specify the library
-                library_name = comp.split(":")[0]
-                try:
-                    comp_added = emit_app.schematic.create_component(component_type=comp_to_add, library=library_name)
-                    assert comp_added
+            try:
+                comp_added = emit_app.schematic.create_component(component_type=comp_to_add, library=library_name)
+                assert comp_added
 
-                    # connect the component
-                    if comp_added._node_type == "AntennaNode" or comp_added._node_type == "Terminator":
-                        emit_app.schematic.connect_components(default_radio.name, comp_added.name)
-                    else:
-                        emit_app.schematic.connect_components(comp_added.name, default_antenna.name)
+                # connect the component
+                if comp_added.node_type == "EmitterNode":
+                    # can't connect Emitters since they have no ports
+                    continue
+                elif comp_added._node_type == "AntennaNode" or comp_added._node_type == "Terminator":
+                    emit_app.schematic.connect_components(default_radio.name, comp_added.name)
+                else:
+                    emit_app.schematic.connect_components(comp_added.name, default_antenna.name)
 
-                    # Delete the component
-                    emit_app.schematic.delete_component(comp_added.name)
+                # Delete the component
+                print(comp_added.name)
+                emit_app.schematic.delete_component(comp_added.name)
 
-                except Exception as e:
-                    print(f"Failed to create component: {comp_to_add} from library {library_name}. Error: {e}")
+            except Exception as e:
+                print(f"Failed to create component: {comp_to_add} from library {library_name}. Error: {e}")
 
         rev = emit_app.results.analyze()
         comps_in_schematic = rev.get_all_component_nodes()
