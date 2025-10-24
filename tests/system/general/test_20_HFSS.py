@@ -792,11 +792,19 @@ class TestClass:
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
         assert port.name in self.aedtapp.excitation_names
-        port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos)
+
+        # Create with name
+        port = self.aedtapp.create_current_source_from_objects(box1.name, box2.name, self.aedtapp.AxisDir.XPos)
+        assert port
         assert port.name in self.aedtapp.excitation_names
-        port2 = self.aedtapp.create_current_source_from_objects(box1, box2, name="Port2")
+        # Create with id
+        port2 = self.aedtapp.create_current_source_from_objects(box1.id, box2.id)
         assert port2
         assert port2.name in self.aedtapp.excitation_names
+        # Create with Object3d
+        port3 = self.aedtapp.create_current_source_from_objects(box1, box2)
+        assert port3
+        assert port3.name in self.aedtapp.excitation_names
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 2], name="lump_port", material="Copper")
