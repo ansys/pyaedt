@@ -804,13 +804,6 @@ class Spectral(CommonReport, PyAedtBase):
             ]
         return arg
 
-    @property
-    def _trace_info(self):
-        if isinstance(self.expressions, list):
-            return self.expressions
-        else:
-            return [self.expressions]
-
     @pyaedt_function_handler()
     def create(self, name=None):
         """Create an eye diagram report.
@@ -837,12 +830,7 @@ class Spectral(CommonReport, PyAedtBase):
             self.setup,
             self._context,
             self._convert_dict_to_report_sel(self.variations),
-            [
-                "X Component:=",
-                self.primary_sweep,
-                "Y Component:=",
-                self._trace_info,
-            ],
+            self._trace_info,
         )
         self._post.plots.append(self)
         self._is_created = True
