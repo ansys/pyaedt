@@ -30,8 +30,11 @@ from pathlib import Path
 from ansys.aedt.core.generic.settings import Settings
 
 
-def test_settings_load_default_yaml():
+def test_settings_load_default_yaml(monkeypatch):
     """Test loading the default YAML file in docs/source/Resources."""
+    # Set PYAEDT_LOCAL_SETTINGS_PATH to default value
+    monkeypatch.setenv("PYAEDT_LOCAL_SETTINGS_PATH", "")
+
     default_settings = Settings()
 
     local_settings = Settings()

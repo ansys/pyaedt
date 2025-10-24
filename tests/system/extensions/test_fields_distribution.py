@@ -28,7 +28,7 @@ from pathlib import Path
 import pytest
 
 import ansys.aedt.core
-from tests.system.extensions.conftest import local_path as extensions_local_path
+from tests import TESTS_EXTENSIONS_PATH
 
 # Test project constants
 fields_distribution_project = "transformer_loss_distribution"
@@ -75,7 +75,7 @@ def test_fields_distribution_with_points_file(add_app, local_scratch):
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
     file_path = Path(local_scratch.path) / "loss_distribution_points.csv"
-    points_file = Path(extensions_local_path) / "example_models" / test_subfolder / "hv_terminal.pts"
+    points_file = Path(TESTS_EXTENSIONS_PATH) / "example_models" / test_subfolder / "hv_terminal.pts"
 
     aedtapp = add_app(
         application=ansys.aedt.core.Maxwell2d,
@@ -390,7 +390,7 @@ def test_fields_distribution(add_app, local_scratch):
     assert file_path.is_file()
 
     # Test with points file
-    points_file = Path(extensions_local_path) / "example_models" / test_subfolder / "hv_terminal.pts"
+    points_file = Path(TESTS_EXTENSIONS_PATH) / "example_models" / test_subfolder / "hv_terminal.pts"
     data = FieldsDistributionExtensionData(
         points_file=str(points_file),
         export_file=str(file_path),
@@ -486,7 +486,7 @@ def test_fields_distribution_comprehensive_scenarios(add_app, local_scratch):
     assert file_path.is_file()
 
     # Test with points file
-    points_file = Path(extensions_local_path) / "example_models" / test_subfolder / "hv_terminal.pts"
+    points_file = Path(TESTS_EXTENSIONS_PATH) / "example_models" / test_subfolder / "hv_terminal.pts"
     data = FieldsDistributionExtensionData(
         points_file=str(points_file),
         export_file=str(file_path),

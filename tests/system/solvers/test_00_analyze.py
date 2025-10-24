@@ -41,8 +41,8 @@ from ansys.aedt.core.modules.profile import MemoryGB
 from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.profile import SimulationProfile
 from ansys.aedt.core.visualization.post.spisim import SpiSim
-from tests.system.solvers.conftest import desktop_version
-from tests.system.solvers.conftest import local_path
+from tests import TESTS_SOLVERS_PATH
+from tests.conftest import desktop_version
 
 sbr_platform_name = "satellite_231"
 icepak_solved_name = "icepak_summary_solved"
@@ -263,13 +263,13 @@ class TestClass:
         from ansys.aedt.core.generic.file_utils import read_json
 
         if desktop_version > "2023.1":
-            dict_in = read_json(Path(local_path) / "example_models" / test_subfolder / "array_simple_232.json")
-            dict_in["Circ_Patch_5GHz_232_1"] = Path(local_path) / "example_models" / test_subfolder / component
+            dict_in = read_json(Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "array_simple_232.json")
+            dict_in["Circ_Patch_5GHz_232_1"] = Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / component
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         else:
-            dict_in = read_json(Path(local_path) / "example_models" / test_subfolder / "array_simple.json")
-            dict_in["Circ_Patch_5GHz1"] = Path(local_path) / "example_models" / test_subfolder / component
+            dict_in = read_json(Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "array_simple.json")
+            dict_in["Circ_Patch_5GHz1"] = Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / component
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         hfss_app.create_3d_component_array(dict_in)
@@ -427,7 +427,7 @@ class TestClass:
         )
         assert fld_file.exists()
         fld_file_1 = local_scratch.path / "test_fld_1.fld"
-        sample_points_file = Path(local_path) / "example_models" / test_subfolder / "temp_points.pts"
+        sample_points_file = Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "temp_points.pts"
         icepak_solved.available_variations.independent = True
         icepak_solved.post.export_field_file(
             quantity="Temp",
@@ -616,7 +616,7 @@ class TestClass:
         assert com
 
     def test_compute_com(self, local_scratch):
-        com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
+        com_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(Path(com_example_file_folder) / "SerDes_Demo_02_Thru.s4p")
         fext_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
         next_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
@@ -635,7 +635,7 @@ class TestClass:
         assert com_0 and com_1
 
     def test_compute_com_parameter_ver_3p4(self, local_scratch):
-        com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
+        com_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
         spisim = SpiSim(thru_s4p)
 
@@ -679,7 +679,7 @@ class TestClass:
 
     def test_spisim_advanced_report_ucie(self, local_scratch):
         spisim_advanced_report_exmaple_folder = (
-            Path(local_path) / "example_models" / test_subfolder / "spisim_advanced_report"
+            Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "spisim_advanced_report"
         )
         fpath_snp = local_scratch.copyfile(spisim_advanced_report_exmaple_folder / "5_C50.s20p")
 

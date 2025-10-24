@@ -30,7 +30,7 @@ import toml
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import config
+from tests.conftest import config
 
 
 @pytest.mark.skipif(

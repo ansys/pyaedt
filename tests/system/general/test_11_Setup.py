@@ -28,7 +28,7 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic.constants import Setups
-from tests.system.general.conftest import desktop_version
+from tests.conftest import desktop_version
 
 test_subfolder = "T11"
 if desktop_version > "2022.2":

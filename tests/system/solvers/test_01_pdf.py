@@ -33,8 +33,8 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
-from tests.system.solvers.conftest import desktop_version
-from tests.system.solvers.conftest import local_path
+from tests import TESTS_SOLVERS_PATH
+from tests.conftest import desktop_version
 
 tol = 1e-12
 test_project_name = "ANSYS-HSD_V1_0_test"
@@ -44,7 +44,7 @@ test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(test_project_name, application=Circuit, subfolder=os.path.join(test_subfolder, "compliance"))
+    app = add_app(test_project_name, application=Circuit, subfolder=str(Path(test_subfolder) / "compliance"))
     return app
 
 
@@ -75,13 +75,16 @@ class TestClass:
         report.add_text("hola", True, True)
         report.add_empty_line(2)
         report.add_page_break()
-        report.add_image(os.path.join(local_path, "example_models", test_subfolder, "Coax_HFSS.jpg"), "Coaxial Cable")
+        report.add_image(
+            Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "Coax_HFSS.jpg", "Coaxial Cable"
+        )
         report.add_section(portrait=False, page_format="a3")
         report.add_table("MyTable", [["x", "y"], ["0", "1"], ["2", "3"], ["10", "20"]])
         report.add_section()
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
         report.add_toc()
-        assert os.path.exists(report.save_pdf(local_scratch.path, "my_firstpdf.pdf"))
+        report.save_pdf(local_scratch.path, "my_firstpdf.pdf")
+        assert (Path(local_scratch.path) / "my_firstpdf.pdf").exists()
 
     def test_create_pdf_schematic(self, circuit_test):
         report = AnsysReport()
@@ -90,24 +93,42 @@ class TestClass:
 
     def test_virtual_compliance(self, local_scratch, aedtapp):
         template = (
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "general_compliance_template.json"
+            Path(TESTS_SOLVERS_PATH)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "general_compliance_template.json"
         )
         template = local_scratch.copyfile(template)
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "ContourEyeDiagram_Custom.json"
-        )
-        local_scratch.copyfile(Path(local_path) / "example_models" / test_subfolder / "compliance" / "spisim_erl.cfg")
-        local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Custom.json"
-        )
-        local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Insertion_Custom.json"
+            Path(TESTS_SOLVERS_PATH)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "ContourEyeDiagram_Custom.json"
         )
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "StatisticalEyeDiagram_Custom.json"
+            Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "compliance" / "spisim_erl.cfg"
         )
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "EyeDiagram_Custom.json"
+            Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "compliance" / "Sparameter_Custom.json"
+        )
+        local_scratch.copyfile(
+            Path(TESTS_SOLVERS_PATH)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "Sparameter_Insertion_Custom.json"
+        )
+        local_scratch.copyfile(
+            Path(TESTS_SOLVERS_PATH)
+            / "example_models"
+            / test_subfolder
+            / "compliance"
+            / "StatisticalEyeDiagram_Custom.json"
+        )
+        local_scratch.copyfile(
+            Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "compliance" / "EyeDiagram_Custom.json"
         )
 
         with open(template, "r+") as f:
@@ -119,10 +140,10 @@ class TestClass:
         compliance_folder = Path(local_scratch.path) / "vc"
         os.makedirs(compliance_folder, exist_ok=True)
         vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
-        vc.dut_image = Path(local_path) / "example_models" / test_subfolder / "nets.jpg"
+        vc.dut_image = Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "nets.jpg"
         vc.project_file = aedtapp.project_file
         vc.add_report_from_folder(
-            input_folder=Path(local_path) / "example_models" / test_subfolder / "compliance",
+            input_folder=Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "compliance",
             design_name="Circuit1",
             group_plots=True,
             project=aedtapp.project_file,
@@ -146,7 +167,7 @@ class TestClass:
                 name="ERL",
             )
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "skew.json",
+            Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "compliance" / "skew.json",
             Path(compliance_folder) / "skew.json",
         )
         vc.add_report_derived_parameter(
@@ -166,7 +187,7 @@ class TestClass:
     def test_spisim_raw_read(self, local_scratch):
         from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
 
-        raw_file = os.path.join(local_path, "example_models", test_subfolder, "SerDes_Demo_02_Thru.s4p_ERL.raw")
+        raw_file = Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "SerDes_Demo_02_Thru.s4p_ERL.raw"
         raw_file = local_scratch.copyfile(raw_file)
 
         raw_file = SpiSimRawRead(raw_file)

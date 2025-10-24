@@ -30,7 +30,7 @@ import pytest
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T40"
 original_project_name = "ANSYS-HSD_V1"
