@@ -748,7 +748,7 @@ class Spectral(CommonReport, PyAedtBase):
                     "1" if self.adjust_coherent_gain else "0",
                 ],
             ]
-        elif self._app.design_type == "Twinbuilder":
+        elif self._app.design_type == "Twin Builder":
             arg = [
                 "NAME:Context",
                 "SimValueContext:=",
