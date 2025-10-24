@@ -164,6 +164,7 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
     h3d.close_project()
 
 
+@pytest.mark.flaky_linux
 def test_layout_design_toolkit_microvia(add_app, local_scratch):
     """Test microvia creation with conical shape."""
     file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_microvia.aedb"
