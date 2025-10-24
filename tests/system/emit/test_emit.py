@@ -598,10 +598,8 @@ class TestClass:
 
         sampling = get_sampling_node(rad3.name)
         mode_rx = TxRxMode.RX
-        assert (
-            sampling.parent + "-*-" + sampling.name
-            == "NODE-*-RF Systems-*-Bluetooth 2-*-Radios-*-Bluetooth 2-*-Sampling"
-        )
+        assert sampling.parent.name + "-*-" + sampling.name == "Bluetooth 2-*-Sampling"
+
         sampling.specify_percentage = True
         sampling.percentage_of_channels = 25
         rev = emit_app.results.analyze()
@@ -1949,7 +1947,7 @@ class TestClass:
         cable.length = "0.0031 mile"
         assert round(cable.length, 4) == 4.9890
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
