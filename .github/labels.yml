@@ -37,3 +37,7 @@
 - name: security
   description: Anything related to security advisories
   color: FF0000
+
+- name: extensions
+  description: Related to extensions
+  color: 6905d2

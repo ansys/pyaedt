@@ -20,3 +20,9 @@ testing:
     - "tests/system/conftest.py"
     - "tests/system/solvers/conftest.py"
     - "tests/system/general/conftest.py"
+
+extensions:
+- changed-fles:
+  - any-glob-to-any-file:
+    - "src/ansys/aedt/core/extensions/**/*"
+    - "doc/source/Resources/pyaedt_installer_from_aedt.py"
