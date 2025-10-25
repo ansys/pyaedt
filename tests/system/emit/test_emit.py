@@ -1913,6 +1913,16 @@ class TestClass:
         radio_tx_spec: TxSpectralProfNode = band.children[0]
         assert isinstance(radio_tx_spec, TxSpectralProfNode)
 
+        emit_app.schematic.delete_component(radio_node.name)
+        emit_app.schematic.delete_component(emitter_node.name)
+
+        try:
+            emit_app.schematic.delete_component("Dummy Comp")
+        except Exception as e:
+            rev = emit_app.results.analyze()
+            comps_in_schematic = rev.get_all_component_nodes()
+            assert len(comps_in_schematic) == 0
+
     @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
     def test_units(self, emit_app):
         new_radio = emit_app.schematic.create_component("New Radio")
@@ -1939,6 +1949,9 @@ class TestClass:
 
         band_node.start_frequency = "100 MHz"
         assert band_node.start_frequency == 100000000.0
+
+        band_node.start_frequency = "200MHz"
+        assert band_node.start_frequency == 200000000.0
 
         cable = emit_app.schematic.create_component("Cable")
         cable.length = "5.4681 yd"
