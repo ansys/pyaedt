@@ -30,9 +30,11 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes import generated
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
+from ansys.aedt.core.emit_core.nodes.generated import Waveform
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -1013,12 +1015,26 @@ class Revision:
 
         node = None
         try:
+            type_class = EmitNode
             if node_type == "RadioNode" and props["IsEmitter"] == "true":
-                type_class = getattr(generated, f"{prefix}EmitterNode")
-                node = type_class(self.emit_project, self.results_index, node_id)
+                type_class = EmitterNode
+                # TODO: enable when we add ReadOnlyNodes
+                # if prefix == "":
+                # type_class = EmitterNode
+                # else:
+                #    type_class = ReadOnlyEmitterNode
+            elif node_type == "Band" and props["IsEmitterBand"] == "true":
+                type_class = getattr(generated, f"{prefix}Waveform")
+            elif node_type == "TxSpectralProfNode":
+                parent_name = props["Parent"]
+                parent_name = parent_name.replace("NODE-*-", "")
+                node_id = self._emit_com.GetTopLevelNodeID(0, parent_name)
+                parent_node = self._get_node(node_id)
+                if isinstance(parent_node, Waveform):
+                    type_class = getattr(generated, f"{prefix}TxSpectralProfEmitterNode")
             else:
                 type_class = getattr(generated, f"{prefix}{node_type}")
-                node = type_class(self.emit_project, self.results_index, node_id)
+            node = type_class(self.emit_project, self.results_index, node_id)
         except AttributeError:
             node = EmitNode(self.emit_project, self.results_index, node_id)
         return node

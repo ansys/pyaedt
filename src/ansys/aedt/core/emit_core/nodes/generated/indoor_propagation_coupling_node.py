@@ -57,7 +57,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @property
     def table_data(self):
-        """Table.
+        """Custom Building Values Table.
         Table consists of 3 columns.
         Frequency:
             Value should be between 1.0 and 100.0e9.

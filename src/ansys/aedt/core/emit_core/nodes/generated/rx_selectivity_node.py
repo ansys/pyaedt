@@ -50,6 +50,21 @@ class RxSelectivityNode(EmitNode):
         self._delete()
 
     @property
+    def table_data(self):
+        """Rx Selectivity Table.
+        Table consists of 2 columns.
+        Bandwidth:
+            Value should be between 0 and 100e9.
+        Attenuation:
+            Value should be between -200 and 1000.
+        """
+        return self._get_table_data()
+
+    @table_data.setter
+    def table_data(self, value):
+        self._set_table_data(value)
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled")

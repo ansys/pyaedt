@@ -59,7 +59,7 @@ class CustomCouplingNode(EmitNode):
 
     @property
     def table_data(self):
-        """Table.
+        """Custom Coupling Values Table.
         Table consists of 2 columns.
         Frequency:
             Value should be between 1.0 and 100.0e9.

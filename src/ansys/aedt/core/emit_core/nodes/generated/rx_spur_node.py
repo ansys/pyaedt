@@ -53,7 +53,7 @@ class RxSpurNode(EmitNode):
 
     @property
     def table_data(self):
-        """Table.
+        """Spurs Table.
         Table consists of 3 columns.
         Frequency (MHz):
             Value should be a mathematical expression.
