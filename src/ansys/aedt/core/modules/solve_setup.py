@@ -980,7 +980,7 @@ class Setup(CommonSetup):
             # parameters
             mesh_link["Params"] = {}
 
-            nominal_values = self._app.available_variations.get_independent_nominal_values()
+            nominal_values = self._app.available_variations.nominal_variation(dependent_params=False)
 
             if parameters is None:
                 parameters = self._app.available_variations.nominal_w_values_dict
@@ -1008,7 +1008,7 @@ class Setup(CommonSetup):
     def _parse_link_parameters(self, map_variables_by_name, parameters):
         # parameters
         params = {}
-        nominal_values = self._app.available_variations.get_independent_nominal_values()
+        nominal_values = self._app.available_variations.nominal_variation(dependent_params=False)
         if map_variables_by_name:
             parameters = nominal_values
             parameters = self._app.available_variations.nominal_w_values_dict

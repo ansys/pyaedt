@@ -279,7 +279,7 @@ class TestClass:
         assert len(diff_test.post.available_report_solutions()) > 0
 
     def test_circuit_create_report_2(self, diff_test):
-        variations = diff_test.available_variations.get_independent_nominal_values()
+        variations = diff_test.available_variations.nominal_variation(dependent_params=False)
         variations["Freq"] = ["All"]
         variations["l1"] = ["All"]
         assert diff_test.post.create_report(

@@ -308,7 +308,7 @@ class TestClass:
             for el2 in portnames:
                 trace_names.append("S(" + el + "," + el2 + ")")
         families = {"Freq": ["All"]}
-        nominal_values = aedtapp.available_variations.get_independent_nominal_values()
+        nominal_values = aedtapp.available_variations.nominal_variation(dependent_params=False)
         for key, value in nominal_values.items():
             families[key] = value
         my_data = aedtapp.post.get_solution_data(expressions=trace_names, variations=families)

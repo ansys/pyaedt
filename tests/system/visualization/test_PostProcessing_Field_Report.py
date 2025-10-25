@@ -37,7 +37,7 @@ def h3d_potter_horn(add_app):
 
 class TestClass:
     def test_create_report(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -61,7 +61,7 @@ class TestClass:
         h3d_potter_horn.post.delete_report(nominal_report.plot_name)
 
     def test_create_report_sweep(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -81,7 +81,7 @@ class TestClass:
         h3d_potter_horn.post.delete_report(sweep_report.plot_name)
 
     def test_create_report_from_configuration_sweep_report(self, h3d_potter_horn, local_scratch):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -116,7 +116,7 @@ class TestClass:
         h3d_potter_horn.post.delete_report(report.plot_name)
 
     def test_reports_by_category_far_field(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -130,7 +130,7 @@ class TestClass:
         h3d_potter_horn.post.delete_report(new_report.plot_name)
 
     def test_reports_by_category_far_field_1(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -190,7 +190,7 @@ class TestClass:
         h3d_potter_horn.post.delete_report(new_report4.plot_name)
 
     def test_data_plot(self, h3d_potter_horn, local_scratch):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -205,7 +205,7 @@ class TestClass:
         assert data.plot(snapshot_path=os.path.join(local_scratch.path, "reportC.jpg"), show=False)
 
     def test_data_plot_3d(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -220,7 +220,7 @@ class TestClass:
         assert data.plot_3d(show=False)
 
     def test_create_3d_plot(self, h3d_potter_horn, local_scratch):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -239,7 +239,7 @@ class TestClass:
         )
 
     def test_get_solution_data(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -258,7 +258,7 @@ class TestClass:
         assert not np.any(data.get_expression_data("GainTotal2")[0])
 
     def test_create_report_nominal_sweep(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
@@ -270,7 +270,7 @@ class TestClass:
     # Improve it for Maxwell
     def test_reports_by_category_fields(self, h3d_potter_horn):
         h3d_potter_horn.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
-        variations2 = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations2 = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         assert h3d_potter_horn.setups[0].create_report(
             "Mag_E", primary_sweep_variable="Distance", report_category="Fields", context="Poly1"
         )
@@ -284,7 +284,7 @@ class TestClass:
         assert new_report.create()
 
     def test_reports_by_category_modal_solution(self, h3d_potter_horn):
-        variations2 = h3d_potter_horn.available_variations.get_independent_nominal_values()
+        variations2 = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         new_report = h3d_potter_horn.post.reports_by_category.modal_solution("S(1,1)")
         new_report.report_type = "Smith Chart"
         assert new_report.create()
