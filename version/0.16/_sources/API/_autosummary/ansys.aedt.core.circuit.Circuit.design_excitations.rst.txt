@@ -1,0 +1,6 @@
+design\_excitations
+===================
+
+.. currentmodule:: ansys.aedt.core.circuit
+
+.. autoproperty:: Circuit.design_excitations
