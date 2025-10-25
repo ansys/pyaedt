@@ -27,6 +27,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+
 class EmitSchematic:
     """Represents the EMIT schematic and provides methods to interact with it."""
 
