@@ -1932,8 +1932,14 @@ class TestClass:
         band_node.bit_rate = "600 bps"
         assert band_node.bit_rate == 600.0
 
+        band_node.bit_rate = "600 kbps"
+        assert band_node.bit_rate == 600000.0
+
         band_node.bit_rate = "600 Mbps"
         assert band_node.bit_rate == 600000000.0
+
+        band_node.bit_rate = "600 Gbps"
+        assert band_node.bit_rate == 600000000000.0
 
         band_node.bit_rate = 500
         assert band_node.bit_rate == 500.0
