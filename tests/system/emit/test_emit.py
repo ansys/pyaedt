@@ -1918,7 +1918,7 @@ class TestClass:
 
         try:
             emit_app.schematic.delete_component("Dummy Comp")
-        except Exception:
+        except RuntimeError:
             rev = emit_app.results.analyze()
             comps_in_schematic = rev.get_all_component_nodes()
             assert len(comps_in_schematic) == 0
