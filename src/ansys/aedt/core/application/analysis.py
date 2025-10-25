@@ -2384,7 +2384,7 @@ class Analysis(Design, PyAedtBase):
 
         if self.design_type == "HFSS":
             self.osolution.ExportNetworkData(
-                DesignVariations,
+                DesignVariations.strip(),
                 SolutionSelectionArray,
                 FileFormat,
                 OutFile,
@@ -2401,7 +2401,7 @@ class Analysis(Design, PyAedtBase):
             )
         else:
             self.odesign.ExportNetworkData(
-                DesignVariations,
+                DesignVariations.strip(),
                 SolutionSelectionArray,
                 FileFormat,
                 OutFile,
@@ -2834,9 +2834,9 @@ class AvailableVariations(PyAedtBase):
 
         available_variables = self.__available_variables()
         if expressions:
-            variations = {k: "'" + v.expression + "'" for k, v in list(available_variables.items())}
+            variations = {k: v.expression for k, v in list(available_variables.items())}
         else:
-            variations = {k: "'" + v.evaluated_value + "'" for k, v in list(available_variables.items())}
+            variations = {k: v.evaluated_value for k, v in list(available_variables.items())}
 
         self.independent = independent_flag
         return variations
