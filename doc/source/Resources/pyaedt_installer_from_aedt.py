@@ -61,8 +61,21 @@ DISCLAIMER = (
     "Do you want to proceed ?"
 )
 
+def _show_error_message(oDesktop, message):
+    """Show error message in AEDT message window and in a message box."""
+    from System.Windows.Forms import MessageBox
+    from System.Windows.Forms import MessageBoxButtons
+    from System.Windows.Forms import MessageBoxIcon
+
+    err_msg = "There was an error while installing PyAEDT. Please check the log files."
+    oDesktop.AddMessage("", "", 2, err_msg)
+    err_msg = "There was an error while installing PyAEDT, below is the associated " \
+        "stderr:\n\n{}".format(message)
+    MessageBox.Show(err_msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
 
 def run_pyinstaller_from_c_python(oDesktop):
+    import tempfile
+
     # Iron Python script to create the virtual environment and install PyAEDT
     # Get AEDT information
     version = oDesktop.GetVersion()[2:6].replace(".", "")
@@ -97,24 +110,38 @@ def run_pyinstaller_from_c_python(oDesktop):
     if wheelpyaedt:
         command.extend([r"--wheel={}".format(wheelpyaedt)])
 
-    oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    _, stderr = proc.communicate()
+    oDesktop.AddMessage("", "", 0, "Installing PyAEDT...")
+    # Redirect stdout and stderr to temporary files to avoid deadlocks on pipes
+    stdout_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.out')
+    stderr_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.err')
+    oDesktop.AddMessage("", "", 0, "Log files associated with the installation:")
+    oDesktop.AddMessage("", "", 0, "STDOUT: {}".format(stdout_file.name))
+    oDesktop.AddMessage("", "", 0, "STDERR: {}".format(stderr_file.name))
+    try:
+        proc = subprocess.Popen(
+            command, 
+            stdout=stdout_file, 
+            stderr=stderr_file
+        )
+        proc.wait()
+    except Exception as e:
+        _show_error_message(oDesktop, str(e))
+        return
+    finally:
+        stdout_file.close()
+        stderr_file.close()
 
     if proc.returncode != 0:
-        from System.Windows.Forms import MessageBox
-        from System.Windows.Forms import MessageBoxButtons
-        from System.Windows.Forms import MessageBoxIcon
-
-        err_msg = "There was an error while installing PyAEDT. Please check the log " \
-            "in the terminal or console window for more details."
-        oDesktop.AddMessage("", "", 2, err_msg)
-        err_msg = "There was an error while installing PyAEDT, below is the associated " \
-            "stderr:\n\n{}".format(stderr)
-        MessageBox.Show(err_msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        message = "Installation process failed, please check the log files content."
+        _show_error_message(oDesktop, message)
         return
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
+        try:
+            os.unlink(stdout_file.name)
+            os.unlink(stderr_file.name)
+        except Exception as e:
+            oDesktop.AddMessage("", "", 1, "Error cleaning temp files: {}".format(str(e)))
 
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
@@ -342,8 +369,6 @@ def install_pyaedt():
                 "uv",
             ]
             subprocess.run(command, check=True, env=env)  # nosec
-            print("Activating uv in the virtual environment...")
-            subprocess.run([str(activate_script)], check=True, env=env)  # nosec
             print("Installing PyAEDT using provided wheels argument")
             command = [
                 str(uv_exe),
