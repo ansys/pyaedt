@@ -1886,6 +1886,7 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emitters_radios(self, emit_app):
         emitter_node: EmitterNode = emit_app.schematic.create_component("New Emitter", "Emitters")
+        emitter_id = emitter_node._node_id
 
         # Test that you can get the emitter's radio and antenna nodes
         emitter_radio: RadioNode = emitter_node.get_radio()
@@ -1914,12 +1915,15 @@ class TestClass:
         assert isinstance(radio_tx_spec, TxSpectralProfNode)
 
         emit_app.schematic.delete_component(radio_node.name)
+        # the next two lines are only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        rev = emit_app.results.analyze()
+        emitter_node = rev._get_node(emitter_id)
         emit_app.schematic.delete_component(emitter_node.name)
 
         try:
             emit_app.schematic.delete_component("Dummy Comp")
         except RuntimeError:
-            rev = emit_app.results.analyze()
             comps_in_schematic = rev.get_all_component_nodes()
             assert len(comps_in_schematic) == 0
 
