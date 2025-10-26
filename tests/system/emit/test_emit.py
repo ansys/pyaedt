@@ -1885,8 +1885,10 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emitters_radios(self, emit_app):
-        emitter_node: EmitterNode = emit_app.schematic.create_component("New Emitter", "Emitters")
-        emitter_id = emitter_node._node_id
+        emitter_name = "Test Emitter"
+        emitter_node: EmitterNode = emit_app.schematic.create_component(name=emitter_name,
+                                                                        component_type="New Emitter",
+                                                                        library="Emitters")
 
         # Test that you can get the emitter's radio and antenna nodes
         emitter_radio: RadioNode = emitter_node.get_radio()
@@ -1918,7 +1920,7 @@ class TestClass:
         # the next two lines are only needed for 25.2, which had
         # some instability in maintaining the node_ids
         rev = emit_app.results.analyze()
-        emitter_node = rev._get_node(emitter_id)
+        emitter_node = rev.get_component_node(emitter_name)
         emit_app.schematic.delete_component(emitter_node.name)
 
         try:
