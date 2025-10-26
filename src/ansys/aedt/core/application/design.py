@@ -202,7 +202,7 @@ class Design(AedtObjects, PyAedtBase):
         self.close_on_exit: bool = close_on_exit
         self._desktop_class = None
         self._desktop_class = self.__init_desktop_from_design(
-            version,
+            settings.aedt_version if settings.aedt_version else version,
             non_graphical,
             new_desktop,
             close_on_exit,

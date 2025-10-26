@@ -142,12 +142,32 @@ def add_automation_tab(
             icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
         else:
             icon_file = Path(icon_file)
-        button_kwargs = dict(
-            label=name,
-            isLarge="1",
-            image=str(icon_file.as_posix()),
-            script=f"{toolkit_name}/{template}",
-        )
+
+        # For Linux, create symbolic link and use relative path (if not, AEDT panels break)
+        if is_linux:  # pragma: no cover
+            images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
+            images_target = lib_dir / product / "images"
+            if not images_target.exists() and images_source.exists():
+                try:
+                    images_target.symlink_to(images_source)
+                except Exception:
+                    logging.getLogger("Global").warning(
+                        f"Could not create symlink from {images_source} to {images_target}"
+                    )
+            icon_relative = f"images/{icon_file.name}"
+            button_kwargs = dict(
+                label=name,
+                isLarge="1",
+                image=icon_relative,
+                script=f"{toolkit_name}/{template}",
+            )
+        else:
+            button_kwargs = dict(
+                label=name,
+                isLarge="1",
+                image=str(icon_file.as_posix()),
+                script=f"{toolkit_name}/{template}",
+            )
     ET.SubElement(panel_element, "button", **button_kwargs)
     # Backup any existing file if present
     if tab_config_file_path.is_file():
@@ -397,8 +417,8 @@ def add_script_to_menu(
         build_file_data = build_file_data.replace("##JUPYTER_EXE##", str(jupyter_executable))
         build_file_data = build_file_data.replace("##TOOLKIT_NAME##", str(name))
         build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
-        if copy_to_personal_lib and dest_script_path:
-            extension_dir = dest_script_path.parent
+        if dest_script_path:
+            extension_dir = Path(dest_script_path).parent
         else:
             extension_dir = Path(ansys.aedt.core.extensions.__file__).parent / "installer"
         build_file_data = build_file_data.replace("##BASE_EXTENSION_LOCATION##", str(extension_dir))

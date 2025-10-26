@@ -261,11 +261,17 @@ omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
 markers = [
-    "unit",
-    "integration",
-    "system",
-    "solvers",
-    "general",
+    "unit: mark a test as a unit test.",
+    "integration: mark a test as an integration test.",
+    "system: mark a test as a system test.",
+    "solvers: mark a test as related to solvers.",
+    "general: mark a test as related to general features.",
+    "visualization: mark a test as related to visualization features.",
+    "extensions: mark a test as related to extensions.",
+    "filter_solutions: mark a test as related to filter solutions.",
+    "emit: mark a test as related to EMIT features.",
+    "flaky_linux: mark a test as flaky on Linux systems.",
+    "flaky_windows: mark a test as flaky on Windows systems.",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",
