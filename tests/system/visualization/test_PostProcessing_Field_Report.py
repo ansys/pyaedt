@@ -258,7 +258,7 @@ class TestClass:
         assert not np.any(data.get_expression_data("GainTotal2")[0])
 
     def test_create_report_nominal_sweep(self, h3d_potter_horn):
-        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)()
+        variations = h3d_potter_horn.available_variations.nominal_variation(dependent_params=False)
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
