@@ -251,6 +251,78 @@ class EdgePrimitive(EdgeTypePrimitive, PyAedtBase):
         self._object3d = object3d
         self.oeditor = object3d._oeditor
 
+    def __str__(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return str(self.id)
+
+    def __iter__(self):
+        """Return an iterator for the vertices of the edge.
+
+        Returns
+        -------
+        iterator
+            Iterator over the vertices of the edge.
+
+        Examples
+        --------
+        >>> for vertex in edge:
+        ...     print(f"Vertex ID: {vertex.id}, Position: {vertex.position}")
+        """
+        return iter(self.vertices)
+
+    def __getitem__(self, index):
+        """Get a vertex by index.
+
+        Parameters
+        ----------
+        index : int
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`
+            Vertex at the specified index.
+
+        Examples
+        --------
+        >>> first_vertex = edge[0]
+        >>> last_vertex = edge[-1]
+        """
+        return self.vertices[index]
+
+    def __contains__(self, item: int | VertexPrimitive) -> bool:
+        """Check if a vertex is contained in the edge.
+
+        Parameters
+        ----------
+        item : :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive` or int
+            Vertex object or vertex ID to check for containment.
+
+        Returns
+        -------
+        bool
+            ``True`` if the item is part of this edge, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> edge = obj.edges[0]
+        >>> vertex = obj.vertices[0]
+        >>> if vertex in edge:
+        ...     print("Vertex is part of this edge")
+
+        >>> # Check by vertex ID
+        >>> vertex_id = 123
+        >>> if vertex_id in edge:
+        ...     print("Vertex ID is part of this edge")
+        """
+        if isinstance(item, VertexPrimitive):
+            item_id = item.id
+            return any(v.id == item_id for v in self)
+        elif isinstance(item, int):
+            return any(v.id == item for v in self)
+        return False
+
     @property
     def name(self):
         """Name of the object."""
@@ -363,12 +435,6 @@ class EdgePrimitive(EdgeTypePrimitive, PyAedtBase):
             return float(self.oeditor.GetEdgeLength(self.id))
         except Exception:
             return False
-
-    def __str__(self):
-        return str(self.id)
-
-    def __repr__(self):
-        return str(self.id)
 
     @pyaedt_function_handler()
     def create_object(self, non_model=False):
