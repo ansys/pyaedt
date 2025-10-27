@@ -35,6 +35,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests.system.extensions.conftest import local_path as extensions_local_path
 
 
+@pytest.mark.flaky_linux
 def test_via_clustering_main_function(local_scratch):
     """Test the main function of the Via Clustering extension."""
     # Copy test model to scratch directory
