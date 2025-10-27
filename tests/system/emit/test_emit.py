@@ -38,7 +38,8 @@ import pytest
 import ansys.aedt.core
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
-from tests.system.solvers.conftest import config
+from tests import TESTS_EMIT_PATH
+from tests.conftest import config
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
@@ -60,17 +61,12 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 
-TEST_REVIEW_FLAG = True
-TEST_SUBFOLDER = "TEMIT"
+TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
 
 @pytest.fixture()
 def interference(add_app):
-    app = add_app(
-        project_name="interference",
-        application=ansys.aedt.core.Emit,
-        subfolder=TEST_SUBFOLDER,
-    )
+    app = add_app(project_name="interference", application=ansys.aedt.core.Emit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
