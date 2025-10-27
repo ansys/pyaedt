@@ -58,13 +58,13 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes.generated import Band
     from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
-    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
-    from ansys.aedt.core.emit_core.nodes.generated import Terminator
     from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
     from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
     from ansys.aedt.core.emit_core.nodes.generated import RxSelectivityNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
     from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
+    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import Terminator
     from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
     from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
