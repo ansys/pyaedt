@@ -17,7 +17,7 @@ faster resolution of complex simulations for design and optimization.
 
 .. note::
   For the complete API reference and additional documentation, please visit:
-  :doc:`../api_full/index`
+  :doc:`../api_full/ansys/aedt/core/index`
 
 .. image:: ../Resources/aedt_2.png
   :width: 800
