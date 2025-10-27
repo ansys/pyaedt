@@ -34,6 +34,7 @@ def add_pyaedt_to_aedt(
     aedt_version,
     personal_lib,
     skip_version_manager=False,
+    odesktop=None,
 ):
     """Add PyAEDT tabs in AEDT.
 
@@ -45,6 +46,8 @@ def add_pyaedt_to_aedt(
         AEDT personal library folder.
     skip_version_manager : bool, optional
         Skip the version manager tab. The default is ``False``.
+    odesktop : oDesktop, optional
+        Desktop session. The default is ``None``.
     """
     logger = logging.getLogger("Global")
     if not personal_lib or not aedt_version:
@@ -60,10 +63,10 @@ def add_pyaedt_to_aedt(
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager)
+    __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager, odesktop)
 
 
-def __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager):
+def __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager, odesktop=None):
     """Add PyAEDT tabs in AEDT."""
     if skip_version_manager:
         pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
@@ -94,4 +97,5 @@ def __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager):
                 panel="Panel_PyAEDT_Installer",
                 personal_lib=personal_lib,
                 aedt_version=aedt_version,
+                odesktop=odesktop,
             )
