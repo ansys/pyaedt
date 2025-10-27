@@ -75,7 +75,7 @@ def desktop():
     d.close_desktop()
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
+@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch, examples):

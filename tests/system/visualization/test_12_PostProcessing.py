@@ -36,6 +36,7 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
@@ -783,6 +784,7 @@ class TestClass:
         data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
         assert data
 
+    @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
     def test_twinbuilder_spectral(self, tb_app):
         assert tb_app.post.create_report(
             expressions="mag(E1.I)", primary_sweep_variable="Spectrum", plot_name="Spectral domain", domain="Spectral"
