@@ -93,9 +93,9 @@ def mock_maxwell_2d_app():
 @pytest.fixture
 def mock_circuit_app():
     """Fixture to mock Circuit application."""
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
-        mock_aedt_application_instance = MagicMock()
-        mock_aedt_application_instance.design_type = "Circuit Design"
-        mock_aedt_application_property.return_value = mock_aedt_application_instance
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
+        mock_instance = MagicMock()
+        mock_instance.design_type = "Circuit Design"
+        mock_property.return_value = mock_instance
 
-        yield mock_aedt_application_instance
+        yield mock_instance
