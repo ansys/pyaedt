@@ -355,6 +355,7 @@ def test_add_script_to_menu_success(
         template="run_pyaedt_toolkit_script",
         panel="Panel_PyAEDT_Extensions",
         is_custom=False,
+        odesktop=None
     )
 
     # Verify the generated script content
@@ -416,4 +417,5 @@ def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_d
         template="run_pyaedt_toolkit_script",
         panel="Panel_PyAEDT_Extensions",
         is_custom=True,
+        odesktop=None
     )
