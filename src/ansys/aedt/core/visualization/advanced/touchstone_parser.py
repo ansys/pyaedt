@@ -119,7 +119,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
                         if line.lower().startswith("! port"):
                             pnames.append(line.split("=")[-1].strip())
                     if not pnames:
-                        pnames = [f"Port{i + 1}" for i in range(self.nports)]
+                        pnames = [f"{i + 1}" for i in range(self.nports)]
                 self.port_names = pnames
         self.log_x = True
 

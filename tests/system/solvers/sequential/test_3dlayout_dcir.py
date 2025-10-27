@@ -26,7 +26,7 @@ import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.solvers.conftest import config
+from tests.conftest import config
 
 test_subfolder = "dcir"
 original_project_name = "ANSYS-HSD_V1"

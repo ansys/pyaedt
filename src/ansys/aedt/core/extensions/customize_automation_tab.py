@@ -70,6 +70,7 @@ def add_automation_tab(
     overwrite=False,
     panel="Panel_PyAEDT_Extensions",
     is_custom=False,  # new argument for custom flag
+    odesktop=None,
 ):
     """Add an automation tab in AEDT.
 
@@ -90,6 +91,10 @@ def add_automation_tab(
         which case is adding new tabs to the existing ones.
     panel : str, optional
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
+    is_custom : bool, optional
+        Whether the automation tab is for custom extensions. The default is ``False``.
+    odesktop : oDesktop, optional
+        Desktop session. The default is ``None``.
 
     Returns
     -------
@@ -154,6 +159,10 @@ def add_automation_tab(
                     logging.getLogger("Global").warning(
                         f"Could not create symlink from {images_source} to {images_target}"
                     )
+                    if odesktop:
+                        odesktop.AddMessage(
+                            "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
+                        )
             icon_relative = f"images/{icon_file.name}"
             button_kwargs = dict(
                 label=name,
@@ -313,6 +322,7 @@ def add_script_to_menu(
     personal_lib=None,
     aedt_version="",
     is_custom=False,
+    odesktop=None,
 ):
     """Add a script to the ribbon menu.
 
@@ -344,6 +354,7 @@ def add_script_to_menu(
     personal_lib : str, optional
     aedt_version : str, optional
     is_custom : bool, optional
+    odesktop : oDesktop, optional
 
     Returns
     -------
@@ -437,8 +448,11 @@ def add_script_to_menu(
         template=template_file,
         panel=panel,
         is_custom=is_custom,
+        odesktop=odesktop,
     )
     logger.info(f"{name} installed")
+    if odesktop:
+        odesktop.AddMessage("", "", 0, str(f"{name} installed"))
     return True
 
 
