@@ -141,10 +141,7 @@ class EmitNode:
         str
             Warning message(s).
         """
-        warnings.warn(
-            "This property is deprecated in 0.21.3. Use the warnings property instead.",
-            DeprecationWarning
-        )
+        warnings.warn("This property is deprecated in 0.21.3. Use the warnings property instead.", DeprecationWarning)
 
         return self.warnings
 
