@@ -522,3 +522,10 @@ class TestClass:
     def test_43_edit_notes(self, aedtapp):
         assert aedtapp.edit_notes("this a test")
         assert not aedtapp.edit_notes(1)
+
+    def test_value_with_units(self, aedtapp):
+        assert aedtapp.value_with_units("10mm") == "10mm"
+        assert aedtapp.value_with_units("10") == "10mm"
+        assert aedtapp.value_with_units("10", units_system="Angle") == "10deg"
+        assert aedtapp.value_with_units("10", units_system="invalid") == "10"
+        assert aedtapp.value_with_units("A + Bmm") == "A + Bmm"
