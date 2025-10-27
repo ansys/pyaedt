@@ -160,7 +160,9 @@ def add_automation_tab(
                         f"Could not create symlink from {images_source} to {images_target}"
                     )
                     if odesktop:
-                        odesktop.AddMessage("", "", 0, str(f"Could not create symlink from {images_source} to {images_target}"))
+                        odesktop.AddMessage(
+                            "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
+                        )
             icon_relative = f"images/{icon_file.name}"
             button_kwargs = dict(
                 label=name,
