@@ -187,7 +187,7 @@ class ModifiablePrimitive(PyAedtBase):
         return True
 
 
-class VertexPrimitive(PyAedtBase, ModifiablePrimitive):
+class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
     """Contains the vertex object within the AEDT Desktop Modeler.
 
     Parameters
@@ -242,7 +242,7 @@ class VertexPrimitive(PyAedtBase, ModifiablePrimitive):
         return str(self.id)
 
 
-class EdgePrimitive(PyAedtBase, ModifiablePrimitive):
+class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
     """Contains the edge object within the AEDT Desktop Modeler.
 
     Parameters
