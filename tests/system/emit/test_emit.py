@@ -1974,6 +1974,41 @@ class TestClass:
         except RuntimeError:
             print("Invalid component can't be deleted.")
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_exceptions(self, emit_app):
+        radio: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
+
+        try:
+            radio._get_node(-1)
+        except Exception as e:
+            print(f"Invalid {e}")
+
+        try:
+            radio._set_property("Bad Prop", "Bad Val")
+        except Exception as e:
+            print(f"Error: {e}")
+
+        try:
+            radio._get_property("Bad Prop")
+        except Exception as e:
+            print(f"Error: {e}")
+
+        band: Band = radio.children[0]
+        try:
+            band.start_frequency = "100 Gbps"
+        except Exception as e:
+            print(f"Invalid units: {e}")
+
+        try:
+            radio._get_child_node_id("Bad Node Name")
+        except Exception as e:
+            print(f"Invalid child node name: {e}")
+
+        try:
+            radio._add_child_node("Bad Type")
+        except Exception as e:
+            print(f"Invalid child type: {e}")
+
     @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2026 R1.")
     def test_units(self, emit_app):
         new_radio = emit_app.schematic.create_component("New Radio")
