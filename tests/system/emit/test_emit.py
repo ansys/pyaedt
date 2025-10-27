@@ -60,9 +60,17 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes.generated import Terminator
+    from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSelectivityNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfEmitterNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
@@ -1916,6 +1924,44 @@ class TestClass:
         radio_tx_spec: TxSpectralProfNode = band.children[0]
         assert isinstance(radio_tx_spec, TxSpectralProfNode)
 
+        radio_rx_spec: RxSusceptibilityProfNode = band.children[1]
+        assert isinstance(radio_rx_spec, RxSusceptibilityProfNode)
+
+        # test the Tx Spectral Profile child nodes
+        radio_harmonics: TxHarmonicNode = radio_tx_spec.add_custom_tx_harmonics()
+        assert isinstance(radio_harmonics, TxHarmonicNode)
+        assert len(radio_harmonics.table_data) == 0
+
+        radio_bb_noise: TxBbEmissionNode = radio_tx_spec.add_tx_broadband_noise_profile()
+        assert isinstance(radio_bb_noise, TxBbEmissionNode)
+        assert len(radio_bb_noise.table_data) == 0
+
+        radio_nb_emissions: TxNbEmissionNode = radio_tx_spec.add_narrowband_emissions_mask()
+        assert isinstance(radio_nb_emissions, TxNbEmissionNode)
+        assert len(radio_nb_emissions.table_data) == 0
+
+        radio_tx_spur: TxSpurNode = radio_tx_spec.add_spurious_emissions()
+        assert isinstance(radio_tx_spur, TxSpurNode)
+        assert len(radio_tx_spur.table_data) == 0
+
+        # test the Rx Spectral Profile child nodes
+        radio_saturation: RxSaturationNode = radio_rx_spec.add_rx_saturation()
+        assert isinstance(radio_saturation, RxSaturationNode)
+        assert len(radio_saturation.table_data) == 0
+
+        radio_selectivity: RxSelectivityNode = radio_rx_spec.add_rx_selectivity()
+        assert isinstance(radio_selectivity, RxSelectivityNode)
+        assert len(radio_selectivity.table_data) == 0
+
+        radio_mixer_products: RxMixerProductNode = radio_rx_spec.add_mixer_products()
+        assert isinstance(radio_mixer_products, RxMixerProductNode)
+        assert len(radio_mixer_products.table_data) == 0
+
+        radio_rx_spurs: RxSpurNode = radio_rx_spec.add_spurious_responses()
+        assert isinstance(radio_rx_spurs, RxSpurNode)
+        assert len(radio_rx_spurs.table_data) == 0
+
+        # Test deleting components
         emit_app.schematic.delete_component(radio_node.name)
         # the next two lines are only needed for 25.2, which had
         # some instability in maintaining the node_ids

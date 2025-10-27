@@ -559,7 +559,7 @@ class EmitNode:
         child_type : EmitNode
             Type of child node to create.
         child_name : str, optional
-            Optional name to use for the child node. If None, a default name is used.
+            Name to use for the child node. If None, a default name is used.
 
         Returns
         -------
