@@ -106,8 +106,9 @@ def test_get_active_db(extension_under_test, test_folder, add_app):
 def test_apply_config_to_edb(mock_selected_edb, test_folder, extension_under_test):
     mock_selected_edb.return_value = test_folder.copy_si_verse()
     config_path = test_folder.path / "config.json"
+    data = {"general": {"anti_pads_always_on": True, "suppress_pads": True}}
     with open(config_path, "w", encoding="utf-8") as f:
-        json.dump({}, f, ensure_ascii=False, indent=4)
+        json.dump(data, f, ensure_ascii=False, indent=4)
     assert extension_under_test.apply_config_to_edb(config_path)
 
 
