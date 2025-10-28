@@ -37,8 +37,8 @@ from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
-from tests.system.general.conftest import desktop_version
+from tests.conftest import config
+from tests.conftest import desktop_version
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":

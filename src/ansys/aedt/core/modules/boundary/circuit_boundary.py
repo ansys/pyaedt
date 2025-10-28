@@ -25,11 +25,12 @@
 import copy
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
 
 
-class Sources(object):
+class Sources(PyAedtBase):
     """Manages sources in Circuit projects."""
 
     def __init__(self, app, name, source_type=None):
@@ -317,7 +318,7 @@ class Sources(object):
         return True
 
 
-class PowerSinSource(Sources, object):
+class PowerSinSource(Sources):
     """Power Sinusoidal Class."""
 
     def __init__(self, app, name, source_type=None):
@@ -478,7 +479,7 @@ class PowerSinSource(Sources, object):
         self._child.SetPropValue("TONE", value)
 
 
-class PowerIQSource(Sources, object):
+class PowerIQSource(Sources):
     """Power IQ Class."""
 
     def __init__(self, app, name, source_type=None):
@@ -728,7 +729,7 @@ class PowerIQSource(Sources, object):
         self.update()
 
 
-class VoltageFrequencyDependentSource(Sources, object):
+class VoltageFrequencyDependentSource(Sources):
     """Voltage Frequency Dependent Class."""
 
     def __init__(self, app, name, source_type=None):
@@ -890,7 +891,7 @@ class VoltageFrequencyDependentSource(Sources, object):
         return True
 
 
-class VoltageDCSource(Sources, object):
+class VoltageDCSource(Sources):
     """Power Sinusoidal Class."""
 
     def __init__(self, app, name, source_type=None):
@@ -946,7 +947,7 @@ class VoltageDCSource(Sources, object):
         self._child.SetPropValue("DC", value)
 
 
-class VoltageSinSource(Sources, object):
+class VoltageSinSource(Sources):
     """Power Sinusoidal Class."""
 
     def __init__(self, app, name, source_type=None):
@@ -1107,7 +1108,7 @@ class VoltageSinSource(Sources, object):
         self._child.SetPropValue("TONE", value)
 
 
-class CurrentSinSource(Sources, object):
+class CurrentSinSource(Sources):
     """Current Sinusoidal Class."""
 
     def __init__(self, app, name, source_type=None):

@@ -24,6 +24,7 @@
 
 import os
 
+import numpy as np
 import pytest
 
 
@@ -53,6 +54,10 @@ class TestClass:
             context=context,
         )
         assert nominal_report
+        nominal_report2 = h3d_potter_horn.post.create_report(
+            "db(GainTotal)",
+        )
+        assert nominal_report2
         h3d_potter_horn.post.delete_report(nominal_report.plot_name)
 
     def test_create_report_sweep(self, h3d_potter_horn):
@@ -164,7 +169,7 @@ class TestClass:
 
     def test_create_report_from_configuration_template(self, h3d_potter_horn):
         from tests import TESTS_VISUALIZATION_PATH
-        from tests.system.visualization.conftest import config
+        from tests.conftest import config
 
         new_report4 = h3d_potter_horn.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", infinite_sphere="3D"
@@ -249,8 +254,8 @@ class TestClass:
         )
 
         assert data.primary_sweep == "Theta"
-        assert len(data.data_magnitude("GainTotal")) > 0
-        assert not data.data_magnitude("GainTotal2")
+        assert len(data.get_expression_data("GainTotal", formula="magnitude")[1]) > 0
+        assert not np.any(data.get_expression_data("GainTotal2")[0])
 
     def test_create_report_nominal_sweep(self, h3d_potter_horn):
         variations = h3d_potter_horn.available_variations.get_independent_nominal_values()

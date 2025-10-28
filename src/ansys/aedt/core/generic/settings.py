@@ -39,7 +39,6 @@ The second class is intended for internal use only and shouldn't be modified by 
 import logging
 import os
 from pathlib import Path
-import platform
 import time
 from typing import Any
 from typing import List
@@ -49,11 +48,11 @@ import uuid
 import warnings
 
 from ansys.aedt.core import pyaedt_path
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
-system = platform.system()
-is_linux = system == "Linux"
+is_linux = os.name == "posix"
 
 # Settings allowed to be updated using a YAML configuration file.
 ALLOWED_LOG_SETTINGS = [
@@ -151,7 +150,7 @@ class _InnerProjectSettings:  # pragma: no cover
     time_stamp: Union[int, float] = 0
 
 
-class Settings(object):
+class Settings(PyAedtBase):
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):

@@ -26,6 +26,7 @@ from pathlib import Path
 import re
 from warnings import warn
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import get_filename_without_extension
 from ansys.aedt.core.generic.file_utils import open_file
@@ -38,7 +39,7 @@ from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.modules.layer_stackup import Layers
 
 
-class Modeler3DLayout(Modeler, Primitives3DLayout):
+class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable

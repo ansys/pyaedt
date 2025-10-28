@@ -29,6 +29,7 @@ import shutil
 import string
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 
 
@@ -52,7 +53,7 @@ def my_location():
     return Path(__file__).parent.resolve(strict=False)
 
 
-class Scratch:
+class Scratch(PyAedtBase):
     """ """
 
     @property

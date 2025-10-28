@@ -29,6 +29,7 @@ from pathlib import Path
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -38,7 +39,7 @@ from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
-class TwinBuilder(AnalysisTwinBuilder, object):
+class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     """Provides the Twin Builder application interface.
 
     Parameters
