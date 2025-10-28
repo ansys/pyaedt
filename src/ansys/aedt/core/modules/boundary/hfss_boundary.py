@@ -832,7 +832,7 @@ class WavePort(BoundaryObject):
 
     @use_inductance.setter
     def use_inductance(self, value: bool):
-        if not isinstance(value, bool) or self.use_inductance is None:
+        if not isinstance(value, bool):
             raise AEDTRuntimeError("Use inductance must be a boolean.")
         self.properties["Use Inductance"] = value
 
@@ -884,7 +884,7 @@ class WavePort(BoundaryObject):
 
     @use_capacitance.setter
     def use_capacitance(self, value: bool):
-        if not isinstance(value, bool) or self.use_capacitance is None:
+        if not isinstance(value, bool):
             raise AEDTRuntimeError("Use capacitance must be a boolean.")
         self.properties["Use Capacitance"] = value
 
@@ -908,7 +908,7 @@ class WavePort(BoundaryObject):
             self.use_capacitance = False
         elif value is True:
             self.use_capacitance = True
-            self.properties["Capactiance value"] = str("0.0nF")
+            self.properties["Capacitance value"] = str("0.0nF")
         else:
             if not self.use_capacitance:
                 self.use_capacitance = True
@@ -933,7 +933,7 @@ class WavePort(BoundaryObject):
         return self.props["ReporterFilter"]
 
     @filter_modes_reporter.setter
-    def filter_modes_reporter(self, value):
+    def filter_modes_reporter(self, value: Union[bool, list]):
         """Set the reporter filter setting for wave port modes.
 
         Parameters
@@ -980,7 +980,7 @@ class WavePort(BoundaryObject):
 
     @pyaedt_function_handler()
     def set_analytical_alignment(
-        self, u_axis_line=None, analytic_reverse_v=False, coordinate_system="Global", alignment_group=None
+        self, u_axis_line: list, analytic_reverse_v: Optional[bool] = None, coordinate_system: str = "Global", alignment_group: Optional[Union[int, list]] = None
     ):
         """Set the analytical alignment property for the wave port.
 
@@ -990,7 +990,7 @@ class WavePort(BoundaryObject):
             List containing start and end points for the U-axis line.
             Format: [[x1, y1, z1], [x2, y2, z2]]
         analytic_reverse_v : bool, optional
-            Whether to reverse the V direction. Default is False.
+            Whether to reverse the V direction. Default is None.
         coordinate_system : str, optional
             Coordinate system to use. Default is "Global".
         alignment_group : int, list or None, optional
@@ -1044,7 +1044,12 @@ class WavePort(BoundaryObject):
             return False
 
     @pyaedt_function_handler()
-    def set_alignment_integration_line(self, integration_lines=None, coordinate_system="Global", alignment_groups=None):
+    def set_alignment_integration_line(
+        self,
+        integration_lines: Optional[list] = None,
+        coordinate_system: str = "Global",
+        alignment_groups: Optional[Union[int, list]] = None,
+    ):
         """Set the integration line alignment property for the wave port modes.
 
         This method configures integration lines for wave port modes,
@@ -1181,7 +1186,9 @@ class WavePort(BoundaryObject):
             return False
 
     @pyaedt_function_handler()
-    def set_polarity_integration_line(self, integration_lines=None, coordinate_system="Global"):
+    def set_polarity_integration_line(
+        self, integration_lines: Optional[list] = None, coordinate_system: str = "Global"
+    ):
         """Set polarity integration lines for the wave port modes.
 
         This method configures integration lines for wave port modes
