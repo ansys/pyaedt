@@ -25,8 +25,8 @@
 from typing import Optional
 from typing import Union
 
-from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
