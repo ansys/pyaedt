@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 
 
-class MaxwellCircuitComponents(CircuitComponents):
+class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
     """MaxwellCircuitComponents class.
 
     This class is for managing all circuit components for MaxwellCircuit.
@@ -112,7 +113,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_resistor(value=10)
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -163,7 +164,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_inductor(value=10)
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -214,7 +215,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_capacitor(value=10)
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -262,7 +263,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_diode()
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []
@@ -310,7 +311,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_winding(name="winding")
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if location is None:
             location = []

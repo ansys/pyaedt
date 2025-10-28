@@ -54,7 +54,7 @@ AEDT_APPLICATIONS = {
     "maxwell2d": "Maxwell2D",
     "maxwell3d": "Maxwell3D",
     "mechanical": "Mechanical",
-    "project": "Project",
+    "common": "Common",
     "q2d": "2DExtractor",
     "q3d": "Q3DExtractor",
     "twinbuilder": "TwinBuilder",
@@ -70,6 +70,7 @@ def add_automation_tab(
     overwrite=False,
     panel="Panel_PyAEDT_Extensions",
     is_custom=False,  # new argument for custom flag
+    odesktop=None,
 ):
     """Add an automation tab in AEDT.
 
@@ -90,6 +91,10 @@ def add_automation_tab(
         which case is adding new tabs to the existing ones.
     panel : str, optional
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
+    is_custom : bool, optional
+        Whether the automation tab is for custom extensions. The default is ``False``.
+    odesktop : oDesktop, optional
+        Desktop session. The default is ``None``.
 
     Returns
     -------
@@ -142,19 +147,36 @@ def add_automation_tab(
             icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
         else:
             icon_file = Path(icon_file)
-        file_name = icon_file.name
-        dest_dir = lib_dir / product / toolkit_name / "images" / "large"
-        dest_file = dest_dir / file_name
-        dest_dir.parent.mkdir(parents=True, exist_ok=True)
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy(str(icon_file), str(dest_file))
-        relative_image_path = dest_file.relative_to(lib_dir / product)
-        button_kwargs = dict(
-            label=name,
-            isLarge="1",
-            image=str(relative_image_path.as_posix()),
-            script=f"{toolkit_name}/{template}",
-        )
+
+        # For Linux, create symbolic link and use relative path (if not, AEDT panels break)
+        if is_linux:  # pragma: no cover
+            images_source = Path(ansys.aedt.core.extensions.__file__).parent / "installer" / "images" / "large"
+            images_target = lib_dir / product / "images"
+            if not images_target.exists() and images_source.exists():
+                try:
+                    images_target.symlink_to(images_source)
+                except Exception:
+                    logging.getLogger("Global").warning(
+                        f"Could not create symlink from {images_source} to {images_target}"
+                    )
+                    if odesktop:
+                        odesktop.AddMessage(
+                            "", "", 0, str(f"Could not create symlink from {images_source} to {images_target}")
+                        )
+            icon_relative = f"images/{icon_file.name}"
+            button_kwargs = dict(
+                label=name,
+                isLarge="1",
+                image=icon_relative,
+                script=f"{toolkit_name}/{template}",
+            )
+        else:
+            button_kwargs = dict(
+                label=name,
+                isLarge="1",
+                image=str(icon_file.as_posix()),
+                script=f"{toolkit_name}/{template}",
+            )
     ET.SubElement(panel_element, "button", **button_kwargs)
     # Backup any existing file if present
     if tab_config_file_path.is_file():
@@ -300,6 +322,7 @@ def add_script_to_menu(
     personal_lib=None,
     aedt_version="",
     is_custom=False,
+    odesktop=None,
 ):
     """Add a script to the ribbon menu.
 
@@ -331,6 +354,7 @@ def add_script_to_menu(
     personal_lib : str, optional
     aedt_version : str, optional
     is_custom : bool, optional
+    odesktop : oDesktop, optional
 
     Returns
     -------
@@ -405,7 +429,12 @@ def add_script_to_menu(
         build_file_data = build_file_data.replace("##TOOLKIT_NAME##", str(name))
         build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
         if dest_script_path:
-            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(dest_script_path))
+            extension_dir = Path(dest_script_path).parent
+        else:
+            extension_dir = Path(ansys.aedt.core.extensions.__file__).parent / "installer"
+        build_file_data = build_file_data.replace("##BASE_EXTENSION_LOCATION##", str(extension_dir))
+        if script_file:
+            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(os.path.basename(script_file)))
         if version_agnostic:
             build_file_data = build_file_data.replace(" % version", "")
         with open(tool_dir / (template_file + ".py"), "w") as out_file:
@@ -419,8 +448,11 @@ def add_script_to_menu(
         template=template_file,
         panel=panel,
         is_custom=is_custom,
+        odesktop=odesktop,
     )
     logger.info(f"{name} installed")
+    if odesktop:
+        odesktop.AddMessage("", "", 0, str(f"{name} installed"))
     return True
 
 

@@ -298,7 +298,7 @@ Custom extensions
 Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
 From the Extension manager select the target destination and `Custom` as the extension type:
 
-.. image:: ../Resources/toolkit_manager_1.png
+.. image:: ../Resources/extension_manager_1.png
   :width: 500
   :alt: PyAEDT toolkit manager 1
 
@@ -306,7 +306,7 @@ Provide the path of the Python script containing the workflow. If you do not spe
 
 Enter the extension name. This is the name that appears beneath the button in the Automation tab after a successful installation.
 
-.. image:: ../Resources/toolkit_manager_2.png
+.. image:: ../Resources/extension_manager_2.png
   :width: 500
   :alt: PyAEDT toolkit manager 2
 

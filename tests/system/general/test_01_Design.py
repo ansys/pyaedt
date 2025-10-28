@@ -37,8 +37,8 @@ from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
-from tests.system.general.conftest import desktop_version
+from tests.conftest import config
+from tests.conftest import desktop_version
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -207,7 +207,7 @@ class TestClass:
         aedtapp.save_project(file_name=destin)
         aedtapp.save_project(file_name=origin, refresh_ids=True)
 
-        new_design = aedtapp.copy_design_from(destin, "ditto")
+        new_design = aedtapp.copy_design_from(destin, "ditto")  # Copies the design "ditto" into the current project.
         assert new_design in aedtapp.design_list
         for design_name in aedtapp.design_list:  # Revert app to original state while testing.
             if not design_name == original_design_name:  # Delete all designs except the original.

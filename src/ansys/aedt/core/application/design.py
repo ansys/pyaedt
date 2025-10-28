@@ -32,7 +32,6 @@ These classes are inherited in the main tool class.
 
 from abc import abstractmethod
 import gc
-import json
 import os
 from pathlib import Path
 import re
@@ -60,6 +59,7 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -70,6 +70,7 @@ from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
@@ -89,6 +90,7 @@ from ansys.aedt.core.modules.boundary.hfss_boundary import WavePort
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+from ansys.aedt.core.modules.profile import Profiles
 
 if sys.version_info.major > 2:
     import base64
@@ -108,7 +110,7 @@ def load_aedt_thread(project_path) -> None:
     inner_project_settings.time_stamp = Path(project_path).stat().st_mtime
 
 
-class Design(AedtObjects):
+class Design(AedtObjects, PyAedtBase):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it for
@@ -201,7 +203,7 @@ class Design(AedtObjects):
         self.close_on_exit: bool = close_on_exit
         self._desktop_class = None
         self._desktop_class = self.__init_desktop_from_design(
-            version,
+            settings.aedt_version if settings.aedt_version else version,
             non_graphical,
             new_desktop,
             close_on_exit,
@@ -304,7 +306,10 @@ class Design(AedtObjects):
         if self._desktop_class._connected_app_instances > 0:  # pragma: no cover
             self._desktop_class._connected_app_instances -= 1
         if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
-            self.release_desktop(self.close_on_exit, self.close_on_exit)
+            if self.close_on_exit:
+                self.desktop_class.close_desktop()
+            else:
+                self.desktop_class.release_desktop(False, False)
 
     def __enter__(self):  # pragma: no cover
         self._desktop_class._connected_app_instances += 1
@@ -823,6 +828,9 @@ class Design(AedtObjects):
     def project_list(self) -> List[str]:
         """Project list.
 
+        .. deprecated:: 0.19.1
+            This property is deprecated. Use the ``ansys.aedt.core.desktop.project_list`` property instead.
+
         Returns
         -------
         list
@@ -832,7 +840,13 @@ class Design(AedtObjects):
         ----------
         >>> oDesktop.GetProjectList
         """
-        return list(self.odesktop.GetProjectList())
+        warnings.warn(
+            "`design.project_list` is deprecated. The property is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.project_list`.",
+            DeprecationWarning,
+        )
+
+        return self.desktop_class.project_list
 
     @property
     def project_path(self) -> Optional[str]:
@@ -1255,7 +1269,7 @@ class Design(AedtObjects):
             if self._oproject:
                 self.logger.info(f"No project is defined. Project {self._oproject.GetName()} exists and has been read.")
         else:
-            prj_list = self.odesktop.GetProjectList()
+            prj_list = self.desktop_class.project_list
             if prj_list and proj_name in list(prj_list):
                 self._oproject = self.desktop_class.active_project(proj_name)
                 self._add_handler()
@@ -1263,11 +1277,13 @@ class Design(AedtObjects):
             elif Path(proj_name).exists() or (
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
-                if Path(proj_name).suffix == ".aedtz":
-                    name = available_file_name(Path(proj_name).with_suffix(".aedt"))
-                    self.odesktop.RestoreProjectArchive(str(proj_name), str(name), True, True)
+                if ".aedtz" in proj_name:
+                    p = Path(proj_name)
+                    save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.desktop_class.active_project(name.stem)
+                    proj_name = save_to_file.stem
+                    self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -1326,10 +1342,10 @@ class Design(AedtObjects):
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
             else:
-                project_list = self.odesktop.GetProjectList()
+                project_list = self.desktop_class.project_list
                 self._oproject = self.odesktop.NewProject()
                 if not self._oproject:
-                    new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                    new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
                     if new_project_list:
                         self._oproject = self.desktop_class.active_project(new_project_list[0])
                 if proj_name.endswith(".aedt"):
@@ -1339,10 +1355,10 @@ class Design(AedtObjects):
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
-            project_list = self.odesktop.GetProjectList()
+            project_list = self.desktop_class.project_list
             self._oproject = self.odesktop.NewProject()
             if not self._oproject:
-                new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
+                new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
                 if new_project_list:
                     self._oproject = self.desktop_class.active_project(new_project_list[0])
             self._add_handler()
@@ -1391,7 +1407,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name=None):
+    def get_profile(self, name=None) -> Profiles:
         """Get profile information.
 
         Parameters
@@ -1401,8 +1417,8 @@ class Design(AedtObjects):
 
         Returns
         -------
-        dict of :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-        ``False`` when failed.
+        :class:`ansys.aedt.core.modules.profile.Profiles`
+            Profile data when successful, ``False`` when failed.
         """
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -1422,11 +1438,25 @@ class Design(AedtObjects):
                         profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
                         if profile_setup_obj and self.get_oo_name(profile_setup_obj):
                             try:
-                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self._app)
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self)
                                 profile_objs[profile_setup_name] = profile_tree
-                            except Exception:  # pragma: no cover
-                                self.logger.error(f"{profile_setup_name} profile could not be obtained.")
-            return profile_objs
+                            except Exception as e:  # pragma: no cover
+                                error_message = f"Exception type: {type(e).__name__}\n"
+                                error_message += f"Message: {e}"
+                                error_message += f"{profile_setup_name} profile could not be obtained."
+                                self.logger.error(error_message)
+            if profile_objs:
+                if isinstance(profile_objs, dict):
+                    profiles = Profiles(profile_objs)
+                    for key, value in profiles.items():
+                        if value.product in self.solution_type:
+                            value.product = self.solution_type
+                    # TODO: Need to pass self.props["SetupType"]?
+                    return profiles
+                else:  # pragma: no cover
+                    raise Exception("Error retrieving solver profile.")
+            else:
+                return None
         else:  # pragma: no cover
             self.logger.error("Profile can not be obtained.")
             return False
@@ -2571,13 +2601,21 @@ class Design(AedtObjects):
     def close_desktop(self):
         """Close AEDT and release it.
 
+        .. deprecated:: 0.19.1
+            This method is deprecated. Use the ``ansys.aedt.core.desktop.close_desktop()`` method instead.
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.release_desktop()
+        warnings.warn(
+            "method `design.close_desktop` is deprecated. The method is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.close_desktop()`.",
+            DeprecationWarning,
+        )
+        self.desktop_class.close_desktop()
         return True
 
     @pyaedt_function_handler()
@@ -2616,6 +2654,9 @@ class Design(AedtObjects):
     def release_desktop(self, close_projects=True, close_desktop=True):
         """Release AEDT.
 
+        .. deprecated:: 0.19.1
+            This method is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
+
         Parameters
         ----------
         close_projects : bool, optional
@@ -2629,7 +2670,15 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.desktop_class.release_desktop(close_projects, close_desktop)
+        warnings.warn(
+            "method `design.release_desktop` is deprecated. The method is accessible from desktop.\n "
+            "It can be accessed from design with `design.desktop_class.release_desktop()`.",
+            DeprecationWarning,
+        )
+        if close_desktop:
+            self.desktop_class.close_desktop()
+        else:
+            self.desktop_class.release_desktop(close_projects, False)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
@@ -3321,7 +3370,7 @@ class Design(AedtObjects):
         >>> oDesktop.CloseProject
         """
         legacy_name = self.project_name
-        if name and name not in self.project_list:
+        if name and name not in self.desktop_class.project_list:
             self.logger.warning("Project named '%s' was not found.", name)
             return False
         if not name:
@@ -3796,21 +3845,31 @@ class Design(AedtObjects):
         Returns
         -------
         dict
-            Dictionary of the design data.
+            Dictionary of design data.
 
+        Examples
+        --------
+        After generating design data and storing it as .json file, retrieve it as a dictionary.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> m2d["width"] = "10mm"
+        >>> m2d["height"] = "15mm"
+        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
+        >>> m2d.generate_design_data()
+        >>> data = m2d.read_design_data()
+        >>> m2d.release_desktop(True, True)
         """
         design_file = Path(self.working_directory) / "design_data.json"
-        with open_file(design_file, "r") as fps:
-            design_data = json.load(fps)
-        return design_data
+        return read_configuration_file(design_file)
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, file_name: Optional[Union[Path, str]] = None, overwrite=True, refresh_ids=False):
+    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
         ----------
-        file_name : str or :class:`pathlib.Path`, optional
+        file_name : str, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
@@ -4268,7 +4327,7 @@ class Design(AedtObjects):
         return Desktop(*args, **kwargs)
 
 
-class DesignSettings:
+class DesignSettings(PyAedtBase):
     """Get design settings for the current AEDT app.
 
     References
@@ -4329,7 +4388,7 @@ class DesignSettings:
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
 
-class DesignSettingsManipulation:
+class DesignSettingsManipulation(PyAedtBase):
     @abstractmethod
     def execute(self, k: str, v: Any) -> Any:
         pass

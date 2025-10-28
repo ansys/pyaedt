@@ -33,6 +33,7 @@ import os
 import re
 
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -68,7 +69,7 @@ TEMPLATES_BY_NAME = {
 }
 
 
-class PostProcessorCommon(object):
+class PostProcessorCommon(PyAedtBase):
     """Manages the main AEDT postprocessing functions.
 
     This class is inherited in the caller application and is accessible through the post variable( eg. ``hfss.post`` or
@@ -229,7 +230,10 @@ class PostProcessorCommon(object):
             context = ""
 
         if solution and report_category and display_type:
-            return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
+            try:
+                return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
+            except Exception:  # pragma: no cover
+                return []
         return []  # pragma: no cover
 
     @pyaedt_function_handler()
@@ -299,7 +303,7 @@ class PostProcessorCommon(object):
         >>> expressions = m3d.post.available_report_quantities(
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -466,16 +470,31 @@ class PostProcessorCommon(object):
             third key the report categories.
         """
         rep_quantities = {}
+        if not context and self._app.design_type in [
+            "HFSS",
+            "Maxwell 3D",
+            "Maxwell 2D",
+            "Q3D Extractor",
+            "2D Extractor",
+            "Icepak",
+            "Mechanical",
+        ]:
+            if not context and "2D" in self._app.modeler.design_type:
+                if self._app.modeler.point_names:
+                    context = self._app.modeler.point_names[0]
+            elif not context:
+                if self._app.modeler.line_names:
+                    context = self._app.modeler.line_names[0]
         for rep in self.available_report_types:
             rep_quantities[rep] = {}
             solutions = [solution] if isinstance(solution, str) else self.available_report_solutions(rep)
-            for solution in solutions:
-                rep_quantities[rep][solution] = {}
+            for sol in solutions:
+                rep_quantities[rep][sol] = {}
                 for quant in self.available_quantities_categories(
-                    rep, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                    rep, context=context, solution=sol, is_siwave_dc=is_siwave_dc
                 ):
-                    rep_quantities[rep][solution][quant] = self.available_report_quantities(
-                        rep, quantities_category=quant, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                    rep_quantities[rep][sol][quant] = self.available_report_quantities(
+                        rep, quantities_category=quant, context=context, solution=sol, is_siwave_dc=is_siwave_dc
                     )
 
         return rep_quantities
@@ -1123,6 +1142,56 @@ class PostProcessorCommon(object):
         return [plot_name, modal_data, plot_type, setup_sweep_name, ctxt, families_input, arg]
 
     @pyaedt_function_handler()
+    def _check_category_context(self, expression, report_category, context):
+        field_ctx = context
+        if self._app.design_type in [
+            "HFSS",
+            "Maxwell 3D",
+            "Maxwell 2D",
+            "Q3D Extractor",
+            "2D Extractor",
+            "Icepak",
+            "Mechanical",
+        ]:
+            if not field_ctx and "2D" in self._app.modeler.design_type:
+                if self._app.modeler.point_names:
+                    field_ctx = self._app.modeler.point_names[0]
+            elif not field_ctx:
+                if self._app.modeler.line_names:
+                    field_ctx = self._app.modeler.line_names[0]
+        if not report_category:
+            sols = self.get_all_report_quantities(context=field_ctx)
+            for cat, sol in sols.items():
+                for s, q in sol.items():
+                    for _, v in q.items():
+                        if any([i in expression for i in v]):
+                            report_category = cat
+                            self._app.logger.warning(f"No report category provided. Automatically identified {cat}")
+                            break
+                    if report_category:
+                        break
+                if report_category:
+                    break
+        if not context:
+            if report_category == "Far Fields" and not context:
+                for setup in self._app.field_setups:
+                    if setup.type == "FarFieldSphere":
+                        context = setup.name
+                        self._app.logger.warning(f"No Far Fields infinite sphere provided. Assigned setup: {context}")
+
+                        break
+            elif report_category == "Near Fields" and not context:
+                for setup in self._app.field_setups:
+                    if setup.type.startswith("NearField"):
+                        context = setup.name
+                        self._app.logger.warning(f"No Near Fields setup provided. Assigned setup: {context}")
+                        break
+            elif report_category == "Fields" and not context:
+                context = field_ctx
+                self._app.logger.warning(f"No context provided for Fields. Assigned object: {context}")
+        return report_category, context
+
+    @pyaedt_function_handler()
     def _get_report_object(
         self,
         expressions=None,
@@ -1177,6 +1246,7 @@ class PostProcessorCommon(object):
             ]
         elif isinstance(expressions, str):
             expressions = [expressions]
+        report_category, context = self._check_category_context(expressions[0], report_category, context)
 
         # Report Category
         if domain in ["Spectral", "Spectrum"]:
@@ -1392,7 +1462,7 @@ class PostProcessorCommon(object):
         ...     context="3D",
         ... )
         >>> hfss.post.create_report("S(1,1)", hfss.nominal_sweep, variations=variations, plot_type="Smith Chart")
-        >>> hfss.release_desktop(False, False)
+        >>> hfss.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1402,7 +1472,7 @@ class PostProcessorCommon(object):
         ...     primary_sweep_variable="Time",
         ...     plot_name="Winding Plot 1",
         ... )
-        >>> m2d.release_desktop(False, False)
+        >>> m2d.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1423,7 +1493,7 @@ class PostProcessorCommon(object):
         ...     plot_type="Data Table",
         ...     plot_name="reduced_matrix",
         ... )
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1551,7 +1621,7 @@ class PostProcessorCommon(object):
         ...    variations=variations,
         ...)
         >>> data2.plot()
-        >>> hfss.release_desktop(False, False)
+        >>> hfss.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1561,7 +1631,7 @@ class PostProcessorCommon(object):
         ...     primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
-        >>> m2d.release_desktop(False, False)
+        >>> m2d.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
@@ -1569,7 +1639,7 @@ class PostProcessorCommon(object):
         >>> spectralPlotData = circuit.post.get_solution_data(
         ...     expressions="V(Vprobe1)", domain="Spectral", primary_sweep_variable="Spectrum", context=context
         ... )
-        >>> circuit.release_desktop(False, False)
+        >>> circuit.desktop_class.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1585,7 +1655,7 @@ class PostProcessorCommon(object):
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
         >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-        >>> m3d.release_desktop(False, False)
+        >>> m3d.desktop_class.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1826,7 +1896,7 @@ class PostProcessorCommon(object):
                     props["symbol_style"] = markers[pp["symbol_style"]]
                 except KeyError:
                     pass
-            report_plotter.add_trace([sw, sols.data_real(curve)], 0, properties=props, name=curve)
+            report_plotter.add_trace([sw, sols.get_expression_data(curve)[1]], 0, properties=props, name=curve)
         for name, line in report._legacy_props.get("limitLines", {}).items():
             props = {}
             try:
@@ -1882,7 +1952,7 @@ class PostProcessorCommon(object):
         return props
 
 
-class Reports(object):
+class Reports(PyAedtBase):
     """Provides the names of default solution types."""
 
     def __init__(self, post_app, design_type):
@@ -2421,15 +2491,14 @@ class Reports(object):
                 self._post_app._app.logger.error("AMI analysis is needed to create this report.")
                 return False
 
-            if isinstance(expressions, list):
-                expressions = expressions[0]
-            report_cat = "Standard"
-            rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
-            rep.quantity_type = quantity_type
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        if isinstance(expressions, list):
+            expressions = expressions[0]
+        report_cat = "Standard"
+        rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
+        rep.quantity_type = quantity_type
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
 
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def eye_diagram(
