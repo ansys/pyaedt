@@ -267,12 +267,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         return str(output_file)
 
     @pyaedt_function_handler()
-    def edit_sources(
-        self,
-        cg=None,
-        acrl=None,
-        dcrl=None,
-    ):
+    def edit_sources(self, cg=None, acrl=None, dcrl=None, harmonic_loss=None):
         """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
 
         Parameters
@@ -293,6 +288,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             - 1 Magnitude to set up ``0deg`` as the default
             - 2 Values tuple or list (magnitude and phase)
 
+        harmonic_loss: dict, optional
+            Dictionary of real and imaginary currents for each source in order to compute harmonic loss.
+            Dictionary values can be:
+            - 1 Real part of the current
+            - 2 Imag part of the current
+
         Returns
         -------
         bool
@@ -306,11 +307,17 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         Values can also be passed as lists instead of tuples.
         >>> sources_dcrl = {"Box1_1:Source2": ["5V", "0deg"]}
-        >>> q3d.edit_sources(cg=sources_cg, acrl=sources_acrl, dcrl=sources_dcrl)
+        Assuming to have two TAB files containing respectively the real and imaginary parts
+        of the current for the source ``Box1:Source1``.
+        >>> real_data_set = q3d.import_dataset1d("real_dataset_file_path", name="real_dataset")
+        >>> imag_data_set = q3d.import_dataset1d("imag_dataset_file_path", name="imag_dataset")
+        >>> harmonic_loss = {"Box1:Source1": (real_data_set.name, imag_data_set.name)}
+        >>> q3d.edit_sources(cg=sources_cg, acrl=sources_acrl, dcrl=sources_dcrl, harmonic_loss=harmonic_loss)
         """
         settings_ac = []
         settings_cg = []
         settings_dc = []
+        settings_harmonic_loss = []
         if cg:
             source_list = ["NAME:Source Names"]
             if self.default_solution_type == "Q3D Extractor":
@@ -399,8 +406,36 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
 
             settings_dc = ["NAME:DC", "Value Type:=", magnitude_unit, source_list, magnitude_list, phase_list]
 
+        if harmonic_loss:
+            source_list = ["NAME:Source Names"]
+            source_real_dataset_names = ["NAME:Source real dataset names"]
+            source_imag_dataset_names = ["NAME:Source imag dataset names"]
+            sources = self.sources(0, False)
+
+            for key, vals in harmonic_loss.items():
+                if key not in sources:
+                    self.logger.error("Not existing source " + key)
+                    return False
+
+                source_list.append(key)
+                if not isinstance(vals, (tuple, list)):
+                    self.logger.error("Real and Imag part of current must be provided")
+                    return False
+                else:
+                    source_real_dataset_names.append(vals[0])
+                    source_imag_dataset_names.append(vals[1])
+
+            settings_harmonic_loss = [
+                "NAME:HarmonicLoss",
+                "Value Type:=",
+                "A",
+                source_list,
+                source_real_dataset_names,
+                source_imag_dataset_names,
+            ]
+
         if self.default_solution_type == "Q3D Extractor":
-            self.osolution.EditSources(settings_ac, settings_cg, settings_dc)
+            self.osolution.EditSources(settings_ac, settings_cg, settings_dc, settings_harmonic_loss)
         else:
             self.osolution.EditSources(settings_cg, settings_ac)
         return True
