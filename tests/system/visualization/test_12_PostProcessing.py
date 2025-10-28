@@ -35,6 +35,8 @@ from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
+from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
@@ -52,6 +54,7 @@ m3d_file = "m3d"
 test_emi_name = "EMI_RCV_251"
 ipk_post_proj = "for_icepak_post_parasolid"
 ipk_markers_proj = "ipk_markers"
+tb_spectral = "TB_excitation_model"
 
 test_subfolder = "T12"
 
@@ -143,6 +146,13 @@ def m2dtest(add_app):
 @pytest.fixture()
 def m3d_app(add_app):
     app = add_app(project_name=m3d_file, application=Maxwell3d, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture()
+def tb_app(add_app):
+    app = add_app(project_name=tb_spectral, application=TwinBuilder, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
 
@@ -773,3 +783,15 @@ class TestClass:
         )
         data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
         assert data
+
+    @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+    def test_twinbuilder_spectral(self, tb_app):
+        assert tb_app.post.create_report(
+            expressions="mag(E1.I)", primary_sweep_variable="Spectrum", plot_name="Spectral domain", domain="Spectral"
+        )
+        new_report = tb_app.post.reports_by_category.spectral("mag(E1.I)", "TR")
+        new_report.window = "Rectangular"
+        new_report.max_frequency = "2.5MHz"
+        new_report.time_start = "0ns"
+        new_report.time_stop = "40ms"
+        assert new_report.create()
