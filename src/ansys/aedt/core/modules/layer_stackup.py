@@ -28,6 +28,7 @@ This module contains these classes: `Layer` and `Layers`.
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -76,7 +77,7 @@ def _getRGBfromI(value):
     return [r, g, b]
 
 
-class Layer(object):
+class Layer(PyAedtBase):
     """Manages the stackup layer for the Circuit and HFSS 3D Layout tools.
 
     Parameters
@@ -1067,7 +1068,7 @@ class Layer(object):
         return False
 
 
-class Layers(object):
+class Layers(PyAedtBase):
     """Manages stackup for the Circuit and HFSS 3D Layout tools.
 
     Parameters

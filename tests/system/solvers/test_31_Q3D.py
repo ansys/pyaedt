@@ -361,10 +361,10 @@ class TestClass:
         assert q3d_solved.edit_sources(sources_cg, sources_ac, sources_dc)
 
         sources_cg = {"Box1": "2V"}
-        sources_ac = {"Box1:Source1": ["2"], "Box1_1:Source2": "5V"}
+        sources_ac = {"Box1:Source1": "2", "Box1_1:Source2": "5V"}
         assert q3d_solved.edit_sources(sources_cg, sources_ac)
 
-        sources_cg = {"Box1": ["20V"], "Box1_2": "4V"}
+        sources_cg = {"Box1": "20V", "Box1_2": "4V"}
         sources_ac = {"Box1:Source1": "2A"}
         assert q3d_solved.edit_sources(sources_cg, sources_ac)
 
@@ -380,7 +380,7 @@ class TestClass:
         sources = q3d_solved.get_all_sources()
         assert sources[0] == "Box1:Source1"
 
-        sources_dc = {"Box1:Source1": ["20v"]}
+        sources_dc = {"Box1:Source1": "20v"}
         assert q3d_solved.edit_sources(None, None, sources_dc)
 
     def test_15_insert_reduced(self, q3d_solved):
@@ -676,3 +676,23 @@ class TestClass:
         sphere_nf2 = aedtapp.insert_em_field_sphere("50mm", custom_coordinate_system=cs.name)
         assert sphere_nf2.name in aedtapp.field_setup_names
         assert len(aedtapp.field_setups) == 2
+
+    def test_create_report_em_fields(self, aedtapp):
+        line = aedtapp.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
+
+        setup = aedtapp.create_setup()
+        setup.props["SaveFields"] = True
+        aedtapp.insert_em_field_line(assignment=line.name, points=100)
+        variations = aedtapp.available_variations.nominal_values
+        my_plots = aedtapp.post.create_report(
+            expressions="re(EY)",
+            variations=variations,
+            primary_sweep_variable="NormalizedDistance",
+            report_category="Static EM Fields",
+            plot_type="Rectangular Plot",
+            context=line.name,
+            plot_name="my_plot",
+        )
+        assert my_plots
+        assert my_plots.matrix == line.name
+        assert my_plots.expressions == ["re(EY)"]

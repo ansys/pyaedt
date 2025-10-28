@@ -18,10 +18,13 @@ env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
+  PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions: {} # Disable default permissions
 
 jobs:
 
@@ -33,7 +36,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+      - uses: ansys/actions/doc-deploy-changelog@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -43,14 +46,28 @@ jobs:
   vulnerabilities:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: ansys/actions/check-vulnerabilities@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+      - uses: ansys/actions/check-vulnerabilities@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           dev-mode: ${{ github.ref != 'refs/heads/main' }}
           extra-targets: 'all'
+
+  actions-security:
+    name: "Check actions security"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: ansys/actions/check-actions-security@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        with:
+          generate-summary: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          auditing-level: 'high'
 
   # NOTE: We do not allow dependabot to trigger the CI/CD pipeline automatically.
   # This is to mitigate supply chain attacks, where a malicious dependency update
@@ -87,10 +104,12 @@ jobs:
     name: Check the title of the PR (if needed)
     runs-on: ubuntu-latest
     needs: [block-pyansys-ci-bot]
+    permissions:
+      pull-requests: read
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/check-pr-title@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -103,9 +122,11 @@ jobs:
     name: Documentation style check
     runs-on: ubuntu-latest
     needs: [pr-title]
+    permissions:
+      contents: read
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/doc-style@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -115,10 +136,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [doc-style]
     steps:
+      - name: Temporary handle broken package dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get --fix-broken install -y
+          sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
+
       - name: Documentation build
-        uses: ansys/actions/doc-build@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/doc-build@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
-          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
@@ -140,26 +168,29 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/build-wheelhouse@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           target: 'all'
           attest-provenance: true
+          use-python-cache: false
       - name: Import python package
         shell: bash
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse.outputs.activate-venv }}
         run: |
-          ${{ steps.build-wheelhouse.outputs.activate-venv }}
+          ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
   unit-tests:
-    name: Running unit tests
+    name: Unit tests
     needs: [smoke-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/tests-pytest@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           pytest-postargs: 'tests/unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -168,7 +199,7 @@ jobs:
           requires-xvfb: true
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-unit-tests
           files: ./coverage.xml
@@ -182,12 +213,12 @@ jobs:
         if: ${{ always() }}
 
   integration-tests:
-    name: Running integration tests
+    name: Integration tests
     needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Run integration tests
-        uses: ansys/actions/tests-pytest@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/tests-pytest@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           pytest-postargs: 'tests/integration'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -195,7 +226,7 @@ jobs:
           optional-dependencies-name: integration-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-integration-tests
           files: ./coverage.xml
@@ -213,16 +244,18 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-windows:
-    name: Testing solvers and coverage (Windows)
+    name: Test solvers (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -244,16 +277,27 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
 
       - name: Run tests marked with 'solvers'
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -271,7 +315,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-linux:
-    name: Testing solvers and coverage (Linux)
+    name: Test solvers (linux)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -280,16 +324,20 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -297,18 +345,31 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
-      - name: Run tests marked with 'solvers'
+      - name: Remove Ansys processes (if any)
+        shell: bash
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - name: Run tests marked with 'solvers'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -326,16 +387,18 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-windows:
-    name: Testing and coverage (Windows)
+    name: Test general (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -357,7 +420,17 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
 
       - name: Run tests marked with 'general'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -371,7 +444,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -389,7 +462,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-linux:
-    name: Testing and coverage (Linux)
+    name: Test general (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -398,16 +471,20 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -415,8 +492,10 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
@@ -425,20 +504,28 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
       - name: Run tests marked with 'general'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 120
+          timeout_minutes: 40
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
@@ -457,7 +544,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-windows:
-    name: Testing and coverage Visualization (Windows)
+    name: Test visualization (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -465,10 +552,12 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -490,7 +579,17 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
 
       - name: Run tests marked with 'visualization'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -499,12 +598,12 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 120
+          timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -522,7 +621,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-linux:
-    name: Testing and coverage visualization (Linux)
+    name: Test visualization (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -532,16 +631,20 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -549,8 +652,10 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
@@ -559,20 +664,28 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
       - name: Run tests marked with 'visualization'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 120
+          timeout_minutes: 40
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -590,16 +703,18 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-windows:
-    name: Testing and coverage extensions (Windows)
+    name: Test extensions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -621,7 +736,17 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
 
       - name: Run tests marked with 'extensions'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -635,7 +760,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
@@ -653,7 +778,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-linux:
-    name: Testing and coverage extensions (Linux)
+    name: Test extensions (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -662,16 +787,20 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -679,8 +808,10 @@ jobs:
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
 
@@ -689,12 +820,20 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: "Install X Virtual Frame Buffer"
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
       - name: Run tests marked with 'extensions'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -705,9 +844,9 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
@@ -725,16 +864,18 @@ jobs:
 # # =================================================================================================
 
   system-tests-filter-windows:
-    name: Testing and coverage filter solutions (Windows)
+    name: Test filter solutions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -756,7 +897,17 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
 
       - name: Run tests marked with 'filter_solutions'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -770,7 +921,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
 
-      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
@@ -780,6 +931,167 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: pytest-filter_solutions-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-emit-windows:
+    name: Test EMIT (windows)
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
+
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          .venv\Scripts\Activate.ps1
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'emit'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 20
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        with:
+          name: codecov-system-emit-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_emit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pytest-emit-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-flaky-linux:
+    name: Test flaky (linux)
+    if: github.event.pull_request.draft == false
+    needs: [integration-tests]
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          source .venv/bin/activate
+          pip install .[tests]
+
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          source .venv/bin/activate
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: "Install X Virtual Frame Buffer"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'flaky'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            source .venv/bin/activate
+            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        with:
+          name: codecov-system-flaky-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_flaky
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pytest-flaky-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -794,6 +1106,8 @@ jobs:
             system-tests-extensions-windows,
             system-tests-extensions-linux,
             system-tests-filter-windows,
+            system-tests-emit-windows,
+            system-tests-flaky-linux,
             doc-build]
     runs-on: ubuntu-latest
     permissions:
@@ -802,7 +1116,7 @@ jobs:
       id-token: write
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/build-library@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -821,13 +1135,13 @@ jobs:
       contents: write
     steps:
       - name: Download the library artifacts from build-library step
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: ${{ env.PACKAGE_NAME }}-artifacts
           path: ${{ env.PACKAGE_NAME }}-artifacts
 
       - name: Release to PyPI using trusted publisher
-        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
         with:
           repository-url: "https://upload.pypi.org/legacy/"
           print-hash: true
@@ -835,7 +1149,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/release-github@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -847,9 +1161,11 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     needs: [release]
+    permissions:
+      contents: write
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+        uses: ansys/actions/doc-deploy-stable@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}

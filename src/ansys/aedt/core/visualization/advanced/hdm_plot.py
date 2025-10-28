@@ -29,6 +29,7 @@ import warnings
 
 import numpy as np
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import graphics_required
@@ -36,7 +37,7 @@ from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
 from ansys.aedt.core.visualization.plot.pyvista import ObjClass
 
 
-class HDMPlotter(CommonPlotter):
+class HDMPlotter(CommonPlotter, PyAedtBase):
     """
     Manages Hdm data to be plotted with ``pyvista``.
 
@@ -49,6 +50,10 @@ class HDMPlotter(CommonPlotter):
         self._bundle = None
         self.show_as_standalone = True
         self.units = "meter"
+        self.jupyter_backend = None
+        use_html_backend = os.environ.get("PYANSYS_VISUALIZER_HTML_BACKEND", "false").lower() == "true"
+        if use_html_backend:
+            self.jupyter_backend = "html"
 
     @property
     def hdm_data(self):
@@ -170,9 +175,9 @@ class HDMPlotter(CommonPlotter):
             scalar_bar_args={"n_colors": 256, "n_labels": 0, "title": "Depth"},
         )
         if snapshot_path:
-            self.pv.show(screenshot=snapshot_path, full_screen=True)
+            self.pv.show(screenshot=snapshot_path, full_screen=True, jupyter_backend=self.jupyter_backend)
         else:
-            self.pv.show(auto_close=False)
+            self.pv.show(auto_close=False, jupyter_backend=self.jupyter_backend)
         return self.pv
 
     @pyaedt_function_handler()
@@ -231,9 +236,9 @@ class HDMPlotter(CommonPlotter):
         fb = pv.PolyData(points, faces=faces)
         self.pv.add_mesh(fb, scalars=colors)
         if snapshot_path:
-            self.pv.show(screenshot=snapshot_path, full_screen=True)
+            self.pv.show(screenshot=snapshot_path, full_screen=True, jupyter_backend=self.jupyter_backend)
         else:
-            self.pv.show(auto_close=False)
+            self.pv.show(auto_close=False, jupyter_backend=self.jupyter_backend)
 
     @pyaedt_function_handler()
     @graphics_required

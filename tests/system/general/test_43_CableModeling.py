@@ -29,7 +29,7 @@ import pytest
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.modules.cable_modeling import Cable
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 if config["desktopVersion"] > "2022.2":
     project_name = "cable_modeling_231"

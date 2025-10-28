@@ -29,6 +29,7 @@ from __future__ import annotations
 from abc import abstractmethod
 import argparse
 from dataclasses import dataclass
+import logging
 import os
 from pathlib import Path
 import sys
@@ -43,8 +44,10 @@ from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
+import requests
 
 from ansys.aedt.core import Desktop
+from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -57,6 +60,10 @@ MOON = "\u2600"
 SUN = "\u263d"
 DEFAULT_PADDING = {"padx": 15, "pady": 10}
 DEFAULT_WIDTH = 10
+DEFAULT_FOREGROUND: str = "white"
+DEFAULT_FOREGROUND_DARK: str = "black"
+DEFAULT_BD: int = 1
+DEFAULT_BORDERWIDTH: int = 1
 
 
 def get_process_id():
@@ -83,12 +90,141 @@ def is_student():
     return res
 
 
+def get_latest_version(package_name, timeout=3):
+    """Return latest version string from PyPI or 'Unknown' on failure."""
+    UNKNOWN_VERSION = "Unknown"
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("info", {}).get("version", UNKNOWN_VERSION)
+        return UNKNOWN_VERSION
+    except Exception:
+        return UNKNOWN_VERSION
+
+
+def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
+    """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
+
+    Returns
+    -------
+    tuple[str | None, pathlib.Path | None]
+        (latest_version, declined_file_path) if the UI should prompt the user,
+        otherwise (None, None).
+    """
+
+    def compare_versions(local: str, remote: str) -> bool:
+        """Return True if local < remote (very loose numeric comparison)."""
+
+        def to_tuple(v: str):
+            out = []
+            # Remove dev/rc suffixes and split by dots
+            version_clean = v.split("dev")[0].split("rc")[0]
+            for token in version_clean.split("."):
+                try:
+                    out.append(int(token))
+                except Exception:  # pragma: no cover
+                    break
+            return tuple(out)
+
+        try:
+            return to_tuple(local) < to_tuple(remote)
+        except Exception:  # pragma: no cover
+            return False
+
+    def read_version_file(file_path: Path) -> Tuple[Optional[str], bool]:
+        """Read version file and return (last_known_version, show_updates).
+
+        File format:
+        Line 1: last known version
+        Line 2: show_updates preference ("true" or "false")
+        """
+        if not file_path.is_file():
+            return None, True  # First start - don't show popup
+
+        try:
+            content = file_path.read_text(encoding="utf-8").strip()
+            lines = content.split("\n")
+            if len(lines) >= 2:
+                last_version = lines[0].strip()
+                show_updates = lines[1].strip().lower() == "true"
+                return last_version, show_updates
+            elif len(lines) == 1:
+                # Legacy format - only version, assume user wants updates
+                return lines[0].strip(), True
+            else:  # pragma: no cover
+                return None, True
+        except Exception:  # pragma: no cover
+            return None, True
+
+    def write_version_file(file_path: Path, version: str, show_updates: bool):
+        """Write version and preference to file."""
+        try:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            content = f"{version}\n{str(show_updates).lower()}"
+            file_path.write_text(content, encoding="utf-8")
+        except Exception:  # pragma: no cover
+            log.debug("PyAEDT update check: failed to write version file.", exc_info=True)
+
+    log = logging.getLogger("Global")
+
+    # Get current PyAEDT version
+    try:
+        from ansys.aedt.core import __version__ as current_version
+    except ImportError:  # pragma: no cover
+        log.debug("PyAEDT update check: could not import version.")
+        return None, None
+
+    latest = get_latest_version("pyaedt")
+    if not latest or latest == "Unknown":
+        log.debug("PyAEDT update check: latest version unavailable.")
+        return None, None
+
+    # Resolve user toolkit directory
+    try:
+        toolkit_dir = Path(personallib) / "Toolkits"
+    except Exception:  # pragma: no cover
+        log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
+        return None, None
+
+    version_file = toolkit_dir / ".pyaedt_version"
+    last_known_version, show_updates = read_version_file(version_file)
+
+    # If this is first start (no file exists), record the latest known release
+    # (not the installed version) so we won't prompt until a newer release appears.
+    if last_known_version is None:
+        write_version_file(version_file, latest, False)
+        log.debug("PyAEDT update check: first start, recording latest release.")
+        return None, None
+
+    # If the user already has the latest version installed, never show the popup.
+    if current_version == latest:  # pragma: no cover
+        if last_known_version != latest:
+            write_version_file(version_file, latest, False)
+        return None, None
+
+    # Check if there's a newer version available compared to installed package
+    has_newer_version = compare_versions(current_version, latest)
+
+    if not has_newer_version:
+        if last_known_version != latest:
+            write_version_file(version_file, latest, show_updates)
+        return None, None
+    version_changed = compare_versions(last_known_version, latest)
+    prompt_user = show_updates or version_changed
+
+    if not prompt_user:
+        return None, None
+
+    return latest, version_file
+
+
 @dataclass
-class ExtensionCommonData:
+class ExtensionCommonData(PyAedtBase):
     """Data class containing user input and computed data."""
 
 
-class ExtensionCommon:
+class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
@@ -144,9 +280,18 @@ class ExtensionCommon:
     def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
-            parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
+            parent,
+            style="PyAEDT.TFrame",
+            relief=tkinter.SUNKEN,
+            borderwidth=2,
+            name="theme_button_frame",
         )
-        button_frame.grid(row=toggle_row, column=toggle_column, sticky="e", **DEFAULT_PADDING)
+        button_frame.grid(
+            row=toggle_row,
+            column=toggle_column,
+            sticky="e",
+            **DEFAULT_PADDING,
+        )
         self._widgets["button_frame"] = button_frame
 
         change_theme_button = ttk.Button(
@@ -165,13 +310,48 @@ class ExtensionCommon:
         logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
         self._widgets["logger_frame"] = logger_frame
 
-        log_text = tkinter.Text(self._widgets["logger_frame"], height=2, width=80)
-        log_text.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        # Configure grid so text expands and button stays to the right
+        logger_frame.grid_columnconfigure(0, weight=1)
+
+        log_text = tkinter.Text(
+            self._widgets["logger_frame"],
+            height=2,
+            width=80,
+            name="log_text_widget",
         )
-        log_text.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        log_text.configure(
+            bg=self.theme.light["pane_bg"],
+            foreground=self.theme.light["text"],
+            font=self.theme.default_font,
+        )
+        log_text.grid(
+            row=0,
+            column=0,
+            padx=(10, 5),
+            pady=5,
+            sticky="nsew",
+        )
         log_text.configure(state="disabled")  # Make it read-only
         self._widgets["log_text_widget"] = log_text
+
+        # Add "Show logs" button
+        all_logs_btn = ttk.Button(
+            logger_frame,
+            text="Show logs",
+            style="PyAEDT.TButton",
+            command=self.open_all_logs_window,
+            width=12,
+            name="all_logs_button",
+        )
+        all_logs_btn.grid(
+            row=0,
+            column=1,
+            padx=(5, 10),
+            pady=5,
+            sticky="e",
+        )
+        self._widgets["all_logs_button"] = all_logs_btn
+
         self.log_message("Welcome to the PyAEDT Extension Manager!")
 
     def toggle_theme(self):
@@ -180,19 +360,20 @@ class ExtensionCommon:
             self.__apply_theme("dark")
         elif self.root.theme == "dark":
             self.__apply_theme("light")
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
     def log_message(self, message: str):
         """Append a message to the log text box."""
         if self._widgets["log_text_widget"]:
-            self._widgets["log_text_widget"].configure(state="normal")
-            self._widgets["log_text_widget"].delete("1.0", "end")
-            self._widgets["log_text_widget"].insert("end", message + "\n")
-            self._widgets["log_text_widget"].configure(state="disabled")
+            widget = self._widgets["log_text_widget"]
+            widget.configure(state="normal")
+            widget.delete("1.0", "end")
+            widget.insert("end", message + "\n")
+            widget.configure(state="disabled")
 
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
-        """Initialize the Tkinter root window with error handling and icon."""
+        """Init Tk root window with error handling and icon."""
 
         def report_callback_exception(self, exc, val, tb):
             """Custom exception showing an error message."""
@@ -227,7 +408,10 @@ class ExtensionCommon:
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
-        for widget in self.__find_all_widgets(self.root, (tkinter.Text, tkinter.Listbox, tkinter.Scrollbar)):
+        for widget in self.__find_all_widgets(
+            self.root,
+            (tkinter.Text, tkinter.Listbox, tkinter.Scrollbar),
+        ):
             if isinstance(widget, tkinter.Text):
                 widget.configure(
                     background=theme_colors_dict["pane_bg"],
@@ -267,7 +451,9 @@ class ExtensionCommon:
             pass
 
     def __find_all_widgets(
-        self, widget: tkinter.Widget, widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]]
+        self,
+        widget: tkinter.Widget,
+        widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]],
     ) -> List[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
         res = []
@@ -299,8 +485,16 @@ class ExtensionCommon:
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
-            aedt_active_sessions = active_sessions(version=version, student_version=False, non_graphical=False)
-            student_active_sessions = active_sessions(version=version, student_version=True, non_graphical=False)
+            aedt_active_sessions = active_sessions(
+                version=version,
+                student_version=False,
+                non_graphical=False,
+            )
+            student_active_sessions = active_sessions(
+                version=version,
+                student_version=True,
+                non_graphical=False,
+            )
 
             if not aedt_active_sessions and not student_active_sessions:
                 raise AEDTRuntimeError(f"AEDT {version} session not found. Launch AEDT and try again.")
@@ -372,6 +566,8 @@ class ExtensionCommon:
             case "HFSS 3D Layout Design":
                 res = active_design.GetDesignName()
             case "Circuit Design":
+                res = active_design.GetName().split(";")[1]
+            case "Twin Builder":
                 res = active_design.GetName().split(";")[1]
             case _:
                 res = active_design.GetName()
@@ -456,6 +652,16 @@ class ExtensionCircuitCommon(ExtensionCommon):
             raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
 
 
+class ExtensionTwinBuilderCommon(ExtensionCommon):
+    """Common methods for TwinBuilder extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is a TwinBuilder design."""
+        if self.aedt_application.design_type != "Twin Builder":
+            self.release_desktop()
+            raise AEDTRuntimeError("This extension can only be used with Twin Builder designs.")
+
+
 class ExtensionProjectCommon(ExtensionCommon):
     """Common methods for project-level extensions."""
 
@@ -535,7 +741,7 @@ def get_arguments(args=None, description=""):  # pragma: no cover
     return output_args
 
 
-class ExtensionTheme:  # pragma: no cover
+class ExtensionTheme(PyAedtBase):  # pragma: no cover
     def __init__(self):
         # Define light and dark theme colors
         self.light = {
@@ -544,6 +750,7 @@ class ExtensionTheme:  # pragma: no cover
             "button_bg": "#E6E6E6",
             "button_hover_bg": "#D9D9D9",
             "button_active_bg": "#B8B8B8",
+            "button_border": "#B0B0B0",
             "tab_bg_inactive": "#F0F0F0",
             "tab_bg_active": "#FFFFFF",
             "tab_border": "#D9D9D9",
@@ -572,9 +779,10 @@ class ExtensionTheme:  # pragma: no cover
         self.dark = {
             "widget_bg": "#313335",
             "text": "#FFFFFF",
-            "button_bg": "#FFFFFF",
-            "button_hover_bg": "#606060",
-            "button_active_bg": "#808080",
+            "button_bg": "#45494A",
+            "button_hover_bg": "#5A5E5F",
+            "button_active_bg": "#6A6E6F",
+            "button_border": "#918E8E",
             "tab_bg_inactive": "#313335",
             "tab_bg_active": "#2B2B2B",
             "tab_border": "#3E4042",
@@ -620,34 +828,68 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.TButton",
             background=colors["button_bg"],
             foreground=colors["text"],
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=self.default_font,
             anchor="center",
+            padding=(8, 4),
         )
 
         # Apply the color for hover and active states
         style.map(
             "PyAEDT.TButton",
-            background=[("active", colors["button_active_bg"]), ("!active", colors["button_hover_bg"])],
-            foreground=[("active", colors["text"]), ("!active", colors["text"])],
+            background=[
+                ("active", colors["button_active_bg"]),
+                ("!active", colors["button_hover_bg"]),
+            ],
+            foreground=[
+                ("active", colors["text"]),
+                ("!active", colors["text"]),
+            ],
+            bordercolor=[
+                ("active", colors["button_border"]),
+                ("!active", colors["button_border"]),
+            ],
         )
 
         # Apply the color for hover and active states
 
-        # Apply the colors and font to the style for Frames and Containers
-        style.configure("PyAEDT.TFrame", background=colors["widget_bg"], font=self.default_font)
+        # Apply the colors and font to the style for Frames
+        style.configure(
+            "PyAEDT.TFrame",
+            background=colors["widget_bg"],
+            borderwidth=0,
+            relief="flat",
+            font=self.default_font,
+        )
 
         # Apply the colors and font to the style for Tabs
         style.configure(
-            "TNotebook", background=colors["tab_bg_inactive"], bordercolor=colors["tab_border"], font=self.default_font
+            "TNotebook",
+            background=colors["tab_bg_inactive"],
+            bordercolor=colors["tab_border"],
+            font=self.default_font,
         )
         style.configure(
-            "TNotebook.Tab", background=colors["tab_bg_inactive"], foreground=colors["text"], font=self.default_font
+            "TNotebook.Tab",
+            background=colors["tab_bg_inactive"],
+            foreground=colors["text"],
+            font=self.default_font,
         )
-        style.map("TNotebook.Tab", background=[("selected", colors["tab_bg_active"])])
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", colors["tab_bg_active"])],
+        )
 
         # Apply the colors and font to the style for Labels
         style.configure(
-            "PyAEDT.TLabel", background=colors["label_bg"], foreground=colors["label_fg"], font=self.default_font
+            "PyAEDT.TLabel",
+            background=colors["label_bg"],
+            foreground=colors["label_fg"],
+            font=self.default_font,
         )
 
         # Apply the colors and font to the style for LabelFrames
@@ -658,7 +900,7 @@ class ExtensionTheme:  # pragma: no cover
             font=self.default_font,
         )
         style.configure(
-            "PyAEDT.TLabelframe.Label",  # Specific style for the title text (label)
+            "PyAEDT.TLabelframe.Label",  # Style for title text
             background=colors["labelframe_title_bg"],
             foreground=colors["labelframe_title_fg"],
             font=self.default_font,
@@ -674,7 +916,10 @@ class ExtensionTheme:  # pragma: no cover
 
         style.map(
             "TRadiobutton",
-            background=[("selected", colors["radiobutton_selected"]), ("!selected", colors["radiobutton_unselected"])],
+            background=[
+                ("selected", colors["radiobutton_selected"]),
+                ("!selected", colors["radiobutton_unselected"]),
+            ],
         )
 
         # Apply the colors and font to the style for Combobox
@@ -712,9 +957,15 @@ class ExtensionTheme:  # pragma: no cover
         style.configure(
             "PyAEDT.Success.TButton",
             background="#28a745",  # Green
-            foreground="white",
+            foreground=DEFAULT_FOREGROUND,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.Success.TButton",
@@ -729,9 +980,15 @@ class ExtensionTheme:  # pragma: no cover
         style.configure(
             "PyAEDT.Danger.TButton",
             background="#dc3545",  # Red
-            foreground="white",
+            foreground=DEFAULT_FOREGROUND,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.Danger.TButton",
@@ -745,22 +1002,37 @@ class ExtensionTheme:  # pragma: no cover
         # Web button style
         style.configure(
             "PyAEDT.ActionWeb.TButton",
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
 
         # Launch button style (ANSYS dark yellow)
         style.configure(
             "PyAEDT.ActionLaunch.TButton",
             background="#F3C767",  # ANSYS dark yellow
-            foreground="black",
+            foreground=DEFAULT_FOREGROUND_DARK,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.ActionLaunch.TButton",
             background=[
-                ("active", "#E6A600"),  # Slightly darker yellow for active
+                (
+                    "active",
+                    "#E6A600",
+                ),  # Slightly darker yellow for active
                 ("!active", "#F3C767"),
             ],
             foreground=[("active", "black"), ("!active", "black")],
@@ -784,3 +1056,61 @@ def __parse_arguments(args=None, description=""):  # pragma: no cover
             parser.add_argument(f"--{arg}", default=args[arg])
     parsed_args = parser.parse_args()
     return parsed_args
+
+
+class ToolTip:
+    """Create a tooltip for a given widget."""
+
+    def __init__(self, widget, text="Widget info"):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.tipwindow = None
+
+    def enter(self, event=None):
+        """Show tooltip on mouse enter."""
+        self.show_tooltip()
+
+    def leave(self, event=None):
+        """Hide tooltip on mouse leave."""
+        self.hide_tooltip()
+
+    def show_tooltip(self):  # pragma: no cover
+        """Display tooltip."""
+        if self.tipwindow or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tkinter.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffe0",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("Arial", 9, "normal"),
+        )
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self):  # pragma: no cover
+        """Hide tooltip."""
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+
+def decline_pyaedt_update(declined_file_path: Path, latest_version: str):
+    """Record that the user declined the update notification."""
+    try:
+        declined_file_path.parent.mkdir(parents=True, exist_ok=True)
+        if latest_version is None:
+            return
+        content = f"{latest_version}\nfalse"
+        declined_file_path.write_text(content, encoding="utf-8")
+    except Exception:  # pragma: no cover
+        logging.getLogger("Global").debug("Failed to write declined update file", exc_info=True)

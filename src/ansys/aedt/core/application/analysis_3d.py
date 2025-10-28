@@ -30,6 +30,7 @@ from typing import Union
 import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import check_if_path_exists
@@ -43,7 +44,7 @@ from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
-class FieldAnalysis3D(Analysis, object):
+class FieldAnalysis3D(Analysis, PyAedtBase):
     """Manages 3D field analysis setup in HFSS, Maxwell 3D, and Q3D.
 
     This class is automatically initialized by an application call from one of
@@ -1285,7 +1286,7 @@ class FieldAnalysis3D(Analysis, object):
         defeature_distance : float, optional
             Defeature tolerance distance. The default is ``0``.
         round_coordinates : bool, optional
-            Whether to rounds all imported data to the number
+            Whether to round all imported data to the number
             of decimal points specified by the next parameter.
             The default is ``False``.
         round_num_digits : int, optional
@@ -1294,8 +1295,8 @@ class FieldAnalysis3D(Analysis, object):
         write_poly_with_width_as_filled_poly : bool, optional
             Imports wide polylines as polygons. The default is ``False``.
         import_method : int or bool, optional
-            Whether the import method is ``Script`` or ``Acis``.
-            The default is ``1``, which means that the ``Acis`` is used.
+            Whether the import method is ``Script`` or ``Parasolid``.
+            The default is ``1``, which means that the ``Parasolid`` is used.
 
         Returns
         -------

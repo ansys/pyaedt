@@ -32,25 +32,25 @@ classifiers = [
 ]
 
 dependencies = [
-    "fpdf2",
-    "grpcio>=1.50.0,<1.75",
+    "grpcio>=1.50.0,<1.76",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
     "tomli; python_version < '3.11'",
     "tomli-w",
-    "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
-    "pydantic>=2.6.4,<2.12",
+    "pydantic>=2.6.4,<2.13",
 ]
 
 [project.optional-dependencies]
 unit-tests = [
     "pytest>=7.4.0,<8.5",
-    "pytest-cov>=4.0.0,<6.3",
+    "pytest-cov>=4.0.0,<7.1",
     "mock>=5.1.0,<5.3",
+    "fpdf2",
+    "requests",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
@@ -64,18 +64,19 @@ tests = [
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.9",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.9",
     "tables",
+    "rpyc>=6.0.0,<6.1",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
-    "cffi>=1.16.0,<1.18; platform_system=='Linux'",
+    "cffi>=1.16.0,<2.1; platform_system=='Linux'",
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
-    "ansys-sphinx-theme>=1.0.0,<1.6",
+    "ansys-sphinx-theme>=1.0.0,<1.7",
     "jupyter",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
@@ -84,14 +85,17 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
 ]
 graphics = [
     "ansys-tools-visualization-interface",
-    "pyvista[io]>=0.38.0,<0.45",
+    "pyvista[io]>=0.38.0,<0.47",
     "matplotlib>=3.5.0,<3.11",
     "vtk>=9.0,<9.6",
+    "fpdf2",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
@@ -102,13 +106,16 @@ all = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.4",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.9",
     "pyaedt[jupyter]",
     "requests",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
+    "uv>=0.8.17",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
@@ -116,12 +123,20 @@ examples = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.4",
-    "pyvista>=0.38.0,<0.45",
+    "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.3",
+    "plotly>=6.0,<6.4",
     "scikit-rf>=0.30.0,<1.9",
+    "fpdf2",
+    "rpyc>=6.0.0,<6.1",
 ]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd", "**/*.license"]
 
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
@@ -208,12 +223,8 @@ ignore = [
     "PTH208", # os-listdir
 
     # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-    "TD001", # invalid-todo-tag
     "TD002", # missing-todo-author
     "TD003", # missing-todo-link
-    "TD004", # missing-todo-colon
-    "TD005", # missing-todo-description
-    "TD006"  # invalid-todo-capitalization
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -249,11 +260,17 @@ omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
 markers = [
-    "unit",
-    "integration",
-    "system",
-    "solvers",
-    "general",
+    "unit: mark a test as a unit test.",
+    "integration: mark a test as an integration test.",
+    "system: mark a test as a system test.",
+    "solvers: mark a test as related to solvers.",
+    "general: mark a test as related to general features.",
+    "visualization: mark a test as related to visualization features.",
+    "extensions: mark a test as related to extensions.",
+    "filter_solutions: mark a test as related to filter solutions.",
+    "emit: mark a test as related to EMIT features.",
+    "flaky_linux: mark a test as flaky on Linux systems.",
+    "flaky_windows: mark a test as flaky on Windows systems.",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",

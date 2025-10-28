@@ -26,6 +26,7 @@ from collections import defaultdict
 import csv
 from datetime import datetime
 import math
+import os
 from pathlib import Path
 import tempfile
 import time
@@ -34,6 +35,7 @@ import warnings
 import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.file_utils import open_file
@@ -225,7 +227,7 @@ def _parse_aedtplt(filepath):
         num_nodes_per_element = elements[4]
         header_length = 5
         elements_nodes = []
-        # Todo Aedt 23R2 supports mixed elements size. To be implemented.
+        # TODO: Aedt 23R2 supports mixed elements size. To be implemented.
         for i in range(0, len(elements), num_nodes_per_element + header_length):
             elements_nodes.append([elements[i + header_length + n] for n in range(num_nodes_per_element)])
         if solution:
@@ -289,7 +291,7 @@ def _parse_streamline(filepath):
     return streamlines
 
 
-class ObjClass(object):
+class ObjClass(PyAedtBase):
     """Manages mesh files to be plotted in pyvista.
 
     Parameters
@@ -329,7 +331,7 @@ class ObjClass(object):
             self._color = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
 
-class FieldClass(object):
+class FieldClass(PyAedtBase):
     """Class to manage Field data to be plotted in pyvista.
 
     Parameters
@@ -384,7 +386,7 @@ class FieldClass(object):
         self.scalar_name = None
 
 
-class CommonPlotter(object):
+class CommonPlotter(PyAedtBase):
     def __init__(self):
         self._objects = []
         self._fields = []
@@ -428,6 +430,10 @@ class CommonPlotter(object):
         self._convert_fields_in_db = False
         self._log_multiplier = 10.0
         self._field_scale = 1
+        self.jupyter_backend = None
+        use_html_backend = os.environ.get("PYANSYS_VISUALIZER_HTML_BACKEND", "false").lower() == "true"
+        if use_html_backend:
+            self.jupyter_backend = "html"
 
     @property
     def vector_field_scale(self):
@@ -1384,11 +1390,16 @@ class ModelPlotter(CommonPlotter):
             if extension in supported_export:
                 self.pv.save_graphic(export_image_path)
             else:
-                self.pv.show(auto_close=False, screenshot=export_image_path, full_screen=True)
+                self.pv.show(
+                    auto_close=False,
+                    screenshot=export_image_path,
+                    full_screen=True,
+                    jupyter_backend=self.jupyter_backend,
+                )
         elif show and self.is_notebook:  # pragma: no cover
-            self.pv.show(auto_close=False)  # pragma: no cover
+            self.pv.show(auto_close=False, jupyter_backend=self.jupyter_backend)  # pragma: no cover
         elif show:
-            self.pv.show(auto_close=False, full_screen=True)  # pragma: no cover
+            self.pv.show(auto_close=False, full_screen=True, jupyter_backend=self.jupyter_backend)  # pragma: no cover
 
         self.image_file = export_image_path
         return True

@@ -31,9 +31,9 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
+from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXPORT_EXAMPLES
+from ansys.aedt.core.extensions.hfss3dlayout.via_design import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss3dlayout.via_design import ViaDesignExtension
 
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
@@ -54,42 +54,15 @@ ORIGINAL_CALL_OPEN = open
 
 @pytest.fixture
 def toml_file_path(tmp_path):
-    """Fixture to create a temporary TOML file with mock content."""
+    """Create a temporary TOML file with mock content."""
     file_path = tmp_path / "config.toml"
     with file_path.open("w") as f:
         toml.dump(MOCK_TOML_CONTENT, f)
     return file_path
 
 
-@pytest.fixture
-def mock_aedt_classes():
-    """Fixture to mock AEDT classes used in the ViaDesignExtension tests."""
-    with (
-        patch("ansys.aedt.core.extensions.project.via_design.Hfss3dLayout") as mock_hfss_3d,
-        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
-        patch("ansys.aedt.core.extensions.project.via_design.ViaDesignBackend") as mock_backend,
-    ):
-        mock_hfss_3d_instance = MagicMock()
-        mock_hfss_3d.return_value = mock_hfss_3d_instance
-
-        mock_desktop_instance = MagicMock()
-        mock_desktop.return_value = mock_desktop_instance
-
-        mock_backend_instance = MagicMock()
-        mock_backend.return_value = mock_backend_instance
-
-        yield {
-            "hfss": mock_hfss_3d,
-            "hfss_instance": mock_hfss_3d_instance,
-            "desktop": mock_desktop,
-            "desktop_instance": mock_desktop_instance,
-            "backend": mock_backend,
-            "backend_instance": mock_backend_instance,
-        }
-
-
 def conditional_open(file=None, mode="r", *args, **kwargs):
-    """Conditional open function to handle file opening based on file type."""
+    """Open mocked TOML files, otherwise call real open."""
     if file is None or str(file).endswith(".toml"):
         return MOCK_CALL_OPEN(file, mode, *args, **kwargs)
     else:
@@ -97,7 +70,7 @@ def conditional_open(file=None, mode="r", *args, **kwargs):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_default(mock_desktop):
+def test_via_design_extension_default(mock_desktop, mock_hfss_3d_layout_app):
     """Test instantiation of the Via Design extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -113,7 +86,11 @@ def test_via_design_extension_default(mock_desktop):
 
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("builtins.open", side_effect=conditional_open)
-def test_via_design_extension_select_configuration_example(mock_file_open, mock_asksaveasfilename):
+def test_via_design_extension_select_configuration_example(
+    mock_file_open,
+    mock_asksaveasfilename,
+    mock_hfss_3d_layout_app,
+):
     """Test saving examples configuration success"""
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
@@ -121,11 +98,20 @@ def test_via_design_extension_select_configuration_example(mock_file_open, mock_
 
     for example in EXPORT_EXAMPLES:
         example_name = example.toml_file_path.stem
-        button = extension.root.nametowidget(f".!notebook.!frame.button_{example_name}")
+        widget_name = f".!notebook.!frame.button_{example_name}"
+        button = extension.root.nametowidget(widget_name)
         button.invoke()
 
-        mock_file_open.assert_any_call(example.toml_file_path, "r", encoding="utf-8")
-    mock_file_open.assert_any_call(MOCK_EXAMPLE_PATH, "w", encoding="utf-8")
+        mock_file_open.assert_any_call(
+            example.toml_file_path,
+            "r",
+            encoding="utf-8",
+        )
+    mock_file_open.assert_any_call(
+        MOCK_EXAMPLE_PATH,
+        "w",
+        encoding="utf-8",
+    )
     mock_file_open().write.assert_any_call(MOCK_CONTENT)
 
     extension.root.destroy()
@@ -133,31 +119,75 @@ def test_via_design_extension_select_configuration_example(mock_file_open, mock_
 
 @patch("tkinter.filedialog.askopenfilename", return_value=MOCK_EXAMPLE_PATH)
 @patch("builtins.open", side_effect=conditional_open)
-def test_via_design_extension_create_design_failure(mock_file_open, mock_askopenfilename):
+def test_via_design_extension_create_design_failure(
+    mock_file_open,
+    mock_askopenfilename,
+    mock_hfss_3d_layout_app,
+):
     """Test create design with non existing file"""
     extension = ViaDesignExtension(withdraw=True)
 
-    button = extension.root.nametowidget(".!frame.button_create_design")
+    widget_name = ".!frame.button_create_design"
+    button = extension.root.nametowidget(widget_name)
     with pytest.raises(TclError):
         button.invoke()
+    extension.root.destroy()
 
 
+@patch("ansys.aedt.core.extensions.hfss3dlayout.via_design.Hfss3dLayout")
+@patch("ansys.aedt.core.extensions.hfss3dlayout.via_design.ViaDesignBackend")
 @patch("tkinter.filedialog.askopenfilename")
 @patch("builtins.open", side_effect=conditional_open)
 @patch.object(Path, "is_file", return_value=True)
 def test_via_design_extension_create_design_sucess(
-    mock_path_is_file, mock_file_open, mock_askopenfilename, toml_file_path, mock_aedt_classes
+    mock_path_is_file,
+    mock_file_open,
+    mock_askopenfilename,
+    mock_via_design_backend,
+    mock_hfss3dlayout_class,
+    toml_file_path,
+    mock_hfss_3d_layout_app,
 ):
     """Test create design success"""
     EXPECTED_RESULT = {
-        "signals": {"sig_1": {"stacked_vias": {"param1": "value1"}}},
-        "differential_signals": {"diff_1": {"stacked_vias": {"param1": "value1"}}},
+        "signals": {
+            "sig_1": {"stacked_vias": {"param1": "value1"}},
+        },
+        "differential_signals": {
+            "diff_1": {"stacked_vias": {"param1": "value1"}},
+        },
     }
     mock_askopenfilename.return_value = toml_file_path
 
+    # Ensure the mocked backend provides an app with an edbpath attribute
+    mock_via_design_backend.return_value.app.edbpath = "/path/mock.aedb"
+
     extension = ViaDesignExtension(withdraw=True)
 
-    button = extension.root.nametowidget(".!frame.button_create_design")
+    widget_name = ".!frame.button_create_design"
+    button = extension.root.nametowidget(widget_name)
     button.invoke()
 
-    mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
+    # Verify the ViaDesignBackend was instantiated with the expected configuration
+    mock_via_design_backend.assert_called_with(EXPECTED_RESULT)
+    extension.root.destroy()
+
+
+@patch("tkinter.filedialog.asksaveasfilename")
+def test_via_design_examples_success(
+    mock_asksaveasfilename,
+    tmp_path,
+    mock_hfss_3d_layout_app,
+):
+    """Test the examples provided in the via design extension."""
+    extension = ViaDesignExtension(withdraw=True)
+
+    for example in EXPORT_EXAMPLES:
+        example_name = example.toml_file_path.stem
+        widget_name = f".!notebook.!frame.button_{example_name}"
+        button = extension.root.nametowidget(widget_name)
+        path = tmp_path / f"{example_name}.toml"
+        mock_asksaveasfilename.return_value = path
+        button.invoke()
+        assert path.is_file()
+    extension.root.destroy()

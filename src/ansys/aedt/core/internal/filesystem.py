@@ -29,6 +29,8 @@ import shutil
 import string
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.file_utils import _uname
 
 
 def search_files(dirname, pattern="*"):
@@ -51,7 +53,7 @@ def my_location():
     return Path(__file__).parent.resolve(strict=False)
 
 
-class Scratch:
+class Scratch(PyAedtBase):
     """ """
 
     @property
@@ -147,6 +149,22 @@ class Scratch:
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type or self._volatile:
             self.remove()
+
+    def create_sub_folder(self, name: str = "") -> str:
+        """Create a subfolder.
+
+        Parameters
+        ----------
+        name : str, optional
+
+        Return
+        ------
+        str
+            Full path to the created subfolder. If no name is provided, a random name is generated.
+        """
+        sub_folder = Path(self.path) / _uname(name)
+        sub_folder.mkdir(parents=True, exist_ok=True)
+        return str(sub_folder)
 
 
 def get_json_files(start_folder):

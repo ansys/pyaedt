@@ -27,6 +27,7 @@ import re
 import sys
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import SweepDraft
@@ -35,7 +36,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.math_utils import MathUtils
 
 
-class GeometryOperators(object):
+class GeometryOperators(PyAedtBase):
     """Manages geometry operators."""
 
     @staticmethod

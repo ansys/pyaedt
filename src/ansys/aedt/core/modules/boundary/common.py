@@ -24,6 +24,7 @@
 
 """This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``."""
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -70,7 +71,7 @@ class BoundaryProps(dict):
         dict.__setitem__(self, key, value)
 
 
-class BoundaryCommon(PropsManager):
+class BoundaryCommon(PropsManager, PyAedtBase):
     """ """
 
     @pyaedt_function_handler()
@@ -113,6 +114,8 @@ class BoundaryCommon(PropsManager):
         """
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
             self._app.omaxwell_parameters.DeleteParameters([self.name])
+        elif self.type == "Band":
+            self._app.omodelsetup.DeleteMotionSetup([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
             if self.name in self._app.design_excitations.keys():
@@ -188,7 +191,7 @@ def disable_auto_update(func):
     return wrapper
 
 
-class BoundaryObject(BoundaryCommon, BinaryTreeNode):
+class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages boundary data and execution.
 
     Parameters

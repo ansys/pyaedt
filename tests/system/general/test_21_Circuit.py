@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T21"
 
@@ -191,7 +191,7 @@ class TestClass:
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-        assert aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
+        assert aedtapp.modeler.connect_schematic_components(myres.schematic_id, mycap.schematic_id, pin_starting=1)
         assert aedtapp.modeler.connect_schematic_components(
             myind2, myind3, pin_starting=["n1", "n2"], pin_ending=["n2", "n1"], use_wire=False
         )
@@ -328,6 +328,10 @@ class TestClass:
             )
             == "MyReport1"
         )
+        rep = ami_design.post.reports_by_category.statistical_eye_contour(
+            setup="AMIAnalysis", expressions=["b_output4_14"]
+        )
+        assert rep.create()
         assert (
             ami_design.post.create_statistical_eye_plot(
                 "Dom_Quick",
@@ -823,7 +827,7 @@ class TestClass:
         l2 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
         aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
 
-        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
+        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True, offset=0.0512)
         assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
         assert l3.pins[0].connect_to_component(l2.pins[1], use_wire=True, clearance_units=2)
         assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
@@ -949,6 +953,25 @@ class TestClass:
             ibis_tx_file=ami_file,
             tx_buffer_name="1p",
             rx_buffer_name="2p",
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P", "A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
+            tx_schematic_differential_pins=[],
+            rx_schematic_differentialial_pins=[],
+            use_ibis_buffer=False,
+            differential=False,
+            bit_pattern="random_bit_count=2.5e3 random_seed=1",
+            unit_interval="31.25ps",
+            use_convolution=True,
+            analyze=False,
+            design_name="AMI",
+        )
+        assert result
+
+        result, eye_curve_tx, eye_curve_rx = aedtapp.create_ami_schematic_from_snp(
+            input_file=touchstone_file,
+            ibis_tx_file=ami_file,
+            tx_buffer_name="1p",
+            rx_buffer_name="2p",
             tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
             rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
             tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
@@ -959,7 +982,7 @@ class TestClass:
             unit_interval="31.25ps",
             use_convolution=True,
             analyze=False,
-            design_name="AMI",
+            design_name="AMI_Differential",
         )
         assert result
 
@@ -1088,3 +1111,4 @@ class TestClass:
             circuitprj.create_output_variable(
                 variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
             )
+        assert circuitprj.remove_all_unused_definitions()

@@ -40,7 +40,7 @@ from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test = sys.modules.keys()
 
@@ -49,6 +49,7 @@ step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
+LAYOUT_COMP_SI_VERSE_SFP = "ANSYS_SVP_V1_1_SFP_main.aedbcomp"
 primitive_json_file = "primitives_file.json"
 cylinder_primitive_csv_file = "cylinder_geometry_creation.csv"
 cylinder_primitive_csv_file_missing_values = "cylinder_geometry_creation_missing_values.csv"
@@ -87,6 +88,9 @@ def examples(local_scratch):
     test_99_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly + ".aedt")
     test_99_project = local_scratch.copyfile(test_99_project)
     layout_component = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, layout_comp)
+    layout_comp_si_verse_sfp = os.path.join(
+        TESTS_GENERAL_PATH, "example_models", test_subfolder, LAYOUT_COMP_SI_VERSE_SFP
+    )
     discovery_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, disco)
     discovery_file = local_scratch.copyfile(discovery_file)
     return (
@@ -98,6 +102,7 @@ def examples(local_scratch):
         test_99_project,
         layout_component,
         discovery_file,
+        layout_comp_si_verse_sfp,
     )
 
 
@@ -114,6 +119,7 @@ class TestClass:
         self.test_99_project = examples[5]
         self.layout_component = examples[6]
         self.discovery_file = examples[7]
+        self.layout_component_si_verse_sfp = examples[8]
 
     def create_copper_box(self, name=None):
         if not name:
@@ -1498,13 +1504,13 @@ class TestClass:
         scratch_choke_file5 = self.local_scratch.copyfile(choke_file5)
         scratch_choke_file6 = self.local_scratch.copyfile(choke_file6)
         scratch_choke_file7 = self.local_scratch.copyfile(choke_file7)
-        resolve1 = self.aedtapp.modeler.check_choke_values(scratch_choke_file1, create_another_file=True)
-        resolve2 = self.aedtapp.modeler.check_choke_values(scratch_choke_file2, create_another_file=True)
-        resolve3 = self.aedtapp.modeler.check_choke_values(scratch_choke_file3, create_another_file=True)
-        resolve4 = self.aedtapp.modeler.check_choke_values(scratch_choke_file4, create_another_file=True)
-        resolve5 = self.aedtapp.modeler.check_choke_values(scratch_choke_file5, create_another_file=True)
-        resolve6 = self.aedtapp.modeler.check_choke_values(scratch_choke_file6, create_another_file=True)
-        resolve7 = self.aedtapp.modeler.check_choke_values(scratch_choke_file7, create_another_file=True)
+        resolve1 = self.aedtapp.modeler.check_choke_values(scratch_choke_file1, create_another_file=False)
+        resolve2 = self.aedtapp.modeler.check_choke_values(scratch_choke_file2, create_another_file=False)
+        resolve3 = self.aedtapp.modeler.check_choke_values(scratch_choke_file3, create_another_file=False)
+        resolve4 = self.aedtapp.modeler.check_choke_values(scratch_choke_file4, create_another_file=False)
+        resolve5 = self.aedtapp.modeler.check_choke_values(scratch_choke_file5, create_another_file=False)
+        resolve6 = self.aedtapp.modeler.check_choke_values(scratch_choke_file6, create_another_file=False)
+        resolve7 = self.aedtapp.modeler.check_choke_values(scratch_choke_file7, create_another_file=False)
         assert isinstance(resolve1, list)
         assert resolve1[0]
         assert isinstance(resolve1[1], dict)
@@ -1530,7 +1536,9 @@ class TestClass:
     def test_73_make_winding(self):
         self.aedtapp.insert_design("Make_Windings")
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
-        winding_list = self.aedtapp.modeler._make_winding("Winding", "copper", 29.9, 52.1, 22.2, 5, 15, chamfer, True)
+        winding_list = self.aedtapp.modeler._make_winding(
+            "Winding", "copper", 29.9, 52.1, 22.2, 22.2, 5, 15, chamfer, True
+        )
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
@@ -1578,6 +1586,52 @@ class TestClass:
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
+
+    def test_make_winding_port_line(self):
+        self.aedtapp.insert_design("Make_Winding_Port_Line")
+        chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
+
+        # Test double winding - should have 4 occurrences of most negative Z value
+        double_winding_list = self.aedtapp.modeler._make_double_winding(
+            "Double_Winding", "copper", 17.525, 32.475, 14.95, 1.5, 2.699, 2.699, 20, 20, 0.8, chamfer, 1.1, True
+        )
+
+        # Test triple winding - should have 6 occurrences of most negative Z value
+        triple_winding_list = self.aedtapp.modeler._make_triple_winding(
+            "Triple_Winding",
+            "copper",
+            17.525,
+            32.475,
+            14.95,
+            1.5,
+            2.699,
+            2.699,
+            2.699,
+            20,
+            20,
+            20,
+            0.8,
+            chamfer,
+            1.1,
+            True,
+        )
+        # Verify there are is more than 1 object created for each winding type
+        assert isinstance(double_winding_list, list)
+        assert isinstance(triple_winding_list, list)
+
+        # For double windings: most negative Z should appear 4 times
+        double_winding_obj = double_winding_list[0][1]
+        double_winding_obj.extend(double_winding_list[1][1])
+        double_z_coords = [point[2] for point in double_winding_obj]
+        min_z_double = min(double_z_coords)
+        assert double_z_coords.count(min_z_double) == 4
+        # For triple windings: most negative Z should appear 6 times
+        triple_winding_obj = triple_winding_list[0][1]
+        triple_winding_obj.extend(triple_winding_list[1][1])
+        triple_winding_obj.extend(triple_winding_list[2][1])
+        triple_z_coords = [point[2] for point in triple_winding_obj]
+        min_z_triple = min(triple_z_coords)
+        assert triple_z_coords.count(min_z_triple) == 6
 
     def test_76_check_value_type(self):
         self.aedtapp.insert_design("other_tests")
@@ -1833,7 +1887,9 @@ class TestClass:
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
         assert comp.layout_component.edb_object
-        comp2 = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        comp2 = self.aedtapp.modeler.insert_layout_component(
+            self.layout_component_si_verse_sfp, name=None, parameter_mapping=False
+        )
         assert comp2.layout_component.edb_object
         assert comp.layout_component.edb_object
         assert comp.name in self.aedtapp.modeler.layout_component_names
@@ -1861,6 +1917,28 @@ class TestClass:
         comp3.layout_component.layers["Trace"] = [True, True, 90]
         assert comp3.layout_component.update_visibility()
         assert comp.layout_component.close_edb_object()
+
+    def test_insert_layout_component_2(self):
+        self.aedtapp.insert_design("LayoutComponent")
+        self.aedtapp.modeler.add_layout_component_definition(
+            file_path=self.layout_component,
+            name="ann",
+        )
+        self.aedtapp["b1"] = "3.2mm"
+        self.aedtapp.modeler._insert_layout_component_instance(
+            definition_name="ann", name=None, parameter_mapping={"a": "1.4mm", "b": "b1"}
+        )
+        self.aedtapp.modeler.add_layout_component_definition(
+            file_path=self.layout_component_si_verse_sfp,
+            name="SiVerse_SFP",
+        )
+        self.aedtapp.modeler._insert_layout_component_instance(
+            name="PCB_A",
+            definition_name="SiVerse_SFP",
+        )
+        self.aedtapp.modeler._insert_layout_component_instance(
+            name="PCB_B", definition_name="SiVerse_SFP", import_coordinate_systems=["L8_1"]
+        )
 
     def test_87_set_mesh_fusion_settings(self):
         self.aedtapp.insert_design("MeshFusionSettings")

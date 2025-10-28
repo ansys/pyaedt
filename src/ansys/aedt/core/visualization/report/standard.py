@@ -31,13 +31,14 @@ This module provides all functionalities for creating and editing reports.
 
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
 
 
-class Standard(CommonReport):
+class Standard(CommonReport, PyAedtBase):
     """Provides a reporting class that fits most of the app's standard reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
@@ -154,7 +155,9 @@ class Standard(CommonReport):
         float
             Pulse rise time.
         """
-        return self._legacy_props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
+        return (
+            self._legacy_props["context"].get("pulse_rise_time", 1.66666666666667e-11) if self.domain == "Time" else 0
+        )
 
     @pulse_rise_time.setter
     def pulse_rise_time(self, val):
@@ -169,7 +172,7 @@ class Standard(CommonReport):
         float
             Maximum time.
         """
-        return self._legacy_props["context"].get("maximum_time", 0) if self.domain == "Time" else 0
+        return self._legacy_props["context"].get("maximum_time", 3.33333333333333e-10) if self.domain == "Time" else 0
 
     @maximum_time.setter
     def maximum_time(self, val):
@@ -184,7 +187,7 @@ class Standard(CommonReport):
         float
             step time.
         """
-        return self._legacy_props["context"].get("step_time", 0) if self.domain == "Time" else 0
+        return self._legacy_props["context"].get("step_time", 3.33333333333333e-12) if self.domain == "Time" else 0
 
     @step_time.setter
     def step_time(self, val):
@@ -210,7 +213,7 @@ class Standard(CommonReport):
         int
             Time windowing.
         """
-        _time_windowing = self._legacy_props["context"].get("time_windowing", 0)
+        _time_windowing = self._legacy_props["context"].get("time_windowing", 4)
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
 
     @time_windowing.setter
@@ -537,7 +540,7 @@ class Standard(CommonReport):
         return ctxt
 
 
-class Spectral(CommonReport):
+class Spectral(CommonReport, PyAedtBase):
     """Provides for managing spectral reports from transient data."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
@@ -552,6 +555,7 @@ class Spectral(CommonReport):
         self.max_frequency = "10MHz"
         self.plot_continous_spectrum = False
         self.primary_sweep = "Spectrum"
+        self.noise_threshold = "60"
 
     @property
     def time_start(self):
@@ -659,6 +663,21 @@ class Spectral(CommonReport):
         self._legacy_props["context"]["max_frequency"] = value
 
     @property
+    def noise_threshold(self):
+        """Noise Threshold in dB.
+
+        Returns
+        -------
+        str
+            Noise Threshold.
+        """
+        return self._legacy_props["context"].get("noise_threshold", 0)
+
+    @noise_threshold.setter
+    def noise_threshold(self, value):
+        self._legacy_props["context"]["noise_threshold"] = value
+
+    @property
     def _context(self):
         if self.algorithm == "FFT":
             it = "1"
@@ -678,64 +697,112 @@ class Spectral(CommonReport):
             "Lanzcos": "8",
         }
         wt = WT[self.window]
-        arg = [
-            "NAME:Context",
-            "SimValueContext:=",
-            [
-                2,
-                0,
-                2,
-                0,
-                False,
-                False,
-                -1,
-                1,
-                0,
-                1,
-                1,
-                "",
-                0,
-                0,
-                "CP",
-                False,
-                "1" if self.plot_continous_spectrum else "0",
-                "IT",
-                False,
-                it,
-                "MF",
-                False,
-                self.max_frequency,
-                "NUMLEVELS",
-                False,
-                "0",
-                "TE",
-                False,
-                self.time_stop,
-                "TS",
-                False,
-                self.time_start,
-                "WT",
-                False,
-                wt,
-                "WW",
-                False,
-                "100",
-                "KP",
-                False,
-                str(self.kaiser_coeff),
-                "CG",
-                False,
-                "1" if self.adjust_coherent_gain else "0",
-            ],
-        ]
+        if self._app.design_type == "Circuit Design":
+            arg = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    2,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "CP",
+                    False,
+                    "1" if self.plot_continous_spectrum else "0",
+                    "IT",
+                    False,
+                    it,
+                    "MF",
+                    False,
+                    self.max_frequency,
+                    "NUMLEVELS",
+                    False,
+                    "0",
+                    "TE",
+                    False,
+                    self.time_stop,
+                    "TS",
+                    False,
+                    self.time_start,
+                    "WT",
+                    False,
+                    wt,
+                    "WW",
+                    False,
+                    "100",
+                    "KP",
+                    False,
+                    str(self.kaiser_coeff),
+                    "CG",
+                    False,
+                    "1" if self.adjust_coherent_gain else "0",
+                ],
+            ]
+        elif self._app.design_type == "Twin Builder":
+            arg = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [
+                    2,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "CF",
+                    False,
+                    self.max_frequency,
+                    "CG",
+                    False,
+                    "0",
+                    "CP",
+                    False,
+                    "0",
+                    "IT",
+                    False,
+                    it,
+                    "KP",
+                    False,
+                    str(self.kaiser_coeff),
+                    "NTC",
+                    False,
+                    "1",
+                    "TE",
+                    False,
+                    self.time_stop,
+                    "TH",
+                    False,
+                    self.noise_threshold,
+                    "TS",
+                    False,
+                    self.time_start,
+                    "WT",
+                    False,
+                    wt,
+                    "WW",
+                    False,
+                    "100",
+                ],
+            ]
         return arg
-
-    @property
-    def _trace_info(self):
-        if isinstance(self.expressions, list):
-            return self.expressions
-        else:
-            return [self.expressions]
 
     @pyaedt_function_handler()
     def create(self, name=None):
@@ -763,12 +830,7 @@ class Spectral(CommonReport):
             self.setup,
             self._context,
             self._convert_dict_to_report_sel(self.variations),
-            [
-                "X Component:=",
-                self.primary_sweep,
-                "Y Component:=",
-                self._trace_info,
-            ],
+            self._trace_info,
         )
         self._post.plots.append(self)
         self._is_created = True

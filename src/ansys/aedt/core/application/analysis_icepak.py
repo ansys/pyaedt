@@ -27,12 +27,13 @@ from typing import Union
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
 
 
-class FieldAnalysisIcepak(FieldAnalysis3D, object):
+class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
     """Manages Icepak field analysis setup.
 
     This class is automatically initialized by an application call from one Icepak.
@@ -177,7 +178,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, object):
         return self._monitor
 
 
-class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
+class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
     """Manages Icepak design settings.
 
     This class provides methods to modify specific design settings like ambient temperature,
@@ -216,7 +217,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.app.logger.error("Failed. Use `edit_design_settings` function.")
                 return self.app.design_settings["AmbTemp"]
-                # FIXME: Bug in native API. Uncomment when fixed
+                # TODO: Bug in native API. Uncomment when fixed
                 # if not self.solution_type == "Transient":
                 #     self.logger.error("Transient assignment is supported only in transient designs.")
                 #     return False
