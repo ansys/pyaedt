@@ -980,7 +980,11 @@ class WavePort(BoundaryObject):
 
     @pyaedt_function_handler()
     def set_analytical_alignment(
-        self, u_axis_line: list, analytic_reverse_v: Optional[bool] = None, coordinate_system: str = "Global", alignment_group: Optional[Union[int, list]] = None
+        self,
+        u_axis_line: list,
+        analytic_reverse_v: Optional[bool] = None,
+        coordinate_system: str = "Global",
+        alignment_group: Optional[Union[int, list]] = None,
     ):
         """Set the analytical alignment property for the wave port.
 
