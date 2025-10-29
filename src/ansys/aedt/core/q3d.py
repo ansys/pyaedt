@@ -413,7 +413,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             sources = [source.name for source in self.excitations_by_type["Source"]]
 
             for key, vals in harmonic_loss.items():
-                if key not in sources:
+                if key not in sources and key not in self.get_all_sources():
                     self.logger.error("Not existing source " + key)
                     return False
 
