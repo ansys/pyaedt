@@ -341,10 +341,10 @@ behaves as expected when integrated into the AEDT environment.
     assert main(extension.data)
     assert 7 == len(aedt_app.variable_manager.variables)
 
-Run tests in Visual Studio Code and PyCharm
+Run tests in VSCode and PyCharm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section explains how to run pytest unit and system tests in Visual Studio Code and PyCharm, and how to estimate coverage
+This section explains how to run pytest unit and system tests in VSCode (Visual Studio Code) and PyCharm, and how to estimate coverage
 using the "Run with coverage" feature or pytest-cov.
 
 Prerequisites
@@ -357,7 +357,7 @@ Prerequisites
 
 - Ensure your IDE is configured to use the Python interpreter where the packages are installed.
 
-Visual Studio Code IDE
+VSCode IDE
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Use the Test Explorer (Python extension) to discover and run tests:
@@ -365,19 +365,19 @@ Visual Studio Code IDE
   - Run or debug individual tests, test files, or test suites from the UI.
 
 .. image:: ../Resources/vscode_run_tests.png
-  :alt: Visual Studio Code Test Explorer (placeholder)
+  :alt: VSCode Test Explorer (placeholder)
 
 2. Run tests and view coverage using the GUI
-  - Visual Studio Code:
+  - VSCode:
     - Click the "Run Test with Coverage" button in the Test Explorer toolbar to run one or more tests with coverage. 
     - After the tests complete, a coverage summary appears in the Test Explorer (coverage % by file), and covered/uncovered lines are highlighted in the editor.
 
 .. image:: ../Resources/coverage_vscode.png
-  :alt: Visual Studio Code Test Explorer (placeholder)
+  :alt: VSCode Test Explorer (placeholder)
 
 Brief note
 ~~~~~~~~~~
-You can also run tests with coverage from a terminal in Visual Studio Code using pytest-cov:
+You can also run tests with coverage from a terminal in VSCode using pytest-cov:
 .. code:: bash
 
   pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html

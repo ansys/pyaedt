@@ -88,6 +88,7 @@ Python.NET
 pyvista
 [Pp]y[Tt]est
 [Pp]y[Cc]harm
+[Vv]s[Cc]ode
 Q2D Extractor
 Q3D
 Q3D Extractor
