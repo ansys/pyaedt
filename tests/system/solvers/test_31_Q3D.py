@@ -387,6 +387,10 @@ class TestClass:
         imag_dataset = q3d_solved.design_datasets["ds2"].name
         harmonic_loss = {"Box1:Source1": (real_dataset, imag_dataset)}
         assert q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
+        harmonic_loss = {"invalid": (real_dataset, imag_dataset)}
+        assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
+        harmonic_loss = {"Box1:Source1": real_dataset}
+        assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
 
     def test_15_insert_reduced(self, q3d_solved):
         q3d = q3d_solved
