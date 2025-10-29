@@ -357,7 +357,7 @@ Prerequisites
 
 - Ensure your IDE is configured to use the Python interpreter where the packages are installed.
 
-Use Visual Studio Code
+Visual Studio Code IDE
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Use the Test Explorer (Python extension) to discover and run tests:
@@ -384,8 +384,8 @@ You can also run tests with coverage from a terminal in Visual Studio Code using
 
 This is an example command to run unit tests with coverage. Adjust the path to your test files as needed.
 
-Use PyCharm IDE
-~~~~~~~~~~~~~~~
+PyCharm IDE
+~~~~~~~~~~~~~~~~~~~
 
 1. Configure pytest as the test runner:
    - Settings -> Tools -> Python Integrated Tools -> Default test runner -> pytest
