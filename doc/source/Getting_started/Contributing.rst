@@ -341,8 +341,8 @@ behaves as expected when integrated into the AEDT environment.
     assert main(extension.data)
     assert 7 == len(aedt_app.variable_manager.variables)
 
-Running tests in Visual Studio Code and PyCharm
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Run tests in Visual Studio Code and PyCharm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section explains how to run pytest unit and system tests in Visual Studio Code and PyCharm, and how to estimate coverage
 using the "Run with coverage" feature or pytest-cov.
@@ -357,8 +357,8 @@ Prerequisites
 
 - Ensure your IDE is configured to use the Python interpreter where the packages are installed.
 
-Visual Studio Code
-~~~~~~
+Use Visual Studio Code
+~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Use the Test Explorer (Python extension) to discover and run tests:
   - Open the Testing side bar (beaker icon).
@@ -384,8 +384,8 @@ You can also run tests with coverage from a terminal in Visual Studio Code using
 
 This is an example command to run unit tests with coverage. Adjust the path to your test files as needed.
 
-PyCharm IDE
-~~~~~~~~~~~
+Use PyCharm IDE
+~~~~~~~~~~~~~~~
 
 1. Configure pytest as the test runner:
    - Settings -> Tools -> Python Integrated Tools -> Default test runner -> pytest
@@ -489,7 +489,7 @@ at the top level of the repository. Below is an example configuration with descr
 
 Parameter descriptions:
 
-- ``desktopVersion``: AEDT version to use for testing (e.g., "2025.2", "2024.1").
+- ``desktopVersion``: AEDT version to use for testing (for example, "2025.2," "2024.1").
 - ``NonGraphical``: When ``true``, runs AEDT in non-graphical mode (headless).
 - ``NewThread``: Opens AEDT in a new thread.
 - ``skip_circuits``: When ``true``, skips Circuit-related tests.
