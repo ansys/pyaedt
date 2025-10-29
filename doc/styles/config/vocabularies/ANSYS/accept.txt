@@ -87,6 +87,7 @@ Python
 Python.NET
 pyvista
 [Pp]y[Tt]est
+[Pp]y[Cc]harm
 Q2D Extractor
 Q3D
 Q3D Extractor
@@ -122,6 +123,7 @@ jupyter
 toml
 Parasolid
 i.e.
+[I][Dd][Ee]
 solderballs
 pin_mapping
 refdes
