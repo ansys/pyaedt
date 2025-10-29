@@ -341,10 +341,10 @@ behaves as expected when integrated into the AEDT environment.
     assert main(extension.data)
     assert 7 == len(aedt_app.variable_manager.variables)
 
-Running tests in VSCode and PyCharm
+Running tests in Visual Studio Code and PyCharm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section explains how to run pytest unit and system tests in VSCode and PyCharm, and how to estimate coverage
+This section explains how to run pytest unit and system tests in Visual Studio Code and PyCharm, and how to estimate coverage
 using the "Run with coverage" feature or pytest-cov.
 
 Prerequisites
@@ -357,7 +357,7 @@ Prerequisites
 
 - Ensure your IDE is configured to use the Python interpreter where the packages are installed.
 
-VSCode
+Visual studio code
 ~~~~~~
 
 1. Use the Test Explorer (Python extension) to discover and run tests:
@@ -365,19 +365,19 @@ VSCode
   - Run or debug individual tests, test files, or test suites from the UI.
 
 .. image:: ../Resources/vscode_run_tests.png
-  :alt: VSCode Test Explorer (placeholder)
+  :alt: Visual Studio Code Test Explorer (placeholder)
 
 2. Run tests and view coverage using the GUI
-  - VSCode:
+  - Visual Studio Code:
     - Click the "Run Test with Coverage" button in the Test Explorer toolbar to run one or more tests with coverage. 
     - After the tests complete, a coverage summary appears in the Test Explorer (coverage % by file), and covered/uncovered lines are highlighted in the editor.
 
 .. image:: ../Resources/coverage_vscode.png
-  :alt: VSCode Test Explorer (placeholder)
+  :alt: Visual Studio Code Test Explorer (placeholder)
 
 Brief note
 ~~~~~~~~~~
-You can also run tests with coverage from a terminal in VSCode using pytest-cov:
+You can also run tests with coverage from a terminal in Visual Studio Code using pytest-cov:
 .. code:: bash
 
   pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html
@@ -398,8 +398,8 @@ PyCharm
    :alt: PyCharm test runner (placeholder)
 
 3. Run with coverage in PyCharm:
-   - Right-click a test file or configuration and choose "Run 'pytest in ...' with Coverage".
-   - PyCharm will show a coverage summary and highlight covered and uncovered lines in the editor.
+   - Right-click a test file or configuration and choose "Run 'pytest in' with Coverage".
+   - PyCharm shows a coverage summary and highlights covered and uncovered lines in the editor.
 
 4. Run with pytest-cov from a terminal in PyCharm (alternative):
 
@@ -411,7 +411,7 @@ Interpreting coverage results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Coverage percentage shows the portion of executed lines compared to total executable lines in the source files.
-- Higher coverage is generally better, but 100% coverage does not guarantee bug-free code. We require at least 85% coverage for all the new code added to the repository.
+- Higher coverage is generally better, but 100% coverage does not guarantee bug-free code. At least 85% coverage for all the new code added to the repository is required.
 - Use ``--cov-report=term-missing`` to see which lines are not covered directly in the terminal.
 - Use ``--cov-report=html`` and open ``htmlcov/index.html`` in a browser for an easy-to-navigate, per-file coverage report.
 - Run unit and system tests separately to estimate their individual contributions:

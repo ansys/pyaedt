@@ -86,6 +86,7 @@ PyAEDT
 Python
 Python.NET
 pyvista
+[Pp]y[Tt]est
 Q2D Extractor
 Q3D
 Q3D Extractor
