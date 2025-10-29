@@ -85,7 +85,7 @@ close_desktop = config.get("close_desktop", DEFAULT_CONFIG.get("close_desktop"))
 settings.use_local_example_data = config.get("use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data"))
 if settings.use_local_example_data:
     local_example_folder = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
-    if local_example_folder: # If empty string or None, keep it as is
+    if local_example_folder:  # If empty string or None, keep it as is
         settings.local_example_folder = local_example_folder
 
 logger = pyaedt_logger
