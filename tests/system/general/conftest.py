@@ -34,102 +34,29 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2022.2",
+  "desktopVersion": "2025.2",
   "NonGraphical": false,
   "NewThread": false,
-  "skip_desktop_test": false
 }
 
 """
 
 import gc
-import json
 import os
-import random
-import shutil
-import string
 import sys
 import tempfile
 import time
 
 import pytest
 
-from ansys.aedt.core import Edb
-from ansys.aedt.core import Hfss
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
-from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
-from ansys.aedt.core.internal.filesystem import Scratch
-from tests import TESTS_GENERAL_PATH
+from tests.conftest import config
+from tests.conftest import logger
 
-settings.enable_local_log_file = False
-settings.enable_global_log_file = False
-settings.number_of_grpc_api_retries = 6
-settings.retry_n_times_time_interval = 0.5
-settings.enable_error_handler = False
-settings.enable_desktop_logs = False
-settings.desktop_launch_timeout = 180
-settings.release_on_exception = False
-settings.wait_for_license = True
-settings.enable_pandas_output = True
-settings.use_local_example_data = False
-
-local_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(local_path)
-
-# Initialize default desktop configuration
-default_version = "2025.2"
-
-config = {
-    "desktopVersion": default_version,
-    "NonGraphical": True,
-    "NewThread": True,
-    "skip_desktop_test": False,
-    "build_machine": True,
-    "skip_space_claim": False,
-    "skip_circuits": False,
-    "skip_edb": False,
-    "skip_debug": False,
-    "local": False,
-    "use_grpc": True,
-    "disable_sat_bounding_box": True,
-    "use_local_example_data": False,
-}
-
-# Check for the local config file, override defaults if found
-local_config_file = os.path.join(local_path, "local_config.json")
-if os.path.exists(local_config_file):
-    try:
-        with open(local_config_file) as f:
-            local_config = json.load(f)
-    except Exception:  # pragma: no cover
-        local_config = {}
-    config.update(local_config)
-
-NONGRAPHICAL = config["NonGraphical"]
-settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
-desktop_version = config["desktopVersion"]
-new_thread = config["NewThread"]
-settings.use_grpc_api = config["use_grpc"]
 settings.objects_lazy_load = False
-settings.use_local_example_data = config["use_local_example_data"]
-if settings.use_local_example_data:
-    settings.local_example_folder = config["local_example_folder"]
-
-logger = pyaedt_logger
-
-
-def generate_random_string(length):
-    characters = string.ascii_letters + string.digits
-    random_string = "".join(random.sample(characters, length))
-    return random_string
-
-
-def generate_random_ident():
-    ident = "-" + generate_random_string(6) + "-" + generate_random_string(6) + "-" + generate_random_string(6)
-    return ident
 
 
 def _delete_objects():
@@ -142,41 +69,16 @@ def _delete_objects():
     gc.collect()
 
 
-@pytest.fixture(scope="session", autouse=True)
-def init_scratch():
-    test_folder_name = "unit_test" + generate_random_ident()
-    test_folder = os.path.join(tempfile.gettempdir(), test_folder_name)
-    try:
-        os.makedirs(test_folder, mode=0o777)
-    except FileExistsError as e:
-        print(f"Failed to create {test_folder}. Reason: {e}")
-
-    yield test_folder
-
-    try:
-        shutil.rmtree(test_folder, ignore_errors=True)
-    except Exception as e:
-        print(f"Failed to delete {test_folder}. Reason: {e}")
-
-
-@pytest.fixture(scope="module", autouse=True)
-def local_scratch(init_scratch):
-    tmp_path = init_scratch
-    scratch = Scratch(tmp_path)
-    yield scratch
-    scratch.remove()
-
-
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     _delete_objects()
     keys = list(_desktop_sessions.keys())
     for key in keys:
         del _desktop_sessions[key]
-    d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+    d = Desktop(config["desktopVersion"], config["NonGraphical"], config["NewThread"])
     d.odesktop.SetTempDirectory(tempfile.gettempdir())
     d.disable_autosave()
-    if desktop_version > "2022.2":
+    if config["desktopVersion"] > "2022.2":
         d.odesktop.SetDesktopConfiguration("All")
         d.odesktop.SetSchematicEnvironment(0)
     yield d
@@ -187,78 +89,3 @@ def desktop():
         os.kill(pid, 9)
     except OSError:
         pass
-
-
-@pytest.fixture(scope="module")
-def add_app(local_scratch):
-    def _method(
-        project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False
-    ):
-        if project_name and not just_open:
-            example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", subfolder, project_name + ".aedt")
-            example_folder = os.path.join(TESTS_GENERAL_PATH, "example_models", subfolder, project_name + ".aedb")
-            if os.path.exists(example_project):
-                # Copy unit test project to scratch folder. Return full file path to the project without extension.
-                test_project = local_scratch.copyfile(example_project)
-            elif os.path.exists(example_project + "z"):
-                example_project = example_project + "z"
-                test_project = local_scratch.copyfile(example_project)
-            else:
-                test_project = os.path.join(local_scratch.path, project_name + ".aedt")
-            if os.path.exists(example_folder):
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
-                local_scratch.copyfolder(example_folder, target_folder)
-        elif project_name and just_open:
-            test_project = project_name
-        else:
-            test_project = None
-        if not application:
-            application = Hfss
-
-        args = {
-            "project": test_project,
-            "design": design_name,
-            "version": desktop_version,
-            "non_graphical": NONGRAPHICAL,
-            "remove_lock": True,
-        }
-        if solution_type:
-            args["solution_type"] = solution_type
-        return application(**args)
-
-    return _method
-
-
-@pytest.fixture(scope="module")
-def test_project_file(local_scratch):
-    def _method(project_name=None, subfolder=None):
-        if subfolder:
-            project_file = os.path.join(TESTS_GENERAL_PATH, "example_models", subfolder, project_name + ".aedt")
-        else:
-            project_file = os.path.join(local_scratch.path, project_name + ".aedt")
-        if os.path.exists(project_file):
-            return project_file
-        else:
-            return None
-
-    return _method
-
-
-@pytest.fixture(scope="module")
-def add_edb(local_scratch):
-    def _method(project_name=None, subfolder=""):
-        if project_name:
-            example_folder = os.path.join(TESTS_GENERAL_PATH, "example_models", subfolder, project_name + ".aedb")
-            if os.path.exists(example_folder):
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
-                local_scratch.copyfolder(example_folder, target_folder)
-            else:
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
-        else:
-            target_folder = os.path.join(local_scratch.path, generate_unique_name("TestEdb") + ".aedb")
-        return Edb(
-            target_folder,
-            edbversion=desktop_version,
-        )
-
-    return _method

@@ -169,7 +169,7 @@ class TestClass:
 
     def test_create_report_from_configuration_template(self, h3d_potter_horn):
         from tests import TESTS_VISUALIZATION_PATH
-        from tests.system.visualization.conftest import config
+        from tests.conftest import config
 
         new_report4 = h3d_potter_horn.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", infinite_sphere="3D"

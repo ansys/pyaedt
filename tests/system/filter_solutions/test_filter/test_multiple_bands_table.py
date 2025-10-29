@@ -25,7 +25,7 @@
 import pytest
 
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.filter_solutions.conftest import config
+from tests.conftest import config
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")

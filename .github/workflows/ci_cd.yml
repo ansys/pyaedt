@@ -18,6 +18,7 @@ env:
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
+  PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -990,7 +991,7 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 20
+          timeout_minutes: 30
           command: |
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit

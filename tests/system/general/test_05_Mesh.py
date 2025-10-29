@@ -26,8 +26,8 @@ import pytest
 
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import Plane
-from tests.system.general.conftest import config
-from tests.system.general.conftest import desktop_version
+from tests.conftest import config
+from tests.conftest import desktop_version
 
 
 @pytest.fixture(scope="class")
