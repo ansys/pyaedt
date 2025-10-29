@@ -410,7 +410,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             source_list = ["NAME:Source Names"]
             source_real_dataset_names = ["NAME:Source real dataset names"]
             source_imag_dataset_names = ["NAME:Source imag dataset names"]
-            sources = self.sources(0, False)
+            sources = [source.name for source in self.excitations_by_type["Source"]]
 
             for key, vals in harmonic_loss.items():
                 if key not in sources:
