@@ -10,7 +10,7 @@ The following code creates a box and changes the color to red:
      from ansys.aedt.core.hfss import Hfss
      hfss = Hfss()
      box = hfss.modeler.create_box(origin=[0, 0, 0],
-                                   sizes=[10, "dim", 10],
+                                   sizes=[10, 10, 10],
                                    name="mybox",
                                    material="aluminum")
      print(box.faces)
@@ -40,15 +40,15 @@ This example shows how easily you can go deeper into edges and vertices of faces
 
 .. code:: python
 
-     box = hfss.modeler["mybox2"]
+     box = hfss.modeler["mybox"]
      for face in box.faces:
         print(face.center)
-        for edge in face:
+        for edge in face.edges:
             print(edge.midpoint)
             for vertice in edge.vertices:
-                print(edge.position)
+                print(vertice.position)
      for vertice in box.vertices:
-        print(edge.position)
+        print(vertice.position)
 
 
 All objects support executing any modeler operation, such as union or subtraction:

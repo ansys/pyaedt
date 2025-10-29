@@ -35,7 +35,7 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfMatProperties
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T03"
 

@@ -77,6 +77,11 @@ If the issue persists, try installing all required dependencies, including the o
 
 .. code:: bash
 
+    uv pip install pyaedt[all]
+
+Or if you prefer to use pip:
+.. code:: bash
+
     pip install pyaedt[all]
 
 If you need to restart the setup from scratch, follow these steps:
@@ -247,4 +252,17 @@ If you encounter such issue, you can try patching it by importing PyAEDT or PyED
 
 .. note::
 
-    If you use gRPC or previous Numpy releases, you shouldn't be impacted with this issue.
+    If you use gRPC or previous Numpy releases, you shouldn't be impacted by this issue.
+
+Extensions and panels
+~~~~~~~~~~~~~~~~~~~~~
+
+If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the virtual environment. 
+
+The management of extensions in AEDT has changed. Previously, extensions were copied to the _PersonalLib_ folder, which led to inconsistencies when updating PyAEDT extensions. This was because old extensions were not replaced until panels were reset, at which point the extension were copied from the virtual environment back into the _PersonalLib_ folder. Now, Extensions are loaded directly from the virtual environment, ensuring they remain up to date when PyAEDT is updated.
+
+If issues occur with the extensions, follow these steps:
+
+- Delete the virtual environment folder. On Windows: located in your APPDATA directory. On Linux: located in your HOME directory.
+- Delete the Toolkits directory in your PersonalLib folder.
+- Reinstall PyAEDT from scratch, following the instructions in the `Installation <../Getting_started/Installation.rst>`_ section.

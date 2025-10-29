@@ -36,6 +36,7 @@ from jsonschema import validate
 
 import ansys.aedt.core
 from ansys.aedt.core import __version__
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -84,7 +85,7 @@ def _find_datasets(d, out_list):
                     out_list.append(val[val.find("$") : val.find(",")])
 
 
-class ConfigurationsOptions(object):
+class ConfigurationsOptions(PyAedtBase):
     """Options class for the configurations.
     User can enable or disable import export components.
     """
@@ -666,7 +667,7 @@ class ConfigurationsOptions(object):
         return True
 
 
-class ImportResults(object):
+class ImportResults(PyAedtBase):
     """Contains the results of the import operations.
 
     Each result can be ``True`` or ``False``.
@@ -708,7 +709,7 @@ class ImportResults(object):
         return True
 
 
-class Configurations(object):
+class Configurations(PyAedtBase):
     """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
 
     def __init__(self, app):
@@ -1528,7 +1529,7 @@ class Configurations(object):
         return False
 
 
-class ConfigurationOptionsIcepak(ConfigurationsOptions):
+class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1569,7 +1570,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions):
         self._export_native_components = val
 
 
-class ConfigurationOptions3DLayout(ConfigurationsOptions):
+class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_mesh_operations = False
@@ -1582,7 +1583,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions):
         self._import_object_properties = False
 
 
-class Configurations3DLayout(Configurations):
+class Configurations3DLayout(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
 
     def __init__(self, app):
@@ -1590,7 +1591,7 @@ class Configurations3DLayout(Configurations):
         self.options = ConfigurationOptions3DLayout(app)
 
 
-class ConfigurationsIcepak(Configurations):
+class ConfigurationsIcepak(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied on a new or existing design."""
 
     def __init__(self, app):
@@ -2182,7 +2183,7 @@ class ConfigurationsIcepak(Configurations):
         return True
 
 
-class ConfigurationsNexxim(Configurations):
+class ConfigurationsNexxim(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
 
     @pyaedt_function_handler()
@@ -2432,19 +2433,18 @@ class ConfigurationsNexxim(Configurations):
                         else:
                             ami = False
                         ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
-                        if j["component"] in ibis.buffers:
-                            new_comp = ibis.buffers[j["component"]].insert(
-                                j["position"][0], j["position"][1], j["angle"]
-                            )
-                        elif "diff_pin_name" in j["properties"]:
+                        comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
+                        if "diff_pin_name" in j["properties"]:
                             new_comp = (
-                                ibis.components[j["component"]]
+                                ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
                                 .insert(j["position"][0], j["position"][1], j["angle"])
                             )
+                        elif comp in ibis.buffers:
+                            new_comp = ibis.buffers[comp].insert(j["position"][0], j["position"][1], j["angle"])
                         else:
                             new_comp = (
-                                ibis.components[j["component"]]
+                                ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
                                 .insert(j["position"][0], j["position"][1], j["angle"])
                             )

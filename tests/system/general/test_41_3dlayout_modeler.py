@@ -36,7 +36,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
@@ -728,6 +728,7 @@ class TestClass:
             os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "GDS", "gds1.tech")
         )
         aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gds_out") + ".aedb")
+        assert self.aedtapp.import_gds(gds_file, output_dir=aedb_file)
         assert self.aedtapp.import_gds(gds_file, output_dir=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")

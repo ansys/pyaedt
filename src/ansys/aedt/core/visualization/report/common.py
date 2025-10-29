@@ -27,6 +27,7 @@ import copy
 import os
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import LineStyle
 from ansys.aedt.core.generic.constants import SymbolStyle
 from ansys.aedt.core.generic.constants import TraceType
@@ -40,7 +41,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class LimitLine(BinaryTreeNode):
+class LimitLine(BinaryTreeNode, PyAedtBase):
     """Line Limit Management Class."""
 
     def __init__(self, post, trace_name, oo=None):
@@ -116,7 +117,7 @@ class LimitLine(BinaryTreeNode):
         return self._change_property(props)
 
 
-class Note(BinaryTreeNode):
+class Note(BinaryTreeNode, PyAedtBase):
     """Note Management Class."""
 
     def __init__(self, post, plot_note_name, oo=None):
@@ -244,7 +245,7 @@ class Note(BinaryTreeNode):
         return self._change_property(props)
 
 
-class Trace(BinaryTreeNode):
+class Trace(BinaryTreeNode, PyAedtBase):
     """Provides trace management."""
 
     def __init__(
@@ -431,7 +432,7 @@ class Trace(BinaryTreeNode):
         return self._change_property(props)
 
 
-class CommonReport(BinaryTreeNode):
+class CommonReport(BinaryTreeNode, PyAedtBase):
     """Provides common reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
@@ -604,10 +605,8 @@ class CommonReport(BinaryTreeNode):
                 else:
                     self._legacy_props["expressions"].append({"name": el})
         elif isinstance(value, str):
-            if isinstance(self._legacy_props["expressions"], list):
-                self._legacy_props["expressions"].append({"name": value})
-            else:
-                self._legacy_props["expressions"] = [{"name": value}]
+            self._legacy_props["expressions"] = []
+            self._legacy_props["expressions"].append({"name": value})
 
     @property
     def report_category(self):

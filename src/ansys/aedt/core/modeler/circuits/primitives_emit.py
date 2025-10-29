@@ -25,13 +25,14 @@
 from collections import defaultdict
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 
 
-class EmitComponents(object):
+class EmitComponents(PyAedtBase):
     """EmitComponents class.
 
     This is the class for managing all EMIT components.
@@ -387,7 +388,7 @@ class EmitComponents(object):
         return o
 
 
-class EmitComponent(object):
+class EmitComponent(PyAedtBase):
     """A component in the EMIT schematic."""
 
     # Dictionary of subclass types. Register each subclass types with
@@ -1036,7 +1037,7 @@ class EmitRadioComponent(EmitComponent):
         return samp_node[0]
 
 
-class EmitComponentPropNode(object):
+class EmitComponentPropNode(PyAedtBase):
     def __init__(self, editor, design, parent_component, node_name):
         self.oeditor = editor
         """Oeditor module"""

@@ -45,8 +45,9 @@ except ImportError:  # pragma: no cover
     )
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 
@@ -173,7 +174,7 @@ def merge_dict(d1: dict, d2: dict) -> dict:
 
 
 @total_ordering
-class MemoryGB(object):
+class MemoryGB(PyAedtBase):
     """Represent memory with conversion to *gigabytes* and arithmetic.
 
     Parameters
@@ -388,7 +389,7 @@ ATTR_MAPPING = {
 }
 
 
-class ProfileStepSummary(object):
+class ProfileStepSummary(PyAedtBase):
     """Summary information for a single profile step.
 
     This light-weight container extracts a small set of common metrics
@@ -429,7 +430,7 @@ class ProfileStepSummary(object):
         return self
 
 
-class ProfileStep(object):
+class ProfileStep(PyAedtBase):
     """A profile step possibly containing nested sub-steps.
 
     Parameters
@@ -932,7 +933,7 @@ def convert_icepak_info(info_str: str) -> tuple:
     return elapsed, memory
 
 
-class SimulationProfile(object):
+class SimulationProfile(PyAedtBase):
     """Container for all profile data from a single simulation.
 
     This class parses a *Solution Process Group* and exposes convenience
@@ -1425,7 +1426,7 @@ def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
     return _merge_profiles(profiles)  # Merge "groups" into a single simulation profile.
 
 
-class Profiles(Mapping):
+class Profiles(Mapping, PyAedtBase):
     """Provide an interface to solver profiles.
 
     The Profiles class is iterable. Individual profiles are accessed via the unique

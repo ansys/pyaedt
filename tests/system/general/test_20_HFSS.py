@@ -36,8 +36,8 @@ from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
-from tests.system.general.conftest import config
-from tests.system.general.conftest import settings
+from tests.conftest import config
+from tests.conftest import settings
 
 small_number = 1e-10  # Used for checking equivalence.
 
@@ -1477,11 +1477,11 @@ class TestClass:
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "sphere.stl")
-        from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+        from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
 
-        out = simplify_stl(example_project, decimation=0.8)
+        out = simplify_and_preview_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
-        out = simplify_stl(example_project, decimation=0.8, preview=True)
+        out = simplify_and_preview_stl(example_project, decimation=0.8, preview=True)
         assert out
 
     def test_60_set_variable(self):

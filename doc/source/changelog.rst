@@ -9,6 +9,306 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.21.2 <https://github.com/ansys/pyaedt/releases/tag/v0.21.2>`_ - October 17, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update Report type according to Solution Type in CreateOutputVariable
+          - `#6726 <https://github.com/ansys/pyaedt/pull/6726>`_
+
+        * - Update extension directory path handling in add_script_to_menu function
+          - `#6779 <https://github.com/ansys/pyaedt/pull/6779>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.21.1
+          - `#6777 <https://github.com/ansys/pyaedt/pull/6777>`_
+
+
+`0.21.1 <https://github.com/ansys/pyaedt/releases/tag/v0.21.1>`_ - October 16, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add dir as property
+          - `#6716 <https://github.com/ansys/pyaedt/pull/6716>`_
+
+        * - Project sheet
+          - `#6757 <https://github.com/ansys/pyaedt/pull/6757>`_
+
+        * - Update extension handling
+          - `#6758 <https://github.com/ansys/pyaedt/pull/6758>`_
+
+        * - Enhance custom extension dialog with display name and validation checks
+          - `#6760 <https://github.com/ansys/pyaedt/pull/6760>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump peter-evans/create-or-update-comment from 4.0.0 to 5.0.0
+          - `#6753 <https://github.com/ansys/pyaedt/pull/6753>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#6755 <https://github.com/ansys/pyaedt/pull/6755>`_
+
+        * - Fix doc wheelhouse Installation.rst
+          - `#6765 <https://github.com/ansys/pyaedt/pull/6765>`_
+
+        * - Update troubleshooting guide with extension troubleshooting
+          - `#6771 <https://github.com/ansys/pyaedt/pull/6771>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - F-string usage for IronPython compatibility
+          - `#6748 <https://github.com/ansys/pyaedt/pull/6748>`_
+
+        * - Design type check and update points cloud extension call
+          - `#6750 <https://github.com/ansys/pyaedt/pull/6750>`_
+
+        * - Added additional check to is_solved for circuit analysis
+          - `#6759 <https://github.com/ansys/pyaedt/pull/6759>`_
+
+        * - Fixed the issue of comp name same as model name in ibis file which caused issue in mapping
+          - `#6761 <https://github.com/ansys/pyaedt/pull/6761>`_
+
+        * - GeometryModeler __getitem__ for AEDT 24R2
+          - `#6762 <https://github.com/ansys/pyaedt/pull/6762>`_
+
+        * - _import_cad
+          - `#6764 <https://github.com/ansys/pyaedt/pull/6764>`_
+
+        * - Add platform-specific console termination handling in console_setup.py
+          - `#6766 <https://github.com/ansys/pyaedt/pull/6766>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add \`\`ansys/actions/check-actions-security\`\` action and related fixes
+          - `#6743 <https://github.com/ansys/pyaedt/pull/6743>`_
+
+        * - Update CHANGELOG for v0.21.0
+          - `#6746 <https://github.com/ansys/pyaedt/pull/6746>`_
+
+        * - Bump 0.22.dev0
+          - `#6747 <https://github.com/ansys/pyaedt/pull/6747>`_
+
+
+`0.21.0 <https://github.com/ansys/pyaedt/releases/tag/v0.21.0>`_ - October 09, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add background update check for PyAEDT with user notification
+          - `#6739 <https://github.com/ansys/pyaedt/pull/6739>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.1.2 to 10.1.4
+          - `#6735 <https://github.com/ansys/pyaedt/pull/6735>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix a bug in TouchstoneData class that occurs when the port names are not correctly parsed.
+          - `#6715 <https://github.com/ansys/pyaedt/pull/6715>`_
+
+        * - Removed duplicated numbers.py
+          - `#6721 <https://github.com/ansys/pyaedt/pull/6721>`_
+
+        * - Fix issue 6719 get_string_version
+          - `#6722 <https://github.com/ansys/pyaedt/pull/6722>`_
+
+        * - Update some emit params
+          - `#6728 <https://github.com/ansys/pyaedt/pull/6728>`_
+
+        * - Fixed generated jsons test issue
+          - `#6729 <https://github.com/ansys/pyaedt/pull/6729>`_
+
+        * - Enhance package installation process with fallback to pip if uv fails
+          - `#6730 <https://github.com/ansys/pyaedt/pull/6730>`_
+
+        * - Version manager pip fallback
+          - `#6732 <https://github.com/ansys/pyaedt/pull/6732>`_
+
+        * - Enable to import the lib again from MacOS
+          - `#6738 <https://github.com/ansys/pyaedt/pull/6738>`_
+
+        * - Fixed pedb bug
+          - `#6741 <https://github.com/ansys/pyaedt/pull/6741>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.20.1
+          - `#6714 <https://github.com/ansys/pyaedt/pull/6714>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Solution Data
+          - `#6706 <https://github.com/ansys/pyaedt/pull/6706>`_
+
+
+`0.20.1 <https://github.com/ansys/pyaedt/releases/tag/v0.20.1>`_ - October 01, 2025
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Panels update automatically after update
+          - `#6690 <https://github.com/ansys/pyaedt/pull/6690>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.1.1 to 10.1.2
+          - `#6693 <https://github.com/ansys/pyaedt/pull/6693>`_
+
+        * - Update grpcio requirement from <1.75,>=1.50.0 to >=1.50.0,<1.76
+          - `#6694 <https://github.com/ansys/pyaedt/pull/6694>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add documentation for the pyd folder settings
+          - `#6689 <https://github.com/ansys/pyaedt/pull/6689>`_
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#6697 <https://github.com/ansys/pyaedt/pull/6697>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Increased width to fit elements
+          - `#6691 <https://github.com/ansys/pyaedt/pull/6691>`_
+
+        * - Add -- to uv to pass options to pip
+          - `#6696 <https://github.com/ansys/pyaedt/pull/6696>`_
+
+        * - Added point cloud generator extension to Maxwell 2D
+          - `#6699 <https://github.com/ansys/pyaedt/pull/6699>`_
+
+        * - Ibis import of models when multiple component have same name
+          - `#6705 <https://github.com/ansys/pyaedt/pull/6705>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.20.0
+          - `#6683 <https://github.com/ansys/pyaedt/pull/6683>`_
+
+        * - Fix nightly doc build (temporary)
+          - `#6684 <https://github.com/ansys/pyaedt/pull/6684>`_
+
+        * - Remove caching from wheelhouse
+          - `#6685 <https://github.com/ansys/pyaedt/pull/6685>`_
+
+        * - Bump v0.21.dev0
+          - `#6686 <https://github.com/ansys/pyaedt/pull/6686>`_
+
+        * - Remove ansys processes on self-hosted
+          - `#6687 <https://github.com/ansys/pyaedt/pull/6687>`_
+
+        * - Improve pyaedt installer script
+          - `#6702 <https://github.com/ansys/pyaedt/pull/6702>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Nastran import refactoring
+          - `#6236 <https://github.com/ansys/pyaedt/pull/6236>`_
+
+
 `0.20.0 <https://github.com/ansys/pyaedt/releases/tag/v0.20.0>`_ - September 26, 2025
 =====================================================================================
 
