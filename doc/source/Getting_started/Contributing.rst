@@ -342,7 +342,7 @@ behaves as expected when integrated into the AEDT environment.
     assert 7 == len(aedt_app.variable_manager.variables)
 
 Running tests in Visual Studio Code and PyCharm
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section explains how to run pytest unit and system tests in Visual Studio Code and PyCharm, and how to estimate coverage
 using the "Run with coverage" feature or pytest-cov.
@@ -357,7 +357,7 @@ Prerequisites
 
 - Ensure your IDE is configured to use the Python interpreter where the packages are installed.
 
-Visual studio code
+Visual Studio Code
 ~~~~~~
 
 1. Use the Test Explorer (Python extension) to discover and run tests:
@@ -384,8 +384,8 @@ You can also run tests with coverage from a terminal in Visual Studio Code using
 
 This is an example command to run unit tests with coverage. Adjust the path to your test files as needed.
 
-PyCharm
-~~~~~~~
+PyCharm IDE
+~~~~~~~~~~~
 
 1. Configure pytest as the test runner:
    - Settings -> Tools -> Python Integrated Tools -> Default test runner -> pytest
@@ -453,3 +453,71 @@ Also, another card should be added to the
 ``doc/source/User_guide/pyaedt_extensions_doc/project/index.rst`` file to link to the extension's documentation page.
 This ensures that the extension is discoverable in the documentation from the multiple pages that list all the
 extensions available in PyAEDT.
+
+
+Local testing parameters
+------------------------
+
+Two configuration files control test behavior:
+
+- ``tests/local_config.json``: Contains parameters intended for modification during local testing.
+  These settings control test execution behavior such as desktop version, graphical mode, and feature flags.
+  **This file does not exist by default and must be created manually** in the ``tests/`` directory.
+
+- ``tests/pyaedt_settings.yaml``: Contains default PyAEDT settings applied to all tests.
+  These settings are not intended for local modification.
+
+Creating local_config.json
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To customize local test execution, create a ``local_config.json`` file in the ``tests/`` directory
+at the top level of the repository. Below is an example configuration with descriptions of each parameter:
+
+.. code-block:: json
+
+  {
+      "desktopVersion": "2025.2",
+      "NonGraphical": true,
+      "NewThread": true,
+      "skip_circuits": false,
+      "use_grpc": true,
+      "close_desktop": true,
+      "use_local_example_data": false,
+      "local_example_folder": "",
+      "skip_modelithics": true
+  }
+
+Parameter descriptions:
+
+- ``desktopVersion``: AEDT version to use for testing (e.g., "2025.2", "2024.1").
+- ``NonGraphical``: When ``true``, runs AEDT in non-graphical mode (headless).
+- ``NewThread``: Opens AEDT in a new thread.
+- ``skip_circuits``: When ``true``, skips Circuit-related tests.
+- ``use_grpc``: When ``true``, uses gRPC API for communication with AEDT.
+- ``close_desktop``: When ``true``, closes AEDT after tests complete.
+- ``use_local_example_data``: When ``true``, uses local example data for tests.
+- ``local_example_folder``: Path to the local example data folder.
+- ``skip_modelithics``: When ``true``, skips Modelithics-related tests.
+
+Replicating CI/CD environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CI/CD pipeline loads ``pyaedt_settings.yaml`` via the environment variable:
+
+.. code:: bash
+
+  PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+To replicate the CI/CD environment locally, set this environment variable on your machine:
+
+- **Windows (PowerShell)**:
+
+.. code:: powershell
+
+  $env:PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+- **Linux (Bash)**:
+
+.. code:: bash
+
+  export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml' 
