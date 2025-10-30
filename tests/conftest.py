@@ -95,6 +95,12 @@ os.environ["PYAEDT_SCRIPT_VERSION"] = config.get("desktopVersion", DEFAULT_CONFI
 # Add current path to sys.path for imports
 sys.path.append(str(local_path))
 
+# NOTE: Additional environment configuration for error handling when the tests are
+# run locally and not in a CI environment.
+if "PYAEDT_LOCAL_SETTINGS_PATH" not in os.environ:
+    settings.enable_error_handler = False
+    settings.release_on_exception = False
+
 
 def generate_random_string(length):
     """Generate a random string of specified length."""
