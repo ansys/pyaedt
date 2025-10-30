@@ -240,6 +240,7 @@ def test_extension_manager_canvas_theme_application(add_app):
 
             # Clean up test canvas
             test_canvas.destroy()
+            raise tkinter.TclError("Force error to exit cleanly")
 
     finally:
         extension.root.destroy()
