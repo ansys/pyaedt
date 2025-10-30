@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.templates.pyaedt_utils import *
+from ansys.aedt.extensions.templates.pyaedt_utils import *

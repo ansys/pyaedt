@@ -32,14 +32,14 @@ from tkinter import filedialog
 from tkinter import ttk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
-from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_arguments
-from ansys.aedt.core.extensions.misc import get_port
-from ansys.aedt.core.extensions.misc import get_process_id
-from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.extensions.misc import ExtensionProjectCommon
+from ansys.aedt.extensions.misc import get_aedt_version
+from ansys.aedt.extensions.misc import get_arguments
+from ansys.aedt.extensions.misc import get_port
+from ansys.aedt.extensions.misc import get_process_id
+from ansys.aedt.extensions.misc import is_student
 
 PORT = get_port()
 VERSION = get_aedt_version()

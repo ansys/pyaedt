@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.project.create_report import *
+from ansys.aedt.extensions.project.create_report import *
