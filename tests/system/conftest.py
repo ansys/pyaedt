@@ -33,7 +33,6 @@ from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.hfss import Hfss
-from tests import TESTS_EXTENSIONS_PATH
 from tests import TESTS_FILTER_SOLUTIONS_PATH
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
@@ -73,8 +72,6 @@ def _get_test_path_from_caller():
                     return TESTS_VISUALIZATION_PATH
                 elif "solvers" in filename:
                     return TESTS_SOLVERS_PATH
-                elif "extensions" in filename:
-                    return TESTS_EXTENSIONS_PATH
                 elif "filter_solutions" in filename:
                     return TESTS_FILTER_SOLUTIONS_PATH
                 else:

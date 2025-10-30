@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.circuit import *
+from ansys.aedt.extensions.circuit import *

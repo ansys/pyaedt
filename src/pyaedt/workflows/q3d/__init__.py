@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.q3d import *
+from ansys.aedt.extensions.q3d import *

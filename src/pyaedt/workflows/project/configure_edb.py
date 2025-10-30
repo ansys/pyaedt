@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.project.configure_edb import *
+from ansys.aedt.extensions.project.configure_edb import *

@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.hfss3dlayout import *
+from ansys.aedt.extensions.hfss3dlayout import *

@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.installer.pyaedt_installer import *
+from ansys.aedt.extensions.installer.pyaedt_installer import *

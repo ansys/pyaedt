@@ -42,7 +42,7 @@ import PIL.Image
 import PIL.ImageTk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ToolTip, check_for_pyaedt_update, get_aedt_version, get_latest_version, get_port, get_process_id
+from ansys.aedt.extensions.misc import ToolTip, check_for_pyaedt_update, get_aedt_version, get_latest_version, get_port, get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
 
 defusedxml.defuse_stdlib()
@@ -98,7 +98,7 @@ class VersionManager:
 
     @property
     def aedt_version(self):
-        from ansys.aedt.core.extensions.misc import get_aedt_version
+        from ansys.aedt.extensions.misc import get_aedt_version
         return get_aedt_version()
 
     @property
@@ -106,7 +106,7 @@ class VersionManager:
         return self.desktop.personallib
 
     def __init__(self, ui, desktop):
-        from ansys.aedt.core.extensions.misc import ExtensionTheme
+        from ansys.aedt.extensions.misc import ExtensionTheme
 
         self.desktop = desktop
         self.is_linux = is_linux
