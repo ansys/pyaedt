@@ -1438,6 +1438,10 @@ class SetupCircuit(CommonSetup):
 
     @pyaedt_function_handler()
     def _add_sweep(self, sweep_variable, equation, override_existing_sweep):
+        if "SweepDefinition" not in self.props:
+            self.props["SweepDefinition"] = dict(
+                {"Variable": "Freq", "Data": "LINC 1GHz 5GHz 501", "OffsetF1": False, "Synchronize": 0}
+            )
         if isinstance(self.props["SweepDefinition"], list):
             for sw in self.props["SweepDefinition"]:
                 if sw["Variable"] == sweep_variable:
