@@ -110,4 +110,3 @@ class CouplingsNode(EmitNode):
         """All tags currently used by all antennas in the project."""
         val = self._get_property("Antenna Tags")
         return val
-

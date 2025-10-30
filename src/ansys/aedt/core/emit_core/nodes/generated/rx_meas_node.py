@@ -23,7 +23,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from enum import Enum
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
@@ -88,4 +87,3 @@ class RxMeasNode(EmitNode):
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
-
