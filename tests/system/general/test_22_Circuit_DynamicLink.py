@@ -109,13 +109,13 @@ class TestClass:
     def test_02_add_subcircuits_3dlayout(self, aedtapp):
         layout_design = "layout_cutout"
         hfss3Dlayout_comp = aedtapp.modeler.schematic.add_subcircuit_3dlayout(layout_design)
-        assert hfss3Dlayout_comp.id == 86
+        assert hfss3Dlayout_comp.id == "86"
         assert hfss3Dlayout_comp
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_03_add_subcircuits_hfss_link(self, uusb, aedtapp):
         hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
-        assert hfss_comp.id == 86
+        assert hfss_comp.id == "86"
         assert aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")

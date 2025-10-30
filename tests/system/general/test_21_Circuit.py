@@ -96,18 +96,18 @@ class TestClass:
 
     def test_01a_create_inductor(self, aedtapp):
         myind = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
-        assert type(myind.id) is int
+        assert type(myind.id) is str
         assert myind.parameters["L"] == "1e-09"
 
     def test_02_create_resistor(self, aedtapp):
         myres = aedtapp.modeler.schematic.create_resistor(value=50, location=[2000, 1000])
         assert myres.refdes != ""
-        assert type(myres.id) is int
+        assert type(myres.id) is str
         assert myres.parameters["R"] == "50"
 
     def test_03_create_capacitor(self, aedtapp):
         mycap = aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
-        assert type(mycap.id) is int
+        assert type(mycap.id) is str
         assert mycap.parameters["C"] == "1e-12"
         tol = 1e-12
         assert abs(mycap.pins[0].location[1] - 2000) < tol
@@ -116,7 +116,7 @@ class TestClass:
     def test_04_getpin_names(self, aedtapp):
         mycap2 = aedtapp.modeler.schematic.create_capacitor(value=1e-12)
         pinnames = aedtapp.modeler.schematic.get_pins(mycap2)
-        pinnames2 = aedtapp.modeler.schematic.get_pins(mycap2.id)
+        pinnames2 = aedtapp.modeler.schematic.get_pins(int(mycap2.id))
         pinnames3 = aedtapp.modeler.schematic.get_pins(mycap2.composed_name)
         assert pinnames2 == pinnames3
         assert type(pinnames) is list
@@ -457,7 +457,7 @@ class TestClass:
     def test_30_create_subcircuit(self, aedtapp):
         subcircuit = aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
         assert type(subcircuit.location) is list
-        assert type(subcircuit.id) is int
+        assert type(subcircuit.id) is str
         assert subcircuit.component_info
         assert subcircuit.location[0] == 0.0
         assert subcircuit.location[1] == 0.0
@@ -473,7 +473,7 @@ class TestClass:
         new_subcircuit = aedtapp.modeler.schematic.duplicate(subcircuit.composed_name, location=[0.0508, 0.0], angle=0)
 
         assert type(new_subcircuit.location) is list
-        assert type(new_subcircuit.id) is int
+        assert type(new_subcircuit.id) is str
         assert new_subcircuit.location[0] == 0.04826
         assert new_subcircuit.location[1] == -0.00254
         assert new_subcircuit.angle == 0.0
@@ -544,7 +544,7 @@ class TestClass:
 
     def test_36_create_voltage_probe(self, aedtapp):
         myprobe = aedtapp.modeler.components.create_voltage_probe(name="voltage_probe")
-        assert type(myprobe.id) is int
+        assert type(myprobe.id) is str
 
     def test_37_draw_graphical_primitives(self, aedtapp):
         line = aedtapp.modeler.components.create_line([[0, 0], [1, 1]])
@@ -874,7 +874,7 @@ class TestClass:
         # default inputs
         myres = aedtapp.modeler.schematic.create_voltage_pwl(name="V1")
         assert myres.refdes != ""
-        assert type(myres.id) is int
+        assert type(myres.id) is str
         assert myres.parameters["time1"] == "0s"
         assert myres.parameters["time2"] == "0s"
         assert myres.parameters["val1"] == "0V"
@@ -882,7 +882,7 @@ class TestClass:
         # time and voltage input list
         myres = aedtapp.modeler.schematic.create_voltage_pwl(name="V2", time_list=[0, "1u"], voltage_list=[0, 1])
         assert myres.refdes != ""
-        assert type(myres.id) is int
+        assert type(myres.id) is str
         assert myres.parameters["time1"] == "0"
         assert myres.parameters["time2"] == "1u"
         assert myres.parameters["val1"] == "0"
@@ -1040,10 +1040,10 @@ class TestClass:
 
     def test_52_create_current_probe(self, aedtapp):
         iprobe = aedtapp.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
-        assert type(iprobe.id) is int
+        assert type(iprobe.id) is str
         assert iprobe.InstanceName == "test_probe"
         iprobe2 = aedtapp.modeler.schematic.create_current_probe(location=[0.8, 0.2])
-        assert type(iprobe2.id) is int
+        assert type(iprobe2.id) is str
 
     def test_53_import_table(self, aedtapp):
         file_header = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "table_header.csv"
