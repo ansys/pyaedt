@@ -85,13 +85,8 @@ def test_version_manager_initialization(add_app):
             assert isinstance(vm.activated_env, dict)
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -124,13 +119,8 @@ def test_version_manager_venv_properties(add_app):
             assert all(part.isdigit() for part in version_parts)
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -162,13 +152,8 @@ def test_version_manager_theme_toggle(add_app):
             assert vm.theme_color == "light"
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -199,13 +184,8 @@ def test_version_manager_activate_venv(add_app):
             assert vm.activated_env["VIRTUAL_ENV"] == str(vm.venv_path)
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -237,13 +217,8 @@ def test_version_manager_get_installed_version(add_app):
             assert fake_version == "Please restart"
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -276,13 +251,8 @@ def test_version_manager_version_properties(add_app):
             assert personal_lib is not None
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -309,13 +279,8 @@ def test_version_manager_is_git_available(add_app):
             assert isinstance(is_available, bool)
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -344,13 +309,8 @@ def test_version_manager_clicked_refresh(add_app):
             assert len(venv_info) > 0
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -376,13 +336,8 @@ def test_version_manager_platform_detection(add_app):
             assert vm.is_linux != vm.is_windows  # Should be opposite
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
 
 
@@ -412,11 +367,6 @@ def test_version_manager_string_vars_initialization(add_app):
             assert vm.pyedb_branch_name.get() == "main"
             
             raise tkinter.TclError("Force error to exit cleanly")
-    except tkinter.TclError:
-        pass
     finally:
-        try:
-            root.destroy()
-        except:
-            pass
+        root.destroy()
         aedtapp.close_project(aedtapp.project_name)
