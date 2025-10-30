@@ -1919,8 +1919,30 @@ class TestClass:
 
         radio_node: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
 
+        # test deprecated rename
+        radio_node.rename("Ansys")
+        assert radio_node.name == "Ansys"
+
+        # rename the radio
+        radio_node.name = "Synopsys"
+        assert radio_node.name == "Synopsys"
+
+        # try renaming the Emitter to an invalid value
+        # TODO: the next two lines are only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        rev = emit_app.results.analyze()
+        emitter_node = rev.get_component_node(emitter_name)
+        with pytest.raises(GrpcApiError) as exc_info:
+            emitter_node.name = "Synopsys"
+        assert "Failed to execute gRPC AEDT command: RenameComponent" in str(exc_info.value)
+
+        # get the radio's band
         band: Band = radio_node.children[0]
         assert isinstance(band, Band)
+
+        # rename a node
+        band.name = "Test"
+        assert band.name == "Test"
 
         radio_tx_spec: TxSpectralProfNode = band.children[0]
         assert isinstance(radio_tx_spec, TxSpectralProfNode)
@@ -1962,26 +1984,9 @@ class TestClass:
         assert isinstance(radio_rx_spurs, RxSpurNode)
         assert len(radio_rx_spurs.table_data) == 0
 
-        # test deprecated rename
-        radio_node.rename("Ansys")
-        assert radio_node.name == "Ansys"
-
-        # rename the radio
-        radio_node.name = "Synopsys"
-        assert radio_node.name == "Synopsys"
-
-        # try renaming the Emitter to an invalid value
-        with pytest.raises(GrpcApiError) as excinfo:
-            emitter_node.name = "Synopsys"
-        assert "Failed to execute gRPC AEDT command: RenameComponent" in str(excinfo.value)
-
-        # rename a node
-        band.name = "Test"
-        assert band.name == "Test"
-
         # Test deleting components
         emit_app.schematic.delete_component(radio_node.name)
-        # the next two lines are only needed for 25.2, which had
+        # TODO: the next two lines are only needed for 25.2, which had
         # some instability in maintaining the node_ids
         rev = emit_app.results.analyze()
         emitter_node = rev.get_component_node(emitter_name)
