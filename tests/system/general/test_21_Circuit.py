@@ -296,7 +296,10 @@ class TestClass:
         setup_name = "Dom_Quick"
         assert aedtapp.create_setup(setup_name, "NexximQuickEye")
         setup_name = "Dom_AMI"
-        assert aedtapp.create_setup(setup_name, "NexximAMI")
+        setup = aedtapp.create_setup(setup_name, "NexximAMI")
+        assert setup
+        setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
+        assert setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
     @pytest.mark.skipif(
         is_linux and config["desktopVersion"] == "2024.1",
