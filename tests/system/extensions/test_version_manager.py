@@ -28,17 +28,14 @@ import tkinter
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.installer.version_manager import (
-    VersionManager,
-)
+from ansys.aedt.core.extensions.installer.version_manager import VersionManager
 
 
 @pytest.fixture(autouse=True)
 def disable_pyaedt_update_check(monkeypatch):
     """Prevent update check during tests."""
     monkeypatch.setattr(
-        "ansys.aedt.core.extensions.installer.version_manager."
-        "VersionManager.check_for_pyaedt_update_on_startup",
+        "ansys.aedt.core.extensions.installer.version_manager.VersionManager.check_for_pyaedt_update_on_startup",
         lambda self: None,
     )
     yield
@@ -63,7 +60,7 @@ def test_version_manager_initialization(add_app):
         # Create version manager
         with pytest.raises(tkinter.TclError):
             vm = VersionManager(root, desktop)
-            
+
             # Verify basic initialization
             assert vm.root is not None
             assert vm.desktop is not None
@@ -83,7 +80,7 @@ def test_version_manager_initialization(add_app):
             # Verify environment activation
             assert vm.activated_env is not None
             assert isinstance(vm.activated_env, dict)
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -117,7 +114,7 @@ def test_version_manager_venv_properties(add_app):
             version_parts = vm.python_version.split(".")
             assert len(version_parts) == 2
             assert all(part.isdigit() for part in version_parts)
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -150,7 +147,7 @@ def test_version_manager_theme_toggle(add_app):
             # Toggle back to light theme
             vm.toggle_theme()
             assert vm.theme_color == "light"
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -182,7 +179,7 @@ def test_version_manager_activate_venv(add_app):
 
             # Verify VIRTUAL_ENV points to venv_path
             assert vm.activated_env["VIRTUAL_ENV"] == str(vm.venv_path)
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -211,11 +208,9 @@ def test_version_manager_get_installed_version(add_app):
             assert pyaedt_version != "Unknown"
 
             # Test getting version of non-existent package
-            fake_version = vm.get_installed_version(
-                "nonexistent-package-xyz"
-            )
+            fake_version = vm.get_installed_version("nonexistent-package-xyz")
             assert fake_version == "Please restart"
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -249,7 +244,7 @@ def test_version_manager_version_properties(add_app):
 
             personal_lib = vm.personal_lib
             assert personal_lib is not None
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -277,7 +272,7 @@ def test_version_manager_is_git_available(add_app):
 
             # Result should be boolean
             assert isinstance(is_available, bool)
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -307,7 +302,7 @@ def test_version_manager_clicked_refresh(add_app):
             venv_info = vm.venv_information.get()
             assert venv_info is not None
             assert len(venv_info) > 0
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -334,7 +329,7 @@ def test_version_manager_platform_detection(add_app):
             assert isinstance(vm.is_linux, bool)
             assert isinstance(vm.is_windows, bool)
             assert vm.is_linux != vm.is_windows  # Should be opposite
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
@@ -365,7 +360,7 @@ def test_version_manager_string_vars_initialization(add_app):
             # Verify branch name variables
             assert vm.pyaedt_branch_name.get() == "main"
             assert vm.pyedb_branch_name.get() == "main"
-            
+
             raise tkinter.TclError("Force error to exit cleanly")
     finally:
         root.destroy()
