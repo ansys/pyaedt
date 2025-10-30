@@ -59,22 +59,6 @@ class TxSpectralProfNode(EmitNode):
         """Add Transmitter Spurs"""
         return self._add_child_node("Spurious Emissions")
 
-    def add_narrowband_emissions_mask(self):
-        """Add a Transmitter Narrowband Emission Profile"""
-        return self._add_child_node("Narrowband Emissions Mask")
-
-    def add_tx_broadband_noise_profile(self):
-        """Add a Transmitter Broadband Emission Profile"""
-        return self._add_child_node("Tx Broadband Noise Profile")
-
-    def add_custom_tx_harmonics(self):
-        """Add Custom Tx Harmonics"""
-        return self._add_child_node("Custom Tx Harmonics")
-
-    def add_spurious_emissions(self):
-        """Add Transmitter Spurs"""
-        return self._add_child_node("Spurious Emissions")
-
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
