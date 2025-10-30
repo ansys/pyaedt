@@ -31,7 +31,7 @@ from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from tests.system.extensions.conftest import config
+from tests.conftest import config
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "T45"

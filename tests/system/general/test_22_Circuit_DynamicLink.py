@@ -31,7 +31,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfloder = "T22"
 test_project_name = "Dynamic_Link"
