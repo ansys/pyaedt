@@ -25,12 +25,8 @@
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    AEDT_APPLICATIONS,
-)
-from ansys.aedt.core.extensions.installer.extension_manager import (
-    ExtensionManager,
-)
+from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
+from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
 
 
 @pytest.fixture(autouse=True)
@@ -230,6 +226,7 @@ def test_extension_manager_canvas_theme_application(add_app):
 
     try:
         import tkinter
+
         with pytest.raises(tkinter.TclError):
             # Create a test canvas
             test_canvas = tkinter.Canvas(extension.root)
