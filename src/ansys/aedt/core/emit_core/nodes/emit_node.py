@@ -91,6 +91,28 @@ class EmitNode:
         """
         return self._get_property("Name", True)
 
+    @name.setter
+    def name(self, requested_name: str):
+        """Renames the node/component.
+
+        Parameters
+        ----------
+        requested_name : str
+            New name for the node/component.
+
+        Raises
+        ------
+        ValueError
+            If the node is read-only or cannot be renamed.
+        """
+        if self._result_id > 0:
+            raise ValueError("This node is read-only for kept results.")
+
+        if self.get_is_component():
+            self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
+        else:
+            _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+
     @property
     def _node_type(self) -> str:
         """Type of the node.
@@ -276,9 +298,9 @@ class EmitNode:
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
-    def _set_property(self, prop, value):
+    def _set_property(self, prop, value, skipChecks=False):
         try:
-            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], True)
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
         except Exception:
             error_text = None
             if len(self._emit_obj.logger.messages.error_level) > 0:
@@ -408,6 +430,9 @@ class EmitNode:
     def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
 
+        .. deprecated: 0.21.3
+            Use name property instead
+
         Parameters
         ----------
         requested_name : str
@@ -423,15 +448,10 @@ class EmitNode:
         ValueError
             If the node is read-only and cannot be renamed.
         """
-        if self.get_is_component():
-            if self._result_id > 0:
-                raise ValueError("This node is read-only for kept results.")
-            self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
-            new_name = requested_name
-        else:
-            new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+        warnings.warn("This property is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
+        self.name = requested_name
 
-        return new_name
+        return self.name
 
     def _duplicate(self, new_name):
         raise NotImplementedError("This method is not implemented yet.")
@@ -563,7 +583,7 @@ class EmitNode:
                 # with ';' separating rows and '|' separating columns
                 table_key = self._get_property("TableKey", True)
                 data = ";".join("|".join(map(str, row)) for row in table)
-                self._set_property(table_key, data)
+                self._set_property(table_key, data, True)
         except Exception as e:
             print(f"Failed to set table data for node {self.name}. Error: {e}")
 

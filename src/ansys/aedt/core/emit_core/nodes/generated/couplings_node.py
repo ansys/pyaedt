@@ -28,8 +28,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class CouplingsNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def node_type(self) -> str:
@@ -110,3 +110,4 @@ class CouplingsNode(EmitNode):
         """All tags currently used by all antennas in the project."""
         val = self._get_property("Antenna Tags")
         return val
+

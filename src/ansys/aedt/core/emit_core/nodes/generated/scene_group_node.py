@@ -30,8 +30,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class SceneGroupNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -43,9 +43,17 @@ class SceneGroupNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    def add_emitter(self):
+        """Add a new emitter"""
+        return self._add_child_node("Emitter")
+
     def add_group(self):
         """Add a new scene group"""
         return self._add_child_node("Group")
+
+    def import_cad(self, file_name):
+        """Add an existing CAD file"""
+        return self._import(file_name, "CAD")
 
     def add_antenna(self):
         """Add a new antenna"""

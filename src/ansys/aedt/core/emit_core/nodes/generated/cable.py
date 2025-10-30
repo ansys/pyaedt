@@ -30,8 +30,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class Cable(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
@@ -180,3 +180,4 @@ class Cable(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

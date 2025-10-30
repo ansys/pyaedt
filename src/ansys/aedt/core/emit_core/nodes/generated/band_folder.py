@@ -28,8 +28,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class BandFolder(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -56,3 +56,4 @@ class BandFolder(EmitNode):
     def delete(self):
         """Delete this node"""
         self._delete()
+

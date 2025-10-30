@@ -30,8 +30,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class SamplingNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -154,3 +154,4 @@ class SamplingNode(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

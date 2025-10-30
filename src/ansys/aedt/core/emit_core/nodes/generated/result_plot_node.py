@@ -30,21 +30,13 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class ResultPlotNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
-
-    def add_marker(self):
-        """Add an icon and/or label to this plot"""
-        return self._add_child_node("Plot Marker")
-
-    def export_model(self, file_name):
-        """Save this data to a file"""
-        return self._export_model(file_name)
 
     @property
     def title(self) -> str:
@@ -109,58 +101,6 @@ class ResultPlotNode(EmitNode):
         self._set_property("Show EMI Thresholds", f"{str(value).lower()}")
 
     @property
-    def display_cad_overlay(self) -> bool:
-        """Toggle on/off overlay of CAD model in plot.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Display CAD Overlay")
-        return val == "true"
-
-    @display_cad_overlay.setter
-    def display_cad_overlay(self, value: bool):
-        self._set_property("Display CAD Overlay", f"{str(value).lower()}")
-
-    @property
-    def opacity(self) -> float:
-        """Adjust opacity of CAD model overlay: 0 Transparent - 1 Opaque.
-
-        Value should be between 0 and 100.
-        """
-        val = self._get_property("Opacity")
-        return float(val)
-
-    @opacity.setter
-    def opacity(self, value: float):
-        self._set_property("Opacity", f"{value}")
-
-    @property
-    def vertical_offset(self) -> float:
-        """Adjust vertical position of CAD model overlay."""
-        val = self._get_property("Vertical Offset")
-        return float(val)
-
-    @vertical_offset.setter
-    def vertical_offset(self, value: float):
-        self._set_property("Vertical Offset", f"{value}")
-
-    @property
-    def range_axis_rotation(self) -> float:
-        """Range Axis Rotation.
-
-        Adjust view angle for CAD model overlay by rotating it about plot
-        horizontal axis.
-
-        Value should be between -180 and 180.
-        """
-        val = self._get_property("Range Axis Rotation")
-        return float(val)
-
-    @range_axis_rotation.setter
-    def range_axis_rotation(self, value: float):
-        self._set_property("Range Axis Rotation", f"{value}")
-
-    @property
     def lock_axes(self) -> bool:
         """Lock Axes.
 
@@ -215,22 +155,6 @@ class ResultPlotNode(EmitNode):
     @y_axis_max.setter
     def y_axis_max(self, value: float):
         self._set_property("Y-axis Max", f"{value}")
-
-    @property
-    def y_axis_range(self) -> float:
-        """Y-axis Range.
-
-        Adjust dB span of vertical axis, makes corresponding adjustment in
-        Y-axis Min.
-
-        Value should be greater than 0.
-        """
-        val = self._get_property("Y-axis Range")
-        return float(val)
-
-    @y_axis_range.setter
-    def y_axis_range(self, value: float):
-        self._set_property("Y-axis Range", f"{value}")
 
     @property
     def max_major_ticks_x(self) -> int:

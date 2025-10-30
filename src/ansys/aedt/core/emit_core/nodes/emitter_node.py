@@ -51,8 +51,8 @@ class EmitterNode(EmitNode):
     """
 
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
         self._radio_node = RadioNode(emit_obj, result_id, node_id)
 
         # create_component code provides the radio_id, but we also

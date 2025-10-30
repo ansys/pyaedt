@@ -30,8 +30,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class Band(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -42,6 +42,26 @@ class Band(EmitNode):
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
+
+    def duplicate(self, new_name: str):
+        """Duplicate this node"""
+        return self._duplicate(new_name)
+
+    def delete(self):
+        """Delete this node"""
+        self._delete()
+
+    def rename(self, new_name: str):
+        """Rename this node"""
+        self._rename(new_name)
+
+    def import_rx_measurement(self, file_name):
+        """Import a Measurement from a File..."""
+        return self._import(file_name, "RxMeasurement")
+
+    def import_tx_measurement(self, file_name):
+        """Import a Measurement from a File..."""
+        return self._import(file_name, "TxMeasurement")
 
     @property
     def enabled(self) -> bool:
