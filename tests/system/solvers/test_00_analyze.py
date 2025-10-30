@@ -171,9 +171,13 @@ class TestClass:
         assert profile[key0].product == "HFSS3DLayout"
         assert profile[key0].max_memory() > MemoryGB(0.01)
 
-    def test_3dl_export_profile(self, hfss3dl_solved):
-        assert Path(hfss3dl_solved.export_profile("Setup1")).exists()
-        assert Path(hfss3dl_solved.export_mesh_stats("Setup1")).exists()
+    def test_3dl_export_profile(self, hfss3dl_solved, local_scratch):
+        profile_file = local_scratch.path / "temp.prof"
+        profile_file = Path(hfss3dl_solved.export_profile("Setup1", output_file=profile_file))
+        assert profile_file.exists()
+        mesh_file = local_scratch.path / "temp.msh"
+        mesh_file = Path(hfss3dl_solved.export_mesh_stats("Setup1", output_file=mesh_file))
+        assert mesh_file.exists()
         setup = hfss3dl_solved.setups[0]
         profiles = setup.get_profile()
         key0 = list(profiles.keys())[0]
@@ -186,7 +190,9 @@ class TestClass:
         sweep_names = list(profile.frequency_sweeps.keys())
         assert len(sweep_names) == 1
         sweep_name = sweep_names[0]
-        assert len(profile.frequency_sweeps[sweep_name].frequencies) == 16
+        assert (
+            len(profile.frequency_sweeps[sweep_name].frequencies) > 0
+        )  # This value depends on AEDT version used to solve.
         assert profile.frequency_sweeps[sweep_name].elapsed_time > timedelta(seconds=1)
         assert profile.num_adaptive_passes
         adaptive_passes = profile.num_adaptive_passes
@@ -662,6 +668,16 @@ class TestClass:
         app2 = add_app("assm_test2", application=Rmxprt, solution_type="ASSM")
         app2.import_configuration(config)
         assert app2.circuit
+
+    def test_variations(self, hfss3dl_solved, local_scratch):
+        var_w_expr = hfss3dl_solved.available_variations.nominal_variation(expressions=True)
+        assert var_w_expr["gnd_len"] == "len+gnd_buffer"
+        assert len(var_w_expr) == 4
+        var_w_values = hfss3dl_solved.available_variations.nominal_variation()
+        assert len(var_w_values) == 4
+        assert var_w_values["gnd_len"] == "23.0mm"
+        var_independent = hfss3dl_solved.available_variations.nominal_variation(dependent_params=False)
+        assert len(var_independent) == 3
 
     def test_output_variables_3dlayout(self, hfss3dl_solved):
         hfss3dl_solved.set_differential_pair(
