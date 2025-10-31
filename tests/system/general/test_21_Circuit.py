@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T21"
 
@@ -296,7 +296,10 @@ class TestClass:
         setup_name = "Dom_Quick"
         assert aedtapp.create_setup(setup_name, "NexximQuickEye")
         setup_name = "Dom_AMI"
-        assert aedtapp.create_setup(setup_name, "NexximAMI")
+        setup = aedtapp.create_setup(setup_name, "NexximAMI")
+        assert setup
+        setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
+        assert setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
     @pytest.mark.skipif(
         is_linux and config["desktopVersion"] == "2024.1",
@@ -328,6 +331,10 @@ class TestClass:
             )
             == "MyReport1"
         )
+        rep = ami_design.post.reports_by_category.statistical_eye_contour(
+            setup="AMIAnalysis", expressions=["b_output4_14"]
+        )
+        assert rep.create()
         assert (
             ami_design.post.create_statistical_eye_plot(
                 "Dom_Quick",
@@ -823,7 +830,7 @@ class TestClass:
         l2 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
         aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
 
-        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
+        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True, offset=0.0512)
         assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
         assert l3.pins[0].connect_to_component(l2.pins[1], use_wire=True, clearance_units=2)
         assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
@@ -1107,3 +1114,4 @@ class TestClass:
             circuitprj.create_output_variable(
                 variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
             )
+        assert circuitprj.remove_all_unused_definitions()

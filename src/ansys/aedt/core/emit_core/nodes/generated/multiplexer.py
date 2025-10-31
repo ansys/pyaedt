@@ -33,6 +33,11 @@ class Multiplexer(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_multiplexer_pass_band(self):
         """Add a New Multiplexer Band to this Multiplexer"""
         return self._add_child_node("Multiplexer Pass Band")
@@ -104,34 +109,6 @@ class Multiplexer(EmitNode):
     @type.setter
     def type(self, value: TypeOption):
         self._set_property("Type", f"{value.value}")
-
-    class Port1LocationOption(Enum):
-        RADIO_SIDE = "Radio Side"
-        ANTENNA_SIDE = "Antenna Side"
-
-    @property
-    def port_1_location(self) -> Port1LocationOption:
-        """Defines the orientation of the multiplexer."""
-        val = self._get_property("Port 1 Location")
-        val = self.Port1LocationOption[val.upper()]
-        return val
-
-    @port_1_location.setter
-    def port_1_location(self, value: Port1LocationOption):
-        self._set_property("Port 1 Location", f"{value.value}")
-
-    @property
-    def flip_ports_vertically(self) -> bool:
-        """Reverses the port order on the multi-port side of the multiplexer.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Flip Ports Vertically")
-        return val == "true"
-
-    @flip_ports_vertically.setter
-    def flip_ports_vertically(self, value: bool):
-        self._set_property("Flip Ports Vertically", f"{str(value).lower()}")
 
     @property
     def ports(self):

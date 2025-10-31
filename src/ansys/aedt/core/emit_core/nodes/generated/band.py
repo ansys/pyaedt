@@ -39,23 +39,18 @@ class Band(EmitNode):
         return self._parent
 
     @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property("Enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
-
-    @property
-    def port(self):
-        """Radio Port associated with this Band."""
-        val = self._get_property("Port")
-        return val
-
-    @port.setter
-    def port(self, value):
-        self._set_property("Port", f"{value}")
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
     def use_dd_1494_mode(self) -> bool:
@@ -195,21 +190,6 @@ class Band(EmitNode):
         self._set_property("Modulation Index", f"{value}")
 
     @property
-    def freq_deviation(self) -> float:
-        """Frequency deviation: helps determine spectral profile.
-
-        Value should be greater than 1.
-        """
-        val = self._get_property("Freq. Deviation")
-        val = self._convert_from_internal_units(float(val), "Freq")
-        return float(val)
-
-    @freq_deviation.setter
-    def freq_deviation(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Freq. Deviation", f"{value}")
-
-    @property
     def bit_rate(self) -> float:
         """Maximum bit rate: helps determine width of spectral profile.
 
@@ -236,6 +216,27 @@ class Band(EmitNode):
     @sidelobes.setter
     def sidelobes(self, value: int):
         self._set_property("Sidelobes", f"{value}")
+
+    @property
+    def freq_deviation(self) -> float:
+        """FM/FSK frequency deviation: helps determine spectral profile.
+
+        Value should be greater than 1.
+        """
+        val = self._get_property("Freq. Deviation")
+        val = self._convert_from_internal_units(float(val), "Freq")
+        return float(val)
+
+    @freq_deviation.setter
+    def freq_deviation(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
+            if self.modulation == self.ModulationOption.FM:
+                self._set_property("FMFreqDev", f"{value}")
+            else:
+                self._set_property("FSKFreqDev", f"{value}")
+        else:
+            self._set_property("Freq. Deviation", f"{value}")
 
     class PSKTypeOption(Enum):
         BPSK = "BPSK"

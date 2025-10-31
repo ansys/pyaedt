@@ -33,7 +33,7 @@ from ansys.aedt.core import Q3d
 import pytest
 
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_project_name = "dm boundary test"
 test_field_name = "Potter_Horn"

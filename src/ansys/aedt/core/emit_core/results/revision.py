@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -31,9 +30,11 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes import generated
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
+from ansys.aedt.core.emit_core.nodes.generated import Waveform
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -91,14 +92,7 @@ class Revision:
 
                 emit_obj.odesign.SaveEmitProject()
 
-                self.path = os.path.normpath(
-                    os.path.join(
-                        emit_obj.project_path,
-                        f"{emit_obj.project_name}.aedtresults",
-                        "EmitDesign1",
-                        "Current Project.emit",
-                    )
-                )
+                self.path = emit_obj.odesign.GetManagedFilesPath()
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
@@ -547,9 +541,9 @@ class Revision:
                     # The start and stop frequencies define the Band's extents,
                     # while the active frequencies are a subset of the Band's frequencies
                     # being used for this specific project as defined in the Radio's Sampling.
-                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i])
-                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i])
-                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i])
+                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i], "MHz")
+                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i], "MHz")
+                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i], "MHz")
 
                     for tx_band in tx_bands:
                         domain.set_receiver(rx_radio, rx_band)
@@ -929,6 +923,30 @@ class Revision:
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
+    def get_component_node(self, component_name) -> EmitNode:
+        """Gets the component node.
+
+        Parameters
+        ----------
+        component_name: str
+            Name of the component.
+
+        Returns
+        -------
+        component_node: EmitNode
+            Component node.
+
+        Examples
+        --------
+        >>> node = revision.get_component_node("wifi radio")
+        """
+        comp_id = self._emit_com.GetComponentNodeID(self.results_index, component_name)
+        if comp_id > 0:
+            return self._get_node(comp_id)
+        return None
+
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
     def _get_all_node_ids(self) -> list[int]:
         """Gets all node ids from this revision.
 
@@ -997,7 +1015,25 @@ class Revision:
 
         node = None
         try:
-            type_class = getattr(generated, f"{prefix}{node_type}")
+            type_class = EmitNode
+            if node_type == "RadioNode" and props["IsEmitter"] == "true":
+                type_class = EmitterNode
+                # TODO: enable when we add ReadOnlyNodes
+                # if prefix == "":
+                # type_class = EmitterNode
+                # else:
+                #    type_class = ReadOnlyEmitterNode
+            elif node_type == "Band" and props["IsEmitterBand"] == "true":
+                type_class = getattr(generated, f"{prefix}Waveform")
+            elif node_type == "TxSpectralProfNode":
+                parent_name = props["Parent"]
+                parent_name = parent_name.replace("NODE-*-", "")
+                node_id = self._emit_com.GetTopLevelNodeID(0, parent_name)
+                parent_node = self._get_node(node_id)
+                if isinstance(parent_node, Waveform):
+                    type_class = getattr(generated, f"{prefix}TxSpectralProfEmitterNode")
+            else:
+                type_class = getattr(generated, f"{prefix}{node_type}")
             node = type_class(self.emit_project, self.results_index, node_id)
         except AttributeError:
             node = EmitNode(self.emit_project, self.results_index, node_id)

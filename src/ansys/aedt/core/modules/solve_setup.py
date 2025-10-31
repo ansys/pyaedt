@@ -36,6 +36,7 @@ import secrets
 import time
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -44,6 +45,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
@@ -53,7 +55,7 @@ from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
-class CommonSetup(PropsManager, BinaryTreeNode):
+class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = app
@@ -306,6 +308,8 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         bool
             ``True`` if solutions are available, ``False`` otherwise.
         """
+        if self._app.design_type == "Circuit Design":
+            return True if self.omodule.ListVariations(self.name) else False
         if self._app.design_solutions.default_adaptive:
             expressions = [
                 i
@@ -340,18 +344,15 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         self.props["Name"] = name
 
     @pyaedt_function_handler()
-    def get_profile(self):
+    def get_profile(self) -> Profiles:
         """Solution profile.
 
         Returns
         -------
-        dict of :class:ansys.aedt.core.modeler.cad.elements_3d.BinaryTree when solved setups exist,
-        ``None`` when no solved setups or no compatible application exists.
+        :class:`ansys.aedt.core.modules.profile.Profiles`
+            Profile data when successful, ``False`` when failed.
         """
-        profile = self._app.get_profile(self.name)
-        if not isinstance(profile, dict) or not profile:
-            profile = None
-        return profile
+        return self._app.get_profile(self.name)  # Native API getter.
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
@@ -937,7 +938,7 @@ class Setup(CommonSetup):
         >>> m3d.set_active_design("target_design")
         The mesh link is assigned to the target design.
         >>> target_setup.add_mesh_link("source_design")
-        >>> m3d.release_desktop()
+        >>> m3d.desktop_class.close_desktop()
         """
         dkp = self._app.desktop_class
         source_design = design
@@ -1437,6 +1438,10 @@ class SetupCircuit(CommonSetup):
 
     @pyaedt_function_handler()
     def _add_sweep(self, sweep_variable, equation, override_existing_sweep):
+        if "SweepDefinition" not in self.props:
+            self.props["SweepDefinition"] = dict(
+                {"Variable": "Freq", "Data": "LINC 1GHz 5GHz 501", "OffsetF1": False, "Synchronize": 0}
+            )
         if isinstance(self.props["SweepDefinition"], list):
             for sw in self.props["SweepDefinition"]:
                 if sw["Variable"] == sweep_variable:
@@ -2511,7 +2516,7 @@ class Setup3DLayout(CommonSetup):
         return self.update()
 
 
-class SetupHFSS(Setup, object):
+class SetupHFSS(Setup, PyAedtBase):
     """Initializes, creates, and updates an HFSS setup.
 
     Parameters
@@ -2594,7 +2599,7 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-        >>> from ansys.aed.core import Hfss
+        >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss["der_var"] = "1mm"
         >>> setup = hfss.create_setup(setup_type=1)
@@ -3237,7 +3242,7 @@ class SetupHFSS(Setup, object):
         return False
 
 
-class SetupHFSSAuto(Setup, object):
+class SetupHFSSAuto(Setup, PyAedtBase):
     """Initializes, creates, and updates an HFSS SBR+ or  HFSS Auto setup.
 
     Parameters
@@ -3525,7 +3530,7 @@ class SetupHFSSAuto(Setup, object):
         return self.update()
 
 
-class SetupSBR(Setup, object):
+class SetupSBR(Setup, PyAedtBase):
     """Initializes, creates, and updates an HFSS SBR+ or HFSS Auto setup.
 
     Parameters
@@ -3604,7 +3609,7 @@ class SetupSBR(Setup, object):
         return self.update()
 
 
-class SetupMaxwell(Setup, object):
+class SetupMaxwell(Setup, PyAedtBase):
     """Initializes, creates, and updates a Maxwell setup.
 
     Parameters
@@ -3674,7 +3679,7 @@ class SetupMaxwell(Setup, object):
         ... )
         >>> sweep.props["RangeStart"] = "0.1Hz"
         >>> sweep.update()
-        >>> m2d.release_desktop()
+        >>> m2d.desktop_class.close_desktop()
         """
         if self.setuptype not in [7, 60]:
             self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
@@ -3833,7 +3838,7 @@ class SetupMaxwell(Setup, object):
         >>> setup.set_save_fields(
         ...     enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
         ... )
-        >>> m2d.release_desktop()
+        >>> m2d.desktop_class.close_desktop()
         """
         if self.setuptype != 5:
             if enable:
@@ -3975,7 +3980,7 @@ class SetupMaxwell(Setup, object):
             raise AEDTRuntimeError("Invalid matrix type. It has to be either 'RL' or 'C'.")
 
 
-class SetupQ3D(Setup, object):
+class SetupQ3D(Setup, PyAedtBase):
     """Initializes, creates, and updates an Q3D setup.
 
     Parameters
@@ -4057,7 +4062,7 @@ class SetupQ3D(Setup, object):
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearCountSetup")
         >>> sweep = setup.create_frequency_sweep(unit="GHz", start_frequency=0.5, stop_frequency=1.5, name="Sweep1")
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if sweep_type in ["Interpolating", "Fast"]:
             num_of_freq_points = num_of_freq_points or 401
@@ -4144,7 +4149,7 @@ class SetupQ3D(Setup, object):
         ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
         ... )
         >>> type(linear_step_sweep)
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
@@ -4221,7 +4226,7 @@ class SetupQ3D(Setup, object):
         >>> setup = q3d.create_setup("SinglePointSetup")
         >>> single_point_sweep = setup.create_single_point_sweep(name="SinglePointSweep", unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if name is None:
             name = generate_unique_name("SinglePoint")
@@ -4322,7 +4327,7 @@ class SetupQ3D(Setup, object):
         >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
         >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         >>> sweep = setup.get_sweep("Sweep1")
-        >>> q3d.release_desktop(True, True)
+        >>> q3d.desktop_class.close_desktop()
         """
         if name:
             for sweep in self.sweeps:
@@ -4436,7 +4441,7 @@ class SetupQ3D(Setup, object):
         return True
 
 
-class SetupIcepak(Setup, object):
+class SetupIcepak(Setup, PyAedtBase):
     def __init__(self, app, solution_type, setup_name, is_new_setup=True):
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 

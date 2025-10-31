@@ -38,6 +38,11 @@ class IndoorPropagationCouplingNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -52,7 +57,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @property
     def table_data(self):
-        """Table.
+        """Custom Building Values Table.
         Table consists of 3 columns.
         Frequency:
             Value should be between 1.0 and 100.0e9.

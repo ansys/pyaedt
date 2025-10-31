@@ -38,6 +38,11 @@ class TxNbEmissionNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
@@ -47,13 +52,28 @@ class TxNbEmissionNode(EmitNode):
         self._delete()
 
     @property
+    def table_data(self):
+        """Tx Emissions Profile Table.
+        Table consists of 2 columns.
+        Bandwidth or Frequency:
+            Value should be between 1 and 100e9.
+        Attenuation or Power:
+            Value should be between -1000 and 1000.
+        """
+        return self._get_table_data()
+
+    @table_data.setter
+    def table_data(self, value):
+        self._set_table_data(value)
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property("Enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     class NarrowbandBehaviorOption(Enum):
         ABSOLUTE_FREQS_AND_POWER = "Absolute Freqs and Power"

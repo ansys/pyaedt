@@ -8,6 +8,7 @@ airgap
 (?i)Ansys
 API
 autosave
+autoplay
 beamforming
 brd
 busbar
@@ -85,6 +86,9 @@ PyAEDT
 Python
 Python.NET
 pyvista
+[Pp]y[Tt]est
+[Pp]y[Cc]harm
+[Vv]s[Cc]ode
 Q2D Extractor
 Q3D
 Q3D Extractor
@@ -120,7 +124,10 @@ jupyter
 toml
 Parasolid
 i.e.
+[I][Dd][Ee]
 solderballs
 pin_mapping
 refdes
 gnd
+uv
+venv

@@ -39,13 +39,18 @@ class SamplingNode(EmitNode):
         return self._parent
 
     @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
+    @property
     def table_data(self):
-        """Table.
+        """Frequency Ranges Table.
         Table consists of 2 columns.
         Min:
-            Value should be greater than 1.0.
+            Value should be between 1.0 and 100e9.
         Max:
-            Value should be greater than 1.0.
+            Value should be between 1.0 and 100e9.
         """
         return self._get_table_data()
 
@@ -99,7 +104,7 @@ class SamplingNode(EmitNode):
         self._set_property("Percentage of Channels", f"{value}")
 
     @property
-    def max__channelsrangeband(self) -> int:
+    def max_channels_range_band(self) -> int:
         """Maximum number of Band Channels to simulate.
 
         Value should be between 1 and 100000.
@@ -107,8 +112,8 @@ class SamplingNode(EmitNode):
         val = self._get_property("Max # Channels/Range/Band")
         return int(val)
 
-    @max__channelsrangeband.setter
-    def max__channelsrangeband(self, value: int):
+    @max_channels_range_band.setter
+    def max_channels_range_band(self, value: int):
         self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property

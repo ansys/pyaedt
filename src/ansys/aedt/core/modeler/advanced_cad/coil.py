@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
@@ -57,7 +58,7 @@ COIL_TYPE_PARAMETERS = {
 }
 
 
-class Coil(object):
+class Coil(PyAedtBase):
     """Class to create coils in AEDT.
 
     Parameters

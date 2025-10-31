@@ -28,7 +28,7 @@ from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.filter_solutions.conftest import config
+from tests.conftest import config
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
@@ -49,7 +49,7 @@ class TestClass:
         assert variables["C1"].value == pytest.approx(1.967e-12)
         assert variables["L2"].value == pytest.approx(1.288e-8)
         assert variables["C3"].value == pytest.approx(6.366e-12)
-        app.release_desktop()
+        app.desktop_class.close_desktop()
 
     def test_distributed_circuit_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
@@ -68,7 +68,7 @@ class TestClass:
         assert variables["S1"].value == pytest.approx(3.362e-3)
         assert variables["S2"].value == pytest.approx(2.172e-2)
         assert variables["S3"].value == pytest.approx(1.008e-2)
-        app.release_desktop()
+        app.desktop_class.close_desktop()
 
     def test_distributed_hfss3dl_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
@@ -88,7 +88,7 @@ class TestClass:
         assert variables["S1"].value == pytest.approx(3.36225452227e-3)
         assert variables["S2"].value == pytest.approx(2.17231965814e-2)
         assert variables["S3"].value == pytest.approx(1.00773795179e-2)
-        app.release_desktop()
+        app.desktop_class.close_desktop()
 
     def test_distributed_hfss_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
@@ -108,4 +108,4 @@ class TestClass:
         assert variables["S1"].value == pytest.approx(3.36225452227e-3)
         assert variables["S2"].value == pytest.approx(2.17231965814e-2)
         assert variables["S3"].value == pytest.approx(1.00773795179e-2)
-        app.release_desktop()
+        app.desktop_class.close_desktop()

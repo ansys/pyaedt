@@ -31,7 +31,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_project_name = "coax_Q2D"
 test_subfolder = "T30"
@@ -155,7 +155,7 @@ class TestClass:
         sources_ac = {"Circle3": "40A"}
         assert q2d.edit_sources(sources_cg, sources_ac)
 
-        sources_cg = {"Circle2": ["10V"], "Circle3": "4A"}
+        sources_cg = {"Circle2": "10V", "Circle3": "4A"}
         sources_ac = {"Circle3": ("100A", "5deg")}
         assert q2d.edit_sources(sources_cg, sources_ac)
 

@@ -24,6 +24,7 @@
 
 import os
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.filesystem import get_json_files
@@ -32,7 +33,7 @@ from ansys.aedt.core.modeler.advanced_cad.parts import Part
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class MultiPartComponent(object):
+class MultiPartComponent(PyAedtBase):
     """Supports multi-part 3D components for HFSS SBR+.
 
     .. note::
@@ -494,7 +495,7 @@ class MultiPartComponent(object):
         return self._insert(app, motion=motion)
 
 
-class Environment(MultiPartComponent, object):
+class Environment(MultiPartComponent, PyAedtBase):
     """Supports multi-part 3D components without motion for HFSS SBR+.
 
     This class is derived from :class:`MultiPartComponent`. Its
@@ -586,7 +587,7 @@ class Environment(MultiPartComponent, object):
             self._offset_values = o
 
 
-class Actor(MultiPartComponent, object):
+class Actor(MultiPartComponent, PyAedtBase):
     """Provides an instance of an actor.
 
     This class is derived from :class:`MultiPartComponent`.

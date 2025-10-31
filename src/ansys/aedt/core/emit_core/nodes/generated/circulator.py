@@ -33,6 +33,11 @@ class Circulator(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -99,21 +104,6 @@ class Circulator(EmitNode):
     @type.setter
     def type(self, value: TypeOption):
         self._set_property("Type", f"{value.value}")
-
-    class Port1LocationOption(Enum):
-        RADIO_SIDE = "Radio Side"
-        ANTENNA_SIDE = "Antenna Side"
-
-    @property
-    def port_1_location(self) -> Port1LocationOption:
-        """Defines the orientation of the circulator."""
-        val = self._get_property("Port 1 Location")
-        val = self.Port1LocationOption[val.upper()]
-        return val
-
-    @port_1_location.setter
-    def port_1_location(self, value: Port1LocationOption):
-        self._set_property("Port 1 Location", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:

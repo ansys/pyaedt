@@ -40,7 +40,7 @@ from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test = sys.modules.keys()
 
@@ -1504,13 +1504,13 @@ class TestClass:
         scratch_choke_file5 = self.local_scratch.copyfile(choke_file5)
         scratch_choke_file6 = self.local_scratch.copyfile(choke_file6)
         scratch_choke_file7 = self.local_scratch.copyfile(choke_file7)
-        resolve1 = self.aedtapp.modeler.check_choke_values(scratch_choke_file1, create_another_file=True)
-        resolve2 = self.aedtapp.modeler.check_choke_values(scratch_choke_file2, create_another_file=True)
-        resolve3 = self.aedtapp.modeler.check_choke_values(scratch_choke_file3, create_another_file=True)
-        resolve4 = self.aedtapp.modeler.check_choke_values(scratch_choke_file4, create_another_file=True)
-        resolve5 = self.aedtapp.modeler.check_choke_values(scratch_choke_file5, create_another_file=True)
-        resolve6 = self.aedtapp.modeler.check_choke_values(scratch_choke_file6, create_another_file=True)
-        resolve7 = self.aedtapp.modeler.check_choke_values(scratch_choke_file7, create_another_file=True)
+        resolve1 = self.aedtapp.modeler.check_choke_values(scratch_choke_file1, create_another_file=False)
+        resolve2 = self.aedtapp.modeler.check_choke_values(scratch_choke_file2, create_another_file=False)
+        resolve3 = self.aedtapp.modeler.check_choke_values(scratch_choke_file3, create_another_file=False)
+        resolve4 = self.aedtapp.modeler.check_choke_values(scratch_choke_file4, create_another_file=False)
+        resolve5 = self.aedtapp.modeler.check_choke_values(scratch_choke_file5, create_another_file=False)
+        resolve6 = self.aedtapp.modeler.check_choke_values(scratch_choke_file6, create_another_file=False)
+        resolve7 = self.aedtapp.modeler.check_choke_values(scratch_choke_file7, create_another_file=False)
         assert isinstance(resolve1, list)
         assert resolve1[0]
         assert isinstance(resolve1[1], dict)
@@ -1536,7 +1536,9 @@ class TestClass:
     def test_73_make_winding(self):
         self.aedtapp.insert_design("Make_Windings")
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
-        winding_list = self.aedtapp.modeler._make_winding("Winding", "copper", 29.9, 52.1, 22.2, 5, 15, chamfer, True)
+        winding_list = self.aedtapp.modeler._make_winding(
+            "Winding", "copper", 29.9, 52.1, 22.2, 22.2, 5, 15, chamfer, True
+        )
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
@@ -1584,6 +1586,52 @@ class TestClass:
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
+
+    def test_make_winding_port_line(self):
+        self.aedtapp.insert_design("Make_Winding_Port_Line")
+        chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
+
+        # Test double winding - should have 4 occurrences of most negative Z value
+        double_winding_list = self.aedtapp.modeler._make_double_winding(
+            "Double_Winding", "copper", 17.525, 32.475, 14.95, 1.5, 2.699, 2.699, 20, 20, 0.8, chamfer, 1.1, True
+        )
+
+        # Test triple winding - should have 6 occurrences of most negative Z value
+        triple_winding_list = self.aedtapp.modeler._make_triple_winding(
+            "Triple_Winding",
+            "copper",
+            17.525,
+            32.475,
+            14.95,
+            1.5,
+            2.699,
+            2.699,
+            2.699,
+            20,
+            20,
+            20,
+            0.8,
+            chamfer,
+            1.1,
+            True,
+        )
+        # Verify there are is more than 1 object created for each winding type
+        assert isinstance(double_winding_list, list)
+        assert isinstance(triple_winding_list, list)
+
+        # For double windings: most negative Z should appear 4 times
+        double_winding_obj = double_winding_list[0][1]
+        double_winding_obj.extend(double_winding_list[1][1])
+        double_z_coords = [point[2] for point in double_winding_obj]
+        min_z_double = min(double_z_coords)
+        assert double_z_coords.count(min_z_double) == 4
+        # For triple windings: most negative Z should appear 6 times
+        triple_winding_obj = triple_winding_list[0][1]
+        triple_winding_obj.extend(triple_winding_list[1][1])
+        triple_winding_obj.extend(triple_winding_list[2][1])
+        triple_z_coords = [point[2] for point in triple_winding_obj]
+        min_z_triple = min(triple_z_coords)
+        assert triple_z_coords.count(min_z_triple) == 6
 
     def test_76_check_value_type(self):
         self.aedtapp.insert_design("other_tests")

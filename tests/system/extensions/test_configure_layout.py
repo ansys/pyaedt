@@ -26,15 +26,16 @@ from pathlib import Path
 import tempfile
 from unittest.mock import PropertyMock
 from unittest.mock import patch
+import warnings
 
 import pytest
 import requests
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import GUIDE_LINK
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import INTRO_LINK
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.resources.configure_layout.template import SERDES_CONFIG
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import GUIDE_LINK
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import INTRO_LINK
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
@@ -64,10 +65,21 @@ def test_folder():
 
 
 @pytest.fixture(scope="function")
-def extension_under_test():
+def extension_under_test(add_app):
+    # Start an Hfss3dLayout application so there is an active project when the
+    # ConfigureLayoutExtension initializes. The add_app fixture handles copying
+    # example projects into scratch when needed.
+    app = add_app(application=ansys.aedt.core.Hfss3dLayout)
     extension = ConfigureLayoutExtension(withdraw=True)
     yield extension
     extension.root.destroy()
+    try:
+        app.close_project(app.project_name)
+    except Exception as e:
+        warnings.warn(
+            f"Failed to close project {getattr(app, 'project_name', None)}: {e}",
+            RuntimeWarning,
+        )
 
 
 def test_links():
@@ -88,8 +100,9 @@ def test_get_active_db(extension_under_test, test_folder, add_app):
     app.close_project(app.project_name)
 
 
+@pytest.mark.flaky_linux
 @patch(
-    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    "ansys.aedt.core.extensions.hfss3dlayout.configure_layout.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
 def test_apply_config_to_edb(mock_selected_edb, test_folder, extension_under_test):
@@ -101,7 +114,7 @@ def test_apply_config_to_edb(mock_selected_edb, test_folder, extension_under_tes
 
 
 @patch(
-    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    "ansys.aedt.core.extensions.hfss3dlayout.configure_layout.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
 def test_export_config_from_edb(mock_selected_edb, test_folder, extension_under_test):
@@ -114,9 +127,11 @@ def test_load_edb_into_hfss3dlayout(test_folder, extension_under_test):
     assert extension_under_test.load_edb_into_hfss3dlayout(example_edb)
 
 
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
+@patch("ansys.aedt.core.extensions.hfss3dlayout.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
 def test_load_example_board(mock_load_edb_into_hfss3dlayout, test_folder, extension_under_test):
-    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_load_example_board
+    from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import (
+        call_back_load_example_board,
+    )
 
     call_back_load_example_board(extension_under_test, test_folder=test_folder.path)
     Path(mock_load_edb_into_hfss3dlayout.call_args[0][0]).exists()

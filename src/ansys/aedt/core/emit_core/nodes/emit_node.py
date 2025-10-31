@@ -89,20 +89,32 @@ class EmitNode:
         str
             Name of the node.
         """
-        return self._get_property("Name")
+        return self._get_property("Name", True)
+
+    @property
+    def _node_type(self) -> str:
+        """Type of the node.
+
+        Returns
+        -------
+        str
+            Type of the node.
+        """
+        return self._get_property("Type", True)
 
     @property
     def _parent(self):
-        """Parent node of this node.
+        """Parent node name of this node.
 
         Returns
         -------
         EmitNode
             Parent node.
         """
-        parent_id = 1
-        parent_node = self._get_node(parent_id)
-        return parent_node
+        parent_name = self._get_property("Parent", True)
+        parent_name = parent_name.replace("NODE-*-", "")
+        node_id = self._oRevisionData.GetTopLevelNodeID(0, parent_name)
+        return self._get_node(node_id)
 
     @property
     def properties(self) -> dict:
@@ -119,6 +131,22 @@ class EmitNode:
 
     @property
     def node_warnings(self) -> str:
+        """Warnings for the node, if any.
+
+        .. deprecated: 0.21.3
+            Use warnings property instead
+
+        Returns
+        -------
+        str
+            Warning message(s).
+        """
+        warnings.warn("This property is deprecated in 0.21.3. Use the warnings property instead.", DeprecationWarning)
+
+        return self.warnings
+
+    @property
+    def warnings(self) -> str:
         """Warnings for the node, if any.
 
         Returns
@@ -165,6 +193,7 @@ class EmitNode:
         >>> new_node = node._get_node(node_id)
         """
         from ansys.aedt.core.emit_core.nodes import generated
+        from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
 
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, node_id, True)
         props = self.props_to_dict(props)
@@ -174,7 +203,23 @@ class EmitNode:
 
         node = None
         try:
-            type_class = getattr(generated, f"{prefix}{node_type}")
+            type_class = EmitNode
+            if node_type == "RadioNode" and props["IsEmitter"] == "true":
+                type_class = EmitterNode
+                # TODO: enable when we add ReadOnlyNodes
+                # if prefix == "":
+                # type_class = EmitterNode
+                # else:
+                #    type_class = ReadOnlyEmitterNode
+            elif node_type == "Band" and props["IsEmitterBand"] == "true":
+                type_class = getattr(generated, f"{prefix}Waveform")
+            elif node_type == "TxSpectralProfNode":
+                if self.properties["IsEmitterBand"] == "true":
+                    type_class = getattr(generated, f"{prefix}TxSpectralProfEmitterNode")
+                else:
+                    type_class = getattr(generated, f"{prefix}TxSpectralProfNode")
+            else:
+                type_class = getattr(generated, f"{prefix}{node_type}")
             node = type_class(self._emit_obj, self._result_id, node_id)
         except AttributeError:
             node = EmitNode(self._emit_obj, self._result_id, node_id)
@@ -194,7 +239,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks=False, isTable=False) -> Union[str, List[str]]:
         """Fetch the value of a given property.
 
         Parameters
@@ -208,16 +253,23 @@ class EmitNode:
             Property value.
         """
         try:
-            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
+            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
-            selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
-            if len(selected_kv_pairs) != 1:
+            selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
+            if len(selected_kv_pairs) < 1:
                 return ""
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
 
-            if val.find("|") != -1:
+            if isTable:
+                # Node Prop tables
+                # Data formatted using compact string serialization
+                # with ';' separating rows and '|' separating columns
+                rows = val.split(";")
+                table = [tuple(row.split("|")) for row in rows if row]
+                return table
+            elif val.find("|") != -1:
                 return val.split("|")
             else:
                 return val
@@ -262,6 +314,7 @@ class EmitNode:
         # see if we can split it based on a space between number
         # and units
         vals = value.split(" ")
+        units = ""
         if len(vals) == 2:
             dec_val = float(vals[0])
             units = vals[1].strip()
@@ -272,7 +325,11 @@ class EmitNode:
                 dec_val = float(value[:i])
                 units = value[i:]
                 return dec_val, units
-        raise ValueError(f"{value} is not valid for this property.")
+        # maybe it's a string but with no units
+        try:
+            return float(value), units
+        except ValueError:
+            raise ValueError(f"{value} is not valid for this property.")
 
     def _convert_to_internal_units(self, value: float | str, unit_system: str) -> float:
         """Takes a value and converts to internal EMIT units used for storing values.
@@ -292,9 +349,20 @@ class EmitNode:
         """
         if isinstance(value, float) or isinstance(value, int):
             # unitless, so assume SI Units
-            units = consts.SI_UNITS[unit_system]
+            if unit_system == "Data Rate":
+                # Data rate isn't included as part of PyAedt's unit class
+                units = "bps"
+            else:
+                units = consts.SI_UNITS[unit_system]
         else:
             value, units = self._string_to_value_units(value)
+            # make sure units were specified, if not use SI Units
+            if units == "":
+                if unit_system == "Data Rate":
+                    # Data rate isn't included as part of PyAedt unit class
+                    units = "bps"
+                else:
+                    units = consts.SI_UNITS[unit_system]
             # verify the units are valid for the specified type
             if units not in EMIT_VALID_UNITS[unit_system]:
                 raise ValueError(f"{units} are not valid units for this property.")
@@ -322,10 +390,11 @@ class EmitNode:
             Value in SI units.
         """
         # get the SI units
-        units = consts.SI_UNITS[unit_system]
         if unit_system == "Data Rate":
+            units = "bps"
             converted_value = data_rate_conv(value, units, False)
         else:
+            units = consts.SI_UNITS[unit_system]
             converted_value = consts.unit_converter(value, unit_system, EMIT_INTERNAL_UNITS[unit_system], units)
         return converted_value
 
@@ -415,28 +484,88 @@ class EmitNode:
         """
         return self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, child_name)
 
+    def _is_column_data_table(self):
+        """Returns true if the node uses column data tables.
+
+        Returns
+        -------
+        bool
+            True if the table is ColumnData, False otherwise.
+        """
+        # BB Emission Nodes can have ColumnData or NodeProp tables
+        # so handle them first
+        if self._node_type == "TxBbEmissionNode":
+            if self._get_property("Noise Behavior") == "BroadbandEquation":
+                return False
+            return True
+
+        table_title = self._get_property("CDTableTitle", True)
+        if table_title == "":
+            # No ColumnData Table Title, so it's a NodePropTable
+            return False
+        return True
+
     def _get_table_data(self):
         """Returns the node's table data.
 
         Returns
         -------
-        list
-            The node's table data.
+        list of tuples
+            The node's table data as a list of tuples.
+            [(x1, y1, z1), (x2, y2, z2)]
         """
-        rows = self._oRevisionData.GetTableData(self._result_id, self._node_id)
-        nested_list = [col.split(" ") for col in rows]
-        return nested_list
+        try:
+            if self._is_column_data_table():
+                # Column Data tables
+                # Data formatted using compact string serialization
+                # with '|' separating rows and ';' separating columns
+                data = self._oRevisionData.GetTableData(self._result_id, self._node_id)
+                rows = data.split("|")
+                string_table = [tuple(row.split(";")) for row in rows if row]
+                table = [tuple(float(x) for x in t) for t in string_table]
+            else:
+                # Node Prop tables
+                # Data formatted using compact string serialization
+                # with ';' separating rows and '|' separating columns
+                table_key = self._get_property("TableKey", True)
+                string_table = self._get_property(table_key, True, True)
 
-    def _set_table_data(self, nested_list):
+                def try_float(val):
+                    try:
+                        return float(val)
+                    except ValueError:
+                        return val  # keep as string for non-numeric (e.g. equations)
+
+                table = [tuple(try_float(x) for x in t) for t in string_table]
+        except Exception as e:
+            print(f"Failed to get table data for node {self.name}. Error: {e}")
+        return table
+
+    def _set_table_data(self, table):
         """Sets the table data for the node.
 
         Parameters
         ----------
-        nested_list : list
+        list of tuples
             Data to populate the table with.
+            [(x1, y1, z1), (x2, y2, z2)]
         """
-        rows = [col.join(" ") for col in nested_list]
-        self._oRevisionData.SetTableData(self._result_id, self._node_id, rows)
+        try:
+            if self._is_column_data_table():
+                # Column Data tables
+                # Data formatted using compact string serialization
+                # with '|' separating rows and ';' separating columns
+                data = "|".join(";".join(map(str, row)) for row in table)
+                self._oRevisionData.SetTableData(self._result_id, self._node_id, data)
+            else:
+                # Node Prop tables
+                # Data formatted using compact string serialization
+                # with ';' separating rows and '|' separating columns
+                table_key = self._get_property("TableKey", True)
+                data = ";".join("|".join(map(str, row)) for row in table)
+                self._set_property(table_key, data)
+        except Exception as e:
+            print(f"Failed to set table data for node {self.name}. Error: {e}")
 
     def _add_child_node(self, child_type, child_name=None):
         """Creates a child node of the given type and name.
@@ -446,12 +575,12 @@ class EmitNode:
         child_type : EmitNode
             Type of child node to create.
         child_name : str, optional
-            Optional name to use for the child node. If None, a default name is used.
+            Name to use for the child node. If None, a default name is used.
 
         Returns
         -------
-        int
-            Unique node ID assigned to the created child node.
+        node: EmitNode
+            The node.
 
         Raises
         ------
@@ -459,15 +588,16 @@ class EmitNode:
             If the specified child type is not allowed.
         """
         if not child_name:
-            child_name = f"New {child_type}"
+            child_name = f"{child_type}"
 
-        new_id = None
+        new_node = None
         if child_type not in self.allowed_child_types:
             raise ValueError(
                 f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}"
             )
         try:
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
+            new_node = self._get_node(new_id)
         except Exception as e:
             print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
-        return new_id
+        return new_node

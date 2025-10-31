@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,7 +30,6 @@ from .band import Band
 from .band_folder import BandFolder
 from .cable import Cable
 from .cad_node import CADNode
-from .categories_view_node import CategoriesViewNode
 from .circulator import Circulator
 from .coupling_link_node import CouplingLinkNode
 from .couplings_node import CouplingsNode
@@ -46,7 +46,6 @@ from .log_distance_coupling_node import LogDistanceCouplingNode
 from .multiplexer import Multiplexer
 from .multiplexer_band import MultiplexerBand
 from .power_divider import PowerDivider
-from .profile_trace_node import ProfileTraceNode
 from .propagation_loss_coupling_node import PropagationLossCouplingNode
 from .radio_node import RadioNode
 from .result_plot_node import ResultPlotNode
@@ -61,7 +60,6 @@ from .scene_group_node import SceneGroupNode
 from .solution_coupling_node import SolutionCouplingNode
 from .solutions_node import SolutionsNode
 from .terminator import Terminator
-from .top_level_simulation import TopLevelSimulation
 from .touchstone_coupling_node import TouchstoneCouplingNode
 from .tr_switch import TR_Switch
 from .two_ray_path_loss_coupling_node import TwoRayPathLossCouplingNode
@@ -83,7 +81,6 @@ __all__ = [
     "BandFolder",
     "CADNode",
     "Cable",
-    "CategoriesViewNode",
     "Circulator",
     "CouplingLinkNode",
     "CouplingsNode",
@@ -100,7 +97,6 @@ __all__ = [
     "Multiplexer",
     "MultiplexerBand",
     "PowerDivider",
-    "ProfileTraceNode",
     "PropagationLossCouplingNode",
     "RadioNode",
     "ResultPlotNode",
@@ -116,7 +112,6 @@ __all__ = [
     "SolutionsNode",
     "TR_Switch",
     "Terminator",
-    "TopLevelSimulation",
     "TouchstoneCouplingNode",
     "TwoRayPathLossCouplingNode",
     "TxBbEmissionNode",

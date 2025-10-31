@@ -25,7 +25,7 @@
 import pytest
 
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.filter_solutions.conftest import config
+from tests.conftest import config
 from tests.system.filter_solutions.test_filter import test_transmission_zeros
 
 
@@ -43,7 +43,7 @@ class TestClass:
         for attr_name in dir(lumped_design):
             if attr_name.startswith("_") or callable(getattr(lumped_design, attr_name)):
                 continue
-            if attr_name in ["version"]:
+            if attr_name in ["version", "public_dir"]:
                 continue
             assert getattr(lumped_design, attr_name) is None
 
@@ -53,6 +53,6 @@ class TestClass:
         for attr_name in dir(distributed_design):
             if attr_name.startswith("_") or callable(getattr(distributed_design, attr_name)):
                 continue
-            if attr_name in ["version"]:
+            if attr_name in ["version", "public_dir"]:
                 continue
             assert getattr(distributed_design, attr_name) is None

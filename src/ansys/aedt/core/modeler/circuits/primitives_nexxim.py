@@ -28,6 +28,7 @@ import secrets
 import time
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -42,7 +43,7 @@ from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 from ansys.aedt.core.modeler.circuits.primitives_circuit import Excitations
 
 
-class NexximComponents(CircuitComponents):
+class NexximComponents(CircuitComponents, PyAedtBase):
     """Manages circuit components for Nexxim.
 
     Parameters
@@ -834,7 +835,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_voltage_probe(name="probe")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -874,7 +875,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_current_probe(name="probe")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -2050,7 +2051,7 @@ class NexximComponents(CircuitComponents):
         >>> cir = Circuit(version="2025.2")
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
-        >>> cir.release_desktop(False, False)
+        >>> cir.desktop_class.release_desktop(False, False)
         """
         if isinstance(input_file, str):
             input_file = Path(input_file)

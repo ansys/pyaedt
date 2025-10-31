@@ -33,6 +33,11 @@ class PowerDivider(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -100,21 +105,6 @@ class PowerDivider(EmitNode):
     @type.setter
     def type(self, value: TypeOption):
         self._set_property("Type", f"{value.value}")
-
-    class OrientationOption(Enum):
-        DIVIDER = "Divider"
-        COMBINER = "Combiner"
-
-    @property
-    def orientation(self) -> OrientationOption:
-        """Defines the orientation of the Power Divider."""
-        val = self._get_property("Orientation")
-        val = self.OrientationOption[val.upper()]
-        return val
-
-    @orientation.setter
-    def orientation(self, value: OrientationOption):
-        self._set_property("Orientation", f"{value.value}")
 
     @property
     def insertion_loss_above_ideal(self) -> float:
