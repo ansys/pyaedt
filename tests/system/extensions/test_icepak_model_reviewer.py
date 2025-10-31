@@ -22,16 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
 from pathlib import Path
-from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import IcepakModelReviewer
 
+import pytest
+
+from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import IcepakModelReviewer
 from ansys.aedt.core.icepak import Icepak
 
 AEDT_FILENAME = "Graphics_Card"
 CONFIG_FILE = "Modified_Data.json"
 TEST_SUBFOLDER = "T45"
 AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDT_FILENAME + ".aedt")
+
 
 @pytest.fixture(autouse=True)
 def ipk(add_app, request):
@@ -43,6 +45,7 @@ def ipk(add_app, request):
     yield app
     app.close_project(app.project_name, False)
 
+
 @pytest.mark.parametrize("ipk", [AEDT_FILENAME], indirect=True)
 def test_successfull_data_loading(ipk):
     """Test the successful execution of the power map creation in Icepak."""
@@ -53,28 +56,29 @@ def test_successfull_data_loading(ipk):
     row1 = boundary_table.tree.get_children()[0]
     row2 = boundary_table.tree.get_children()[1]
     row3 = boundary_table.tree.get_children()[2]
-    assert boundary_table.tree.item(row1)['values'][5] == '4W'
-    assert boundary_table.tree.item(row2)['values'][5] == '5w_per_m3'
-    assert boundary_table.tree.item(row3)['values'][5] == '1W'
+    assert boundary_table.tree.item(row1)["values"][5] == "4W"
+    assert boundary_table.tree.item(row2)["values"][5] == "5w_per_m3"
+    assert boundary_table.tree.item(row3)["values"][5] == "1W"
     materials_table = extension.root.materials_tab.winfo_children()[0]
     assert len(materials_table.tree.get_children()) == 4
     row1 = materials_table.tree.get_children()[0]
     row2 = materials_table.tree.get_children()[1]
     row3 = materials_table.tree.get_children()[2]
     row4 = materials_table.tree.get_children()[3]
-    assert materials_table.tree.item(row1)['values'][3] == 152
-    assert materials_table.tree.item(row2)['values'][4] == '1.1614'
-    assert materials_table.tree.item(row3)['values'][5] == 2
-    assert materials_table.tree.item(row4)['values'][6] == 0
+    assert materials_table.tree.item(row1)["values"][3] == 152
+    assert materials_table.tree.item(row2)["values"][4] == "1.1614"
+    assert materials_table.tree.item(row3)["values"][5] == 2
+    assert materials_table.tree.item(row4)["values"][6] == 0
     model_table = extension.root.models_tab.winfo_children()[0]
     assert len(model_table.tree.get_children()) == 11
     row1 = model_table.tree.get_children()[0]
     row2 = model_table.tree.get_children()[1]
     row3 = model_table.tree.get_children()[2]
-    assert model_table.tree.item(row1)['values'][2] == 'air'
-    assert model_table.tree.item(row2)['values'][3] == 'Soft Rubber-Gray-surface'
-    assert model_table.tree.item(row3)['values'][4] == 'True'
-    assert model_table.tree.item(row3)['values'][5] == 'Model'
+    assert model_table.tree.item(row1)["values"][2] == "air"
+    assert model_table.tree.item(row2)["values"][3] == "Soft Rubber-Gray-surface"
+    assert model_table.tree.item(row3)["values"][4] == "True"
+    assert model_table.tree.item(row3)["values"][5] == "Model"
+
 
 @pytest.mark.parametrize("ipk", [AEDT_FILENAME], indirect=True)
 def test_successfull_data_modification(ipk):
@@ -84,32 +88,31 @@ def test_successfull_data_modification(ipk):
     row1 = boundary_table.tree.get_children()[0]
     row2 = boundary_table.tree.get_children()[1]
     row3 = boundary_table.tree.get_children()[2]
-    boundary_table.tree.set(row1, column='Value 1', value='2W')
-    boundary_table.tree.set(row1, column='Selected Objects', value = 'CPU,KB')
-    boundary_table.tree.set(row2, column='Value 1', value='2w_per_m3')
-    boundary_table.tree.set(row3, column='Value 1', value='1.5W')
+    boundary_table.tree.set(row1, column="Value 1", value="2W")
+    boundary_table.tree.set(row1, column="Selected Objects", value="CPU,KB")
+    boundary_table.tree.set(row2, column="Value 1", value="2w_per_m3")
+    boundary_table.tree.set(row3, column="Value 1", value="1.5W")
     extension.update_button.invoke()
-    assert ipk.boundaries[2].properties['Assignment'] == 'CPU, KB'
-    assert ipk.boundaries[3].properties['Power Density'] == '2w_per_m3'
-    assert ipk.boundaries[4].properties['Total Power'] == '1.5W'
+    assert ipk.boundaries[2].properties["Assignment"] == "CPU, KB"
+    assert ipk.boundaries[3].properties["Power Density"] == "2w_per_m3"
+    assert ipk.boundaries[4].properties["Total Power"] == "1.5W"
     materials_table = extension.root.materials_tab.winfo_children()[0]
     row1 = materials_table.tree.get_children()[0]
     row2 = materials_table.tree.get_children()[1]
     row3 = materials_table.tree.get_children()[2]
-    materials_table.tree.set(row1, column='Thermal Conductivity', value='200') #Al-Extruded
-    materials_table.tree.set(row2, column='Viscosity', value='2e-06') #Air
-    materials_table.tree.set(row3, column='Mass Density', value='2') #PCB_Material
+    materials_table.tree.set(row1, column="Thermal Conductivity", value="200")  # Al-Extruded
+    materials_table.tree.set(row2, column="Viscosity", value="2e-06")  # Air
+    materials_table.tree.set(row3, column="Mass Density", value="2")  # PCB_Material
     extension.update_button.invoke()
-    assert ipk.materials.material_keys['al-extruded'].thermal_conductivity.value == '200'
-    assert ipk.materials.material_keys['air'].viscosity.value == '2e-06'
-    assert ipk.materials.material_keys['pcb_material'].mass_density.value == '2'
+    assert ipk.materials.material_keys["al-extruded"].thermal_conductivity.value == "200"
+    assert ipk.materials.material_keys["air"].viscosity.value == "2e-06"
+    assert ipk.materials.material_keys["pcb_material"].mass_density.value == "2"
     model_table = extension.root.models_tab.winfo_children()[0]
-    row2 = model_table.tree.get_children()[1] #SERIAL_PORT
-    row3 = model_table.tree.get_children()[2] #MEMORY
+    row2 = model_table.tree.get_children()[1]  # SERIAL_PORT
+    row3 = model_table.tree.get_children()[2]  # MEMORY
     # 6 Region, 34 serial port, 62 memory
-    model_table.tree.set(row2, column='Modeling', value="Non-Model")
-    model_table.tree.set(row3, column='Bulk Material', value='Al-Extruded')
+    model_table.tree.set(row2, column="Modeling", value="Non-Model")
+    model_table.tree.set(row3, column="Bulk Material", value="Al-Extruded")
     extension.update_button.invoke()
-    assert ipk.modeler.objects[62].material_name == 'al-extruded'
+    assert ipk.modeler.objects[62].material_name == "al-extruded"
     assert ipk.modeler.objects[34].model == False
-

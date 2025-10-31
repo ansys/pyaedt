@@ -260,7 +260,6 @@ def compare_and_update_boundary_data(original_data, modified_object_data, object
 
         # Convert string values back to boolean where necessary
 
-
         # Check for differences and update
         if isinstance(selected_objects, list):
             selected_object_ids = [int(i) if str(i).isdigit() else object_mapping[i] for i in selected_objects]
@@ -307,7 +306,6 @@ def compare_and_update_model_data(original_data, modified_object_data):
     Compares modified object data with the original data and identifies differences.
     Also returns the updated original data with the modifications applied.
     """
-
     updated_data = {"objects": {}}
     differences = []
     modified_objects = set()
@@ -366,7 +364,6 @@ def compare_and_update_material_data(original_data, modified_object_data):
     Compares modified object data with the original data and identifies differences.
     Also returns the updated original data with the modifications applied.
     """
-
     differences = []
     updated_data = {"materials": {}}
 
