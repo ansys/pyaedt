@@ -246,9 +246,11 @@ class TestClass:
         assert isinstance(new_antenna, EmitNode)
         with pytest.raises(Exception) as e:
             emit_app.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
-        assert str(e.value) == ("Failed to create radio of type 'WrongComponent' or antenna: "
-                                "Failed to create component of type 'WrongComponent': "
-                                "No component found for type 'WrongComponent'.")
+        assert str(e.value) == (
+            "Failed to create radio of type 'WrongComponent' or antenna: "
+            "Failed to create component of type 'WrongComponent': "
+            "No component found for type 'WrongComponent'."
+        )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_30_connect_components(self, emit_app):
