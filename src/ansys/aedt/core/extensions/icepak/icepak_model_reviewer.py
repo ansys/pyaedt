@@ -1,18 +1,52 @@
-import tkinter as tk
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
+import tkinter as tk
 from tkinter import ttk
-from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
+
+from ansys.aedt.core import *
+from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file
+from ansys.aedt.core.extensions.icepak.model_reviewer.backend import get_object_id_mapping
+from ansys.aedt.core.extensions.icepak.model_reviewer.backend import import_config_file
+from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import (
+    compare_and_update_boundary_data,
+)
+from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import (
+    compare_and_update_material_data,
+)
+from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import compare_and_update_model_data
+from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import extract_boundary_data
+from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import extract_material_data
+from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import extract_model_data
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionTheme
-from ansys.aedt.core import *
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
-from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import extract_boundary_data, extract_material_data, extract_model_data, \
-    compare_and_update_boundary_data, compare_and_update_material_data, compare_and_update_model_data
 
 port = get_port()
 version = get_aedt_version()
@@ -33,6 +67,7 @@ def flatten_list(mixed_list):
         flat_list.append(result)
     return flat_list
 
+
 def expand_list(flat_list):
     mixed_list = []
     for row in flat_list:
@@ -46,53 +81,63 @@ def expand_list(flat_list):
         mixed_list.append(result)
     return mixed_list
 
+
 def add_icon_to_cells(data, icon_indices, icon="🔒"):
     """
     Adds an icon to specified cells in the data.
-    Parameters:
+
+    Parameters
+    ----------
     - data: list of list of strings (table rows)
     - icon_indices: list of list of ints, where each inner list contains read only column indices
     - icon: string icon to prepend (default '🔒')
 
-    Returns:
+    Returns
+    -------
     - new_data: deep copy of data with icons added
     """
     from copy import deepcopy
+
     new_data = deepcopy(data)
 
     for row_idx, cols in enumerate(icon_indices):
         for col_idx in cols:
-            cell = new_data[row_idx][col_idx-1]
+            cell = new_data[row_idx][col_idx - 1]
             if isinstance(cell, str):
-                new_data[row_idx][col_idx-1] = f"{cell}{icon}"
+                new_data[row_idx][col_idx - 1] = f"{cell}{icon}"
             elif isinstance(cell, list):
                 cell[-1] += icon
-                new_data[row_idx][col_idx-1] = cell
+                new_data[row_idx][col_idx - 1] = cell
     return new_data
+
 
 def remove_icon_from_cells(data, icon="🔒"):
     """
     Removes the icon from all cells that start with it.
 
-    Parameters:
+    Parameters
+    ----------
     - data: list of list of strings
     - icon: the icon to remove (default '🔒')
 
-    Returns:
+    Returns
+    -------
     - new_data: deep copy of data with icons removed
     """
     from copy import deepcopy
+
     new_data = deepcopy(data)
 
     for i, row in enumerate(new_data):
         for j, cell in enumerate(row):
             if isinstance(cell, str):
-                if cell.endswith(f"{icon}"): # cells can also be list in case of multiple selection
-                    new_data[i][j] = cell[:-(len(icon))]
+                if cell.endswith(f"{icon}"):  # cells can also be list in case of multiple selection
+                    new_data[i][j] = cell[: -(len(icon))]
             if isinstance(cell, list):
                 if cell[-1].endswith(icon):
-                    cell[-1] = cell[-1][:-(len(icon))]
+                    cell[-1] = cell[-1][: -(len(icon))]
     return new_data
+
 
 def add_table_to_tab(tab, table_data):
     for child in tab.winfo_children():
@@ -114,7 +159,9 @@ class Table(ttk.Frame):
         self.headers = ["✔"] + headers
         self.types = ["checkbox"] + types
         self.read_only_data = [set(r) for r in read_only_data]
-        self.tree = ttk.Treeview(self, columns=self.headers, show="headings", selectmode="browse", style="PyAEDT.Treeview")
+        self.tree = ttk.Treeview(
+            self, columns=self.headers, show="headings", selectmode="browse", style="PyAEDT.Treeview"
+        )
         for i, header in enumerate(self.headers):
             self.tree.heading(header, text=header)
             self.tree.column(header, width=50 if i == 0 else 140, anchor=tk.CENTER)
@@ -146,8 +193,7 @@ class Table(ttk.Frame):
             self.tree.set(row_id, 0, "✅")
 
     def get_modified_data(self):
-        return [self.tree.item(row)["values"][1: ] for row in self.tree.get_children()]
-
+        return [self.tree.item(row)["values"][1:] for row in self.tree.get_children()]
 
     def edit_cell(self, event):
         region = self.tree.identify("region", event.x, event.y)
@@ -195,7 +241,6 @@ class Table(ttk.Frame):
             entry.place(x=x, y=y, width=width, height=height)
             entry.focus_set()
 
-
             def on_return(event):
                 new_value = entry.get()
                 apply_to_selected(new_value)
@@ -206,7 +251,9 @@ class Table(ttk.Frame):
 
         elif type_ == "combo":
             options = self.multi_select_options.get(self.headers[col], [])
-            combo = ttk.Combobox(self.tree, values=options, state="readonly", style="PyAEDT.TCombobox", font=theme.default_font)
+            combo = ttk.Combobox(
+                self.tree, values=options, state="readonly", style="PyAEDT.TCombobox", font=theme.default_font
+            )
             combo.place(x=x, y=y, width=width, height=height)
             combo.set(value)
 
@@ -247,7 +294,6 @@ class Table(ttk.Frame):
             self.wait_window(top)
 
 
-
 class IcepakModelReviewer(ExtensionCommon):
     def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
@@ -274,20 +320,22 @@ class IcepakModelReviewer(ExtensionCommon):
         notebook.add(self.root.materials_tab, text="Material")
         self.root.models_tab = ttk.Frame(notebook, style="PyAEDT.TFrame")
         notebook.add(self.root.models_tab, text="Models")
-        self.load_button = ttk.Button(button_frame, text="Load Project", command=self.load_project, style="PyAEDT.TButton")
-        self.load_button.pack(side=tk.LEFT,padx=5)
-        self.update_button = ttk.Button(button_frame, text="Update Project", command=self.update_project, style="PyAEDT.TButton")
+        self.load_button = ttk.Button(
+            button_frame, text="Load Project", command=self.load_project, style="PyAEDT.TButton"
+        )
+        self.load_button.pack(side=tk.LEFT, padx=5)
+        self.update_button = ttk.Button(
+            button_frame, text="Update Project", command=self.update_project, style="PyAEDT.TButton"
+        )
         self.update_button.pack(side=tk.LEFT, padx=5)
         lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         lower_frame.pack(fill=tk.X, padx=10, pady=5)
-        self.add_toggle_theme_button(lower_frame,0,0)
+        self.add_toggle_theme_button(lower_frame, 0, 0)
 
     def check_design_type(self):
         """Check if the active design is an Icepak design."""
         if self.aedt_application.design_type != "Icepak":
             raise AEDTRuntimeError("This extension can only be used with Icepak designs.")
-
-
 
     def get_project_data(self):
         desktop = Desktop(
@@ -360,7 +408,6 @@ class IcepakModelReviewer(ExtensionCommon):
         self.combined_data = {**new_model_data, **new_mat_data, **new_bc_data}
         self.differences = bc_differences + mat_differences + model_differences
         self.import_data_to_project(self.combined_data, self.differences)
-
 
 
 if __name__ == "__main__":
