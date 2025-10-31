@@ -1400,59 +1400,78 @@ class Maxwell(CreateBoundaryMixin):
 
         if isinstance(assignment[0], str):
             if self.modeler._is3d:
-                coil_group_names = [name + f"_{i+1}" for i in range(len(assignment))]
-                bound_props = {
-                    "Faces": assignment,
-                    "Conductor number": str(conductors_number),
-                    "Point out of terminal": point
-                }
-                props = {"items": coil_group_names}
-                props[coil_group_names[0]] = bound_props.copy()
-                bound_type = "CoilTerminalGroup"
-            else:
-                props = {
-            "Faces": assignment,                  
-            "Conductor number": str(conductors_number),
-            "Point out of terminal": point,
-        }
-                bound_type = "CoilTerminal"
-               
-                
-            if len(assignment) > 1:
-                coil_group_names = []
-                bound_props = dict(
-                    {
+                # For 3D case with multiple faces, create a coil terminal group
+                if len(assignment) > 1:
+                    coil_group_names = [name + f"_{i+1}" for i in range(len(assignment))]
+                    props = {"items": coil_group_names}
+                    
+                    for i, coil_name in enumerate(coil_group_names):
+                        bound_props = {
+                            "Faces": [assignment[i]],
+                            "Conductor number": str(conductors_number),
+                            "Point out of terminal": point
+                        }
+                        props[coil_name] = bound_props.copy()
+                    
+                    bound_type = "CoilTerminalGroup"
+                else:
+                    # Single face in 3D
+                    props = {
                         "Faces": assignment,
                         "Conductor number": str(conductors_number),
-                        "Point out of terminal": False
+                        "Point out of terminal": point
                     }
-                )
-
-                for x in range(0, len(assignment)):
-                    coil_group_names.append(name + f"_{str(x + 1)}")
-
-                props = {"items": coil_group_names}
-                props[coil_group_names[0]] = bound_props.copy()
-
-                bound_type = "CoilTerminal"
-
+                    bound_type = "CoilTerminal"
             else:
-
-                props = dict(
-                    {
+                # 2D case - objects only
+                if len(assignment) == 1:
+                    # Single object
+                    props = {
                         "Objects": assignment,
                         "Conductor number": str(conductors_number),
                         "PolarityType": polarity.lower(),
                     }
-                )
-                bound_type = "Coil"
-        # else:
-        #     if self.modeler._is3d:
-        #         props = dict(
-        #             {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
-        #         )
-        #         bound_type = "CoilTerminal"
+                    bound_type = "Coil"
+                else:
+                    coil_group_names = [name + f"_{i+1}" for i in range(len(assignment))]
+                    
+                    # Structure the properties to match the CurrentDensityGroup pattern
+                    common_props = {
+                        "Objects": assignment,
+                        "Conductor number": str(conductors_number),
+                        "PolarityType": polarity.lower(),
+                    }
+                    props = {"items": coil_group_names}
+                    props[coil_group_names[0]] = common_props.copy()
+                    name = coil_group_names[0]  
+                    bound_type = "CoilGroup"
         else:
+            # Face IDs provided
+            if self.modeler._is3d:
+                if len(assignment) > 1:
+                   
+                    boundaries = []
+                    for i, face_id in enumerate(assignment):
+                        face_name = name + f"_{i+1}" if len(assignment) > 1 else name
+                        face_props = {
+                            "Faces": [face_id],
+                            "Conductor number": str(conductors_number),
+                            "Point out of terminal": point
+                        }
+                        bound = self._create_boundary(face_name, face_props, "CoilTerminal")
+                        if bound:
+                            boundaries.append(bound)
+                    
+                    
+                    return boundaries[0] if boundaries else False
+                else:
+                    props = {
+                        "Faces": assignment,
+                        "Conductor number": str(conductors_number),
+                        "Point out of terminal": point
+                    }
+                    bound_type = "CoilTerminal"
+            else:
                 raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
 
         return self._create_boundary(name, props, bound_type)

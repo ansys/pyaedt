@@ -143,12 +143,41 @@ class TestClass:
         bound = aedtapp.assign_coil(assignment=["Coil"], name=bound_name)
         assert bound_name == bound.name
 
-    def test_assign_coilgroup(self, aedtapp):
-        polarity = "Positive"
-        bound = aedtapp.assign_coil(assignment=["Coil","Coil_2", "Coil_4" ])
+    def test_assign_coil_group(self, aedtapp):
+        o1 = aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Coil", material="copper")
+        o2 = aedtapp.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2", material="copper")
+        o3 = aedtapp.modeler.create_rectangle([10, 0, 0], [3, 1], name="Coil_4", material="copper")
+
+       
+        initial_boundary_count = len(aedtapp.boundaries)
+        
+       
+        bound = aedtapp.assign_coil(assignment=[o1.name, o2.name, o3.name])
         assert bound
-        assert len(bound['items'])==3
-        assert bound.props[(list(bound.props.keys())[1])]["PolarityType"] == polarity.lower()
+
+        
+        assert bound.type == "CoilGroup"
+        
+        
+        final_boundary_count = len(aedtapp.boundaries)
+        objects_assigned = [o1.name, o2.name, o3.name]
+        expected_new_boundaries = len(objects_assigned)  # One individual coil boundary per object
+        assert final_boundary_count == initial_boundary_count + expected_new_boundaries
+        
+        
+        new_boundaries = [b for b in aedtapp.boundaries if b.name.startswith(bound.name.split('_')[0] + '_' + bound.name.split('_')[1])]
+        coil_group_boundaries = [b for b in new_boundaries if b.type == "CoilGroup"]
+        individual_coil_boundaries = [b for b in new_boundaries if b.type == "Coil"]
+        
+       
+        assert len(coil_group_boundaries) == 1
+        assert len(individual_coil_boundaries) == len(objects_assigned) - 1
+        
+
+        coil_props = bound.props[bound.name]
+        assert set(coil_props["Objects"]) == {o1.name, o2.name, o3.name}
+        assert coil_props["PolarityType"] == "positive"
+        assert coil_props["Conductor number"] == "1"
         
 
     def test_create_vector_potential(self, aedtapp):
