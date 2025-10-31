@@ -112,19 +112,12 @@ def create_sub_frame1(parent, master):
     # Initialize checkbox variables if not already created
     if not master.export_option_vars:
         for name in options:
-            master.export_option_vars[name] = tk.BooleanVar(
-                master=master.root,
-                value=options[name]
-            )
+            master.export_option_vars[name] = tk.BooleanVar(master=master.root, value=options[name])
 
     for idx, name in enumerate(options):
         col = idx % 2
         chk = ttk.Checkbutton(
-            parent,
-            name=name,
-            text=name,
-            variable=master.export_option_vars[name],
-            style="PyAEDT.TCheckbutton"
+            parent, name=name, text=name, variable=master.export_option_vars[name], style="PyAEDT.TCheckbutton"
         )
         chk.grid(row=row, column=col, padx=5, pady=2, sticky="w")
         row = row if col == 0 else row + 1
