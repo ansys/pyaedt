@@ -1,0 +1,544 @@
+{
+    "general": {
+        "pyaedt_version": "0.18.0",
+        "model_units": "mm",
+        "design_name": "IcepakDesign1",
+        "date": "11/08/2025 14:59:14",
+        "object_mapping": {
+            "12": [
+                "Region",
+                [
+                    80.0,
+                    14.0,
+                    -55.0
+                ]
+            ],
+            "10": [
+                "Region",
+                [
+                    -240.0,
+                    14.0,
+                    -55.0
+                ]
+            ],
+            "422": "CPU",
+            "150": "KB",
+            "178": "HEAT_SINK",
+            "62": "MEMORY1",
+            "90": "MEMORY1_1",
+            "155": [
+                "KB",
+                [
+                    -153.6,
+                    1.6,
+                    -102.0
+                ]
+            ]
+        },
+        "output_variables": {}
+    },
+    "setups": {
+        "Setup1": {
+            "ID": 0,
+            "SetupType": 11,
+            "Enabled": true,
+            "MeshLink": {
+                "ImportMesh": false
+            },
+            "Flow Regime": "Turbulent",
+            "Turbulent Model Eqn": "ZeroEquation",
+            "Include Temperature": true,
+            "Include Flow": true,
+            "Include Gravity": true,
+            "Include Solar": false,
+            "Solution Initialization - X Velocity": "0m_per_sec",
+            "Solution Initialization - Y Velocity": "0m_per_sec",
+            "Solution Initialization - Z Velocity": "0m_per_sec",
+            "Solution Initialization - Temperature": "AmbientTemp",
+            "Solution Initialization - Turbulent Kinetic Energy": "0",
+            "Solution Initialization - Turbulent Dissipation Rate": "0",
+            "Solution Initialization - Specific Dissipation Rate": "0",
+            "Solution Initialization - Use Model Based Flow Initialization": false,
+            "Convergence Criteria - Flow": "0.001",
+            "Convergence Criteria - Energy": "1e-07",
+            "Convergence Criteria - Turbulent Kinetic Energy": "1e-07",
+            "Convergence Criteria - Turbulent Dissipation Rate": "1e-07",
+            "Convergence Criteria - Specific Dissipation Rate": "0.001",
+            "Convergence Criteria - Discrete Ordinates": "1e-06",
+            "Convergence Criteria - Joule Heating": "1e-07",
+            "GPU Convergence Criteria - Flow": "0.001",
+            "GPU Convergence Criteria - Energy": "1e-05",
+            "GPU Convergence Criteria - Turbulent Kinetic Energy": "0.001",
+            "GPU Convergence Criteria - Turbulent Dissipation Rate": "0.001",
+            "GPU Convergence Criteria - Specific Dissipation Rate": "0.001",
+            "GPU Convergence Criteria - Discrete Ordinates": "1e-05",
+            "GPU Convergence Criteria - Joule Heating": "1e-07",
+            "IsEnabled": false,
+            "Radiation Model": "Off",
+            "Solar Radiation Model": "Solar Radiation Calculator",
+            "Solar Enable Participating Solids": false,
+            "Solar Radiation - Scattering Fraction": "0",
+            "Solar Radiation - North X": "0",
+            "Solar Radiation - North Y": "0",
+            "Solar Radiation - North Z": "0",
+            "Solar Radiation - Day": 1,
+            "Solar Radiation - Month": 1,
+            "Solar Radiation - Hours": 0,
+            "Solar Radiation - Minutes": 0,
+            "Solar Radiation - GMT": "0",
+            "Solar Radiation - Latitude": "0",
+            "Solar Radiation - Latitude Direction": "North",
+            "Solar Radiation - Longitude": "0",
+            "Solar Radiation - Longitude Direction": "East",
+            "Solar Radiation - Ground Reflectance": "0",
+            "Solar Radiation - Sunshine Fraction": "0",
+            "Under-relaxation - Pressure": "0.3",
+            "Under-relaxation - Momentum": "0.7",
+            "Under-relaxation - Temperature": "1",
+            "Under-relaxation - Turbulent Kinetic Energy": "0.8",
+            "Under-relaxation - Turbulent Dissipation Rate": "0.8",
+            "Under-relaxation - Specific Dissipation Rate": "0.8",
+            "Under-relaxation - Joule Heating": "1",
+            "Under-relaxation - Body Force": "1",
+            "Under-relaxation - Turbulent Viscosity": "1",
+            "Discretization Scheme - Pressure": "Standard",
+            "Discretization Scheme - Momentum": "First",
+            "Discretization Scheme - Temperature": "First",
+            "Secondary Gradient": false,
+            "Discretization Scheme - Turbulent Kinetic Energy": "First",
+            "Discretization Scheme - Turbulent Dissipation Rate": "First",
+            "Discretization Scheme - Specific Dissipation Rate": "First",
+            "Discretization Scheme - Discrete Ordinates": "First",
+            "Linear Solver Type - Pressure": "flex",
+            "Linear Solver Type - Momentum": "flex",
+            "Linear Solver Type - Temperature": "flex",
+            "Linear Solver Type - Turbulent Kinetic Energy": "flex",
+            "Linear Solver Type - Turbulent Dissipation Rate": "flex",
+            "Linear Solver Type - Specific Dissipation Rate": "flex",
+            "Linear Solver Type - Joule Heating": "F",
+            "Linear Solver Termination Criterion - Pressure": "0.1",
+            "Linear Solver Termination Criterion - Momentum": "0.1",
+            "Linear Solver Termination Criterion - Temperature": "0.1",
+            "Linear Solver Termination Criterion - Turbulent Kinetic Energy": "0.1",
+            "Linear Solver Termination Criterion - Turbulent Dissipation Rate": "0.1",
+            "Linear Solver Termination Criterion - Specific Dissipation Rate": "0.1",
+            "Linear Solver Termination Criterion - Joule Heating": "1e-09",
+            "Linear Solver Residual Reduction Tolerance - Pressure": "0.1",
+            "Linear Solver Residual Reduction Tolerance - Momentum": "0.1",
+            "Linear Solver Residual Reduction Tolerance - Temperature": "0.1",
+            "Linear Solver Residual Reduction Tolerance - Turbulent Kinetic Energy": "0.1",
+            "Linear Solver Residual Reduction Tolerance - Turbulent Dissipation Rate": "0.1",
+            "Linear Solver Residual Reduction Tolerance - Specific Dissipation Rate": "0.1",
+            "Linear Solver Residual Reduction Tolerance - Joule Heating": "1e-09",
+            "Maximum Cycles": "30",
+            "Linear Solver Stabilization - Pressure": "None",
+            "Linear Solver Stabilization - Temperature": "None",
+            "Linear Solver Stabilization - Joule Heating": "None",
+            "Coupled pressure-velocity formulation": false,
+            "Turn off auto-pairing for grid interface creation": false,
+            "2D Profile Interpolation Method": "Inverse Distance Weighted",
+            "Frozen Flow Simulation": false,
+            "TEC Coupling": false,
+            "Sequential Solve of Flow and Energy Equations": false,
+            "Convergence Criteria - Max Iterations": 100
+        }
+    },
+    "boundaries": {
+        "Grille1": {
+            "ID": 0,
+            "BoundType": "Grille",
+            "IsComponent": false,
+            "Faces": [
+                12
+            ],
+            "Pressure Loss Type": "Coeff",
+            "Free Area Ratio": "0.8",
+            "Resistance Type": "Perforated Thin Vent",
+            "External Rad. Temperature": "AmbientTemp",
+            "External Total Pressure": "AmbientPressure",
+            "DimUnits": [
+                "",
+                ""
+            ],
+            "X()": null,
+            "Y()": null
+        },
+        "Opening1": {
+            "ID": 1,
+            "BoundType": "Opening",
+            "IsComponent": false,
+            "Faces": [
+                10
+            ],
+            "Temperature": "AmbientTemp",
+            "External Rad. Temperature": "AmbientRadTemp",
+            "Inlet Type": "Velocity",
+            "Static Pressure": "AmbientPressure",
+            "X Velocity": "2m_per_sec",
+            "Y Velocity": "0m_per_sec",
+            "Z Velocity": "0m_per_sec",
+            "No Reverse Flow": false
+        },
+        "CPU": {
+            "ID": 2,
+            "BoundType": "Block",
+            "IsComponent": false,
+            "Objects": [
+                422,
+                150,
+                178
+            ],
+            "ParentBndID": -1,
+            "Block Type": "Solid",
+            "Use External Conditions": false,
+            "Use Total Power": true,
+            "Total Power": "4W"
+        },
+        "Memory": {
+            "ID": 3,
+            "BoundType": "Block",
+            "IsComponent": false,
+            "Objects": [
+                62,
+                90
+            ],
+            "ParentBndID": -1,
+            "Block Type": "Solid",
+            "Use External Conditions": false,
+            "Use Total Power": false,
+            "Power Density": "5w_per_m3"
+        },
+        "Source1": {
+            "ID": 5,
+            "BoundType": "Source",
+            "IsComponent": false,
+            "Faces": [
+                155
+            ],
+            "Thermal Condition": "Total Power",
+            "Total Power": "1W",
+            "Surface Heat": "0mW_per_m2",
+            "Temperature": "AmbientTemp",
+            "Radiation": {
+                "Radiate": false
+            },
+            "Voltage/Current - Enabled": false,
+            "Voltage/Current Option": "Current",
+            "Current": "0A",
+            "Voltage": "0V"
+        }
+    },
+    "materials": {
+        "Al-Extruded": {
+            "CoordinateSystemType": "Cartesian",
+            "BulkOrSurfaceType": 1,
+            "PhysicsTypes": {
+                "set": [
+                    "Thermal"
+                ]
+            },
+            "AttachedData": {
+                "MatAppearanceData": {
+                    "property_data": "appearance_data",
+                    "Red": 232,
+                    "Green": 235,
+                    "Blue": 235
+                }
+            },
+            "permittivity": "1",
+            "permeability": "1",
+            "conductivity": "0",
+            "dielectric_loss_tangent": "0",
+            "magnetic_loss_tangent": "0",
+            "thermal_conductivity": "152",
+            "mass_density": "2000",
+            "specific_heat": "900",
+            "youngs_modulus": "0",
+            "poissons_ratio": "0",
+            "thermal_expansion_coefficient": "0",
+            "thermal_material_type": {
+                "property_type": "ChoiceProperty",
+                "Choice": "Solid"
+            },
+            "diffusivity": "0.8",
+            "molecular_mass": "0",
+            "viscosity": "0",
+            "clarity_type": {
+                "property_type": "ChoiceProperty",
+                "Choice": "Opaque"
+            }
+        },
+        "air": {
+            "CoordinateSystemType": "Cartesian",
+            "BulkOrSurfaceType": 1,
+            "PhysicsTypes": {
+                "set": [
+                    "Electromagnetic",
+                    "Thermal"
+                ]
+            },
+            "AttachedData": {
+                "MatAppearanceData": {
+                    "property_data": "appearance_data",
+                    "Red": 230,
+                    "Green": 230,
+                    "Blue": 230,
+                    "Transparency": 0.949999988079071
+                }
+            },
+            "permittivity": "1.0006",
+            "permeability": "1.0000004",
+            "conductivity": "0",
+            "dielectric_loss_tangent": "0",
+            "magnetic_loss_tangent": "0",
+            "thermal_conductivity": "0.0261",
+            "mass_density": "1.1614",
+            "specific_heat": "1005",
+            "youngs_modulus": "0",
+            "poissons_ratio": "0",
+            "thermal_expansion_coefficient": "0.00333",
+            "thermal_material_type": {
+                "property_type": "ChoiceProperty",
+                "Choice": "Fluid"
+            },
+            "diffusivity": "2.88e-05",
+            "molecular_mass": "0.028966",
+            "viscosity": "1.84e-05",
+            "material_refractive_index": "1.000293",
+            "clarity_type": {
+                "property_type": "ChoiceProperty",
+                "Choice": "Transparent"
+            }
+        },
+        "PCB_Material": {
+            "CoordinateSystemType": "Cartesian",
+            "BulkOrSurfaceType": 1,
+            "PhysicsTypes": {
+                "set": [
+                    "Thermal"
+                ]
+            },
+            "AttachedData": {
+                "MatAppearanceData": {
+                    "property_data": "appearance_data",
+                    "Red": 210,
+                    "Green": 105,
+                    "Blue": 30,
+                    "Transparency": 0.0
+                }
+            },
+            "permittivity": "1",
+            "permeability": "1",
+            "conductivity": "0",
+            "dielectric_loss_tangent": "0",
+            "magnetic_loss_tangent": "0",
+            "thermal_conductivity": "0.01",
+            "mass_density": "1",
+            "specific_heat": "2",
+            "youngs_modulus": "0",
+            "poissons_ratio": "0",
+            "thermal_expansion_coefficient": "1",
+            "diffusivity": "0.8",
+            "molecular_mass": "0",
+            "viscosity": "0"
+        },
+        "Ceramic_material": {
+            "CoordinateSystemType": "Cartesian",
+            "BulkOrSurfaceType": 1,
+            "PhysicsTypes": {
+                "set": [
+                    "Thermal"
+                ]
+            },
+            "AttachedData": {
+                "MatAppearanceData": {
+                    "property_data": "appearance_data",
+                    "Red": 0,
+                    "Green": 100,
+                    "Blue": 0,
+                    "Transparency": 0.0
+                }
+            },
+            "ModifierData": {
+                "ThermalModifierData": {
+                    "modifier_data": "thermal_modifier_data",
+                    "all_thermal_modifiers": {}
+                }
+            },
+            "permittivity": "1",
+            "permeability": "1",
+            "conductivity": "0",
+            "dielectric_loss_tangent": "0",
+            "magnetic_loss_tangent": "0",
+            "thermal_conductivity": "15",
+            "mass_density": "2500",
+            "specific_heat": "910",
+            "youngs_modulus": "0",
+            "poissons_ratio": "0",
+            "thermal_expansion_coefficient": "0",
+            "thermal_material_type": {
+                "property_type": "ChoiceProperty",
+                "Choice": "Solid"
+            },
+            "diffusivity": "0.8",
+            "molecular_mass": "0",
+            "viscosity": "0"
+        }
+    },
+    "objects": {
+        "Region": {
+            "SurfaceMaterial": "\"\"",
+            "Material": "air",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "Model",
+            "Transparency": 0.0,
+            "Color": [
+                0,
+                0,
+                0
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "SERIAL_PORT": {
+            "SurfaceMaterial": "\"Soft Rubber-Gray-surface\"",
+            "Material": "Al-Extruded",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "MEMORY1": {
+            "SurfaceMaterial": "\"Soft Rubber-Gray-surface\"",
+            "Material": "Ceramic_material",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "MEMORY1_1": {
+            "SurfaceMaterial": "\"Soft Rubber-Gray-surface\"",
+            "Material": "Ceramic_material",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "CAPACITOR": {
+            "SurfaceMaterial": "\"Soft Rubber-Gray-surface\"",
+            "Material": "Ceramic_material",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "CAPACITOR_1": {
+            "SurfaceMaterial": "\"Soft Rubber-Gray-surface\"",
+            "Material": "Ceramic_material",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "KB": {
+            "SurfaceMaterial": "\"Soft Rubber-Gray-surface\"",
+            "Material": "Al-Extruded",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "HEAT_SINK": {
+            "SurfaceMaterial": "\"Soft Rubber-Gray-surface\"",
+            "Material": "Al-Extruded",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "CPU": {
+            "SurfaceMaterial": "\"Steel-oxidised-surface\"",
+            "Material": "Al-Extruded",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "ALPHA_MAIN_PCB": {
+            "SurfaceMaterial": "\"Steel-oxidised-surface\"",
+            "Material": "Al-Extruded",
+            "SolveInside": true,
+            "Model": true,
+            "Group": "graphics_card_simple",
+            "Transparency": 0.0,
+            "Color": [
+                175,
+                175,
+                175
+            ],
+            "CoordinateSystem": "Global"
+        },
+        "Box1": {
+            "SurfaceMaterial": null,
+            "Material": "",
+            "SolveInside": false,
+            "Model": false,
+            "Group": "Model",
+            "Transparency": 0.0,
+            "Color": [
+                0,
+                0,
+                255
+            ],
+            "CoordinateSystem": "Global"
+        }
+    }
+}
