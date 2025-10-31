@@ -497,7 +497,7 @@ class TestClass:
         setup = circuit_app.create_setup("test_06b_LNA")
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
         myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
-        assert type(myedb.id) is int
+        assert type(myedb.id) is str
         ports = myedb.pins
         tx = ports
         rx = ports
