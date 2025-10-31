@@ -91,6 +91,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
         self.export_options = ExportOptions()
+        self.export_option_vars = {}
 
         super().__init__(
             self.EXTENSION_TITLE,
