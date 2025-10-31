@@ -268,7 +268,6 @@ def compare_and_update_boundary_data(original_data, modified_object_data, object
                 for i in selected_objects.split(",")
             ]
 
-
         original_obj_ids = original_obj.get("Objects", [])
         if original_obj_ids:
             if set(original_obj_ids) != set(selected_object_ids):
