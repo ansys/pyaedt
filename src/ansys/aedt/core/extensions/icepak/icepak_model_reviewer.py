@@ -26,7 +26,8 @@ import os
 import tkinter as tk
 from tkinter import ttk
 
-from ansys.aedt.core import Desktop, Icepak
+from ansys.aedt.core import Desktop
+from ansys.aedt.core import Icepak
 from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file
 from ansys.aedt.core.extensions.icepak.model_reviewer.backend import get_object_id_mapping
 from ansys.aedt.core.extensions.icepak.model_reviewer.backend import import_config_file
@@ -182,7 +183,6 @@ class Table(ttk.Frame):
 
         full_data = ["⬜"] + row_data
         self.rows_data.append(full_data)
-
 
     def toggle_row(self, row_id, item_index):
         if row_id in self.selected_rows:
