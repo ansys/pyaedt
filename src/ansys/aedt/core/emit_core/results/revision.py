@@ -470,7 +470,8 @@ class Revision:
     @pyaedt_function_handler()
     @deprecate_argument(
         arg_name="radio_name",
-        message="The ''radio_name'' argument will be removed in future versions. Use the ''radio_node'' argument instead.",
+        message=("The ''radio_name'' argument will be removed in future versions. "
+                 "Use the ''radio_node'' argument instead."),
     )
     def get_band_names(
         self, radio_node: RadioNode = None, radio_name: str = "", tx_rx_mode: TxRxMode = None
