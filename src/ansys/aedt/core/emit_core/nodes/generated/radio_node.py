@@ -28,13 +28,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class RadioNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
-
-    @property
-    def parent(self):
-        """The parent of this emit node."""
-        return self._parent
+        self._is_component = True
 
     @property
     def node_type(self) -> str:

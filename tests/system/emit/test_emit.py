@@ -38,6 +38,7 @@ import pytest
 import ansys.aedt.core
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import GrpcApiError
 from tests import TESTS_EMIT_PATH
 from tests.conftest import config
 
@@ -243,9 +244,13 @@ class TestClass:
         new_radio, new_antenna = emit_app.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
         assert isinstance(new_radio, EmitNode)
         assert isinstance(new_antenna, EmitNode)
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(Exception) as e:
             emit_app.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
-        assert "Failed to create radio of type 'WrongComponent'" in str(e.value)
+        assert str(e.value) == (
+            "Failed to create radio of type 'WrongComponent' or antenna: "
+            "Failed to create component of type 'WrongComponent': "
+            "No component found for type 'WrongComponent'."
+        )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_30_connect_components(self, emit_app):
@@ -519,7 +524,7 @@ class TestClass:
         assert receivers is None
         transmitters = rev2.get_interferer_names()
         assert transmitters is None
-        bands = rev2.get_band_names(rad5)
+        bands = rev2.get_band_names(radio_name=rad5)
         assert bands is None
         freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
         assert freqs is None
@@ -610,7 +615,7 @@ class TestClass:
         radios_rx = rev.get_receiver_names()
         assert radios_rx[0] == "Bluetooth"
         assert radios_rx[1] == "Bluetooth 2"
-        bands_rx = rev.get_band_names(radios_rx[0], mode_rx)
+        bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=mode_rx)
         assert bands_rx[0] == "Rx - Base Data Rate"
         assert bands_rx[1] == "Rx - Enhanced Data Rate"
         rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "MHz")
@@ -627,7 +632,7 @@ class TestClass:
         assert rx_frequencies[1] == 2403000000.0
 
         # Test set_sampling
-        bands_rx = rev.get_band_names(radios_rx[1], mode_rx)
+        bands_rx = rev.get_band_names(radio_name=radios_rx[1], tx_rx_mode=mode_rx)
         rx_frequencies = rev.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 20
 
@@ -723,7 +728,7 @@ class TestClass:
         assert radios == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6"]
 
         # Get the Bands
-        bands = rev.get_band_names(radios[0], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[0], tx_rx_mode=TxRxMode.RX)
         assert bands == ["Band"]
 
         # Get the Freqs
@@ -739,35 +744,35 @@ class TestClass:
         assert exception_raised
 
         # Get WiFi 2012 Rx Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.RX)
         assert len(bands) == 16
 
         # Get WiFi 2012 Tx Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.TX)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.TX)
         assert len(bands) == 16
 
         # Get WiFi 2012 All Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.BOTH)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.BOTH)
         assert len(bands) == 32
 
         # Get WiFi 2012 All Bands (default args)
-        bands = rev.get_band_names(radios[2])
+        bands = rev.get_band_names(radio_name=radios[2])
         assert len(bands) == 32
 
         # Get WiFi 6 All Bands (default args)
-        bands = rev.get_band_names(radios[3])
+        bands = rev.get_band_names(radio_name=radios[3])
         assert len(bands) == 192
 
         # Get WiFi 6 Rx Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.RX)
         assert len(bands) == 192
 
         # Get WiFi 6 Tx Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.TX)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.TX)
         assert len(bands) == 192
 
         # Get WiFi 6 All Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.BOTH)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.BOTH)
         assert len(bands) == 192
 
         # Add an emitter
@@ -987,7 +992,7 @@ class TestClass:
         rev = emit_app.results.analyze()
         assert len(emit_app.results.revisions) == 1
         radiosRX = rev.get_receiver_names()
-        bandsRX = rev.get_band_names(radiosRX[0], TxRxMode.RX)
+        bandsRX = rev.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
         radiosTX = rev.get_interferer_names()
         domain = emit_app.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
@@ -1049,17 +1054,17 @@ class TestClass:
         assert len(emit_app.results.revisions) == 2
         domain = emit_app.results.interaction_domain()
         radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
+        bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
+        bandsTX = rev2.get_band_names(radio_name=radiosTX[0], tx_rx_mode=TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
         assert len(emit_app.results.revisions) == 2
         radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
+        bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
+        bandsTX = rev2.get_band_names(radio_name=radiosTX[0], tx_rx_mode=TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
@@ -1100,7 +1105,7 @@ class TestClass:
         rev = interference.results.analyze()
 
         # Test with no filtering
-        expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
+        expected_interference_colors = [["white", "green", "red"], ["red", "green", "white"]]
         expected_interference_power = [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]]
         expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
@@ -1157,15 +1162,15 @@ class TestClass:
         interference_colors = []
         interference_power_matrix = []
         all_interference_colors = [
-            [["white", "green", "yellow"], ["orange", "green", "white"]],
-            [["white", "green", "yellow"], ["red", "green", "white"]],
-            [["white", "green", "green"], ["red", "green", "white"]],
-            [["white", "white", "yellow"], ["red", "white", "white"]],
+            [["white", "green", "orange"], ["orange", "green", "white"]],
+            [["white", "green", "red"], ["red", "green", "white"]],
+            [["white", "green", "red"], ["red", "green", "white"]],
+            [["white", "white", "red"], ["red", "white", "white"]],
         ]
         all_interference_power = [
-            [["N/A", 16.64, 56.0], [-3.96, 16.64, "N/A"]],
+            [["N/A", 16.64, 2.45], [-3.96, 16.64, "N/A"]],
             [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
-            [["N/A", 16.64, 2.45], [60.0, 16.64, "N/A"]],
+            [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
             [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
         ]
         interference_filters = [
@@ -1443,7 +1448,6 @@ class TestClass:
         assert scene_node == scene_node
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_all_generated_emit_node_properties(self, interference):
         # Define enum for result types
         class Result(Enum):
@@ -1453,10 +1457,10 @@ class TestClass:
             NEEDS_PARAMETERS = 3
 
         def get_value_for_parameter(arg_type, docstring):
-            value = None
+            param_value = None
 
             if arg_type in (int, float):
-                value = 0
+                param_value = 0
 
                 # If there's a min or max in the docstring, use it.
                 if docstring:
@@ -1464,37 +1468,40 @@ class TestClass:
                         range_part = docstring.split("Value should be between")[1]
                         min_val = float(range_part.split("and")[0].strip())
                         max_val = float(range_part.split("and")[1].split(".")[0].strip())
-                        value = min_val
+                        param_value = min_val
                     elif "Value should be less than" in docstring:
                         max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
-                        value = max_val
+                        param_value = max_val
                     elif "Value should be greater than" in docstring:
                         min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
-                        value = min_val
+                        param_value = min_val
             elif isinstance(arg_type, str):
-                value = "TestString"
+                param_value = "TestString"
             elif isinstance(arg_type, bool):
-                value = True
+                param_value = True
             elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                 # Type is an Enum
                 first_enum_value = list(arg_type.__members__.values())[0]
-                value = first_enum_value
+                param_value = first_enum_value
             elif isinstance(arg_type, types.UnionType):
                 # Type is a Union
                 possible_arg_types = arg_type.__args__
                 if int in possible_arg_types or float in possible_arg_types:
-                    value = 0
+                    param_value = 0
 
-            return value
+            return param_value
 
-        def test_all_members(node, results, results_of_get_props):
+        def test_all_members(node):
             # Dynamically get list of properties and methods
             members = dir(node)
+
+            mem_results = {}
+            results_props = {}
 
             # Initialize property map
             property_value_map = {}
             for member in members:
-                key = f"{type(node).__name__}.{member}"
+                mem_key = f"{type(node).__name__}.{member}"
 
                 if member.startswith("_"):
                     continue
@@ -1523,31 +1530,31 @@ class TestClass:
                         elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                             value_count = len(list(arg_type.__members__.values()))
 
-                        value = {
+                        mem_value = {
                             "value_index": value_index,
                             "value_count": value_count,
                             "arg_type": arg_type,
                         }
 
-                        property_value_map[key] = value
+                        property_value_map[mem_key] = mem_value
 
             anything_was_set = True
             while anything_was_set:
                 anything_was_set = False
                 for member in members:
-                    key = f"{type(node).__name__}.{member}"
+                    mem_key = f"{type(node).__name__}.{member}"
 
                     try:
                         if member.startswith("_"):
-                            results[key] = (Result.SKIPPED, "Skipping private member")
+                            mem_results[mem_key] = (Result.SKIPPED, "Skipping private member")
                             continue
 
                         if member.startswith("delete"):
-                            results[key] = (Result.SKIPPED, "Skipping delete method")
+                            mem_results[mem_key] = (Result.SKIPPED, "Skipping delete method")
                             continue
 
                         if member.startswith("rename"):
-                            results[key] = (Result.SKIPPED, "Skipping rename method")
+                            mem_results[mem_key] = (Result.SKIPPED, "Skipping rename method")
                             continue
 
                         class_attr = getattr(node.__class__, member)
@@ -1563,20 +1570,20 @@ class TestClass:
                                 arg_type = property_value_map_record["arg_type"]
                                 docstring = class_attr.fget.__doc__
 
-                                value = None
+                                mem_value = None
                                 value_index = property_value_map_record["value_index"]
                                 value_count = property_value_map_record["value_count"]
                                 if isinstance(arg_type, bool):
                                     if value_index == 0:
-                                        value = False
+                                        mem_value = False
                                     elif value_index == 1:
-                                        value = True
+                                        mem_value = True
                                     else:
                                         # We've already used both bool values, skip.
                                         continue
                                 elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                                     if value_index < value_count:
-                                        value = list(arg_type.__members__.values())[
+                                        mem_value = list(arg_type.__members__.values())[
                                             property_value_map_record["value_index"]
                                         ]
                                     else:
@@ -1584,7 +1591,7 @@ class TestClass:
                                         continue
                                 else:
                                     if value_index == 0:
-                                        value = get_value_for_parameter(arg_type, docstring)
+                                        mem_value = get_value_for_parameter(arg_type, docstring)
                                     else:
                                         # We've already used a value, skip.
                                         continue
@@ -1594,8 +1601,8 @@ class TestClass:
                                 # If value is None here, we failed to find a suitable value to call the setter with.
                                 # Just call the getter, and put that in the results.
                                 try:
-                                    if value is not None:
-                                        class_attr.fset(node, value)
+                                    if mem_value is not None:
+                                        class_attr.fset(node, mem_value)
                                 except Exception as e:
                                     exception = e
 
@@ -1607,19 +1614,19 @@ class TestClass:
                                 if exception:
                                     raise exception
 
-                                if value:
-                                    assert value == result
+                                if mem_value:
+                                    assert mem_value == result
 
                                 # We successfully set the current value. Next iteration, try the next value
                                 property_value_map_record["value_index"] += 1
                                 anything_was_set = True
 
-                                results[key] = (Result.VALUE, result)
-                                results_of_get_props[class_attr] = result
+                                mem_results[mem_key] = (Result.VALUE, result)
+                                results_props[class_attr] = result
                             elif has_fget:
                                 result = class_attr.fget(node)
-                                results[key] = (Result.VALUE, result)
-                                results_of_get_props[class_attr] = result
+                                mem_results[mem_key] = (Result.VALUE, result)
+                                results_props[class_attr] = result
                         else:
                             attr = getattr(node, member)
 
@@ -1633,28 +1640,33 @@ class TestClass:
                                     arg_type = type(parameter)
                                     docstring = attr.__doc__
 
-                                    value = get_value_for_parameter(arg_type, docstring)
-                                    if value is not None:
-                                        values.append(value)
+                                    mem_value = get_value_for_parameter(arg_type, docstring)
+                                    if mem_value is not None:
+                                        values.append(mem_value)
                                     else:
                                         bad_param = parameter
                                         break
 
                                 if len(values) == len(signature.parameters):
                                     result = attr(*values)
-                                    results[key] = (Result.VALUE, result)
+                                    mem_results[mem_key] = (Result.VALUE, result)
                                 else:
-                                    results[key] = (
+                                    mem_results[mem_key] = (
                                         Result.NEEDS_PARAMETERS,
                                         f'Could not find valid value for parameter "{bad_param}".',
                                     )
                             else:
-                                results[key] = (Result.VALUE, attr)
+                                mem_results[mem_key] = (Result.VALUE, attr)
                     except Exception as e:
-                        results[key] = (Result.EXCEPTION, f"{e}")
+                        mem_results[mem_key] = (Result.EXCEPTION, f"{e}")
+            return mem_results, results_props
 
-        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props, add_untested_children=True):
+        def test_nodes_from_top_level(nodes, add_untested_children=True):
             # Test every method on every node, but add node children to list while iterating
+            nodes_tested = []
+            results_dict = {}
+            results_of_get_props = {}
+
             child_node_add_exceptions = {}
             for node in nodes:
                 node_type = type(node).__name__
@@ -1685,7 +1697,10 @@ class TestClass:
                         if exception:
                             child_node_add_exceptions[node_type] = exception
 
-                    test_all_members(node, results, results_of_get_props)
+                    node_results, node_prop_results = test_all_members(node)
+                    results_dict.update(node_results)
+                    results_of_get_props.update(node_prop_results)
+            return nodes_tested, results_dict, results_of_get_props
 
         # Add some components
         interference.modeler.components.create_component("Antenna", "TestAntenna")
@@ -1713,14 +1728,10 @@ class TestClass:
         domain = results.interaction_domain()
         revision.run(domain)
 
-        results_dict = {}
-        results_of_get_props = {}
-        nodes_tested = []
-
         # Test all nodes of the current revision
         current_revision_all_nodes = revision.get_all_nodes()
 
-        test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
+        all_nodes_tested, member_results, prop_results = test_nodes_from_top_level(current_revision_all_nodes)
 
         # Keep the current revision, then test all nodes of the kept result
         # kept_result_name = interference.odesign.KeepResult()
@@ -1734,14 +1745,14 @@ class TestClass:
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
 
-        for key, value in results_dict.items():
+        for key, value in member_results.items():
             results_by_type[value[0]][key] = value[1]
 
         # Verify we tested most of the generated nodes
         all_nodes = [node for node in generated.__all__ if ("ReadOnly" not in node)]
-        nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
+        nodes_untested = [node for node in all_nodes if (node not in all_nodes_tested)]
 
-        assert len(nodes_tested) > len(nodes_untested)
+        assert len(all_nodes_tested) > len(nodes_untested)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_bp_bs_filters(self, emit_app):
@@ -1914,8 +1925,30 @@ class TestClass:
 
         radio_node: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
 
+        # test deprecated rename
+        radio_node.rename("Ansys")
+        assert radio_node.name == "Ansys"
+
+        # rename the radio
+        radio_node.name = "Synopsys"
+        assert radio_node.name == "Synopsys"
+
+        # try renaming the Emitter to an invalid value
+        # TODO: the next two lines are only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        rev = emit_app.results.analyze()
+        emitter_node = rev.get_component_node(emitter_name)
+        with pytest.raises(GrpcApiError) as exc_info:
+            emitter_node.name = "Synopsys"
+        assert "Failed to execute gRPC AEDT command: RenameComponent" in str(exc_info.value)
+
+        # get the radio's band
         band: Band = radio_node.children[0]
         assert isinstance(band, Band)
+
+        # rename a node
+        band.name = "Test"
+        assert band.name == "Test"
 
         radio_tx_spec: TxSpectralProfNode = band.children[0]
         assert isinstance(radio_tx_spec, TxSpectralProfNode)
@@ -1959,7 +1992,7 @@ class TestClass:
 
         # Test deleting components
         emit_app.schematic.delete_component(radio_node.name)
-        # the next two lines are only needed for 25.2, which had
+        # TODO: the next two lines are only needed for 25.2, which had
         # some instability in maintaining the node_ids
         rev = emit_app.results.analyze()
         emitter_node = rev.get_component_node(emitter_name)
@@ -1971,7 +2004,7 @@ class TestClass:
             print("Invalid component can't be deleted.")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    def test_exceptions(self, emit_app):
+    def test_exceptions_bad_values(self, emit_app):
         radio: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
 
         try:
@@ -1984,10 +2017,8 @@ class TestClass:
         except Exception as e:
             print(f"Error: {e}")
 
-        try:
-            radio._get_property("Bad Prop")
-        except Exception as e:
-            print(f"Error: {e}")
+        val = radio._get_property("Bad Prop")
+        assert val == ""
 
         band: Band = radio.children[0]
         try:
@@ -2082,7 +2113,6 @@ class TestClass:
                     emit_app.schematic.connect_components(comp_added.name, default_antenna.name)
 
                 # Delete the component
-                print(comp_added.name)
                 emit_app.schematic.delete_component(comp_added.name)
 
             except Exception as e:
@@ -2090,4 +2120,6 @@ class TestClass:
 
         rev = emit_app.results.analyze()
         comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            print(comp.name)
         assert len(comps_in_schematic) == 2  # default antenna/radio should remain
