@@ -183,6 +183,7 @@ class Table(ttk.Frame):
 
         full_data = ["⬜"] + row_data
         self.rows_data.append(full_data)
+        self.tree.insert("", "end", values=full_data)
 
     def toggle_row(self, row_id, item_index):
         if row_id in self.selected_rows:
