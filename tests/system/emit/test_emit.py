@@ -1448,7 +1448,6 @@ class TestClass:
         assert scene_node == scene_node
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    #@pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_all_generated_emit_node_properties(self, interference):
         # Define enum for result types
         class Result(Enum):
