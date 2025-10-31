@@ -39,6 +39,7 @@ from ansys.aedt.core.generic.general_methods import settings
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
 from tests.conftest import desktop_version
+from pathlib import Path
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -519,6 +520,36 @@ class TestClass:
         aedtapp.save_project(file_name=new_project)
         assert os.path.isfile(new_project)
 
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_desktop_save_as(self, aedtapp, local_scratch):
+        # Save as passing a string
+        aedtapp.create_new_project("test_desktop_save_as")
+        new_project = os.path.join(local_scratch.path, "new.aedt")
+        assert os.path.exists(local_scratch.path)
+        assert aedtapp.desktop_class.save_project(project_path=new_project)
+        assert os.path.isfile(new_project)
+
+        # Test using Path instead of string
+        new_project_path = Path(local_scratch.path) / "new_2.aedt"
+        assert aedtapp.desktop_class.save_project(project_path=new_project_path)
+        assert new_project_path.exists()
+
+        # Test using Path with only dir
+        only_project_path = Path(local_scratch.path)
+        assert aedtapp.desktop_class.save_project(project_path=only_project_path)
+        assert new_project_path.exists()
+
+        # Test using Path and providing a project name
+        new_project_path = Path(local_scratch.path) / "new_3.aedt"
+        project_name = aedtapp.project_name
+        assert aedtapp.desktop_class.save_project(project_name=project_name, project_path=new_project_path)
+        assert new_project_path.exists()
+
+        aedtapp.close_project(aedtapp.project_name)
+
+
     def test_43_edit_notes(self, aedtapp):
+        aedtapp.create_new_project("Test_notes")
         assert aedtapp.edit_notes("this a test")
         assert not aedtapp.edit_notes(1)
