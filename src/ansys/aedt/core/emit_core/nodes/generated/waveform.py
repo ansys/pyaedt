@@ -62,7 +62,7 @@ class Waveform(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -404,3 +404,4 @@ class Waveform(EmitNode):
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
         self._set_property("Min Pts/Null", f"{value}")
+

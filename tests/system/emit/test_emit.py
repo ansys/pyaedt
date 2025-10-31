@@ -244,11 +244,11 @@ class TestClass:
         new_radio, new_antenna = emit_app.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
         assert isinstance(new_radio, EmitNode)
         assert isinstance(new_antenna, EmitNode)
-        # with pytest.raises(Exception) as e:
-        try:
+        with pytest.raises(Exception) as e:
             emit_app.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
-        except Exception as e:
-            assert "Failed to create radio of type 'WrongComponent'" in str(e)
+        assert str(e.value) == ("Failed to create radio of type 'WrongComponent' or antenna: "
+                                "Failed to create component of type 'WrongComponent': "
+                                "No component found for type 'WrongComponent'.")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_30_connect_components(self, emit_app):
@@ -522,7 +522,7 @@ class TestClass:
         assert receivers is None
         transmitters = rev2.get_interferer_names()
         assert transmitters is None
-        bands = rev2.get_band_names(rad5)
+        bands = rev2.get_band_names(radio_name=rad5)
         assert bands is None
         freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
         assert freqs is None
@@ -613,7 +613,7 @@ class TestClass:
         radios_rx = rev.get_receiver_names()
         assert radios_rx[0] == "Bluetooth"
         assert radios_rx[1] == "Bluetooth 2"
-        bands_rx = rev.get_band_names(radios_rx[0], mode_rx)
+        bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=mode_rx)
         assert bands_rx[0] == "Rx - Base Data Rate"
         assert bands_rx[1] == "Rx - Enhanced Data Rate"
         rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "MHz")
@@ -630,7 +630,7 @@ class TestClass:
         assert rx_frequencies[1] == 2403000000.0
 
         # Test set_sampling
-        bands_rx = rev.get_band_names(radios_rx[1], mode_rx)
+        bands_rx = rev.get_band_names(radio_name=radios_rx[1], tx_rx_mode=mode_rx)
         rx_frequencies = rev.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 20
 
@@ -726,7 +726,7 @@ class TestClass:
         assert radios == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6"]
 
         # Get the Bands
-        bands = rev.get_band_names(radios[0], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[0], tx_rx_mode=TxRxMode.RX)
         assert bands == ["Band"]
 
         # Get the Freqs
@@ -742,35 +742,35 @@ class TestClass:
         assert exception_raised
 
         # Get WiFi 2012 Rx Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.RX)
         assert len(bands) == 16
 
         # Get WiFi 2012 Tx Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.TX)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.TX)
         assert len(bands) == 16
 
         # Get WiFi 2012 All Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.BOTH)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.BOTH)
         assert len(bands) == 32
 
         # Get WiFi 2012 All Bands (default args)
-        bands = rev.get_band_names(radios[2])
+        bands = rev.get_band_names(radio_name=radios[2])
         assert len(bands) == 32
 
         # Get WiFi 6 All Bands (default args)
-        bands = rev.get_band_names(radios[3])
+        bands = rev.get_band_names(radio_name=radios[3])
         assert len(bands) == 192
 
         # Get WiFi 6 Rx Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.RX)
         assert len(bands) == 192
 
         # Get WiFi 6 Tx Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.TX)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.TX)
         assert len(bands) == 192
 
         # Get WiFi 6 All Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.BOTH)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.BOTH)
         assert len(bands) == 192
 
         # Add an emitter
@@ -990,7 +990,7 @@ class TestClass:
         rev = emit_app.results.analyze()
         assert len(emit_app.results.revisions) == 1
         radiosRX = rev.get_receiver_names()
-        bandsRX = rev.get_band_names(radiosRX[0], TxRxMode.RX)
+        bandsRX = rev.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
         radiosTX = rev.get_interferer_names()
         domain = emit_app.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
@@ -1052,17 +1052,17 @@ class TestClass:
         assert len(emit_app.results.revisions) == 2
         domain = emit_app.results.interaction_domain()
         radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
+        bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
+        bandsTX = rev2.get_band_names(radio_name=radiosTX[0], tx_rx_mode=TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
         assert len(emit_app.results.revisions) == 2
         radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
+        bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
+        bandsTX = rev2.get_band_names(radio_name=radiosTX[0], tx_rx_mode=TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
@@ -1103,7 +1103,7 @@ class TestClass:
         rev = interference.results.analyze()
 
         # Test with no filtering
-        expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
+        expected_interference_colors = [["white", "green", "red"], ["red", "green", "white"]]
         expected_interference_power = [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]]
         expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
@@ -1160,15 +1160,15 @@ class TestClass:
         interference_colors = []
         interference_power_matrix = []
         all_interference_colors = [
-            [["white", "green", "yellow"], ["orange", "green", "white"]],
-            [["white", "green", "yellow"], ["red", "green", "white"]],
-            [["white", "green", "green"], ["red", "green", "white"]],
-            [["white", "white", "yellow"], ["red", "white", "white"]],
+            [["white", "green", "orange"], ["orange", "green", "white"]],
+            [["white", "green", "red"], ["red", "green", "white"]],
+            [["white", "green", "red"], ["red", "green", "white"]],
+            [["white", "white", "red"], ["red", "white", "white"]],
         ]
         all_interference_power = [
-            [["N/A", 16.64, 56.0], [-3.96, 16.64, "N/A"]],
+            [["N/A", 16.64, 2.45], [-3.96, 16.64, "N/A"]],
             [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
-            [["N/A", 16.64, 2.45], [60.0, 16.64, "N/A"]],
+            [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
             [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
         ]
         interference_filters = [
@@ -2112,4 +2112,6 @@ class TestClass:
 
         rev = emit_app.results.analyze()
         comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            print(comp.name)
         assert len(comps_in_schematic) == 2  # default antenna/radio should remain

@@ -66,6 +66,7 @@ class EmitterNode(EmitNode):
                 ant_id = self._oRevisionData.GetChildNodeID(result_id, scene_node_id, ant)
                 self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
 
+    @property
     def node_type(self) -> str:
         """The type of this emit node"""
         return "EmitterNode"
@@ -106,6 +107,7 @@ class EmitterNode(EmitNode):
         """
         return self._antenna_node
 
+    @property
     def children(self):
         """Overridden to return the Waveforms
 

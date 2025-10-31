@@ -67,8 +67,9 @@ class RxSaturationNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
+

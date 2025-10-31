@@ -261,7 +261,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop, skipChecks=False, isTable=False) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> Union[str, List[str]]:
         """Fetch the value of a given property.
 
         Parameters
