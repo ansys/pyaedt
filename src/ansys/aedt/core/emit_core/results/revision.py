@@ -790,7 +790,6 @@ class Revision:
         mode_rx = TxRxMode.RX
         mode_tx = TxRxMode.TX
         mode_power = ResultType.POWER_AT_RX
-        tx_interferer = InterfererType().TRANSMITTERS
         rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
         tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=False)
 
