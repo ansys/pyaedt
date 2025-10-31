@@ -2459,6 +2459,12 @@ class Design(AedtObjects, PyAedtBase):
         References
         ----------
         >>> oDesign.CreateEMLossTarget
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.create_em_target_design("Icepak", design_setup="Forced")
         """
         if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
             raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
