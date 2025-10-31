@@ -66,7 +66,9 @@ def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     row3 = boundary_table.tree.get_children()[2]
     assert boundary_table.tree.column(5)['id'] == 'Value 1'
     assert boundary_table.tree.item(row1)['values'][5] == '4W'
+    assert boundary_table.tree.item(row1)['values'][3] == 'CPU,KB,HEAT_SINK'
     assert boundary_table.tree.item(row2)['values'][5] == '5w_per_m3'
+    assert boundary_table.tree.item(row2)['values'][3] == 'MEMORY1, MEMORY1_1'
     assert boundary_table.tree.item(row3)['values'][5] == '1W'
     materials_table = extension.root.materials_tab.winfo_children()[0]
     assert len(materials_table.tree.get_children()) == 4
@@ -94,12 +96,32 @@ def test_icepak_model_reviewer_table_modification(mock_icepak_app, patched_loade
     row2 = boundary_table.tree.get_children()[1]
     row3 = boundary_table.tree.get_children()[2]
     boundary_table.tree.set(row1, column='Value 1', value='2W')
+    boundary_table.tree.set(row1, column='Selected Objects', value = 'CPU,KB')
     boundary_table.tree.set(row2, column='Value 1', value='2w_per_m3')
     boundary_table.tree.set(row3, column='Value 1', value='1.5W')
     extension.update_button.invoke()
-    data = extension.root.bc_table.get_modified_data()
     assert extension.combined_data['boundaries']['CPU']['Total Power'] == '2W'
+    assert extension.combined_data['boundaries']['CPU']['Objects'] == [422,150]
     assert extension.combined_data['boundaries']['Memory']['Power Density'] == '2w_per_m3'
     assert extension.combined_data['boundaries']['Source1']['Total Power'] == '1.5W'
+    material_table = extension.root.materials_tab.winfo_children()[0]
+    row1 = material_table.tree.get_children()[0]
+    row2 = material_table.tree.get_children()[1]
+    row3 = material_table.tree.get_children()[2]
+    material_table.tree.set(row1, column='Thermal Conductivity', value='150')
+    material_table.tree.set(row2, column='Mass Density', value='1.2')
+    material_table.tree.set(row3, column='Specific Heat', value='4')
+    extension.update_button.invoke()
+    assert extension.combined_data['materials']['Al-Extruded']['thermal_conductivity'] == '150'
+    assert extension.combined_data['materials']['air']['mass_density'] == '1.2'
+    assert extension.combined_data['materials']['PCB_Material']['specific_heat'] == '4'
+    model_table = extension.root.models_tab.winfo_children()[0]
+    row1 = model_table.tree.get_children()[1]
+    row2 = model_table.tree.get_children()[2]
+    model_table.tree.set(row1, column='Modeling', value='Non-Model')
+    model_table.tree.set(row2, column='Bulk Material', value = 'Al-Extruded')
+    extension.update_button.invoke()
+    assert extension.combined_data['objects']['MEMORY1']['Material'] == 'Al-Extruded'
+    assert extension.combined_data['objects']['SERIAL_PORT']['Model'] == 'False'
 
 

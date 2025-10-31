@@ -277,7 +277,7 @@ def compare_and_update_boundary_data(original_data, modified_object_data, object
             if set(original_obj_ids) != set(selected_object_ids):
                 differences.append(f"{boundary_name}: {bc_name1} selected objects changed  to '{selected_objects}'")
                 # updated_data["boundaries"][boundary_name]["Objects"] = selected_object_ids
-                updated_data["boundaries"][boundary_name]["Objects"] = selected_objects_list
+                updated_data["boundaries"][boundary_name]["Objects"] = selected_object_ids
                 modified_boundary.add(boundary_name)
 
         if original_obj.get(bc_name1, "") != value1:
