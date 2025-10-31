@@ -1448,7 +1448,7 @@ class TestClass:
         assert scene_node == scene_node
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
+    #@pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_all_generated_emit_node_properties(self, interference):
         # Define enum for result types
         class Result(Enum):
@@ -1458,10 +1458,10 @@ class TestClass:
             NEEDS_PARAMETERS = 3
 
         def get_value_for_parameter(arg_type, docstring):
-            value = None
+            param_value = None
 
             if arg_type in (int, float):
-                value = 0
+                param_value = 0
 
                 # If there's a min or max in the docstring, use it.
                 if docstring:
@@ -1469,37 +1469,40 @@ class TestClass:
                         range_part = docstring.split("Value should be between")[1]
                         min_val = float(range_part.split("and")[0].strip())
                         max_val = float(range_part.split("and")[1].split(".")[0].strip())
-                        value = min_val
+                        param_value = min_val
                     elif "Value should be less than" in docstring:
                         max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
-                        value = max_val
+                        param_value = max_val
                     elif "Value should be greater than" in docstring:
                         min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
-                        value = min_val
+                        param_value = min_val
             elif isinstance(arg_type, str):
-                value = "TestString"
+                param_value = "TestString"
             elif isinstance(arg_type, bool):
-                value = True
+                param_value = True
             elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                 # Type is an Enum
                 first_enum_value = list(arg_type.__members__.values())[0]
-                value = first_enum_value
+                param_value = first_enum_value
             elif isinstance(arg_type, types.UnionType):
                 # Type is a Union
                 possible_arg_types = arg_type.__args__
                 if int in possible_arg_types or float in possible_arg_types:
-                    value = 0
+                    param_value = 0
 
-            return value
+            return param_value
 
-        def test_all_members(node, results, results_of_get_props):
+        def test_all_members(node):
             # Dynamically get list of properties and methods
             members = dir(node)
+
+            mem_results = {}
+            results_props = {}
 
             # Initialize property map
             property_value_map = {}
             for member in members:
-                key = f"{type(node).__name__}.{member}"
+                mem_key = f"{type(node).__name__}.{member}"
 
                 if member.startswith("_"):
                     continue
@@ -1528,31 +1531,31 @@ class TestClass:
                         elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                             value_count = len(list(arg_type.__members__.values()))
 
-                        value = {
+                        mem_value = {
                             "value_index": value_index,
                             "value_count": value_count,
                             "arg_type": arg_type,
                         }
 
-                        property_value_map[key] = value
+                        property_value_map[mem_key] = mem_value
 
             anything_was_set = True
             while anything_was_set:
                 anything_was_set = False
                 for member in members:
-                    key = f"{type(node).__name__}.{member}"
+                    mem_key = f"{type(node).__name__}.{member}"
 
                     try:
                         if member.startswith("_"):
-                            results[key] = (Result.SKIPPED, "Skipping private member")
+                            mem_results[mem_key] = (Result.SKIPPED, "Skipping private member")
                             continue
 
                         if member.startswith("delete"):
-                            results[key] = (Result.SKIPPED, "Skipping delete method")
+                            mem_results[mem_key] = (Result.SKIPPED, "Skipping delete method")
                             continue
 
                         if member.startswith("rename"):
-                            results[key] = (Result.SKIPPED, "Skipping rename method")
+                            mem_results[mem_key] = (Result.SKIPPED, "Skipping rename method")
                             continue
 
                         class_attr = getattr(node.__class__, member)
@@ -1568,20 +1571,20 @@ class TestClass:
                                 arg_type = property_value_map_record["arg_type"]
                                 docstring = class_attr.fget.__doc__
 
-                                value = None
+                                mem_value = None
                                 value_index = property_value_map_record["value_index"]
                                 value_count = property_value_map_record["value_count"]
                                 if isinstance(arg_type, bool):
                                     if value_index == 0:
-                                        value = False
+                                        mem_value = False
                                     elif value_index == 1:
-                                        value = True
+                                        mem_value = True
                                     else:
                                         # We've already used both bool values, skip.
                                         continue
                                 elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                                     if value_index < value_count:
-                                        value = list(arg_type.__members__.values())[
+                                        mem_value = list(arg_type.__members__.values())[
                                             property_value_map_record["value_index"]
                                         ]
                                     else:
@@ -1589,7 +1592,7 @@ class TestClass:
                                         continue
                                 else:
                                     if value_index == 0:
-                                        value = get_value_for_parameter(arg_type, docstring)
+                                        mem_value = get_value_for_parameter(arg_type, docstring)
                                     else:
                                         # We've already used a value, skip.
                                         continue
@@ -1599,8 +1602,8 @@ class TestClass:
                                 # If value is None here, we failed to find a suitable value to call the setter with.
                                 # Just call the getter, and put that in the results.
                                 try:
-                                    if value is not None:
-                                        class_attr.fset(node, value)
+                                    if mem_value is not None:
+                                        class_attr.fset(node, mem_value)
                                 except Exception as e:
                                     exception = e
 
@@ -1612,19 +1615,19 @@ class TestClass:
                                 if exception:
                                     raise exception
 
-                                if value:
-                                    assert value == result
+                                if mem_value:
+                                    assert mem_value == result
 
                                 # We successfully set the current value. Next iteration, try the next value
                                 property_value_map_record["value_index"] += 1
                                 anything_was_set = True
 
-                                results[key] = (Result.VALUE, result)
-                                results_of_get_props[class_attr] = result
+                                mem_results[mem_key] = (Result.VALUE, result)
+                                results_props[class_attr] = result
                             elif has_fget:
                                 result = class_attr.fget(node)
-                                results[key] = (Result.VALUE, result)
-                                results_of_get_props[class_attr] = result
+                                mem_results[mem_key] = (Result.VALUE, result)
+                                results_props[class_attr] = result
                         else:
                             attr = getattr(node, member)
 
@@ -1638,28 +1641,33 @@ class TestClass:
                                     arg_type = type(parameter)
                                     docstring = attr.__doc__
 
-                                    value = get_value_for_parameter(arg_type, docstring)
-                                    if value is not None:
-                                        values.append(value)
+                                    mem_value = get_value_for_parameter(arg_type, docstring)
+                                    if mem_value is not None:
+                                        values.append(mem_value)
                                     else:
                                         bad_param = parameter
                                         break
 
                                 if len(values) == len(signature.parameters):
                                     result = attr(*values)
-                                    results[key] = (Result.VALUE, result)
+                                    mem_results[mem_key] = (Result.VALUE, result)
                                 else:
-                                    results[key] = (
+                                    mem_results[mem_key] = (
                                         Result.NEEDS_PARAMETERS,
                                         f'Could not find valid value for parameter "{bad_param}".',
                                     )
                             else:
-                                results[key] = (Result.VALUE, attr)
+                                mem_results[mem_key] = (Result.VALUE, attr)
                     except Exception as e:
-                        results[key] = (Result.EXCEPTION, f"{e}")
+                        mem_results[mem_key] = (Result.EXCEPTION, f"{e}")
+            return mem_results, results_props
 
-        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props, add_untested_children=True):
+        def test_nodes_from_top_level(nodes, add_untested_children=True):
             # Test every method on every node, but add node children to list while iterating
+            nodes_tested = []
+            results_dict = {}
+            results_of_get_props = {}
+
             child_node_add_exceptions = {}
             for node in nodes:
                 node_type = type(node).__name__
@@ -1690,7 +1698,10 @@ class TestClass:
                         if exception:
                             child_node_add_exceptions[node_type] = exception
 
-                    test_all_members(node, results, results_of_get_props)
+                    node_results, node_prop_results = test_all_members(node)
+                    results_dict.update(node_results)
+                    results_of_get_props.update(node_prop_results)
+            return nodes_tested, results_dict, results_of_get_props
 
         # Add some components
         interference.modeler.components.create_component("Antenna", "TestAntenna")
@@ -1718,14 +1729,10 @@ class TestClass:
         domain = results.interaction_domain()
         revision.run(domain)
 
-        results_dict = {}
-        results_of_get_props = {}
-        nodes_tested = []
-
         # Test all nodes of the current revision
         current_revision_all_nodes = revision.get_all_nodes()
 
-        test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
+        all_nodes_tested, member_results, prop_results = test_nodes_from_top_level(current_revision_all_nodes)
 
         # Keep the current revision, then test all nodes of the kept result
         # kept_result_name = interference.odesign.KeepResult()
@@ -1739,14 +1746,14 @@ class TestClass:
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
 
-        for key, value in results_dict.items():
+        for key, value in member_results.items():
             results_by_type[value[0]][key] = value[1]
 
         # Verify we tested most of the generated nodes
         all_nodes = [node for node in generated.__all__ if ("ReadOnly" not in node)]
-        nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
+        nodes_untested = [node for node in all_nodes if (node not in all_nodes_tested)]
 
-        assert len(nodes_tested) > len(nodes_untested)
+        assert len(all_nodes_tested) > len(nodes_untested)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_bp_bs_filters(self, emit_app):
