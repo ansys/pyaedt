@@ -429,5 +429,3 @@ def compare_and_update_material_data(original_data, modified_object_data):
     for mat_name in modified_materials:
         modified_data["materials"][mat_name] = copy.deepcopy(updated_data["materials"][mat_name])
     return differences, modified_data
-
-
