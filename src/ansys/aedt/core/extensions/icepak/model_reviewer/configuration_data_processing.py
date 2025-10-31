@@ -432,10 +432,3 @@ def compare_and_update_material_data(original_data, modified_object_data):
     return differences, modified_data
 
 
-if __name__ == "__main__":
-    import json
-
-    sample_json = "test1.json"
-    with open(sample_json, "r") as file:
-        data = json.load(file)
-    extract_boundary_data(data)
