@@ -68,7 +68,7 @@ def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     assert boundary_table.tree.item(row1)['values'][5] == '4W'
     assert boundary_table.tree.item(row1)['values'][3] == 'CPU,KB,HEAT_SINK'
     assert boundary_table.tree.item(row2)['values'][5] == '5w_per_m3'
-    assert boundary_table.tree.item(row2)['values'][3] == 'MEMORY1, MEMORY1_1'
+    assert boundary_table.tree.item(row2)['values'][3] == 'MEMORY1,MEMORY1_1'
     assert boundary_table.tree.item(row3)['values'][5] == '1W'
     materials_table = extension.root.materials_tab.winfo_children()[0]
     assert len(materials_table.tree.get_children()) == 4
