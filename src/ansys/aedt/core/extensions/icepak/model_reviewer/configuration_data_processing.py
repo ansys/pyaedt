@@ -107,7 +107,6 @@ def extract_boundary_data(data):
                 value1 = boundary_details.get("Total Power", "0W")
                 value2 = "0.0"
                 object_ids = boundary_details.get("Faces", [])  # Default to empty list if missing
-                # selected_objects = [id_to_name[str(obj_id)] for obj_id in object_ids]
                 selected_objects = [str(ids) for ids in object_ids]
                 boundary_data.append(
                     [boundary_name, boundary_type, selected_objects, bc_name1, value1, bc_name2, value2]
@@ -121,7 +120,6 @@ def extract_boundary_data(data):
                 value1 = boundary_details.get("Temperature", "0cel")
                 value2 = "0.0"
                 object_ids = boundary_details.get("Faces", [])  # Default to empty list if missing
-                # selected_objects = [id_to_name[str(obj_id)] for obj_id in object_ids]
                 selected_objects = [str(ids) for ids in object_ids]
                 boundary_data.append(
                     [boundary_name, boundary_type, selected_objects, bc_name1, value1, bc_name2, value2]
