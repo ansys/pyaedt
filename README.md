@@ -48,11 +48,16 @@ You can install PyAEDT on CPython 3.8 through 3.12 from PyPI with this command:
   pip install pyaedt
 ```
 
-Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
+Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista, ...):
 
 ```sh
   pip install pyaedt[all]
 ```
+
+> **Note:**
+The [all] installation target includes `fpdf2` for PDF export functionality, which is
+under license LGPL v3. For license-sensitive environments, install PyAEDT without [all]
+and add dependencies individually.
 
 You can also install PyAEDT from Conda-Forge with this command:
 
@@ -304,6 +309,11 @@ On any Windows client machine:
 ## License
 
 PyAEDT is licensed under the MIT license.
+
+PyAEDT provides an optional PDF export feature via the class `AnsysReport`.
+It requires the [fpdf2](https://github.com/py-pdf/fpdf2)
+library, which is licensed under the
+[GNU Lesser General Public License v3.0 (LGPLv3)](https://www.gnu.org/licenses/lgpl-3.0.en.html#license-text).
 
 PyAEDT makes no commercial claim over Ansys whatsoever. This library extends the
 functionality of AEDT by adding a Python interface to AEDT without changing the
