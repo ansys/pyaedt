@@ -28,11 +28,11 @@ Features
   - Model details
 - Update project parameters.
 
-Using the Extension
+Using extension
 -------------------
 
 1. Open the **Automation** tab in the Icepak interface.
-2. Click on the **Icepak Model Reviewer** icon under the Extension Manager.
+2. Click on the **Icepak model reviewer** icon under the Extension Manager.
 3. In the GUI, interact with the following elements:
    - **Load Project**: Load the Icepak project into the GUI.
    - **Update Project**: Push any modifications made in the tables back to the project.
@@ -42,9 +42,10 @@ Using the Extension
      - **Materials**: Shows the materials used and their key properties.
      - **Models**: Displays model-specific data and configurations.
 
-Each table allows inline editing of values. To commit changes, click the **Update Project** button. This will apply all modifications to the currently loaded project.
+Each table allows inline editing of values. To commit changes, click the **Update Project** button.
+Commit changes apply all modifications to the currently loaded project.
 
-Tables Overview
+Tables overview
 ---------------
 
 **Boundary Conditions Table**
