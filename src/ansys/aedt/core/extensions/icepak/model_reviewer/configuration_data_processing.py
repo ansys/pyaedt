@@ -261,13 +261,13 @@ def compare_and_update_boundary_data(original_data, modified_object_data, object
         # Check for differences and update
         if isinstance(selected_objects, list):
             selected_object_ids = [int(i) if str(i).isdigit() else object_mapping[i] for i in selected_objects]
-            selected_objects_list = [i for i in selected_objects]
+
         if isinstance(selected_objects, str):
             selected_object_ids = [
                 int(i.strip()) if str(i.strip()).isdigit() else object_mapping[i.strip()]
                 for i in selected_objects.split(",")
             ]
-            selected_objects_list = [i.strip() for i in selected_objects.split(",")]
+
 
         original_obj_ids = original_obj.get("Objects", [])
         if original_obj_ids:
