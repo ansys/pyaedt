@@ -32,6 +32,7 @@ def extract_boundary_data(data):
     selection_dict = {}
     headings = ["Boundary Name", "Boundary Type", "Selected Objects", "BC Name 1", "Value 1", "BC Name 2", "Value 2"]
     type_list = ["text", "text", "multiple_text", "text", "text", "text", "text"]
+
     # Convert mapping to ensure all values are names (some are lists)
     id_to_name = {}
     for obj_id, value in object_mapping.items():
@@ -46,7 +47,6 @@ def extract_boundary_data(data):
     for boundary_name, boundary_details in data.get("boundaries", {}).items():
         cols = [1, 2, 4, 6]
         boundary_type = boundary_details.get("BoundType", "")
-        # block_type = boundary_details.get("Block Type", "") # Solid or Fluid
         if boundary_type == "Block":
             use_total_power = boundary_details.get("Use Total Power", "")
             use_external_conditions = boundary_details.get("Use External Conditions", "")
@@ -276,7 +276,6 @@ def compare_and_update_boundary_data(original_data, modified_object_data, object
         if original_obj_ids:
             if set(original_obj_ids) != set(selected_object_ids):
                 differences.append(f"{boundary_name}: {bc_name1} selected objects changed  to '{selected_objects}'")
-                # updated_data["boundaries"][boundary_name]["Objects"] = selected_object_ids
                 updated_data["boundaries"][boundary_name]["Objects"] = selected_object_ids
                 modified_boundary.add(boundary_name)
 
@@ -308,11 +307,11 @@ def compare_and_update_model_data(original_data, modified_object_data):
     Compares modified object data with the original data and identifies differences.
     Also returns the updated original data with the modifications applied.
     """
-    # updated_data = copy.deepcopy(original_data)  # Make a copy to avoid modifying original
+
     updated_data = {"objects": {}}
     differences = []
     modified_objects = set()
-    # Convert object data into a lookup dictionary for easy comparison
+
     for row in modified_object_data:
         obj_name, bulk_material, surface_material, solve_inside, modelling = row
 
@@ -367,10 +366,10 @@ def compare_and_update_material_data(original_data, modified_object_data):
     Compares modified object data with the original data and identifies differences.
     Also returns the updated original data with the modifications applied.
     """
-    # updated_data = copy.deepcopy(original_data)  # Make a copy to avoid modifying original
+
     differences = []
     updated_data = {"materials": {}}
-    # Convert object data into a lookup dictionary for easy comparison
+
     modified_materials = set()
     for row in modified_object_data:
         (

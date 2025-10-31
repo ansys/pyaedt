@@ -2,21 +2,17 @@ import tkinter as tk
 import os
 from tkinter import ttk
 from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
-#from model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core import *
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import extract_boundary_data, extract_material_data, extract_model_data, \
     compare_and_update_boundary_data, compare_and_update_material_data, compare_and_update_model_data
-#from model_reviewer.configuration_data_processing import extract_boundary_data, extract_material_data, extract_model_data, \
-#    compare_and_update_boundary_data, compare_and_update_material_data, compare_and_update_model_data
 
 port = get_port()
 version = get_aedt_version()
@@ -118,7 +114,6 @@ class Table(ttk.Frame):
         self.headers = ["✔"] + headers
         self.types = ["checkbox"] + types
         self.read_only_data = [set(r) for r in read_only_data]
-        #style.configure("Treeview", font=theme.default_font)
         self.tree = ttk.Treeview(self, columns=self.headers, show="headings", selectmode="browse", style="PyAEDT.Treeview")
         for i, header in enumerate(self.headers):
             self.tree.heading(header, text=header)
@@ -152,7 +147,7 @@ class Table(ttk.Frame):
 
     def get_modified_data(self):
         return [self.tree.item(row)["values"][1: ] for row in self.tree.get_children()]
-        #return [row[1:] for row in self.rows_data]  # exclude checkbox column
+
 
     def edit_cell(self, event):
         region = self.tree.identify("region", event.x, event.y)
@@ -367,7 +362,7 @@ class IcepakModelReviewer(ExtensionCommon):
         self.import_data_to_project(self.combined_data, self.differences)
 
 
-# === Main Application ===
+
 if __name__ == "__main__":
     extension = IcepakModelReviewer(withdraw=False)
     tk.mainloop()

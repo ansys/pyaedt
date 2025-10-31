@@ -21,9 +21,9 @@ def import_config_file(aedtapp, json_data):
     out = aedtapp.configurations.import_config(full_path)
     result = aedtapp.configurations.validate(out)
     if result:
-        aedtapp.logger.info("sucessfully imported configuration")
+        aedtapp.logger.info("Sucessfully imported configuration")
     else:
-        aedtapp.logger.info("import has issues")
+        aedtapp.logger.info("Import has issues")
     return None
 
 def get_object_id_mapping(aedtapp):
