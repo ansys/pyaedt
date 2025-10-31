@@ -89,7 +89,7 @@ def test_successfull_data_modification(ipk):
     boundary_table.tree.set(row2, column='Value 1', value='2w_per_m3')
     boundary_table.tree.set(row3, column='Value 1', value='1.5W')
     extension.update_button.invoke()
-    #assert ipk.boundaries[2].properties['Assignment'] == 'CPU, KB'
+    assert ipk.boundaries[2].properties['Assignment'] == 'CPU, KB'
     assert ipk.boundaries[3].properties['Power Density'] == '2w_per_m3'
     assert ipk.boundaries[4].properties['Total Power'] == '1.5W'
     materials_table = extension.root.materials_tab.winfo_children()[0]
