@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
 
 import pytest
@@ -39,7 +40,6 @@ from ansys.aedt.core.generic.general_methods import settings
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
 from tests.conftest import desktop_version
-from pathlib import Path
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -547,7 +547,6 @@ class TestClass:
         assert new_project_path.exists()
 
         aedtapp.close_project(aedtapp.project_name)
-
 
     def test_43_edit_notes(self, aedtapp):
         aedtapp.create_new_project("Test_notes")
