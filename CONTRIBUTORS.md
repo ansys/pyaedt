@@ -15,6 +15,7 @@
 * [AlfVII](https://github.com/AlfVII)
 * [althaf-ansys](https://github.com/althaf-ansys)
 * [Amazir_Moknache](https://github.com/amazirM)
+* [AmazirMoknache](https://github.com/AmazirMoknache)
 * [amichel0205](https://github.com/amichel0205)
 * [Anderson Santos Nunes](https://github.com/nunesanderson)
 * [Andrew Finney](https://github.com/ansAFinney)
