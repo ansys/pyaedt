@@ -1160,7 +1160,7 @@ class TestClass:
             domain,
             interferer_type=InterfererType.TRANSMITTERS,
             global_protection_level=False,
-            protection_levels=protection_levels
+            protection_levels=protection_levels,
         )
 
         assert protection_colors == expected_protection_colors
@@ -1203,10 +1203,7 @@ class TestClass:
             interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
 
             interference_colors, interference_power_matrix = rev.interference_type_classification(
-                domain,
-                interferer_type=InterfererType.TRANSMITTERS,
-                use_filter=True,
-                filter_list=interference_filter
+                domain, interferer_type=InterfererType.TRANSMITTERS, use_filter=True, filter_list=interference_filter
             )
 
             assert interference_colors == expected_interference_colors
