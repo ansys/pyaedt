@@ -89,9 +89,9 @@ class FiveGChannelModel(EmitNode):
         self._set_property("Mobile Antenna", f"{value}")
 
     class EnvironmentOption(Enum):
-        URBAN_MICROCELL = "Urban Microcell"
-        URBAN_MACROCELL = "Urban Macrocell"
-        RURAL_MACROCELL = "Rural Macrocell"
+        URBAN_MICROCELL = "UrbanMicrocell"
+        URBAN_MACROCELL = "UrbanMacrocell"
+        RURAL_MACROCELL = "RuralMacrocell"
 
     @property
     def environment(self) -> EnvironmentOption:
@@ -131,8 +131,8 @@ class FiveGChannelModel(EmitNode):
         self._set_property("Include BPL", f"{str(value).lower()}")
 
     class NYUBPLModelOption(Enum):
-        LOW_LOSS_MODEL = "Low-loss model"
-        HIGH_LOSS_MODEL = "High-loss model"
+        LOW_LOSS_MODEL = "LowLossModel"
+        HIGH_LOSS_MODEL = "HighLossModel"
 
     @property
     def nyu_bpl_model(self) -> NYUBPLModelOption:
@@ -194,10 +194,10 @@ class FiveGChannelModel(EmitNode):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
-        NONE = "None"
-        FAST_FADING_ONLY = "Fast Fading Only"
-        SHADOWING_ONLY = "Shadowing Only"
-        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"
+        NONE = "NoFading"
+        FAST_FADING_ONLY = "FastFadingOnly"
+        SHADOWING_ONLY = "ShadowingOnly"
+        FAST_FADING_AND_SHADOWING = "ShadowingAndFastFading"
 
     @property
     def fading_type(self) -> FadingTypeOption:

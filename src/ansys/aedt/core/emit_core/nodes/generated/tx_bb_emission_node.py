@@ -77,9 +77,9 @@ class TxBbEmissionNode(EmitNode):
 
     class NoiseBehaviorOption(Enum):
         ABSOLUTE = "Absolute"
-        RELATIVE_BANDWIDTH = "Relative (Bandwidth)"
-        RELATIVE_OFFSET = "Relative (Offset)"
-        EQUATION = "Equation"
+        RELATIVE_BANDWIDTH = "RelativeBandwidth"
+        RELATIVE_OFFSET = "RelativeOffset"
+        EQUATION = "BroadbandEquation"
 
     @property
     def noise_behavior(self) -> NoiseBehaviorOption:

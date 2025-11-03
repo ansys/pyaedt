@@ -1157,7 +1157,10 @@ class TestClass:
         protection_colors = []
         protection_power_matrix = []
         protection_colors, protection_power_matrix = rev.protection_level_classification(
-            domain, global_protection_level=False, protection_levels=protection_levels
+            domain,
+            interferer_type=InterfererType.TRANSMITTERS,
+            global_protection_level=False,
+            protection_levels=protection_levels
         )
 
         assert protection_colors == expected_protection_colors
@@ -1200,7 +1203,10 @@ class TestClass:
             interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
 
             interference_colors, interference_power_matrix = rev.interference_type_classification(
-                domain, use_filter=True, filter_list=interference_filter
+                domain,
+                interferer_type=InterfererType.TRANSMITTERS,
+                use_filter=True,
+                filter_list=interference_filter
             )
 
             assert interference_colors == expected_interference_colors
@@ -1235,6 +1241,7 @@ class TestClass:
 
             protection_colors, protection_power_matrix = rev.protection_level_classification(
                 domain,
+                interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS,
                 global_protection_level=True,
                 global_levels=[30, -4, -30, -104],
                 use_filter=True,
@@ -1529,6 +1536,9 @@ class TestClass:
                 if member.startswith("rename"):
                     continue
 
+                if member.startswith("props_to_dict"):
+                    continue
+
                 class_attr = getattr(node.__class__, member)
                 if isinstance(class_attr, property):
                     has_fget = class_attr.fget is not None
@@ -1566,6 +1576,10 @@ class TestClass:
                             mem_results[mem_key] = (Result.SKIPPED, "Skipping private member")
                             continue
 
+                        if member.startswith("props_to_dict"):
+                            mem_results[mem_key] = (Result.SKIPPED, "Skipping global member")
+                            continue
+
                         if member.startswith("delete"):
                             mem_results[mem_key] = (Result.SKIPPED, "Skipping delete method")
                             continue
@@ -1601,7 +1615,7 @@ class TestClass:
                             has_fset = class_attr.fset is not None
 
                             if has_fget and has_fset:
-                                property_value_map_record = property_value_map[key]
+                                property_value_map_record = property_value_map[mem_key]
 
                                 arg_type = property_value_map_record["arg_type"]
                                 docstring = class_attr.fget.__doc__

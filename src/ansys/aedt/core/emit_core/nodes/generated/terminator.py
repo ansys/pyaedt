@@ -104,7 +104,7 @@ class Terminator(EmitNode):
         self._set_property("Notes", f"{value}")
 
     class TypeOption(Enum):
-        BY_FILE = "By File"
+        BY_FILE = "ByFile"
         PARAMETRIC = "Parametric"
 
     @property
@@ -114,13 +114,13 @@ class Terminator(EmitNode):
         Type of terminator model to use. Options include: By File (measured or
         simulated) or Parametric.
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Type", True)
+        val = self.TypeOption(val)
         return val
 
     @type.setter
     def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+        self._set_property("SubType", f"{value.value}", True)
 
     @property
     def vswr(self) -> float:

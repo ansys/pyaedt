@@ -89,8 +89,8 @@ class WalfischCouplingNode(EmitNode):
         self._set_property("Mobile Antenna", f"{value}")
 
     class PathLossTypeOption(Enum):
-        LOS_URBAN_CANYON = "LOS (Urban Canyon)"
-        NLOS = "NLOS"
+        LOS_URBAN_CANYON = "WalfischLOS"
+        NLOS = "WalfischNLOS"
 
     @property
     def path_loss_type(self) -> PathLossTypeOption:
@@ -104,8 +104,8 @@ class WalfischCouplingNode(EmitNode):
         self._set_property("Path Loss Type", f"{value.value}")
 
     class EnvironmentOption(Enum):
-        DENSE_METRO = "Dense Metro"
-        SMALLMEDIUM_CITY_OR_SUBURBAN = "Small/Medium City or Suburban"
+        DENSE_METRO = "DenseMetroArea"
+        SMALLMEDIUM_CITY_OR_SUBURBAN = "SmallUrbanOrSuburban"
 
     @property
     def environment(self) -> EnvironmentOption:
@@ -225,10 +225,10 @@ class WalfischCouplingNode(EmitNode):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
-        NONE = "None"
-        FAST_FADING_ONLY = "Fast Fading Only"
-        SHADOWING_ONLY = "Shadowing Only"
-        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"
+        NONE = "NoFading"
+        FAST_FADING_ONLY = "FastFadingOnly"
+        SHADOWING_ONLY = "ShadowingOnly"
+        FAST_FADING_AND_SHADOWING = "ShadowingAndFastFading"
 
     @property
     def fading_type(self) -> FadingTypeOption:

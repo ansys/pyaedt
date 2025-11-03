@@ -59,9 +59,9 @@ class SamplingNode(EmitNode):
         self._set_table_data(value)
 
     class SamplingTypeOption(Enum):
-        SAMPLE_ALL_CHANNELS_IN_RANGES = "Sample All Channels in Range(s)"
-        RANDOM_SAMPLING = "Random Sampling"
-        UNIFORM_SAMPLING = "Uniform Sampling"
+        SAMPLE_ALL_CHANNELS_IN_RANGES = "SampleAllChannels"
+        RANDOM_SAMPLING = "RandomSampling"
+        UNIFORM_SAMPLING = "UniformSampling"
 
     @property
     def sampling_type(self) -> SamplingTypeOption:
@@ -154,3 +154,4 @@ class SamplingNode(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

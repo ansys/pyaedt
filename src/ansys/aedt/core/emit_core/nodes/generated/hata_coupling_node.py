@@ -89,8 +89,8 @@ class HataCouplingNode(EmitNode):
         self._set_property("Mobile Antenna", f"{value}")
 
     class EnvironmentOption(Enum):
-        LARGE_CITY = "Large City"
-        SMALLMEDIUM_CITY = "Small/Medium City"
+        LARGE_CITY = "LargeCity"
+        SMALLMEDIUM_CITY = "SmallMedCity"
         SUBURBAN = "Suburban"
         RURAL = "Rural"
 
@@ -154,10 +154,10 @@ class HataCouplingNode(EmitNode):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
-        NONE = "None"
-        FAST_FADING_ONLY = "Fast Fading Only"
-        SHADOWING_ONLY = "Shadowing Only"
-        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"
+        NONE = "NoFading"
+        FAST_FADING_ONLY = "FastFadingOnly"
+        SHADOWING_ONLY = "ShadowingOnly"
+        FAST_FADING_AND_SHADOWING = "ShadowingAndFastFading"
 
     @property
     def fading_type(self) -> FadingTypeOption:

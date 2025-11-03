@@ -109,8 +109,8 @@ class CADNode(EmitNode):
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
-        ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
-        AZ_EL_TWIST = "Az-El-Twist"
+        ROLL_PITCH_YAW = "rpyDeg"
+        AZ_EL_TWIST = "aetDeg"
 
     @property
     def orientation_mode(self) -> OrientationModeOption:
@@ -168,9 +168,9 @@ class CADNode(EmitNode):
         self._set_property("Visible", f"{str(value).lower()}")
 
     class RenderModeOption(Enum):
-        FLAT_SHADED = "Flat-Shaded"
-        WIRE_FRAME = "Wire-Frame"
-        HIDDEN_WIRE_FRAME = "Hidden Wire-Frame"
+        FLAT_SHADED = "Flat-shaded"
+        WIRE_FRAME = "Wire-frame"
+        HIDDEN_WIRE_FRAME = "Hidden wire-frame"
         OUTLINE = "Outline"
 
     @property

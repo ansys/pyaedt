@@ -76,8 +76,8 @@ class TxNbEmissionNode(EmitNode):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class NarrowbandBehaviorOption(Enum):
-        ABSOLUTE_FREQS_AND_POWER = "Absolute Freqs and Power"
-        RELATIVE_FREQS_AND_ATTENUATION = "Relative Freqs and Attenuation"
+        ABSOLUTE_FREQS_AND_POWER = "Absolute"
+        RELATIVE_FREQS_AND_ATTENUATION = "RelativeBandwidth"
 
     @property
     def narrowband_behavior(self) -> NarrowbandBehaviorOption:

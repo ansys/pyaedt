@@ -112,8 +112,8 @@ class AntennaNode(EmitNode):
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
-        ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
-        AZ_EL_TWIST = "Az-El-Twist"
+        ROLL_PITCH_YAW = "rpyDeg"
+        AZ_EL_TWIST = "aetDeg"
 
     @property
     def orientation_mode(self) -> OrientationModeOption:
@@ -183,27 +183,27 @@ class AntennaNode(EmitNode):
 
     class TypeOption(Enum):
         ISOTROPIC = "Isotropic"
-        BY_FILE = "By File"
+        BY_FILE = "ByFile"
         HEMITROPIC = "Hemitropic"
-        SHORT_DIPOLE = "Short Dipole"
-        HALF_WAVE_DIPOLE = "Half-wave Dipole"
-        QUARTER_WAVE_MONOPOLE = "Quarter-wave Monopole"
-        WIRE_DIPOLE = "Wire Dipole"
-        WIRE_MONOPOLE = "Wire Monopole"
-        SMALL_LOOP = "Small Loop"
-        DIRECTIVE_BEAM = "Directive Beam"
-        PYRAMIDAL_HORN = "Pyramidal Horn"
+        SHORT_DIPOLE = "ShortDipole"
+        HALF_WAVE_DIPOLE = "HalfWaveDipole"
+        QUARTER_WAVE_MONOPOLE = "QuarterWaveMonopole"
+        WIRE_DIPOLE = "WireDipole"
+        WIRE_MONOPOLE = "WireMonopole"
+        SMALL_LOOP = "SmallLoop"
+        DIRECTIVE_BEAM = "DirectiveBeam"
+        PYRAMIDAL_HORN = "PyramidalHorn"
 
     @property
     def type(self) -> TypeOption:
         """Defines the type of antenna."""
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Type", True)
+        val = self.TypeOption(val)
         return val
 
     @type.setter
     def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+        self._set_property("SubType", f"{value.value}", True)
 
     @property
     def antenna_file(self) -> str:

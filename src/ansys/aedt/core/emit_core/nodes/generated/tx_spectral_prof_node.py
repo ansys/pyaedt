@@ -69,8 +69,8 @@ class TxSpectralProfNode(EmitNode):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class SpectrumTypeOption(Enum):
-        NARROWBAND_AND_BROADBAND = "Narrowband & Broadband"
-        BROADBAND_ONLY = "Broadband Only"
+        NARROWBAND_AND_BROADBAND = "Both"
+        BROADBAND_ONLY = "BroadbandOnly"
 
     @property
     def spectrum_type(self) -> SpectrumTypeOption:

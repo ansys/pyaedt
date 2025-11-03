@@ -87,13 +87,13 @@ class Filter(EmitNode):
         self._set_property("Notes", f"{value}")
 
     class TypeOption(Enum):
-        BY_FILE = "By File"
-        LOW_PASS = "Low Pass"  # nosec
-        HIGH_PASS = "High Pass"  # nosec
-        BAND_PASS = "Band Pass"  # nosec
-        BAND_STOP = "Band Stop"
-        TUNABLE_BANDPASS = "Tunable Bandpass"
-        TUNABLE_BANDSTOP = "Tunable Bandstop"
+        BY_FILE = "ByFile"
+        LOW_PASS = "LowPass"  # nosec
+        HIGH_PASS = "HighPass"  # nosec
+        BAND_PASS = "BandPass"  # nosec
+        BAND_STOP = "BandStop"
+        TUNABLE_BANDPASS = "TunableBandpass"
+        TUNABLE_BANDSTOP = "TunableBandstop"
 
     @property
     def type(self) -> TypeOption:
@@ -102,13 +102,13 @@ class Filter(EmitNode):
         Type of filter to define. The filter can be defined by file (measured or
         simulated data) or using one of EMIT's parametric models.
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Type", True)
+        val = self.TypeOption(val)
         return val
 
     @type.setter
     def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+        self._set_property("SubType", f"{value.value}", True)
 
     @property
     def insertion_loss(self) -> float:

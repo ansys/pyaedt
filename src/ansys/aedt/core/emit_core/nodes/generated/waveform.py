@@ -70,7 +70,7 @@ class Waveform(EmitNode):
 
     class WaveformOption(Enum):
         PERIODIC_CLOCK = "Periodic Clock"
-        SPREAD_SPECTRUM_CLOCK = "Spread Spectrum Clock"
+        SPREAD_SPECTRUM_CLOCK = "Spread Spectrum"
         PRBS = "PRBS"
         PRBS_PERIODIC = "PRBS (Periodic)"
         IMPORTED = "Imported"

@@ -89,13 +89,13 @@ class LogDistanceCouplingNode(EmitNode):
         self._set_property("Antenna B", f"{value}")
 
     class EnvironmentOption(Enum):
-        FREE_SPACE = "Free Space"
+        FREE_SPACE = "FreeSpace"
         URBAN = "Urban"
-        SHADOWED_URBAN = "Shadowed Urban"
-        BUILDING_LINE_OF_SIGHT = "Building Line of Sight"
-        BUILDING_OBSTRUCTED = "Building Obstructed"
-        FACTORY_OBSTRUCTED = "Factory Obstructed"
-        CUSTOM = "Custom"
+        SHADOWED_URBAN = "ShadowedUrban"
+        BUILDING_LINE_OF_SIGHT = "BuildingLineOfSight"
+        BUILDING_OBSTRUCTED = "BuildingObstructed"
+        FACTORY_OBSTRUCTED = "FactoryObstructed"
+        CUSTOM = "CustomExponent"
 
     @property
     def environment(self) -> EnvironmentOption:
@@ -170,10 +170,10 @@ class LogDistanceCouplingNode(EmitNode):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
-        NONE = "None"
-        FAST_FADING_ONLY = "Fast Fading Only"
-        SHADOWING_ONLY = "Shadowing Only"
-        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"
+        NONE = "NoFading"
+        FAST_FADING_ONLY = "FastFadingOnly"
+        SHADOWING_ONLY = "ShadowingOnly"
+        FAST_FADING_AND_SHADOWING = "ShadowingAndFastFading"
 
     @property
     def fading_type(self) -> FadingTypeOption:

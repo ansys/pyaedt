@@ -91,8 +91,8 @@ class Multiplexer(EmitNode):
         self._set_property("Notes", f"{value}")
 
     class TypeOption(Enum):
-        BY_PASS_BAND = "By Pass Band"  # nosec
-        BY_FILE = "By File"
+        BY_PASS_BAND = "Parametric"  # nosec
+        BY_FILE = "ByFile"
 
     @property
     def type(self) -> TypeOption:
@@ -102,13 +102,13 @@ class Multiplexer(EmitNode):
         simulated file for the device) or By Pass Band (parametric or file-based
         definition for each pass band).
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Type", True)
+        val = self.TypeOption(val)
         return val
 
     @type.setter
     def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+        self._set_property("SubType", f"{value.value}", True)
 
     @property
     def ports(self):

@@ -114,8 +114,8 @@ class SceneGroupNode(EmitNode):
         self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
-        ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
-        AZ_EL_TWIST = "Az-El-Twist"
+        ROLL_PITCH_YAW = "rpyDeg"
+        AZ_EL_TWIST = "aetDeg"
 
     @property
     def orientation_mode(self) -> OrientationModeOption:

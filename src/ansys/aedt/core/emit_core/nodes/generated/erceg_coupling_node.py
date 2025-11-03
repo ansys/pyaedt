@@ -89,9 +89,9 @@ class ErcegCouplingNode(EmitNode):
         self._set_property("Mobile Antenna", f"{value}")
 
     class TerrainCategoryOption(Enum):
-        TYPE_A = "Type A"
-        TYPE_B = "Type B"
-        TYPE_C = "Type C"
+        TYPE_A = "TypeA"
+        TYPE_B = "TypeB"
+        TYPE_C = "TypeC"
 
     @property
     def terrain_category(self) -> TerrainCategoryOption:
@@ -153,10 +153,10 @@ class ErcegCouplingNode(EmitNode):
         self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
-        NONE = "None"
-        FAST_FADING_ONLY = "Fast Fading Only"
-        SHADOWING_ONLY = "Shadowing Only"
-        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"
+        NONE = "NoFading"
+        FAST_FADING_ONLY = "FastFadingOnly"
+        SHADOWING_ONLY = "ShadowingOnly"
+        FAST_FADING_AND_SHADOWING = "ShadowingAndFastFading"
 
     @property
     def fading_type(self) -> FadingTypeOption:
