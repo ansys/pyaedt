@@ -329,7 +329,7 @@ def compare_and_update_model_data(original_data, modified_object_data):
         if not surface_material == "Not Specified":
             if original_obj.get("SurfaceMaterial", "") != surface_material:
                 differences.append(
-                    f"""{obj_name}: Surface Material changed from '{original_obj.get('SurfaceMaterial', '')}' to 
+                    f"""{obj_name}: Surface Material changed from '{original_obj.get("SurfaceMaterial", "")}' to
                     '{surface_material}'"""
                 )
                 updated_data["objects"][obj_name]["SurfaceMaterial"] = surface_material
@@ -337,7 +337,7 @@ def compare_and_update_model_data(original_data, modified_object_data):
 
         if original_obj.get("SolveInside", "") != solve_inside_bool:
             differences.append(
-                f"""{obj_name}: Solve Inside changed from '{original_obj.get('SolveInside', '')}' 
+                f"""{obj_name}: Solve Inside changed from '{original_obj.get("SolveInside", "")}'
                 to '{solve_inside_bool}'"""
             )
             updated_data["objects"][obj_name]["SolveInside"] = str(solve_inside_bool)
@@ -386,7 +386,7 @@ def compare_and_update_material_data(original_data, modified_object_data):
         if not isinstance(original_obj.get("thermal_conductivity"), dict):
             if original_obj.get("thermal_conductivity", "") != thermal_conductivity:
                 differences.append(
-                    f"""{mat_name}: Thermal Conductivity changed from '{original_obj.get('thermal_conductivity', '')}'
+                    f"""{mat_name}: Thermal Conductivity changed from '{original_obj.get("thermal_conductivity", "")}'
                      to '{thermal_conductivity}'"""
                 )
                 updated_data["materials"][mat_name]["thermal_conductivity"] = thermal_conductivity
