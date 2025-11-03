@@ -115,4 +115,4 @@ def test_successfull_data_modification(ipk):
     model_table.tree.set(row3, column="Bulk Material", value="Al-Extruded")
     extension.update_button.invoke()
     assert ipk.modeler.objects[62].material_name == "al-extruded"
-    assert ipk.modeler.objects[34].model == False
+    assert not ipk.modeler.objects[34].model
