@@ -1792,7 +1792,7 @@ class PostProcessorCommon(PyAedtBase):
                 "Time",
                 "__UnitInterval",
                 "__Amplitude",
-            ] and "Freq" in report._legacy_props.get("context", {}).get("variations"):
+            ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
                 del report._legacy_props["context"]["variations"]["Freq"]
             _update_props(props, report._legacy_props)
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
