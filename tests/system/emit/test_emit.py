@@ -32,9 +32,9 @@ import types
 # Import required modules
 from typing import cast
 from unittest.mock import MagicMock
+import warnings
 
 import pytest
-import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.generic import constants as consts
@@ -1113,24 +1113,25 @@ class TestClass:
 
         domain = interference.results.interaction_domain()
         with pytest.raises(ValueError) as e:
-            _, _ = rev.interference_type_classification(domain,
-                                                        InterfererType.EMITTERS)
+            _, _ = rev.interference_type_classification(domain, InterfererType.EMITTERS)
         assert str(e.value) == "No interferers defined in the analysis."
         with pytest.raises(ValueError) as e:
-            _, _ = rev.protection_level_classification(domain,
-                                                       interferer_type=InterfererType.EMITTERS,
-                                                       global_protection_level=True,
-                                                       global_levels=[30, -4, -30, -104])
+            _, _ = rev.protection_level_classification(
+                domain,
+                interferer_type=InterfererType.EMITTERS,
+                global_protection_level=True,
+                global_levels=[30, -4, -30, -104],
+            )
         assert str(e.value) == "No interferers defined in the analysis."
 
         int_colors, int_power_matrix = rev.interference_type_classification(
-            domain,
-            interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS)
+            domain, interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS
+        )
         pro_colors, pro_power_matrix = rev.protection_level_classification(
             domain,
             interferer_type=InterfererType.TRANSMITTERS,
             global_protection_level=True,
-            global_levels=[30, -4, -30, -104]
+            global_levels=[30, -4, -30, -104],
         )
 
         assert int_colors == expected_interference_colors
@@ -1472,7 +1473,7 @@ class TestClass:
         def get_value_for_parameter(parameter, docstring):
             param_value = None
 
-            #if arg_type in (int, float):
+            # if arg_type in (int, float):
             if isinstance(parameter, int) or isinstance(parameter, float):
                 param_value = 0
 
@@ -1574,18 +1575,20 @@ class TestClass:
                                 warnings.simplefilter("always")
 
                                 attr = getattr(node, member)
-                                values = ['TestString']
+                                values = ["TestString"]
                                 result = attr(*values)
                                 if w:
                                     mem_results[mem_key] = (Result.VALUE, node.name)
-                                    assert str(w[0].message) == "This property is deprecated in 0.21.3. "\
-                                                                "Use the name property instead."
+                                    assert (
+                                        str(w[0].message) == "This property is deprecated in 0.21.3. "
+                                        "Use the name property instead."
+                                    )
                             continue
 
                         if member.startswith("duplicate"):
                             with pytest.raises(NotImplementedError) as e:
                                 attr = getattr(node, member)
-                                values = ['TestString']
+                                values = ["TestString"]
                                 result = attr(*values)
                             mem_results[mem_key] = (Result.VALUE, str(e.value))
                             continue

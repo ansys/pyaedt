@@ -86,4 +86,3 @@ class TxMeasNode(EmitNode):
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
-

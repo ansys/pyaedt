@@ -607,10 +607,13 @@ class Revision:
             engine.n_to_1_limit = max_instances
 
     @pyaedt_function_handler()
-    def interference_type_classification(self, domain,
-                                         interferer_type: InterfererType = InterfererType.TRANSMITTERS,
-                                         use_filter: bool = False,
-                                         filter_list: list[str] = None):  # pragma: no cover
+    def interference_type_classification(
+        self,
+        domain,
+        interferer_type: InterfererType = InterfererType.TRANSMITTERS,
+        use_filter: bool = False,
+        filter_list: list[str] = None,
+    ):  # pragma: no cover
         """Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
@@ -646,8 +649,7 @@ class Revision:
         if interferer_type == InterfererType.TRANSMITTERS:
             tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
         elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
-            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx,
-                                                 include_emitters=True)
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=True)
         else:
             tx_radios = self.get_all_emitter_radios()
 
@@ -815,8 +817,7 @@ class Revision:
         if interferer_type == InterfererType.TRANSMITTERS:
             tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
         elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
-            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx,
-                                                 include_emitters=True)
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=True)
         else:
             tx_radios = self.get_all_emitter_radios()
 
