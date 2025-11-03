@@ -23,16 +23,17 @@
 # SOFTWARE.
 
 # standard imports
+import json
 import os
 import time
-import json
+
 import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core import Icepak
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
 
