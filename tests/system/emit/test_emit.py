@@ -1915,7 +1915,7 @@ class TestClass:
         emitter_band: Waveform = emitter_node.get_waveforms()[0]
         assert emitter_band.warnings == ""
 
-        assert emitter_node.children() == emitter_node.get_waveforms()
+        assert emitter_node.children == emitter_node.get_waveforms()
 
         emitter_band.waveform = Waveform.WaveformOption.PRBS
         assert emitter_band.waveform == Waveform.WaveformOption.PRBS
