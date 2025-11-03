@@ -43,7 +43,7 @@ class Waveform(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -51,7 +51,7 @@ class Waveform(EmitNode):
         """Delete this node"""
         self._delete()
 
-    def rename(self, new_name: str):
+    def rename(self, new_name: str = ""):
         """Rename this node"""
         self._rename(new_name)
 
@@ -404,3 +404,4 @@ class Waveform(EmitNode):
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
         self._set_property("Min Pts/Null", f"{value}")
+

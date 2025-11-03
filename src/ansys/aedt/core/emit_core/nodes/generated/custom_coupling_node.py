@@ -45,11 +45,11 @@ class CustomCouplingNode(EmitNode):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def rename(self, new_name: str):
+    def rename(self, new_name: str = ""):
         """Rename this node"""
         self._rename(new_name)
 
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -104,3 +104,4 @@ class CustomCouplingNode(EmitNode):
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")
+

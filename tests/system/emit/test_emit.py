@@ -34,6 +34,7 @@ from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
+import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.generic import constants as consts
@@ -1111,19 +1112,31 @@ class TestClass:
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
         domain = interference.results.interaction_domain()
-        interference_colors = []
-        interference_power_matrix = []
-        protection_colors = []
-        protection_power_matrix = []
-        interference_colors, interference_power_matrix = rev.interference_type_classification(domain)
-        protection_colors, protection_power_matrix = rev.protection_level_classification(
-            domain, global_protection_level=True, global_levels=[30, -4, -30, -104]
+        with pytest.raises(ValueError) as e:
+            _, _ = rev.interference_type_classification(domain,
+                                                        InterfererType.EMITTERS)
+        assert str(e.value) == "No interferers defined in the analysis."
+        with pytest.raises(ValueError) as e:
+            _, _ = rev.protection_level_classification(domain,
+                                                       interferer_type=InterfererType.EMITTERS,
+                                                       global_protection_level=True,
+                                                       global_levels=[30, -4, -30, -104])
+        assert str(e.value) == "No interferers defined in the analysis."
+
+        int_colors, int_power_matrix = rev.interference_type_classification(
+            domain,
+            interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS)
+        pro_colors, pro_power_matrix = rev.protection_level_classification(
+            domain,
+            interferer_type=InterfererType.TRANSMITTERS,
+            global_protection_level=True,
+            global_levels=[30, -4, -30, -104]
         )
 
-        assert interference_colors == expected_interference_colors
-        assert interference_power_matrix == expected_interference_power
-        assert protection_colors == expected_protection_colors
-        assert protection_power_matrix == expected_protection_power
+        assert int_colors == expected_interference_colors
+        assert int_power_matrix == expected_interference_power
+        assert pro_colors == expected_protection_colors
+        assert pro_power_matrix == expected_protection_power
 
     def test_radio_protection_levels(self, interference):
         # Generate a revision
@@ -1456,10 +1469,11 @@ class TestClass:
             EXCEPTION = 2
             NEEDS_PARAMETERS = 3
 
-        def get_value_for_parameter(arg_type, docstring):
+        def get_value_for_parameter(parameter, docstring):
             param_value = None
 
-            if arg_type in (int, float):
+            #if arg_type in (int, float):
+            if isinstance(parameter, int) or isinstance(parameter, float):
                 param_value = 0
 
                 # If there's a min or max in the docstring, use it.
@@ -1475,16 +1489,18 @@ class TestClass:
                     elif "Value should be greater than" in docstring:
                         min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
                         param_value = min_val
-            elif isinstance(arg_type, str):
+            elif isinstance(parameter, str):
                 param_value = "TestString"
-            elif isinstance(arg_type, bool):
+            elif isinstance(parameter, bool):
                 param_value = True
-            elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+            elif isinstance(parameter, type) and issubclass(parameter, Enum):
                 # Type is an Enum
+                arg_type = type(parameter)
                 first_enum_value = list(arg_type.__members__.values())[0]
                 param_value = first_enum_value
-            elif isinstance(arg_type, types.UnionType):
+            elif isinstance(parameter, types.UnionType):
                 # Type is a Union
+                arg_type = type(parameter)
                 possible_arg_types = arg_type.__args__
                 if int in possible_arg_types or float in possible_arg_types:
                     param_value = 0
@@ -1554,7 +1570,24 @@ class TestClass:
                             continue
 
                         if member.startswith("rename"):
-                            mem_results[mem_key] = (Result.SKIPPED, "Skipping rename method")
+                            with warnings.catch_warnings(record=True) as w:
+                                warnings.simplefilter("always")
+
+                                attr = getattr(node, member)
+                                values = ['TestString']
+                                result = attr(*values)
+                                if w:
+                                    mem_results[mem_key] = (Result.VALUE, node.name)
+                                    assert str(w[0].message) == "This property is deprecated in 0.21.3. "\
+                                                                "Use the name property instead."
+                            continue
+
+                        if member.startswith("duplicate"):
+                            with pytest.raises(NotImplementedError) as e:
+                                attr = getattr(node, member)
+                                values = ['TestString']
+                                result = attr(*values)
+                            mem_results[mem_key] = (Result.VALUE, str(e.value))
                             continue
 
                         class_attr = getattr(node.__class__, member)
@@ -1637,10 +1670,9 @@ class TestClass:
                                 values = []
                                 bad_param = None
                                 for parameter in signature.parameters:
-                                    arg_type = type(parameter)
                                     docstring = attr.__doc__
 
-                                    mem_value = get_value_for_parameter(arg_type, docstring)
+                                    mem_value = get_value_for_parameter(parameter, docstring)
                                     if mem_value is not None:
                                         values.append(mem_value)
                                     else:
@@ -1900,6 +1932,10 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emitters_radios(self, emit_app):
+        rev = emit_app.results.analyze()
+        emitter_radio_nodes = rev.get_all_emitter_radios()
+        assert emitter_radio_nodes is None
+
         emitter_name = "Test Emitter"
         emitter_node: EmitterNode = emit_app.schematic.create_component(
             name=emitter_name, component_type="New Emitter", library="Emitters"
@@ -1908,6 +1944,9 @@ class TestClass:
         # Test that you can get the emitter's radio and antenna nodes
         emitter_radio: RadioNode = emitter_node.get_radio()
         assert isinstance(emitter_radio, RadioNode)
+
+        emitter_radio_nodes = rev.get_all_emitter_radios()
+        assert emitter_radio_nodes[0] == emitter_radio
 
         emitter_ant: AntennaNode = emitter_node.get_antenna()
         assert isinstance(emitter_ant, AntennaNode)
@@ -1934,9 +1973,8 @@ class TestClass:
         assert radio_node.name == "Synopsys"
 
         # try renaming the Emitter to an invalid value
-        # TODO: the next two lines are only needed for 25.2, which had
+        # TODO: the next line is only needed for 25.2, which had
         # some instability in maintaining the node_ids
-        rev = emit_app.results.analyze()
         emitter_node = rev.get_component_node(emitter_name)
         with pytest.raises(GrpcApiError) as exc_info:
             emitter_node.name = "Synopsys"
@@ -1949,6 +1987,22 @@ class TestClass:
         # rename a node
         band.name = "Test"
         assert band.name == "Test"
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            band.rename("Test 2")
+            if w:
+                assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
+        assert band.name == "Test 2"
+
+        # Add a Band
+        radio_node.add_band()
+        bands: Band = radio_node.children
+        assert len(bands) == 3  # 2 Bands + 1 SamplingNode
+        bands[1].delete()
+        bands = radio_node.children
+        assert len(bands) == 2  # 1 Band + 1 SamplingNode
 
         radio_tx_spec: TxSpectralProfNode = band.children[0]
         assert isinstance(radio_tx_spec, TxSpectralProfNode)

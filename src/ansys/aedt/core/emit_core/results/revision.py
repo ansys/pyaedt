@@ -607,7 +607,10 @@ class Revision:
             engine.n_to_1_limit = max_instances
 
     @pyaedt_function_handler()
-    def interference_type_classification(self, domain, use_filter=False, filter_list=None):  # pragma: no cover
+    def interference_type_classification(self, domain,
+                                         interferer_type: InterfererType = InterfererType.TRANSMITTERS,
+                                         use_filter: bool = False,
+                                         filter_list: list[str] = None):  # pragma: no cover
         """Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
@@ -615,9 +618,11 @@ class Revision:
         ----------
             domain :
                 ``InteractionDomain`` object for constraining the analysis parameters.
+            interferer_type : TxRxMode, optional
+                Specifies whether to analyze all interferers, radios only, or emitters only.
             use_filter : bool, optional
                 Whether filtering is being used. The default is ``False``.
-            filter_list : list, optional
+            filter_list : list[str], optional
                 List of filter values selected by the user via the GUI if filtering is in use.
 
         Returns
@@ -625,7 +630,7 @@ class Revision:
             power_matrix : list
                 List of worst case interference power at Rx.
             all_colors : list
-                List of color classification of interference types.
+                Color classification of interference types.
 
         Examples
         --------
@@ -638,7 +643,18 @@ class Revision:
         mode_rx = TxRxMode.RX
         mode_tx = TxRxMode.TX
         rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
-        tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        if interferer_type == InterfererType.TRANSMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx,
+                                                 include_emitters=True)
+        else:
+            tx_radios = self.get_all_emitter_radios()
+
+        if tx_radios is None:
+            raise ValueError("No interferers defined in the analysis.")
+        if rx_radios is None:
+            raise ValueError("No receivers defined in the analysis.")
 
         for tx_radio in tx_radios:
             rx_powers = []
@@ -747,11 +763,12 @@ class Revision:
     def protection_level_classification(
         self,
         domain,
-        global_protection_level=True,
-        global_levels=None,
-        protection_levels=None,
-        use_filter=False,
-        filter_list=None,
+        interferer_type: InterfererType = InterfererType.TRANSMITTERS,
+        global_protection_level: bool = True,
+        global_levels: list = None,
+        protection_levels: dict = None,
+        use_filter: bool = False,
+        filter_list: list[str] = None,
     ):  # pragma: no cover
         """
         Classify worst-case power at each Rx radio according to interference type.
@@ -763,6 +780,8 @@ class Revision:
         ----------
             domain :
                 ``InteractionDomain`` object for constraining the analysis parameters.
+            interferer_type : TxRxMode, optional
+                Specifies whether to analyze all interferers, radios only, or emitters only.
             global_protection_level : bool, optional
                 Whether to use the same protection levels for all radios. The default is ``True``.
             global_levels : list, optional
@@ -777,9 +796,9 @@ class Revision:
         Returns
         -------
             power_matrix : list
-                List of worst case interference according to power at each Rx radio.
+                Worst case interference according to power at each Rx radio.
             all_colors : list
-                List of color classification of protection level.
+                Color classification of protection level.
 
         Examples
         --------
@@ -793,7 +812,18 @@ class Revision:
         mode_tx = TxRxMode.TX
         mode_power = ResultType.POWER_AT_RX
         rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
-        tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=False)
+        if interferer_type == InterfererType.TRANSMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx,
+                                                 include_emitters=True)
+        else:
+            tx_radios = self.get_all_emitter_radios()
+
+        if tx_radios is None:
+            raise ValueError("No interferers defined in the analysis.")
+        if rx_radios is None:
+            raise ValueError("No receivers defined in the analysis.")
 
         if global_protection_level and global_levels is None:
             damage_threshold = 30
@@ -810,7 +840,7 @@ class Revision:
             for rx_radio in rx_radios:
                 # powerAtRx is the same for all Rx bands, so just
                 # use the first one
-                if not (global_protection_level):
+                if not global_protection_level:
                     damage_threshold = protection_levels[rx_radio.name][0]
                     overload_threshold = protection_levels[rx_radio.name][1]
                     intermod_threshold = protection_levels[rx_radio.name][2]
