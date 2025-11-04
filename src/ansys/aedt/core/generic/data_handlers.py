@@ -164,8 +164,6 @@ def _dict2arg(d, arg_out):
             arg_out.append(k + ":=")
             if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
                 arg_out.append(v.id)
-            elif k == "Points":
-                arg_out
             else:
                 arg_out.append(v)
 
