@@ -113,6 +113,7 @@ all = [
     "scikit-rf>=0.30.0,<1.9",
     "pyaedt[jupyter]",
     "requests",
+    "typer>=0.20.0",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
     "uv>=0.8.17",
@@ -148,6 +149,9 @@ Source = "https://github.com/ansys/pyaedt"
 Discussions = "https://github.com/ansys/pyaedt/discussions"
 Releases = "https://github.com/ansys/pyaedt/releases"
 Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
+
+[project.scripts]
+aedt = "ansys.aedt.core.cli.aedt_cli:app"
 
 [tool.ruff]
 line-length = 120
@@ -349,3 +353,5 @@ showcontent = true
 directory = "test"
 name = "Test"
 showcontent = true
+
+
