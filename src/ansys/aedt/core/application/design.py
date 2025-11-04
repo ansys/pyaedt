@@ -2470,13 +2470,15 @@ class Design(AedtObjects, PyAedtBase):
             raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
         if design not in ["Icepak", "Mechanical"]:
             raise AEDTRuntimeError("Design type must be 'Icepak' or 'Mechanical'.")
+        design_setup_args = ["NAME:DesignSetup", "Sim Type:="]
         if design == "Icepak":
             design_setup = design_setup or "Forced"
             if design_setup not in ["Forced", "Natural"]:
                 raise AEDTRuntimeError("Design setup must be 'Forced' or 'Natural'.")
+            design_setup_args.append(design_setup)
         if not setup:
             setup = self.nominal_adaptive
-        self.odesign.CreateEMLossTarget(design, setup, design_setup)
+        self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
         return True
 
     @pyaedt_function_handler()
