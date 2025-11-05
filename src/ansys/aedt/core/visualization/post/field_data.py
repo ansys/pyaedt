@@ -31,6 +31,7 @@ import sys
 import tempfile
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AllowedMarkers
 from ansys.aedt.core.generic.constants import EnumUnits
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -52,7 +53,7 @@ except ImportError:  # pragma: no cover
     pd = None
 
 
-class BaseFolderPlot:
+class BaseFolderPlot(PyAedtBase):
     @abstractmethod
     def to_dict(self):
         """Convert the settings to a dictionary.
@@ -321,7 +322,7 @@ class MinMaxScale(BaseFolderPlot):
         self.n_levels = dictionary["m_nLevels"]
 
 
-class SpecifiedScale:
+class SpecifiedScale(PyAedtBase):
     """Provides methods and variables for editing min-max scale folder settings.
 
     Parameters
@@ -896,7 +897,7 @@ class FolderPlotSettings(BaseFolderPlot):
         self.marker_settings = marker
 
 
-class FieldPlot:
+class FieldPlot(PyAedtBase):
     """Provides for creating and editing field plots.
 
     Parameters
@@ -1150,6 +1151,8 @@ class FieldPlot:
             List of plot settings.
         """
         if self.surfaces or self.cutplanes or (self.layer_nets and self.layer_plot_type == "LayerNetsExtFace"):
+            if self.quantity == "Flux_Lines":
+                self.IsoVal = "Line"
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",

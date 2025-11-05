@@ -29,9 +29,11 @@ import os
 import sys
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -83,7 +85,7 @@ def identify_setup(props):
     return False
 
 
-class SweepCommon:
+class SweepCommon(PyAedtBase):
     def __repr__(self):
         return f"{self.setup_name} : {self.name}"
 
@@ -177,7 +179,7 @@ class SweepHFSS(SweepCommon):
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
-            return soldata.intrinsics["Freq"]
+            return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
         return []
 
     @property
@@ -694,7 +696,7 @@ class SweepMatrix(SweepCommon):
         sol = self._app._app.post.reports_by_category.standard(setup=f"{self.setup_name} : {self.name}")
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
-            return soldata.intrinsics["Freq"]
+            return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
         return []
 
     @property
@@ -923,7 +925,7 @@ class SweepMaxwellEC(SweepCommon):
         )
         soldata = sol.get_solution_data()
         if soldata and "Freq" in soldata.intrinsics:
-            return soldata.intrinsics["Freq"]
+            return [Quantity(i, soldata.units_sweeps["Freq"]) for i in soldata.intrinsics["Freq"]]
         return []
 
     @pyaedt_function_handler()

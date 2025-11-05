@@ -27,6 +27,7 @@ import shutil
 import time
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
@@ -37,7 +38,7 @@ from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSol
 from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
 
 
-class FfdSolutionDataExporter:
+class FfdSolutionDataExporter(PyAedtBase):
     """Class to enable export of embedded element pattern data from HFSS.
 
     An instance of this class is returned from the
@@ -292,19 +293,19 @@ class FfdSolutionDataExporter:
                     "IncidentPower", self.setup_name, self.sphere_name
                 )
                 data = report.get_solution_data()
-                incident_powers = data.data_magnitude()
+                incident_powers = data.get_expression_data(formula="magnitude")[1]
 
                 report = self.__app.post.reports_by_category.antenna_parameters(
                     "RadiatedPower", self.setup_name, self.sphere_name
                 )
                 data = report.get_solution_data()
-                radiated_powers = data.data_magnitude()
+                radiated_powers = data.get_expression_data(formula="magnitude")[1]
 
                 report = self.__app.post.reports_by_category.antenna_parameters(
                     "AcceptedPower", self.setup_name, self.sphere_name
                 )
                 data = report.get_solution_data()
-                accepted_powers = data.data_magnitude()
+                accepted_powers = data.get_expression_data(formula="magnitude")[1]
 
                 for freq_cont, freq_str in enumerate(self.frequencies):
                     frequency = freq_str

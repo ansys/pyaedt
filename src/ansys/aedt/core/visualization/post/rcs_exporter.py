@@ -27,6 +27,7 @@ import json
 from pathlib import Path
 import shutil
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -37,7 +38,7 @@ from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticR
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
 
 
-class MonostaticRCSExporter:
+class MonostaticRCSExporter(PyAedtBase):
     """Class to enable export of radar cross-section (RCS) data from HFSS.
 
     An instance of this class is returned from the
@@ -157,7 +158,9 @@ class MonostaticRCSExporter:
         variations["IWavePhi"] = ["All"]
         frequencies = self.frequencies[::]
         if frequencies is not None:
-            frequencies = [str(freq) for freq in frequencies]
+            frequencies = [
+                f"{freq}{self.__frequency_unit}" if isinstance(freq, (float, int)) else freq for freq in frequencies
+            ]
         variations["Freq"] = frequencies
 
         solution_data = self.__app.post.get_solution_data(
@@ -190,6 +193,8 @@ class MonostaticRCSExporter:
             Metadata file.
 
         """
+        import pandas as pd
+
         # Output directory
         if not self.setup_name:
             self.setup_name = "Nominal"
@@ -237,12 +242,16 @@ class MonostaticRCSExporter:
                 if not data or data.number_of_variations != 1:  # pragma: no cover
                     raise AEDTRuntimeError("Data can not be obtained.")
 
-                df = data.full_matrix_real_imag[0].astype("float64") + complex(0, 1) * data.full_matrix_real_imag[
-                    1
-                ].astype("float64")
-                df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
-
-                df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
+                x, re = data.get_expression_data(
+                    expression=self.expression, formula="real", sweeps=list(data.intrinsics.keys())
+                )
+                x, im = data.get_expression_data(
+                    expression=self.expression, formula="imag", sweeps=list(data.intrinsics.keys())
+                )
+                df = pd.DataFrame(x, columns=list(data.intrinsics.keys()))
+                df[self.expression] = re + 1j * im
+                df.set_index(list(data.intrinsics.keys()), inplace=True)
+                df.index.names = list(data.intrinsics.keys())
                 df = unit_converter(
                     df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
                 )

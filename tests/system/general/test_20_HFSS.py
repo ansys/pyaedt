@@ -36,8 +36,8 @@ from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
-from tests.system.general.conftest import config
-from tests.system.general.conftest import settings
+from tests.conftest import config
+from tests.conftest import settings
 
 small_number = 1e-10  # Used for checking equivalence.
 
@@ -787,13 +787,24 @@ class TestClass:
 
     def test_18_create_sources_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxVolt1", "Copper")
-        self.aedtapp.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
+        box2 = self.aedtapp.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
         port = self.aedtapp.create_voltage_source_from_objects(
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
         assert port.name in self.aedtapp.excitation_names
-        port = self.aedtapp.create_current_source_from_objects("BoxVolt1", "BoxVolt2", self.aedtapp.AxisDir.XPos)
+
+        # Create with name
+        port = self.aedtapp.create_current_source_from_objects(box1.name, box2.name, self.aedtapp.AxisDir.XPos)
+        assert port
         assert port.name in self.aedtapp.excitation_names
+        # Create with id
+        port2 = self.aedtapp.create_current_source_from_objects(box1.id, box2.id)
+        assert port2
+        assert port2.name in self.aedtapp.excitation_names
+        # Create with Object3d
+        port3 = self.aedtapp.create_current_source_from_objects(box1, box2)
+        assert port3
+        assert port3.name in self.aedtapp.excitation_names
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 2], name="lump_port", material="Copper")
@@ -1477,11 +1488,11 @@ class TestClass:
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "sphere.stl")
-        from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+        from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
 
-        out = simplify_stl(example_project, decimation=0.8)
+        out = simplify_and_preview_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
-        out = simplify_stl(example_project, decimation=0.8, preview=True)
+        out = simplify_and_preview_stl(example_project, decimation=0.8, preview=True)
         assert out
 
     def test_60_set_variable(self):

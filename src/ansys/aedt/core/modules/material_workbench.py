@@ -36,13 +36,14 @@ import defusedxml
 from defusedxml.ElementTree import ParseError
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
 
 defusedxml.defuse_stdlib()
 
 
-class MaterialWorkbench:
+class MaterialWorkbench(PyAedtBase):
     """Manages the import of materials from a Workbench Engineering Data XML file.
 
     Parameters

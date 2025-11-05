@@ -35,11 +35,13 @@ from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
+from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 from tests import TESTS_VISUALIZATION_PATH
-from tests.system.visualization.conftest import config
+from tests.conftest import config
 
 test_field_name = "Potter_Horn_242"
 q3d_file = "via_gsg_solved"
@@ -52,6 +54,7 @@ m3d_file = "m3d"
 test_emi_name = "EMI_RCV_251"
 ipk_post_proj = "for_icepak_post_parasolid"
 ipk_markers_proj = "ipk_markers"
+tb_spectral = "TB_excitation_model"
 
 test_subfolder = "T12"
 
@@ -147,6 +150,13 @@ def m3d_app(add_app):
     app.close_project(save=False)
 
 
+@pytest.fixture()
+def tb_app(add_app):
+    app = add_app(project_name=tb_spectral, application=TwinBuilder, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
+
+
 class TestClass:
     def test_circuit_export_results(self, circuit_test):
         files = circuit_test.export_results()
@@ -220,13 +230,13 @@ class TestClass:
     def test_circuit_get_solution_data_2(self, circuit_test):
         data2 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
-        assert len(data2.data_magnitude()) > 0
+        assert len(data2.get_expression_data(formula="magnitude", sweeps=["Time"])[1]) > 0
 
     def test_circuit_get_solution_data_3(self, circuit_test):
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
         data3 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
         assert data3.units_sweeps["Spectrum"] == circuit_test.units.frequency
-        assert len(data3.data_real()) > 0
+        assert len(data3.get_expression_data()[1]) > 0
 
     def test_reports_by_category_standard_1(self, circuit_test):
         circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
@@ -297,7 +307,6 @@ class TestClass:
         )
         assert solution_data
         assert len(solution_data.primary_sweep_values) > 0
-        assert len(solution_data.primary_sweep_variations) > 0
         assert solution_data.set_active_variation(0)
         assert not solution_data.set_active_variation(99)
 
@@ -311,6 +320,8 @@ class TestClass:
             coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=os.path.join(sbr_test.working_directory, "csv")
         )
         assert os.path.exists(frames_list)
+        solution_data2 = sbr_test.post.get_solution_data(expressions=["NearEX", "NearEY", "NearEZ"])
+        assert solution_data2
 
     def test_sbr_plot_scene(self, sbr_test):
         solution_data = sbr_test.post.get_solution_data(
@@ -387,7 +398,7 @@ class TestClass:
         new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         sol = new_report.get_solution_data()
         sol.enable_pandas_output = True
-        sol.data_magnitude()
+        assert sol.get_expression_data(formula="magnitude", convert_to_SI=True, use_quantity=True)
         sol.enable_pandas_output = False
         new_report = q2dtest.post.reports_by_category.standard()
         assert new_report.get_solution_data()
@@ -772,3 +783,15 @@ class TestClass:
         )
         data = m3d_app.post.get_solution_data(expressions=expressions, context="Matrix1")
         assert data
+
+    @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+    def test_twinbuilder_spectral(self, tb_app):
+        assert tb_app.post.create_report(
+            expressions="mag(E1.I)", primary_sweep_variable="Spectrum", plot_name="Spectral domain", domain="Spectral"
+        )
+        new_report = tb_app.post.reports_by_category.spectral("mag(E1.I)", "TR")
+        new_report.window = "Rectangular"
+        new_report.max_frequency = "2.5MHz"
+        new_report.time_start = "0ns"
+        new_report.time_stop = "40ms"
+        assert new_report.create()

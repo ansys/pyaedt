@@ -37,7 +37,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from tests import TESTS_VISUALIZATION_PATH
-from tests.system.visualization.conftest import config
+from tests.conftest import config
 
 test_project_name = "coax_setup_solved_231"
 m2d_trace_export_table = "m2d"
@@ -46,16 +46,23 @@ test_circuit_name = "Switching_Speed_FET_And_Diode"
 test_subfolder = "T12"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def m2d_app(add_app):
     app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder, application=ansys.aedt.core.Maxwell2d)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def m2d_blank(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d)
     yield app
     app.close_project(app.project_name)
 
@@ -289,10 +296,10 @@ class TestClass:
         my_data = aedtapp.post.get_solution_data(expressions=trace_names, variations=families)
         assert my_data
         assert my_data.expressions
-        assert len(my_data.data_db10(trace_names[0])) > 0
-        assert len(my_data.data_imag(trace_names[0])) > 0
-        assert len(my_data.data_real(trace_names[0])) > 0
-        assert len(my_data.data_magnitude(trace_names[0])) > 0
+        assert len(my_data.get_expression_data(trace_names[0], formula="db10")[1]) > 0
+        assert len(my_data.get_expression_data(trace_names[0], formula="imag")[1]) > 0
+        assert len(my_data.get_expression_data(trace_names[0])[1]) > 0
+        assert len(my_data.get_expression_data(trace_names[0], formula="magnitude")[1]) > 0
 
     def test_export_data_to_csv(self, aedtapp, local_scratch):
         trace_names = []
@@ -339,11 +346,13 @@ class TestClass:
         assert aedtapp.export_touchstone(setup_name, sweep_name)
 
     def test_export_report_to_jpg(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         aedtapp.post.export_report_to_jpg(local_scratch.path, "MyTestScattering")
         output_file = Path(local_scratch.path) / "MyTestScattering.jpg"
         assert output_file.is_file()
 
     def test_export_report_to_csv(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         aedtapp.post.export_report_to_csv(
             local_scratch.path,
             "MyTestScattering",
@@ -357,6 +366,7 @@ class TestClass:
         assert output_file.is_file()
 
     def test_export_report_to_rdat(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         output_file = Path(local_scratch.path) / "MyTestScattering.rdat"
         aedtapp.post.export_report_to_file(local_scratch.path, "MyTestScattering", ".rdat")
         assert output_file.is_file()
@@ -450,14 +460,17 @@ class TestClass:
         assert model_pv.clean_cache_and_files(clean_cache=True)
 
     def test_copydata(self, aedtapp, local_scratch):
+        aedtapp.create_scattering("MyTestScattering")
         assert aedtapp.post.copy_report_data("MyTestScattering")
 
     def test_rename_report(self, aedtapp):
+        aedtapp.create_scattering("MyTestScattering")
         assert aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
 
     def test_rename_report_1(self, aedtapp):
-        assert [plot for plot in aedtapp.post.plots if plot.plot_name == "MyNewScattering"]
-        assert not aedtapp.post.rename_report("invalid", "MyNewScattering")
+        aedtapp.create_scattering("MyTestScattering")
+        assert [plot for plot in aedtapp.post.plots if plot.plot_name == "MyTestScattering"]
+        assert not aedtapp.post.rename_report("invalid", "MyTestScattering")
 
     def test_create_report(self, aedtapp, local_scratch):
         plot = aedtapp.post.create_report("dB(S(1,1))")
@@ -504,6 +517,7 @@ class TestClass:
         )
 
     def test_get_solution_data_2(self, aedtapp):
+        aedtapp.post.create_report("dB(S(1,1))")
         data = aedtapp.post.get_solution_data("S(1,1)")
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
@@ -729,9 +743,11 @@ class TestClass:
         )
 
     def test_delete_report(self, aedtapp):
+        aedtapp.create_scattering("MyTestScattering")
         plots_number = len(aedtapp.post.plots)
-        assert aedtapp.post.delete_report("MyNewScattering")
+        assert aedtapp.post.delete_report("MyTestScattering")
         assert len(aedtapp.post.plots) == plots_number - 1
+        aedtapp.create_scattering("MyTestScattering1")
         assert aedtapp.post.delete_report()
         assert len(aedtapp.post.plots) == 0
 
@@ -1085,3 +1101,11 @@ class TestClass:
             m2d_app.post.plots[0].export_table_to_file(plot_name, "Invalid Path", "Legend")
         with pytest.raises(AEDTRuntimeError):
             m2d_app.post.plots[0].export_table_to_file(plot_name, str(output_file_path), "Invalid Export Type")
+
+    def test_create_fieldplot_surface_5(self, m2d_blank):
+        circ = m2d_blank.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
+        m2d_blank.assign_current(assignment=circ.name, amplitude=5)
+        region = m2d_blank.modeler.create_region(pad_value=100)
+        m2d_blank.assign_balloon(assignment=region.edges)
+        m2d_blank.create_setup()
+        assert m2d_blank.post.create_fieldplot_surface(assignment=m2d_blank.modeler.object_list, quantity="Flux_Lines")

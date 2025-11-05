@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T21"
 
@@ -296,7 +296,10 @@ class TestClass:
         setup_name = "Dom_Quick"
         assert aedtapp.create_setup(setup_name, "NexximQuickEye")
         setup_name = "Dom_AMI"
-        assert aedtapp.create_setup(setup_name, "NexximAMI")
+        setup = aedtapp.create_setup(setup_name, "NexximAMI")
+        assert setup
+        setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
+        assert setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
     @pytest.mark.skipif(
         is_linux and config["desktopVersion"] == "2024.1",
@@ -1111,3 +1114,4 @@ class TestClass:
             circuitprj.create_output_variable(
                 variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
             )
+        assert circuitprj.remove_all_unused_definitions()

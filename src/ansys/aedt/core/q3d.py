@@ -31,6 +31,7 @@ from typing import Union
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -48,7 +49,7 @@ from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
-class QExtractor(FieldAnalysis3D, object):
+class QExtractor(FieldAnalysis3D, PyAedtBase):
     """Extracts a 2D or 3D field analysis.
 
     Parameters
@@ -266,12 +267,7 @@ class QExtractor(FieldAnalysis3D, object):
         return str(output_file)
 
     @pyaedt_function_handler()
-    def edit_sources(
-        self,
-        cg=None,
-        acrl=None,
-        dcrl=None,
-    ):
+    def edit_sources(self, cg=None, acrl=None, dcrl=None, harmonic_loss=None):
         """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
 
         Parameters
@@ -292,6 +288,12 @@ class QExtractor(FieldAnalysis3D, object):
             - 1 Magnitude to set up ``0deg`` as the default
             - 2 Values tuple or list (magnitude and phase)
 
+        harmonic_loss: dict, optional
+            Dictionary of real and imaginary currents for each source in order to compute harmonic loss.
+            Dictionary values can be:
+            - 1 Real part of the current
+            - 2 Imag part of the current
+
         Returns
         -------
         bool
@@ -305,11 +307,17 @@ class QExtractor(FieldAnalysis3D, object):
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         Values can also be passed as lists instead of tuples.
         >>> sources_dcrl = {"Box1_1:Source2": ["5V", "0deg"]}
-        >>> q3d.edit_sources(cg=sources_cg, acrl=sources_acrl, dcrl=sources_dcrl)
+        Assuming to have two TAB files containing respectively the real and imaginary parts
+        of the current for the source ``Box1:Source1``.
+        >>> real_data_set = q3d.import_dataset1d("real_dataset_file_path", name="real_dataset")
+        >>> imag_data_set = q3d.import_dataset1d("imag_dataset_file_path", name="imag_dataset")
+        >>> harmonic_loss = {"Box1:Source1": (real_data_set.name, imag_data_set.name)}
+        >>> q3d.edit_sources(cg=sources_cg, acrl=sources_acrl, dcrl=sources_dcrl, harmonic_loss=harmonic_loss)
         """
         settings_ac = []
         settings_cg = []
         settings_dc = []
+        settings_harmonic_loss = []
         if cg:
             source_list = ["NAME:Source Names"]
             if self.default_solution_type == "Q3D Extractor":
@@ -398,8 +406,36 @@ class QExtractor(FieldAnalysis3D, object):
 
             settings_dc = ["NAME:DC", "Value Type:=", magnitude_unit, source_list, magnitude_list, phase_list]
 
+        if harmonic_loss:
+            source_list = ["NAME:Source Names"]
+            source_real_dataset_names = ["NAME:Source real dataset names"]
+            source_imag_dataset_names = ["NAME:Source imag dataset names"]
+            sources = [source.name for source in self.excitations_by_type["Source"]]
+
+            for key, vals in harmonic_loss.items():
+                if key not in sources and key not in self.get_all_sources():
+                    self.logger.error("Not existing source " + key)
+                    return False
+
+                source_list.append(key)
+                if not isinstance(vals, (tuple, list)):
+                    self.logger.error("Real and Imag part of current must be provided")
+                    return False
+                else:
+                    source_real_dataset_names.append(vals[0])
+                    source_imag_dataset_names.append(vals[1])
+
+            settings_harmonic_loss = [
+                "NAME:HarmonicLoss",
+                "Value Type:=",
+                "A",
+                source_list,
+                source_real_dataset_names,
+                source_imag_dataset_names,
+            ]
+
         if self.default_solution_type == "Q3D Extractor":
-            self.osolution.EditSources(settings_ac, settings_cg, settings_dc)
+            self.osolution.EditSources(settings_ac, settings_cg, settings_dc, settings_harmonic_loss)
         else:
             self.osolution.EditSources(settings_cg, settings_ac)
         return True
@@ -1189,7 +1225,7 @@ class QExtractor(FieldAnalysis3D, object):
                 raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
 
 
-class Q3d(QExtractor, CreateBoundaryMixin):
+class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     """Provides the Q3D app interface.
 
     This class allows you to create an instance of Q3D and link to an
@@ -1917,7 +1953,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             >>> q3d = Q3d()
             >>> setup1 = q3d.create_setup(name="Setup1")
             >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
-            >>> q3d.release_desktop(True, True)
+            >>> q3d.desktop_class.close_desktop()
 
         Parameters
         ----------
@@ -1989,7 +2025,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             >>> sweep1 = setup1.create_frequency_sweep(
             ...     unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1", sweep_type="Discrete"
             ... )
-            >>> q3d.release_desktop(True, True)
+            >>> q3d.desktop_class.close_desktop()
 
         Parameters
         ----------
@@ -2574,7 +2610,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         return self._create_boundary(name, props, "NearFieldSphere")
 
 
-class Q2d(QExtractor, CreateBoundaryMixin):
+class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     """Provides the Q2D app interface.
 
     This class allows you to create an instance of Q2D and link to an

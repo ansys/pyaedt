@@ -35,8 +35,10 @@ from math import sqrt
 from math import tan
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Edb
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import normalize_path
@@ -52,8 +54,11 @@ from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
+if TYPE_CHECKING:
+    from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
-class Primitives3D(GeometryModeler):
+
+class Primitives3D(GeometryModeler, PyAedtBase):
     """Manages primitives in applications using the 3D modeler.
 
     Each Electonics Desktop application uses an instance of this class
@@ -110,7 +115,7 @@ class Primitives3D(GeometryModeler):
         self.multiparts = []
 
     @pyaedt_function_handler(position="origin", dimensions_list="sizes", matname="material")
-    def create_box(self, origin, sizes, name=None, material=None, **kwargs):
+    def create_box(self, origin, sizes, name=None, material=None, **kwargs) -> "Object3d":
         """Create a box.
 
         Parameters

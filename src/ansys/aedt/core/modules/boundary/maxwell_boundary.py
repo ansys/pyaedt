@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -32,7 +33,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
 
 
-class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
+class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """Manages parameters data and execution.
 
     Parameters
@@ -270,7 +271,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
         )
 
 
-class MaxwellMatrix(object):
+class MaxwellMatrix(PyAedtBase):
     """
     Provides methods to interact with reduced matrices in Maxwell.
 

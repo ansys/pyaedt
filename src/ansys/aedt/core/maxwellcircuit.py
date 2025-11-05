@@ -28,11 +28,12 @@ import math
 from pathlib import Path
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
-class MaxwellCircuit(AnalysisMaxwellCircuit, object):
+class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     """Provide the Maxwell Circuit application interface.
 
     Parameters
@@ -253,7 +254,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         >>> gnd.pins[0].connect_to_component(v.pins[0], use_wire=True)
         Export circuit netlist.
         >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
-        >>> circ.release_desktop(close_projects=True, close_desktop=True)
+        >>> circ.desktop_class.close_desktop()
         """
         if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")

@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "grpcio>=1.50.0,<1.75",
+    "grpcio>=1.50.0,<1.76",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
@@ -41,15 +41,16 @@ dependencies = [
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
-    "pydantic>=2.6.4,<2.12",
+    "pydantic>=2.6.4,<2.13",
 ]
 
 [project.optional-dependencies]
 unit-tests = [
     "pytest>=7.4.0,<8.5",
-    "pytest-cov>=4.0.0,<6.3",
+    "pytest-cov>=4.0.0,<7.1",
     "mock>=5.1.0,<5.3",
     "fpdf2",
+    "requests",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
@@ -114,6 +115,7 @@ all = [
     "requests",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
+    "uv>=0.8.17",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
@@ -129,6 +131,12 @@ examples = [
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd", "**/*.license"]
 
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
@@ -252,11 +260,17 @@ omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
 markers = [
-    "unit",
-    "integration",
-    "system",
-    "solvers",
-    "general",
+    "unit: mark a test as a unit test.",
+    "integration: mark a test as an integration test.",
+    "system: mark a test as a system test.",
+    "solvers: mark a test as related to solvers.",
+    "general: mark a test as related to general features.",
+    "visualization: mark a test as related to visualization features.",
+    "extensions: mark a test as related to extensions.",
+    "filter_solutions: mark a test as related to filter solutions.",
+    "emit: mark a test as related to EMIT features.",
+    "flaky_linux: mark a test as flaky on Linux systems.",
+    "flaky_windows: mark a test as flaky on Windows systems.",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",

@@ -27,6 +27,7 @@ from pathlib import Path
 import secrets
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -41,7 +42,7 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 
-class CircuitComponents(object):
+class CircuitComponents(PyAedtBase):
     """CircutComponents class.
 
     Manages all circuit components for Nexxim and Twin Builder.
@@ -1136,7 +1137,7 @@ class CircuitComponents(object):
         >>> aedtapp = TwinBuilder()
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
         >>> cmp.set_property("ShowPin", True)
-        >>> aedtapp.release_desktop(True, True)
+        >>> aedtapp.desktop_class.close_desktop()
         """
         # id = self.create_unique_id()
         if component_library:
@@ -1631,7 +1632,7 @@ class CircuitComponents(object):
             return False
 
 
-class ComponentInfo(object):
+class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
 
     def __init__(self, name, component_manager, file_name, component_library):
@@ -1685,7 +1686,7 @@ class ComponentInfo(object):
         )
 
 
-class ComponentCatalog(object):
+class ComponentCatalog(PyAedtBase):
     """Indexes Circuit Sys Catalog."""
 
     @pyaedt_function_handler()
