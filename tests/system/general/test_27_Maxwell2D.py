@@ -253,6 +253,11 @@ class TestClass:
         assert bound
         assert bound.props["PositivePos"] == "300deg"
         assert bound.props["Objects"][0] == "Circle_outer"
+        assert len(aedtapp.boundaries_by_type["Band"])==2
+        bound.delete()
+        assert len(aedtapp.boundaries_by_type["Band"])==1
+        
+
 
     def test_delete_motion_setup(self, aedtapp):
         aedtapp.xy_plane = True
