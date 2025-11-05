@@ -148,37 +148,33 @@ class TestClass:
         o2 = aedtapp.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2", material="copper")
         o3 = aedtapp.modeler.create_rectangle([10, 0, 0], [3, 1], name="Coil_4", material="copper")
 
-       
         initial_boundary_count = len(aedtapp.boundaries)
-        
-       
+
         bound = aedtapp.assign_coil(assignment=[o1.name, o2.name, o3.name])
         assert bound
 
-        
         assert bound.type == "CoilGroup"
-        
-        
+
         final_boundary_count = len(aedtapp.boundaries)
         objects_assigned = [o1.name, o2.name, o3.name]
         expected_new_boundaries = len(objects_assigned)  # One individual coil boundary per object
         assert final_boundary_count == initial_boundary_count + expected_new_boundaries
-        
-        
-        new_boundaries = [b for b in aedtapp.boundaries if b.name.startswith(bound.name.split('_')[0] + '_' + bound.name.split('_')[1])]
+
+        new_boundaries = [
+            b
+            for b in aedtapp.boundaries
+            if b.name.startswith(bound.name.split("_")[0] + "_" + bound.name.split("_")[1])
+        ]
         coil_group_boundaries = [b for b in new_boundaries if b.type == "CoilGroup"]
         individual_coil_boundaries = [b for b in new_boundaries if b.type == "Coil"]
-        
-       
+
         assert len(coil_group_boundaries) == 1
         assert len(individual_coil_boundaries) == len(objects_assigned) - 1
-        
 
         coil_props = bound.props[bound.name]
         assert set(coil_props["Objects"]) == {o1.name, o2.name, o3.name}
         assert coil_props["PolarityType"] == "positive"
         assert coil_props["Conductor number"] == "1"
-        
 
     def test_create_vector_potential(self, aedtapp):
         region = aedtapp.modeler["Region"]
@@ -228,8 +224,6 @@ class TestClass:
         assert force.delete()
         force = aedtapp.assign_force(assignment="Magnet2_Section1", force_name="Force_Test")
         assert force.name == "Force_Test"
-
-    
 
     def test_assign_current_source(self, m2d_app):
         coil = m2d_app.modeler.create_circle(
@@ -292,17 +286,15 @@ class TestClass:
         assert bound.props["PositivePos"] == "300deg"
         assert bound.props["Objects"][0] == "Circle_outer"
 
-
     def test_delete_motion_setup(self, aedtapp):
         aedtapp.xy_plane = True
         aedtapp.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
         aedtapp.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")
         bound = aedtapp.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
         assert bound
-        assert len(aedtapp.boundaries_by_type["Band"])==2
+        assert len(aedtapp.boundaries_by_type["Band"]) == 2
         bound.delete()
-        assert len(aedtapp.boundaries_by_type["Band"])==1
-        
+        assert len(aedtapp.boundaries_by_type["Band"]) == 1
 
     def test_change_inductance_computation(self, aedtapp):
         assert aedtapp.change_inductance_computation()

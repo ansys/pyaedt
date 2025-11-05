@@ -27,7 +27,6 @@
 import io
 from pathlib import Path
 import re
-import string
 import time
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -1402,24 +1401,24 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             if self.modeler._is3d:
                 # For 3D case with multiple faces, create a coil terminal group
                 if len(assignment) > 1:
-                    coil_group_names = [name + f"_{i+1}" for i in range(len(assignment))]
+                    coil_group_names = [name + f"_{i + 1}" for i in range(len(assignment))]
                     props = {"items": coil_group_names}
-                    
+
                     for i, coil_name in enumerate(coil_group_names):
                         bound_props = {
                             "Faces": [assignment[i]],
                             "Conductor number": str(conductors_number),
-                            "Point out of terminal": point
+                            "Point out of terminal": point,
                         }
                         props[coil_name] = bound_props.copy()
-                    
+
                     bound_type = "CoilTerminalGroup"
                 else:
                     # Single face in 3D
                     props = {
                         "Faces": assignment,
                         "Conductor number": str(conductors_number),
-                        "Point out of terminal": point
+                        "Point out of terminal": point,
                     }
                     bound_type = "CoilTerminal"
             else:
@@ -1433,8 +1432,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                     }
                     bound_type = "Coil"
                 else:
-                    coil_group_names = [name + f"_{i+1}" for i in range(len(assignment))]
-                    
+                    coil_group_names = [name + f"_{i + 1}" for i in range(len(assignment))]
+
                     # Structure the properties to match the CurrentDensityGroup pattern
                     common_props = {
                         "Objects": assignment,
@@ -1443,39 +1442,36 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                     }
                     props = {"items": coil_group_names}
                     props[coil_group_names[0]] = common_props.copy()
-                    name = coil_group_names[0]  
+                    name = coil_group_names[0]
                     bound_type = "CoilGroup"
         else:
             # Face IDs provided
             if self.modeler._is3d:
                 if len(assignment) > 1:
-                   
                     boundaries = []
                     for i, face_id in enumerate(assignment):
-                        face_name = name + f"_{i+1}" if len(assignment) > 1 else name
+                        face_name = name + f"_{i + 1}" if len(assignment) > 1 else name
                         face_props = {
                             "Faces": [face_id],
                             "Conductor number": str(conductors_number),
-                            "Point out of terminal": point
+                            "Point out of terminal": point,
                         }
                         bound = self._create_boundary(face_name, face_props, "CoilTerminal")
                         if bound:
                             boundaries.append(bound)
-                    
-                    
+
                     return boundaries[0] if boundaries else False
                 else:
                     props = {
                         "Faces": assignment,
                         "Conductor number": str(conductors_number),
-                        "Point out of terminal": point
+                        "Point out of terminal": point,
                     }
                     bound_type = "CoilTerminal"
             else:
                 raise AEDTRuntimeError("Face Selection is not allowed in Maxwell 2D. Provide a 2D object.")
 
         return self._create_boundary(name, props, bound_type)
-    
 
     @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
