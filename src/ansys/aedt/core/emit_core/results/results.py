@@ -60,6 +60,8 @@ class Results:
         self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
+        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+
     @pyaedt_function_handler()
     def _add_revision(self, name=None):
         """Add a new revision or get the current revision if it already exists.
@@ -79,7 +81,6 @@ class Results:
         -------
         ``Revision`` object that was created.
         """
-        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
         if self.aedt_version > 251 and name is None:
             current_revision = None
             current_revisions = [revision for revision in self.revisions if revision.name == "Current"]
@@ -114,7 +115,6 @@ class Results:
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
         """
-        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
         if self.aedt_version > 251:
             if revision_name in self.design.GetKeptResultNames():
                 self.design.DeleteKeptResult(revision_name)
@@ -212,7 +212,6 @@ class Results:
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
         """
-        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
         # no revisions to load, create a new one
         if len(self.revisions) == 0:
             return self.analyze()
@@ -259,7 +258,6 @@ class Results:
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
         """
-        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
         if self.aedt_version > 251:
             if self.current_revision:
                 self.current_revision.revision_loaded = False

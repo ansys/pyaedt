@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests import TESTS_GENERAL_PATH
+from tests.system.extensions.test_create_coil import aedtapp
 from tests.system.general.conftest import config
 from tests.system.solvers.conftest import desktop_version
 
@@ -156,6 +157,51 @@ class TestClass:
         bound_name = generate_unique_name("Coil")
         bound = m3d_app.assign_coil(assignment=face_id, name=bound_name)
         assert bound_name == bound.name
+        
+    def test_create_coil_group(self, m3d_app):
+        
+        coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
+        coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil", material="copper")
+        m3d_app.modeler.subtract([coil], [coil_hole])
+        m3d_app.modeler.section(["Coil"], Plane.ZX)
+        m3d_app.modeler.separate_bodies(["Coil_Section1"])
+        face_id = [m3d_app.modeler["Coil_Section1"].faces[0].id]
+        bound_name = generate_unique_name("CoilTerminal")
+        bound = m3d_app.assign_coil(assignment=face_id, name=bound_name)
+        assert bound_name == bound.name
+        assert bound.props["Conductor number"] == "1"
+        assert not bound.props["Point out of terminal"]
+        coil2 = m3d_app.modeler.create_box([50, 50, 0], [50, 50, 50], name="Coil2", material="copper")
+        coil3 = m3d_app.modeler.create_box([120, 120, 0], [50, 50, 50], name="Coil3", material="copper")
+        face_ids = [m3d_app.modeler["Coil_Section1"].faces[0].id, 
+                   coil2.faces[0].id,
+                   coil3.faces[0].id]
+        
+       
+        initial_boundary_count = len(m3d_app.boundaries)
+          
+        bound = m3d_app.assign_coil(assignment=face_ids)
+        assert bound
+
+        
+        assert bound.type == "CoilTerminal"
+        
+        final_boundary_count = len(m3d_app.boundaries)
+        expected_new_boundaries = len(face_ids)  
+        assert final_boundary_count == initial_boundary_count + expected_new_boundaries
+        
+        
+        new_boundaries = [b for b in m3d_app.boundaries if b.name.startswith(bound.name.split('_')[0] + '_' + bound.name.split('_')[1])]
+        individual_terminal_boundaries = [b for b in new_boundaries if b.type == "CoilTerminal"]
+
+       
+        assert len(individual_terminal_boundaries) == len(face_ids)
+
+        
+        assert bound.props["Conductor number"] == "1"
+        assert not bound.props["Point out of terminal"]
+        assert bound.props["Faces"] == [face_ids[0]]  
+
 
     def test_assign_coil_group(self, m3d_app):
         """Test assign_coil_group functionality in Maxwell 3D."""

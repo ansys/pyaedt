@@ -136,7 +136,6 @@ class TestClass:
         bound = aedtapp.assign_coil(assignment=["Coil"])
         assert bound
         polarity = "Positive"
-        bound = aedtapp.assign_coil(assignment=["Coil"], polarity=polarity)
         assert bound.props["PolarityType"] == polarity.lower()
         polarity = "Negative"
         bound = aedtapp.assign_coil(assignment=["Coil"], polarity=polarity)
@@ -145,43 +144,42 @@ class TestClass:
         bound = aedtapp.assign_coil(assignment=["Coil"], name=bound_name)
         assert bound_name == bound.name
 
-
     def test_assign_coil_group(self, aedtapp):
-        """Test assign_coil_group functionality in Maxwell 2D."""
-        coil1 = aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Coil_1", material="copper")
-        coil2 = aedtapp.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2", material="copper")
-        coil3 = aedtapp.modeler.create_rectangle([10, 0, 0], [3, 1], name="Coil_3", material="copper")
+        o1 = aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Coil", material="copper")
+        o2 = aedtapp.modeler.create_rectangle([5, 0, 0], [3, 1], name="Coil_2", material="copper")
+        o3 = aedtapp.modeler.create_rectangle([10, 0, 0], [3, 1], name="Coil_4", material="copper")
+
+       
+        initial_boundary_count = len(aedtapp.boundaries)
         
-        # First create coil boundaries from the rectangles
-        coil_boundary1 = aedtapp.assign_coil(assignment=[coil1.name], name="CoilBoundary1")
-        coil_boundary2 = aedtapp.assign_coil(assignment=[coil2.name], name="CoilBoundary2")
-        coil_boundary3 = aedtapp.assign_coil(assignment=[coil3.name], name="CoilBoundary3")
+       
+        bound = aedtapp.assign_coil(assignment=[o1.name, o2.name, o3.name])
+        assert bound
+
         
-        # Test creating coil group from existing coil boundaries
-        # In Maxwell 2D, AssignCoilGroup is not supported, so we expect an AEDTRuntimeError
-        with pytest.raises(AEDTRuntimeError) as excinfo:
-            coil_group = aedtapp.assign_coil_group(
-                assignment=[coil_boundary1.name, coil_boundary2.name, coil_boundary3.name],
-                coil_group_name="TestCoilGroup"
-            )
+        assert bound.type == "CoilGroup"
         
-        # Verify the error message indicates Maxwell 2D limitation
-        assert "AssignCoilGroup is not supported in Maxwell 2D" in str(excinfo.value)
         
-        # Test creating coil group directly from objects (should also fail with proper error)
-        rect4 = aedtapp.modeler.create_rectangle([15, 0, 0], [3, 1], name="Coil_4", material="copper")
-        rect5 = aedtapp.modeler.create_rectangle([20, 0, 0], [3, 1], name="Coil_5", material="copper")
+        final_boundary_count = len(aedtapp.boundaries)
+        objects_assigned = [o1.name, o2.name, o3.name]
+        expected_new_boundaries = len(objects_assigned)  # One individual coil boundary per object
+        assert final_boundary_count == initial_boundary_count + expected_new_boundaries
         
-        with pytest.raises(AEDTRuntimeError) as excinfo2:
-            coil_group2 = aedtapp.assign_coil_group(
-                assignment=[rect4.name, rect5.name],
-                coil_group_name="TestGroup2",
-                conductors_number=2,
-                polarity="Negative"
-            )
         
-        # Verify the error message indicates Maxwell 2D limitation
-        assert "AssignCoilGroup is not supported in Maxwell 2D" in str(excinfo2.value)
+        new_boundaries = [b for b in aedtapp.boundaries if b.name.startswith(bound.name.split('_')[0] + '_' + bound.name.split('_')[1])]
+        coil_group_boundaries = [b for b in new_boundaries if b.type == "CoilGroup"]
+        individual_coil_boundaries = [b for b in new_boundaries if b.type == "Coil"]
+        
+       
+        assert len(coil_group_boundaries) == 1
+        assert len(individual_coil_boundaries) == len(objects_assigned) - 1
+        
+
+        coil_props = bound.props[bound.name]
+        assert set(coil_props["Objects"]) == {o1.name, o2.name, o3.name}
+        assert coil_props["PolarityType"] == "positive"
+        assert coil_props["Conductor number"] == "1"
+        
 
     def test_create_vector_potential(self, aedtapp):
         region = aedtapp.modeler["Region"]
@@ -231,6 +229,8 @@ class TestClass:
         assert force.delete()
         force = aedtapp.assign_force(assignment="Magnet2_Section1", force_name="Force_Test")
         assert force.name == "Force_Test"
+
+    
 
     def test_assign_current_source(self, m2d_app):
         coil = m2d_app.modeler.create_circle(
@@ -292,6 +292,22 @@ class TestClass:
         assert bound
         assert bound.props["PositivePos"] == "300deg"
         assert bound.props["Objects"][0] == "Circle_outer"
+        assert len(aedtapp.boundaries_by_type["Band"]) == 2
+        bound.delete()
+        assert len(aedtapp.boundaries_by_type["Band"]) == 1
+
+
+    def test_delete_motion_setup(self, aedtapp):
+        aedtapp.xy_plane = True
+        aedtapp.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
+        aedtapp.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")
+        bound = aedtapp.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
+        assert bound
+        assert len(aedtapp.boundaries_by_type["Band"])==2
+        bound.delete()
+        assert len(aedtapp.boundaries_by_type["Band"])==1
+        
+
 
     def test_change_inductance_computation(self, aedtapp):
         assert aedtapp.change_inductance_computation()

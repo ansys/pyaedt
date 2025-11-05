@@ -113,6 +113,8 @@ class BoundaryCommon(PropsManager):
         """
         if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
             self._app.omaxwell_parameters.DeleteParameters([self.name])
+        elif self.type == "Band":
+            self._app.omodelsetup.DeleteMotionSetup([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
             if self.name in self._app.design_excitations.keys():
@@ -497,7 +499,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
         elif bound_type == "Coil":
             self._app.oboundary.AssignCoil(self._get_args())
         elif bound_type == "CoilGroup":
-            self._app.oboundary.AssignCoilGroup(self.props["Objects"], self._get_args())     
+            self._app.oboundary.AssignCoilGroup(self._get_args()[2], self._get_args()[3])
+            return True
         elif bound_type == "Source":
             self._app.oboundary.AssignSource(self._get_args())
         elif bound_type == "Sink":

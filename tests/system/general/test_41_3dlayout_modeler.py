@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
 import time
 
@@ -864,6 +865,9 @@ class TestClass:
 
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
+
+        assert pl1.export_image_from_aedtplt(Path(tempfile.gettempdir()))
+
         pl2 = test.post.create_fieldplot_nets(
             ["V3P3_S5"],
             "Mag_E",
@@ -874,6 +878,8 @@ class TestClass:
 
         assert pl2
         assert pl2.export_image_from_aedtplt(tempfile.gettempdir())
+
+        assert pl2.export_image_from_aedtplt(Path(tempfile.gettempdir()))
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_90_set_differential_pairs(self, hfss3dl):

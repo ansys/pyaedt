@@ -31,6 +31,7 @@ import types
 
 # Import required modules
 from typing import cast
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -50,6 +51,10 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+    from ansys.aedt.core.emit_core.nodes.generated import Band
+    from ansys.aedt.core.emit_core.nodes.generated import Filter
+    from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
@@ -220,6 +225,29 @@ class TestClass:
         connected_comp, connected_port = antenna3.port_connection(ant3_port)
         assert connected_comp == radio3.name
         assert connected_port == rad3_port
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_create_radio_antenna(self, emit_app):
+        new_radio, new_antenna = emit_app.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
+        assert isinstance(new_radio, EmitNode)
+        assert isinstance(new_antenna, EmitNode)
+        with pytest.raises(RuntimeError) as e:
+            emit_app.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
+        assert "Failed to create radio of type 'WrongComponent'" in str(e.value)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_30_connect_components(self, emit_app):
+        emit_app.logger.info = MagicMock()
+        new_radio = emit_app.schematic.create_component("MICS")
+        new_antenna = emit_app.schematic.create_component("Antenna")
+        emit_app.schematic.connect_components(new_radio.name, new_antenna.name)
+        emit_app.logger.info.assert_called_with("Successfully connected components 'MICS' and 'Antenna'.")
+        with pytest.raises(RuntimeError) as e:
+            emit_app.schematic.connect_components(new_radio.name, "WrongComponent")
+        assert (
+            "Failed to connect components 'MICS' and 'WrongComponent': "
+            "Failed to execute gRPC AEDT command: PlaceComponent"
+        ) in str(e.value)
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
     def test_radio_component(self, emit_app):
@@ -1704,6 +1732,77 @@ class TestClass:
         nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
 
         assert len(nodes_tested) > len(nodes_untested)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_bp_bs_filters(self, emit_app):
+        # create a BP filter and modify it's bandpass frequencies
+        bp_filter_name = "BP Filter"
+        _ = emit_app.modeler.components.create_component("Band Pass", name=bp_filter_name)
+
+        rev = emit_app.results.analyze()
+
+        # create a BS filter and modify it's bandstop frequencies
+        bs_filter_name = "BS Filter"
+        _ = emit_app.modeler.components.create_component("Band Stop", name=bs_filter_name)
+
+        # configure the pass band
+        bp_filter_comp = rev.get_component_node(bp_filter_name)
+        assert bp_filter_comp is not None
+        bp_filter_comp = cast(Filter, bp_filter_comp)
+        bp_filter_comp.bp_lower_stop_band = "95 MHz"
+        bp_filter_comp.bp_lower_cutoff = "95 MHz"
+        bp_filter_comp.bp_higher_cutoff = "105 MHz"
+        bp_filter_comp.bp_higher_stop_band = "105 MHz"
+        assert bp_filter_comp.bp_lower_stop_band == 95e6
+        assert bp_filter_comp.bp_lower_cutoff == 95e6
+        assert bp_filter_comp.bp_higher_cutoff == 105e6
+        assert bp_filter_comp.bp_higher_stop_band == 105e6
+
+        # configure the stop band
+        bs_filter_comp = rev.get_component_node(bs_filter_name)
+        assert bs_filter_comp is not None
+        bs_filter_comp = cast(Filter, bs_filter_comp)
+        bs_filter_comp.bs_lower_cutoff = "95 MHz"
+        bs_filter_comp.bs_lower_stop_band = "95 MHz"
+        bs_filter_comp.bs_higher_stop_band = "105 MHz"
+        bs_filter_comp.bs_higher_cutoff = "105 MHz"
+        assert bs_filter_comp.bs_lower_stop_band == 95e6
+        assert bs_filter_comp.bs_lower_cutoff == 95e6
+        assert bs_filter_comp.bs_higher_cutoff == 105e6
+        assert bs_filter_comp.bs_higher_stop_band == 105e6
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_fm_fsk_freq_deviation(self, emit_app):
+        # create a radio
+        radio_name = "Test"
+        _ = emit_app.modeler.components.create_component("New Radio", name=radio_name)
+
+        rev = emit_app.results.analyze()
+        radio_comp = rev.get_component_node(radio_name)
+        assert radio_comp is not None
+        radio_comp = cast(RadioNode, radio_comp)
+
+        # get the band
+        band_node = None
+        radio_children = radio_comp.children
+        for child in radio_children:
+            if child.node_type == "Band":
+                band_node = child
+                break
+
+        # Set the modulation to FM and set the Freq Deviation
+        assert band_node is not None
+        band_node = cast(Band, band_node)
+        band_node.modulation = Band.ModulationOption.FM
+        assert band_node.modulation == Band.ModulationOption.FM
+        band_node.freq_deviation = 1e6
+        assert band_node.freq_deviation == 1e6
+
+        # Set the modulation to FSK and set the Freq Deviation
+        band_node.modulation = Band.ModulationOption.FSK
+        assert band_node.modulation == Band.ModulationOption.FSK
+        band_node.freq_deviation = 1e4
+        assert band_node.freq_deviation == 1e4
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
