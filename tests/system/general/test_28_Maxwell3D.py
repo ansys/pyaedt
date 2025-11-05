@@ -156,7 +156,33 @@ class TestClass:
         bound_name = generate_unique_name("Coil")
         bound = m3d_app.assign_coil(assignment=face_id, name=bound_name)
         assert bound_name == bound.name
-
+        
+    def test_create_coil_group(self, m3d_app):
+            coil_hole = m3d_app.modeler.create_box([-50, -50, 0], [100, 100, 100], name="Coil_Hole")
+            coil = m3d_app.modeler.create_box([-100, -100, 0], [200, 200, 100], name="Coil")
+            m3d_app.modeler.subtract([coil], [coil_hole])
+            m3d_app.modeler.section(["Coil"], Plane.ZX)
+            m3d_app.modeler.separate_bodies(["Coil_Section1"])
+            face_id = [m3d_app.modeler["Coil_Section1"].faces[0].id]
+            bound_name = generate_unique_name("CoilGroup")
+            bound = m3d_app.assign_coil(assignment=face_id, name=bound_name)
+            assert bound_name == bound.name
+            assert bound.props["Conductor number"] == "1"
+            assert not bound.props["Point out of terminal"]
+            bound = m3d_app.assign_coil(assignment=face_id, conductors_number=2)
+            assert bound.props["Conductor number"] == "2"
+            assert not bound.props["Point out of terminal"]
+            bound = m3d_app.assign_coil(assignment=face_id, conductors_number=2, polarity="Positive")
+            assert bound.props["Conductor number"] == "2"
+            assert not bound.props["Point out of terminal"]
+            bound = m3d_app.assign_coil(assignment=face_id, conductors_number=2, polarity="Negative")
+            assert bound.props["Point out of terminal"]
+            bound = m3d_app.assign_coil(assignment=face_id, conductors_number=2, polarity="Positive")
+            assert bound.props["Conductor number"] == "2"
+            assert not bound.props["Point out of terminal"]
+            bound = m3d_app.assign_coil(assignment=face_id, conductors_number=2, polarity="Negative")
+            assert bound.props["Conductor number"] == "2"
+            assert bound.props["Point out of terminal"]
     def test_create_air_region(self, m3d_app):
         region = m3d_app.modeler.create_air_region(*[300] * 6)
         assert region.material_name == "air"
