@@ -113,6 +113,7 @@ def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     assert model_table.tree.item(row3)["values"][4] == "True"
     assert model_table.tree.item(row3)["values"][5] == "Model"
 
+
 def test_table_icon_handling_after_load(mock_icepak_app, patched_loader):
     """Verify that all read-only cells in the table have the 🔒 icon appended."""
     extension = IcepakModelReviewer(withdraw=True)
@@ -133,6 +134,7 @@ def test_table_icon_handling_after_load(mock_icepak_app, patched_loader):
                     assert val_str.endswith("🔒")
                 else:
                     assert not val_str.endswith("🔒")
+
 
 def test_table_headers_and_types_consistency(mock_icepak_app, patched_loader):
     """
@@ -166,6 +168,7 @@ def test_table_headers_and_types_consistency(mock_icepak_app, patched_loader):
                     break
             assert found_multi
 
+
 def test_table_reload_does_not_duplicate(mock_icepak_app, patched_loader):
     """Ensure multiple loads don't duplicate table entries."""
     extension = IcepakModelReviewer(withdraw=True)
@@ -178,6 +181,7 @@ def test_table_reload_does_not_duplicate(mock_icepak_app, patched_loader):
     second_load_rows = len(extension.root.boundary_tab.winfo_children()[0].tree.get_children())
 
     assert first_load_rows == second_load_rows
+
 
 def test_icepak_model_reviewer_table_modification(
     mock_icepak_app, patched_loader, patched_import_data_to_project, patched_object_id
@@ -216,6 +220,3 @@ def test_icepak_model_reviewer_table_modification(
     extension.update_button.invoke()
     assert extension.combined_data["objects"]["MEMORY1"]["Material"] == "Al-Extruded"
     assert extension.combined_data["objects"]["SERIAL_PORT"]["Model"] == "False"
-
-
-
