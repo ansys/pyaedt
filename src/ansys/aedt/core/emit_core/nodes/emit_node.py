@@ -111,7 +111,7 @@ class EmitNode:
         if self.get_is_component():
             try:
                 self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
-            except Exception as e:
+            except Exception:
                 raise ValueError(f"Failed to rename {self.name} to {requested_name}")
         else:
             _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)

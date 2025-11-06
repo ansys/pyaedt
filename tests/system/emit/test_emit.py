@@ -25,16 +25,14 @@
 from enum import Enum
 import inspect
 import os
+import random
 import sys
 import tempfile
 import types
-import random
-import cProfile
-import time
 
 # Import required modules
-from typing import cast, Union, get_args
-from collections import defaultdict
+from typing import cast
+from typing import get_args
 from unittest.mock import MagicMock
 import warnings
 
@@ -1469,7 +1467,7 @@ class TestClass:
 
         assert scene_node == scene_node
 
-    #@profile
+    # @profile
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_all_generated_emit_node_properties(self, emit_app):
         # change this to limit the number of iterations for each node
@@ -1612,7 +1610,7 @@ class TestClass:
                         if enum_val is not None:
                             class_attr = getattr(node.__class__, enum_key)
                             class_attr.fset(node, enum_val)
-                    except BaseException as e:
+                    except BaseException:
                         pass
                     for bool_key in node_bools or {None: None}:
                         if bool_key is None:
@@ -1625,14 +1623,14 @@ class TestClass:
                                 if bool_val is not None:
                                     class_attr = getattr(node.__class__, bool_key)
                                     class_attr.fset(node, bool_val)
-                            except BaseException as e:
+                            except BaseException:
                                 pass
                             if max_iterations is not None and node_iterations > max_iterations:
                                 break
 
                             for member in members:
                                 # skip type since it's set by the enum above
-                                if member == 'type':
+                                if member == "type":
                                     continue
 
                                 # skip if member is an enum or bool (handled by loops)
@@ -1688,11 +1686,13 @@ class TestClass:
                                         continue
 
                                     # TODO: Skip Pyramidal Horn params due to warning popup that freezes the test
-                                    if member.startswith("mouth_width") or \
-                                            member.startswith("mouth_height") or \
-                                            member.startswith("waveguide_width") or \
-                                            member.startswith("width_flare_half_angle") or \
-                                            member.startswith("height_flare_half_angle"):
+                                    if (
+                                        member.startswith("mouth_width")
+                                        or member.startswith("mouth_height")
+                                        or member.startswith("waveguide_width")
+                                        or member.startswith("width_flare_half_angle")
+                                        or member.startswith("height_flare_half_angle")
+                                    ):
                                         mem_results[mem_key] = (Result.SKIPPED, "Skipping pyramidal horn params")
                                         continue
 
@@ -1797,10 +1797,7 @@ class TestClass:
             # skip some nodes unless Developer env var set
             # these nodes take the bulk of the run time
             dev_only = os.getenv("EMIT_PYAEDT_LONG")
-            nodes_to_skip = ['Waveform',
-                             'Band',
-                             'ResultPlotNode',
-                             'EmiPlotMarketNode']
+            nodes_to_skip = ["Waveform", "Band", "ResultPlotNode", "EmiPlotMarketNode"]
             child_node_add_exceptions = {}
             for node in nodes:
                 node_type = type(node).__name__
@@ -1843,9 +1840,9 @@ class TestClass:
             return nodes_tested, results_dict
 
         # Add some components
-        emit_app.schematic.create_radio_antenna(radio_type="New Radio",
-                                                radio_name="TestRadio",
-                                                antenna_name="TestAntenna")
+        emit_app.schematic.create_radio_antenna(
+            radio_type="New Radio", radio_name="TestRadio", antenna_name="TestAntenna"
+        )
         emit_app.schematic.create_component("New Emitter", "TestEmitter")
         emit_app.schematic.create_component("Amplifier", "TestAmplifier")
         emit_app.schematic.create_component("Cable", "TestCable")
@@ -1872,9 +1869,9 @@ class TestClass:
         #                                                                   current_revision_all_nodes)
         # profiler.print_stats()
         # profiler.dump_stats("profile.prof")
-        all_nodes_tested, member_results = test_nodes_from_top_level(current_revision_all_nodes,
-                                                                     True,
-                                                                     max_inner_loop_iterations)
+        all_nodes_tested, member_results = test_nodes_from_top_level(
+            current_revision_all_nodes, True, max_inner_loop_iterations
+        )
 
         # Keep the current revision, then test all nodes of the kept result
         # kept_result_name = interference.odesign.KeepResult()
