@@ -1491,7 +1491,6 @@ def test_array(aedtapp):
     with pytest.raises(AEDTRuntimeError):
         aedtapp.add_3d_component_array_from_json(dict_in)
 
-
 def test_array_json(aedtapp):
     aedtapp.insert_design("Array_simple_json", "Terminal")
     json_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "array_simple_232.json"

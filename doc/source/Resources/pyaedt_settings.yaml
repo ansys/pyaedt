@@ -92,7 +92,7 @@ general:
   # AEDT version in the form ``"2023.x"``
   aedt_version: null
   # Timeout in seconds for trying to launch AEDT
-  desktop_launch_timeout: 120
+  desktop_launch_timeout: 30
   # Enable or disable bounding box evaluation by exporting a SAT file
   disable_bounding_box_sat: false
   # Optional path for the EDB DLL file
@@ -127,3 +127,11 @@ general:
   block_figure_plot: false
   # Skip license check during Desktop initialization
   skip_license_check: true
+
+grpc:
+  # Enable or disable secure mode for gRPC connections
+  grpc_secure_mode: true
+  # Enable or disable local gRPC connections
+  grpc_local: true
+  # Enable or disable listening on all interfaces for gRPC connections
+  grpc_listen_all: false

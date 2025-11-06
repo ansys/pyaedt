@@ -228,7 +228,12 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
             _exception(sys.exc_info(), user_function, args, kwargs, "AEDT API Error")
             return raise_exception_or_return_false(e)
         except BaseException as e:
-            _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
+            msg = str(sys.exc_info()[1])
+            if "ANSYS_GRPC_CERTIFICATES" in msg:
+                msg = re.sub(r"ANSYS_GRPC_CERTIFICATES", "ANSYS_GRPC_CERTIFICATES", msg.capitalize(), flags=re.IGNORECASE)
+            else:
+                msg = msg.capitalize()
+            _exception(sys.exc_info(), user_function, args, kwargs, msg)
             return raise_exception_or_return_false(e)
 
     return wrapper
@@ -683,7 +688,7 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def active_sessions(version=None, student_version=False, non_graphical=False):
+def active_sessions(version=None, student_version=False, non_graphical=False) -> dict:
     """Get information for the active AEDT sessions.
 
     Parameters
@@ -735,13 +740,19 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
             pid = p.info["pid"]
             name = p.info["name"]
             cmd = p.info.get("cmdline", [])
+            if cmd is None:
+                cmd = []
             if name in keys:
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
                         if "-grpcsrv" in cmd:
                             if not version or (version and version in cmd[0]):
                                 try:
-                                    return_dict[pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                                    options = cmd[cmd.index("-grpcsrv") + 1].split(":")
+                                    if len(options) > 1:
+                                        return_dict[pid] = int(options[1])
+                                    else:
+                                        return_dict[pid] = int(options[0])
                                 except (IndexError, ValueError):
                                     # default desktop grpc port.
                                     return_dict[pid] = 50051

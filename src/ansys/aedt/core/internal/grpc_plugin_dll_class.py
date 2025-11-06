@@ -334,16 +334,14 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
-    def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
-        if not alwaysNew and port:
-            grpc_channel = grpc.insecure_channel(f"{machine}:{port}")
-            try:
-                grpc.channel_ready_future(grpc_channel).result(settings.desktop_launch_timeout)
-            except grpc.FutureTimeoutError:
-                settings.logger.error("Failed to connect to Desktop Session")
-                return
+    def CreateAedtApplication(self, machine, port=0, NGmode=False, alwaysNew=True):
         try:
+            settings.logger.debug(f"Starting client with machine {machine} and port {port}")
+            if machine.endswith("InsecureMode"):
+                target = machine.split(":")[0]
+                settings.logger.warning(f"Starting gRPC client without TLS on {target}. This is INSECURE. Consider using a secure connection.")
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
+            settings.logger.info(f"Client application successfully started.")
         except Exception:
             settings.logger.warning("Failed to create AedtApplication.")
         if not self.aedt:

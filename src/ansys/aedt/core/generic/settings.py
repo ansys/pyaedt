@@ -115,7 +115,11 @@ ALLOWED_GENERAL_SETTINGS = [
     "pyd_libraries_path",
     "pyd_libraries_user_path",
 ]
-
+ALLOWED_GRPC_SETTINGS = [
+    "grpc_secure_mode",
+    "grpc_local",
+    "grpc_listen_all"
+]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
@@ -131,6 +135,9 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANS_NODEPCHECK",
 ]
 
+DEFAULT_GRPC_LOCAL = True
+DEFAULT_GRPC_SECURE_MODE = True
+DEFAULT_GRPC_LISTEN_ALL = False
 
 def generate_log_filename():
     """Generate a log filename."""
@@ -213,7 +220,7 @@ class Settings(PyAedtBase):
         self.__force_error_on_missing_project = False
         self.__enable_pandas_output = False
         self.__edb_dll_path: Optional[str] = None
-        self.__desktop_launch_timeout: int = 120
+        self.__desktop_launch_timeout: int = 30
         self.__number_of_grpc_api_retries: int = 6
         self.__retry_n_times_time_interval: float = 0.1
         self.__wait_for_license: bool = False
@@ -233,6 +240,9 @@ class Settings(PyAedtBase):
         self.__use_local_example_data = False
         self.__pyd_libraries_path: Path = Path(pyaedt_path) / "syslib"
         self.__pyd_libraries_user_path: Optional[str] = None
+        self.__grpc_secure_mode = DEFAULT_GRPC_SECURE_MODE
+        self.__grpc_local = DEFAULT_GRPC_LOCAL
+        self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -242,6 +252,41 @@ class Settings(PyAedtBase):
             else:
                 pyaedt_settings_path = Path(os.environ["APPDATA"]) / "pyaedt_settings.yaml"
         self.load_yaml_configuration(pyaedt_settings_path)
+
+    # ########################## gRPC properties ##########################
+
+    @property
+    def grpc_secure_mode(self):
+        """Flag for whether to use secure mode for gRPC API.
+        The default is ``True``.
+        """
+        return self.__grpc_secure_mode
+
+    @grpc_secure_mode.setter
+    def grpc_secure_mode(self, val):
+        self.__grpc_secure_mode = val
+
+    @property
+    def grpc_local(self):
+        """Flag for whether to use local connection for gRPC API.
+        The default is ``True``.
+        """
+        return self.__grpc_local
+
+    @grpc_local.setter
+    def grpc_local(self, val):
+        self.__grpc_local = val
+
+    @property
+    def grpc_listen_all(self):
+        """Flag for whether to listen on all interfaces for gRPC API.
+        The default is ``False``.
+        """
+        return self.__grpc_listen_all
+
+    @grpc_listen_all.setter
+    def grpc_listen_all(self, val):
+        self.__grpc_listen_all = val
 
     # ########################## Logging properties ##########################
 
@@ -905,6 +950,7 @@ class Settings(PyAedtBase):
                 ("log", ALLOWED_LOG_SETTINGS),
                 ("lsf", ALLOWED_LSF_SETTINGS),
                 ("general", ALLOWED_GENERAL_SETTINGS),
+                ("grpc", ALLOWED_GRPC_SETTINGS),
             ]
             for setting_type, allowed_settings_key in pairs:
                 settings = local_settings.get(setting_type, {})
@@ -940,6 +986,9 @@ class Settings(PyAedtBase):
         data["general"] = {
             key: str(value) if isinstance(value := getattr(self, key), Path) else value
             for key in ALLOWED_GENERAL_SETTINGS
+        }
+        data["grpc"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_GRPC_SETTINGS
         }
 
         with open(configuration_file, "w") as file:
