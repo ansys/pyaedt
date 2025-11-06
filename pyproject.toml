@@ -151,7 +151,7 @@ Releases = "https://github.com/ansys/pyaedt/releases"
 Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
 [project.scripts]
-aedt = "ansys.aedt.core.cli.aedt_cli:app"
+pyaedt = "ansys.aedt.core.cli:app"
 
 [tool.ruff]
 line-length = 120
