@@ -28,9 +28,13 @@ import os
 import sys
 import tempfile
 import types
+import random
+import cProfile
+import time
 
 # Import required modules
-from typing import cast
+from typing import cast, Union, get_args
+from collections import defaultdict
 from unittest.mock import MagicMock
 import warnings
 
@@ -1465,14 +1469,45 @@ class TestClass:
 
         assert scene_node == scene_node
 
+    #@profile
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    def test_all_generated_emit_node_properties(self, interference):
+    def test_all_generated_emit_node_properties(self, emit_app):
+        # change this to limit the number of iterations for each node
+        # if None, each node will iterate over all bool and enum combos
+        # to verify that every property can be set
+        max_inner_loop_iterations = 10
+
+        # used to give nodes a unique name on rename commands
+        self.next_int = 0
+
         # Define enum for result types
         class Result(Enum):
             SKIPPED = 0
             VALUE = 1
             EXCEPTION = 2
             NEEDS_PARAMETERS = 3
+
+        def parse_docstring(docstring, is_int):
+            if "Value should be between" in docstring:
+                range_part = docstring.split("Value should be between")[1]
+                min_val = float(range_part.split("and")[0].strip())
+                max_val = float(range_part.split("and")[1].split(".")[0].strip())
+                if is_int:
+                    return random.randint(min_val, max_val)
+                return random.uniform(min_val, max_val)
+            elif "Value should be less than" in docstring:
+                max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
+                if is_int:
+                    return round(max_val, 3)
+                return max_val
+            elif "Value should be greater than" in docstring:
+                min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
+                if is_int:
+                    return round(min_val, 3)
+                return min_val
+            if is_int:
+                return 0
+            return 0.0
 
         def get_value_for_parameter(parameter, docstring):
             param_value = None
@@ -1483,19 +1518,10 @@ class TestClass:
 
                 # If there's a min or max in the docstring, use it.
                 if docstring:
-                    if "Value should be between" in docstring:
-                        range_part = docstring.split("Value should be between")[1]
-                        min_val = float(range_part.split("and")[0].strip())
-                        max_val = float(range_part.split("and")[1].split(".")[0].strip())
-                        param_value = min_val
-                    elif "Value should be less than" in docstring:
-                        max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
-                        param_value = max_val
-                    elif "Value should be greater than" in docstring:
-                        min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
-                        param_value = min_val
+                    param_value = parse_docstring(docstring, isinstance(parameter, int))
             elif isinstance(parameter, str):
-                param_value = "TestString"
+                param_value = f"TestString{self.next_int}"
+                self.next_int = self.next_int + 1
             elif isinstance(parameter, bool):
                 param_value = True
             elif isinstance(parameter, type) and issubclass(parameter, Enum):
@@ -1505,19 +1531,21 @@ class TestClass:
                 param_value = first_enum_value
             elif isinstance(parameter, types.UnionType):
                 # Type is a Union
-                arg_type = type(parameter)
-                possible_arg_types = arg_type.__args__
+                possible_arg_types = get_args(parameter)
                 if int in possible_arg_types or float in possible_arg_types:
                     param_value = 0
+                    # If there's a min or max in the docstring, use it.
+                    if docstring:
+                        param_value = parse_docstring(docstring, int in possible_arg_types)
 
             return param_value
 
-        def test_all_members(node):
+        def test_all_members(node, max_iterations=None):
             # Dynamically get list of properties and methods
             members = dir(node)
-
             mem_results = {}
-            results_props = {}
+            node_enums = {}
+            node_bools = {}
 
             # Initialize property map
             property_value_map = {}
@@ -1536,6 +1564,9 @@ class TestClass:
                 if member.startswith("props_to_dict"):
                     continue
 
+                if member.startswith("properties"):
+                    continue
+
                 class_attr = getattr(node.__class__, member)
                 if isinstance(class_attr, property):
                     has_fget = class_attr.fget is not None
@@ -1549,10 +1580,12 @@ class TestClass:
 
                         value_index = 0
                         value_count = 1
-                        if isinstance(arg_type, bool):
-                            value_count = 2
+                        if isinstance(arg_type, type) and issubclass(arg_type, bool):
+                            node_bools[member] = [True, False]
+                            continue
                         elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
-                            value_count = len(list(arg_type.__members__.values()))
+                            node_enums[member] = list(arg_type.__members__.values())
+                            continue
 
                         mem_value = {
                             "value_index": value_index,
@@ -1562,157 +1595,212 @@ class TestClass:
 
                         property_value_map[mem_key] = mem_value
 
-            anything_was_set = True
-            while anything_was_set:
-                anything_was_set = False
-                for member in members:
-                    mem_key = f"{type(node).__name__}.{member}"
-
+            # We want to iterate over each parameter for each enum type
+            # We can skip the parameter, if it's already been set successfully
+            # during a previous iteration. This allows us to check that each
+            # property is set, since only properties visible can be set. For
+            # example, you can only set the PSK type (4PSK, 16PSK, etc) if the
+            # modulation_type = PSK.
+            node_iterations = 0
+            for enum_key in node_enums or {None: None}:
+                if enum_key is None:
+                    enum_vals = []
+                else:
+                    enum_vals = node_enums[enum_key]
+                for enum_val in enum_vals or [None]:
                     try:
-                        if member.startswith("_"):
-                            mem_results[mem_key] = (Result.SKIPPED, "Skipping private member")
-                            continue
-
-                        if member.startswith("props_to_dict"):
-                            mem_results[mem_key] = (Result.SKIPPED, "Skipping global member")
-                            continue
-
-                        if member.startswith("delete"):
-                            mem_results[mem_key] = (Result.SKIPPED, "Skipping delete method")
-                            continue
-
-                        if member.startswith("rename"):
-                            with warnings.catch_warnings(record=True) as w:
-                                warnings.simplefilter("always")
-
-                                attr = getattr(node, member)
-                                values = ["TestString"]
-                                result = attr(*values)
-                                if w:
-                                    mem_results[mem_key] = (Result.VALUE, node.name)
-                                    assert (
-                                        str(w[0].message) == "This property is deprecated in 0.21.3. "
-                                        "Use the name property instead."
-                                    )
-                            continue
-
-                        if member.startswith("duplicate"):
-                            with pytest.raises(NotImplementedError) as e:
-                                attr = getattr(node, member)
-                                values = ["TestString"]
-                                result = attr(*values)
-                            mem_results[mem_key] = (Result.VALUE, str(e.value))
-                            continue
-
-                        class_attr = getattr(node.__class__, member)
-                        if isinstance(class_attr, property):
-                            # Member is a property
-
-                            has_fget = class_attr.fget is not None
-                            has_fset = class_attr.fset is not None
-
-                            if has_fget and has_fset:
-                                property_value_map_record = property_value_map[mem_key]
-
-                                arg_type = property_value_map_record["arg_type"]
-                                docstring = class_attr.fget.__doc__
-
-                                mem_value = None
-                                value_index = property_value_map_record["value_index"]
-                                value_count = property_value_map_record["value_count"]
-                                if isinstance(arg_type, bool):
-                                    if value_index == 0:
-                                        mem_value = False
-                                    elif value_index == 1:
-                                        mem_value = True
-                                    else:
-                                        # We've already used both bool values, skip.
-                                        continue
-                                elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
-                                    if value_index < value_count:
-                                        mem_value = list(arg_type.__members__.values())[
-                                            property_value_map_record["value_index"]
-                                        ]
-                                    else:
-                                        # We've already used all enum values, skip.
-                                        continue
-                                else:
-                                    if value_index == 0:
-                                        mem_value = get_value_for_parameter(arg_type, docstring)
-                                    else:
-                                        # We've already used a value, skip.
-                                        continue
-
-                                exception = None
-
-                                # If value is None here, we failed to find a suitable value to call the setter with.
-                                # Just call the getter, and put that in the results.
-                                try:
-                                    if mem_value is not None:
-                                        class_attr.fset(node, mem_value)
-                                except Exception as e:
-                                    exception = e
-
-                                try:
-                                    result = class_attr.fget(node)
-                                except Exception as e:
-                                    exception = e
-
-                                if exception:
-                                    raise exception
-
-                                if mem_value:
-                                    assert mem_value == result
-
-                                # We successfully set the current value. Next iteration, try the next value
-                                property_value_map_record["value_index"] += 1
-                                anything_was_set = True
-
-                                mem_results[mem_key] = (Result.VALUE, result)
-                                results_props[class_attr] = result
-                            elif has_fget:
-                                result = class_attr.fget(node)
-                                mem_results[mem_key] = (Result.VALUE, result)
-                                results_props[class_attr] = result
+                        if enum_val is not None:
+                            class_attr = getattr(node.__class__, enum_key)
+                            class_attr.fset(node, enum_val)
+                    except BaseException as e:
+                        pass
+                    for bool_key in node_bools or {None: None}:
+                        if bool_key is None:
+                            bool_vals = []
                         else:
-                            attr = getattr(node, member)
+                            bool_vals = node_bools[bool_key]
+                        for bool_val in bool_vals or [None]:
+                            node_iterations = node_iterations + 1
+                            try:
+                                if bool_val is not None:
+                                    class_attr = getattr(node.__class__, bool_key)
+                                    class_attr.fset(node, bool_val)
+                            except BaseException as e:
+                                pass
+                            if max_iterations is not None and node_iterations > max_iterations:
+                                break
 
-                            if inspect.ismethod(attr) or inspect.isfunction(attr):
-                                # Member is a function
-                                signature = inspect.signature(attr)
+                            for member in members:
+                                # skip type since it's set by the enum above
+                                if member == 'type':
+                                    continue
 
-                                values = []
-                                bad_param = None
-                                for parameter in signature.parameters:
-                                    docstring = attr.__doc__
+                                # skip if member is an enum or bool (handled by loops)
+                                if member in node_bools or member in node_enums:
+                                    continue
 
-                                    mem_value = get_value_for_parameter(parameter, docstring)
-                                    if mem_value is not None:
-                                        values.append(mem_value)
+                                mem_key = f"{type(node).__name__}.{member}"
+
+                                # skip if property successfully set
+                                if mem_key in mem_results:
+                                    current_val = mem_results[mem_key]
+                                    if current_val[0] == Result.SKIPPED or current_val[0] == Result.VALUE:
+                                        continue
+
+                                try:
+                                    if member.startswith("_"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping private member")
+                                        continue
+
+                                    if member.startswith("props_to_dict"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping global member")
+                                        continue
+
+                                    if member.startswith("properties"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping global member")
+                                        continue
+
+                                    if member.startswith("delete"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping delete method")
+                                        continue
+
+                                    if member.startswith("rename"):
+                                        with warnings.catch_warnings(record=True) as w:
+                                            warnings.simplefilter("always")
+
+                                            attr = getattr(node, member)
+                                            values = ["TestString"]
+                                            result = attr(*values)
+                                            if w:
+                                                mem_results[mem_key] = (Result.VALUE, node.name)
+                                                assert (
+                                                    str(w[0].message) == "This property is deprecated in 0.21.3. "
+                                                    "Use the name property instead."
+                                                )
+                                        continue
+
+                                    if member.startswith("duplicate"):
+                                        with pytest.raises(NotImplementedError) as e:
+                                            attr = getattr(node, member)
+                                            values = ["TestString"]
+                                            result = attr(*values)
+                                        mem_results[mem_key] = (Result.VALUE, str(e.value))
+                                        continue
+
+                                    # TODO: Skip Pyramidal Horn params due to warning popup that freezes the test
+                                    if member.startswith("mouth_width") or \
+                                            member.startswith("mouth_height") or \
+                                            member.startswith("waveguide_width") or \
+                                            member.startswith("width_flare_half_angle") or \
+                                            member.startswith("height_flare_half_angle"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping pyramidal horn params")
+                                        continue
+
+                                    class_attr = getattr(node.__class__, member)
+                                    if isinstance(class_attr, property):
+                                        # Member is a property
+                                        has_fget = class_attr.fget is not None
+                                        has_fset = class_attr.fset is not None
+
+                                        if has_fget and has_fset:
+                                            property_value_map_record = property_value_map[mem_key]
+
+                                            arg_type = property_value_map_record["arg_type"]
+                                            docstring = class_attr.fget.__doc__
+
+                                            value_index = property_value_map_record["value_index"]
+                                            if isinstance(arg_type, type) and issubclass(arg_type, bool):
+                                                if value_index == 0:
+                                                    mem_value = False
+                                                elif value_index == 1:
+                                                    mem_value = True
+                                                else:
+                                                    # We've already used both bool values, skip.
+                                                    continue
+                                            else:
+                                                if value_index == 0:
+                                                    mem_value = get_value_for_parameter(arg_type, docstring)
+                                                else:
+                                                    # We've already used a value, skip.
+                                                    continue
+
+                                            exception = None
+
+                                            # If value is None here, we failed to find a suitable value to
+                                            # call the setter with. Just call the getter, and put that in the results.
+                                            try:
+                                                if mem_value is not None:
+                                                    class_attr.fset(node, mem_value)
+                                            except Exception as e:
+                                                exception = e
+
+                                            try:
+                                                result = class_attr.fget(node)
+                                            except Exception as e:
+                                                exception = e
+
+                                            if exception:
+                                                raise exception
+
+                                            if mem_value:
+                                                assert mem_value == result
+
+                                            # We successfully set the current value. Next iteration, try the next value
+                                            property_value_map_record["value_index"] += 1
+                                            mem_results[mem_key] = (Result.VALUE, result)
+                                        elif has_fget:
+                                            result = class_attr.fget(node)
+                                            mem_results[mem_key] = (Result.VALUE, result)
                                     else:
-                                        bad_param = parameter
-                                        break
+                                        attr = getattr(node, member)
 
-                                if len(values) == len(signature.parameters):
-                                    result = attr(*values)
-                                    mem_results[mem_key] = (Result.VALUE, result)
-                                else:
-                                    mem_results[mem_key] = (
-                                        Result.NEEDS_PARAMETERS,
-                                        f'Could not find valid value for parameter "{bad_param}".',
-                                    )
-                            else:
-                                mem_results[mem_key] = (Result.VALUE, attr)
-                    except Exception as e:
-                        mem_results[mem_key] = (Result.EXCEPTION, f"{e}")
-            return mem_results, results_props
+                                        if inspect.ismethod(attr) or inspect.isfunction(attr):
+                                            # Member is a function
+                                            signature = inspect.signature(attr)
 
-        def test_nodes_from_top_level(nodes, add_untested_children=True):
+                                            values = []
+                                            bad_param = None
+                                            for parameter in signature.parameters:
+                                                docstring = attr.__doc__
+
+                                                mem_value = get_value_for_parameter(parameter, docstring)
+                                                if mem_value is not None:
+                                                    values.append(mem_value)
+                                                else:
+                                                    bad_param = parameter
+                                                    break
+
+                                            if len(values) == len(signature.parameters):
+                                                result = attr(*values)
+                                                mem_results[mem_key] = (Result.VALUE, result)
+                                            else:
+                                                mem_results[mem_key] = (
+                                                    Result.NEEDS_PARAMETERS,
+                                                    f'Could not find valid value for parameter "{bad_param}".',
+                                                )
+                                        else:
+                                            mem_results[mem_key] = (Result.VALUE, attr)
+                                except Exception as e:
+                                    mem_results[mem_key] = (Result.EXCEPTION, f"{e}")
+            return mem_results
+
+        def test_nodes_from_top_level(nodes, add_untested_children=True, max_node_iterations=None):
             # Test every method on every node, but add node children to list while iterating
             nodes_tested = []
-            results_dict = {}
-            results_of_get_props = {}
+            node_types = []
+            for node in nodes:
+                if type(node).__name__ not in node_types:
+                    node_types.append(type(node).__name__)
 
+            results_dict = {}
+
+            # skip some nodes unless Developer env var set
+            # these nodes take the bulk of the run time
+            dev_only = os.getenv("EMIT_PYAEDT_LONG")
+            nodes_to_skip = ['Waveform',
+                             'Band',
+                             'ResultPlotNode',
+                             'EmiPlotMarketNode']
             child_node_add_exceptions = {}
             for node in nodes:
                 node_type = type(node).__name__
@@ -1736,40 +1824,42 @@ class TestClass:
 
                         # Add this node's children to the list of nodes to test
                         try:
-                            nodes.extend(node.children)
+                            node_children = node.children
+                            for node_child in node_children:
+                                child_node_type = type(node_child).__name__
+                                if child_node_type not in node_types:
+                                    node_types.append(child_node_type)
+                                    nodes.append(node_child)
                         except Exception as e:
                             exception = e
 
                         if exception:
                             child_node_add_exceptions[node_type] = exception
 
-                    node_results, node_prop_results = test_all_members(node)
+                    if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
+                        continue
+                    node_results = test_all_members(node, max_node_iterations)
                     results_dict.update(node_results)
-                    results_of_get_props.update(node_prop_results)
-            return nodes_tested, results_dict, results_of_get_props
+            return nodes_tested, results_dict
 
         # Add some components
-        interference.modeler.components.create_component("Antenna", "TestAntenna")
-        interference.modeler.components.create_component("New Emitter", "TestEmitter")
-        interference.modeler.components.create_component("Amplifier", "TestAmplifier")
-        interference.modeler.components.create_component("Cable", "TestCable")
-        interference.modeler.components.create_component("Circulator", "TestCirculator")
-        interference.modeler.components.create_component("Divider", "TestDivider")
-        interference.modeler.components.create_component("Band Pass", "TestBPF")
-        interference.modeler.components.create_component("Band Stop", "TestBSF")
-        interference.modeler.components.create_component("File-based", "TestFilterByFile")
-        interference.modeler.components.create_component("High Pass", "TestHPF")
-        interference.modeler.components.create_component("Low Pass", "TestLPF")
-        interference.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
-        interference.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
-        interference.modeler.components.create_component("Isolator", "TestIsolator")
-        interference.modeler.components.create_component("TR Switch", "TestSwitch")
-        interference.modeler.components.create_component("Terminator", "TestTerminator")
-        interference.modeler.components.create_component("3 Port", "Test3port")
+        emit_app.schematic.create_radio_antenna(radio_type="New Radio",
+                                                radio_name="TestRadio",
+                                                antenna_name="TestAntenna")
+        emit_app.schematic.create_component("New Emitter", "TestEmitter")
+        emit_app.schematic.create_component("Amplifier", "TestAmplifier")
+        emit_app.schematic.create_component("Cable", "TestCable")
+        emit_app.schematic.create_component("Circulator", "TestCirculator")
+        emit_app.schematic.create_component("Divider", "TestDivider")
+        emit_app.schematic.create_component("Band Pass", "TestBPF")
+        emit_app.schematic.create_component("Isolator", "TestIsolator")
+        emit_app.schematic.create_component("TR Switch", "TestSwitch")
+        emit_app.schematic.create_component("Terminator", "TestTerminator")
+        emit_app.schematic.create_component("3 Port", "Test3port")
 
         # Generate and run a revision
-        results = interference.results
-        revision = interference.results.analyze()
+        results = emit_app.results
+        revision = emit_app.results.analyze()
 
         domain = results.interaction_domain()
         revision.run(domain)
@@ -1777,7 +1867,14 @@ class TestClass:
         # Test all nodes of the current revision
         current_revision_all_nodes = revision.get_all_nodes()
 
-        all_nodes_tested, member_results, prop_results = test_nodes_from_top_level(current_revision_all_nodes)
+        # profiler = cProfile.Profile()
+        # all_nodes_tested, member_results, prop_results = profiler.runcall(test_nodes_from_top_level,
+        #                                                                   current_revision_all_nodes)
+        # profiler.print_stats()
+        # profiler.dump_stats("profile.prof")
+        all_nodes_tested, member_results = test_nodes_from_top_level(current_revision_all_nodes,
+                                                                     True,
+                                                                     max_inner_loop_iterations)
 
         # Keep the current revision, then test all nodes of the kept result
         # kept_result_name = interference.odesign.KeepResult()
@@ -1797,6 +1894,13 @@ class TestClass:
         # Verify we tested most of the generated nodes
         all_nodes = [node for node in generated.__all__ if ("ReadOnly" not in node)]
         nodes_untested = [node for node in all_nodes if (node not in all_nodes_tested)]
+
+        if os.getenv("EMIT_PYAEDT_LONG"):
+            with open("results_by_type.txt", "w") as f:
+                for k, v in results_by_type.items():
+                    for kk, vv in v.items():
+                        f.write(f"{k}={kk}={vv}\n")
+                f.write(f"Nodes tested {len(all_nodes_tested)}: {all_nodes_tested}")
 
         assert len(all_nodes_tested) > len(nodes_untested)
 

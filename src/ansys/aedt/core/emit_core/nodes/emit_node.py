@@ -109,7 +109,10 @@ class EmitNode:
             raise ValueError("This node is read-only for kept results.")
 
         if self.get_is_component():
-            self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
+            try:
+                self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
+            except Exception as e:
+                raise ValueError(f"Failed to rename {self.name} to {requested_name}")
         else:
             _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
 
@@ -279,7 +282,7 @@ class EmitNode:
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
             if len(selected_kv_pairs) < 1:
-                return ""
+                raise ValueError(f"Property {prop} not found or not available for {self._node_type} configuration.")
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
