@@ -29,11 +29,15 @@ import threading
 import time
 
 import psutil
-import typer
 
-NAME = "PyAEDT"
+try:
+    import typer
+except ImportError:
+    raise ImportError(
+        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
+    )
 
-app = typer.Typer(help=f"CLI for {NAME}", no_args_is_help=True)
+app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
 
 
 def _is_valid_process(proc: psutil.Process) -> bool:
@@ -102,7 +106,7 @@ def _can_access_process(proc: psutil.Process) -> bool:
 
 @app.command()
 def processes():
-    """Display all running AEDT-related processes"""
+    """Display all running AEDT-related processes."""
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
 
     if not aedt_procs:
@@ -124,11 +128,11 @@ def processes():
 
 @app.command()
 def version():
-    """Display PyAEDT version"""
+    """Display PyAEDT version."""
     import ansys.aedt.core
 
     version = ansys.aedt.core.__version__
-    typer.echo(f"{NAME} version: {version}")
+    typer.echo(f"PyAEDT version: {version}")
 
 
 @app.command()
@@ -138,9 +142,9 @@ def start(
     port: int = typer.Option(0, "--port", "-p", help="Port for AEDT connection (0 for auto)"),
     student_version: bool = typer.Option(False, "--student", help="Start AEDT Student version"),
 ):
-    """Start a new AEDT session"""
+    """Start a new AEDT process."""
     try:
-        typer.echo(f"Starting {NAME} version {version}...")
+        typer.echo(f"Starting AEDT {version}...")
 
         from ansys.aedt.core import settings
         from ansys.aedt.core.desktop import Desktop
@@ -205,7 +209,7 @@ def stop(
     pid: int | None = typer.Argument(None, help="Stop process by PID"),
     stop_all: bool = typer.Option(False, "--all", "-a", help="Stop all running AEDT processes"),
 ):
-    """Stop running AEDT processes"""
+    """Stop running AEDT process(es)."""
     import psutil
 
     # List of process statuses considered OK for termination
