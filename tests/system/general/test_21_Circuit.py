@@ -1074,9 +1074,9 @@ class TestClass:
         assert list(aedtapp.modeler.components.components.values())[0].component_path
         assert aedtapp.modeler.add_page("P2")
         assert aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page=2)
-        assert aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page="P2")
         assert aedtapp.modeler.rename_page(2, "P3")
-        assert aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page="P3")
+        assert aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page=2)
+
         assert len(aedtapp.modeler.schematic.components) == 4
         assert not list(aedtapp.modeler.components.components.values())[1].component_path
         t1 = aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
