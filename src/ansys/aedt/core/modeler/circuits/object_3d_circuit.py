@@ -765,7 +765,7 @@ class CircuitComponent(PyAedtBase):
             if comp_info:
                 for info in comp_info:
                     if "Page=" in info:
-                        self._pag = int(info[5:])
+                        self._page = int(info[5:])
                         break
         except Exception:
             self._page = 1
