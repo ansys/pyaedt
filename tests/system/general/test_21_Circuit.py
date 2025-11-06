@@ -1078,21 +1078,21 @@ class TestClass:
         cmp = aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page=2)
         assert cmp.page == 2
 
-        assert len(aedtapp.modeler.schematic.components) == 4
+        assert len(aedtapp.modeler.schematic.components) == 3
         assert not list(aedtapp.modeler.components.components.values())[1].component_path
         t1 = aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
-        assert len(aedtapp.modeler.schematic.components) == 5
+        assert len(aedtapp.modeler.schematic.components) == 4
         assert t1.component_path
         nexxim_state_space = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "neximspacefile.sss"
         sss = aedtapp.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
-        assert len(aedtapp.modeler.schematic.components) == 6
+        assert len(aedtapp.modeler.schematic.components) == 5
         assert sss.component_path
         ibis_model = aedtapp.get_ibis_model_from_file(
             Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
         )
         ibis_model.buffers["RDQS#"].add()
         buffer = ibis_model.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
-        assert len(aedtapp.modeler.schematic.components) == 7
+        assert len(aedtapp.modeler.schematic.components) == 6
         assert buffer.component_path
 
     def test_output_variables(self, circuitprj):
