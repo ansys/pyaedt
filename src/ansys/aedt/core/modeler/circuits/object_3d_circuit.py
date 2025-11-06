@@ -216,15 +216,24 @@ class CircuitPins(PyAedtBase):
         ----------
         >>> oPadstackManager.CreatePagePort
         """
+        local_page = self._circuit_comp.page
         tol = 1e-8
         if not isinstance(assignment, list):
             assignment = [assignment]
+        for cpin in assignment:
+            if local_page != cpin._circuit_comp.page:
+                self._circuit_comp._circuit_components.logger.warning(
+                    "components are on different pages. Using page ports."
+                )
+                use_wire = False
         if use_wire:
             direction = (180 + self.angle + self._circuit_comp.angle) * math.pi / 180
             points = [self.location]
             cangles = [self._circuit_comp.angle]
             negative = 0.0 >= direction >= (math.pi)
+            rem_page = local_page
             for cpin in assignment:
+                rem_page = cpin._circuit_comp.page
                 prev = [i for i in points[-1]]
                 act = [i for i in cpin.location]
                 pins_x = [i.location[0] for i in self._circuit_comp.pins if i.name != self.name]
@@ -298,7 +307,7 @@ class CircuitPins(PyAedtBase):
                         points.append(act)
 
                 cangles.append(cpin._circuit_comp.angle)
-            self._circuit_comp._circuit_components.create_wire(points, name=wire_name)
+            self._circuit_comp._circuit_components.create_wire(points, name=wire_name, page=rem_page)
             return True
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
@@ -306,8 +315,14 @@ class CircuitPins(PyAedtBase):
         if page_name is None:
             page_name = f"{self._circuit_comp.composed_name.replace('CompInst@', '').replace(';', '_')}_{self.name}"
 
-        if len(assignment) == 1 and GeometryOperators.points_distance(self.location, assignment[0].location) < 0.01524:
-            self._circuit_comp._circuit_components.create_wire([self.location, assignment[0].location], name=page_name)
+        if (
+            len(assignment) == 1
+            and GeometryOperators.points_distance(self.location, assignment[0].location) < 0.01524
+            and local_page == assignment[0]._circuit_comp.page
+        ):
+            self._circuit_comp._circuit_components.create_wire(
+                [self.location, assignment[0].location], name=page_name, page=local_page
+            )
             return True
         if "Port" in self._circuit_comp.composed_name:
             try:
@@ -329,9 +344,11 @@ class CircuitPins(PyAedtBase):
             self.location[0] - offset * math.cos(self.total_angle * math.pi / 180),
             self.location[1] - offset * math.sin(self.total_angle * math.pi / 180),
         ]
-        ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, location, angle=angle)
+        ret1 = self._circuit_comp._circuit_components.create_page_port(
+            page_name, location, angle=angle, page=local_page
+        )
         if offset != 0:
-            self._circuit_comp._circuit_components.create_wire([self.location, location])
+            self._circuit_comp._circuit_components.create_wire([self.location, location], page=local_page)
         for cmp in assignment:
             location = [
                 cmp.location[0] - offset * math.cos(cmp.total_angle * math.pi / 180),
@@ -339,10 +356,12 @@ class CircuitPins(PyAedtBase):
             ]
 
             ret2 = self._circuit_comp._circuit_components.create_page_port(
-                page_name, location=location, angle=cmp.total_angle
+                page_name, location=location, angle=cmp.total_angle, page=cmp._circuit_comp.page
             )
             if offset != 0:
-                self._circuit_comp._circuit_components.create_wire([cmp.location, location])
+                self._circuit_comp._circuit_components.create_wire(
+                    [cmp.location, location], page=cmp._circuit_comp.page
+                )
         if ret1 and ret2:
             return True, ret1, ret2
         else:
@@ -459,6 +478,7 @@ class CircuitComponent(PyAedtBase):
         self._model_data = {}
         self._refdes = None
         self.is_port = False
+        self._page = 1
 
     @property
     def instance_name(self):
@@ -730,6 +750,26 @@ class CircuitComponent(PyAedtBase):
         except (TypeError, AttributeError):
             self._pins.append(CircuitPins(self, self.composed_name, idx))
         return self._pins
+
+    @property
+    def page(self):
+        """Get the page where the component is located.
+
+        Returns
+        -------
+        str
+            Page name.
+        """
+        try:
+            comp_info = self._oeditor.GetComponentInfo(self.composed_name)
+            if comp_info:
+                for info in comp_info:
+                    if "Page=" in info:
+                        self._pag = int(info[5:])
+                        break
+        except Exception:
+            self._page = 1
+        return self._page
 
     @property
     def location(self):
