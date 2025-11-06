@@ -660,8 +660,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -702,8 +702,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -747,8 +747,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -792,8 +792,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
 
         Returns
@@ -836,8 +836,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
 
         Returns
@@ -880,8 +880,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -956,8 +956,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1018,8 +1018,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1089,8 +1089,8 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------

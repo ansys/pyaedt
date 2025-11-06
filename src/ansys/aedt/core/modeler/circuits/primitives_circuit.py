@@ -339,8 +339,8 @@ class CircuitComponents(PyAedtBase):
             Position on the X and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -387,8 +387,8 @@ class CircuitComponents(PyAedtBase):
         label_position : str, optional
             Label position. The default is ``"auto"``.
             Options are ''"Center"``, ``"Left"``, ``"Right"``, ``"Top"``, ``"Bottom"``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1003,8 +1003,8 @@ class CircuitComponents(PyAedtBase):
         show_bitmap : bool, optional
             Show bitmap image of schematic component.
             The default value is ``True``.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1067,8 +1067,8 @@ class CircuitComponents(PyAedtBase):
                     Angle rotation in degrees. The default is ``0``.
                 port_names : list, optional
                     Name of ports.
-                page: int, str optional
-                    Schematic page number or page name. The default value is ``1``.
+                page: int,  optional
+                    Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1128,8 +1128,8 @@ class CircuitComponents(PyAedtBase):
             The default is ``False``.
         global_netlist_list : list, optional
             The default is ``None``, in which case an empty list is passed.
-        page: int, str optional
-            Schematic page number or page name. The default value is ``1``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1156,9 +1156,6 @@ class CircuitComponents(PyAedtBase):
         arg1 = ["NAME:ComponentProps", "Name:=", inst_name]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
-        pnames = self._app.modeler.page_names
-        if isinstance(page, str) and page in pnames:
-            page = pnames.index(page)
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
         comp_id = int(comp_name.split(";")[-1])
@@ -1587,7 +1584,7 @@ class CircuitComponents(PyAedtBase):
         width : float, optional
             Width of the line. The default is ``0``.
         page: int, optional
-            Schematic page number or page name. The default value is ``1``.
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
