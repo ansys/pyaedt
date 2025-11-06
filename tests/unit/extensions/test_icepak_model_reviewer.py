@@ -113,6 +113,71 @@ def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     assert model_table.tree.item(row3)["values"][4] == "True"
     assert model_table.tree.item(row3)["values"][5] == "Model"
 
+def test_table_icon_handling_after_load(mock_icepak_app, patched_loader):
+    """Verify that all read-only cells in the table have the 🔒 icon appended."""
+    extension = IcepakModelReviewer(withdraw=True)
+    extension.load_button.invoke()
+
+    for tab_name in ["boundary_tab", "materials_tab", "models_tab"]:
+        table = getattr(extension.root, tab_name).winfo_children()[0]
+        tree = table.tree
+        rows = tree.get_children()
+        # For every row, check each read-only column
+        for row_index, row_id in enumerate(rows):
+            values = tree.item(row_id)["values"]
+            readonly_cols = table.read_only_data[row_index]
+
+            for col_index, value in enumerate(values):  # 1-based index for consistency
+                val_str = str(value)
+                if col_index in readonly_cols:
+                    assert val_str.endswith("🔒")
+                else:
+                    assert not val_str.endswith("🔒")
+
+def test_table_headers_and_types_consistency(mock_icepak_app, patched_loader):
+    """
+    Verify:
+    - each table has consistent header/type pairing
+    - 'multiple_text' columns contain comma-separated values
+    """
+    extension = IcepakModelReviewer(withdraw=True)
+    extension.load_button.invoke()
+
+    for tab_name in ["boundary_tab", "materials_tab", "models_tab"]:
+        table = getattr(extension.root, tab_name).winfo_children()[0]
+        headers = table.headers
+        types = table.types
+        tree = table.tree
+
+        # --- 1Check header/type consistency ---
+        assert len(headers) == len(types), f"{tab_name} headers/types mismatch"
+
+        # --- multiple_text columns should have comma-separated values ---
+        multi_text_indices = [i for i, t in enumerate(types) if t == "multiple_text"]
+        if multi_text_indices:
+            found_multi = False
+            for row_id in tree.get_children():
+                values = tree.item(row_id)["values"]
+                for idx in multi_text_indices:
+                    if idx < len(values) and "," in str(values[idx]):
+                        found_multi = True
+                        break
+                if found_multi:
+                    break
+            assert found_multi
+
+def test_table_reload_does_not_duplicate(mock_icepak_app, patched_loader):
+    """Ensure multiple loads don't duplicate table entries."""
+    extension = IcepakModelReviewer(withdraw=True)
+
+    extension.load_button.invoke()
+    first_load_rows = len(extension.root.boundary_tab.winfo_children()[0].tree.get_children())
+
+    # Invoke load again
+    extension.load_button.invoke()
+    second_load_rows = len(extension.root.boundary_tab.winfo_children()[0].tree.get_children())
+
+    assert first_load_rows == second_load_rows
 
 def test_icepak_model_reviewer_table_modification(
     mock_icepak_app, patched_loader, patched_import_data_to_project, patched_object_id
@@ -151,3 +216,6 @@ def test_icepak_model_reviewer_table_modification(
     extension.update_button.invoke()
     assert extension.combined_data["objects"]["MEMORY1"]["Material"] == "Al-Extruded"
     assert extension.combined_data["objects"]["SERIAL_PORT"]["Model"] == "False"
+
+
+
