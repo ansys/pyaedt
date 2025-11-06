@@ -1491,8 +1491,8 @@ class TestClass:
                 min_val = float(range_part.split("and")[0].strip())
                 max_val = float(range_part.split("and")[1].split(".")[0].strip())
                 if is_int:
-                    return random.randint(min_val, max_val)
-                return random.uniform(min_val, max_val)
+                    return round(random.randint(min_val, max_val), 3)  # nosec
+                return round(random.uniform(min_val, max_val), 3)  # nosec
             elif "Value should be less than" in docstring:
                 max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
                 if is_int:
@@ -1667,7 +1667,7 @@ class TestClass:
                                             warnings.simplefilter("always")
 
                                             attr = getattr(node, member)
-                                            values = ["TestString"]
+                                            values = [f"TestString{self.next_int}"]
                                             result = attr(*values)
                                             if w:
                                                 mem_results[mem_key] = (Result.VALUE, node.name)
@@ -1680,7 +1680,7 @@ class TestClass:
                                     if member.startswith("duplicate"):
                                         with pytest.raises(NotImplementedError) as e:
                                             attr = getattr(node, member)
-                                            values = ["TestString"]
+                                            values = [f"TestString{self.next_int}"]
                                             result = attr(*values)
                                         mem_results[mem_key] = (Result.VALUE, str(e.value))
                                         continue
