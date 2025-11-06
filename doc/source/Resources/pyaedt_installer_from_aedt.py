@@ -186,9 +186,19 @@ def run_pyinstaller_from_c_python(oDesktop):
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
-    ret_code = subprocess.call([python_exe, python_script])  # nosec
-    if ret_code != 0:
-        oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels.")
+    try:
+        proc = subprocess.Popen(
+            [python_exe, python_script],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        stdout, stderr = proc.communicate()
+        if proc.returncode != 0:
+            error_msg = stderr.decode('utf-8') if stderr else "Unknown error"
+            oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels: {}".format(error_msg))
+            return
+    except Exception as e:
+        oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels: {}".format(str(e)))
         return
     # Refresh UI
     oDesktop.CloseAllWindows()
