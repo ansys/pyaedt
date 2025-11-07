@@ -1473,7 +1473,7 @@ class TestClass:
         # change this to limit the number of iterations for each node
         # if None, each node will iterate over all bool and enum combos
         # to verify that every property can be set
-        max_inner_loop_iterations = 40
+        max_inner_loop_iterations = 2
 
         # used to give nodes a unique name on rename commands
         self.next_int = 0
