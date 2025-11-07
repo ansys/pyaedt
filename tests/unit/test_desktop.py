@@ -109,7 +109,7 @@ def test_desktop_odesktop_setter():
 
     desktop.odesktop = aedt_app
 
-    assert desktop._odesktop == aedt_app
+    assert desktop.odesktop == aedt_app
 
 
 def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings):

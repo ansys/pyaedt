@@ -344,6 +344,7 @@ class AEDT:
             settings.logger.info(f"Client application successfully started.")
         except Exception:
             settings.logger.warning("Failed to create AedtApplication.")
+            self.aedt = None
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine

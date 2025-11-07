@@ -89,7 +89,6 @@ ALLOWED_LSF_SETTINGS = [
 ALLOWED_GENERAL_SETTINGS = [
     "lazy_load",
     "objects_lazy_load",
-    "aedt_install_dir",
     "aedt_version",
     "desktop_launch_timeout",
     "disable_bounding_box_sat",
@@ -213,7 +212,6 @@ class Settings(PyAedtBase):
         self.__enable_error_handler: bool = True
         self.__release_on_exception: bool = True
         self.__aedt_version: Optional[str] = None
-        self.__aedt_install_dir: Optional[str] = None
         self.__use_multi_desktop: bool = False
         self.__use_grpc_api: Optional[bool] = None
         self.__disable_bounding_box_sat = False
@@ -762,15 +760,6 @@ class Settings(PyAedtBase):
             self.__aedt_version = value
             if self.__aedt_version >= "2023.1":
                 self.disable_bounding_box_sat = True
-
-    @property
-    def aedt_install_dir(self):
-        """AEDT installation path."""
-        return self.__aedt_install_dir
-
-    @aedt_install_dir.setter
-    def aedt_install_dir(self, value):
-        self.__aedt_install_dir = value
 
     @property
     def use_multi_desktop(self):

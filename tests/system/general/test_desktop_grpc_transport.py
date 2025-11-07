@@ -19,8 +19,8 @@ pytestmark = pytest.mark.desktop_grpc_stransport
 
 # Test with different AEDT versions
 
-from conftest import default_version
-AEDT_VERSION = default_version
+from tests.conftest import desktop_version
+AEDT_VERSION = desktop_version
 
 # NOTE: Activating this environment variable forces PyAEDT to use the
 # old grpc connection arguments. This is useful for testing backward

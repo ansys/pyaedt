@@ -221,7 +221,7 @@ class Design(AedtObjects, PyAedtBase):
 
         self._mttime: Optional[float] = None
         self._desktop = self._desktop_class.odesktop
-        self._desktop_install_dir: Optional[str] = settings.aedt_install_dir
+        self._desktop_install_dir: Optional[str] = self._desktop_class.aedt_install_dir
         self._odesign: Optional[Any] = None
         self._oproject: Optional[Any] = None
 
