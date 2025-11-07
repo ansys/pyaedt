@@ -505,6 +505,8 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(app)
         self.logger.info("ModelerNexxim class has been initialized!")
+        self._page_names = []
+        self._pages = 0
 
     @property
     def layouteditor(self):
@@ -547,7 +549,62 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         -------
         int
         """
-        return self.oeditor.GetNumPages()
+        if self._pages > 0:
+            return self._pages
+        self._pages = self.oeditor.GetNumPages()
+        return self._pages
+
+    @property
+    def page_names(self) -> list:
+        """Page names in the schematic."""
+        if self._page_names:
+            return self._page_names
+        self._page_names = []
+        for i in range(self.pages):
+            name = self.oeditor.GetPropertyValue("BaseElementTab", f"Page@{i + 1}", "Title")
+            name = name if name else f"Page{i + 1}"
+            self._page_names.append(name)
+        return self._page_names
+
+    @pyaedt_function_handler()
+    def add_page(self, name: str) -> int:
+        """Add a page to the schematic.
+
+        Parameters
+        ----------
+        name : str
+            Name of the page to add.
+
+        Returns
+        -------
+        int
+            Page number
+        """
+        pnames = self.page_names
+        if name not in pnames:
+            self._page_names = []
+            self._pages = 0
+            return self.oeditor.CreatePage(name)
+        else:
+            self.logger.error(f"Name {name} already exists in the schematic.")
+            return pnames.index(name)
+
+    @pyaedt_function_handler()
+    def rename_page(self, page, name):
+        """Rename a page in the schematic."""
+        pnames = self.page_names
+        if page in pnames:
+            page_index = pnames.index(page) + 1
+            self.oeditor.SetPropertyValue("BaseElementTab", f"Page@{page_index}", "Title", name)
+            self._page_names = []
+            self._pages = 0
+            return True
+        elif isinstance(page, int) and page <= len(pnames):
+            self.oeditor.SetPropertyValue("BaseElementTab", f"Page@{page}", "Title", name)
+            self._page_names = []
+            self._pages = 0
+            return True
+        return False
 
     @property
     def edb(self):
