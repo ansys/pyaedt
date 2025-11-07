@@ -86,7 +86,7 @@ class Filter(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
+    class SubTypeOption(Enum):
         BY_FILE = "ByFile"
         LOW_PASS = "LowPass"  # nosec
         HIGH_PASS = "HighPass"  # nosec
@@ -96,19 +96,19 @@ class Filter(EmitNode):
         TUNABLE_BANDSTOP = "TunableBandstop"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def subtype(self) -> SubTypeOption:
+        """SubType.
 
         Type of filter to define. The filter can be defined by file (measured or
         simulated data) or using one of EMIT's parametric models.
         """
-        val = self._get_property("Type", True)
-        val = self.TypeOption(val)
+        val = self._get_property("SubType")
+        val = self.SubTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("SubType", f"{value.value}", True)
+    @subtype.setter
+    def subtype(self, value: SubTypeOption):
+        self._set_property("SubType", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -346,14 +346,14 @@ class Filter(EmitNode):
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Lowest Tuned Frequency ")
+        val = self._get_property("Lowest Tuned Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @lowest_tuned_frequency.setter
     def lowest_tuned_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Lowest Tuned Frequency ", f"{value}")
+        self._set_property("Lowest Tuned Frequency", f"{value}")
 
     @property
     def highest_tuned_frequency(self) -> float:
@@ -361,14 +361,14 @@ class Filter(EmitNode):
 
         Value should be between 1 and 100e9.
         """
-        val = self._get_property("Highest Tuned Frequency ")
+        val = self._get_property("Highest Tuned Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 
     @highest_tuned_frequency.setter
     def highest_tuned_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Highest Tuned Frequency ", f"{value}")
+        self._set_property("Highest Tuned Frequency", f"{value}")
 
     @property
     def percent_bandwidth(self) -> float:
@@ -401,3 +401,4 @@ class Filter(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

@@ -86,25 +86,25 @@ class Cable(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
+    class SubTypeOption(Enum):
         BY_FILE = "ByFile"
         CONSTANT_LOSS = "Constant"
         COAXIAL_CABLE = "Coaxial"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def subtype(self) -> SubTypeOption:
+        """SubType.
 
         Type of cable to use. Options include: By File (measured or simulated),
         Constant Loss, or Coaxial Cable.
         """
-        val = self._get_property("Type", True)
-        val = self.TypeOption(val)
+        val = self._get_property("SubType")
+        val = self.SubTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("SubType", f"{value.value}", True)
+    @subtype.setter
+    def subtype(self, value: SubTypeOption):
+        self._set_property("SubType", f"{value.value}")
 
     @property
     def length(self) -> float:
@@ -180,3 +180,4 @@ class Cable(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+
