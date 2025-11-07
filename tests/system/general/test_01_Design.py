@@ -554,9 +554,7 @@ class TestClass:
         assert not aedtapp.edit_notes(1)
         aedtapp.close_project(aedtapp.project_name)
 
-
     def test_close_desktop(self, desktop, aedtapp, monkeypatch):
-
         called = {}
 
         # Use monkeypatch to replace desktop.close_desktop with a fake tracker
