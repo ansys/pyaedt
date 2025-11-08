@@ -9,6 +9,169 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.22.0 <https://github.com/ansys/pyaedt/releases/tag/v0.22.0>`_ - November 05, 2025
+====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Flux lines plot
+          - `#6575 <https://github.com/ansys/pyaedt/pull/6575>`_
+
+        * - Filter deprecated methods from public_dir
+          - `#6791 <https://github.com/ansys/pyaedt/pull/6791>`_
+
+        * - Add TB spectral report context
+          - `#6808 <https://github.com/ansys/pyaedt/pull/6808>`_
+
+        * - Add magick method to EdgePrimitive
+          - `#6819 <https://github.com/ansys/pyaedt/pull/6819>`_
+
+        * - Add oDesktop logging to installer and automation tab functions
+          - `#6821 <https://github.com/ansys/pyaedt/pull/6821>`_
+
+        * - Edit sources harmonic loss q3d
+          - `#6826 <https://github.com/ansys/pyaedt/pull/6826>`_
+
+        * - Add create EM target design + add tests
+          - `#6838 <https://github.com/ansys/pyaedt/pull/6838>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update pydantic requirement from <2.12,>=2.6.4 to >=2.6.4,<2.13
+          - `#6783 <https://github.com/ansys/pyaedt/pull/6783>`_
+
+        * - Bump ansys/actions from 10.1.4 to 10.1.5
+          - `#6844 <https://github.com/ansys/pyaedt/pull/6844>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add information about coverage and local_config
+          - `#6681 <https://github.com/ansys/pyaedt/pull/6681>`_
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#6786 <https://github.com/ansys/pyaedt/pull/6786>`_, `#6820 <https://github.com/ansys/pyaedt/pull/6820>`_
+
+        * - Fix typos in modeler user guide
+          - `#6798 <https://github.com/ansys/pyaedt/pull/6798>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Analyze_from_zero
+          - `#6425 <https://github.com/ansys/pyaedt/pull/6425>`_
+
+        * - EMIT Pyaedt fixes
+          - `#6768 <https://github.com/ansys/pyaedt/pull/6768>`_
+
+        * - Fixed panels in linux
+          - `#6799 <https://github.com/ansys/pyaedt/pull/6799>`_
+
+        * - Settings.aedt_version in desktop and design class fix
+          - `#6802 <https://github.com/ansys/pyaedt/pull/6802>`_
+
+        * - PyAEDT installer from AEDT
+          - `#6803 <https://github.com/ansys/pyaedt/pull/6803>`_
+
+        * - Allow Object3d to be used in create_current_source_from_objects
+          - `#6804 <https://github.com/ansys/pyaedt/pull/6804>`_
+
+        * - Small change to port naming when no names are provided to align with Circuit behaviour
+          - `#6816 <https://github.com/ansys/pyaedt/pull/6816>`_
+
+        * - Add error message if extension is started with an empty HFSS 3D Layout design
+          - `#6822 <https://github.com/ansys/pyaedt/pull/6822>`_
+
+        * - Bug in Transient Analysis which prevented to add Sweep Definition
+          - `#6831 <https://github.com/ansys/pyaedt/pull/6831>`_
+
+        * - Args native API create EM target design
+          - `#6840 <https://github.com/ansys/pyaedt/pull/6840>`_
+
+        * - Solved issue #6801, improved desktop.save_project()
+          - `#6847 <https://github.com/ansys/pyaedt/pull/6847>`_
+
+        * - Bug in Transient design which was creating a Freq Sweep in every transient analysis
+          - `#6849 <https://github.com/ansys/pyaedt/pull/6849>`_
+
+        * - Fix exception messaging
+          - `#6850 <https://github.com/ansys/pyaedt/pull/6850>`_
+
+        * - Export layout extension
+          - `#6856 <https://github.com/ansys/pyaedt/pull/6856>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.21.2
+          - `#6782 <https://github.com/ansys/pyaedt/pull/6782>`_
+
+        * - Fix dependabot PR blocking job
+          - `#6787 <https://github.com/ansys/pyaedt/pull/6787>`_
+
+        * - Use flaky marker to avoid rerunning all tests
+          - `#6789 <https://github.com/ansys/pyaedt/pull/6789>`_
+
+        * - Add GitHub label for extension related changes
+          - `#6814 <https://github.com/ansys/pyaedt/pull/6814>`_
+
+        * - Disable flaky testing due to CI issues
+          - `#6839 <https://github.com/ansys/pyaedt/pull/6839>`_
+
+        * - Handle fpdf2 in CI and extend README
+          - `#6841 <https://github.com/ansys/pyaedt/pull/6841>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Conftest refactoring and local_config cleaning
+          - `#6727 <https://github.com/ansys/pyaedt/pull/6727>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Extend flaky_linux test set
+          - `#6793 <https://github.com/ansys/pyaedt/pull/6793>`_
+
+        * - System tests for extension and version managers
+          - `#6833 <https://github.com/ansys/pyaedt/pull/6833>`_
+
+        * - Add settings for local testing
+          - `#6834 <https://github.com/ansys/pyaedt/pull/6834>`_
+
+
 `0.21.2 <https://github.com/ansys/pyaedt/releases/tag/v0.21.2>`_ - October 17, 2025
 ===================================================================================
 
