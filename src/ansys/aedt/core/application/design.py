@@ -83,6 +83,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -2432,6 +2433,52 @@ class Design(AedtObjects, PyAedtBase):
         >>> hfss.make_read_only_variable("my_read_only_variable")
         """
         self.variable_manager[name].read_only = value
+        return True
+
+    @pyaedt_function_handler()
+    def create_em_target_design(self, design, setup=None, design_setup=None):
+        """Create an EM Target design.
+
+        Parameters
+        ----------
+        design : str
+            Name of the target design. Possible choices are ``"Icepak"`` or``"Mechanical"``.
+        setup : str, optional
+            Name of the EM setup to link to the target design.
+            The default is ``None``, in which case the ``LastAdaptive`` setup is used.
+        design_setup : str, optional
+            For Icepak designs, specify ``"Forced"`` for forced convention or
+            ``"Natural"`` for natural convention.
+            The default is ``None``, in which case the ``"Forced"`` option is used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.CreateEMLossTarget
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.create_em_target_design("Icepak", design_setup="Forced")
+        """
+        if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
+            raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
+        if design not in ["Icepak", "Mechanical"]:
+            raise AEDTRuntimeError("Design type must be 'Icepak' or 'Mechanical'.")
+        design_setup_args = ["NAME:DesignSetup", "Sim Type:="]
+        if design == "Icepak":
+            design_setup = design_setup or "Forced"
+            if design_setup not in ["Forced", "Natural"]:
+                raise AEDTRuntimeError("Design setup must be 'Forced' or 'Natural'.")
+            design_setup_args.append(design_setup)
+        if not setup:
+            setup = self.nominal_adaptive
+        self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
         return True
 
     @pyaedt_function_handler()

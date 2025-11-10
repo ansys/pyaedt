@@ -57,8 +57,6 @@ DEFAULT_CONFIG = {
     "NewThread": True,
     "use_grpc": True,
     "close_desktop": True,
-    "remove_lock": False,
-    "disable_sat_bounding_box": True,
     "use_local_example_data": False,
     "local_example_folder": None,
     "skip_circuits": False,
@@ -84,13 +82,11 @@ NONGRAPHICAL = config.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))
 new_thread = config.get("NewThread", DEFAULT_CONFIG.get("NewThread"))
 settings.use_grpc_api = config.get("use_grpc", DEFAULT_CONFIG.get("use_grpc"))
 close_desktop = config.get("close_desktop", DEFAULT_CONFIG.get("close_desktop"))
-remove_lock = config.get("remove_lock", DEFAULT_CONFIG.get("remove_lock"))
-settings.disable_bounding_box_sat = config.get(
-    "disable_sat_bounding_box", DEFAULT_CONFIG.get("disable_sat_bounding_box")
-)
 settings.use_local_example_data = config.get("use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data"))
 if settings.use_local_example_data:
-    settings.local_example_folder = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
+    local_example_folder = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
+    if local_example_folder:  # If empty string or None, keep it as is
+        settings.local_example_folder = local_example_folder
 
 logger = pyaedt_logger
 os.environ["PYAEDT_SCRIPT_VERSION"] = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
@@ -98,6 +94,12 @@ os.environ["PYAEDT_SCRIPT_VERSION"] = config.get("desktopVersion", DEFAULT_CONFI
 
 # Add current path to sys.path for imports
 sys.path.append(str(local_path))
+
+# NOTE: Additional environment configuration for error handling when the tests are
+# run locally and not in a CI environment.
+if "PYAEDT_LOCAL_SETTINGS_PATH" not in os.environ:
+    settings.enable_error_handler = False
+    settings.release_on_exception = False
 
 
 def generate_random_string(length):
