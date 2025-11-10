@@ -36,6 +36,7 @@ ERROR_MSG = "Error. No connection exists. Check if AEDT is running and if the po
 
 
 def test_start_service_with_valid_path_in_env_var(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """Test that start_service uses the path from PYAEDT_SERVER_AEDT_PATH when it exists."""
     port = 18000
 
     monkeypatch.setenv("PYAEDT_SERVER_AEDT_PATH", str(tmp_path))
@@ -53,6 +54,7 @@ def test_start_service_with_valid_path_in_env_var(monkeypatch: pytest.MonkeyPatc
 
 
 def test_start_service_with_invalid_path_in_env_var(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """Test that start_service returns False when PYAEDT_SERVER_AEDT_PATH points to a non-existent directory."""
     port = 18000
     inexistent_dir = tmp_path / "non_existent_directory"
     fallback_path_latest = "/path/to/ansys/v252"
@@ -78,6 +80,7 @@ def test_start_service_with_invalid_path_in_env_var(monkeypatch: pytest.MonkeyPa
 
 
 def test_start_service_without_env_var_defaults_to_latest_installed_path(monkeypatch: pytest.MonkeyPatch):
+    """Test that start_service falls back to the latest ANSYSEM_ROOTXXX path when PYAEDT_SERVER_AEDT_PATH is not set."""
     port = 18000
     fallback_path_latest = "/path/to/ansys/v252"
     fallback_path_previous = "/path/to/ansys/v251"
@@ -104,6 +107,7 @@ def test_start_service_without_env_var_defaults_to_latest_installed_path(monkeyp
 
 
 def test_start_service_without_env_var_and_no_installed_path(monkeypatch: pytest.MonkeyPatch):
+    """Test that start_service returns False when neither PYAEDT_SERVER_AEDT_PATH nor ANSYSEM_ROOTXXX are available."""
     port = 18000
 
     monkeypatch.delenv("PYAEDT_SERVER_AEDT_PATH", raising=False)
