@@ -68,6 +68,7 @@ tests = [
     "scikit-rf>=0.30.0,<1.9",
     "tables",
     "rpyc>=6.0.0,<6.1",
+    "typer>=0.20.0",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
