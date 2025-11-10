@@ -274,13 +274,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -420,13 +413,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -507,13 +493,6 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     source .venv/bin/activate
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -586,13 +565,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -675,13 +647,6 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     source .venv/bin/activate
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -690,7 +655,7 @@ jobs:
             kill -9 "$pid"
           done
 
-      - name: Run tests marked with 'visualization'
+      - name: Run tests marked with 'visualization' and 'requires_ansys_load'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -701,7 +666,19 @@ jobs:
           command: |
             export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and requires_ansys_load" -x --cov-append
+
+      - name: Run tests marked with 'visualization' and not 'requires_ansys_load'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 40
+          command: |
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not requires_ansys_load" -x --cov-append
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -751,13 +728,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -839,11 +809,6 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
-      - name: "Install X Virtual Frame Buffer"
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -863,7 +828,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
-            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -910,13 +875,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -985,13 +943,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1069,13 +1020,6 @@ jobs:
   #         export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   #         source .venv/bin/activate
   #         pip install .[tests]
-
-  #     - name: Install CI dependencies (e.g. vtk-osmesa)
-  #       run: |
-  #         source .venv/bin/activate
-  #         # Uninstall conflicting dependencies
-  #         pip uninstall --yes vtk
-  #         pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
   #     - name: "Install X Virtual Frame Buffer"
   #       run: |

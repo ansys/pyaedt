@@ -34,6 +34,8 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 from tests import TESTS_VISUALIZATION_PATH
 
+pytestmark = pytest.mark.requires_ansys_load
+
 array = "array_simple_231"
 test_subfolder = "T46"
 

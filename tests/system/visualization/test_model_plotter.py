@@ -30,6 +30,8 @@ import pytest
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from tests import TESTS_VISUALIZATION_PATH
 
+pytestmark = pytest.mark.requires_ansys_load
+
 test_subfolder = "T50"
 
 

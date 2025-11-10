@@ -271,6 +271,7 @@ markers = [
     "emit: mark a test as related to EMIT features.",
     "flaky_linux: mark a test as flaky on Linux systems.",
     "flaky_windows: mark a test as flaky on Windows systems.",
+    "requires_ansys_load: mark a test that requires LD_LIBRARY_PATH modifications.",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",

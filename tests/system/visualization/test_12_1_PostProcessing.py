@@ -39,6 +39,8 @@ from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from tests import TESTS_VISUALIZATION_PATH
 from tests.conftest import config
 
+pytestmark = pytest.mark.requires_ansys_load
+
 test_project_name = "coax_setup_solved_231"
 m2d_trace_export_table = "m2d"
 
