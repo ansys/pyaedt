@@ -112,7 +112,7 @@ all = [
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.9",
     "pyaedt[jupyter]",
-    "pyaedt-extensions",
+    "ansys-aedt-extensions",
     "requests",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
