@@ -145,7 +145,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     _write_mes(f"{message} on {func.__name__}")
 
-    message_to_print = []
+    message_to_print = ""
     messages = ""
     from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
@@ -158,8 +158,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         message_to_print = messages[messages.index("[error]") :]
 
     if message_to_print:
-        for m in message_to_print:
-            _write_mes("Last Electronics Desktop Message - " + m)
+        _write_mes("Last Electronics Desktop Message - " + message_to_print)
 
     try:
         args_dict = _get_args_dicts(func, args, kwargs)
