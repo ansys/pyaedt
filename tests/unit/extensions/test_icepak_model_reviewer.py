@@ -82,14 +82,11 @@ def test_icepak_model_reviewer_load_project(mock_icepak_app, patched_loader):
     assert boundary_table.tree is not None
     assert len(boundary_table.tree.get_children()) == 3
 
-
 def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     extension = IcepakModelReviewer(withdraw=True)
     extension.load_button.invoke()
     boundary_table = extension.root.boundary_tab.winfo_children()[0]
-    row1 = boundary_table.tree.get_children()[0]
-    row2 = boundary_table.tree.get_children()[1]
-    row3 = boundary_table.tree.get_children()[2]
+    row1, row2, row3 = boundary_table.tree.get_children()[:3]
     assert boundary_table.tree.column(5)["id"] == "Value 1"
     assert boundary_table.tree.item(row1)["values"][5] == "4W"
     assert boundary_table.tree.item(row1)["values"][3] == "CPU,KB,HEAT_SINK"
@@ -98,16 +95,17 @@ def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     assert boundary_table.tree.item(row3)["values"][5] == "1W"
     materials_table = extension.root.materials_tab.winfo_children()[0]
     assert len(materials_table.tree.get_children()) == 4
-    row1 = materials_table.tree.get_children()[0]
-    row2 = materials_table.tree.get_children()[1]
-    row3 = materials_table.tree.get_children()[2]
-    row4 = materials_table.tree.get_children()[3]
+    row1, row2, row3, row4 = materials_table.tree.get_children()[:4]
+    assert materials_table.tree.item(row1)["values"][1] == 'Al-Extruded🔒'
+    assert materials_table.tree.item(row1)["values"][2] == 'Solid🔒'
     assert materials_table.tree.item(row1)["values"][3] == 152
+    assert materials_table.tree.item(row1)["values"][4] == 2000
     assert materials_table.tree.item(row2)["values"][4] == "1.1614"
     assert materials_table.tree.item(row3)["values"][5] == 2
     assert materials_table.tree.item(row4)["values"][6] == 0
     model_table = extension.root.models_tab.winfo_children()[0]
     assert len(model_table.tree.get_children()) == 11
+    row1, row2, row3 = model_table.tree.get_children()[:3]
     assert model_table.tree.item(row1)["values"][2] == "air"
     assert model_table.tree.item(row2)["values"][3] == "Soft Rubber-Gray-surface"
     assert model_table.tree.item(row3)["values"][4] == "True"
