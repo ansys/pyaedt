@@ -32,44 +32,42 @@ import pytest
 
 from ansys.aedt.core.rpc import rpyc_services
 
+LOCAL_SERVER_FILE = Path(rpyc_services.__file__).parent / "local_server.py"
+
 
 @patch("ansys.aedt.core.rpc.rpyc_services.time.sleep")
 def test_start_service_with_valid_path_in_env_var(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     port = 18000
 
+    monkeypatch.setenv("PYAEDT_SERVER_AEDT_PATH", str(tmp_path))
+
     with (
         patch("ansys.aedt.core.rpc.rpyc_services.subprocess.Popen") as mock_popen,
-        patch("ansys.aedt.core.rpc.rpyc_services.check_port") as mock_check_port,
+        patch("ansys.aedt.core.rpc.rpyc_services.check_port", return_value=port),
     ):
-        mock_check_port.return_value = port
-        monkeypatch.setenv("PYAEDT_SERVER_AEDT_PATH", str(tmp_path))
-
         service_manager = rpyc_services.ServiceManager()
         service_manager.on_connect(MagicMock())
         result = service_manager.start_service(port)
         assert result == port
-
-        local_server_file = Path(rpyc_services.__file__).parent / "local_server.py"
-        expected_command = [sys.executable, str(local_server_file), str(tmp_path), "1", str(port)]
-        mock_popen.assert_called_once_with(expected_command)
+        mock_popen.assert_called_once_with([sys.executable, str(LOCAL_SERVER_FILE), str(tmp_path), "1", str(port)])
 
 
 def test_start_service_with_invalid_path_in_env_var(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     port = 18000
     inexistent_dir = tmp_path / "non_existent_directory"
 
+    monkeypatch.setenv("PYAEDT_SERVER_AEDT_PATH", str(inexistent_dir))
+
     with (
         patch("ansys.aedt.core.rpc.rpyc_services.subprocess.Popen") as mock_popen,
-        patch("ansys.aedt.core.rpc.rpyc_services.check_port") as mock_check_port,
+        patch("ansys.aedt.core.rpc.rpyc_services.check_port", return_value=port),
     ):
-        mock_check_port.return_value = port
-        monkeypatch.setenv("PYAEDT_SERVER_AEDT_PATH", str(inexistent_dir))
-
         service_manager = rpyc_services.ServiceManager()
+        service_manager.on_connect(MagicMock())
         with pytest.raises(
             FileNotFoundError, match=re.escape(f"The ANSYSEM path '{str(inexistent_dir)}' does not exist.")
         ):
-            service_manager.on_connect(MagicMock())
+            service_manager.start_service(port)
         mock_popen.assert_not_called()
 
 
@@ -85,21 +83,19 @@ def test_start_service_without_env_var_defaults_to_latest_installed_path(monkeyp
 
     with (
         patch("ansys.aedt.core.rpc.rpyc_services.subprocess.Popen") as mock_popen,
-        patch("ansys.aedt.core.rpc.rpyc_services.check_port") as mock_check_port,
+        patch("ansys.aedt.core.rpc.rpyc_services.check_port", return_value=port),
         patch("ansys.aedt.core.rpc.rpyc_services.time.sleep"),
         patch("ansys.aedt.core.rpc.rpyc_services.aedt_versions") as mock_aedt_versions,
     ):
-        mock_check_port.return_value = port
         mock_aedt_versions.list_installed_ansysem = ["ANSYSEM_ROOT252", "ANSYSEM_ROOT251"]
 
         service_manager = rpyc_services.ServiceManager()
         service_manager.on_connect(MagicMock())
         result = service_manager.start_service(port)
         assert result == port
-
-        local_server_file = Path(rpyc_services.__file__).parent / "local_server.py"
-        expected_command = [sys.executable, str(local_server_file), str(fallback_path_latest), "1", str(port)]
-        mock_popen.assert_called_once_with(expected_command)
+        mock_popen.assert_called_once_with(
+            [sys.executable, str(LOCAL_SERVER_FILE), str(fallback_path_latest), "1", str(port)]
+        )
 
 
 def test_start_service_without_env_var_and_no_installed_path(monkeypatch: pytest.MonkeyPatch):
@@ -109,14 +105,13 @@ def test_start_service_without_env_var_and_no_installed_path(monkeypatch: pytest
 
     with (
         patch("ansys.aedt.core.rpc.rpyc_services.subprocess.Popen") as mock_popen,
-        patch("ansys.aedt.core.rpc.rpyc_services.check_port") as mock_check_port,
+        patch("ansys.aedt.core.rpc.rpyc_services.check_port", return_value=port),
         patch("ansys.aedt.core.rpc.rpyc_services.aedt_versions") as mock_aedt_versions,
     ):
-        mock_check_port.return_value = port
         mock_aedt_versions.list_installed_ansysem = []
 
         service_manager = rpyc_services.ServiceManager()
+        service_manager.on_connect(MagicMock())
         with pytest.raises(Exception, match="No ANSYSEM_ROOTXXX environment variable is defined."):
-            service_manager.on_connect(MagicMock())
-
+            service_manager.start_service(port)
         mock_popen.assert_not_called()
