@@ -19,7 +19,6 @@ env:
   ON_CI: True
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
-  VTK_DEFAULT_OPENGL_WINDOW: 'vtkOSOpenGLRenderWindow'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -340,7 +339,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -351,7 +350,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
 
@@ -368,7 +367,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
@@ -493,7 +492,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -504,7 +503,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
 
@@ -659,7 +658,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -670,7 +669,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
 
@@ -821,7 +820,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -832,7 +831,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
 
@@ -1050,7 +1049,7 @@ jobs:
   #       env:
   #         ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
   #       run: |
-  #         export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+  #         export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   #         python -m venv .venv
   #         source .venv/bin/activate
   #         python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -1061,7 +1060,7 @@ jobs:
   #       env:
   #         ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
   #       run: |
-  #         export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+  #         export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   #         source .venv/bin/activate
   #         pip install .[tests]
 

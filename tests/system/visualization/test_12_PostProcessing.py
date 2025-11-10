@@ -323,7 +323,6 @@ class TestClass:
         solution_data2 = sbr_test.post.get_solution_data(expressions=["NearEX", "NearEY", "NearEZ"])
         assert solution_data2
 
-    @pytest.mark.skip(reason="Temporary skip due to vtk issues in CI")
     def test_sbr_plot_scene(self, sbr_test):
         solution_data = sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"

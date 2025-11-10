@@ -216,7 +216,6 @@ class TestClass:
         min_value = aedtapp.post.get_scalar_field_value("E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True)
         assert isinstance(min_value, float)
 
-    @pytest.mark.skip(reason="Temporary skip due to vtk issues in CI")
     def test_plot_animated_field(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
