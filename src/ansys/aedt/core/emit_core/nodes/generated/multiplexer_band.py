@@ -55,27 +55,27 @@ class MultiplexerBand(EmitNode):
         """Delete this node"""
         self._delete()
 
-    class TypeOption(Enum):
+    class SubTypeOption(Enum):
         BY_FILE = "ByFile"
         LOW_PASS = "LowPass"  # nosec
         HIGH_PASS = "HighPass"  # nosec
         BAND_PASS = "BandPass"  # nosec
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def subtype(self) -> SubTypeOption:
+        """SubType.
 
         Type of multiplexer pass band to define. The pass band can be defined by
         file (measured or simulated data) or using one of EMIT's parametric
         models.
         """
-        val = self._get_property("Type", True)
-        val = self.TypeOption(val)
+        val = self._get_property("SubType")
+        val = self.SubTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("SubType", f"{value.value}", True)
+    @subtype.setter
+    def subtype(self, value: SubTypeOption):
+        self._set_property("SubType", f"{value.value}")
 
     @property
     def filename(self) -> str:
@@ -241,3 +241,4 @@ class MultiplexerBand(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

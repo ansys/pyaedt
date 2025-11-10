@@ -1468,7 +1468,7 @@ class TestClass:
         assert scene_node == scene_node
 
     # @profile
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_all_generated_emit_node_properties(self, emit_app):
         # change this to limit the number of iterations for each node
         # if None, each node will iterate over all bool and enum combos
