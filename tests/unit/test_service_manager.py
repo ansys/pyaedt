@@ -79,10 +79,7 @@ def test_start_service_without_env_var_defaults_to_latest_installed_path(monkeyp
     fallback_path_latest = "/path/to/ansys/v252"
     fallback_path_previous = "/path/to/ansys/v251"
 
-    # Remove PYAEDT_SERVER_AEDT_PATH if it exists
     monkeypatch.delenv("PYAEDT_SERVER_AEDT_PATH", raising=False)
-
-    # Set up a mock ANSYSEM_ROOT environment variable
     monkeypatch.setenv("ANSYSEM_ROOT252", fallback_path_latest)
     monkeypatch.setenv("ANSYSEM_ROOT251", fallback_path_previous)
 
@@ -108,7 +105,6 @@ def test_start_service_without_env_var_defaults_to_latest_installed_path(monkeyp
 def test_start_service_without_env_var_and_no_installed_path(monkeypatch: pytest.MonkeyPatch):
     port = 18000
 
-    # Remove PYAEDT_SERVER_AEDT_PATH if it exists
     monkeypatch.delenv("PYAEDT_SERVER_AEDT_PATH", raising=False)
 
     with (
@@ -117,7 +113,6 @@ def test_start_service_without_env_var_and_no_installed_path(monkeypatch: pytest
         patch("ansys.aedt.core.rpc.rpyc_services.aedt_versions") as mock_aedt_versions,
     ):
         mock_check_port.return_value = port
-        # Mock no installed versions
         mock_aedt_versions.list_installed_ansysem = []
 
         service_manager = rpyc_services.ServiceManager()
