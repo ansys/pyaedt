@@ -836,13 +836,6 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
-      # - name: Install CI dependencies (e.g. vtk-osmesa)
-      #   run: |
-      #     source .venv/bin/activate
-      #     # Uninstall conflicting dependencies
-      #     pip uninstall --yes vtk
-      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: "Install X Virtual Frame Buffer"
         run: |
           sudo apt-get update
