@@ -19,6 +19,7 @@ env:
   ON_CI: True
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+  VTK_DEFAULT_OPENGL_WINDOW: 'vtkOSOpenGLRenderWindow'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -249,7 +250,7 @@ jobs:
     name: Test solvers (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -274,12 +275,12 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -320,7 +321,7 @@ jobs:
     name: Test solvers (linux)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Linux, pyaedt ]
+    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -392,12 +393,15 @@ jobs:
     name: Test general (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -417,12 +421,12 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -467,7 +471,7 @@ jobs:
     name: Test general (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt ]
+    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -476,6 +480,9 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -501,12 +508,12 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     source .venv/bin/activate
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -549,7 +556,7 @@ jobs:
     name: Test visualization (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
     env:
       MPLBACKEND: 'Agg'
     steps:
@@ -557,6 +564,9 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -576,12 +586,12 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -626,7 +636,7 @@ jobs:
     name: Test visualization (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt ]
+    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -636,6 +646,9 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -661,12 +674,12 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     source .venv/bin/activate
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -708,12 +721,15 @@ jobs:
     name: Test extensions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -733,12 +749,12 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -783,7 +799,7 @@ jobs:
     name: Test extensions (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt ]
+    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -792,6 +808,9 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -817,12 +836,12 @@ jobs:
           source .venv/bin/activate
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     source .venv/bin/activate
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: "Install X Virtual Frame Buffer"
         run: |
@@ -869,7 +888,7 @@ jobs:
     name: Test filter solutions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -894,12 +913,12 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -944,7 +963,7 @@ jobs:
     name: Test EMIT (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -969,12 +988,12 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+      # - name: Install CI dependencies (e.g. vtk-osmesa)
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     # Uninstall conflicting dependencies
+      #     pip uninstall --yes vtk
+      #     pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1019,7 +1038,7 @@ jobs:
   #   name: Test flaky (linux)
   #   if: github.event.pull_request.draft == false
   #   needs: [integration-tests]
-  #   runs-on: [ self-hosted, Linux, pyaedt ]
+  #   runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
   #   env:
   #     ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
   #     ANS_NODEPCHECK: '1'
