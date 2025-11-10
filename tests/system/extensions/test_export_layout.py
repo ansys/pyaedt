@@ -33,8 +33,8 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests.conftest import config
 
-AEDB_FILE_NAME = "ANSYS-HSD_V1"
-TEST_SUBFOLDER = "T45"
+AEDB_FILE_NAME = "ANSYS_SVP_V1_1_SFP"
+TEST_SUBFOLDER = "post_layout_design"
 AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
