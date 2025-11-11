@@ -727,14 +727,19 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         return True
 
-    def validate(self):
+    def validate(self, active_setup=None):
         # Init
         self._widgets["floquet_ports_label_extraction"].config(text="N/A")
         self._widgets["spatial_points_label_extraction"].config(text="N/A")
         self._widgets["design_validation_label_extraction"].config(text="N/A")
         self._widgets["start_button_extraction"].grid_remove()
 
-        simulation_setup = self._widgets["setup_sweep_combo"].get()
+        if active_setup is None:
+            simulation_setup = self._widgets["setup_sweep_combo"].get()
+            if simulation_setup is None:
+                simulation_setup = self.active_setup_sweep
+        else:
+            simulation_setup = active_setup
 
         if simulation_setup == "No setup":
             self.aedt_application.logger.error("No setup selected.")
@@ -748,21 +753,25 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self.active_setup_sweep = simulation_setup
 
+        active_sweep = None
         if sweep_name != "LastAdaptive":
             # Setup has only one frequency sweep
             sweeps = self.active_setup.sweeps
-            if len(sweeps) != 1:
-                self.aedt_application.logger.error(f"Setup {self.active_setup.name} must have only one sweep setup.")
+            for sweep in set(sweeps):
+                if sweep.name == sweep_name:
+                    active_sweep = sweep
+                    break
+
+            if active_sweep is None:
+                self.aedt_application.logger.error(f"{sweep_name} not found.")
                 self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
                 return
 
-            sweep = sweeps[0]
-
             # Frequency sweep has linearly frequency samples
-            sweep_type = sweep.props.get("RangeType", None)
+            sweep_type = active_sweep.props.get("RangeType", None)
 
             if sweep_type not in ["LinearStep", "LinearCount", "SinglePoints"]:
-                self.aedt_application.logger.error(f"{sweep.name} does not have linearly frequency samples.")
+                self.aedt_application.logger.error(f"{active_sweep.name} does not have linearly frequency samples.")
                 self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
                 return
 
@@ -864,7 +873,10 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self.aedt_application.save_project()
 
-        self.get_coefficients()
+        is_valid = self.validate(self.active_setup_sweep)
+
+        if is_valid:
+            self.get_coefficients()
 
     def get_coefficients(self):
         self.aedt_application.get_fresnel_coefficients(

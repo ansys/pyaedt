@@ -8339,6 +8339,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                     for phi_360_str in write_360:
                         ofile.write(phi_360_str)
 
+        if len(frequencies) > 1:
+            freq_step = frequencies[1] - frequencies[0]
+            self.logger.info(
+                f"RTTBL file was created for Theta values from 0 to {theta_max} deg, "
+                f"with the step of {theta_step} deg,"
+                f" and for the range of frequencies from {frequencies[0]} {frequency_units}"
+                f" to {frequencies[-1]} {frequency_units} with the step of {freq_step} {frequency_units}."
+            )
+        else:
+            self.logger.info(
+                f"RTTBL file was created for Theta values from 0 to {theta_max} deg, "
+                f"with the step of {theta_step} deg, for {frequencies[0]} {frequency_units}."
+            )
         return output_file
 
     @pyaedt_function_handler()
