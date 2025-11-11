@@ -1011,7 +1011,8 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023.2",
+        config["desktopVersion"] <= "2023.1",
+        reason="Skipped on versions earlier than 2023.2",
     )
     def test_availability_1_to_1(self, emit_app):
         # place components and generate the appropriate number of revisions
