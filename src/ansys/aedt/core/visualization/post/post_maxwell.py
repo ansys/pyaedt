@@ -364,7 +364,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         plot_name : str
             Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
         field_line_number: list of int, optional
-            List of line objects on which the evaluation will be performed. 
+            List of line objects on which the evaluation will be performed.
             If the field line traces plot does not exist, this can be created with ``app.post.create_fieldplot_line_traces``.
             The default value is ``None``, in which case the inception voltage evaluation will be carried out for all existing field line traces.
 
