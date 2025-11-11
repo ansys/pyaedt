@@ -392,7 +392,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>> in_volume_tracing_objs = (["Region"],)
         >>> plot_name="LineTracesTest")
 
-        Now you can perform the inception voltage evaluation on all (or a subset of) the created field line traces.
+        Now the inception voltage evaluation can be performed on all (or a subset) of the created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
 
