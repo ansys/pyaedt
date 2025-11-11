@@ -58,7 +58,28 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
     from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
-    from ansys.aedt.core.emit_core.nodes.generated import *
+    from ansys.aedt.core.emit_core.nodes.generated import Amplifier
+    from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
+    from ansys.aedt.core.emit_core.nodes.generated import Band
+    from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
+    from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
+    from ansys.aedt.core.emit_core.nodes.generated import Filter
+    from ansys.aedt.core.emit_core.nodes.generated import RadioNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSelectivityNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
+    from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
+    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import Terminator
+    from ansys.aedt.core.emit_core.nodes.generated import TouchstoneCouplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfEmitterNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
+    from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
+    from ansys.aedt.core.emit_core.nodes.generated import Waveform
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
