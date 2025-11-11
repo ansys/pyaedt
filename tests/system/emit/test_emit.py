@@ -58,25 +58,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
     from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
-    from ansys.aedt.core.emit_core.nodes.generated import Amplifier
-    from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
-    from ansys.aedt.core.emit_core.nodes.generated import Band
-    from ansys.aedt.core.emit_core.nodes.generated import Filter
-    from ansys.aedt.core.emit_core.nodes.generated import RadioNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSelectivityNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSpurNode
-    from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
-    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
-    from ansys.aedt.core.emit_core.nodes.generated import Terminator
-    from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfEmitterNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
-    from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
-    from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.nodes.generated import *
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1041,7 +1023,7 @@ class TestClass:
         ant2.move_and_connect_to(rad2)
 
         assert len(emit_app.results.revisions) == 0
-        rev = emit_app.results.analyze()
+        _ = emit_app.results.analyze()
         assert len(emit_app.results.revisions) == 1
 
         rad3 = emit_app.modeler.components.create_component("Mini UAS Video RT Airborne")
@@ -1339,7 +1321,6 @@ class TestClass:
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_license_session(self, interference):
         # Generate a revision
         results = interference.results
@@ -1935,6 +1916,44 @@ class TestClass:
         assert bs_filter_comp.bs_lower_cutoff == 95e6
         assert bs_filter_comp.bs_higher_cutoff == 105e6
         assert bs_filter_comp.bs_higher_stop_band == 105e6
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_imports(self, emit_app):
+        rev = emit_app.results.analyze()
+
+        scene_node: EmitSceneNode = rev.get_scene_node()
+        cad_file = os.path.join(TEST_SUBFOLDER, "Ansys_777_200_ER.glb")
+        cad_node = scene_node.import_cad(cad_file)
+        assert cad_node
+        assert len(scene_node.children) == 1
+
+        couplings_node: CouplingsNode = rev.get_coupling_data_node()
+        touchstone_file = os.path.join(TEST_SUBFOLDER, "5-antenna car model.s5p")
+        touchstone_node: TouchstoneCouplingNode = couplings_node.import_touchstone(touchstone_file)
+        assert touchstone_node
+        ports = touchstone_node.port_antenna_assignment
+        for port in ports:
+            assert port == '(undefined)'
+        assert len(couplings_node.children) == 1
+
+        # add some antennas and connect them
+        antenna_names = ""
+        for i in range(len(ports)):
+            ant = emit_app.schematic.create_component("Antenna")
+            if i == 0:
+                antenna_names = ant.name;
+            else:
+                antenna_names = antenna_names + "|" + ant.name
+        touchstone_node.port_antenna_assignment = antenna_names
+        assert touchstone_node.port_antenna_assignment == ['Antenna',
+                                                           'Antenna 2',
+                                                           'Antenna 3',
+                                                           'Antenna 4',
+                                                           'Antenna 5']
+        assert len(scene_node.children) == 6
+
+
+
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_fm_fsk_freq_deviation(self, emit_app):

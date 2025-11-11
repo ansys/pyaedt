@@ -469,8 +469,25 @@ class EmitNode:
         import_type : str
             Type of import. Options are: CsvFile, TxMeasurement, RxMeasurement,
             SpectralData, TouchstoneCoupling, CAD.
+
+        Returns
+        -------
+        node: EmitNode
+            The node.
         """
-        self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+        try:
+            node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+        except Exception:
+            error_text = None
+            if len(self._emit_obj.logger.messages.error_level) > 0:
+                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
+            else:
+                error_text = (
+                    f'Exception in EmitNodeImport: Failed to import: "{file_path}" of '
+                    f'node type: "{import_type}"'
+                )
+            raise Exception(error_text)
+        return self._get_node(node_id)
 
     def _export_model(self, file_path: str):
         """Exports an Emit node's model to a file.
