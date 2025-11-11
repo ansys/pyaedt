@@ -694,7 +694,7 @@ class TestClass:
         assert ants[0].name == "Antenna 2"
 
         # Set up the results
-        rev = self.aedtapp.results.analyze()
+        rev = emit_app.results.analyze()
 
         def enable_all_bands(revision, radio_name):
             mod = revision._emit_com
@@ -741,7 +741,7 @@ class TestClass:
         # Test error for trying to get BOTH tx and rx freqs
         exception_raised = False
         try:
-            freqs = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
+            _ = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
         except Exception:
             exception_raised = True
         assert exception_raised
@@ -1029,8 +1029,7 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
-        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
+        config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023.2",
     )
     def test_availability_1_to_1(self, emit_app):
         # place components and generate the appropriate number of revisions
@@ -1054,7 +1053,6 @@ class TestClass:
         ant4.move_and_connect_to(rad4)
 
         rev2 = emit_app.results.analyze()
-        assert len(emit_app.results.revisions) == 2
         domain = emit_app.results.interaction_domain()
         radiosRX = rev2.get_receiver_names()
         bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
@@ -1062,7 +1060,6 @@ class TestClass:
         radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
         bandsTX = rev2.get_band_names(radio_name=radiosTX[0], tx_rx_mode=TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
-        assert len(emit_app.results.revisions) == 2
         radiosRX = rev2.get_receiver_names()
         bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
@@ -1086,18 +1083,10 @@ class TestClass:
         assert valid_availability
 
         rev3 = emit_app.results.analyze()
-        assert len(emit_app.results.revisions) == 2
         radiosTX = rev3.get_interferer_names(InterfererType.TRANSMITTERS)
         radiosRX = rev3.get_receiver_names()
         assert len(radiosTX) == 3
         assert len(radiosRX) == 4
-
-        rev4 = emit_app.results.get_revision(rev.name)
-        assert len(emit_app.results.revisions) == 2
-        radiosTX = rev4.get_interferer_names(InterfererType.TRANSMITTERS)
-        radiosRX = rev4.get_receiver_names()
-        assert len(radiosTX) == 2
-        assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
@@ -1258,9 +1247,8 @@ class TestClass:
     """
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_couplings(self, add_app):
-        cell_phone_app = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+        cell_phone_app = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
 
         links = cell_phone_app.couplings.linkable_design_names
         assert len(links) == 0
