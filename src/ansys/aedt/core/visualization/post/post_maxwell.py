@@ -33,12 +33,11 @@ import string
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
 from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.internal.checks import min_aedt_version
-
 
 
 class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
@@ -388,12 +387,12 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Create a field line traces plot in the Region from seeding faces (insulator faces).
         >>> plot = m2d.post.create_fieldplot_line_traces(
-        >>> seeding_faces=["Ground", "Electrode", "Region"],
-        >>> in_volume_tracing_objs=["Region"],
+        >>> seeding_faces = (["Ground", "Electrode", "Region"],)
+        >>> in_volume_tracing_objs = (["Region"],)
         >>> plot_name="LineTracesTest")
 
         Now you can perform the inception voltage evaluation on all (or a subset of) the created field line traces.
-        >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name,field_line_number=[1,2,4])
+        >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
 
         """
