@@ -43,8 +43,6 @@ from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 from tests import TESTS_VISUALIZATION_PATH
 from tests.conftest import config
 
-pytestmark = pytest.mark.requires_ansys_load
-
 test_field_name = "Potter_Horn_242"
 q3d_file = "via_gsg_solved"
 test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
@@ -325,6 +323,7 @@ class TestClass:
         solution_data2 = sbr_test.post.get_solution_data(expressions=["NearEX", "NearEY", "NearEZ"])
         assert solution_data2
 
+    @pytest.mark.avoid_ansys_load
     def test_sbr_plot_scene(self, sbr_test):
         solution_data = sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"

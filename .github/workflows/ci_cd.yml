@@ -249,7 +249,7 @@ jobs:
     name: Test solvers (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -313,7 +313,7 @@ jobs:
     name: Test solvers (linux)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
+    runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -385,7 +385,7 @@ jobs:
     name: Test general (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -456,7 +456,7 @@ jobs:
     name: Test general (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
+    runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -536,7 +536,7 @@ jobs:
     name: Test visualization (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     env:
       MPLBACKEND: 'Agg'
     steps:
@@ -609,7 +609,7 @@ jobs:
     name: Test visualization (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
+    runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -655,22 +655,22 @@ jobs:
             kill -9 "$pid"
           done
 
-      - name: Run tests marked with 'visualization' and 'requires_ansys_load'
+      # NOTE: Run visualization tests in two separate steps to avoid conflicts when
+      # loading Ansys EM libraries and vtk osmesa backend.
+      - name: Run tests marked with 'visualization' and not 'avoid_ansys_load'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 40
+          timeout_minutes: 30
           command: |
+            source .venv/bin/activate
             export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-            source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and requires_ansys_load" -x --cov-append
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
 
-      - name: Run tests marked with 'visualization' and not 'requires_ansys_load'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+      - name: Run tests marked with 'visualization' and 'avoid_ansys_load'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
@@ -678,7 +678,7 @@ jobs:
           timeout_minutes: 40
           command: |
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not requires_ansys_load" -x --cov-append
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -701,7 +701,7 @@ jobs:
     name: Test extensions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -772,7 +772,7 @@ jobs:
     name: Test extensions (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
+    runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
@@ -851,7 +851,7 @@ jobs:
     name: Test filter solutions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -919,7 +919,7 @@ jobs:
     name: Test EMIT (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Windows, pyaedt, pyaedt-ci-0 ]
+    runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -987,7 +987,7 @@ jobs:
   #   name: Test flaky (linux)
   #   if: github.event.pull_request.draft == false
   #   needs: [integration-tests]
-  #   runs-on: [ self-hosted, Linux, pyaedt, pyaedt-ci-1 ]
+  #   runs-on: [ self-hosted, Linux, pyaedt ]
   #   env:
   #     ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
   #     ANS_NODEPCHECK: '1'

@@ -39,8 +39,6 @@ from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from tests import TESTS_VISUALIZATION_PATH
 from tests.conftest import config
 
-pytestmark = pytest.mark.requires_ansys_load
-
 test_project_name = "coax_setup_solved_231"
 m2d_trace_export_table = "m2d"
 
@@ -218,6 +216,7 @@ class TestClass:
         min_value = aedtapp.post.get_scalar_field_value("E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True)
         assert isinstance(min_value, float)
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_animated_field(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
@@ -235,6 +234,7 @@ class TestClass:
         )
         assert Path(model_gif.gif_file).is_file()
 
+    @pytest.mark.avoid_ansys_load
     def test_animate_fields_from_aedtplt(self, aedtapp):
         setup_name = aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
@@ -766,6 +766,7 @@ class TestClass:
         plot1.IsoVal = "Tone"
         assert plot1.update_field_plot_settings()
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_from_fieldplot(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -785,6 +786,7 @@ class TestClass:
         )
         assert Path(plot_obj.image_file).is_file()
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_from_fieldplot_scale(self, aedtapp, local_scratch):
         plot_obj = aedtapp.post.plot_field_from_fieldplot(
             plot_name="plot_test",
@@ -803,6 +805,7 @@ class TestClass:
         assert plot_obj.y_scale == 0.9
         assert plot_obj.z_scale == 0.3
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_from_fieldplot_background(self, aedtapp, local_scratch):
         plot_obj = aedtapp.post.plot_field_from_fieldplot(
             plot_name="plot_test",
@@ -816,6 +819,7 @@ class TestClass:
         plot_obj.background_image = Path(local_scratch.path) / "file_not_exists.jpg"
         assert not plot_obj.background_image
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_from_fieldplot_configurations(self, aedtapp, local_scratch):
         plot_obj = aedtapp.post.plot_field_from_fieldplot(
             plot_name="plot_test",
@@ -831,6 +835,7 @@ class TestClass:
         plot_obj.plot(plot_obj.image_file, show=False)
         assert Path(plot_obj.image_file).is_file()
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_from_fieldplot_aedtplt(self, aedtapp, local_scratch):
         plot_obj = aedtapp.post.plot_field_from_fieldplot(
             plot_name="plot_test",
@@ -844,6 +849,7 @@ class TestClass:
         )
         assert Path(plot_obj.image_file).is_file()
 
+    @pytest.mark.avoid_ansys_load
     def test_create_fieldplot_cutplane_vector(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -854,6 +860,7 @@ class TestClass:
             cutlist, quantity_name, setup_name, intrinsic, filter_objects=aedtapp.modeler.object_names
         )
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_range_min_max(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -878,6 +885,7 @@ class TestClass:
         assert plot_obj.range_min is None
         assert plot_obj.range_max is None
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_range_min_max_1(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -899,6 +907,7 @@ class TestClass:
         assert plot_obj_1.range_min is None
         assert plot_obj_1.range_max is None
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_range_min_max_2(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -923,6 +932,7 @@ class TestClass:
         assert plot_obj_2.range_max == 10e6
         assert plot_obj_2.range_max == 10e6
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_range_min_max_3(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -945,6 +955,7 @@ class TestClass:
         assert plot_obj_1.range_min is None
         assert plot_obj_1.range_max is None
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_range_min_max_4(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -969,6 +980,7 @@ class TestClass:
         assert plot_obj_4.range_min is None
         assert plot_obj_4.range_max is None
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_field_range_min_max_5(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -991,22 +1003,26 @@ class TestClass:
         assert plot_obj_5.range_min is None
         assert plot_obj_5.range_max is None
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_model_obj(self, aedtapp, local_scratch):
         obj = aedtapp.post.plot_model_obj(show=False, export_path=str(Path(local_scratch.path) / "image.jpg"))
         assert Path(obj.image_file).is_file()
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_model_obj_1(self, aedtapp, local_scratch):
         obj2 = aedtapp.post.plot_model_obj(
             show=False, export_path=local_scratch.path / "image2.jpg", plot_as_separate_objects=False
         )
         assert Path(obj2.image_file).exists()
 
+    @pytest.mark.avoid_ansys_load
     def test_plot_model_obj_2(self, aedtapp, local_scratch):
         obj3 = aedtapp.post.plot_model_obj(
             show=False, export_path=str(Path(local_scratch.path) / "image2.jpg"), clean_files=True
         )
         assert Path(obj3.image_file).is_file()
 
+    @pytest.mark.avoid_ansys_load
     def test_create_field_plot(self, aedtapp):
         cutlist = ["Global:XY"]
         plot = aedtapp.post._create_fieldplot(
@@ -1018,6 +1034,7 @@ class TestClass:
         )
         assert plot
 
+    @pytest.mark.avoid_ansys_load
     def test_create_fieldplot_line(self, aedtapp):
         udp1 = [0, 0, 0]
         udp2 = [1, 0, 0]
@@ -1104,6 +1121,7 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError):
             m2d_app.post.plots[0].export_table_to_file(plot_name, str(output_file_path), "Invalid Export Type")
 
+    @pytest.mark.avoid_ansys_load
     def test_create_fieldplot_surface_5(self, m2d_blank):
         circ = m2d_blank.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
         m2d_blank.assign_current(assignment=circ.name, amplitude=5)

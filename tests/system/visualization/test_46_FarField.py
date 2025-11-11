@@ -34,8 +34,6 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 from tests import TESTS_VISUALIZATION_PATH
 
-pytestmark = pytest.mark.requires_ansys_load
-
 array = "array_simple_231"
 test_subfolder = "T46"
 
@@ -95,6 +93,7 @@ class TestClass:
         assert ffdata.touchstone_data is not None
         assert ffdata.incident_power == 0.04
 
+    @pytest.mark.avoid_ansys_load
     def test_04_far_field_data(self, local_scratch):
         from pyvista.plotting.plotter import Plotter
 
@@ -221,6 +220,7 @@ class TestClass:
 
         _ = matplot_lib.plot_2d()
 
+    @pytest.mark.avoid_ansys_load
     def test_05_antenna_plot(self, array_test):
         ffdata = array_test.get_antenna_data(sphere="3D")
         assert ffdata.setup_name == "Setup1 : LastAdaptive"
