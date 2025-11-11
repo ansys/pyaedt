@@ -351,7 +351,8 @@ AEDT_UNITS = {
         "mil": METER2IN * 1e-3,
         "in": METER2IN,
         "ft": METER2IN * 12,
-        "yd": METER2IN * 144,
+        "yd": METER2IN * 36,
+        "mile": METER2IN * 63360,
     },
     "Mass": {"ug": 1e-9, "mg": 1e-6, "g": 1e-3, "kg": 1.0, "ton": 1000, "oz": 0.0283495, "lb": 0.453592},
     "None": {

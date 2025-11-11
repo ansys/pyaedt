@@ -39,6 +39,7 @@ if (3, 7) < sys.version_info < (3, 13):
 else:  # pragma: no cover
     warnings.warn("EMIT API is only available for Python 3.8-3.12.")
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
@@ -46,7 +47,7 @@ from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.modules.layer_stackup import Layers
 
 
-class ModelerCircuit(Modeler):
+class ModelerCircuit(Modeler, PyAedtBase):
     """ModelerCircuit class.
 
     Parameters
@@ -487,7 +488,7 @@ class ModelerCircuit(Modeler):
         return sels
 
 
-class ModelerNexxim(ModelerCircuit):
+class ModelerNexxim(ModelerCircuit, PyAedtBase):
     """ModelerNexxim class.
 
     Parameters
@@ -504,6 +505,8 @@ class ModelerNexxim(ModelerCircuit):
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(app)
         self.logger.info("ModelerNexxim class has been initialized!")
+        self._page_names = []
+        self._pages = 0
 
     @property
     def layouteditor(self):
@@ -546,7 +549,62 @@ class ModelerNexxim(ModelerCircuit):
         -------
         int
         """
-        return self.oeditor.GetNumPages()
+        if self._pages > 0:
+            return self._pages
+        self._pages = self.oeditor.GetNumPages()
+        return self._pages
+
+    @property
+    def page_names(self) -> list:
+        """Page names in the schematic."""
+        if self._page_names:
+            return self._page_names
+        self._page_names = []
+        for i in range(self.pages):
+            name = self.oeditor.GetPropertyValue("BaseElementTab", f"Page@{i + 1}", "Title")
+            name = name if name else f"Page{i + 1}"
+            self._page_names.append(name)
+        return self._page_names
+
+    @pyaedt_function_handler()
+    def add_page(self, name: str) -> int:
+        """Add a page to the schematic.
+
+        Parameters
+        ----------
+        name : str
+            Name of the page to add.
+
+        Returns
+        -------
+        int
+            Page number
+        """
+        pnames = self.page_names
+        if name not in pnames:
+            self._page_names = []
+            self._pages = 0
+            return self.oeditor.CreatePage(name)
+        else:
+            self.logger.error(f"Name {name} already exists in the schematic.")
+            return pnames.index(name)
+
+    @pyaedt_function_handler()
+    def rename_page(self, page, name):
+        """Rename a page in the schematic."""
+        pnames = self.page_names
+        if page in pnames:
+            page_index = pnames.index(page) + 1
+            self.oeditor.SetPropertyValue("BaseElementTab", f"Page@{page_index}", "Title", name)
+            self._page_names = []
+            self._pages = 0
+            return True
+        elif isinstance(page, int) and page <= len(pnames):
+            self.oeditor.SetPropertyValue("BaseElementTab", f"Page@{page}", "Title", name)
+            self._page_names = []
+            self._pages = 0
+            return True
+        return False
 
     @property
     def edb(self):
@@ -696,7 +754,7 @@ class ModelerNexxim(ModelerCircuit):
         return True
 
 
-class ModelerTwinBuilder(ModelerCircuit):
+class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
     """ModelerTwinBuilder class.
 
     Parameters
@@ -732,7 +790,7 @@ class ModelerTwinBuilder(ModelerCircuit):
         return self._components
 
 
-class ModelerEmit(ModelerCircuit):
+class ModelerEmit(ModelerCircuit, PyAedtBase):
     """ModelerEmit class.
 
     Parameters
@@ -766,7 +824,7 @@ class ModelerEmit(ModelerCircuit):
         return sels
 
 
-class ModelerMaxwellCircuit(ModelerCircuit):
+class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
     """ModelerMaxwellCircuit class.
 
     Parameters

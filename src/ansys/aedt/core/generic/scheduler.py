@@ -35,6 +35,8 @@ import re
 from typing import Optional
 from typing import Union
 
+from ansys.aedt.core.base import PyAedtBase
+
 DEFAULT_AUTO_HPC = False
 """Default setting for Auto HPC."""
 DEFAULT_CLUSTER_NAME = "ClusterName"
@@ -396,7 +398,7 @@ class _ExecutionConfiguration:
     wait_for_license: bool = True
 
 
-class JobConfigurationData:
+class JobConfigurationData(PyAedtBase):
     def __init__(
         self,
         aedt_version: Optional[str] = None,

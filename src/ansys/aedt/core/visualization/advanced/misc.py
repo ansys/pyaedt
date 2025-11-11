@@ -29,6 +29,7 @@ from pathlib import Path
 import re
 
 from ansys.aedt.core import settings
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
@@ -39,7 +40,7 @@ from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 
 
-class BoxFacePointsAndFields(object):
+class BoxFacePointsAndFields(PyAedtBase):
     """Data model class containing field component and coordinates."""
 
     def __init__(self):

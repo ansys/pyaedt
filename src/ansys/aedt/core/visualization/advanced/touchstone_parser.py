@@ -36,6 +36,7 @@ import numpy as np
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -58,7 +59,7 @@ DB_ANGLE = "DB"
 keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20", "deg")}
 
 
-class TouchstoneData(rf.Network):
+class TouchstoneData(rf.Network, PyAedtBase):
     """Contains data information from Touchstone Read call.
 
     Parameters
@@ -118,7 +119,7 @@ class TouchstoneData(rf.Network):
                         if line.lower().startswith("! port"):
                             pnames.append(line.split("=")[-1].strip())
                     if not pnames:
-                        pnames = [f"Port{i + 1}" for i in range(self.nports)]
+                        pnames = [f"{i + 1}" for i in range(self.nports)]
                 self.port_names = pnames
         self.log_x = True
 

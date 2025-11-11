@@ -36,6 +36,7 @@ from jsonschema import validate
 
 import ansys.aedt.core
 from ansys.aedt.core import __version__
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -84,7 +85,7 @@ def _find_datasets(d, out_list):
                     out_list.append(val[val.find("$") : val.find(",")])
 
 
-class ConfigurationsOptions(object):
+class ConfigurationsOptions(PyAedtBase):
     """Options class for the configurations.
     User can enable or disable import export components.
     """
@@ -666,7 +667,7 @@ class ConfigurationsOptions(object):
         return True
 
 
-class ImportResults(object):
+class ImportResults(PyAedtBase):
     """Contains the results of the import operations.
 
     Each result can be ``True`` or ``False``.
@@ -708,7 +709,7 @@ class ImportResults(object):
         return True
 
 
-class Configurations(object):
+class Configurations(PyAedtBase):
     """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
 
     def __init__(self, app):
@@ -1528,7 +1529,7 @@ class Configurations(object):
         return False
 
 
-class ConfigurationOptionsIcepak(ConfigurationsOptions):
+class ConfigurationOptionsIcepak(ConfigurationsOptions, PyAedtBase):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1569,7 +1570,7 @@ class ConfigurationOptionsIcepak(ConfigurationsOptions):
         self._export_native_components = val
 
 
-class ConfigurationOptions3DLayout(ConfigurationsOptions):
+class ConfigurationOptions3DLayout(ConfigurationsOptions, PyAedtBase):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_mesh_operations = False
@@ -1582,7 +1583,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions):
         self._import_object_properties = False
 
 
-class Configurations3DLayout(Configurations):
+class Configurations3DLayout(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
 
     def __init__(self, app):
@@ -1590,7 +1591,7 @@ class Configurations3DLayout(Configurations):
         self.options = ConfigurationOptions3DLayout(app)
 
 
-class ConfigurationsIcepak(Configurations):
+class ConfigurationsIcepak(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied on a new or existing design."""
 
     def __init__(self, app):
@@ -2182,7 +2183,7 @@ class ConfigurationsIcepak(Configurations):
         return True
 
 
-class ConfigurationsNexxim(Configurations):
+class ConfigurationsNexxim(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
 
     @pyaedt_function_handler()
@@ -2214,7 +2215,7 @@ class ConfigurationsNexxim(Configurations):
         for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
             if key.startswith("_export_") and value:
                 getattr(self, key)(dict_out)  # Call private export method to update dict_out.
-
+        dict_out["general"]["pages"] = copy.deepcopy(self._app.modeler.page_names)
         pin_mapping = defaultdict(list)
         data_instance = {}
         data_models = {}
@@ -2264,6 +2265,7 @@ class ConfigurationsNexxim(Configurations):
             mirror = comp.mirror
             parameters = comp.parameters
             path = comp.component_path
+            page = comp.page
             pin_names = []
             if not path:
                 component_type = "Nexxim Component"
@@ -2308,6 +2310,7 @@ class ConfigurationsNexxim(Configurations):
                     "position": position,
                     "angle": angle,
                     "mirror": mirror,
+                    "page": page,
                 }
             }
             data_instance.update(temp_dict2)
@@ -2412,7 +2415,14 @@ class ConfigurationsNexxim(Configurations):
                 self.results.import_postprocessing_variables = False
             else:
                 self.results.import_postprocessing_variables = True
-
+        if "pages" in data["general"]:
+            page_num = self._app.oeditor.GetNumPages()
+            for idx, page in enumerate(data["general"]["pages"]):
+                if idx < page_num:
+                    if page != f"Page{idx + 1}":
+                        self._app.modeler.rename_page(idx + 1, page)
+                else:
+                    self._app.modeler.add_page(page)
         for i, j in data["instance"].items():
             for key, value in data["models"].items():
                 if key == j["component"]:
@@ -2425,6 +2435,7 @@ class ConfigurationsNexxim(Configurations):
                             component_name=j["component"],
                             location=j["position"],
                             angle=j["angle"],
+                            page=j.get("page", 1),
                         )
                     elif component_type in ["ibis", "ami"]:
                         if component_type == "ami":
@@ -2433,30 +2444,50 @@ class ConfigurationsNexxim(Configurations):
                             ami = False
                         ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if comp in ibis.buffers:
-                            new_comp = ibis.buffers[comp].insert(j["position"][0], j["position"][1], j["angle"])
-                        elif "diff_pin_name" in j["properties"]:
+                        if "diff_pin_name" in j["properties"]:
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
-                                .insert(j["position"][0], j["position"][1], j["angle"])
+                                .insert(
+                                    j["position"][0],
+                                    j["position"][1],
+                                    j["angle"],
+                                    page=j.get("page", 1),
+                                )
+                            )
+                        elif comp in ibis.buffers:
+                            new_comp = ibis.buffers[comp].insert(
+                                j["position"][0],
+                                j["position"][1],
+                                j["angle"],
+                                page=j.get("page", 1),
                             )
                         else:
                             new_comp = (
                                 ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
-                                .insert(j["position"][0], j["position"][1], j["angle"])
+                                .insert(
+                                    j["position"][0],
+                                    j["position"][1],
+                                    j["angle"],
+                                    page=j.get("page", 1),
+                                )
                             )
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
-                            value["file_path"], location=j["position"], angle=j["angle"]
+                            value["file_path"],
+                            location=j["position"],
+                            angle=j["angle"],
+                            page=j.get("page", 1),
                         )
                         if value.get("pin_names", None):
                             for pin in new_comp.pins:
                                 pin.name = value["pin_names"][pin.pin_number - 1]
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
-                            input_file=value["file_path"], location=j["position"]
+                            input_file=value["file_path"],
+                            location=j["position"],
+                            page=j.get("page", 1),
                         )
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
@@ -2465,6 +2496,7 @@ class ConfigurationsNexxim(Configurations):
                             location=j["position"],
                             angle=j["angle"],
                             port_names=value.get("pin_names", []),
+                            page=j.get("page", 1),
                         )
                     if not new_comp:  # pragma: no cover
                         continue
@@ -2496,7 +2528,7 @@ class ConfigurationsNexxim(Configurations):
             if i == "gnd":
                 for gnd_pin in pins:
                     location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
-                    self._app.modeler.schematic.create_gnd(location, page=i)
+                    self._app.modeler.schematic.create_gnd(location)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
@@ -2517,7 +2549,11 @@ class ConfigurationsNexxim(Configurations):
                                 ]
 
                                 if not created:
-                                    jj = self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    jj = self._app.modeler.schematic.create_interface_port(
+                                        name=i,
+                                        location=location,
+                                        page=j.get("page", 1),
+                                    )
                                     if "properties" in j:
                                         for k, v in j["properties"].items():
                                             jj._props[k] = v
@@ -2527,10 +2563,16 @@ class ConfigurationsNexxim(Configurations):
                                     created = True
                                 else:
                                     self._app.modeler.schematic.create_page_port(
-                                        name=i, location=location, angle=pin.total_angle
+                                        name=i,
+                                        location=location,
+                                        angle=pin.total_angle,
+                                        page=j.get("page", 1),
                                     )
                                 if offset != 0:
-                                    self._app.modeler.schematic.create_wire([location, pin.location])
+                                    self._app.modeler.schematic.create_wire(
+                                        [location, pin.location],
+                                        page=j.get("page", 1),
+                                    )
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True

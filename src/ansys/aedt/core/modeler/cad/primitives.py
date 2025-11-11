@@ -34,6 +34,7 @@ import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane as PlaneEnum
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.file_utils import _uname
@@ -46,6 +47,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -220,7 +222,7 @@ class Objects(dict):
         self.__refreshed = False
 
 
-class GeometryModeler(Modeler):
+class GeometryModeler(Modeler, PyAedtBase):
     """Manages the main AEDT Modeler functionalities for geometry-based designs.
 
     Parameters
@@ -271,13 +273,13 @@ class GeometryModeler(Modeler):
                 obj_name = self.oeditor.GetObjectNameByFaceID(partId)
                 if obj_name:
                     return FacePrimitive(self.objects[obj_name], partId)
-            except AttributeError:  # pragma: no cover
+            except (AttributeError, GrpcApiError):  # pragma: no cover
                 pass
             try:
                 obj_name = self.oeditor.GetObjectNameByEdgeID(partId)
                 if obj_name:
                     return EdgePrimitive(self.objects[obj_name], partId)
-            except Exception:  # nosec B110 # pragma: no cover
+            except (AttributeError, GrpcApiError):  # pragma: no cover
                 pass
         return
 
@@ -379,7 +381,7 @@ class GeometryModeler(Modeler):
                 except Exception:
                     self.Z = 0
 
-    class SweepOptions(object):
+    class SweepOptions(PyAedtBase):
         """Manages sweep options.
 
         Parameters
@@ -840,7 +842,7 @@ class GeometryModeler(Modeler):
         return report
 
     @property
-    def objects_by_name(self):
+    def objects_by_name(self) -> dict[str, Object3d]:
         """Object dictionary organized by name.
 
         Returns
@@ -5868,6 +5870,65 @@ class GeometryModeler(Modeler):
             self.cleanup_objects()
         return True
 
+    def project_sheet(self, sheet, object, thickness, draft_angle=0, angle_unit="deg", keep_originals=True):
+        """Project sheet on an object.
+
+        If projection produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        sheet : str, int, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Sheet name, id, or sheet object.
+        object : list, str, int, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Object name, id, or solid object to be projected on.
+        thickness : float, str
+            Thickness of the projected sheet in model units.
+        draft_angle : float, str, optional
+            Draft angle for the projection. Default is ``0``.
+        angle_unit : str, optional
+            Angle unit. Default is ``deg``.
+        keep_originals : bool, optional
+            Whether to keep the original objects. Default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ProjectSheet
+        """
+        sheet = self.convert_to_selections(sheet, False)
+        object = self.convert_to_selections(object, False)
+
+        try:
+            unclassified = [i for i in self.unclassified_objects]
+            self.oeditor.ProjectSheet(
+                ["NAME:Selections", "Selections:=", f"{sheet},{object}"],
+                [
+                    "NAME:ProjectSheetParameters",
+                    "Thickness:=",
+                    self._app.value_with_units(thickness),
+                    "DraftAngle:=",
+                    self._app.value_with_units(draft_angle, angle_unit),
+                    "KeepOriginals:=",
+                    keep_originals,
+                ],
+            )
+            unclassified_new = [i for i in self.unclassified_objects if i not in unclassified]
+            if unclassified_new:
+                self.logger.error("Failed to Project Sheet. Reverting to original objects.")
+                self._odesign.Undo()
+                return False
+        except Exception:
+            self.logger.error("Failed to Project Sheet.")
+            return False
+
+        if not keep_originals:
+            self.cleanup_objects()
+        return True
+
     @pyaedt_function_handler(input_objects_list="assignment")
     def heal_objects(
         self,
@@ -6526,26 +6587,26 @@ class GeometryModeler(Modeler):
             return numeric_list
 
     @pyaedt_function_handler(obj_to_check="assignment")
-    def does_object_exists(self, assignment):
+    def does_object_exists(self, assignment) -> bool:
         """Check to see if an object exists.
 
         Parameters
         ----------
-        assignment : str, int
-            Object name or object ID.
+        assignment : str, int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Object name or object ID or Object3d to check.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
-        if isinstance(assignment, int) and assignment in self.objects:
-            return True
-        elif assignment in self.objects_by_name:
-            return True
-        else:
-            return False
+        if isinstance(assignment, int):
+            return assignment in self.objects
+        elif isinstance(assignment, str):
+            return assignment in self.objects_by_name
+        elif isinstance(assignment, Object3d):
+            return assignment.name in self.objects_by_name
+        return False
 
     @pyaedt_function_handler(parts="assignment", region_name="name")
     def create_subregion(self, padding_values, padding_types, assignment, name=None):
@@ -9079,7 +9140,7 @@ class GeometryModeler(Modeler):
         return True
 
 
-class PrimitivesBuilder(object):
+class PrimitivesBuilder(PyAedtBase):
     """Create primitives from a JSON file or dictionary of properties.
 
     Parameters

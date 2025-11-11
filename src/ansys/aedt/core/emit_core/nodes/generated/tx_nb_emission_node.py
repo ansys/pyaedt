@@ -52,6 +52,21 @@ class TxNbEmissionNode(EmitNode):
         self._delete()
 
     @property
+    def table_data(self):
+        """Tx Emissions Profile Table.
+        Table consists of 2 columns.
+        Bandwidth or Frequency:
+            Value should be between 1 and 100e9.
+        Attenuation or Power:
+            Value should be between -1000 and 1000.
+        """
+        return self._get_table_data()
+
+    @table_data.setter
+    def table_data(self, value):
+        self._set_table_data(value)
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("Enabled")

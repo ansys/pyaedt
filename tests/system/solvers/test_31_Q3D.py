@@ -383,6 +383,15 @@ class TestClass:
         sources_dc = {"Box1:Source1": "20v"}
         assert q3d_solved.edit_sources(None, None, sources_dc)
 
+        real_dataset = q3d_solved.design_datasets["ds1"].name
+        imag_dataset = q3d_solved.design_datasets["ds2"].name
+        harmonic_loss = {"Box1:Source1": (real_dataset, imag_dataset)}
+        assert q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
+        harmonic_loss = {"invalid": (real_dataset, imag_dataset)}
+        assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
+        harmonic_loss = {"Box1:Source1": real_dataset}
+        assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
+
     def test_15_insert_reduced(self, q3d_solved):
         q3d = q3d_solved
         mm = q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest_r")

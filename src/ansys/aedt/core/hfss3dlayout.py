@@ -32,6 +32,7 @@ import re
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import parse_excitation_file
@@ -42,7 +43,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 
 
-class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
+class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     """Provides the HFSS 3D Layout application interface.
 
     This class inherits all objects that belong to HFSS 3D Layout, including EDB
@@ -1407,13 +1408,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             aedb_path = aedb_path.replace(old_name, project_name)
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
         if xml_path is None:
-            xml_path = Path("")
+            xml_path = Path("").name
         elif Path(xml_path).suffix == ".tech":
-            xml_path = Path(tech_to_control_file(xml_path))
+            xml_path = Path(tech_to_control_file(xml_path)).name
         if cad_format == "gds":
-            method(str(cad_path), str(aedb_path), str(xml_path), "")
+            method(str(cad_path), str(aedb_path), xml_path, "")
         else:
-            method(str(cad_path), str(aedb_path), str(xml_path))
+            method(str(cad_path), str(aedb_path), xml_path)
 
         if set_as_active:
             self._close_edb()

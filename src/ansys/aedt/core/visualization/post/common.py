@@ -33,6 +33,7 @@ import os
 import re
 
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -68,7 +69,7 @@ TEMPLATES_BY_NAME = {
 }
 
 
-class PostProcessorCommon(object):
+class PostProcessorCommon(PyAedtBase):
     """Manages the main AEDT postprocessing functions.
 
     This class is inherited in the caller application and is accessible through the post variable( eg. ``hfss.post`` or
@@ -1787,6 +1788,12 @@ class PostProcessorCommon(object):
                 and props.get("report_type", "") != "Rectangular Contour Plot"
             ):
                 report._legacy_props["context"]["secondary_sweep"] = ""
+            if props.get("context", {}).get("primary_sweep", "Freq") in [
+                "Time",
+                "__UnitInterval",
+                "__Amplitude",
+            ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
+                del report._legacy_props["context"]["variations"]["Freq"]
             _update_props(props, report._legacy_props)
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
                 if (
@@ -1951,7 +1958,7 @@ class PostProcessorCommon(object):
         return props
 
 
-class Reports(object):
+class Reports(PyAedtBase):
     """Provides the names of default solution types."""
 
     def __init__(self, post_app, design_type):

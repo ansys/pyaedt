@@ -29,6 +29,7 @@ from __future__ import annotations
 from abc import abstractmethod
 import argparse
 from dataclasses import dataclass
+import logging
 import os
 from pathlib import Path
 import sys
@@ -43,8 +44,10 @@ from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
+import requests
 
 from ansys.aedt.core import Desktop
+from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -87,12 +90,141 @@ def is_student():
     return res
 
 
+def get_latest_version(package_name, timeout=3):
+    """Return latest version string from PyPI or 'Unknown' on failure."""
+    UNKNOWN_VERSION = "Unknown"
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("info", {}).get("version", UNKNOWN_VERSION)
+        return UNKNOWN_VERSION
+    except Exception:
+        return UNKNOWN_VERSION
+
+
+def check_for_pyaedt_update(personallib: str) -> Tuple[Optional[str], Optional[Path]]:
+    """Check PyPI for a newer PyAEDT release and whether the user should be prompted.
+
+    Returns
+    -------
+    tuple[str | None, pathlib.Path | None]
+        (latest_version, declined_file_path) if the UI should prompt the user,
+        otherwise (None, None).
+    """
+
+    def compare_versions(local: str, remote: str) -> bool:
+        """Return True if local < remote (very loose numeric comparison)."""
+
+        def to_tuple(v: str):
+            out = []
+            # Remove dev/rc suffixes and split by dots
+            version_clean = v.split("dev")[0].split("rc")[0]
+            for token in version_clean.split("."):
+                try:
+                    out.append(int(token))
+                except Exception:  # pragma: no cover
+                    break
+            return tuple(out)
+
+        try:
+            return to_tuple(local) < to_tuple(remote)
+        except Exception:  # pragma: no cover
+            return False
+
+    def read_version_file(file_path: Path) -> Tuple[Optional[str], bool]:
+        """Read version file and return (last_known_version, show_updates).
+
+        File format:
+        Line 1: last known version
+        Line 2: show_updates preference ("true" or "false")
+        """
+        if not file_path.is_file():
+            return None, True  # First start - don't show popup
+
+        try:
+            content = file_path.read_text(encoding="utf-8").strip()
+            lines = content.split("\n")
+            if len(lines) >= 2:
+                last_version = lines[0].strip()
+                show_updates = lines[1].strip().lower() == "true"
+                return last_version, show_updates
+            elif len(lines) == 1:
+                # Legacy format - only version, assume user wants updates
+                return lines[0].strip(), True
+            else:  # pragma: no cover
+                return None, True
+        except Exception:  # pragma: no cover
+            return None, True
+
+    def write_version_file(file_path: Path, version: str, show_updates: bool):
+        """Write version and preference to file."""
+        try:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            content = f"{version}\n{str(show_updates).lower()}"
+            file_path.write_text(content, encoding="utf-8")
+        except Exception:  # pragma: no cover
+            log.debug("PyAEDT update check: failed to write version file.", exc_info=True)
+
+    log = logging.getLogger("Global")
+
+    # Get current PyAEDT version
+    try:
+        from ansys.aedt.core import __version__ as current_version
+    except ImportError:  # pragma: no cover
+        log.debug("PyAEDT update check: could not import version.")
+        return None, None
+
+    latest = get_latest_version("pyaedt")
+    if not latest or latest == "Unknown":
+        log.debug("PyAEDT update check: latest version unavailable.")
+        return None, None
+
+    # Resolve user toolkit directory
+    try:
+        toolkit_dir = Path(personallib) / "Toolkits"
+    except Exception:  # pragma: no cover
+        log.debug("PyAEDT update check: personal lib path not found.", exc_info=True)
+        return None, None
+
+    version_file = toolkit_dir / ".pyaedt_version"
+    last_known_version, show_updates = read_version_file(version_file)
+
+    # If this is first start (no file exists), record the latest known release
+    # (not the installed version) so we won't prompt until a newer release appears.
+    if last_known_version is None:
+        write_version_file(version_file, latest, False)
+        log.debug("PyAEDT update check: first start, recording latest release.")
+        return None, None
+
+    # If the user already has the latest version installed, never show the popup.
+    if current_version == latest:  # pragma: no cover
+        if last_known_version != latest:
+            write_version_file(version_file, latest, False)
+        return None, None
+
+    # Check if there's a newer version available compared to installed package
+    has_newer_version = compare_versions(current_version, latest)
+
+    if not has_newer_version:
+        if last_known_version != latest:
+            write_version_file(version_file, latest, show_updates)
+        return None, None
+    version_changed = compare_versions(last_known_version, latest)
+    prompt_user = show_updates or version_changed
+
+    if not prompt_user:
+        return None, None
+
+    return latest, version_file
+
+
 @dataclass
-class ExtensionCommonData:
+class ExtensionCommonData(PyAedtBase):
     """Data class containing user input and computed data."""
 
 
-class ExtensionCommon:
+class ExtensionCommon(PyAedtBase):
     def __init__(
         self,
         title: str,
@@ -609,7 +741,7 @@ def get_arguments(args=None, description=""):  # pragma: no cover
     return output_args
 
 
-class ExtensionTheme:  # pragma: no cover
+class ExtensionTheme(PyAedtBase):  # pragma: no cover
     def __init__(self):
         # Define light and dark theme colors
         self.light = {
@@ -933,3 +1065,61 @@ def __parse_arguments(args=None, description=""):  # pragma: no cover
             parser.add_argument(f"--{arg}", default=args[arg])
     parsed_args = parser.parse_args()
     return parsed_args
+
+
+class ToolTip:
+    """Create a tooltip for a given widget."""
+
+    def __init__(self, widget, text="Widget info"):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.tipwindow = None
+
+    def enter(self, event=None):
+        """Show tooltip on mouse enter."""
+        self.show_tooltip()
+
+    def leave(self, event=None):
+        """Hide tooltip on mouse leave."""
+        self.hide_tooltip()
+
+    def show_tooltip(self):  # pragma: no cover
+        """Display tooltip."""
+        if self.tipwindow or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tkinter.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffe0",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("Arial", 9, "normal"),
+        )
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self):  # pragma: no cover
+        """Hide tooltip."""
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+
+def decline_pyaedt_update(declined_file_path: Path, latest_version: str):
+    """Record that the user declined the update notification."""
+    try:
+        declined_file_path.parent.mkdir(parents=True, exist_ok=True)
+        if latest_version is None:
+            return
+        content = f"{latest_version}\nfalse"
+        declined_file_path.write_text(content, encoding="utf-8")
+    except Exception:  # pragma: no cover
+        logging.getLogger("Global").debug("Failed to write declined update file", exc_info=True)

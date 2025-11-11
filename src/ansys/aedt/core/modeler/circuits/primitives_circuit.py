@@ -27,6 +27,7 @@ from pathlib import Path
 import secrets
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -41,7 +42,7 @@ from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 
-class CircuitComponents(object):
+class CircuitComponents(PyAedtBase):
     """CircutComponents class.
 
     Manages all circuit components for Nexxim and Twin Builder.
@@ -327,7 +328,7 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def create_interface_port(self, name, location=None, angle=0):
+    def create_interface_port(self, name, location=None, angle=0, page=1):
         """Create an interface port.
 
         Parameters
@@ -338,6 +339,8 @@ class CircuitComponents(object):
             Position on the X and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -358,7 +361,7 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location, update_current_location=False)
 
         arg1 = ["NAME:IPortProps", "Name:=", name]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
         comp_id = int(comp_name.split(";")[-1])
@@ -369,7 +372,7 @@ class CircuitComponents(object):
         return self._app.design_excitations[name]
 
     @pyaedt_function_handler()
-    def create_page_port(self, name, location=None, angle=0, label_position="Auto"):
+    def create_page_port(self, name, location=None, angle=0, label_position="Auto", page=1):
         """Create a page port.
 
         Parameters
@@ -384,6 +387,8 @@ class CircuitComponents(object):
         label_position : str, optional
             Label position. The default is ``"auto"``.
             Options are ''"Center"``, ``"Left"``, ``"Right"``, ``"Top"``, ``"Bottom"``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -403,7 +408,7 @@ class CircuitComponents(object):
             [
                 "NAME:Attributes",
                 "Page:=",
-                1,
+                page,
                 "X:=",
                 xpos,
                 "Y:=",
@@ -982,6 +987,7 @@ class CircuitComponents(object):
         location=None,
         angle=0,
         show_bitmap=True,
+        page=1,
     ):
         """Create a component from a Touchstone model.
 
@@ -997,6 +1003,8 @@ class CircuitComponents(object):
         show_bitmap : bool, optional
             Show bitmap image of schematic component.
             The default value is ``True``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1028,7 +1036,7 @@ class CircuitComponents(object):
         if Path(model_name).exists():
             model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
         comp_id = int(comp_name.split(";")[-1])
         self.add_id_to_component(comp_id, comp_name)
@@ -1042,6 +1050,7 @@ class CircuitComponents(object):
         location=None,
         angle=0,
         port_names=None,
+        page=1,
     ):
         """Create a component from a Touchstone model.
 
@@ -1058,7 +1067,8 @@ class CircuitComponents(object):
                     Angle rotation in degrees. The default is ``0``.
                 port_names : list, optional
                     Name of ports.
-        .
+                page: int,  optional
+                    Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1080,7 +1090,7 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location)
         # id = self.create_unique_id()
         arg1 = ["NAME:ComponentProps", "Name:=", str(model_name)]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
         comp_id = int(comp_name.split(";")[-1])
         self.add_id_to_component(comp_id, comp_name)
@@ -1118,7 +1128,7 @@ class CircuitComponents(object):
             The default is ``False``.
         global_netlist_list : list, optional
             The default is ``None``, in which case an empty list is passed.
-        page: int, optional
+        page: int,  optional
             Schematic page number. The default value is ``1``.
 
         Returns
@@ -1561,7 +1571,7 @@ class CircuitComponents(object):
         return self._app.value_with_units(value, units)
 
     @pyaedt_function_handler(points_array="points", line_width="width")
-    def create_line(self, points, color=0, width=0):
+    def create_line(self, points, color=0, width=0, page=1):
         """Draw a graphical line.
 
         Parameters
@@ -1573,6 +1583,8 @@ class CircuitComponents(object):
             Color or the line. The default is ``"0"``.
         width : float, optional
             Width of the line. The default is ``0``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1585,7 +1597,7 @@ class CircuitComponents(object):
         # id = self.create_unique_id()
         return self.oeditor.CreateLine(
             ["NAME:LineData", "Points:=", points, "LineWidth:=", width, "Color:=", color],
-            ["NAME:Attributes", "Page:=", 1],
+            ["NAME:Attributes", "Page:=", page],
         )
 
     @pyaedt_function_handler(points_array="points", wire_name="name")
@@ -1631,7 +1643,7 @@ class CircuitComponents(object):
             return False
 
 
-class ComponentInfo(object):
+class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
 
     def __init__(self, name, component_manager, file_name, component_library):
@@ -1649,7 +1661,7 @@ class ComponentInfo(object):
         return self._props
 
     @pyaedt_function_handler(inst_name="assignment")
-    def place(self, assignment, location=None, angle=0, use_instance_id_netlist=False):
+    def place(self, assignment=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a component from a library.
 
         Parameters
@@ -1663,6 +1675,8 @@ class ComponentInfo(object):
         use_instance_id_netlist : bool, optional
             Whether to enable the instance ID in the net list.
             The default is ``False``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1682,10 +1696,11 @@ class ComponentInfo(object):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
 
-class ComponentCatalog(object):
+class ComponentCatalog(PyAedtBase):
     """Indexes Circuit Sys Catalog."""
 
     @pyaedt_function_handler()

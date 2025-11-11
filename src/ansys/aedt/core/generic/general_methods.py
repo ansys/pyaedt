@@ -42,6 +42,7 @@ import warnings
 import psutil
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -153,7 +154,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             messages = list(list(_desktop_sessions.values())[0].odesktop.GetMessages("", "", 2))[-1].lower()
         except (GrpcApiError, AttributeError, TypeError, IndexError):
             pass
-    if "error" in messages:
+    if "[error]" in messages:
         message_to_print = messages[messages.index("[error]") :]
 
     if message_to_print:
@@ -880,7 +881,7 @@ def conversion_function(data, function=None):  # pragma: no cover
     return data
 
 
-class PropsManager(object):
+class PropsManager(PyAedtBase):
     def __getitem__(self, item):
         """Get the `self.props` key value.
 
@@ -1103,7 +1104,7 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
             raise AEDTRuntimeError("An error occurred while installing with pip") from e
 
 
-class Help:  # pragma: no cover
+class Help(PyAedtBase):  # pragma: no cover
     def __init__(self):
         self._base_path = "https://aedt.docs.pyansys.com/version/stable"
         self.browser = "default"

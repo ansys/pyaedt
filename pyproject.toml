@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "grpcio>=1.50.0,<1.76",
+    "grpcio>=1.50.0,<1.77",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
@@ -41,7 +41,7 @@ dependencies = [
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
-    "pydantic>=2.6.4,<2.12",
+    "pydantic>=2.6.4,<2.13",
 ]
 
 [project.optional-dependencies]
@@ -260,11 +260,18 @@ omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
 markers = [
-    "unit",
-    "integration",
-    "system",
-    "solvers",
-    "general",
+    "unit: mark a test as a unit test.",
+    "integration: mark a test as an integration test.",
+    "system: mark a test as a system test.",
+    "solvers: mark a test as related to solvers.",
+    "general: mark a test as related to general features.",
+    "visualization: mark a test as related to visualization features.",
+    "extensions: mark a test as related to extensions.",
+    "filter_solutions: mark a test as related to filter solutions.",
+    "emit: mark a test as related to EMIT features.",
+    "flaky_linux: mark a test as flaky on Linux systems.",
+    "flaky_windows: mark a test as flaky on Windows systems.",
+    "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",

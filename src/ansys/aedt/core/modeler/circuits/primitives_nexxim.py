@@ -28,6 +28,7 @@ import secrets
 import time
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -42,7 +43,7 @@ from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 from ansys.aedt.core.modeler.circuits.primitives_circuit import Excitations
 
 
-class NexximComponents(CircuitComponents):
+class NexximComponents(CircuitComponents, PyAedtBase):
     """Manages circuit components for Nexxim.
 
     Parameters
@@ -643,7 +644,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @pyaedt_function_handler(compname="name")
-    def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a resistor.
 
         Parameters
@@ -659,6 +660,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -672,14 +675,18 @@ class NexximComponents(CircuitComponents):
         if location is None:
             location = []
         cmpid = self.create_component(
-            name, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
+            name,
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         cmpid.set_property("R", value)
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create an inductor.
 
         Parameters
@@ -695,6 +702,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -714,6 +723,7 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         cmpid.set_property("L", value)
@@ -721,7 +731,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a capacitor.
 
         Parameters
@@ -737,6 +747,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -757,13 +769,14 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         cmpid.set_property("C", value)
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_voltage_dc(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_voltage_dc(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a voltage DC source.
 
         Parameters
@@ -779,6 +792,9 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
+
 
         Returns
         -------
@@ -799,13 +815,14 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         cmpid.set_property("DC", value)
         return cmpid
 
     @pyaedt_function_handler(probe_name="name")
-    def create_voltage_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_voltage_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a voltage probe.
 
         Parameters
@@ -819,6 +836,9 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
+
 
         Returns
         -------
@@ -842,10 +862,11 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
     @pyaedt_function_handler()
-    def create_current_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_current_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a current probe.
 
         Parameters
@@ -859,6 +880,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -882,9 +905,12 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
-    def __create_probe(self, name=None, probe_type="voltage", location=None, angle=0.0, use_instance_id_netlist=False):
+    def __create_probe(
+        self, name=None, probe_type="voltage", location=None, angle=0.0, use_instance_id_netlist=False, page=1
+    ):
         if probe_type == "voltage":
             component_name = "VPROBE"
         elif probe_type == "current":
@@ -905,13 +931,16 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
         if name:
             cmpid.set_property("InstanceName", name)
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_current_pulse(self, name=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_current_pulse(
+        self, name=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False, page=1
+    ):
         """Create a current pulse.
 
         Parameters
@@ -927,6 +956,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -948,6 +979,7 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         if len(value_lists) > 0:
@@ -968,7 +1000,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_voltage_pulse(self, name=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_voltage_pulse(
+        self, name=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False, page=1
+    ):
         """Create a voltage pulse.
 
         Parameters
@@ -984,6 +1018,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1005,6 +1041,7 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         if len(value_lists) > 0:
@@ -1026,7 +1063,14 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler(compname="name")
     def create_voltage_pwl(
-        self, name=None, time_list=None, voltage_list=None, location=None, angle=0, use_instance_id_netlist=False
+        self,
+        name=None,
+        time_list=None,
+        voltage_list=None,
+        location=None,
+        angle=0,
+        use_instance_id_netlist=False,
+        page=1,
     ):
         """Create a pwl voltage source.
 
@@ -1045,6 +1089,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int,  optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1065,6 +1111,7 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         if (time_list is not None) and (voltage_list is not None):
@@ -1079,7 +1126,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_current_dc(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
+    def create_current_dc(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a current DC source.
 
         Parameters
@@ -1095,6 +1142,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1114,13 +1163,22 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         cmpid.set_property("DC", value)
         return cmpid
 
     def create_coupling_inductors(
-        self, compname, l1, l2, value=1, location=None, angle=0, use_instance_id_netlist=False
+        self,
+        compname,
+        l1,
+        l2,
+        value=1,
+        location=None,
+        angle=0,
+        use_instance_id_netlist=False,
+        page=1,
     ):
         """Create a coupling inductor.
 
@@ -1161,6 +1219,7 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         cmpid.set_property("Inductor1", l1)
@@ -1169,7 +1228,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_diode(self, name=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False):
+    def create_diode(
+        self, name=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False, page=1
+    ):
         """Create a diode.
 
         Parameters
@@ -1185,6 +1246,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1204,13 +1267,14 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
 
         cmpid.set_property("MOD", model_name)
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_npn(self, name=None, value=None, location=None, angle=0, use_instance_id_netlist=False):
+    def create_npn(self, name=None, value=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create an NPN transistor.
 
         Parameters
@@ -1226,6 +1290,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1245,13 +1311,14 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
         if value:
             id.set_property("MOD", value)
         return id
 
     @pyaedt_function_handler(compname="name")
-    def create_pnp(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a PNP transistor.
 
         Parameters
@@ -1267,6 +1334,8 @@ class NexximComponents(CircuitComponents):
         use_instance_id_netlist : bool, optional
             Whether to use the instance ID in the net list.
             The default is ``False``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -1286,6 +1355,7 @@ class NexximComponents(CircuitComponents):
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
+            page=page,
         )
         if value:
             id.set_property("MOD", value)
@@ -2018,6 +2088,7 @@ class NexximComponents(CircuitComponents):
         location=None,
         symbol_path="Nexxim Circuit Elements\\Nexxim_symbols:",
         symbol="",
+        page=1,
     ):
         """Create and place a new component based on a spice .lib file.
 
@@ -2037,6 +2108,8 @@ class NexximComponents(CircuitComponents):
         symbol : str, optional
             Symbol name to replace the spice model with.
             Default value is an empty string which means the default symbol for spice is used.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -2074,7 +2147,9 @@ class NexximComponents(CircuitComponents):
         self.ocomponent_manager.ImportModelsFromFile(input_file.as_posix(), arg)
 
         if create_component:
-            return self.create_component(None, component_library=None, component_name=model, location=location)
+            return self.create_component(
+                None, component_library=None, component_name=model, location=location, page=page
+            )
         return True
 
     @pyaedt_function_handler(model_path="input_file", solution_name="solution")

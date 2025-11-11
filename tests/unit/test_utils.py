@@ -229,7 +229,7 @@ def test_settings_check_allowed_properties():
         ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS + ["aedt_environment_variables"]
     )
     # Check attributes that are not related to Python objects (otherwise they are not 'allowed')
-    properties_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick"]
+    properties_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick", "public_dir"]
 
     def get_properties(obj):
         return [name for name, _ in inspect.getmembers(type(obj), lambda v: isinstance(v, property))]

@@ -59,6 +59,7 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -82,6 +83,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -108,7 +110,7 @@ def load_aedt_thread(project_path) -> None:
     inner_project_settings.time_stamp = Path(project_path).stat().st_mtime
 
 
-class Design(AedtObjects):
+class Design(AedtObjects, PyAedtBase):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it for
@@ -201,7 +203,7 @@ class Design(AedtObjects):
         self.close_on_exit: bool = close_on_exit
         self._desktop_class = None
         self._desktop_class = self.__init_desktop_from_design(
-            version,
+            settings.aedt_version if settings.aedt_version else version,
             non_graphical,
             new_desktop,
             close_on_exit,
@@ -2434,6 +2436,52 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
+    def create_em_target_design(self, design, setup=None, design_setup=None):
+        """Create an EM Target design.
+
+        Parameters
+        ----------
+        design : str
+            Name of the target design. Possible choices are ``"Icepak"`` or``"Mechanical"``.
+        setup : str, optional
+            Name of the EM setup to link to the target design.
+            The default is ``None``, in which case the ``LastAdaptive`` setup is used.
+        design_setup : str, optional
+            For Icepak designs, specify ``"Forced"`` for forced convention or
+            ``"Natural"`` for natural convention.
+            The default is ``None``, in which case the ``"Forced"`` option is used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.CreateEMLossTarget
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.create_em_target_design("Icepak", design_setup="Forced")
+        """
+        if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
+            raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
+        if design not in ["Icepak", "Mechanical"]:
+            raise AEDTRuntimeError("Design type must be 'Icepak' or 'Mechanical'.")
+        design_setup_args = ["NAME:DesignSetup", "Sim Type:="]
+        if design == "Icepak":
+            design_setup = design_setup or "Forced"
+            if design_setup not in ["Forced", "Natural"]:
+                raise AEDTRuntimeError("Design setup must be 'Forced' or 'Natural'.")
+            design_setup_args.append(design_setup)
+        if not setup:
+            setup = self.nominal_adaptive
+        self.odesign.CreateEMLossTarget(design, setup, design_setup_args)
+        return True
+
+    @pyaedt_function_handler()
     def _get_boundaries_data(self):
         """Retrieve boundary data.
 
@@ -4323,7 +4371,7 @@ class Design(AedtObjects):
         return Desktop(*args, **kwargs)
 
 
-class DesignSettings:
+class DesignSettings(PyAedtBase):
     """Get design settings for the current AEDT app.
 
     References
@@ -4384,7 +4432,7 @@ class DesignSettings:
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
 
-class DesignSettingsManipulation:
+class DesignSettingsManipulation(PyAedtBase):
     @abstractmethod
     def execute(self, k: str, v: Any) -> Any:
         pass

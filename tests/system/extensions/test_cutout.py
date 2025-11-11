@@ -32,7 +32,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.cutout import CUTOUT_TYPES
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from tests.system.extensions.conftest import config
+from tests.conftest import config
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "T45"

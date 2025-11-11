@@ -40,6 +40,7 @@ This module contains these data classes for creating a material library:
 import copy
 import warnings
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -48,7 +49,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 
 
-class MatProperties(object):
+class MatProperties(PyAedtBase):
     """Contains a list of constant names for all materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
@@ -203,7 +204,7 @@ class MatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
-class SurfMatProperties(object):
+class SurfMatProperties(PyAedtBase):
     """Contains a list of constant names for all surface materials with mappings to their internal XML names.
 
     Internal names are used in scripts, and XML names are used in the XML syntax.
@@ -259,7 +260,7 @@ class SurfMatProperties(object):
             raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
-class ClosedFormTM(object):
+class ClosedFormTM:
     """Manages closed-form thermal modifiers."""
 
     Tref = "22cel"
@@ -272,7 +273,7 @@ class ClosedFormTM(object):
     TMU = 1000
 
 
-class Dataset(object):
+class Dataset:
     """Manages datasets."""
 
     ds = []
@@ -285,7 +286,7 @@ class Dataset(object):
     namez = None
 
 
-class BasicValue(object):
+class BasicValue:
     """Manages thermal and spatial modifier calculations."""
 
     def __init__(self):
@@ -295,7 +296,7 @@ class BasicValue(object):
         self.spatialmodifier = None
 
 
-class MatProperty(object):
+class MatProperty(PyAedtBase):
     """Manages simple, anisotropic, tensor, and non-linear properties.
 
     Parameters
@@ -1221,7 +1222,7 @@ class MatProperty(object):
         return self._add_spatial_modifier(formula, index)
 
 
-class CommonMaterial(object):
+class CommonMaterial(PyAedtBase):
     """Manages datasets with frequency-dependent materials.
 
     Parameters
@@ -1377,7 +1378,7 @@ class CommonMaterial(object):
         return False
 
 
-class Material(CommonMaterial, object):
+class Material(CommonMaterial, PyAedtBase):
     """Manages material properties.
 
     Parameters
@@ -2763,7 +2764,7 @@ class Material(CommonMaterial, object):
             return False
 
 
-class SurfaceMaterial(CommonMaterial, object):
+class SurfaceMaterial(CommonMaterial, PyAedtBase):
     """Manages surface material properties for Icepak only.
 
     Parameters

@@ -24,9 +24,8 @@
 
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
-`EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,
-`Nets3DLayout`, `Object3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`,
-`Pins3DLayout', and `VertexPrimitive`.
+`Geometries3DLayout`, `Nets3DLayout`, `Object3DLayout`, `Object3d`, `Padstack`,
+`PDSHole`, `PDSLayer` and `Pins3DLayout'.
 
 This module provides methods and data structures for managing all properties of
 objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
@@ -37,6 +36,7 @@ import math
 from pathlib import Path
 import re
 
+from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import unit_converter
@@ -57,7 +57,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class Object3d(object):
+class Object3d(PyAedtBase):
     """Manages object attributes for the AEDT 3D Modeler.
 
     Parameters
@@ -2991,7 +2991,7 @@ class Object3d(object):
         return True
 
 
-class PolylineSegment(object):
+class PolylineSegment(PyAedtBase):
     """Creates and manipulates a segment of a polyline.
 
     Parameters

@@ -45,6 +45,8 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_00_write_new_xml(self):
+        project_path = os.path.join(self.local_scratch.path, "Project")
+        os.makedirs(project_path, exist_ok=True)
         file_path = add_automation_tab(name="Test", lib_dir=self.local_scratch.path)
         root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
         panels = root.findall("./panel")
@@ -56,7 +58,9 @@ class TestClass:
         First write a dummy XML with a different Panel and then add PyAEDT's tabs
         :return:
         """
-        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
+        project_path = os.path.join(self.local_scratch.path, "Project")
+        os.makedirs(project_path, exist_ok=True)
+        file_path = os.path.join(project_path, "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -82,7 +86,9 @@ class TestClass:
         assert "Panel_1" in panel_names
 
     def test_03_overwrite_existing_pyaedt_config(self):
-        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
+        project_path = os.path.join(self.local_scratch.path, "Project")
+        os.makedirs(project_path, exist_ok=True)
+        file_path = os.path.join(project_path, "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -106,7 +112,9 @@ class TestClass:
         assert len(panel_names) == 2
 
     def test_04_write_to_existing_file_but_no_panels(self):
-        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
+        project_path = os.path.join(self.local_scratch.path, "Project")
+        os.makedirs(project_path, exist_ok=True)
+        file_path = os.path.join(project_path, "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
