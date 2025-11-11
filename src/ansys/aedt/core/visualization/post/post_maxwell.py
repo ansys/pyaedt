@@ -370,7 +370,8 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Returns
         -------
-        Bool
+        bool
+            ``True`` when successful.
 
         References
         ----------
