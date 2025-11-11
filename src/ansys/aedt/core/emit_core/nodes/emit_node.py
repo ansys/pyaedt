@@ -483,8 +483,7 @@ class EmitNode:
                 error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
             else:
                 error_text = (
-                    f'Exception in EmitNodeImport: Failed to import: "{file_path}" of '
-                    f'node type: "{import_type}"'
+                    f'Exception in EmitNodeImport: Failed to import: "{file_path}" of node type: "{import_type}"'
                 )
             raise Exception(error_text)
         return self._get_node(node_id)

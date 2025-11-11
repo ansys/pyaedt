@@ -1934,7 +1934,7 @@ class TestClass:
         assert touchstone_node
         ports = touchstone_node.port_antenna_assignment
         for port in ports:
-            assert port == '(undefined)'
+            assert port == "(undefined)"
         assert len(couplings_node.children) == 1
 
         # add some antennas and connect them
@@ -1942,19 +1942,18 @@ class TestClass:
         for i in range(len(ports)):
             ant = emit_app.schematic.create_component("Antenna")
             if i == 0:
-                antenna_names = ant.name;
+                antenna_names = ant.name
             else:
                 antenna_names = antenna_names + "|" + ant.name
         touchstone_node.port_antenna_assignment = antenna_names
-        assert touchstone_node.port_antenna_assignment == ['Antenna',
-                                                           'Antenna 2',
-                                                           'Antenna 3',
-                                                           'Antenna 4',
-                                                           'Antenna 5']
+        assert touchstone_node.port_antenna_assignment == [
+            "Antenna",
+            "Antenna 2",
+            "Antenna 3",
+            "Antenna 4",
+            "Antenna 5",
+        ]
         assert len(scene_node.children) == 6
-
-
-
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_fm_fsk_freq_deviation(self, emit_app):
