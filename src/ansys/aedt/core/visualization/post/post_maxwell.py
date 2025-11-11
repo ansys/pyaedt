@@ -357,7 +357,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         """Perform Inception voltage evaluation on selected field line traces.
 
         .. note::
-            This method required field line traces to computed beforehand.
+            This method requires field line traces to be computed beforehand.
 
         Parameters
         ----------
