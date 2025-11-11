@@ -797,6 +797,7 @@ class TestClass:
         new_report.time_stop = "40ms"
         assert new_report.create()
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Method not available before 2026.1")
     def test_m2d_evaluate_inception_voltage(self, m2dtest):
         m2dtest.set_active_design("field_line_trace")
         with pytest.raises(AEDTRuntimeError):
