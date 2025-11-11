@@ -388,7 +388,10 @@ class Desktop(PyAedtBase):
     def __new__(cls, *args, **kwargs):
         # The following commented lines will be useful when we will need to search among multiple saved desktop.
         specified_version = (
-            kwargs.get("specified_version") or kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
+            kwargs.get("specified_version")
+            or kwargs.get("version")
+            or settings.aedt_version
+            or (None if (not args or args[0] is None) else args[0])
         )
         if "new_desktop_session" in kwargs or "new_desktop" in kwargs:
             new_desktop = kwargs.get("new_desktop_session") or kwargs.get("new_desktop")
@@ -1003,9 +1006,9 @@ class Desktop(PyAedtBase):
         project_name : str, optional
             Project name. The default is ``None``, in which case the active project
             is used.
-        project_path : str, optional
-            Full path to the project. The default is ``None``. If a path is
-            provided, ``save as`` is used.
+        project_path : str, Path, optional
+            Full path to the project. The default is ``None``, in which case the current project is saved.
+            If a path is provided, "save as" is used.
 
         Returns
         -------
@@ -1014,10 +1017,17 @@ class Desktop(PyAedtBase):
         """
         if not project_name:
             oproject = self.odesktop.GetActiveProject()
+            project_name = oproject.GetName()
         else:
             oproject = self.odesktop.SetActiveProject(project_name)
         if project_path:
-            oproject.SaveAs(project_path, True)
+            project_path = Path(project_path)
+            # check if the path ends with a file (by verifying if it has an extension)
+            if project_path.suffix:
+                final_path = project_path
+            else:
+                final_path = project_path / (project_name + ".aedt")
+            oproject.SaveAs(str(final_path), True)
         else:
             oproject.Save()
         return True
@@ -1688,7 +1698,7 @@ class Desktop(PyAedtBase):
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
         if project_name in self.project_list:
-            self.save_project(project_path, project_path)
+            self.save_project(project_name, project_path)
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
             if version >= "22.2":
@@ -1809,8 +1819,7 @@ class Desktop(PyAedtBase):
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
         if project_name in self.project_list:
-            self.save_project(project_path, project_path)
-
+            self.save_project(project_name, project_path)
         if not job_name:
             job_name = generate_unique_name(project_name)
         if project_name in self.project_list:

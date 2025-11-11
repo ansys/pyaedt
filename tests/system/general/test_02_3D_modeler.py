@@ -32,12 +32,13 @@ from ansys.aedt.core.generic.math_utils import MathUtils
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
@@ -1311,3 +1312,32 @@ class TestClass:
 
         assert not self.aedtapp.modeler.project_sheet(rect, box_0, 5, "10deg")
         self.aedtapp.modeler.delete(self.aedtapp.modeler.object_names)
+
+    def test_edge_primitives_getitem(self):
+        """Test EdgePrimitive __getitem__ method."""
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box_edge_primitive_getitem")
+        edge = box.edges[0]
+
+        vertex_0, vertex_1 = edge[0], edge[1]
+
+        assert isinstance(vertex_0, VertexPrimitive)
+        assert isinstance(vertex_1, VertexPrimitive)
+
+    def test_edge_primitives_iter(self):
+        """Test EdgePrimitive __iter__ method."""
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box_edge_primitive_iter")
+        edge = box.edges[0]
+
+        for vertex in edge:
+            assert isinstance(vertex, VertexPrimitive)
+
+    def test_edge_primitives_contains(self):
+        """Test EdgePrimitive __contains__ method."""
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box_edge_primitive_contains")
+        edge = box.edges[0]
+        vertex_0, vertex_1 = edge[0], edge[1]
+
+        assert vertex_0 in edge
+        assert vertex_0.id in edge
+        assert vertex_1 in edge
+        assert vertex_1.id in edge

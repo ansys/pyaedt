@@ -209,6 +209,9 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
     def __load_objects_net(self):
         """Load objects by net from the EDB modeler."""
         res = defaultdict(list)
+        if not self.aedt_application.modeler.edb:
+            self.release_desktop()
+            raise AEDTRuntimeError("Extension cannot be used with an empty HFSS 3D Layout design.")
         for net, net_objs in self.aedt_application.modeler.edb.modeler.primitives_by_net.items():
             res[net].extend(obj.aedt_name for obj in net_objs)
         for net_obj in self.aedt_application.modeler.edb.padstacks.instances.values():

@@ -130,8 +130,6 @@ class VersionManager:
         self.pyedb_branch_name = tkinter.StringVar()
         self.pyedb_branch_name.set("main")
 
-        self.ini_file_path = os.path.join(os.path.dirname(__file__), "settings.ini")
-
         # Prepare subprocess environment so the venv is effectively activated for all runs
         self.activated_env = None
         self.activate_venv()

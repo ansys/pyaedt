@@ -33,7 +33,7 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.filter_solutions.conftest import config
+from tests.conftest import config
 from tests.system.filter_solutions.resources import read_resource_file
 from tests.system.filter_solutions.resources import resource_path
 

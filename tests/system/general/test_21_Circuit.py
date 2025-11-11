@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.system.general.conftest import config
+from tests.conftest import config
 
 test_subfolder = "T21"
 
@@ -296,7 +296,10 @@ class TestClass:
         setup_name = "Dom_Quick"
         assert aedtapp.create_setup(setup_name, "NexximQuickEye")
         setup_name = "Dom_AMI"
-        assert aedtapp.create_setup(setup_name, "NexximAMI")
+        setup = aedtapp.create_setup(setup_name, "NexximAMI")
+        assert setup
+        setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
+        assert setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
     @pytest.mark.skipif(
         is_linux and config["desktopVersion"] == "2024.1",
@@ -1069,22 +1072,27 @@ class TestClass:
         assert aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert len(aedtapp.modeler.schematic.components) == 1
         assert list(aedtapp.modeler.components.components.values())[0].component_path
-        assert aedtapp.modeler.components.create_component(component_library="", component_name="RES_")
-        assert len(aedtapp.modeler.schematic.components) == 2
+        assert aedtapp.modeler.add_page("P2")
+        assert aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page=2)
+        assert aedtapp.modeler.rename_page(2, "P3")
+        cmp = aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page=2)
+        assert cmp.page == 2
+
+        assert len(aedtapp.modeler.schematic.components) == 3
         assert not list(aedtapp.modeler.components.components.values())[1].component_path
         t1 = aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
-        assert len(aedtapp.modeler.schematic.components) == 3
+        assert len(aedtapp.modeler.schematic.components) == 4
         assert t1.component_path
         nexxim_state_space = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "neximspacefile.sss"
         sss = aedtapp.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
-        assert len(aedtapp.modeler.schematic.components) == 4
+        assert len(aedtapp.modeler.schematic.components) == 5
         assert sss.component_path
         ibis_model = aedtapp.get_ibis_model_from_file(
             Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
         )
         ibis_model.buffers["RDQS#"].add()
         buffer = ibis_model.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
-        assert len(aedtapp.modeler.schematic.components) == 5
+        assert len(aedtapp.modeler.schematic.components) == 6
         assert buffer.component_path
 
     def test_output_variables(self, circuitprj):

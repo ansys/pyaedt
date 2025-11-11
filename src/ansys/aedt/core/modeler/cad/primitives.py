@@ -842,7 +842,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return report
 
     @property
-    def objects_by_name(self):
+    def objects_by_name(self) -> dict[str, Object3d]:
         """Object dictionary organized by name.
 
         Returns
@@ -6587,26 +6587,26 @@ class GeometryModeler(Modeler, PyAedtBase):
             return numeric_list
 
     @pyaedt_function_handler(obj_to_check="assignment")
-    def does_object_exists(self, assignment):
+    def does_object_exists(self, assignment) -> bool:
         """Check to see if an object exists.
 
         Parameters
         ----------
-        assignment : str, int
-            Object name or object ID.
+        assignment : str, int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Object name or object ID or Object3d to check.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
-        if isinstance(assignment, int) and assignment in self.objects:
-            return True
-        elif assignment in self.objects_by_name:
-            return True
-        else:
-            return False
+        if isinstance(assignment, int):
+            return assignment in self.objects
+        elif isinstance(assignment, str):
+            return assignment in self.objects_by_name
+        elif isinstance(assignment, Object3d):
+            return assignment.name in self.objects_by_name
+        return False
 
     @pyaedt_function_handler(parts="assignment", region_name="name")
     def create_subregion(self, padding_values, padding_types, assignment, name=None):

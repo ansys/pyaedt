@@ -295,18 +295,18 @@ is an example of how to create a unit test for your extension:
 
 .. code-block:: python
 
-    from unittest.mock import patch
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+  from unittest.mock import patch
+  from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
 
-    @patch("ansys.aedt.core.extensions.misc.Desktop")
-    def test_my_extension(mock_desktop):
-        extension = MyExtension()
+  @patch("ansys.aedt.core.extensions.misc.Desktop")
+  def test_my_extension(mock_desktop):
+    extension = MyExtension()
 
-      assert "My extension title" == extension.root.title()
-      assert "light" == extension.root.theme
-      assert "No active project" == extension.active_project_name
+    assert "My extension title" == extension.root.title()
+    assert "light" == extension.root.theme
+    assert "No active project" == extension.active_project_name
 
-      extension.root.destroy()
+    extension.root.destroy()
 
 Step 3: Add system tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -318,28 +318,108 @@ behaves as expected when integrated into the AEDT environment.
 
 .. code-block:: python
 
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
-    from ansys.aedt.core import Hfss
+  from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+  from ansys.aedt.core import Hfss
 
-    def test_my_extension_system(add_app):
-      
-      # Create some data in AEDT to test the extension
-      aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
-      aedt_app["p1"] = "100mm"
-      aedt_app["p2"] = "71mm"
-      test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
-      p = aedt_app.modeler.create_polyline(
-          points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
-      )
+  def test_my_extension_system(add_app):
+    
+    # Create some data in AEDT to test the extension
+    aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
+    aedt_app["p1"] = "100mm"
+    aedt_app["p2"] = "71mm"
+    test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+    p = aedt_app.modeler.create_polyline(
+      points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
+    )
 
-      # Create the extension and set its data by clicking on the "Generate" button
-      extension = MyExtension()
-      extension.root.nametowidget("generate").invoke()
+    # Create the extension and set its data by clicking on the "Generate" button
+    extension = MyExtension()
+    extension.root.nametowidget("generate").invoke()
 
-      # Check that the extension logic executes correctly
-      assert 2 == len(aedt_app.variable_manager.variables)
-      assert main(extension.data)
-      assert 7 == len(aedt_app.variable_manager.variables)
+    # Check that the extension logic executes correctly
+    assert 2 == len(aedt_app.variable_manager.variables)
+    assert main(extension.data)
+    assert 7 == len(aedt_app.variable_manager.variables)
+
+Run tests in VSCode and PyCharm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section explains how to run pytest unit and system tests in VSCode (Visual Studio Code) and PyCharm, and how to estimate coverage
+using the "Run with coverage" feature or pytest-cov.
+
+Prerequisites
+~~~~~~~~~~~~~
+- Install pytest and pytest-cov in your environment if you haven't already:
+
+.. code:: bash
+
+  pip install pytest pytest-cov
+
+- Ensure your IDE is configured to use the Python interpreter where the packages are installed.
+
+VSCode IDE
+~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Use the Test Explorer (Python extension) to discover and run tests:
+  - Open the Testing side bar (beaker icon).
+  - Run or debug individual tests, test files, or test suites from the UI.
+
+.. image:: ../Resources/vscode_run_tests.png
+  :alt: VSCode Test Explorer (placeholder)
+
+2. Run tests and view coverage using the GUI
+  - VSCode:
+    - Click the "Run Test with Coverage" button in the Test Explorer toolbar to run one or more tests with coverage. 
+    - After the tests complete, a coverage summary appears in the Test Explorer (coverage % by file), and covered/uncovered lines are highlighted in the editor.
+
+.. image:: ../Resources/coverage_vscode.png
+  :alt: VSCode Test Explorer (placeholder)
+
+Brief note
+~~~~~~~~~~
+You can also run tests with coverage from a terminal in VSCode using pytest-cov:
+.. code:: bash
+
+  pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html
+
+This is an example command to run unit tests with coverage. Adjust the path to your test files as needed.
+
+PyCharm IDE
+~~~~~~~~~~~~~~~~~~~
+
+1. Configure pytest as the test runner:
+   - Settings -> Tools -> Python Integrated Tools -> Default test runner -> pytest
+
+2. Run tests from the IDE:
+   - Right-click a test file, folder, or test function and choose Run or Debug.
+   - Use the dedicated test runner UI to run and inspect results.
+
+.. image:: ../Resources/pycharm_run_tests.png
+   :alt: PyCharm test runner (placeholder)
+
+3. Run with coverage in PyCharm:
+   - Right-click a test file or configuration and choose "Run 'pytest in' with Coverage".
+   - PyCharm shows a coverage summary and highlights covered and uncovered lines in the editor.
+
+4. Run with pytest-cov from a terminal in PyCharm (alternative):
+
+.. code:: bash
+
+  pytest tests/unit --cov=src --cov-report=term-missing --cov-report=html
+
+Interpreting coverage results
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Coverage percentage shows the portion of executed lines compared to total executable lines in the source files.
+- Higher coverage is generally better, but 100% coverage does not guarantee bug-free code. At least 85% coverage for all the new code added to the repository is required.
+- Use ``--cov-report=term-missing`` to see which lines are not covered directly in the terminal.
+- Use ``--cov-report=html`` and open ``htmlcov/index.html`` in a browser for an easy-to-navigate, per-file coverage report.
+- Run unit and system tests separately to estimate their individual contributions:
+
+Best practices
+~~~~~~~~~~~~~~
+- Aim to keep unit tests fast and isolated; use mocks for external systems like AEDT.
+- Use the IDE "Run with coverage" feature for quick, visual feedback.
 
 Step 4: Add the extension to the catalog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -373,3 +453,71 @@ Also, another card should be added to the
 ``doc/source/User_guide/pyaedt_extensions_doc/project/index.rst`` file to link to the extension's documentation page.
 This ensures that the extension is discoverable in the documentation from the multiple pages that list all the
 extensions available in PyAEDT.
+
+
+Local testing parameters
+------------------------
+
+Two configuration files control test behavior:
+
+- ``tests/local_config.json``: Contains parameters intended for modification during local testing.
+  These settings control test execution behavior such as desktop version, graphical mode, and feature flags.
+  **This file does not exist by default and must be created manually** in the ``tests/`` directory.
+
+- ``tests/pyaedt_settings.yaml``: Contains default PyAEDT settings applied to all tests.
+  These settings are not intended for local modification.
+
+Creating local_config.json
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To customize local test execution, create a ``local_config.json`` file in the ``tests/`` directory
+at the top level of the repository. Below is an example configuration with descriptions of each parameter:
+
+.. code-block:: json
+
+  {
+      "desktopVersion": "2025.2",
+      "NonGraphical": true,
+      "NewThread": true,
+      "skip_circuits": false,
+      "use_grpc": true,
+      "close_desktop": true,
+      "use_local_example_data": false,
+      "local_example_folder": "",
+      "skip_modelithics": true
+  }
+
+Parameter descriptions:
+
+- ``desktopVersion``: AEDT version to use for testing (for example, "2025.2," "2024.1").
+- ``NonGraphical``: When ``true``, runs AEDT in non-graphical mode (headless).
+- ``NewThread``: Opens AEDT in a new thread.
+- ``skip_circuits``: When ``true``, skips Circuit-related tests.
+- ``use_grpc``: When ``true``, uses gRPC API for communication with AEDT.
+- ``close_desktop``: When ``true``, closes AEDT after tests complete.
+- ``use_local_example_data``: When ``true``, uses local example data for tests.
+- ``local_example_folder``: Path to the local example data folder.
+- ``skip_modelithics``: When ``true``, skips Modelithics-related tests.
+
+Replicating CI/CD environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CI/CD pipeline loads ``pyaedt_settings.yaml`` via the environment variable:
+
+.. code:: bash
+
+  PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+To replicate the CI/CD environment locally, set this environment variable on your machine:
+
+- **Windows (PowerShell)**:
+
+.. code:: powershell
+
+  $env:PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
+
+- **Linux (Bash)**:
+
+.. code:: bash
+
+  export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml' 
