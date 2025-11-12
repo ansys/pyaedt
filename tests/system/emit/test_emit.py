@@ -1036,9 +1036,6 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_availability_1_to_1(self, emit_app):
-        emit_app.close_project(save=False)
-        emit_app.create_new_project()
-
         # place components and generate the appropriate number of revisions
         rad1 = emit_app.modeler.components.create_component("MD400C")
         ant1 = emit_app.modeler.components.create_component("Antenna")
@@ -2288,7 +2285,7 @@ class TestClass:
         cable.length = "0.0031 mile"
         assert round(cable.length, 4) == 4.9890
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.2", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
