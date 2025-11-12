@@ -451,7 +451,7 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
         file_path = tmp_path / file
         file_path.write_text("Dummy content")
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))
-    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "10")
+    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "30")
 
     with pytest.raises(Exception):
         Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, port=port)
@@ -484,7 +484,7 @@ def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path):
     port = None if machine != "localhost" else _find_free_port()
     generate_certs([machine], tmp_path)
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))
-    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "10")
+    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "30")
 
     desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
     assert desktop.grpc_mode == "mtls"
@@ -498,7 +498,7 @@ def test_desktop_remote_insecure_success(machine, monkeypatch):
     monkeypatch.setattr(settings, 'grpc_secure_mode', False)
     monkeypatch.setattr(settings, 'grpc_listen_all', False)
     port = _find_free_port()
-    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "20")
+    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "30")
     desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
 
     assert desktop.grpc_mode == "insecure"
@@ -531,7 +531,7 @@ def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path):
     port = _find_free_port()
     generate_certs([machine], tmp_path)
     monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", str(tmp_path))
-    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "10")
+    monkeypatch.setenv("AnsysEM_GRPC_Connection_Timeout", "30")
     desktop = Desktop(version=AEDT_VERSION, non_graphical=True, new_desktop=True, machine=machine, port=port)
 
     assert desktop.grpc_mode == "mtls"

@@ -127,6 +127,8 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
+            settings.logger.debug(f"Failed to execute gRPC AEDT command:")
+            settings.logger.debug(f"{funcName}({argv})")
             raise GrpcApiError(f"Failed to execute gRPC AEDT command: {funcName}")
 
     def __dir__(self):
