@@ -1036,6 +1036,9 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_availability_1_to_1(self, emit_app):
+        emit_app.close_project(save=False)
+        emit_app.create_new_project()
+
         # place components and generate the appropriate number of revisions
         rad1 = emit_app.modeler.components.create_component("MD400C")
         ant1 = emit_app.modeler.components.create_component("Antenna")
@@ -1058,18 +1061,18 @@ class TestClass:
 
         rev2 = emit_app.results.analyze()
         domain = emit_app.results.interaction_domain()
-        radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
-        domain.set_receiver(radiosRX[0], bandsRX[0])
-        radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radio_name=radiosTX[0], tx_rx_mode=TxRxMode.TX)
-        domain.set_interferer(radiosTX[0], bandsTX[0])
-        radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
-        domain.set_receiver(radiosRX[0], bandsRX[0])
-        radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radio_name=radiosTX[0], tx_rx_mode=TxRxMode.TX)
-        domain.set_interferer(radiosTX[0], bandsTX[0])
+        radios_rx = rev2.get_receiver_names()
+        bands_rx = rev2.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+        domain.set_receiver(radios_rx[0], bands_rx[0])
+        radios_tx = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
+        bands_tx = rev2.get_band_names(radio_name=radios_tx[0], tx_rx_mode=TxRxMode.TX)
+        domain.set_interferer(radios_tx[0], bands_tx[0])
+        radios_rx = rev2.get_receiver_names()
+        bands_rx = rev2.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+        domain.set_receiver(radios_rx[0], bands_rx[0])
+        radios_tx = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
+        bands_tx = rev2.get_band_names(radio_name=radios_tx[0], tx_rx_mode=TxRxMode.TX)
+        domain.set_interferer(radios_tx[0], bands_tx[0])
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
         assert domain.receiver_channel_frequency == -1.0
@@ -1087,10 +1090,10 @@ class TestClass:
         assert valid_availability
 
         rev3 = emit_app.results.analyze()
-        radiosTX = rev3.get_interferer_names(InterfererType.TRANSMITTERS)
-        radiosRX = rev3.get_receiver_names()
-        assert len(radiosTX) == 3
-        assert len(radiosRX) == 4
+        radios_tx = rev3.get_interferer_names(InterfererType.TRANSMITTERS)
+        radios_rx = rev3.get_receiver_names()
+        assert len(radios_tx) == 3
+        assert len(radios_rx) == 4
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
