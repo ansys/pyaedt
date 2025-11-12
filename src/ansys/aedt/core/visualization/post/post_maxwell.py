@@ -403,7 +403,6 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
             raise AEDTRuntimeError("The Field Line Tracing Plot needs to be generated.")
         if not field_line_number:
             self.ofieldsreporter.EvaluateInceptionVoltage(plot_name)
-            return True
         else:
             self.ofieldsreporter.EvaluateInceptionVoltage(plot_name, field_line_number)
-            return True
+        return True
