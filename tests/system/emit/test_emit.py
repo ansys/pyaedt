@@ -1036,6 +1036,13 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_availability_1_to_1(self, emit_app):
+        # Make sure there are no components in the schematic
+        # (possibly left from previous test if run sequentially?)
+        rev = emit_app.results.analyze()
+        comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            emit_app.schematic.delete_component(comp.name)
+
         # place components and generate the appropriate number of revisions
         rad1 = emit_app.modeler.components.create_component("MD400C")
         ant1 = emit_app.modeler.components.create_component("Antenna")
@@ -1044,7 +1051,6 @@ class TestClass:
         ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
 
-        assert len(emit_app.results.revisions) == 0
         _ = emit_app.results.analyze()
         assert len(emit_app.results.revisions) == 1
 
