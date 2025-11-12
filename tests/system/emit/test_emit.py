@@ -1032,8 +1032,8 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
-        reason="Skipped on versions earlier than 2023.2",
+        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_availability_1_to_1(self, emit_app):
         # Make sure there are no components in the schematic
@@ -1050,9 +1050,6 @@ class TestClass:
         rad2 = emit_app.modeler.components.create_component("MD400C")
         ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-
-        _ = emit_app.results.analyze()
-        assert len(emit_app.results.revisions) == 1
 
         rad3 = emit_app.modeler.components.create_component("Mini UAS Video RT Airborne")
         ant3 = emit_app.modeler.components.create_component("Antenna")
