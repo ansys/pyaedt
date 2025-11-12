@@ -208,7 +208,7 @@ jobs:
           flags: linux_unit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-unit
           path: junit/test-results.xml
@@ -235,7 +235,7 @@ jobs:
           flags: linux_integration
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-integration
           path: junit/test-results.xml
@@ -274,13 +274,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -306,7 +299,7 @@ jobs:
           flags: windows_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
@@ -339,7 +332,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -350,7 +343,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
 
@@ -367,7 +360,7 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
@@ -378,7 +371,7 @@ jobs:
           flags: linux_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
@@ -399,6 +392,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
@@ -416,13 +412,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -453,7 +442,7 @@ jobs:
           flags: windows_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
@@ -477,6 +466,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
@@ -486,7 +478,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -497,16 +489,9 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -517,13 +502,15 @@ jobs:
           done
 
       - name: Run tests marked with 'general'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
@@ -534,7 +521,7 @@ jobs:
           flags: linux_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
@@ -558,6 +545,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
@@ -575,13 +565,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -612,7 +595,7 @@ jobs:
           flags: windows_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-visualization-windows
           path: junit/test-results.xml
@@ -637,6 +620,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
@@ -646,7 +632,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -657,16 +643,9 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -676,16 +655,30 @@ jobs:
             kill -9 "$pid"
           done
 
-      - name: Run tests marked with 'visualization'
+      # NOTE: Run visualization tests in two separate steps to avoid conflicts when
+      # loading Ansys EM libraries and vtk osmesa backend.
+      - name: Run tests marked with 'visualization' and not 'avoid_ansys_load'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 30
+          command: |
+            source .venv/bin/activate
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
+
+      - name: Run tests marked with 'visualization' and 'avoid_ansys_load'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -694,7 +687,7 @@ jobs:
           flags: linux_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-visualization-linux
           path: junit/test-results.xml
@@ -715,6 +708,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
@@ -732,13 +728,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -769,7 +758,7 @@ jobs:
           flags: windows_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
@@ -793,6 +782,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
@@ -802,7 +794,7 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -813,21 +805,9 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
-      - name: "Install X Virtual Frame Buffer"
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -838,15 +818,17 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
-            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -855,7 +837,7 @@ jobs:
           flags: linux_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
@@ -894,13 +876,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -930,7 +905,7 @@ jobs:
           flags: windows_system_filter
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
@@ -969,13 +944,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -1005,7 +973,7 @@ jobs:
           flags: windows_system_emit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
@@ -1038,7 +1006,7 @@ jobs:
   #       env:
   #         ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
   #       run: |
-  #         export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+  #         export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   #         python -m venv .venv
   #         source .venv/bin/activate
   #         python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -1049,16 +1017,9 @@ jobs:
   #       env:
   #         ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
   #       run: |
-  #         export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+  #         export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   #         source .venv/bin/activate
   #         pip install .[tests]
-
-  #     - name: Install CI dependencies (e.g. vtk-osmesa)
-  #       run: |
-  #         source .venv/bin/activate
-  #         # Uninstall conflicting dependencies
-  #         pip uninstall --yes vtk
-  #         pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
   #     - name: "Install X Virtual Frame Buffer"
   #       run: |
@@ -1074,13 +1035,15 @@ jobs:
   #         done
 
   #     - name: Run tests marked with 'flaky'
+  #       env:
+  #         ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
   #       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
   #       with:
   #         max_attempts: 2
   #         retry_on: error
   #         timeout_minutes: 120
   #         command: |
-  #           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+  #           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   #           source .venv/bin/activate
   #           xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
 
@@ -1091,7 +1054,7 @@ jobs:
   #         flags: linux_system_flaky
 
   #     - name: Upload pytest test results
-  #       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+  #       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
   #       with:
   #         name: pytest-flaky-linux
   #         path: junit/test-results.xml
@@ -1137,7 +1100,7 @@ jobs:
       contents: write
     steps:
       - name: Download the library artifacts from build-library step
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: ${{ env.PACKAGE_NAME }}-artifacts
           path: ${{ env.PACKAGE_NAME }}-artifacts

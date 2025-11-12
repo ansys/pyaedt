@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "grpcio>=1.50.0,<1.76",
+    "grpcio>=1.50.0,<1.77",
     "jsonschema",
     "psutil",
     "pyedb>=0.24.0,!=0.28.0",
@@ -276,6 +276,7 @@ markers = [
     "emit: mark a test as related to EMIT features.",
     "flaky_linux: mark a test as flaky on Linux systems.",
     "flaky_windows: mark a test as flaky on Windows systems.",
+    "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
 ]
 filterwarnings = [
     "ignore::UserWarning:src.ansys.aedt.core.*",
