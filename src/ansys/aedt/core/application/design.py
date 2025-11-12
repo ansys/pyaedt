@@ -2644,9 +2644,7 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def close_desktop(self):
         """Close AEDT and release it.
-
-        .. deprecated:: 0.19.1
-            This method is deprecated. Use the ``ansys.aedt.core.desktop.close_desktop()`` method instead.
+        This is the same as calling, `design.desktop_class.close_desktop()`.
 
         Returns
         -------
@@ -2654,11 +2652,6 @@ class Design(AedtObjects, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
 
         """
-        warnings.warn(
-            "method `design.close_desktop` is deprecated. The method is accessible from desktop.\n "
-            "It can be accessed from design with `design.desktop_class.close_desktop()`.",
-            DeprecationWarning,
-        )
         self.desktop_class.close_desktop()
         return True
 
