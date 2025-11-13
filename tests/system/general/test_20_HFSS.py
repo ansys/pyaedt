@@ -72,14 +72,14 @@ def cleanup_designs(aedtapp):
             if design != simple_design:
                 try:
                     aedtapp.delete_design(design)
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(f"Failed to delete design {design}: {e}")
     try:
         aedtapp.delete_design(simple_design)
         aedtapp.insert_design(simple_design)
         aedtapp.set_active_design(simple_design)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Failed to recreate simple_design: {e}")
 
 
 @pytest.fixture()
@@ -595,7 +595,7 @@ def test_validate_setup(aedtapp):
         stop_frequency=1.2,
         num_of_freq_points=10,
     )
-    list, ok = aedtapp.validate_full_design(ports=len(aedtapp.excitation_names))
+    _, ok = aedtapp.validate_full_design(ports=len(aedtapp.excitation_names))
     assert ok
 
 
