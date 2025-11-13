@@ -1945,6 +1945,11 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_imports(self, emit_app):
         rev = emit_app.results.analyze()
+        # Make sure there are no components in the schematic
+        # (possibly left from previous test if run sequentially?)
+        comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            emit_app.schematic.delete_component(comp.name)
 
         scene_node: EmitSceneNode = rev.get_scene_node()
         cad_file = os.path.join(TEST_SUBFOLDER, "Ansys_777_200_ER.glb")

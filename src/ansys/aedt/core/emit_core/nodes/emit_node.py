@@ -553,6 +553,7 @@ class EmitNode:
             The node's table data as a list of tuples.
             [(x1, y1, z1), (x2, y2, z2)]
         """
+        table = []
         try:
             if self._is_column_data_table():
                 # Column Data tables
@@ -568,6 +569,8 @@ class EmitNode:
                 # with ';' separating rows and '|' separating columns
                 table_key = self._get_property("TableKey", True)
                 string_table = self._get_property(table_key, True, True)
+                if string_table == "":
+                    return table
 
                 def try_float(val):
                     try:
