@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 import json
 from pathlib import Path
 
@@ -32,6 +33,8 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutEx
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests.conftest import config
+
+is_linux = os.name == "posix"
 
 AEDB_FILE_NAME = "Parametric_Microstrip_Simulation"
 TEST_SUBFOLDER = "post_layout_design"
@@ -46,6 +49,7 @@ def cleanup_files(*files):
 
 
 @pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_all_options(add_app, local_scratch):
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
@@ -94,6 +98,7 @@ def test_export_layout_all_options(add_app, local_scratch):
 
 
 @pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_ipc_only(add_app, local_scratch):
     """Test export layout with only IPC2581 option enabled."""
     data = ExportLayoutExtensionData(
