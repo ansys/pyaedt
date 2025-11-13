@@ -1,0 +1,470 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# filepath: c:\Users\smorais\src\pyaedt\tests\test_cli.py
+"""Tests for PyAEDT CLI functionality."""
+
+from unittest.mock import Mock
+from unittest.mock import patch
+
+import psutil
+import pytest
+from typer.testing import CliRunner
+
+from ansys.aedt.core.cli import app
+
+
+@pytest.fixture
+def cli_runner():
+    """Create a test runner for CLI commands."""
+    return CliRunner()
+
+
+@pytest.fixture
+def mock_aedt_process():
+    """Create a mock AEDT process for testing."""
+    mock_proc = Mock(spec=psutil.Process)
+    mock_proc.pid = 12345
+    mock_proc.name.return_value = "ansysedt.exe"
+    mock_proc.status.return_value = psutil.STATUS_RUNNING
+    mock_proc.cmdline.return_value = ["ansysedt.exe", "-grpcsrv", "50051"]
+    mock_proc.username.return_value = "dummy_user"
+    mock_proc.create_time.return_value = 1234567890.0
+    return mock_proc
+
+
+def test_cli_help_command(cli_runner):
+    """Verify that help command executes without errors."""
+    result = cli_runner.invoke(app, ["--help"])
+
+    assert result.exit_code == 0
+    assert "CLI for PyAEDT" in result.stdout
+
+
+# VERSION COMMAND TESTS
+
+
+@patch("ansys.aedt.core.__version__", "0.22.0")
+def test_version_command(cli_runner):
+    """Test version command output."""
+    result = cli_runner.invoke(app, ["version"])
+
+    assert result.exit_code == 0
+    assert "PyAEDT version: 0.22.0" in result.stdout
+
+
+# PROCESSES COMMAND TESTS
+
+
+@patch("psutil.process_iter")
+def test_processes_command_no_aedt(mock_process_iter, cli_runner):
+    """Test processes command when no AEDT is running."""
+    result = cli_runner.invoke(app, ["processes"])
+
+    assert result.exit_code == 0
+    assert "No AEDT processes currently running" in result.stdout
+
+
+@patch("psutil.process_iter")
+def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_process):
+    """Test processes command when AEDT processes exist."""
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["processes"])
+
+    assert result.exit_code == 0
+    assert "Found 1 AEDT process(es)" in result.stdout
+    assert "PID: 12345" in result.stdout
+    assert "Port: 50051" in result.stdout
+
+
+# STOP COMMAND TESTS
+
+
+def test_stop_command_no_args(cli_runner):
+    """Test stop command without arguments shows help."""
+    result = cli_runner.invoke(app, ["stop"])
+
+    assert result.exit_code == 0
+    assert "Please provide PID(s), port(s), or use --all to stop all AEDT processes." in result.stdout
+
+
+@patch("psutil.process_iter")
+def test_stop_all_command_no_processes(mock_process_iter, cli_runner):
+    """Test stop all when no AEDT processes exist."""
+    mock_process_iter.return_value = []
+
+    result = cli_runner.invoke(app, ["stop", "--all"])
+
+    assert result.exit_code == 0
+    assert "All AEDT processes have been stopped" in result.stdout
+
+
+@patch("psutil.process_iter")
+def test_stop_all_command_with_access_denied(mock_process_iter, cli_runner, mock_aedt_process):
+    """Test stop all when access is denied to some processes."""
+    mock_aedt_process.kill.side_effect = psutil.AccessDenied()
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--all"])
+
+    assert result.exit_code == 0
+    assert f"✗ Access denied for process with PID {mock_aedt_process.pid}" in result.stdout
+    assert "Some AEDT processes could not be stopped" in result.stdout
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_all_command_with_process_no_longer_exists(
+    mock_process_access, mock_process_iter, cli_runner, mock_aedt_process
+):
+    """Test stop all when process no longer exists during operation."""
+    mock_aedt_process.kill.side_effect = psutil.NoSuchProcess(mock_aedt_process.pid)
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--all"])
+
+    assert result.exit_code == 0
+    assert f"! Process {mock_aedt_process.pid} no longer exists" in result.stdout
+    assert "All AEDT processes have been stopped" in result.stdout
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_all_command_with_generic_exception(mock_process_access, mock_process_iter, cli_runner, mock_aedt_process):
+    """Test stop all when generic exception occurs during kill."""
+    mock_aedt_process.kill.side_effect = Exception("Dummy exception")
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--all"])
+
+    assert result.exit_code == 0
+    assert f"✗ Error stopping process {mock_aedt_process.pid}" in result.stdout
+    assert "Some AEDT processes could not be stopped" in result.stdout
+
+
+@patch("psutil.Process")
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_command_by_pid_success(mock_process_access, mock_process_class, cli_runner, mock_aedt_process):
+    """Test successfully stopping process by PID."""
+    mock_process_class.return_value = mock_aedt_process
+
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    assert "Process with PID 12345 has been stopped" in result.stdout
+    mock_aedt_process.kill.assert_called_once()
+
+
+@patch("psutil.Process")
+def test_stop_command_by_pid_access_denied(mock_process_class, cli_runner, mock_aedt_process):
+    """Test stopping process by PID when access is denied."""
+    mock_process_class.return_value = mock_aedt_process
+
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    assert "✗ Access denied for process with PID 12345" in result.stdout
+
+
+@patch("psutil.Process")
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_process_class, cli_runner):
+    """Test stopping process by PID when not in stoppable state."""
+    mock_proc = Mock()
+    mock_proc.status.return_value = psutil.STATUS_ZOMBIE
+    mock_process_class.return_value = mock_proc
+
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+    assert result.exit_code == 0
+    assert "✗ Process with PID 12345 is not in a stoppable state" in result.stdout
+
+
+@patch("psutil.Process")
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_command_by_pid_generic_exception(mock_process_access, mock_process_class, cli_runner, mock_aedt_process):
+    """Test stopping process by PID when generic exception occurs."""
+    mock_aedt_process.kill.side_effect = Exception("Dummy exception")
+    mock_process_class.return_value = mock_aedt_process
+
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    assert "✗ Error stopping process 12345" in result.stdout
+
+
+@patch("psutil.Process", side_effect=psutil.NoSuchProcess(999))
+def test_stop_command_by_pid_invalid_pid(mock_process, cli_runner):
+    """Test stop command with invalid PID."""
+    result = cli_runner.invoke(app, ["stop", "--pid", "999"])
+
+    assert result.exit_code == 0
+    assert "! Process 999 no longer exists" in result.stdout
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_command_by_port_success(mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
+    """Test successfully stopping process by port."""
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+
+    assert result.exit_code == 0
+    assert "Process with PID 12345 listening on port 50051 has been stopped" in result.stdout
+    mock_aedt_process.kill.assert_called_once()
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._get_port", return_value=50052)
+def test_stop_command_by_port_not_found(mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
+    """Test stopping process by port when no process found on that port."""
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+
+    assert result.exit_code == 0
+    assert "No AEDT process found listening on port 50051" in result.stdout
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli._can_access_process", return_value=False)
+def test_stop_command_by_port_access_denied(
+    mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
+):
+    """Test stopping process by port when access is denied."""
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+
+    assert result.exit_code == 0
+    assert "✗ Access denied for process with PID 12345" in result.stdout
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_command_by_port_no_such_process(
+    mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
+):
+    """Test stopping process by port when process no longer exists during operation."""
+    mock_aedt_process.kill.side_effect = psutil.NoSuchProcess(mock_aedt_process.pid)
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+
+    assert result.exit_code == 0
+    assert "! Process 12345 no longer exists" in result.stdout
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+def test_stop_command_by_port_generic_exception(
+    mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
+):
+    """Test stopping process by port when generic exception occurs."""
+    mock_aedt_process.kill.side_effect = Exception("Dummy exception")
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+
+    assert result.exit_code == 0
+    assert "✗ Error stopping process 12345" in result.stdout
+
+
+@patch("psutil.process_iter")
+@patch("ansys.aedt.core.cli._get_port", return_value=None)
+def test_stop_command_by_port_no_port_info(mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
+    """Test stopping process by port when process has no port information."""
+    mock_process_iter.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
+
+    assert result.exit_code == 0
+    assert "✗ No AEDT process found listening on port 50051" in result.stdout
+
+
+# START COMMAND TESTS
+
+
+@pytest.fixture
+def mock_start_command():
+    """Mock all dependencies for the start command tests."""
+    with (
+        patch("ansys.aedt.core.desktop.Desktop") as mock_desktop_class,
+        patch("ansys.aedt.core.settings") as mock_settings,
+        patch("threading.Thread") as mock_thread,
+        patch("time.sleep") as mock_sleep,
+    ):
+        # Configure mock settings
+        mock_settings.enable_logger = False
+
+        # Configure mock Desktop class to return a mock instance
+        mock_desktop_instance = Mock()
+        mock_desktop_class.return_value = mock_desktop_instance
+
+        yield {
+            "desktop_class": mock_desktop_class,
+            "desktop_instance": mock_desktop_instance,
+            "settings": mock_settings,
+            "thread": mock_thread,
+            "sleep": mock_sleep,
+        }
+
+
+def test_start_command_default_parameters(cli_runner, mock_start_command):
+    """Test start command with default parameters."""
+    result = cli_runner.invoke(app, ["start"])
+
+    assert result.exit_code == 0
+    assert "Starting AEDT 2025.2..." in result.stdout
+    assert "✓ AEDT started successfully" in result.stdout
+
+
+def test_start_command_with_version(cli_runner, mock_start_command):
+    """Test start command with specific version."""
+    result = cli_runner.invoke(app, ["start", "--version", "2024.2"])
+
+    assert result.exit_code == 0
+    assert "Starting AEDT 2024.2..." in result.stdout
+    assert "✓ AEDT started successfully" in result.stdout
+
+
+def test_start_command_non_graphical(cli_runner, mock_start_command):
+    """Test start command in non-graphical mode."""
+    result = cli_runner.invoke(app, ["start", "--non-graphical"])
+
+    assert result.exit_code == 0
+    assert "Starting in non-graphical mode..." in result.stdout
+    assert "✓ AEDT started successfully" in result.stdout
+
+
+def test_start_command_with_port(cli_runner, mock_start_command):
+    """Test start command with specific port."""
+    result = cli_runner.invoke(app, ["start", "--port", "50055"])
+
+    assert result.exit_code == 0
+    assert "Using port: 50055" in result.stdout
+    assert "✓ AEDT started successfully" in result.stdout
+
+
+def test_start_command_student_version(cli_runner, mock_start_command):
+    """Test start command for student version."""
+    result = cli_runner.invoke(app, ["start", "--student"])
+
+    assert result.exit_code == 0
+    assert "Starting student version..." in result.stdout
+    assert "✓ AEDT started successfully" in result.stdout
+
+
+@patch("ansys.aedt.core.desktop.Desktop")
+@patch("ansys.aedt.core.settings")
+def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner):
+    """Test start command when Desktop initialization fails."""
+    mock_desktop.side_effect = Exception("Dummy exception")
+
+    result = cli_runner.invoke(app, ["start"])
+
+    assert result.exit_code == 0
+    assert "✗ Error starting AEDT: Dummy exception" in result.stdout
+    assert "Common issues:" in result.stdout
+    assert "- AEDT not installed or not in PATH" in result.stdout
+    assert "- Invalid version specified" in result.stdout
+    assert "- License server not available" in result.stdout
+    assert "- Insufficient permissions" in result.stdout
+
+    # @patch('ansys.aedt.core.desktop.Desktop')
+    # @patch('ansys.aedt.core.settings')
+    # @patch('threading.Thread')
+    # @patch('time.sleep')
+    # def test_start_command_import_error(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
+    #     """Test start command when import fails."""
+    #     mock_desktop.side_effect = ImportError("Cannot import Desktop")
+
+    #     result = cli_runner.invoke(app, ["start"])
+
+    #     assert result.exit_code == 0
+    #     assert "✗ Error starting AEDT: Cannot import Desktop" in result.stdout
+
+    # @patch('ansys.aedt.core.desktop.Desktop')
+    # @patch('ansys.aedt.core.settings')
+    # @patch('threading.Thread')
+    # @patch('time.sleep')
+    # def test_start_command_zero_port_not_added(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
+    #     """Test start command with port 0 (should not add port to args)."""
+    #     mock_desktop_instance = Mock()
+    #     mock_desktop.return_value = mock_desktop_instance
+
+    #     result = cli_runner.invoke(app, ["start", "--port", "0"])
+
+    #     assert result.exit_code == 0
+    #     assert "Using port:" not in result.stdout
+    #     mock_desktop.assert_called_once_with(
+    #         version="2025.2",
+    #         non_graphical=False,
+    #         new_desktop_session=True,
+    #         student_version=False,
+    #         close_on_exit=False
+    #     )
+
+    # @patch('ansys.aedt.core.desktop.Desktop')
+    # @patch('ansys.aedt.core.settings')
+    # @patch('threading.Thread')
+    # @patch('time.sleep')
+    # def test_start_command_settings_configuration(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
+    #     """Test that start command properly configures settings."""
+    #     mock_desktop_instance = Mock()
+    #     mock_desktop.return_value = mock_desktop_instance
+
+    #     result = cli_runner.invoke(app, ["start"])
+
+    #     assert result.exit_code == 0
+    #     assert mock_settings.enable_logger is False
+
+    # @patch('ansys.aedt.core.desktop.Desktop')
+    # @patch('ansys.aedt.core.settings')
+    # @patch('threading.Thread')
+    # @patch('time.sleep')
+    # def test_start_command_short_options(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
+    #     """Test start command with short option flags."""
+    #     mock_desktop_instance = Mock()
+    #     mock_desktop.return_value = mock_desktop_instance
+
+    #     result = cli_runner.invoke(app, ["start", "-v", "2023.2", "-ng", "-p", "50070"])
+
+    #     assert result.exit_code == 0
+    #     assert "Starting AEDT 2023.2..." in result.stdout
+    #     assert "Starting in non-graphical mode..." in result.stdout
+    #     assert "Using port: 50070" in result.stdout
+    #     mock_desktop.assert_called_once_with(
+    #         version="2023.2",
+    #         non_graphical=True,
+    #         new_desktop_session=True,
+    #         student_version=False,
+    #         close_on_exit=False,
+    #         port=50070
+    #     )
