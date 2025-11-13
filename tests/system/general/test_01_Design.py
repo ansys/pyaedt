@@ -552,3 +552,21 @@ class TestClass:
         aedtapp.create_new_project("Test_notes")
         assert aedtapp.edit_notes("this a test")
         assert not aedtapp.edit_notes(1)
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_close_desktop(self, desktop, aedtapp, monkeypatch):
+        called = {}
+
+        # Use monkeypatch to replace desktop.close_desktop with a fake tracker
+        def fake_close_desktop():
+            called["was_called"] = True
+            return True
+
+        monkeypatch.setattr(desktop, "close_desktop", fake_close_desktop)
+
+        # Call the method
+        result = aedtapp.close_desktop()
+
+        # Verify
+        assert called.get("was_called", False) is True
+        assert result is True
