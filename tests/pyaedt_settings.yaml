@@ -7,10 +7,10 @@ log:
   enable_desktop_logs: false
 
 general:
-  number_of_grpc_api_retries: 6
+  number_of_grpc_api_retries: 10
   retry_n_times_time_interval: 0.5
   enable_error_handler: false
-  desktop_launch_timeout: 180
+  desktop_launch_timeout: 300
   release_on_exception: false
   wait_for_license: true
   enable_pandas_output: true
