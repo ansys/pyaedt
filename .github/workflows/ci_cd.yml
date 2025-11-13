@@ -1072,7 +1072,7 @@ jobs:
             system-tests-extensions-linux,
             system-tests-filter-windows,
             system-tests-emit-windows,
-            # system-tests-flaky-linux,
+            system-tests-flaky-linux,
             doc-build]
     runs-on: ubuntu-latest
     permissions:
