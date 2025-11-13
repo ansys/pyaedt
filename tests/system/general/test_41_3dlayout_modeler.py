@@ -99,7 +99,7 @@ class TestClass:
         assert mymat.permittivity.value == 4.1
         assert mymat.conductivity.value == 100
         assert mymat.youngs_modulus.value == 1e10
-        assert len(self.aedtapp.materials.material_keys) == 3
+        assert mymat in self.aedtapp.materials.material_keys.values()
 
     def test_02_stackup(self):
         s1 = self.aedtapp.modeler.layers.add_layer(
