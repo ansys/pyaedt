@@ -1194,7 +1194,7 @@ class TestClass:
         for ind in range(4):
             expected_interference_colors = all_interference_colors[ind]
             expected_interference_power = all_interference_power[ind]
-            interference_filter = interference_filters[:ind] + interference_filters[ind + 1:]
+            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
 
             interference_colors, interference_power_matrix = rev.interference_type_classification(
                 domain, interferer_type=InterfererType.TRANSMITTERS, use_filter=True, filter_list=interference_filter
@@ -1226,7 +1226,7 @@ class TestClass:
         for ind in range(4):
             expected_protection_colors = all_protection_colors[ind]
             expected_protection_power = all_protection_power[ind]
-            protection_filter = protection_filters[:ind] + protection_filters[ind + 1:]
+            protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
 
             protection_colors, protection_power_matrix = rev.protection_level_classification(
                 domain,
