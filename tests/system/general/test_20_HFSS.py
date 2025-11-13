@@ -1980,50 +1980,50 @@ def test_import_gds_3d(aedtapp):
     assert not aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
 
 
-def test_plane_wave(test_app):
+def test_plane_wave(aedtapp):
     with pytest.raises(
         ValueError, match="Invalid value for `vector_format`. The value must be 'Spherical', or 'Cartesian'."
     ):
-        test_app.plane_wave(vector_format="invented")
+        aedtapp.plane_wave(vector_format="invented")
     with pytest.raises(ValueError, match="Invalid value for `origin`."):
-        test_app.plane_wave(origin=[0, 0])
+        aedtapp.plane_wave(origin=[0, 0])
     with pytest.raises(
         ValueError,
         match=re.escape("Invalid value for `wave_type`. The value must be 'Propagating', Evanescent, or 'Elliptical'."),
     ):
-        test_app.plane_wave(wave_type="dummy")
+        aedtapp.plane_wave(wave_type="dummy")
     with pytest.raises(ValueError, match=re.escape("Invalid value for `wave_type_properties`.")):
-        test_app.plane_wave(wave_type="evanescent", wave_type_properties=[1])
+        aedtapp.plane_wave(wave_type="evanescent", wave_type_properties=[1])
     with pytest.raises(ValueError, match=re.escape("Invalid value for `wave_type_properties`.")):
-        test_app.plane_wave(wave_type="elliptical", wave_type_properties=[1])
+        aedtapp.plane_wave(wave_type="elliptical", wave_type_properties=[1])
     with pytest.raises(ValueError, match=re.escape("Invalid value for `polarization`.")):
-        test_app.plane_wave(vector_format="Cartesian", polarization=[1, 0])
+        aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0])
     with pytest.raises(ValueError, match=re.escape("Invalid value for `propagation_vector`.")):
-        test_app.plane_wave(vector_format="Cartesian", propagation_vector=[1, 0])
+        aedtapp.plane_wave(vector_format="Cartesian", propagation_vector=[1, 0])
     with pytest.raises(ValueError, match=re.escape("Invalid value for `polarization`.")):
-        test_app.plane_wave(polarization=[1])
+        aedtapp.plane_wave(polarization=[1])
     with pytest.raises(ValueError, match=re.escape("Invalid value for `propagation_vector`.")):
-        test_app.plane_wave(propagation_vector=[1, 0, 0])
+        aedtapp.plane_wave(propagation_vector=[1, 0, 0])
 
-    sphere = test_app.modeler.create_sphere([0, 0, 0], 10)
-    sphere2 = test_app.modeler.create_sphere([10, 100, 0], 10)
+    sphere = aedtapp.modeler.create_sphere([0, 0, 0], 10)
+    sphere2 = aedtapp.modeler.create_sphere([10, 100, 0], 10)
     assignment = [sphere, sphere2.faces[0].id]
-    assert test_app.plane_wave(assignment=assignment, wave_type="Evanescent")
-    assert test_app.plane_wave(wave_type="Elliptical")
-    assert test_app.plane_wave()
-    assert test_app.plane_wave(vector_format="Cartesian")
-    assert test_app.plane_wave()
-    assert test_app.plane_wave(polarization="Horizontal")
-    assert test_app.plane_wave(vector_format="Cartesian", polarization="Horizontal")
+    assert aedtapp.plane_wave(assignment=assignment, wave_type="Evanescent")
+    assert aedtapp.plane_wave(wave_type="Elliptical")
+    assert aedtapp.plane_wave()
+    assert aedtapp.plane_wave(vector_format="Cartesian")
+    assert aedtapp.plane_wave()
+    assert aedtapp.plane_wave(polarization="Horizontal")
+    assert aedtapp.plane_wave(vector_format="Cartesian", polarization="Horizontal")
 
-    assert test_app.plane_wave(polarization=[1, 0])
-    assert test_app.plane_wave(vector_format="Cartesian", polarization=[1, 0, 0])
+    assert aedtapp.plane_wave(polarization=[1, 0])
+    assert aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0, 0])
 
-    test_app.solution_type = "SBR+"
-    new_plane_wave = test_app.plane_wave()
-    assert len(test_app.boundaries) == 10
+    aedtapp.solution_type = "SBR+"
+    new_plane_wave = aedtapp.plane_wave()
+    assert len(aedtapp.boundaries) == 10
     new_plane_wave.name = "new_plane_wave"
-    assert new_plane_wave.name in test_app.excitation_names
+    assert new_plane_wave.name in aedtapp.excitation_names
 
 
 def test_export_on_completion(aedtapp, local_scratch):
