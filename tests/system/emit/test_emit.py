@@ -288,14 +288,14 @@ class TestClass:
         exception_raised = False
         try:
             radio.set_band_power_level(100)
-        except Exception:
+        except AttributeError:
             exception_raised = True
         assert exception_raised
         # Try getting band power from the radio
         exception_raised = False
         try:
             radio.get_band_power_level()
-        except Exception:
+        except AttributeError:
             exception_raised = True
         assert exception_raised
         # full units support added with 2023.2
@@ -745,7 +745,7 @@ class TestClass:
         exception_raised = False
         try:
             _ = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
-        except Exception:
+        except ValueError:
             exception_raised = True
         assert exception_raised
 
@@ -811,7 +811,7 @@ class TestClass:
         exception_raised = False
         try:
             rad.set_channel_sampling()
-        except Exception:
+        except AttributeError:
             exception_raised = True
         assert exception_raised
 
@@ -997,11 +997,11 @@ class TestClass:
         assert len(emit_app.results.revisions) == 0
         rev = emit_app.results.analyze()
         assert len(emit_app.results.revisions) == 1
-        radiosRX = rev.get_receiver_names()
-        bandsRX = rev.get_band_names(radio_name=radiosRX[0], tx_rx_mode=TxRxMode.RX)
-        radiosTX = rev.get_interferer_names()
+        radios_rx = rev.get_receiver_names()
+        bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+        radios_tx = rev.get_interferer_names()
         domain = emit_app.results.interaction_domain()
-        domain.set_receiver(radiosRX[0], bandsRX[0])
+        domain.set_receiver(radios_rx[0], bands_rx[0])
 
         # check n_to_1_limit can be set to different values
         emit_app.results.revisions[-1].n_to_1_limit = 1
@@ -1025,7 +1025,7 @@ class TestClass:
         assert len(domain2.interferer_names) == 2
         assert instance.get_value(ResultType.EMI) == 82.04
         # rerun with 1-1 only (forced by domain)
-        domain.set_interferer(radiosTX[0])
+        domain.set_interferer(radios_tx[0])
         assert emit_app.results.revisions[-1].get_instance_count(domain) == 19829
         interaction = emit_app.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
@@ -1152,8 +1152,6 @@ class TestClass:
             "WiFi": [-22.0, -25.0, -30.0, -104.0],
         }
 
-        protection_colors = []
-        protection_power_matrix = []
         protection_colors, protection_power_matrix = rev.protection_level_classification(
             domain,
             interferer_type=InterfererType.TRANSMITTERS,
@@ -1174,8 +1172,6 @@ class TestClass:
 
         # Test with active filtering
         domain = interference.results.interaction_domain()
-        interference_colors = []
-        interference_power_matrix = []
         all_interference_colors = [
             [["white", "green", "orange"], ["orange", "green", "white"]],
             [["white", "green", "red"], ["red", "green", "white"]],
@@ -1198,7 +1194,7 @@ class TestClass:
         for ind in range(4):
             expected_interference_colors = all_interference_colors[ind]
             expected_interference_power = all_interference_power[ind]
-            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
+            interference_filter = interference_filters[:ind] + interference_filters[ind + 1:]
 
             interference_colors, interference_power_matrix = rev.interference_type_classification(
                 domain, interferer_type=InterfererType.TRANSMITTERS, use_filter=True, filter_list=interference_filter
@@ -1213,8 +1209,6 @@ class TestClass:
 
         # Test with active filtering
         domain = interference.results.interaction_domain()
-        protection_colors = []
-        protection_power_matrix = []
         all_protection_colors = [
             [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
             [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
@@ -1232,7 +1226,7 @@ class TestClass:
         for ind in range(4):
             expected_protection_colors = all_protection_colors[ind]
             expected_protection_power = all_protection_power[ind]
-            protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
+            protection_filter = protection_filters[:ind] + protection_filters[ind + 1:]
 
             protection_colors, protection_power_matrix = rev.protection_level_classification(
                 domain,
@@ -1384,21 +1378,21 @@ class TestClass:
 
         assert license_file_path != ""
 
-        def count_license_actions(license_file_path):
+        def count_license_actions(license_path):
             # Count checkout/checkins in most recent license connection
-            checkouts = 0
-            checkins = 0
-            with open(license_file_path, "r") as license_file:
+            num_checkouts = 0
+            num_checkins = 0
+            with open(license_path, "r") as license_file:
                 lines = license_file.read().strip().split("\n")
                 for line in lines:
                     if "NEW_CONNECTION" in line:
-                        checkouts = 0
-                        checkins = 0
+                        num_checkouts = 0
+                        num_checkins = 0
                     elif "CHECKOUT" in line or "SPLIT_CHECKOUT" in line:
-                        checkouts += 1
+                        num_checkouts += 1
                     elif "CHECKIN" in line:
-                        checkins += 1
-            return (checkouts, checkins)
+                        num_checkins += 1
+            return num_checkouts, num_checkins
 
         # Figure out how many checkouts and checkins per run we expect
         # This could change depending on the user's EMIT HPC settings
@@ -1485,7 +1479,7 @@ class TestClass:
                 min_val = float(range_part.split("and")[0].strip())
                 max_val = float(range_part.split("and")[1].split(".")[0].strip())
                 if is_int:
-                    return round(random.randint(min_val, max_val), 3)  # nosec
+                    return round(random.randint(int(min_val), int(max_val)), 3)  # nosec
                 return round(random.uniform(min_val, max_val), 3)  # nosec
             elif "Value should be less than" in docstring:
                 max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
@@ -1604,7 +1598,7 @@ class TestClass:
                         if enum_val is not None:
                             class_attr = getattr(node.__class__, enum_key)
                             class_attr.fset(node, enum_val)
-                    except BaseException:
+                    except (AttributeError, GrpcApiError, ValueError):
                         pass
                     for bool_key in node_bools or {None: None}:
                         if bool_key is None:
@@ -1617,7 +1611,7 @@ class TestClass:
                                 if bool_val is not None:
                                     class_attr = getattr(node.__class__, bool_key)
                                     class_attr.fset(node, bool_val)
-                            except BaseException:
+                            except (AttributeError, GrpcApiError, ValueError):
                                 pass
                             if max_iterations is not None and node_iterations > max_iterations:
                                 break
@@ -1737,6 +1731,7 @@ class TestClass:
                                             except Exception as e:
                                                 exception = e
 
+                                            result = None
                                             try:
                                                 result = class_attr.fget(node)
                                             except Exception as e:
@@ -1945,26 +1940,23 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_imports(self, emit_app):
         rev = emit_app.results.analyze()
-        # Make sure there are no components in the schematic
-        # (possibly left from previous test if run sequentially?)
-        comps_in_schematic = rev.get_all_component_nodes()
-        for comp in comps_in_schematic:
-            emit_app.schematic.delete_component(comp.name)
 
         scene_node: EmitSceneNode = rev.get_scene_node()
+        scene_children = scene_node.children
         cad_file = os.path.join(TEST_SUBFOLDER, "Ansys_777_200_ER.glb")
         cad_node = scene_node.import_cad(cad_file)
         assert cad_node
-        assert len(scene_node.children) == 1
+        assert len(scene_node.children) == len(scene_children) + 1
 
         couplings_node: CouplingsNode = rev.get_coupling_data_node()
+        couplings_children = couplings_node.children
         touchstone_file = os.path.join(TEST_SUBFOLDER, "5-antenna car model.s5p")
         touchstone_node: TouchstoneCouplingNode = couplings_node.import_touchstone(touchstone_file)
         assert touchstone_node
         ports = touchstone_node.port_antenna_assignment
         for port in ports:
             assert port == "(undefined)"
-        assert len(couplings_node.children) == 1
+        assert len(couplings_node.children) == len(couplings_children) + 1
 
         # add some antennas and connect them
         antenna_names = ""
@@ -1999,7 +1991,7 @@ class TestClass:
         band_node = None
         radio_children = radio_comp.children
         for child in radio_children:
-            if child.node_type == "Band":
+            if child._node_type == "Band":
                 band_node = child
                 break
 
@@ -2025,6 +2017,7 @@ class TestClass:
         radio = cast(RadioNode, radio)
 
         children = radio.children
+        sampling = None
         for child in children:
             if child.node_type == "SamplingNode":
                 sampling = cast(SamplingNode, child)
@@ -2158,7 +2151,7 @@ class TestClass:
 
         # Add a Band
         radio_node.add_band()
-        bands: Band = radio_node.children
+        bands: list[Band] = radio_node.children
         assert len(bands) == 3  # 2 Bands + 1 SamplingNode
         bands[1].delete()
         bands = radio_node.children
@@ -2293,7 +2286,7 @@ class TestClass:
         cable.length = "0.0031 mile"
         assert round(cable.length, 4) == 4.9890
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.2", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14

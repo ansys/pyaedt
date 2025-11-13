@@ -313,7 +313,7 @@ class EmitNode:
                     f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for '
                     f'{self.properties["Type"]} node "{self.name}"'
                 )
-            raise Exception(error_text)
+            raise ValueError(error_text)
 
     @staticmethod
     def _string_to_value_units(value) -> tuple[float, str]:
