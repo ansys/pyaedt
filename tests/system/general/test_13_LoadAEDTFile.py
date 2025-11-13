@@ -31,6 +31,7 @@ import pytest
 
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.internal.load_aedt_file import get_design_list_from_aedt_file
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
 
@@ -147,10 +148,7 @@ class TestClass:
     def test_04_check_design_type_names_jpg(self):
         # there are multiple designs in this aedt file, so DesignInfo will be a list
         aedt_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Cassegrain.aedt")
-        self.project_dict2 = load_entire_aedt_file(aedt_file)
-        self.design_info = self.project_dict2["ProjectPreview"]["DesignInfo"]
-        assert isinstance(self.design_info, list)
-        design_names = [design["DesignName"] for design in self.design_info]
+        design_names = get_design_list_from_aedt_file(aedt_file)
         assert ["feeder", "Cassegrain_reflectors"] == design_names
 
     def test_05_check_can_load_aedt_file_with_multiple_coord_systems(self):
