@@ -24,8 +24,10 @@
 
 import math
 import os
+import random
 import re
 import shutil
+import string
 
 import pytest
 
@@ -56,30 +58,16 @@ component_array = "Array_232"
 transient = "Hfss_Transient"
 
 
+def random_name(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
 @pytest.fixture()
 def aedtapp(add_app):
-    app = add_app(project_name="SimpleProject", design_name="SimpleDesign")
+    project_name = random_name()
+    design_name = random_name()
+    app = add_app(project_name=project_name, design_name=design_name)
     yield app
     app.close_project(app.project_name)
-
-
-@pytest.fixture(autouse=True)
-def cleanup_designs(aedtapp):
-    """Clean designs after each test by recreating simple_design."""
-    yield
-    if hasattr(aedtapp, "design_list"):
-        for design in list(aedtapp.design_list):
-            if design != simple_design:
-                try:
-                    aedtapp.delete_design(design)
-                except Exception as e:
-                    print(f"Failed to delete design {design}: {e}")
-    try:
-        aedtapp.delete_design(simple_design)
-        aedtapp.insert_design(simple_design)
-        aedtapp.set_active_design(simple_design)
-    except Exception as e:
-        print(f"Failed to recreate simple_design: {e}")
 
 
 @pytest.fixture()
@@ -1815,7 +1803,6 @@ def test_set_phase_center_per_port(aedtapp):
 )
 def test_import_dxf(dxf_file: str, object_count: int, self_stitch_tolerance: float, aedtapp):
     from pyedb.generic.general_methods import generate_unique_name
-
     design_name = aedtapp.insert_design(generate_unique_name("test_import_dxf"))
     aedtapp.set_active_design(design_name)
     dxf_layers = aedtapp.get_dxf_layers(dxf_file)
