@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
 
 import pytest
@@ -519,6 +520,53 @@ class TestClass:
         aedtapp.save_project(file_name=new_project)
         assert os.path.isfile(new_project)
 
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_desktop_save_as(self, aedtapp, local_scratch):
+        # Save as passing a string
+        aedtapp.create_new_project("test_desktop_save_as")
+        new_project = os.path.join(local_scratch.path, "new.aedt")
+        assert os.path.exists(local_scratch.path)
+        assert aedtapp.desktop_class.save_project(project_path=new_project)
+        assert os.path.isfile(new_project)
+
+        # Test using Path instead of string
+        new_project_path = Path(local_scratch.path) / "new_2.aedt"
+        assert aedtapp.desktop_class.save_project(project_path=new_project_path)
+        assert new_project_path.exists()
+
+        # Test using Path with only dir
+        only_project_path = Path(local_scratch.path)
+        assert aedtapp.desktop_class.save_project(project_path=only_project_path)
+        assert new_project_path.exists()
+
+        # Test using Path and providing a project name
+        new_project_path = Path(local_scratch.path) / "new_3.aedt"
+        project_name = aedtapp.project_name
+        assert aedtapp.desktop_class.save_project(project_name=project_name, project_path=new_project_path)
+        assert new_project_path.exists()
+
+        aedtapp.close_project(aedtapp.project_name)
+
     def test_43_edit_notes(self, aedtapp):
+        aedtapp.create_new_project("Test_notes")
         assert aedtapp.edit_notes("this a test")
         assert not aedtapp.edit_notes(1)
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_close_desktop(self, desktop, aedtapp, monkeypatch):
+        called = {}
+
+        # Use monkeypatch to replace desktop.close_desktop with a fake tracker
+        def fake_close_desktop():
+            called["was_called"] = True
+            return True
+
+        monkeypatch.setattr(desktop, "close_desktop", fake_close_desktop)
+
+        # Call the method
+        result = aedtapp.close_desktop()
+
+        # Verify
+        assert called.get("was_called", False) is True
+        assert result is True

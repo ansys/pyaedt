@@ -1788,6 +1788,12 @@ class PostProcessorCommon(PyAedtBase):
                 and props.get("report_type", "") != "Rectangular Contour Plot"
             ):
                 report._legacy_props["context"]["secondary_sweep"] = ""
+            if props.get("context", {}).get("primary_sweep", "Freq") in [
+                "Time",
+                "__UnitInterval",
+                "__Amplitude",
+            ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
+                del report._legacy_props["context"]["variations"]["Freq"]
             _update_props(props, report._legacy_props)
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
                 if (
