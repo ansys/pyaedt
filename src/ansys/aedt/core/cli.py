@@ -41,7 +41,9 @@ except ImportError:  # pragma: no cover
 
 app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
 config_app = typer.Typer(help="Configuration management commands")
+test_app = typer.Typer(help="Test configuration management commands")
 app.add_typer(config_app, name="config")
+config_app.add_typer(test_app, name="test")
 
 # Default configuration for local_config.json
 DEFAULT_TEST_CONFIG = {
@@ -361,6 +363,107 @@ def _get_port(proc: psutil.Process) -> int | None:
     return res
 
 
+def _get_config_path() -> tuple[Path, dict]:
+    """Get the configuration path and load config.
+    
+    Returns
+    -------
+    tuple[Path, dict]
+        Configuration file path and loaded config
+    """
+    tests_folder = _get_tests_folder()
+    config_path = tests_folder / "local_config.json"
+    config = _load_config(config_path) if config_path.exists() else DEFAULT_TEST_CONFIG.copy()
+    return config_path, config
+
+
+def _update_bool_config(key: str, value: bool | None, display_name: str = None) -> None:
+    """Update a boolean configuration value.
+    
+    Parameters
+    ----------
+    key : str
+        Configuration key
+    value : bool | None
+        New value or None for interactive mode
+    display_name : str, optional
+        Display name (defaults to key)
+    """
+    config_path, config = _get_config_path()
+    display_name = display_name or key
+    default = DEFAULT_TEST_CONFIG.get(key, False)
+    
+    if value is None:
+        current_value = config.get(key, default)
+        typer.echo(f"\nCurrent {display_name}: ", nl=False)
+        value_str = "✓ True" if current_value else "✗ False"
+        color = "green" if current_value else "red"
+        typer.secho(value_str, fg=color)
+        typer.echo("")
+        value = typer.confirm(f"Set to {not current_value}?", default=True)
+        value = not current_value if value else current_value
+    
+    config[key] = value
+    _save_config(config_path, config)
+    typer.secho(f"✓ {display_name} set to {value}", fg="green")
+
+
+def _update_string_config(
+    key: str,
+    value: str | None,
+    display_name: str = None,
+    validator: callable = None
+) -> None:
+    """Update a string configuration value.
+    
+    Parameters
+    ----------
+    key : str
+        Configuration key
+    value : str | None
+        New value or None for interactive mode
+    display_name : str, optional
+        Display name (defaults to key)
+    validator : callable, optional
+        Function to validate the value, should return (is_valid, error_message)
+    """
+    config_path, config = _get_config_path()
+    display_name = display_name or key
+    default = DEFAULT_TEST_CONFIG.get(key, "")
+    
+    if value is None:
+        current_value = config.get(key, default)
+        typer.echo(f"\nCurrent {display_name}: ", nl=False)
+        if current_value:
+            typer.secho(f"'{current_value}'", fg="cyan")
+        else:
+            typer.secho("(empty)", fg="yellow")
+        
+        if validator:
+            typer.echo("")
+            while True:
+                value = typer.prompt("New value", default=current_value)
+                value = value.strip().strip('"').strip("'")
+                is_valid, error_msg = validator(value)
+                if is_valid:
+                    break
+                else:
+                    typer.secho(f"✗ {error_msg}", fg="red")
+        else:
+            typer.echo("")
+            value = typer.prompt("New value", default=current_value)
+    else:
+        if validator:
+            is_valid, error_msg = validator(value)
+            if not is_valid:
+                typer.secho(f"✗ {error_msg}", fg="red")
+                return
+    
+    config[key] = value
+    _save_config(config_path, config)
+    typer.secho(f"✓ {display_name} set to '{value}'", fg="green")
+
+
 @config_app.command("test")
 def config_test(
     show: bool = typer.Option(
@@ -368,9 +471,9 @@ def config_test(
         "--show",
         "-s",
         help="Show current configuration without modifying"
-    )
+    ),
 ):
-    """Create or modify local_config.json in the tests folder."""
+    """Create or modify local_config.json in the tests folder interactively."""
     tests_folder = _get_tests_folder()
     config_path = tests_folder / "local_config.json"
     
@@ -386,35 +489,29 @@ def config_test(
         "local_example_folder": "Path to local examples",
         "skip_modelithics": "Skip Modelithics tests",
     }
-
+ 
+    if config_path.exists():
+        config = _load_config(config_path)
+    else:
+        config = DEFAULT_TEST_CONFIG.copy()
+        _save_config(config_path, config)
+    
     typer.echo("\n" + "=" * 70)
     typer.secho("  PyAEDT Test Configuration Manager", fg="bright_blue", bold=True)
     typer.echo("=" * 70)
-    typer.echo(f"\n  📁 Tests folder: ", nl=False)
+    typer.echo("\n  📁 Tests folder: ", nl=False)
     typer.secho(str(tests_folder), fg="cyan")
-    typer.echo(f"  📄 Config file:  ", nl=False)
+    typer.echo("  📄 Config file:  ", nl=False)
     typer.secho(str(config_path), fg="cyan")
 
     if config_path.exists():
-        typer.echo(f"\n  ", nl=False)
+        typer.echo("\n  ", nl=False)
         typer.secho("✓", fg="green", bold=True, nl=False)
         typer.echo(" Configuration file found")
-        config = _load_config(config_path)
     else:
-        typer.echo(f"\n  ", nl=False)
-        typer.secho("✗", fg="red", bold=True, nl=False)
-        typer.echo(" Configuration file does not exist")
-
-        if show:
-            typer.echo("\n  No configuration file to display.")
-            return
-
-        typer.echo("\n  Creating new configuration with defaults...")
-        config = DEFAULT_TEST_CONFIG.copy()
-        _save_config(config_path, config)
-        typer.echo(f"  ", nl=False)
+        typer.echo("\n  ", nl=False)
         typer.secho("✓", fg="green", bold=True, nl=False)
-        typer.echo(" Configuration file created successfully")
+        typer.echo(" Configuration file created with defaults")
 
     # Display current configuration with descriptions
     _display_config(config, "Current Test Configuration", config_descriptions)
@@ -450,7 +547,7 @@ def config_test(
 
         description = config_descriptions.get(key, "")
         if description:
-            typer.echo(f"      ", nl=False)
+            typer.echo("      ", nl=False)
             typer.secho(f"i  {description}", fg="blue")
 
         if isinstance(value, bool):
@@ -463,7 +560,7 @@ def config_test(
             current_display = str(value)
             color = "white"
 
-        typer.echo(f"      Current: ", nl=False)
+        typer.echo("      Current: ", nl=False)
         typer.secho(current_display, fg=color)
 
         new_value = _prompt_config_value(key, value)
@@ -481,6 +578,68 @@ def config_test(
 
     typer.secho("  Configuration saved to:", fg="bright_blue")
     typer.secho(f"  {config_path}\n", fg="cyan")
+
+
+@test_app.command()
+def desktop_version(value: str = typer.Argument(None, help="AEDT version (format: YYYY.R, e.g., 2025.2)")):
+    """Set AEDT desktop version."""
+    import re
+    
+    def validate_version(v: str) -> tuple[bool, str]:
+        """Validate version format."""
+        if re.match(r'^\d{4}\.\d$', v):
+            return True, ""
+        return False, "Invalid format. Please use YYYY.R (e.g., 2025.2)"
+    
+    _update_string_config("desktopVersion", value, "desktopVersion", validate_version)
+
+
+@test_app.command()
+def non_graphical(value: bool = typer.Argument(None, help="Run AEDT without GUI (true/false)")):
+    """Set non-graphical mode."""
+    _update_bool_config("NonGraphical", value, "NonGraphical")
+
+
+@test_app.command()
+def new_thread(value: bool = typer.Argument(None, help="Use new thread for AEDT (true/false)")):
+    """Set new thread mode."""
+    _update_bool_config("NewThread", value, "NewThread")
+
+
+@test_app.command()
+def skip_circuits(value: bool = typer.Argument(None, help="Skip circuit tests (true/false)")):
+    """Set skip circuits flag."""
+    _update_bool_config("skip_circuits", value, "skip_circuits")
+
+
+@test_app.command()
+def use_grpc(value: bool = typer.Argument(None, help="Use gRPC for communication (true/false)")):
+    """Set use gRPC flag."""
+    _update_bool_config("use_grpc", value, "use_grpc")
+
+
+@test_app.command()
+def close_desktop(value: bool = typer.Argument(None, help="Close AEDT after tests (true/false)")):
+    """Set close desktop flag."""
+    _update_bool_config("close_desktop", value, "close_desktop")
+
+
+@test_app.command()
+def use_local_example_data(value: bool = typer.Argument(None, help="Use local example data (true/false)")):
+    """Set use local example data flag."""
+    _update_bool_config("use_local_example_data", value, "use_local_example_data")
+
+
+@test_app.command()
+def local_example_folder(value: str = typer.Argument(None, help="Path to local examples folder")):
+    """Set local example folder path."""
+    _update_string_config("local_example_folder", value, "local_example_folder")
+
+
+@test_app.command()
+def skip_modelithics(value: bool = typer.Argument(None, help="Skip Modelithics tests (true/false)")):
+    """Set skip Modelithics flag."""
+    _update_bool_config("skip_modelithics", value, "skip_modelithics")
 
 
 @app.command()
