@@ -243,12 +243,6 @@ If ``pyaedt`` command is not recognized, ensure PyAEDT is installed with CLI sup
 
     pip install pyaedt[all]
 
-Or install just the CLI dependencies:
-
-.. code-block:: bash
-
-    pip install pyaedt typer
-
 **Cannot Stop Process**
 
 If you get "Access denied" errors:
@@ -264,7 +258,6 @@ Common issues when starting AEDT:
 * Verify AEDT is installed and in your system PATH
 * Check the version number is correct (for example, 2025.1, 2025.2)
 * Ensure license server is available
-* Try running with administrator privileges
 
 **Configuration Not Found**
 
