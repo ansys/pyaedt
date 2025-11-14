@@ -298,7 +298,7 @@ class EmitNode:
                 return val.split("|")
             else:
                 return val
-        except ValueError as e:
+        except ValueError:
             raise
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
