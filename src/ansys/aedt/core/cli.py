@@ -69,6 +69,7 @@ def _get_tests_folder() -> Path:
     """
     try:
         import ansys.aedt.core
+
         package_dir = Path(ansys.aedt.core.__file__).parent
         # Go up from src/ansys/aedt/core to the repo root
         repo_root = package_dir.parent.parent.parent.parent
@@ -149,60 +150,40 @@ def _prompt_config_value(key: str, current_value) -> any:
     """
     if isinstance(current_value, bool):
         typer.echo("      ", nl=False)
-        choice = typer.confirm(
-            f"Change to {not current_value}?",
-            default=False
-        )
+        choice = typer.confirm(f"Change to {not current_value}?", default=False)
         return not current_value if choice else current_value
     elif isinstance(current_value, str):
         typer.echo("      ", nl=False)
-        
+
         # Special handling for desktopVersion
         if key == "desktopVersion":
             while True:
                 new_value = typer.prompt(
-                    "New value (format: YYYY.R, e.g., 2025.2)",
-                    default=current_value,
-                    show_default=False
+                    "New value (format: YYYY.R, e.g., 2025.2)", default=current_value, show_default=False
                 )
                 # Remove quotes if user entered them
                 new_value = new_value.strip().strip('"').strip("'")
-                
+
                 # Validate format: 4 digits + "." + 1 digit
                 import re
-                if re.match(r'^\d{4}\.\d$', new_value):
+
+                if re.match(r"^\d{4}\.\d$", new_value):
                     return new_value
                 else:
-                    typer.secho(
-                        "      ✗ Invalid format. Please use YYYY.R (e.g., 2025.2)",
-                        fg="red"
-                    )
+                    typer.secho("      ✗ Invalid format. Please use YYYY.R (e.g., 2025.2)", fg="red")
                     typer.echo("      ", nl=False)
         else:
-            new_value = typer.prompt(
-                "New value",
-                default=current_value,
-                show_default=False
-            )
+            new_value = typer.prompt("New value", default=current_value, show_default=False)
         return new_value
     elif isinstance(current_value, int):
         typer.echo("      ", nl=False)
-        new_value = typer.prompt(
-            "New value",
-            default=current_value,
-            type=int,
-            show_default=False
-        )
+        new_value = typer.prompt("New value", default=current_value, type=int, show_default=False)
         return new_value
     else:
         return current_value
 
 
-def _display_config(
-    config: dict,
-    title: str = "Configuration",
-    descriptions: dict = None
-) -> None:
+def _display_config(config: dict, title: str = "Configuration", descriptions: dict = None) -> None:
     """Display configuration in a pretty formatted way.
 
     Parameters
@@ -241,11 +222,11 @@ def _display_config(
         typer.secho(value_str, fg=color, nl=False)
         remaining_space = 68 - len(key_display) - len(spacing) - len(value_str)
         typer.echo(" " * remaining_space + "│")
-        
+
         # Display description if provided
         if descriptions and key in descriptions:
             desc = descriptions[key]
-            typer.echo(f"│    ", nl=False)
+            typer.echo("│    ", nl=False)
             typer.secho(f"→ {desc}", fg="bright_black", nl=False)
             desc_space = 68 - 4 - len(f"→ {desc}")
             typer.echo(" " * desc_space + "│")
@@ -365,7 +346,7 @@ def _get_port(proc: psutil.Process) -> int | None:
 
 def _get_config_path() -> tuple[Path, dict]:
     """Get the configuration path and load config.
-    
+
     Returns
     -------
     tuple[Path, dict]
@@ -379,7 +360,7 @@ def _get_config_path() -> tuple[Path, dict]:
 
 def _update_bool_config(key: str, value: bool | None, display_name: str = None) -> None:
     """Update a boolean configuration value.
-    
+
     Parameters
     ----------
     key : str
@@ -392,7 +373,7 @@ def _update_bool_config(key: str, value: bool | None, display_name: str = None) 
     config_path, config = _get_config_path()
     display_name = display_name or key
     default = DEFAULT_TEST_CONFIG.get(key, False)
-    
+
     if value is None:
         current_value = config.get(key, default)
         typer.echo(f"\nCurrent {display_name}: ", nl=False)
@@ -402,20 +383,15 @@ def _update_bool_config(key: str, value: bool | None, display_name: str = None) 
         typer.echo("")
         value = typer.confirm(f"Set to {not current_value}?", default=True)
         value = not current_value if value else current_value
-    
+
     config[key] = value
     _save_config(config_path, config)
     typer.secho(f"✓ {display_name} set to {value}", fg="green")
 
 
-def _update_string_config(
-    key: str,
-    value: str | None,
-    display_name: str = None,
-    validator: callable = None
-) -> None:
+def _update_string_config(key: str, value: str | None, display_name: str = None, validator: callable = None) -> None:
     """Update a string configuration value.
-    
+
     Parameters
     ----------
     key : str
@@ -430,7 +406,7 @@ def _update_string_config(
     config_path, config = _get_config_path()
     display_name = display_name or key
     default = DEFAULT_TEST_CONFIG.get(key, "")
-    
+
     if value is None:
         current_value = config.get(key, default)
         typer.echo(f"\nCurrent {display_name}: ", nl=False)
@@ -438,7 +414,7 @@ def _update_string_config(
             typer.secho(f"'{current_value}'", fg="cyan")
         else:
             typer.secho("(empty)", fg="yellow")
-        
+
         if validator:
             typer.echo("")
             while True:
@@ -458,7 +434,7 @@ def _update_string_config(
             if not is_valid:
                 typer.secho(f"✗ {error_msg}", fg="red")
                 return
-    
+
     config[key] = value
     _save_config(config_path, config)
     typer.secho(f"✓ {display_name} set to '{value}'", fg="green")
@@ -467,20 +443,15 @@ def _update_string_config(
 @test_app.callback()
 def test_callback(
     ctx: typer.Context,
-    show: bool = typer.Option(
-        False,
-        "--show",
-        "-s",
-        help="Show current configuration without modifying"
-    ),
+    show: bool = typer.Option(False, "--show", "-s", help="Show current configuration without modifying"),
 ):
     """Create or modify local_config.json in the tests folder interactively."""
     if ctx.invoked_subcommand is not None:
         return
-    
+
     tests_folder = _get_tests_folder()
     config_path = tests_folder / "local_config.json"
-    
+
     # Configuration descriptions
     config_descriptions = {
         "desktopVersion": "AEDT version to use",
@@ -493,13 +464,13 @@ def test_callback(
         "local_example_folder": "Path to local examples",
         "skip_modelithics": "Skip Modelithics tests",
     }
- 
+
     if config_path.exists():
         config = _load_config(config_path)
     else:
         config = DEFAULT_TEST_CONFIG.copy()
         _save_config(config_path, config)
-    
+
     typer.echo("\n" + "=" * 70)
     typer.secho("  PyAEDT Test Configuration Manager", fg="bright_blue", bold=True)
     typer.echo("=" * 70)
@@ -588,13 +559,13 @@ def test_callback(
 def desktop_version(value: str = typer.Argument(None, help="AEDT version (format: YYYY.R, e.g., 2025.2)")):
     """Set AEDT desktop version."""
     import re
-    
+
     def validate_version(v: str) -> tuple[bool, str]:
         """Validate version format."""
-        if re.match(r'^\d{4}\.\d$', v):
+        if re.match(r"^\d{4}\.\d$", v):
             return True, ""
         return False, "Invalid format. Please use YYYY.R (e.g., 2025.2)"
-    
+
     _update_string_config("desktopVersion", value, "desktopVersion", validate_version)
 
 

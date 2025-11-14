@@ -471,6 +471,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     #         port=50070
     #     )
 
+
 @patch("ansys.aedt.core.cli._get_tests_folder")
 def test_get_config_path(mock_get_tests_folder, tmp_path):
     """Test _get_config_path helper function."""
@@ -558,9 +559,7 @@ def test_display_config(cli_runner):
 def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
     """Test desktop_version command."""
     mock_get_tests_folder.return_value = tmp_path
-    result = cli_runner.invoke(
-        app, ["config", "test", "desktop-version", "2024.1"]
-    )
+    result = cli_runner.invoke(app, ["config", "test", "desktop-version", "2024.1"])
     assert result.exit_code == 0
     assert "desktopVersion set to '2024.1'" in result.stdout
     config_file = tmp_path / "local_config.json"
@@ -570,14 +569,10 @@ def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_desktop_version_invalid_format(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_desktop_version_invalid_format(mock_get_tests_folder, tmp_path, cli_runner):
     """Test desktop_version command with invalid format."""
     mock_get_tests_folder.return_value = tmp_path
-    result = cli_runner.invoke(
-        app, ["config", "test", "desktop-version", "invalid"]
-    )
+    result = cli_runner.invoke(app, ["config", "test", "desktop-version", "invalid"])
     assert result.exit_code == 0
     assert "Invalid format" in result.stdout
 
@@ -605,9 +600,7 @@ def test_all_boolean_commands(mock_get_tests_folder, tmp_path, cli_runner):
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_local_example_folder_command(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_local_example_folder_command(mock_get_tests_folder, tmp_path, cli_runner):
     """Test local_example_folder command."""
     mock_get_tests_folder.return_value = tmp_path
     result = cli_runner.invoke(
@@ -615,27 +608,19 @@ def test_local_example_folder_command(
         ["config", "test", "local-example-folder", "/path/to/examples"],
     )
     assert result.exit_code == 0
-    assert (
-        "local_example_folder set to '/path/to/examples'" in result.stdout
-    )
+    assert "local_example_folder set to '/path/to/examples'" in result.stdout
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_config_persists_across_commands(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_config_persists_across_commands(mock_get_tests_folder, tmp_path, cli_runner):
     """Test that config changes persist across multiple commands."""
     mock_get_tests_folder.return_value = tmp_path
     config_file = tmp_path / "local_config.json"
 
-    result1 = cli_runner.invoke(
-        app, ["config", "test", "desktop-version", "2024.1"]
-    )
+    result1 = cli_runner.invoke(app, ["config", "test", "desktop-version", "2024.1"])
     assert result1.exit_code == 0
 
-    result2 = cli_runner.invoke(
-        app, ["config", "test", "non-graphical", "false"]
-    )
+    result2 = cli_runner.invoke(app, ["config", "test", "non-graphical", "false"])
     assert result2.exit_code == 0
 
     with open(config_file, "r") as f:
@@ -650,7 +635,7 @@ def test_config_persists_across_commands(
 def test_get_tests_folder_from_package(tmp_path):
     """Test _get_tests_folder when package structure exists."""
     from ansys.aedt.core.cli import _get_tests_folder
-    
+
     # The function should find the tests folder from the package
     tests_folder = _get_tests_folder()
     assert isinstance(tests_folder, Path)
@@ -691,9 +676,7 @@ def test_get_tests_folder_fallback_cwd_is_tests(tmp_path, monkeypatch):
         assert result == tests_dir
 
 
-def test_get_tests_folder_fallback_parent_search(
-    tmp_path, monkeypatch
-):
+def test_get_tests_folder_fallback_parent_search(tmp_path, monkeypatch):
     """Test _get_tests_folder searching parents."""
     from ansys.aedt.core.cli import _get_tests_folder
 
@@ -722,11 +705,11 @@ def test_get_tests_folder_fallback_parent_search(
 def test_prompt_config_value_bool_change(mock_confirm):
     """Test _prompt_config_value with boolean value change."""
     from ansys.aedt.core.cli import _prompt_config_value
-    
+
     mock_confirm.return_value = True
     result = _prompt_config_value("test_key", True)
     assert result is False
-    
+
     mock_confirm.return_value = False
     result = _prompt_config_value("test_key", True)
     assert result is True
@@ -736,7 +719,7 @@ def test_prompt_config_value_bool_change(mock_confirm):
 def test_prompt_config_value_string(mock_prompt):
     """Test _prompt_config_value with string value."""
     from ansys.aedt.core.cli import _prompt_config_value
-    
+
     mock_prompt.return_value = "new_value"
     result = _prompt_config_value("test_key", "old_value")
     assert result == "new_value"
@@ -746,7 +729,7 @@ def test_prompt_config_value_string(mock_prompt):
 def test_prompt_config_value_desktop_version_valid(mock_prompt):
     """Test _prompt_config_value with valid desktop version."""
     from ansys.aedt.core.cli import _prompt_config_value
-    
+
     mock_prompt.return_value = "2024.2"
     result = _prompt_config_value("desktopVersion", "2025.2")
     assert result == "2024.2"
@@ -754,9 +737,7 @@ def test_prompt_config_value_desktop_version_valid(mock_prompt):
 
 @patch("typer.prompt")
 @patch("typer.secho")
-def test_prompt_config_value_desktop_version_invalid_then_valid(
-    mock_secho, mock_prompt
-):
+def test_prompt_config_value_desktop_version_invalid_then_valid(mock_secho, mock_prompt):
     """Test _prompt_config_value with invalid then valid version."""
     from ansys.aedt.core.cli import _prompt_config_value
 
@@ -800,9 +781,7 @@ def test_prompt_config_value_unknown_type():
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
 @patch("typer.confirm")
-def test_update_bool_config_interactive_change(
-    mock_confirm, mock_get_tests_folder, tmp_path
-):
+def test_update_bool_config_interactive_change(mock_confirm, mock_get_tests_folder, tmp_path):
     """Test _update_bool_config interactive mode with change."""
     from ansys.aedt.core.cli import _update_bool_config
 
@@ -820,9 +799,7 @@ def test_update_bool_config_interactive_change(
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
 @patch("typer.confirm")
-def test_update_bool_config_interactive_no_change(
-    mock_confirm, mock_get_tests_folder, tmp_path
-):
+def test_update_bool_config_interactive_no_change(mock_confirm, mock_get_tests_folder, tmp_path):
     """Test _update_bool_config interactive mode no change."""
     from ansys.aedt.core.cli import _update_bool_config
 
@@ -842,11 +819,11 @@ def test_update_bool_config_interactive_no_change(
 def test_update_bool_config_with_value(mock_get_tests_folder, tmp_path):
     """Test _update_bool_config with explicit value."""
     from ansys.aedt.core.cli import _update_bool_config
-    
+
     mock_get_tests_folder.return_value = tmp_path
-    
+
     _update_bool_config("skip_circuits", True, "skip_circuits")
-    
+
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
         config = json.load(f)
@@ -858,18 +835,14 @@ def test_update_bool_config_with_value(mock_get_tests_folder, tmp_path):
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
 @patch("typer.prompt")
-def test_update_string_config_interactive_no_validator(
-    mock_prompt, mock_get_tests_folder, tmp_path
-):
+def test_update_string_config_interactive_no_validator(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config interactive mode no validator."""
     from ansys.aedt.core.cli import _update_string_config
 
     mock_get_tests_folder.return_value = tmp_path
     mock_prompt.return_value = "/new/path"
 
-    _update_string_config(
-        "local_example_folder", None, "local_example_folder"
-    )
+    _update_string_config("local_example_folder", None, "local_example_folder")
 
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
@@ -879,9 +852,7 @@ def test_update_string_config_interactive_no_validator(
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
 @patch("typer.prompt")
-def test_update_string_config_interactive_with_validator_valid(
-    mock_prompt, mock_get_tests_folder, tmp_path
-):
+def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config interactive mode valid."""
     from ansys.aedt.core.cli import _update_string_config
 
@@ -890,13 +861,12 @@ def test_update_string_config_interactive_with_validator_valid(
 
     def validator(v):
         import re
-        if re.match(r'^\d{4}\.\d$', v):
+
+        if re.match(r"^\d{4}\.\d$", v):
             return True, ""
         return False, "Invalid format"
 
-    _update_string_config(
-        "desktopVersion", None, "desktopVersion", validator
-    )
+    _update_string_config("desktopVersion", None, "desktopVersion", validator)
 
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
@@ -906,9 +876,7 @@ def test_update_string_config_interactive_with_validator_valid(
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
 @patch("typer.prompt")
-def test_update_string_config_interactive_validator_invalid_valid(
-    mock_prompt, mock_get_tests_folder, tmp_path
-):
+def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config invalid then valid value."""
     from ansys.aedt.core.cli import _update_string_config
 
@@ -917,13 +885,12 @@ def test_update_string_config_interactive_validator_invalid_valid(
 
     def validator(v):
         import re
-        if re.match(r'^\d{4}\.\d$', v):
+
+        if re.match(r"^\d{4}\.\d$", v):
             return True, ""
         return False, "Invalid format"
 
-    _update_string_config(
-        "desktopVersion", None, "desktopVersion", validator
-    )
+    _update_string_config("desktopVersion", None, "desktopVersion", validator)
 
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
@@ -932,9 +899,7 @@ def test_update_string_config_interactive_validator_invalid_valid(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_update_string_config_with_value_valid(
-    mock_get_tests_folder, tmp_path
-):
+def test_update_string_config_with_value_valid(mock_get_tests_folder, tmp_path):
     """Test _update_string_config with explicit valid value."""
     from ansys.aedt.core.cli import _update_string_config
 
@@ -942,13 +907,12 @@ def test_update_string_config_with_value_valid(
 
     def validator(v):
         import re
-        if re.match(r'^\d{4}\.\d$', v):
+
+        if re.match(r"^\d{4}\.\d$", v):
             return True, ""
         return False, "Invalid format"
 
-    _update_string_config(
-        "desktopVersion", "2023.2", "desktopVersion", validator
-    )
+    _update_string_config("desktopVersion", "2023.2", "desktopVersion", validator)
 
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
@@ -957,9 +921,7 @@ def test_update_string_config_with_value_valid(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_update_string_config_with_value_invalid(
-    mock_get_tests_folder, tmp_path
-):
+def test_update_string_config_with_value_invalid(mock_get_tests_folder, tmp_path):
     """Test _update_string_config with explicit invalid value."""
     from ansys.aedt.core.cli import _update_string_config
 
@@ -967,13 +929,12 @@ def test_update_string_config_with_value_invalid(
 
     def validator(v):
         import re
-        if re.match(r'^\d{4}\.\d$', v):
+
+        if re.match(r"^\d{4}\.\d$", v):
             return True, ""
         return False, "Invalid format"
 
-    _update_string_config(
-        "desktopVersion", "invalid", "desktopVersion", validator
-    )
+    _update_string_config("desktopVersion", "invalid", "desktopVersion", validator)
 
     config_file = tmp_path / "local_config.json"
     # Config should not be updated with invalid value
@@ -988,12 +949,10 @@ def test_update_string_config_with_value_invalid(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_config_test_show_flag(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_config_test_show_flag(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with --show flag."""
     from ansys.aedt.core.cli import test_app
-    
+
     mock_get_tests_folder.return_value = tmp_path
 
     result = cli_runner.invoke(test_app, ["--show"])
@@ -1004,12 +963,10 @@ def test_config_test_show_flag(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_config_test_show_flag_short(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_config_test_show_flag_short(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with -s flag."""
     from ansys.aedt.core.cli import test_app
-    
+
     mock_get_tests_folder.return_value = tmp_path
 
     result = cli_runner.invoke(test_app, ["-s"])
@@ -1019,12 +976,10 @@ def test_config_test_show_flag_short(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_config_test_interactive_no_modify(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_config_test_interactive_no_modify(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command declining to modify."""
     from ansys.aedt.core.cli import test_app
-    
+
     mock_get_tests_folder.return_value = tmp_path
 
     result = cli_runner.invoke(test_app, input="n\n")
@@ -1034,12 +989,10 @@ def test_config_test_interactive_no_modify(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_config_test_interactive_with_modifications(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with interactive modifications."""
     from ansys.aedt.core.cli import test_app
-    
+
     mock_get_tests_folder.return_value = tmp_path
 
     # Answer yes to modify, then answer for each config value
@@ -1047,9 +1000,7 @@ def test_config_test_interactive_with_modifications(
     # For bools: press enter to keep or change
     input_data = "y\n2024.1\nn\nn\nn\nn\nn\nn\n\nn\n"
 
-    result = cli_runner.invoke(
-        test_app, input=input_data
-    )
+    result = cli_runner.invoke(test_app, input=input_data)
 
     assert result.exit_code == 0
     assert "Configuration Updated Successfully" in result.stdout
@@ -1061,12 +1012,10 @@ def test_config_test_interactive_with_modifications(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_config_test_creates_config_file(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_config_test_creates_config_file(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command creates config file if not exists."""
     from ansys.aedt.core.cli import test_app
-    
+
     mock_get_tests_folder.return_value = tmp_path
     config_file = tmp_path / "local_config.json"
 
@@ -1079,20 +1028,15 @@ def test_config_test_creates_config_file(
 
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
-def test_config_test_loads_existing_config(
-    mock_get_tests_folder, tmp_path, cli_runner
-):
+def test_config_test_loads_existing_config(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command loads existing config file."""
     from ansys.aedt.core.cli import test_app
-    
+
     mock_get_tests_folder.return_value = tmp_path
     config_file = tmp_path / "local_config.json"
 
     # Create existing config
-    existing_config = {
-        "desktopVersion": "2023.1",
-        "NonGraphical": False
-    }
+    existing_config = {"desktopVersion": "2023.1", "NonGraphical": False}
     with open(config_file, "w") as f:
         json.dump(existing_config, f)
 
