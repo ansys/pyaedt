@@ -23,6 +23,8 @@
 # SOFTWARE.
 """PyAEDT CLI based on typer."""
 
+import json
+from pathlib import Path
 import platform
 import sys
 import threading
@@ -38,9 +40,230 @@ except ImportError:  # pragma: no cover
     )
 
 app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
+config_app = typer.Typer(help="Configuration management commands")
+app.add_typer(config_app, name="config")
+
+# Default configuration for local_config.json
+DEFAULT_TEST_CONFIG = {
+    "desktopVersion": "2025.2",
+    "NonGraphical": True,
+    "NewThread": True,
+    "skip_circuits": False,
+    "use_grpc": True,
+    "close_desktop": True,
+    "use_local_example_data": False,
+    "local_example_folder": "",
+    "skip_modelithics": True,
+}
+
+
+def _get_tests_folder() -> Path:
+    """Find the tests folder in the repository.
+
+    Returns
+    -------
+    Path
+        Path to the tests folder
+    """
+    try:
+        import ansys.aedt.core
+        package_dir = Path(ansys.aedt.core.__file__).parent
+        # Go up from src/ansys/aedt/core to the repo root
+        repo_root = package_dir.parent.parent.parent.parent
+        tests_folder = repo_root / "tests"
+        if tests_folder.exists():
+            return tests_folder
+    except Exception:
+        print("Error finding tests folder")
+    # Fallback: search from current working directory
+    cwd = Path.cwd()
+    if cwd.name == "tests":
+        return cwd
+
+    tests_folder = cwd / "tests"
+    if tests_folder.exists():
+        return tests_folder
+
+    for parent in [cwd] + list(cwd.parents):
+        tests_folder = parent / "tests"
+        if tests_folder.exists():
+            return tests_folder
+
+    return cwd / "tests"
+
+
+def _load_config(config_path: Path) -> dict:
+    """Load configuration from JSON file.
+
+    Parameters
+    ----------
+    config_path : Path
+        Path to the configuration file
+
+    Returns
+    -------
+    dict
+        Configuration dictionary
+    """
+    try:
+        with open(config_path, "r") as f:
+            config = json.load(f)
+        # Filter to only include known keys
+        return {k: config.get(k, v) for k, v in DEFAULT_TEST_CONFIG.items()}
+    except Exception:
+        return DEFAULT_TEST_CONFIG.copy()
+
+
+def _save_config(config_path: Path, config: dict) -> None:
+    """Save configuration to JSON file.
+
+    Parameters
+    ----------
+    config_path : Path
+        Path to the configuration file
+    config : dict
+        Configuration dictionary to save
+    """
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=4)
+
+
+def _prompt_config_value(key: str, current_value) -> any:
+    """Prompt user to modify a configuration value.
+
+    Parameters
+    ----------
+    key : str
+        Configuration key
+    current_value : any
+        Current value
+
+    Returns
+    -------
+    any
+        New value or current value if unchanged
+    """
+    if isinstance(current_value, bool):
+        typer.echo("      ", nl=False)
+        choice = typer.confirm(
+            f"Change to {not current_value}?",
+            default=False
+        )
+        return not current_value if choice else current_value
+    elif isinstance(current_value, str):
+        typer.echo("      ", nl=False)
+        
+        # Special handling for desktopVersion
+        if key == "desktopVersion":
+            while True:
+                new_value = typer.prompt(
+                    "New value (format: YYYY.R, e.g., 2025.2)",
+                    default=current_value,
+                    show_default=False
+                )
+                # Remove quotes if user entered them
+                new_value = new_value.strip().strip('"').strip("'")
+                
+                # Validate format: 4 digits + "." + 1 digit
+                import re
+                if re.match(r'^\d{4}\.\d$', new_value):
+                    return new_value
+                else:
+                    typer.secho(
+                        "      ✗ Invalid format. Please use YYYY.R (e.g., 2025.2)",
+                        fg="red"
+                    )
+                    typer.echo("      ", nl=False)
+        else:
+            new_value = typer.prompt(
+                "New value",
+                default=current_value,
+                show_default=False
+            )
+        return new_value
+    elif isinstance(current_value, int):
+        typer.echo("      ", nl=False)
+        new_value = typer.prompt(
+            "New value",
+            default=current_value,
+            type=int,
+            show_default=False
+        )
+        return new_value
+    else:
+        return current_value
+
+
+def _display_config(
+    config: dict,
+    title: str = "Configuration",
+    descriptions: dict = None
+) -> None:
+    """Display configuration in a pretty formatted way.
+
+    Parameters
+    ----------
+    config : dict
+        Configuration dictionary to display
+    title : str
+        Title to display above the configuration
+    descriptions : dict, optional
+        Dictionary of key descriptions to display
+    """
+    # Box drawing characters
+    typer.echo("\n┌" + "─" * 68 + "┐")
+    typer.echo(f"│  {title:64}  │")
+    typer.echo("├" + "─" * 68 + "┤")
+
+    for key, value in config.items():
+        if isinstance(value, bool):
+            value_str = "✓ True" if value else "✗ False"
+            color = "green" if value else "red"
+        elif isinstance(value, str):
+            if value == "":
+                value_str = "(empty)"
+                color = "yellow"
+            else:
+                value_str = f"'{value}'"
+                color = "cyan"
+        else:
+            value_str = str(value)
+            color = "white"
+
+        # Format key with proper spacing
+        key_display = f"  {key}:"
+        spacing = " " * (35 - len(key_display))
+        typer.echo(f"│{key_display}{spacing}", nl=False)
+        typer.secho(value_str, fg=color, nl=False)
+        remaining_space = 68 - len(key_display) - len(spacing) - len(value_str)
+        typer.echo(" " * remaining_space + "│")
+        
+        # Display description if provided
+        if descriptions and key in descriptions:
+            desc = descriptions[key]
+            typer.echo(f"│    ", nl=False)
+            typer.secho(f"→ {desc}", fg="bright_black", nl=False)
+            desc_space = 68 - 4 - len(f"→ {desc}")
+            typer.echo(" " * desc_space + "│")
+
+    typer.echo("└" + "─" * 68 + "┘\n")
 
 
 def _is_valid_process(proc: psutil.Process) -> bool:
+    """Check if a process is a valid AEDT process.
+
+    Parameters
+    ----------
+    proc : psutil.Process
+        Process to check
+
+    Returns
+    -------
+    bool
+        True if process is a valid running AEDT process
+    """
     import psutil
 
     valid_status = proc.status() in [
@@ -55,7 +278,13 @@ def _is_valid_process(proc: psutil.Process) -> bool:
 
 
 def _find_aedt_processes() -> list[psutil.Process]:
-    """Discover running AEDT-related processes on the system."""
+    """Discover running AEDT-related processes on the system.
+
+    Returns
+    -------
+    list[psutil.Process]
+        List of AEDT processes
+    """
     import psutil
 
     aedt_processes = []
@@ -130,6 +359,128 @@ def _get_port(proc: psutil.Process) -> int | None:
                 res = i.laddr.port
                 break
     return res
+
+
+@config_app.command("test")
+def config_test(
+    show: bool = typer.Option(
+        False,
+        "--show",
+        "-s",
+        help="Show current configuration without modifying"
+    )
+):
+    """Create or modify local_config.json in the tests folder."""
+    tests_folder = _get_tests_folder()
+    config_path = tests_folder / "local_config.json"
+    
+    # Configuration descriptions
+    config_descriptions = {
+        "desktopVersion": "AEDT version to use",
+        "NonGraphical": "Run AEDT without GUI",
+        "NewThread": "Use new thread for AEDT",
+        "skip_circuits": "Skip circuit tests",
+        "use_grpc": "Use gRPC for communication",
+        "close_desktop": "Close AEDT after tests",
+        "use_local_example_data": "Use local example data",
+        "local_example_folder": "Path to local examples",
+        "skip_modelithics": "Skip Modelithics tests",
+    }
+
+    typer.echo("\n" + "=" * 70)
+    typer.secho("  PyAEDT Test Configuration Manager", fg="bright_blue", bold=True)
+    typer.echo("=" * 70)
+    typer.echo(f"\n  📁 Tests folder: ", nl=False)
+    typer.secho(str(tests_folder), fg="cyan")
+    typer.echo(f"  📄 Config file:  ", nl=False)
+    typer.secho(str(config_path), fg="cyan")
+
+    if config_path.exists():
+        typer.echo(f"\n  ", nl=False)
+        typer.secho("✓", fg="green", bold=True, nl=False)
+        typer.echo(" Configuration file found")
+        config = _load_config(config_path)
+    else:
+        typer.echo(f"\n  ", nl=False)
+        typer.secho("✗", fg="red", bold=True, nl=False)
+        typer.echo(" Configuration file does not exist")
+
+        if show:
+            typer.echo("\n  No configuration file to display.")
+            return
+
+        typer.echo("\n  Creating new configuration with defaults...")
+        config = DEFAULT_TEST_CONFIG.copy()
+        _save_config(config_path, config)
+        typer.echo(f"  ", nl=False)
+        typer.secho("✓", fg="green", bold=True, nl=False)
+        typer.echo(" Configuration file created successfully")
+
+    # Display current configuration with descriptions
+    _display_config(config, "Current Test Configuration", config_descriptions)
+
+    # If --show flag is used, just display and exit
+    if show:
+        return
+
+    # Interactive questionnaire
+    typer.echo("─" * 70)
+    typer.secho("  Would you like to modify the configuration?", fg="yellow", bold=True)
+    typer.echo("─" * 70 + "\n")
+
+    modify = typer.confirm("  Modify settings?", default=False)
+
+    if not modify:
+        typer.echo("\n  ", nl=False)
+        typer.secho("i", fg="blue", bold=True, nl=False)
+        typer.echo("  No changes made.\n")
+        return
+
+    # Interactive configuration
+    typer.echo("\n" + "=" * 70)
+    typer.secho("  Interactive Configuration", fg="bright_blue", bold=True)
+    typer.echo("=" * 70)
+    typer.secho("\n  💡 Tip: Press Enter to keep current value\n", fg="yellow")
+
+    new_config = {}
+
+    for i, (key, value) in enumerate(config.items(), 1):
+        typer.echo(f"\n  [{i}/{len(config)}] ", nl=False)
+        typer.secho(key, fg="bright_cyan", bold=True)
+
+        description = config_descriptions.get(key, "")
+        if description:
+            typer.echo(f"      ", nl=False)
+            typer.secho(f"i  {description}", fg="blue")
+
+        if isinstance(value, bool):
+            current_display = "✓ True" if value else "✗ False"
+            color = "green" if value else "red"
+        elif isinstance(value, str):
+            current_display = f"'{value}'" if value else "(empty)"
+            color = "cyan" if value else "yellow"
+        else:
+            current_display = str(value)
+            color = "white"
+
+        typer.echo(f"      Current: ", nl=False)
+        typer.secho(current_display, fg=color)
+
+        new_value = _prompt_config_value(key, value)
+        new_config[key] = new_value
+
+    typer.echo("\n" + "─" * 70)
+    typer.echo("  Saving configuration...")
+    _save_config(config_path, new_config)
+
+    typer.echo("\n" + "=" * 70)
+    typer.secho("  ✓ Configuration Updated Successfully!", fg="green", bold=True)
+    typer.echo("=" * 70)
+
+    _display_config(new_config, "Updated Test Configuration", config_descriptions)
+
+    typer.secho("  Configuration saved to:", fg="bright_blue")
+    typer.secho(f"  {config_path}\n", fg="cyan")
 
 
 @app.command()
