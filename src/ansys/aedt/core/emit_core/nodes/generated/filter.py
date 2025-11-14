@@ -86,7 +86,7 @@ class Filter(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class SubTypeOption(Enum):
+    class FilterTypeOption(Enum):
         BY_FILE = "ByFile"
         LOW_PASS = "LowPass"  # nosec
         HIGH_PASS = "HighPass"  # nosec
@@ -96,19 +96,19 @@ class Filter(EmitNode):
         TUNABLE_BANDSTOP = "TunableBandstop"
 
     @property
-    def subtype(self) -> SubTypeOption:
-        """SubType.
+    def filter_type(self) -> FilterTypeOption:
+        """Filter Type.
 
         Type of filter to define. The filter can be defined by file (measured or
         simulated data) or using one of EMIT's parametric models.
         """
-        val = self._get_property("SubType")
-        val = self.SubTypeOption[val.upper()]
+        val = self._get_property("Filter Type")
+        val = self.FilterTypeOption[val.upper()]
         return val
 
-    @subtype.setter
-    def subtype(self, value: SubTypeOption):
-        self._set_property("SubType", f"{value.value}")
+    @filter_type.setter
+    def filter_type(self, value: FilterTypeOption):
+        self._set_property("Filter Type", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -401,3 +401,4 @@ class Filter(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

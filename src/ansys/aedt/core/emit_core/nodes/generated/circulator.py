@@ -86,24 +86,24 @@ class Circulator(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class SubTypeOption(Enum):
+    class CirculatorTypeOption(Enum):
         BY_FILE = "ByFile"
         PARAMETRIC = "Parametric"
 
     @property
-    def subtype(self) -> SubTypeOption:
-        """SubType.
+    def circulator_type(self) -> CirculatorTypeOption:
+        """Circulator Type.
 
         Type of circulator model to use. Options include: By File (measured or
         simulated) or Parametric.
         """
-        val = self._get_property("SubType")
-        val = self.SubTypeOption[val.upper()]
+        val = self._get_property("Circulator Type")
+        val = self.CirculatorTypeOption[val.upper()]
         return val
 
-    @subtype.setter
-    def subtype(self, value: SubTypeOption):
-        self._set_property("SubType", f"{value.value}")
+    @circulator_type.setter
+    def circulator_type(self, value: CirculatorTypeOption):
+        self._set_property("Circulator Type", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -241,3 +241,4 @@ class Circulator(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

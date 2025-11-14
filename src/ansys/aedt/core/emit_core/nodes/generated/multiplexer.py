@@ -90,25 +90,25 @@ class Multiplexer(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class SubTypeOption(Enum):
+    class MultiplexerTypeOption(Enum):
         BY_PASS_BAND = "Parametric"  # nosec
         BY_FILE = "ByFile"
 
     @property
-    def subtype(self) -> SubTypeOption:
-        """SubType.
+    def multiplexer_type(self) -> MultiplexerTypeOption:
+        """Multiplexer Type.
 
         Type of multiplexer model. Options include: By File (one measured or
         simulated file for the device) or By Pass Band (parametric or file-based
         definition for each pass band).
         """
-        val = self._get_property("SubType")
-        val = self.SubTypeOption[val.upper()]
+        val = self._get_property("Multiplexer Type")
+        val = self.MultiplexerTypeOption[val.upper()]
         return val
 
-    @subtype.setter
-    def subtype(self, value: SubTypeOption):
-        self._set_property("SubType", f"{value.value}")
+    @multiplexer_type.setter
+    def multiplexer_type(self, value: MultiplexerTypeOption):
+        self._set_property("Multiplexer Type", f"{value.value}")
 
     @property
     def ports(self):
@@ -125,3 +125,4 @@ class Multiplexer(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

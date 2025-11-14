@@ -86,25 +86,25 @@ class PowerDivider(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class SubTypeOption(Enum):
+    class PowerDividerTypeOption(Enum):
         BY_FILE = "ByFile"
         P3_DB = "3dB"
         RESISTIVE = "Resistive"
 
     @property
-    def subtype(self) -> SubTypeOption:
-        """SubType.
+    def power_divider_type(self) -> PowerDividerTypeOption:
+        """Power Divider Type.
 
         Type of Power Divider model to use. Options include: By File (measured
         or simulated), 3 dB (parametric), and Resistive (parametric).
         """
-        val = self._get_property("SubType")
-        val = self.SubTypeOption[val.upper()]
+        val = self._get_property("Power Divider Type")
+        val = self.PowerDividerTypeOption[val.upper()]
         return val
 
-    @subtype.setter
-    def subtype(self, value: SubTypeOption):
-        self._set_property("SubType", f"{value.value}")
+    @power_divider_type.setter
+    def power_divider_type(self, value: PowerDividerTypeOption):
+        self._set_property("Power Divider Type", f"{value.value}")
 
     @property
     def insertion_loss_above_ideal(self) -> float:
@@ -245,3 +245,4 @@ class PowerDivider(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

@@ -59,7 +59,7 @@ class Terminator(EmitNode):
         Max:
             Value should be between 1 and 100e9.
         VSWR:
-
+        
         """
         return self._get_table_data()
 
@@ -103,24 +103,24 @@ class Terminator(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class SubTypeOption(Enum):
+    class TerminatorTypeOption(Enum):
         BY_FILE = "ByFile"
         PARAMETRIC = "Parametric"
 
     @property
-    def subtype(self) -> SubTypeOption:
-        """SubType.
+    def terminator_type(self) -> TerminatorTypeOption:
+        """Terminator Type.
 
         Type of terminator model to use. Options include: By File (measured or
         simulated) or Parametric.
         """
-        val = self._get_property("SubType")
-        val = self.SubTypeOption[val.upper()]
+        val = self._get_property("Terminator Type")
+        val = self.TerminatorTypeOption[val.upper()]
         return val
 
-    @subtype.setter
-    def subtype(self, value: SubTypeOption):
-        self._set_property("SubType", f"{value.value}")
+    @terminator_type.setter
+    def terminator_type(self, value: TerminatorTypeOption):
+        self._set_property("Terminator Type", f"{value.value}")
 
     @property
     def vswr(self) -> float:
@@ -144,3 +144,4 @@ class Terminator(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

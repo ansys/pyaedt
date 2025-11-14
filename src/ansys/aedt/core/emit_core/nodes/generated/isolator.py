@@ -86,24 +86,24 @@ class Isolator(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class SubTypeOption(Enum):
+    class IsolatorTypeOption(Enum):
         BY_FILE = "ByFile"
         PARAMETRIC = "Parametric"
 
     @property
-    def subtype(self) -> SubTypeOption:
-        """SubType.
+    def isolator_type(self) -> IsolatorTypeOption:
+        """Isolator Type.
 
         Type of isolator model to use. Options include: By File (measured or
         simulated) or Parametric.
         """
-        val = self._get_property("SubType")
-        val = self.SubTypeOption[val.upper()]
+        val = self._get_property("Isolator Type")
+        val = self.IsolatorTypeOption[val.upper()]
         return val
 
-    @subtype.setter
-    def subtype(self, value: SubTypeOption):
-        self._set_property("SubType", f"{value.value}")
+    @isolator_type.setter
+    def isolator_type(self, value: IsolatorTypeOption):
+        self._set_property("Isolator Type", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -241,3 +241,4 @@ class Isolator(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

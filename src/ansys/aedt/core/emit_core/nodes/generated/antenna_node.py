@@ -181,7 +181,7 @@ class AntennaNode(EmitNode):
     def antenna_temperature(self, value: float):
         self._set_property("Antenna Temperature", f"{value}")
 
-    class SubTypeOption(Enum):
+    class AntennaTypeOption(Enum):
         ISOTROPIC = "Isotropic"
         BY_FILE = "ByFile"
         HEMITROPIC = "Hemitropic"
@@ -195,15 +195,15 @@ class AntennaNode(EmitNode):
         PYRAMIDAL_HORN = "PyramidalHorn"
 
     @property
-    def subtype(self) -> SubTypeOption:
+    def antenna_type(self) -> AntennaTypeOption:
         """Defines the type of antenna."""
-        val = self._get_property("SubType")
-        val = self.SubTypeOption[val.upper()]
+        val = self._get_property("Antenna Type")
+        val = self.AntennaTypeOption[val.upper()]
         return val
 
-    @subtype.setter
-    def subtype(self, value: SubTypeOption):
-        self._set_property("SubType", f"{value.value}")
+    @antenna_type.setter
+    def antenna_type(self, value: AntennaTypeOption):
+        self._set_property("Antenna Type", f"{value.value}")
 
     @property
     def antenna_file(self) -> str:
@@ -628,3 +628,4 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
+
