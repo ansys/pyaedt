@@ -154,7 +154,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             messages = list(list(_desktop_sessions.values())[0].odesktop.GetMessages("", "", 2))[-1].lower()
         except (GrpcApiError, AttributeError, TypeError, IndexError):
             pass
-    if "error" in messages:
+    if "[error]" in messages:
         message_to_print = messages[messages.index("[error]") :]
 
     if message_to_print:
@@ -754,9 +754,10 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         except psutil.NoSuchProcess as e:  # pragma: no cover
             pyaedt_logger.debug(f"The process exited and cannot be an active session: {e}")
         except Exception as e:  # pragma: no cover
-            pyaedt_logger.error(
+            pyaedt_logger.debug(
                 f"A(n) {type(e)} error occurred while retrieving information for the active AEDT sessions: {e}"
             )
+            pyaedt_logger.debug(traceback.format_exc())
     return return_dict
 
 

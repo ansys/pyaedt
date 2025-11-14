@@ -303,7 +303,7 @@ class Pin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle=0.0):
+    def insert(self, x, y, angle=0.0, page=1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -314,6 +314,8 @@ class Pin(PyAedtBase):
             Y position of the pin.
         angle : float, optional
             Angle of the pin. The default value is ``"0.0"``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -324,7 +326,11 @@ class Pin(PyAedtBase):
         if self.buffer_name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
             self._app._app.import_model_in_aedt()
         return self._circuit.modeler.schematic.create_component(
-            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
+            component_library=None,
+            component_name=self.buffer_name,
+            location=[x, y],
+            angle=angle,
+            page=page,
         )
 
 
@@ -469,7 +475,7 @@ class DifferentialPin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle=0.0):
+    def insert(self, x, y, angle=0.0, page=1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -480,6 +486,8 @@ class DifferentialPin(PyAedtBase):
             Y position of the pin.
         angle : float, optional
             Angle of the pin. The default value is ``"0.0"``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -490,7 +498,11 @@ class DifferentialPin(PyAedtBase):
         if self.buffer_name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
             self._app.import_model_in_aedt()
         return self._circuit.modeler.schematic.create_component(
-            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
+            component_library=None,
+            component_name=self.buffer_name,
+            location=[x, y],
+            angle=angle,
+            page=page,
         )
 
 
@@ -535,7 +547,7 @@ class Buffer(PyAedtBase):
             ],
         )
 
-    def insert(self, x, y, angle=0.0):
+    def insert(self, x, y, angle=0.0, page=1):
         """Insert a buffer at a defined location inside the graphical window.
 
         Parameters
@@ -546,6 +558,8 @@ class Buffer(PyAedtBase):
             Y position of the buffer.
         angle : float, optional
             Angle of the buffer. The default value is ``"0.0"``.
+        page: int, optional
+            Schematic page number. The default value is ``1``.
 
         Returns
         -------
@@ -556,7 +570,7 @@ class Buffer(PyAedtBase):
         if self.name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
             self._app.import_model_in_aedt()
         return self._circuit.modeler.schematic.create_component(
-            component_library=None, component_name=self.name, location=[x, y], angle=angle
+            component_library=None, component_name=self.name, location=[x, y], angle=angle, page=page
         )
 
 

@@ -168,20 +168,20 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True):
         if units == "bps":
             mult = 1.0
         elif units == "kbps":
-            mult = 1e-3
-        elif units == "Mbps":
-            mult = 1e-6
-        elif units == "Gbps":
-            mult = 1e-9
-    else:
-        if units == "bps":
-            mult = 1.0
-        elif units == "kbps":
             mult = 1e3
         elif units == "Mbps":
             mult = 1e6
         elif units == "Gbps":
             mult = 1e9
+    else:
+        if units == "bps":
+            mult = 1.0
+        elif units == "kbps":
+            mult = 1e-3
+        elif units == "Mbps":
+            mult = 1e-6
+        elif units == "Gbps":
+            mult = 1e-9
     return value * mult
 
 

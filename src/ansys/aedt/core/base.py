@@ -23,6 +23,9 @@
 # SOFTWARE.
 
 
+import inspect
+
+
 class DirMixin:
     """
     Mixin that adds a `.public_dir` property as a shorthand for the built-in `dir()` function.
@@ -51,7 +54,24 @@ class DirMixin:
     @property
     def public_dir(self):
         """Shortcut for dir(self)."""
-        return sorted(i for i in dir(self) if not i.startswith("_") and i != "public_dir")
+        result = []
+        for name in dir(self):
+            if name.startswith("_") or name == "public_dir":
+                continue
+
+            # NOTE: Could be necessary to handle properties that raise exceptions, e.g. NotImplementedError
+            try:
+                obj = getattr(self, name)
+            except (AttributeError, RuntimeError):
+                continue
+
+            doc = inspect.getdoc(obj)
+            if doc and ".. deprecated::" in doc:
+                continue
+
+            result.append(name)
+
+        return sorted(result)
 
 
 class PyAedtBase(DirMixin):
