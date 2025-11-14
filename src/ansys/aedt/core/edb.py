@@ -29,18 +29,18 @@ from ansys.aedt.core.generic.settings import settings
 log = settings.logger
 
 
-def import_pyedb():
-    if os.name != "nt":
-        import ctypes
+def load_edb_wrapper(version=None):
+    import ctypes
 
-        from ansys.aedt.core.internal.aedt_versions import aedt_versions
+    from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
-        env_root = [i for i in aedt_versions.list_installed_ansysem if i.startswith("ANSYSEM_ROOT")]
-        if env_root:
-            fullpath = os.path.join(env_root[0], "libEDBCWrapper.so")
-            ctypes.CDLL(fullpath, mode=ctypes.RTLD_GLOBAL)
-        else:
-            raise Exception("Could not find ANSYSEM_ROOT environment variable.")
+    if version is None:
+        version = settings.aedt_version
+    if version in aedt_versions.installed_versions:
+        fullpath = os.path.join(aedt_versions.installed_versions[version], "libEDBCWrapper.so")
+        ctypes.CDLL(fullpath, mode=ctypes.RTLD_GLOBAL)
+    else:
+        raise Exception("Could not find ANSYSEM_ROOT environment variable.")
 
 
 # lazy imports
@@ -122,13 +122,16 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    import_pyedb()
+    if os.name != "nt":
+        load_edb_wrapper(edbversion)
+
+    from pyedb import Edb
 
     return Edb(
         edbpath=edbpath,
         cellname=cellname,
         isreadonly=isreadonly,
-        edbversion=edbversion,
+        version=edbversion,
         isaedtowned=isaedtowned,
         oproject=oproject,
         student_version=student_version,
@@ -141,7 +144,9 @@ def Siwave(
     specified_version=None,
 ):
     """Siwave Class."""
-    import_pyedb()
+    if os.name != "nt":
+        load_edb_wrapper(specified_version)
+
     from pyedb.siwave import Siwave as app
 
     return app(
