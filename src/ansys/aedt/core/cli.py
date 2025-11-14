@@ -41,7 +41,7 @@ except ImportError:  # pragma: no cover
 
 app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
 config_app = typer.Typer(help="Configuration management commands")
-test_app = typer.Typer(help="Test configuration management commands")
+test_app = typer.Typer(help="Test configuration management commands", invoke_without_command=True)
 app.add_typer(config_app, name="config")
 config_app.add_typer(test_app, name="test")
 
@@ -464,8 +464,9 @@ def _update_string_config(
     typer.secho(f"✓ {display_name} set to '{value}'", fg="green")
 
 
-@config_app.command("test")
-def config_test(
+@test_app.callback()
+def test_callback(
+    ctx: typer.Context,
     show: bool = typer.Option(
         False,
         "--show",
@@ -474,6 +475,9 @@ def config_test(
     ),
 ):
     """Create or modify local_config.json in the tests folder interactively."""
+    if ctx.invoked_subcommand is not None:
+        return
+    
     tests_folder = _get_tests_folder()
     config_path = tests_folder / "local_config.json"
     
