@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
+from ansys.aedt.core.hfss import Hfss
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests.conftest import config
@@ -57,16 +58,9 @@ else:
 component_array = "Array_232"
 transient = "Hfss_Transient"
 
-
-def random_name(length=6):
-    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
-
-
 @pytest.fixture()
 def aedtapp(add_app):
-    project_name = random_name()
-    design_name = random_name()
-    app = add_app(project_name=project_name, design_name=design_name)
+    app = add_app(application=Hfss)
     yield app
     app.close_project(app.project_name)
 
