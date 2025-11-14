@@ -59,7 +59,8 @@ transient = "Hfss_Transient"
 
 
 def random_name(length=6):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
 
 @pytest.fixture()
 def aedtapp(add_app):
@@ -1803,6 +1804,7 @@ def test_set_phase_center_per_port(aedtapp):
 )
 def test_import_dxf(dxf_file: str, object_count: int, self_stitch_tolerance: float, aedtapp):
     from pyedb.generic.general_methods import generate_unique_name
+
     design_name = aedtapp.insert_design(generate_unique_name("test_import_dxf"))
     aedtapp.set_active_design(design_name)
     dxf_layers = aedtapp.get_dxf_layers(dxf_file)
