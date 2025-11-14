@@ -2076,7 +2076,13 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emitters_radios(self, emit_app):
+        # Make sure there are no components in the schematic
+        # (possibly left from previous test if run sequentially?)
         rev = emit_app.results.analyze()
+        comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            emit_app.schematic.delete_component(comp.name)
+
         emitter_radio_nodes = rev.get_all_emitter_radios()
         assert emitter_radio_nodes is None
 
@@ -2215,8 +2221,10 @@ class TestClass:
         except Exception as e:
             print(f"Error: {e}")
 
-        val = radio._get_property("Bad Prop")
-        assert val == ""
+        with pytest.raises(ValueError) as e:
+            _ = radio._get_property("Bad Prop")
+        assert str(e.value) == ("ValueError: Property Bad Prop not found "
+                                "or not available for RadioNode configuration.")
 
         band: Band = radio.children[0]
         try:
