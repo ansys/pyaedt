@@ -22,10 +22,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 
 from ansys.aedt.core.generic.settings import settings
 
 log = settings.logger
+
+
+def import_pyedb():
+    if os.name != "nt":
+        import ctypes
+
+        from ansys.aedt.core.internal.aedt_versions import aedt_versions
+
+        env_root = [i for i in aedt_versions.list_installed_ansysem if i.startswith("ANSYSEM_ROOT")]
+        if env_root:
+            fullpath = os.path.join(env_root[0], "libEDBCWrapper.so")
+            ctypes.CDLL(fullpath, mode=ctypes.RTLD_GLOBAL)
+        else:
+            raise Exception("Could not find ANSYSEM_ROOT environment variable.")
 
 
 # lazy imports
@@ -107,8 +122,7 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    # Use EDB legacy (default choice)
-    from pyedb import Edb
+    import_pyedb()
 
     return Edb(
         edbpath=edbpath,
@@ -127,6 +141,7 @@ def Siwave(
     specified_version=None,
 ):
     """Siwave Class."""
+    import_pyedb()
     from pyedb.siwave import Siwave as app
 
     return app(
