@@ -2015,7 +2015,7 @@ class TestClass:
 
         # Sampling node's use NodeProp tables
         # Verify the table is empty by default
-        assert sampling.table_data == None
+        assert sampling.table_data is None
 
         # Set the sampling table
         sampling_data = [(100000000.0, 100000000.0), (200000000.0, 200000000.0)]

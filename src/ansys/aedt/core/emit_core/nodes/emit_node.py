@@ -298,6 +298,8 @@ class EmitNode:
                 return val.split("|")
             else:
                 return val
+        except ValueError as e:
+            raise
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
@@ -538,9 +540,14 @@ class EmitNode:
                 return False
             return True
 
-        table_title = self._get_property("CDTableTitle", True)
-        if table_title == "":
-            # No ColumnData Table Title, so it's a NodePropTable
+        try:
+            table_title = self._get_property("CDTableTitle", True)
+            if table_title == "":
+                # No ColumnData Table Title, so it's a NodePropTable
+                return False
+        except ValueError:
+            # Exception returned since "CDTableTitle" doesn't exist
+            # so it's a NodePropTable
             return False
         return True
 
@@ -568,7 +575,7 @@ class EmitNode:
                 # with ';' separating rows and '|' separating columns
                 table_key = self._get_property("TableKey", True)
                 string_table = self._get_property(table_key, True, True)
-                if string_table == "":
+                if len(string_table) == 0 or string_table == "":
                     return None
 
                 def try_float(val):
