@@ -24,19 +24,17 @@
 
 import math
 import os
-import random
 import re
 import shutil
-import string
 
 import pytest
 
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
-from ansys.aedt.core.hfss import Hfss
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests.conftest import config
@@ -57,6 +55,7 @@ else:
 
 component_array = "Array_232"
 transient = "Hfss_Transient"
+
 
 @pytest.fixture()
 def aedtapp(add_app):
