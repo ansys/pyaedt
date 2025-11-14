@@ -1,12 +1,12 @@
-Command Line Interface
+Command line interface
 ======================
 
 PyAEDT provides a command line interface (CLI) to help you manage AEDT processes and test configurations
 from your terminal. The CLI offers simple commands to start, stop, and monitor AEDT sessions without
 writing any Python code.
 
-Getting Started
----------------
+Get started
+-----------
 
 To use the CLI, open your terminal and type:
 
@@ -29,7 +29,7 @@ The PyAEDT CLI provides four main commands:
 * ``config`` - Manage test configuration settings
 
 
-Display Version
+Display version
 ~~~~~~~~~~~~~~~
 
 Check which version of PyAEDT you have installed:
@@ -41,7 +41,7 @@ Check which version of PyAEDT you have installed:
 This shows the current PyAEDT version number.
 
 
-List Running Processes
+List running processes
 ~~~~~~~~~~~~~~~~~~~~~~
 
 View all AEDT processes currently running on your system:
@@ -144,7 +144,7 @@ Stop multiple processes:
     pyaedt stop -a
 
 
-Test Configuration Management
+Test configuration management
 ------------------------------
 
 The ``config test`` command helps you create and modify the test configuration file
@@ -178,7 +178,7 @@ For a complete description of all configuration parameters and their usage, see 
 :ref:`Local testing parameters <contributing_aedt>` section in the Contributing guide.
 
 
-Practical Examples
+Practical examples
 ------------------
 
 Here are some common workflows using the CLI:
@@ -262,7 +262,7 @@ If you get "Access denied" errors:
 Common issues when starting AEDT:
 
 * Verify AEDT is installed and in your system PATH
-* Check the version number is correct (e.g., 2025.1, 2025.2)
+* Check the version number is correct (for example, 2025.1, 2025.2)
 * Ensure license server is available
 * Try running with administrator privileges
 
@@ -272,8 +272,8 @@ The test configuration is created in the ``tests`` folder relative to the PyAEDT
 If you're not in a development environment, you may need to navigate to the correct directory first.
 
 
-Getting Help
-------------
+Get help
+--------
 
 For detailed help on any command:
 
