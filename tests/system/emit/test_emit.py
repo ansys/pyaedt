@@ -1969,6 +1969,10 @@ class TestClass:
         touchstone_node = couplings_node.children[-1]
         touchstone_node.port_antenna_assignment = "|".join(antenna_list)
         assert touchstone_node.port_antenna_assignment == antenna_list
+
+        # TODO: the next line is only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        scene_node: EmitSceneNode = rev.get_scene_node()
         assert len(scene_node.children) == len(scene_children) + 6
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
