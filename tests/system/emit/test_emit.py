@@ -2029,7 +2029,7 @@ class TestClass:
         amp = cast(Amplifier, amp)
 
         # Verify the table is empty by default
-        assert amp.table_data == []
+        assert amp.table_data is None
 
         # Set the amplifier table
         amp_data = [(2, -50.0), (3, -60.0)]
@@ -2057,7 +2057,7 @@ class TestClass:
             bb_noise = cast(TxBbEmissionNode, bb_noise)
 
             # verify the table is empty by default
-            assert bb_noise.table_data == []
+            assert bb_noise.table_data is None
 
             # Set the ColumnData Table
             bb_data = [(100000.0, -170.0), (100000000.0, -160.0), (200000000.0, -170.0)]
@@ -2126,9 +2126,11 @@ class TestClass:
         # TODO: the next line is only needed for 25.2, which had
         # some instability in maintaining the node_ids
         emitter_node = rev.get_component_node(emitter_name)
-        with pytest.raises(GrpcApiError) as exc_info:
-            emitter_node.name = "Synopsys"
-        assert "Failed to execute gRPC AEDT command: RenameComponent" in str(exc_info.value)
+        current_name = emitter_node.name
+        new_name = "Synopsys"
+        with pytest.raises(ValueError) as exc_info:
+            emitter_node.name = new_name
+        assert f"Failed to rename {current_name} to {new_name}" in str(exc_info.value)
 
         # get the radio's band
         band: Band = radio_node.children[0]
@@ -2163,36 +2165,36 @@ class TestClass:
         # test the Tx Spectral Profile child nodes
         radio_harmonics: TxHarmonicNode = radio_tx_spec.add_custom_tx_harmonics()
         assert isinstance(radio_harmonics, TxHarmonicNode)
-        assert len(radio_harmonics.table_data) == 0
+        assert radio_harmonics.table_data is None
 
         radio_bb_noise: TxBbEmissionNode = radio_tx_spec.add_tx_broadband_noise_profile()
         assert isinstance(radio_bb_noise, TxBbEmissionNode)
-        assert len(radio_bb_noise.table_data) == 0
+        assert radio_bb_noise.table_data is None
 
         radio_nb_emissions: TxNbEmissionNode = radio_tx_spec.add_narrowband_emissions_mask()
         assert isinstance(radio_nb_emissions, TxNbEmissionNode)
-        assert len(radio_nb_emissions.table_data) == 0
+        assert radio_nb_emissions.table_data is None
 
         radio_tx_spur: TxSpurNode = radio_tx_spec.add_spurious_emissions()
         assert isinstance(radio_tx_spur, TxSpurNode)
-        assert len(radio_tx_spur.table_data) == 0
+        assert radio_tx_spur.table_data is None
 
         # test the Rx Spectral Profile child nodes
         radio_saturation: RxSaturationNode = radio_rx_spec.add_rx_saturation()
         assert isinstance(radio_saturation, RxSaturationNode)
-        assert len(radio_saturation.table_data) == 0
+        assert radio_saturation.table_data is None
 
         radio_selectivity: RxSelectivityNode = radio_rx_spec.add_rx_selectivity()
         assert isinstance(radio_selectivity, RxSelectivityNode)
-        assert len(radio_selectivity.table_data) == 0
+        assert radio_selectivity.table_data is None
 
         radio_mixer_products: RxMixerProductNode = radio_rx_spec.add_mixer_products()
         assert isinstance(radio_mixer_products, RxMixerProductNode)
-        assert len(radio_mixer_products.table_data) == 0
+        assert radio_mixer_products.table_data is None
 
         radio_rx_spurs: RxSpurNode = radio_rx_spec.add_spurious_responses()
         assert isinstance(radio_rx_spurs, RxSpurNode)
-        assert len(radio_rx_spurs.table_data) == 0
+        assert radio_rx_spurs.table_data is None
 
         # Test deleting components
         emit_app.schematic.delete_component(radio_node.name)
@@ -2223,8 +2225,7 @@ class TestClass:
 
         with pytest.raises(ValueError) as e:
             _ = radio._get_property("Bad Prop")
-        assert str(e.value) == ("ValueError: Property Bad Prop not found "
-                                "or not available for RadioNode configuration.")
+        assert str(e.value) == "Property Bad Prop not found or not available for RadioNode configuration."
 
         band: Band = radio.children[0]
         try:

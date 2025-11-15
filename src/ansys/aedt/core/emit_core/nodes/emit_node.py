@@ -568,23 +568,23 @@ class EmitNode:
                 data = self._oRevisionData.GetTableData(self._result_id, self._node_id)
                 rows = data.split("|")
                 string_table = [tuple(row.split(";")) for row in rows if row]
-                table = [tuple(float(x) for x in t) for t in string_table]
             else:
                 # Node Prop tables
                 # Data formatted using compact string serialization
                 # with ';' separating rows and '|' separating columns
                 table_key = self._get_property("TableKey", True)
                 string_table = self._get_property(table_key, True, True)
-                if len(string_table) == 0 or string_table == "":
-                    return None
 
-                def try_float(val):
-                    try:
-                        return float(val)
-                    except ValueError:
-                        return val  # keep as string for non-numeric (e.g. equations)
+            if len(string_table) == 0 or string_table == "":
+                return None
 
-                table = [tuple(try_float(x) for x in t) for t in string_table]
+            def try_float(val):
+                try:
+                    return float(val)
+                except ValueError:
+                    return val  # keep as string for non-numeric (e.g. equations)
+
+            table = [tuple(try_float(x) for x in t) for t in string_table]
         except Exception as e:
             print(f"Failed to get table data for node {self.name}. Error: {e}")
         return table
