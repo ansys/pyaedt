@@ -1963,6 +1963,10 @@ class TestClass:
         for i in range(len(ports)):
             ant = emit_app.schematic.create_component("Antenna")
             antenna_list.append(ant.name)
+        # TODO: the next 2 lines are only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        couplings_node: CouplingsNode = rev.get_coupling_data_node()
+        touchstone_node = couplings_node.children[-1]
         touchstone_node.port_antenna_assignment = "|".join(antenna_list)
         assert touchstone_node.port_antenna_assignment == antenna_list
         assert len(scene_node.children) == len(scene_children) + 6
