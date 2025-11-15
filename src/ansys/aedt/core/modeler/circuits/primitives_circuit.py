@@ -1396,7 +1396,7 @@ class CircuitComponents(PyAedtBase):
                         o.schematic_id = int(name[1].split(":")[0])
                         objID = int(o.schematic_id)
                     else:
-                        o.id = int(name[1])
+                        o.id = name[1]
                         o.schematic_id = name[2]
                         objID = int(o.schematic_id)
 
@@ -1433,7 +1433,7 @@ class CircuitComponents(PyAedtBase):
                     o = CircuitComponent(self, tabname=self.tab_name)
                     o.name = name[0]
                 if len(name) > 2:
-                    o.id = int(name[1])
+                    o.id = name[1]
                     o.schematic_id = int(name[2])
                     objID = o.schematic_id
                 else:
@@ -1457,7 +1457,7 @@ class CircuitComponents(PyAedtBase):
                     o = CircuitComponent(self, tabname=self.tab_name)
                     o.name = name[0]
                 if len(name) > 2:
-                    o.id = int(name[1])
+                    o.id = name[1]
                     o.schematic_id = int(name[2])
                     objID = o.schematic_id
                 else:
