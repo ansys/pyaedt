@@ -51,6 +51,7 @@
 * [GongYeSUDA](https://github.com/GongYeSUDA)
 * [HaiwenZhang](https://github.com/HaiwenZhang)
 * [Hui Zhou](https://github.com/hui-zhou-a)
+* [inimaz](https://github.com/inimaz)
 * [Irene Woyna](https://github.com/IreneWoyna)
 * [Isaac Waldron](https://github.com/isaacwaldron)
 * [JDufrenneAnsys](https://github.com/JDufrenneAnsys)
