@@ -45,14 +45,14 @@ def load_edb_wrapper(version=None):
         # except OSError as e:
         #     raise f"Failed to load {mono_path}: {e}"
 
-        mono_dir = aedt_path / "common" / "mono" / "Linux64" / "lib64"
-        for file in mono_dir.iterdir():
-            if not file.suffix != ".so":
-                continue
-            try:
-                ctypes.CDLL(str(file), mode=ctypes.RTLD_GLOBAL)
-            except OSError as e:
-                print(f"WARNING: Failed to load {file}: {e}")
+        # mono_dir = aedt_path / "common" / "mono" / "Linux64" / "lib64"
+        # for file in mono_dir.iterdir():
+        #     if not file.suffix != ".so":
+        #         continue
+        #     try:
+        #         ctypes.CDLL(str(file), mode=ctypes.RTLD_GLOBAL)
+        #     except OSError as e:
+        #         print(f"WARNING: Failed to load {file}: {e}")
 
         fullpath = aedt_path / "libEDBCWrapper.so"
         try:
