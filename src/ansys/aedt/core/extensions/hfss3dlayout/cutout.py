@@ -30,11 +30,10 @@ import tkinter
 from tkinter import ttk
 from typing import List
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
-import ansys.aedt.core.extensions.hfss3dlayout
+import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import SUN
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
