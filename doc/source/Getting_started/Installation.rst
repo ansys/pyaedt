@@ -195,8 +195,10 @@ However, you must set up the following environment variables:
 
 .. code::
 
-    export ANSYSEM_ROOT222=/path/to/AedtRoot/AnsysEM/v222/Linux64
-    export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
+    export ANSYSEM_ROOT252=/path/to/AedtRoot/AnsysEM/v252/Linux64
+    export LD_LIBRARY_PATH=$ANSYSEM_ROOT252/common/mono/Linux64/lib64:$ANSYSEM_ROOT252/Delcross:$LD_LIBRARY_PATH
+
+Starting with **AEDT 2025 R1**, Linux support no longer requires manually setting the ``LD_LIBRARY_PATH`` variable.
 
 
 Install offline from a wheelhouse
