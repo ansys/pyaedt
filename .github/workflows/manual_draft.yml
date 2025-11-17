@@ -638,12 +638,18 @@ jobs:
   system-tests-dummy:
     name: Test dummy (linux)
     if: github.event.inputs.test-dummy-linux == 'yes'
-    runs-on: [ self-hosted, Windows, pyaedt ]
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
@@ -651,38 +657,40 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          .venv\Scripts\Activate.ps1
+          source .venv/bin/activate
           pip install .[tests]
 
       - name: Remove Ansys processes (if any)
-        shell: powershell
+        shell: bash
         run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-      - name: Run tests
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+      - name: Run test
         env:
-          PYTHONMALLOC: malloc
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
-            .venv\Scripts\Activate.ps1
+            source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/extensions/test_export_layout.py
 
       - name: Upload pytest test results
@@ -691,6 +699,7 @@ jobs:
           name: pytest-dummy-linux
           path: junit/test-results.xml
         if: ${{ always() }}
+
 
   system-tests-flaky-linux:
      name: Test flaky (linux)
