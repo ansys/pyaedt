@@ -38,6 +38,7 @@ import PIL.ImageTk
 from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
+from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import SUN
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
@@ -46,7 +47,6 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()

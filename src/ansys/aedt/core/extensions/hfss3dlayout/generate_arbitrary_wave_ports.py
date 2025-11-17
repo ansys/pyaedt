@@ -33,6 +33,7 @@ from tkinter import ttk
 
 import ansys.aedt.core
 from ansys.aedt.core.edb import Edb
+import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version

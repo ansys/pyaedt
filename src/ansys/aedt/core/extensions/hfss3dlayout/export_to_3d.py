@@ -28,6 +28,7 @@ import tkinter
 from tkinter import ttk
 
 import ansys.aedt.core
+import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
