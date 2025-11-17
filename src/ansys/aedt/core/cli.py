@@ -452,7 +452,7 @@ def add_panels(
             typer.secho("✗ Failed to install PyAEDT panels.", fg=typer.colors.RED, bold=True)
             raise typer.Exit(code=1)
 
-        typer.secho("✓ PyAEDT panels installed successfully!", fg=typer.colors.GREEN, bold=True)
+        typer.secho("✓ PyAEDT panels installed successfully.", fg=typer.colors.GREEN, bold=True)
         typer.echo("\nInstalled panels:")
         typer.secho("  • Console", fg=typer.colors.GREEN)
         typer.secho("  • Jupyter", fg=typer.colors.GREEN)
