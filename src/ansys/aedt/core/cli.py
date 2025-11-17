@@ -195,43 +195,34 @@ def _display_config(config: dict, title: str = "Configuration", descriptions: di
     descriptions : dict, optional
         Dictionary of key descriptions to display
     """
-    # Box drawing characters
-    typer.echo("\n┌" + "─" * 68 + "┐")
-    typer.echo(f"│  {title:64}  │")
-    typer.echo("├" + "─" * 68 + "┤")
+    typer.echo(f"\n{title}:")
+    typer.echo()
 
     for key, value in config.items():
         if isinstance(value, bool):
-            value_str = "✓ True" if value else "✗ False"
+            value_str = "True" if value else "False"
             color = "green" if value else "red"
         elif isinstance(value, str):
             if value == "":
                 value_str = "(empty)"
                 color = "yellow"
             else:
-                value_str = f"'{value}'"
+                value_str = f"{value}"
                 color = "cyan"
         else:
             value_str = str(value)
             color = "white"
 
-        # Format key with proper spacing
-        key_display = f"  {key}:"
-        spacing = " " * (35 - len(key_display))
-        typer.echo(f"│{key_display}{spacing}", nl=False)
-        typer.secho(value_str, fg=color, nl=False)
-        remaining_space = 68 - len(key_display) - len(spacing) - len(value_str)
-        typer.echo(" " * remaining_space + "│")
+        # Display as bullet point
+        typer.echo(f"  - {key}: ", nl=False)
+        typer.secho(value_str, fg=color)
 
         # Display description if provided
         if descriptions and key in descriptions:
             desc = descriptions[key]
-            typer.echo("│    ", nl=False)
-            typer.secho(f"→ {desc}", fg="bright_black", nl=False)
-            desc_space = 68 - 4 - len(f"→ {desc}")
-            typer.echo(" " * desc_space + "│")
+            typer.secho(f"    {desc}", fg="bright_black")
 
-    typer.echo("└" + "─" * 68 + "┘\n")
+    typer.echo()
 
 
 def _is_valid_process(proc: psutil.Process) -> bool:
@@ -377,7 +368,7 @@ def _update_bool_config(key: str, value: bool | None, display_name: str = None) 
     if value is None:
         current_value = config.get(key, default)
         typer.echo(f"\nCurrent {display_name}: ", nl=False)
-        value_str = "✓ True" if current_value else "✗ False"
+        value_str = "True" if current_value else "False"
         color = "green" if current_value else "red"
         typer.secho(value_str, fg=color)
         typer.echo("")
@@ -526,7 +517,7 @@ def test_callback(
             typer.secho(f"i  {description}", fg="blue")
 
         if isinstance(value, bool):
-            current_display = "✓ True" if value else "✗ False"
+            current_display = "True" if value else "False"
             color = "green" if value else "red"
         elif isinstance(value, str):
             current_display = f"'{value}'" if value else "(empty)"
