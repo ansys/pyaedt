@@ -59,13 +59,6 @@ on:
         options:
           - 'yes'
           - 'no'
-      test-filter-windows:
-        description: "Testing Filter solutions (Windows)"
-        default: 'no'
-        type: choice
-        options:
-          - 'yes'
-          - 'no'
       test-emit-windows:
         description: "Testing Emit (windows)"
         type: choice
