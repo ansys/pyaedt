@@ -378,7 +378,7 @@ def add_panels(
 
         aedt_version = aedt_version.strip()
         if not aedt_version:
-            typer.secho("✗ AEDT version cannot be empty", fg=typer.colors.RED, bold=True)
+            typer.secho("✗ AEDT version cannot be empty.", fg=typer.colors.RED, bold=True)
             raise typer.Exit(code=1)
 
         # Validate personal_lib path
