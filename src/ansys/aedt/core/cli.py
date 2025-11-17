@@ -461,7 +461,7 @@ def add_panels(
         if not skip_version_manager:
             typer.secho("  • Version Manager", fg=typer.colors.GREEN)
         typer.secho(
-            "\nRestart AEDT to see the new panels in the Automation tab.",
+            "\nRestart AEDT to see the new panels on the Automation tab.",
             fg=typer.colors.YELLOW,
             bold=True,
         )
