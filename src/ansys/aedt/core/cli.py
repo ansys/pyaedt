@@ -340,7 +340,7 @@ def add_panels(
         None,
         "--version",
         "-v",
-        help="AEDT version (e.g. 2025.2)",
+        help="AEDT version (such as 2025.2)",
         prompt="Enter AEDT version",
     ),
     personal_lib: str = typer.Option(
