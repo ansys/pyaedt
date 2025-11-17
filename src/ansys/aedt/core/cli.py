@@ -384,7 +384,7 @@ def add_panels(
         # Validate personal_lib path
         if not personal_lib or not isinstance(personal_lib, str):
             typer.secho(
-                "✗ Invalid PersonalLib path. Please provide a valid path",
+                "✗ the 'personal_lib' path is invalid. Provide a valid path",
                 fg=typer.colors.RED,
                 bold=True,
             )
