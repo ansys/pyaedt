@@ -43,7 +43,9 @@ def load_edb_wrapper(version=None):
         except Exception:  # pragma: no cover
             raise Exception("Failed to load EDBC wrapper library from %s" % fullpath)
     else:  # pragma: no cover
-        raise Exception(f"Could not find version {version}, please define the associated ANSYSEM_ROOT environment variable.")
+        raise Exception(
+            f"Could not find version {version}, please define the associated ANSYSEM_ROOT environment variable."
+        )
 
 
 # lazy imports
