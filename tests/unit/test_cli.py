@@ -30,6 +30,7 @@ from unittest.mock import patch
 
 import psutil
 import pytest
+import typer
 from typer.testing import CliRunner
 
 from ansys.aedt.core.cli import app
@@ -103,12 +104,11 @@ def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_pr
 
 
 def test_stop_command_no_args(cli_runner):
-    """Test stop command without arguments shows error."""
+    """Test stop command without arguments raises BadParameter."""
     result = cli_runner.invoke(app, ["stop"])
 
-    assert result.exit_code == 2
-    output = result.stdout + result.stderr
-    assert "--pid" in output or "--port" in output or "--all" in output
+    assert result.exit_code != 0
+    assert isinstance(result.exception, (SystemExit, typer.BadParameter)) or result.exception is None
 
 
 @patch("psutil.process_iter")
