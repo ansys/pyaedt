@@ -181,7 +181,7 @@ def test_cutout_success(add_app, local_scratch):
     edb_app = Edb(edbpath=str(file_path), edbversion=config["desktopVersion"])
     edb_app_nets = edb_app.nets
     assert all(net in edb_app_nets for net in SIGNAL_NETS + REFERENCE_NETS + OTHER_NETS)
-    edb_app.close_edb()
+    edb_app.close()
 
     # Perform the cutout operation.
     app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
@@ -197,4 +197,4 @@ def test_cutout_success(add_app, local_scratch):
     cutout_app_nets = cutout_app.nets
     assert all(net in cutout_app_nets for net in SIGNAL_NETS + REFERENCE_NETS)
     assert not any(net in cutout_app_nets for net in OTHER_NETS)
-    cutout_app.close_edb()
+    cutout_app.close()
