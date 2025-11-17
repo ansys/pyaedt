@@ -267,13 +267,7 @@ def stop(
     ]
 
     if not pids and not ports and not stop_all:
-        typer.echo("Please provide PID(s), port(s), or use --all to stop all AEDT processes.")
-        typer.echo("Examples:")
-        typer.echo("  pyaedt stop --pid 1234")
-        typer.echo("  pyaedt stop --pid 1234 --pid 5678")
-        typer.echo("  pyaedt stop --port 50051")
-        typer.echo("  pyaedt stop --all")
-        return
+        raise typer.BadParameter("Please provide at least one option: --pid, --port, or --all")
 
     if stop_all:
         aedt_procs = _find_aedt_processes()
