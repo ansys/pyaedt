@@ -3,29 +3,78 @@ name: Draft workflow
 on:
   workflow_dispatch:
     inputs:
-      test-solvers-windows:
-        description: "Testing solvers and coverage (Windows)"
+      system-tests-solvers-windows:
+        description: "Testing solvers (Windows)"
         default: 'no'
         type: choice
         options:
           - 'yes'
           - 'no'
-      test-solvers-linux:
-        description: "Testing solvers and coverage (Linux)"
+      system-tests-solvers-linux:
+        description: "Testing solvers (Linux)"
         default: 'no'
         type: choice
         options:
           - 'yes'
           - 'no'
-      test-general-windows:
-        description: "Testing general and coverage (Windows)"
+      system-tests-general-windows:
+        description: "Testing general (Windows)"
         default: 'no'
         type: choice
         options:
           - 'yes'
           - 'no'
-      test-general-linux:
-        description: "Testing general and coverage (Linux)"
+      system-tests-general-linux:
+        description: "Testing general (Linux)"
+        type: choice
+        default: 'no'
+        options:
+          - 'yes'
+          - 'no'
+      system-tests-visualization-windows:
+        description: "Testing visualization (Windows)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      system-tests-visualization-linux:
+        description: "Testing visualization (Linux)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      system-tests-extensions-windows:
+        description: "Testing extensions (Windows)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      system-tests-extensions-linux:
+        description: "Testing extensions (Linux)"
+        type: choice
+        default: 'no'
+        options:
+          - 'yes'
+          - 'no'
+      system-tests-filter-windows:
+        description: "Testing Filter solutions (Windows)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      system-tests-emit-windows:
+        description: "Testing Emit (windows)"
+        type: choice
+        default: 'no'
+        options:
+          - 'yes'
+          - 'no'
+      system-tests-flaky-linux:
+        description: "Testing Flaky (Linux)"
         type: choice
         default: 'no'
         options:
