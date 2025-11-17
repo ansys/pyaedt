@@ -59,8 +59,8 @@ on:
         options:
           - 'yes'
           - 'no'
-      test-emit-windows:
-        description: "Testing Emit (windows)"
+      test-dummy-linux:
+        description: "Dummy test"
         type: choice
         default: 'no'
         options:
@@ -635,9 +635,9 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-  system-tests-filter-windows:
-    name: Test filter solutions (windows)
-    if: github.event.inputs.test-filter-windows == 'yes'
+  system-tests-dummy:
+    name: Test dummy (linux)
+    if: github.event.inputs.test-dummy-linux == 'yes'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -673,7 +673,7 @@ jobs:
             Stop-Process -Id $_.Id -Force
           }
 
-      - name: Run tests marked with 'filter_solutions'
+      - name: Run tests
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
@@ -683,81 +683,12 @@ jobs:
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
-
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        with:
-          name: codecov-system-filter-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_filter
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/extensions/test_export_layout.py
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: pytest-filter_solutions-windows
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
-  system-tests-emit-windows:
-    name: Test EMIT (windows)
-    if: github.event.inputs.test-emit-windows == 'yes'
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Create virtual environment
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install .[tests]
-
-      - name: Remove Ansys processes (if any)
-        shell: powershell
-        run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
-
-      - name: Run tests marked with 'emit'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        env:
-          PYTHONMALLOC: malloc
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 30
-          command: |
-            .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
-
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        with:
-          name: codecov-system-emit-tests-windows
-          files: ./coverage.xml
-          flags: windows_system_emit
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
-        with:
-          name: pytest-emit-windows
+          name: pytest-dummy-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
