@@ -370,7 +370,7 @@ def add_panels(
         # Validate AEDT version format
         if not aedt_version or not isinstance(aedt_version, str):
             typer.secho(
-                "✗ Invalid AEDT version. Please provide a valid version string (e.g. 2025.2)",
+                "✗ Invalid AEDT version. Provide a valid version string (such as 2025.2)",
                 fg=typer.colors.RED,
                 bold=True,
             )
