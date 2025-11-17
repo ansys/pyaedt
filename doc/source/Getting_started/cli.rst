@@ -67,7 +67,7 @@ Launch a new AEDT session directly from the command line:
 
     pyaedt start
 
-This starts AEDT with default settings (version 2025.2, graphical mode).
+This starts AEDT with default settings (latest AEDT version released, graphical mode).
 
 You can customize the startup with these options:
 
