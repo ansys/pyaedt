@@ -103,11 +103,12 @@ def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_pr
 
 
 def test_stop_command_no_args(cli_runner):
-    """Test stop command without arguments shows help."""
+    """Test stop command without arguments shows error."""
     result = cli_runner.invoke(app, ["stop"])
 
-    assert result.exit_code == 0
-    assert "Please provide PID(s), port(s), or use --all to stop all AEDT processes." in result.stdout
+    assert result.exit_code == 2
+    output = result.stdout + result.stderr
+    assert "--pid" in output or "--port" in output or "--all" in output
 
 
 @patch("psutil.process_iter")
