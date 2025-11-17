@@ -422,7 +422,7 @@ def add_panels(
 
         if not personal_lib_path.is_dir():
             typer.secho(
-                f"✗ PersonalLib path is not a directory: {personal_lib_path}",
+                f"✗ The 'personallib' path is not a directory: {personal_lib_path}",
                 fg=typer.colors.RED,
                 bold=True,
             )
