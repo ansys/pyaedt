@@ -39,11 +39,21 @@ def load_edb_wrapper(version=None):
         version = settings.aedt_version
     if version in aedt_versions.installed_versions:
         aedt_path = Path(aedt_versions.installed_versions[version])
-        mono_path = aedt_path / "common" / "mono" / "Linux64" / "lib64" / "libmonosgen-2.0.so.1"
-        try:
-            ctypes.CDLL(str(mono_path), mode=ctypes.RTLD_GLOBAL)
-        except OSError as e:
-            raise f"Failed to load {mono_path}: {e}"
+        # mono_path = aedt_path / "common" / "mono" / "Linux64" / "lib64" / "libmonosgen-2.0.so.1"
+        # try:
+        #     ctypes.CDLL(str(mono_path), mode=ctypes.RTLD_GLOBAL)
+        # except OSError as e:
+        #     raise f"Failed to load {mono_path}: {e}"
+
+        mono_dir = aedt_path / "common" / "mono" / "Linux64" / "lib64"
+        for filename in os.listdir(mono_dir):
+            if not filename.endswith(".so"):
+                continue
+            fullpath = mono_dir / filename
+            try:
+                ctypes.CDLL(str(fullpath), mode=ctypes.RTLD_GLOBAL)
+            except OSError as e:
+                print(f"WARNING: Failed to load {fullpath}: {e}")
 
         fullpath = aedt_path / "libEDBCWrapper.so"
         try:
