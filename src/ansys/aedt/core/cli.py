@@ -151,9 +151,9 @@ def processes():
         typer.secho("No AEDT processes currently running.", fg="yellow")
         return
 
-    typer.echo(f"Found ", nl=False)
+    typer.echo("Found ", nl=False)
     typer.secho(f"{len(aedt_procs)}", fg="green", nl=False)
-    typer.echo(f" AEDT process(es):")
+    typer.echo(" AEDT process(es):")
     typer.echo("-" * 80)
 
     for proc in aedt_procs:
@@ -246,7 +246,6 @@ def start(
         return
 
 
-
 @app.command()
 def stop(
     pids: list[int] = typer.Option([], "--pid", help="Stop process by PID (can be used multiple times)"),
@@ -333,7 +332,9 @@ def stop(
 
             try:
                 target_proc.kill()
-                typer.secho(f"✓ Process with PID {target_proc.pid} listening on port {port} has been stopped.", fg="green")
+                typer.secho(
+                    f"✓ Process with PID {target_proc.pid} listening on port {port} has been stopped.", fg="green"
+                )
             except psutil.NoSuchProcess:
                 typer.secho(f"! Process {target_proc.pid} no longer exists.", fg="yellow")
             except Exception:
