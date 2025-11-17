@@ -403,7 +403,7 @@ def add_panels(
 
         if not personal_lib_path.exists():
             typer.secho(
-                f"✗ PersonalLib path does not exist: {personal_lib_path}",
+                f"✗ The 'personal_lib' path does not exist: {personal_lib_path}",
                 fg=typer.colors.RED,
                 bold=True,
             )
