@@ -33,6 +33,7 @@ import re
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.edb import load_edb_wrapper
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import parse_excitation_file
@@ -167,6 +168,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         ic_mode=None,
         remove_lock=False,
     ):
+        if os.name != "nt":
+            load_edb_wrapper(version)
+
         FieldAnalysis3DLayout.__init__(
             self,
             "HFSS 3D Layout Design",

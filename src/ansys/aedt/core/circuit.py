@@ -26,6 +26,7 @@
 
 import io
 import math
+import os
 from pathlib import Path
 import re
 import shutil
@@ -34,6 +35,7 @@ import time
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.edb import load_edb_wrapper
 from ansys.aedt.core.generic import ibis_reader
 from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.constants import unit_converter
@@ -171,6 +173,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         aedt_process_id=None,
         remove_lock=False,
     ):
+        if os.name != "nt":
+            load_edb_wrapper(version)
+
         FieldAnalysisCircuit.__init__(
             self,
             "Circuit Design",
