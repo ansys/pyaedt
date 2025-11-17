@@ -77,7 +77,7 @@ def _get_tests_folder() -> Path:
         if tests_folder.exists():
             return tests_folder
     except Exception:
-        print("Error finding tests folder")
+        typer.echo(f"! Error finding tests folder, fallbacking to current working directory.")
     # Fallback: search from current working directory
     cwd = Path.cwd()
     if cwd.name == "tests":
