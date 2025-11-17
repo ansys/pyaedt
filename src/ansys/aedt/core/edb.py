@@ -34,12 +34,15 @@ def load_edb_wrapper(version=None):
 
     from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
-    if version is None:
+    if version is None:  # pragma: no cover
         version = settings.aedt_version
     if version in aedt_versions.installed_versions:
         fullpath = os.path.join(aedt_versions.installed_versions[version], "libEDBCWrapper.so")
-        ctypes.CDLL(fullpath, mode=ctypes.RTLD_GLOBAL)
-    else:
+        try:
+            ctypes.CDLL(fullpath, mode=ctypes.RTLD_GLOBAL)
+        except Exception:  # pragma: no cover
+            raise Exception("Failed to load EDBC wrapper library from %s" % fullpath)
+    else:  # pragma: no cover
         raise Exception("Could not find ANSYSEM_ROOT environment variable.")
 
 
