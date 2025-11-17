@@ -91,6 +91,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
         self.export_options = ExportOptions()
+        self.export_option_vars = {}
 
         super().__init__(
             self.EXTENSION_TITLE,
@@ -173,14 +174,15 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         selected_edb = self.selected_edb
         settings.logger.info(f"target EDB: {selected_edb}")
         app = Edb(edbpath=str(selected_edb), edbversion=self.aedt_info.version)
-        app.configuration.load(config_path)
-        app.configuration.run()
 
         temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
         temp_dir.mkdir()
 
         new_name = create_new_edb_name(Path(app.edbpath).stem) + ".aedb"
         app.save_as(str(temp_dir / new_name))
+        app.configuration.load(config_path)
+        app.configuration.run()
+        app.save()
         app.close()
         return app.edbpath
 

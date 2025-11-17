@@ -108,14 +108,18 @@ def create_sub_frame1(parent, master):
 
     row = row + 1
     options = master.export_options.model_dump()
+
+    # Initialize checkbox variables if not already created
+    if not master.export_option_vars:
+        for name in options:
+            master.export_option_vars[name] = tk.BooleanVar(master=master.root, value=options[name])
+
     for idx, name in enumerate(options):
         col = idx % 2
-        chk = ttk.Checkbutton(parent, name=name, text=name, style="PyAEDT.TCheckbutton")
-        chk.grid(row=row, column=col, **{"sticky": "nsew"})
-        if options[name]:
-            chk.state(["selected"])
-        else:
-            chk.state(["!selected"])
+        chk = ttk.Checkbutton(
+            parent, name=name, text=name, variable=master.export_option_vars[name], style="PyAEDT.TCheckbutton"
+        )
+        chk.grid(row=row, column=col, padx=5, pady=2, sticky="w")
         row = row if col == 0 else row + 1
 
 
@@ -174,8 +178,5 @@ def callback_export(master):
 
 def update_options(master):
     """Update export options based on the selected checkboxes."""
-    options = master.export_options.model_dump()
-    for name in options:
-        chk = master.root.nametowidget(f".notebook.main.frame1.{name}")
-        flag = True if chk.instate(["selected"]) else False
-        setattr(master.export_options, name, flag)
+    for name, var in master.export_option_vars.items():
+        setattr(master.export_options, name, var.get())
