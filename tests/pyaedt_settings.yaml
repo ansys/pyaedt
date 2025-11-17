@@ -7,7 +7,7 @@ log:
   enable_desktop_logs: false
 
 general:
-  number_of_grpc_api_retries: 10
+  number_of_grpc_api_retries: 6
   retry_n_times_time_interval: 0.5
   enable_error_handler: false
   desktop_launch_timeout: 300
