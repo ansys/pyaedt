@@ -449,7 +449,7 @@ def add_panels(
         )
 
         if result is False:
-            typer.secho("✗ Failed to install PyAEDT panels", fg=typer.colors.RED, bold=True)
+            typer.secho("✗ Failed to install PyAEDT panels.", fg=typer.colors.RED, bold=True)
             raise typer.Exit(code=1)
 
         typer.secho("✓ PyAEDT panels installed successfully!", fg=typer.colors.GREEN, bold=True)
