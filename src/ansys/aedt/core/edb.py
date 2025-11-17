@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 
 from ansys.aedt.core.generic.settings import settings
 
@@ -37,9 +38,16 @@ def load_edb_wrapper(version=None):
     if version is None:  # pragma: no cover
         version = settings.aedt_version
     if version in aedt_versions.installed_versions:
-        fullpath = os.path.join(aedt_versions.installed_versions[version], "libEDBCWrapper.so")
+        aedt_path = Path(aedt_versions.installed_versions[version])
+        mono_path = aedt_path / "common" / "mono" / "Linux64" / "lib64" / "libmonosgen-2.0.so.1"
         try:
-            ctypes.CDLL(fullpath, mode=ctypes.RTLD_GLOBAL)
+            ctypes.CDLL(str(mono_path), mode=ctypes.RTLD_GLOBAL)
+        except OSError as e:
+            raise f"Failed to load {mono_path}: {e}"
+
+        fullpath = aedt_path / "libEDBCWrapper.so"
+        try:
+            ctypes.CDLL(str(fullpath), mode=ctypes.RTLD_GLOBAL)
         except Exception:  # pragma: no cover
             raise Exception("Failed to load EDBC wrapper library from %s" % fullpath)
     else:  # pragma: no cover
