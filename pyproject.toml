@@ -51,6 +51,7 @@ unit-tests = [
     "mock>=5.1.0,<5.3",
     "fpdf2",
     "requests",
+    "rpyc>=6.0.0,<6.1",
     "typer>=0.20.0",
 ]
 integration-tests = [
@@ -68,7 +69,6 @@ tests = [
     "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.9",
     "tables",
-    "rpyc>=6.0.0,<6.1",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -128,7 +128,7 @@ examples = [
     "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.4",
+    "plotly>=6.0,<6.5",
     "scikit-rf>=0.30.0,<1.9",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
@@ -157,7 +157,7 @@ pyaedt = "ansys.aedt.core.cli:app"
 [tool.ruff]
 line-length = 120
 fix = true
-exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files 
+exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files
 
 [tool.ruff.format]
 quote-style = "double"
@@ -223,7 +223,7 @@ ignore = [
     "PTH119", # os-path-basename
     "PTH120", # os-path-dirname
     "PTH122", # os-path-splitext
-    "PTH123", # builtin-open 
+    "PTH123", # builtin-open
     "PTH201", # path-constructor-current-directory
     "PTH208", # os-listdir
 
