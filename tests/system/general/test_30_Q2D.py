@@ -37,6 +37,8 @@ from tests.conftest import config
 test_subfolder = "T30"
 q2d_q3d = "q2d_q3d_231"
 q2d_solved_name = "q2d_solved"
+q2d_solved_sweep = "q2d_solved_sweep"
+q2d_solved_nominal = "q2d_solved_nominal"
 
 
 @pytest.fixture()
@@ -64,6 +66,20 @@ def q2d_matrix(add_app):
         application=ansys.aedt.core.Q2d,
         subfolder=test_subfolder,
     )
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def q2d_solved_sweep_app(add_app):
+    app = add_app(application=Q2d, project_name=q2d_solved_sweep, subfolder=test_subfolder)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def q2d_solved_nominal_app(add_app):
+    app = add_app(application=Q2d, project_name=q2d_solved_nominal, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
@@ -288,3 +304,30 @@ class TestClass:
         dxf_layers = aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert aedtapp.import_dxf(dxf_file, dxf_layers)
+
+    def test_export_w_elements_from_sweep(self, q2d_solved_sweep_app, local_scratch):
+        export_folder = Path(local_scratch.path) / "export_folder"
+        files = q2d_solved_sweep_app.export_w_elements(False, export_folder)
+        assert len(files) == 3
+        for file in files:
+            ext = Path(file).suffix
+            assert ext == ".sp"
+            assert Path(file).is_file()
+
+    def test_export_w_elements_from_nominal(self, q2d_solved_nominal_app, local_scratch):
+        export_folder = Path(local_scratch.path) / "export_folder"
+        files = q2d_solved_nominal_app.export_w_elements(False, export_folder)
+        assert len(files) == 1
+        for file in files:
+            ext = Path(file).suffix
+            assert ext == ".sp"
+            assert Path(file).is_file()
+
+        files = q2d_solved_nominal_app.export_w_elements(False)
+        assert len(files) == 1
+        for file in files:
+            ext = Path(file).suffix
+            assert ext == ".sp"
+            assert Path(file).is_file()
+            file_dir = Path(file).parent.absolute()
+            assert file_dir == Path(q2d_solved_nominal_app.working_directory).absolute()
