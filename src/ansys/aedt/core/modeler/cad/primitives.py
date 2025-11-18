@@ -4988,7 +4988,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             vArg1.append("MergeFacesAngle:="),
             vArg1.append(merge_angle if input_file.suffix.lower() == ".stl" and merge_planar_faces else -1),
         )
-        if input_file.endswith(".stl"):
+        if input_file.suffix.lower() == ".stl":
             vArg1.append("HealSTL:="), vArg1.append(True if int(healing) != 0 else False)
             vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
             vArg1.append("ReduceMaxError:="), vArg1.append(reduce_error)
