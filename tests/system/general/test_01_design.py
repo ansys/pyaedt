@@ -520,7 +520,7 @@ class TestClass:
         new_project_path = Path(local_scratch.path) / "new_2.aedt"
         assert app.desktop_class.save_project(project_path=new_project_path)
         assert new_project_path.exists()
-        assert app.project_name == "new2"
+        assert app.project_name == "new_2"
         # Test using Path with only dir
         only_project_path = Path(local_scratch.path)
         assert app.desktop_class.save_project(project_path=only_project_path)

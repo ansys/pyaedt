@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 from pathlib import Path
 
 import pytest
@@ -220,7 +219,7 @@ class TestClass:
         assert aedtapp.modeler.set_touchstone_model(assignment="C217", input_file=model_path, model_name="Test1")
 
     def test_assign_spice_model(self, aedtapp):
-        model_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "GRM32ER72A225KA35_25C_0V.sp")
+        model_path = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "GRM32ER72A225KA35_25C_0V.sp"
         assert aedtapp.modeler.set_spice_model(
             assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
         )
@@ -230,9 +229,9 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
-        local_png1 = os.path.join(local_scratch.path, "test1.png")
-        nets["AVCC_1V3"].plot(save_plot=local_png1, show=False)
-        assert os.path.exists(local_png1)
+        local_png1 = local_scratch.path / "test1.png"
+        nets["AVCC_1V3"].plot(save_plot=str(local_png1), show=False)
+        assert local_png1.is_file()
 
     def test_nets_count(self, aedtapp):
         nets = aedtapp.modeler.nets
@@ -277,7 +276,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_export_picture(self, aedtapp):
-        assert os.path.exists(aedtapp.post.export_model_picture(orientation="top"))
+        picture = aedtapp.post.export_model_picture(orientation="top")
+        assert Path(picture).is_file()
 
     def test_objects_by_net(self, aedtapp):
         poly_on_gnd = aedtapp.modeler.objects_by_net("GND", "poly")
@@ -306,9 +306,9 @@ class TestClass:
         aedtapp.modeler.layers.add_layer("diel", "dielectric")
         aedtapp.modeler.layers.add_layer("TOP", "signal")
         tol = 1e-12
-        encrypted_model_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "SMA_RF_Jack.a3dcomp")
+        encrypted_model_path = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "SMA_RF_Jack.a3dcomp"
         comp = aedtapp.modeler.place_3d_component(
-            encrypted_model_path, 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
+            str(encrypted_model_path), 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
         )
         assert (comp.location[0] - 1.017) < tol
         assert (comp.location[1] - 2) < tol
@@ -413,7 +413,7 @@ class TestClass:
 
     def test_import_table(self, aedtapp):
         aedtapp.insert_design("import_table")
-        file_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_header.csv")
+        file_header = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "table_header.csv"
         file_invented = "invented.csv"
 
         assert not aedtapp.import_table(file_header, column_separator="dummy")
