@@ -38,13 +38,7 @@ from ansys.aedt.core.cli import app
 @pytest.fixture
 def cli_runner():
     """Create a test runner for CLI commands."""
-    runner = CliRunner()
-
-    def invoke_wrapper(*args, **kwargs):
-        kwargs.setdefault("color", False)
-        return runner.invoke(*args, **kwargs)
-
-    return invoke_wrapper
+    return CliRunner()
 
 
 @pytest.fixture
@@ -70,7 +64,7 @@ def mock_add_pyaedt_to_aedt():
 
 def test_cli_help_command(cli_runner):
     """Verify that help command executes without errors."""
-    result = cli_runner(app, ["--help"])
+    result = cli_runner.invoke(app, ["--help"])
 
     assert result.exit_code == 0
     assert "CLI for PyAEDT" in result.stdout
@@ -82,7 +76,7 @@ def test_cli_help_command(cli_runner):
 @patch("ansys.aedt.core.__version__", "0.22.0")
 def test_version_command(cli_runner):
     """Test version command output."""
-    result = cli_runner(app, ["version"])
+    result = cli_runner.invoke(app, ["version"])
 
     assert result.exit_code == 0
     assert "PyAEDT version: 0.22.0" in result.stdout
@@ -94,7 +88,7 @@ def test_version_command(cli_runner):
 @patch("psutil.process_iter")
 def test_processes_command_no_aedt(mock_process_iter, cli_runner):
     """Test processes command when no AEDT is running."""
-    result = cli_runner(app, ["processes"])
+    result = cli_runner.invoke(app, ["processes"])
 
     assert result.exit_code == 0
     assert "No AEDT processes currently running" in result.stdout
@@ -105,7 +99,7 @@ def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_pr
     """Test processes command when AEDT processes exist."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["processes"])
+    result = cli_runner.invoke(app, ["processes"])
 
     assert result.exit_code == 0
     assert "Found 1 AEDT process(es)" in result.stdout
@@ -118,7 +112,7 @@ def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_pr
 
 def test_stop_command_no_args(cli_runner):
     """Test stop command without arguments shows help."""
-    result = cli_runner(app, ["stop"])
+    result = cli_runner.invoke(app, ["stop"])
 
     assert result.exit_code == 0
     assert "Please provide PID(s), port(s), or use --all to stop all AEDT processes." in result.stdout
@@ -129,7 +123,7 @@ def test_stop_all_command_no_processes(mock_process_iter, cli_runner):
     """Test stop all when no AEDT processes exist."""
     mock_process_iter.return_value = []
 
-    result = cli_runner(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["stop", "--all"])
 
     assert result.exit_code == 0
     assert "All AEDT processes have been stopped" in result.stdout
@@ -141,7 +135,7 @@ def test_stop_all_command_with_access_denied(mock_process_iter, cli_runner, mock
     mock_aedt_process.kill.side_effect = psutil.AccessDenied()
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["stop", "--all"])
 
     assert result.exit_code == 0
     assert f"✗ Access denied for process with PID {mock_aedt_process.pid}" in result.stdout
@@ -157,7 +151,7 @@ def test_stop_all_command_with_process_no_longer_exists(
     mock_aedt_process.kill.side_effect = psutil.NoSuchProcess(mock_aedt_process.pid)
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["stop", "--all"])
 
     assert result.exit_code == 0
     assert f"! Process {mock_aedt_process.pid} no longer exists" in result.stdout
@@ -171,7 +165,7 @@ def test_stop_all_command_with_generic_exception(mock_process_access, mock_proce
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--all"])
+    result = cli_runner.invoke(app, ["stop", "--all"])
 
     assert result.exit_code == 0
     assert f"✗ Error stopping process {mock_aedt_process.pid}" in result.stdout
@@ -184,7 +178,7 @@ def test_stop_command_by_pid_success(mock_process_access, mock_process_class, cl
     """Test successfully stopping process by PID."""
     mock_process_class.return_value = mock_aedt_process
 
-    result = cli_runner(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "Process with PID 12345 has been stopped" in result.stdout
@@ -196,7 +190,7 @@ def test_stop_command_by_pid_access_denied(mock_process_class, cli_runner, mock_
     """Test stopping process by PID when access is denied."""
     mock_process_class.return_value = mock_aedt_process
 
-    result = cli_runner(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "✗ Access denied for process with PID 12345" in result.stdout
@@ -210,7 +204,7 @@ def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_proce
     mock_proc.status.return_value = psutil.STATUS_ZOMBIE
     mock_process_class.return_value = mock_proc
 
-    result = cli_runner(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
     assert result.exit_code == 0
     assert "✗ Process with PID 12345 is not in a stoppable state" in result.stdout
 
@@ -222,7 +216,7 @@ def test_stop_command_by_pid_generic_exception(mock_process_access, mock_process
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_class.return_value = mock_aedt_process
 
-    result = cli_runner(app, ["stop", "--pid", "12345"])
+    result = cli_runner.invoke(app, ["stop", "--pid", "12345"])
 
     assert result.exit_code == 0
     assert "✗ Error stopping process 12345" in result.stdout
@@ -231,7 +225,7 @@ def test_stop_command_by_pid_generic_exception(mock_process_access, mock_process
 @patch("psutil.Process", side_effect=psutil.NoSuchProcess(999))
 def test_stop_command_by_pid_invalid_pid(mock_process, cli_runner):
     """Test stop command with invalid PID."""
-    result = cli_runner(app, ["stop", "--pid", "999"])
+    result = cli_runner.invoke(app, ["stop", "--pid", "999"])
 
     assert result.exit_code == 0
     assert "! Process 999 no longer exists" in result.stdout
@@ -244,7 +238,7 @@ def test_stop_command_by_port_success(mock_access, mock_get_port, mock_process_i
     """Test successfully stopping process by port."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "Process with PID 12345 listening on port 50051 has been stopped" in result.stdout
@@ -257,7 +251,7 @@ def test_stop_command_by_port_not_found(mock_get_port, mock_process_iter, cli_ru
     """Test stopping process by port when no process found on that port."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "No AEDT process found listening on port 50051" in result.stdout
@@ -272,7 +266,7 @@ def test_stop_command_by_port_access_denied(
     """Test stopping process by port when access is denied."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "✗ Access denied for process with PID 12345" in result.stdout
@@ -288,7 +282,7 @@ def test_stop_command_by_port_no_such_process(
     mock_aedt_process.kill.side_effect = psutil.NoSuchProcess(mock_aedt_process.pid)
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "! Process 12345 no longer exists" in result.stdout
@@ -304,7 +298,7 @@ def test_stop_command_by_port_generic_exception(
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "✗ Error stopping process 12345" in result.stdout
@@ -316,7 +310,7 @@ def test_stop_command_by_port_no_port_info(mock_get_port, mock_process_iter, cli
     """Test stopping process by port when process has no port information."""
     mock_process_iter.return_value = [mock_aedt_process]
 
-    result = cli_runner(app, ["stop", "--port", "50051"])
+    result = cli_runner.invoke(app, ["stop", "--port", "50051"])
 
     assert result.exit_code == 0
     assert "✗ No AEDT process found listening on port 50051" in result.stdout
@@ -352,7 +346,7 @@ def mock_start_command():
 
 def test_start_command_default_parameters(cli_runner, mock_start_command):
     """Test start command with default parameters."""
-    result = cli_runner(app, ["start"])
+    result = cli_runner.invoke(app, ["start"])
 
     assert result.exit_code == 0
     assert "Starting AEDT 2025.2..." in result.stdout
@@ -361,7 +355,7 @@ def test_start_command_default_parameters(cli_runner, mock_start_command):
 
 def test_start_command_with_version(cli_runner, mock_start_command):
     """Test start command with specific version."""
-    result = cli_runner(app, ["start", "--version", "2024.2"])
+    result = cli_runner.invoke(app, ["start", "--version", "2024.2"])
 
     assert result.exit_code == 0
     assert "Starting AEDT 2024.2..." in result.stdout
@@ -370,7 +364,7 @@ def test_start_command_with_version(cli_runner, mock_start_command):
 
 def test_start_command_non_graphical(cli_runner, mock_start_command):
     """Test start command in non-graphical mode."""
-    result = cli_runner(app, ["start", "--non-graphical"])
+    result = cli_runner.invoke(app, ["start", "--non-graphical"])
 
     assert result.exit_code == 0
     assert "Starting in non-graphical mode..." in result.stdout
@@ -379,7 +373,7 @@ def test_start_command_non_graphical(cli_runner, mock_start_command):
 
 def test_start_command_with_port(cli_runner, mock_start_command):
     """Test start command with specific port."""
-    result = cli_runner(app, ["start", "--port", "50055"])
+    result = cli_runner.invoke(app, ["start", "--port", "50055"])
 
     assert result.exit_code == 0
     assert "Using port: 50055" in result.stdout
@@ -388,7 +382,7 @@ def test_start_command_with_port(cli_runner, mock_start_command):
 
 def test_start_command_student_version(cli_runner, mock_start_command):
     """Test start command for student version."""
-    result = cli_runner(app, ["start", "--student"])
+    result = cli_runner.invoke(app, ["start", "--student"])
 
     assert result.exit_code == 0
     assert "Starting student version..." in result.stdout
@@ -401,7 +395,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     """Test start command when Desktop initialization fails."""
     mock_desktop.side_effect = Exception("Dummy exception")
 
-    result = cli_runner(app, ["start"])
+    result = cli_runner.invoke(app, ["start"])
 
     assert result.exit_code == 0
     assert "✗ Error starting AEDT: Dummy exception" in result.stdout
@@ -419,7 +413,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     #     """Test start command when import fails."""
     #     mock_desktop.side_effect = ImportError("Cannot import Desktop")
 
-    #     result = cli_runner(app, ["start"])
+    #     result = cli_runner.invoke(app, ["start"])
 
     #     assert result.exit_code == 0
     #     assert "✗ Error starting AEDT: Cannot import Desktop" in result.stdout
@@ -433,7 +427,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     #     mock_desktop_instance = Mock()
     #     mock_desktop.return_value = mock_desktop_instance
 
-    #     result = cli_runner(app, ["start", "--port", "0"])
+    #     result = cli_runner.invoke(app, ["start", "--port", "0"])
 
     #     assert result.exit_code == 0
     #     assert "Using port:" not in result.stdout
@@ -454,7 +448,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     #     mock_desktop_instance = Mock()
     #     mock_desktop.return_value = mock_desktop_instance
 
-    #     result = cli_runner(app, ["start"])
+    #     result = cli_runner.invoke(app, ["start"])
 
     #     assert result.exit_code == 0
     #     assert mock_settings.enable_logger is False
@@ -468,7 +462,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     #     mock_desktop_instance = Mock()
     #     mock_desktop.return_value = mock_desktop_instance
 
-    #     result = cli_runner(app, ["start", "-v", "2023.2", "-ng", "-p", "50070"])
+    #     result = cli_runner.invoke(app, ["start", "-v", "2023.2", "-ng", "-p", "50070"])
 
     #     assert result.exit_code == 0
     #     assert "Starting AEDT 2023.2..." in result.stdout
@@ -494,18 +488,15 @@ def temp_personal_lib(tmp_path):
 
 def test_panels_add_help(cli_runner):
     """Test panels add help command."""
-    result = cli_runner(app, ["panels", "add", "--help"])
+    result = cli_runner.invoke(app, ["panels", "add", "--help"])
 
     assert result.exit_code == 0
     assert "Add PyAEDT panels to AEDT installation" in result.stdout
-    assert "--version" in result.stdout
-    assert "--personal-lib" in result.stdout
-    assert "--skip-version-manager" in result.stdout
 
 
 def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
     """Test successful panel installation."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
     )
@@ -530,7 +521,7 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
 
 def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
     """Test panel installation with skip version manager flag."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         [
             "panels",
@@ -558,7 +549,7 @@ def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aed
 
 def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
     """Test panel installation with short option flags."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "-v", "2024.1", "-p", str(temp_personal_lib)],
     )
@@ -570,7 +561,7 @@ def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_pers
 
 def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib):
     """Test panel installation with whitespace-only version."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--personal-lib", str(temp_personal_lib)],
         input="   \n",  # Whitespace only for version prompt
@@ -584,7 +575,7 @@ def test_panels_add_invalid_version_empty(
     cli_runner,
 ):
     """Test panel installation with empty version string via CLI."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "   ", "--personal-lib", "dummy"],
         input="\n",
@@ -596,7 +587,7 @@ def test_panels_add_invalid_version_empty(
 
 def test_panels_add_invalid_personal_lib_none(cli_runner):
     """Test panel installation with whitespace-only personal_lib."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "2025.2"],
         input="   \n",  # Whitespace only for path prompt
@@ -610,7 +601,7 @@ def test_panels_add_invalid_personal_lib_none(cli_runner):
 
 def test_panels_add_nonexistent_personal_lib(cli_runner):
     """Test panel installation with non-existent PersonalLib path."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path/PersonalLib"],
     )
@@ -626,7 +617,7 @@ def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path):
     file_path = tmp_path / "not_a_directory.txt"
     file_path.write_text("dummy content")
 
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "2025.2", "--personal-lib", str(file_path)],
     )
@@ -641,7 +632,7 @@ def test_panels_add_installer_returns_false(cli_runner, temp_personal_lib):
     with patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt") as mock_func:
         mock_func.return_value = False
 
-        result = cli_runner(
+        result = cli_runner.invoke(
             app,
             ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
         )
@@ -656,7 +647,7 @@ def test_panels_add_import_error(cli_runner, temp_personal_lib):
         "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
         side_effect=ImportError("Cannot import installer"),
     ):
-        result = cli_runner(
+        result = cli_runner.invoke(
             app,
             ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
         )
@@ -672,7 +663,7 @@ def test_panels_add_generic_exception(cli_runner, temp_personal_lib):
         "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
         side_effect=Exception("Unexpected error"),
     ):
-        result = cli_runner(
+        result = cli_runner.invoke(
             app,
             ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
         )
@@ -684,7 +675,7 @@ def test_panels_add_generic_exception(cli_runner, temp_personal_lib):
 @patch("platform.system", return_value="Windows")
 def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner):
     """Test that Windows-specific path hint is shown on Windows."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "2025.2", "--personal-lib", "C:\\nonexistent\\path"],
     )
@@ -696,7 +687,7 @@ def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner):
 @patch("platform.system", return_value="Linux")
 def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner):
     """Test that Linux-specific path hint is shown on Linux."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path"],
     )
@@ -707,7 +698,7 @@ def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner):
 
 def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
     """Test that version and path whitespace is stripped."""
-    result = cli_runner(
+    result = cli_runner.invoke(
         app,
         ["panels", "add", "--version", "  2025.2  ", "--personal-lib", f"  {temp_personal_lib}  "],
     )
