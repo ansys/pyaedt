@@ -401,19 +401,24 @@ class TestClass:
         assert exception_raised
         settings.force_error_on_missing_project = False
 
-    def test_get_app(self, desktop, aedtapp):
+    def test_get_app(self, desktop, add_app):
+        app = add_app(application=Icepak)
+        project_name = app.project_name
         d = desktop
         assert d[[0, 0]]
-        assert not d[[test_project_name, "invalid_name"]]
-        assert d[[0, aedtapp.design_name]]
-        assert d[[test_project_name, 0]]
-        assert not d[[test_project_name, 5]]
+        assert not d[[project_name, "invalid_name"]]
+        assert d[[0, app.design_name]]
+        assert d[[project_name, 0]]
+        assert not d[[project_name, 5]]
         assert not d[[1, 0]]
         assert not d[[1, 0, 3]]
-        aedtapp.close_project(aedtapp.project_name)
-        aedtapp.create_new_project("Test")
+
+        app.create_new_project("Test")
         assert d[[1, 0]]
         assert "Test" in d[[1, 0]].project_name
+        project_name2 = app.project_name
+        app.close_project(project_name2)
+        app.close_project(project_name)
 
     def test_load(self, add_app, local_scratch):
         file_name = os.path.join(local_scratch.path, "test_36.aedt")
