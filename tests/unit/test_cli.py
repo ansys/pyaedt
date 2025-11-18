@@ -410,11 +410,10 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     assert "- License server not available" in result.stdout
     assert "- Insufficient permissions" in result.stdout
 
+
 @patch("ansys.aedt.core.cli._get_tests_folder")
 def test_get_config_path(mock_get_tests_folder, tmp_path):
     """Test _get_config_path helper function."""
-    
-
     mock_get_tests_folder.return_value = tmp_path
     config_path, config = _get_config_path()
 
