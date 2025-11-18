@@ -263,6 +263,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         run: |
@@ -332,6 +334,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         env:
@@ -406,6 +410,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         run: |
@@ -482,6 +488,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         env:
@@ -563,6 +571,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         run: |
@@ -640,6 +650,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         env:
@@ -730,6 +742,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         run: |
@@ -806,6 +820,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         env:
@@ -881,6 +897,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         run: |
@@ -951,6 +969,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+        with:
+          enable-cache: false
 
       - name: Create virtual environment
         run: |
@@ -1024,6 +1044,8 @@ jobs:
 
        - name: Install uv
          uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+         with:
+           enable-cache: false
 
        - name: Create virtual environment
          env:
