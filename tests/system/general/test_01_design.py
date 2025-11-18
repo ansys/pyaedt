@@ -410,6 +410,7 @@ class TestClass:
         assert not d[[test_project_name, 5]]
         assert not d[[1, 0]]
         assert not d[[1, 0, 3]]
+        aedtapp.close_project(aedtapp.project_name)
         aedtapp.create_new_project("Test")
         assert d[[1, 0]]
         assert "Test" in d[[1, 0]].project_name
@@ -417,7 +418,6 @@ class TestClass:
     def test_load(self, add_app, local_scratch):
         file_name = os.path.join(local_scratch.path, "test_36.aedt")
         hfss = add_app(project_name=file_name, just_open=True)
-        hfss.save_project()
         assert hfss
         h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
         assert h3d
@@ -434,18 +434,17 @@ class TestClass:
         except Exception:
             assert True
         try:
-            os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
-            file_name3 = os.path.join(self.local_scratch.path, "test_36_2.aedb", "edb.def")
+            os.makedirs(os.path.join(local_scratch.path, "test_36_2.aedb"))
+            file_name3 = os.path.join(local_scratch.path, "test_36_2.aedb", "edb.def")
             with open(file_name3, "w") as f:
                 f.write(" ")
             _ = Hfss3dLayout(project=file_name3, version=desktop_version)
         except Exception:
             assert True
-
-    def test_add_custom_toolkit(self, desktop):
-        assert customize_automation_tab.available_toolkits()
+        hfss.close_project()
 
     def test_toolkit(self, aedtapp, desktop, local_scratch):
+        assert customize_automation_tab.available_toolkits()
         file = os.path.join(local_scratch.path, "test.py")
         with open(file, "w") as f:
             f.write("import ansys.aedt.core\n")
@@ -479,6 +478,7 @@ class TestClass:
         assert "AmbRadTemp" in design_settings_dict
         assert "GravityVec" in design_settings_dict
         assert "GravityDir" in design_settings_dict
+        ipk.close_project()
 
     def test_desktop_reference_counting(self, desktop):
         num_references = desktop._connected_app_instances
@@ -487,50 +487,52 @@ class TestClass:
             assert desktop._connected_app_instances == num_references + 1
             hfss.set_active_design(hfss.design_name)
             assert desktop._connected_app_instances == num_references + 1
+            hfss.close_project()
         assert desktop._connected_app_instances == num_references
 
-    def test_save_project_with_file_name(self, aedtapp, local_scratch):
+    def test_save_project_with_file_name(self, add_app, local_scratch):
         # Save into path with existing parent dir
-        aedtapp.create_new_project("Test")
+        app = add_app(application=Hfss)
         new_project = os.path.join(local_scratch.path, "new.aedt")
         assert os.path.exists(local_scratch.path)
-        aedtapp.save_project(file_name=new_project)
+        app.save_project(file_name=new_project)
         assert os.path.isfile(new_project)
 
         # Save into path with non-existing parent dir
         new_parent_dir = os.path.join(local_scratch.path, "new_dir")
         new_project = os.path.join(new_parent_dir, "new_2.aedt")
         assert not os.path.exists(new_parent_dir)
-        aedtapp.save_project(file_name=new_project)
+        app.save_project(file_name=new_project)
         assert os.path.isfile(new_project)
 
-        aedtapp.close_project(aedtapp.project_name)
+        app.close_project(app.project_name)
 
-    def test_desktop_save_as(self, aedtapp, local_scratch):
+    def test_desktop_save_as(self, add_app, local_scratch):
         # Save as passing a string
-        aedtapp.create_new_project("test_desktop_save_as")
+        app = add_app(application=Hfss)
         new_project = os.path.join(local_scratch.path, "new.aedt")
         assert os.path.exists(local_scratch.path)
-        assert aedtapp.desktop_class.save_project(project_path=new_project)
+        assert app.desktop_class.save_project(project_path=new_project)
         assert os.path.isfile(new_project)
+        assert app.project_name == "new"
 
         # Test using Path instead of string
         new_project_path = Path(local_scratch.path) / "new_2.aedt"
-        assert aedtapp.desktop_class.save_project(project_path=new_project_path)
+        assert app.desktop_class.save_project(project_path=new_project_path)
         assert new_project_path.exists()
-
+        assert app.project_name == "new2"
         # Test using Path with only dir
         only_project_path = Path(local_scratch.path)
-        assert aedtapp.desktop_class.save_project(project_path=only_project_path)
+        assert app.desktop_class.save_project(project_path=only_project_path)
         assert new_project_path.exists()
 
         # Test using Path and providing a project name
-        new_project_path = Path(local_scratch.path) / "new_3.aedt"
-        project_name = aedtapp.project_name
-        assert aedtapp.desktop_class.save_project(project_name=project_name, project_path=new_project_path)
+        new_project_path = local_scratch.path / "new_3.aedt"
+        project_name = app.project_name
+        assert app.desktop_class.save_project(project_name=project_name, project_path=new_project_path)
         assert new_project_path.exists()
-
-        aedtapp.close_project(aedtapp.project_name)
+        assert app.project_name == "new_3"
+        app.close_project(app.project_name)
 
     def test_edit_notes(self, aedtapp):
         aedtapp.create_new_project("Test_notes")

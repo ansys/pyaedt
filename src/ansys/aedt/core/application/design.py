@@ -810,9 +810,9 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.GetName
         """
-        if self._project_name:
+        if self._project_name and self._project_name in self.desktop_class.project_list:
             return self._project_name
-        if self.oproject:
+        elif self.oproject:
             try:
                 self._project_name = self.oproject.GetName()
                 self._project_path = None
