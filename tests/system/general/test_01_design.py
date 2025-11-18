@@ -534,11 +534,11 @@ class TestClass:
         assert app.project_name == "new_3"
         app.close_project(app.project_name)
 
-    def test_edit_notes(self, aedtapp):
-        aedtapp.create_new_project("Test_notes")
-        assert aedtapp.edit_notes("this a test")
-        assert not aedtapp.edit_notes(1)
-        aedtapp.close_project(aedtapp.project_name)
+    def test_edit_notes(self, add_app):
+        app = add_app(application=Hfss)
+        assert app.edit_notes("this a test")
+        assert not app.edit_notes(1)
+        app.close_project(app.project_name)
 
     def test_close_desktop(self, desktop, aedtapp, monkeypatch):
         called = {}
