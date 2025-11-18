@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 from pathlib import Path
 import tempfile
 
@@ -73,16 +72,16 @@ class TestClass:
         assert aedtapp.valid_design
         assert aedtapp.clean_proj_folder()
         assert aedtapp.desktop_class.install_path
-        assert os.path.exists(aedtapp.lock_file)
+        assert Path(aedtapp.lock_file).is_file()
         assert aedtapp.design_type == "HFSS"
         mylist = aedtapp.design_list
         assert len(mylist) == 1
         assert aedtapp.project_name == test_project_name
-        assert os.path.exists(aedtapp.results_directory)
+        assert Path(aedtapp.results_directory).exists()
 
     def test_desktop_class_path(self, aedtapp):
-        assert os.path.exists(aedtapp.desktop_class.project_path())
-        assert os.path.exists(aedtapp.desktop_class.project_path(aedtapp.project_name))
+        assert Path(aedtapp.desktop_class.project_path()).exists()
+        assert Path(aedtapp.desktop_class.project_path(aedtapp.project_name)).exists()
 
         assert len(aedtapp.desktop_class.design_list(aedtapp.project_name)) == 1
         assert aedtapp.desktop_class.design_type() == "HFSS"
@@ -108,16 +107,16 @@ class TestClass:
         aedtapp.solution_type = "Modal"
 
     def test_libs(self, aedtapp):
-        assert os.path.exists(aedtapp.personallib)
-        assert os.path.exists(aedtapp.userlib)
-        assert os.path.exists(aedtapp.syslib)
-        assert os.path.exists(aedtapp.temp_directory)
-        assert os.path.exists(aedtapp.toolkit_directory)
-        assert os.path.exists(aedtapp.working_directory)
+        assert Path(aedtapp.personallib).exists()
+        assert Path(aedtapp.userlib).exists()
+        assert Path(aedtapp.syslib).exists()
+        assert Path(aedtapp.temp_directory).exists()
+        assert Path(aedtapp.toolkit_directory).exists()
+        assert Path(aedtapp.working_directory).exists()
 
     def test_set_temp_dir(self, aedtapp, local_scratch):
-        assert os.path.exists(aedtapp.set_temporary_directory(os.path.join(local_scratch.path, "temp_dir")))
-        assert aedtapp.set_temporary_directory(os.path.join(local_scratch.path, "temp_dir"))
+        assert Path(aedtapp.set_temporary_directory(local_scratch.path / "temp_dir")).exists()
+        assert aedtapp.set_temporary_directory(local_scratch.path / "temp_dir")
         aedtapp.set_temporary_directory(tempfile.gettempdir())
 
     def test_objects(self, aedtapp):
@@ -217,8 +216,8 @@ class TestClass:
         assert aedtapp.design_name == original_name
 
     def test_export_proj_var(self, aedtapp, local_scratch):
-        aedtapp.export_variables_to_csv(os.path.join(local_scratch.path, "my_variables.csv"))
-        assert os.path.exists(os.path.join(local_scratch.path, "my_variables.csv"))
+        aedtapp.export_variables_to_csv(local_scratch.path / "my_variables.csv")
+        assert Path(local_scratch.path / "my_variables.csv").exists()
 
     def test_create_design_dataset(self, aedtapp):
         x = [1, 100]
@@ -265,7 +264,7 @@ class TestClass:
         assert len(ds.x) == xl + 1
 
     def test_import_dataset1d(self, aedtapp):
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "ds_1d.tab")
+        filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "ds_1d.tab"
         ds4 = aedtapp.import_dataset1d(filename)
         assert ds4.name == "$ds_1d"
         ds5 = aedtapp.import_dataset1d(filename, name="dataset_test", is_project_dataset=False)
@@ -279,21 +278,21 @@ class TestClass:
         assert ds5.delete()
 
     def test_import_dataset3d(self, aedtapp):
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.tab")
+        filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.tab"
         ds8 = aedtapp.import_dataset3d(filename)
         assert ds8.name == "$Dataset_3D"
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.csv")
+        filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.csv"
         ds8 = aedtapp.import_dataset3d(filename, name="dataset_csv")
         assert ds8.name == "$dataset_csv"
         assert ds8.delete()
         ds10 = aedtapp.import_dataset3d(filename, name="$dataset_test")
         assert ds10.zunit == "mm"
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.csv")
+        filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.csv"
         ds8 = aedtapp.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
         assert ds8.name == "$dataset_csv"
 
     def test_import_dataset3d_xlsx(self, aedtapp):
-        filename = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Dataset_3D.xlsx")
+        filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.xlsx"
         ds9 = aedtapp.import_dataset3d(filename, name="myExcel")
         assert ds9.name == "$myExcel"
 
@@ -308,9 +307,9 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="Not needed in Linux.")
     def test_generate_temp_project_directory(self, aedtapp):
         proj_dir1 = aedtapp.generate_temp_project_directory("Example")
-        assert os.path.exists(proj_dir1)
+        assert Path(proj_dir1).exists()
         proj_dir2 = aedtapp.generate_temp_project_directory("")
-        assert os.path.exists(proj_dir2)
+        assert Path(proj_dir2).exists()
         proj_dir4 = aedtapp.generate_temp_project_directory(34)
         assert not proj_dir4
 
@@ -336,9 +335,7 @@ class TestClass:
         assert aedtapp.set_license_type("Pool")
 
     def test_change_registry_from_file(self, aedtapp):
-        assert aedtapp.set_registry_from_file(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Test.acf")
-        )
+        assert aedtapp.set_registry_from_file(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Test.acf")
 
     def test_odefinition_manager(self, aedtapp):
         assert aedtapp.odefinition_manager
@@ -421,45 +418,45 @@ class TestClass:
         app.close_project(project_name)
 
     def test_load(self, add_app, local_scratch):
-        file_name = os.path.join(local_scratch.path, "test_36.aedt")
-        hfss = add_app(project_name=file_name, just_open=True)
+        file_name = local_scratch.path / "test_36.aedt"
+        hfss = add_app(project_name=str(file_name), just_open=True)
         assert hfss
-        h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
+        h3d = add_app(project_name=str(file_name), application=Hfss3dLayout, just_open=True)
         assert h3d
-        h3d = add_app(project_name=file_name, application=Hfss3dLayout, just_open=True)
+        h3d = add_app(project_name=str(file_name), application=Hfss3dLayout, just_open=True)
         assert h3d
-        file_name2 = os.path.join(local_scratch.path, "test_36_2.aedt")
-        file_name2_lock = os.path.join(local_scratch.path, "test_36_2.aedt.lock")
+        file_name2 = local_scratch.path / "test_36_2.aedt"
+        file_name2_lock = local_scratch.path / "test_36_2.aedt.lock"
         with open(file_name2, "w") as f:
             f.write(" ")
         with open(file_name2_lock, "w") as f:
             f.write(" ")
         try:
-            _ = Hfss(project=file_name2, version=desktop_version)
+            _ = Hfss(project=str(file_name2), version=desktop_version)
         except Exception:
             assert True
         try:
-            os.makedirs(os.path.join(local_scratch.path, "test_36_2.aedb"))
-            file_name3 = os.path.join(local_scratch.path, "test_36_2.aedb", "edb.def")
+            (local_scratch.path / "test_36_2.aedb").mkdir(parents=True, exist_ok=True)
+            file_name3 = local_scratch.path / "test_36_2.aedb" / "edb.def"
             with open(file_name3, "w") as f:
                 f.write(" ")
-            _ = Hfss3dLayout(project=file_name3, version=desktop_version)
+            _ = Hfss3dLayout(project=str(file_name3), version=desktop_version)
         except Exception:
             assert True
         hfss.close_project()
 
     def test_toolkit(self, aedtapp, desktop, local_scratch):
         assert customize_automation_tab.available_toolkits()
-        file = os.path.join(local_scratch.path, "test.py")
+        file = local_scratch.path / "test.py"
         with open(file, "w") as f:
             f.write("import ansys.aedt.core\n")
-        assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=file)
+        assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=str(file))
         assert customize_automation_tab.remove_script_from_menu(
             desktop_object=aedtapp.desktop_class, name="test_toolkit"
         )
         assert customize_automation_tab.add_script_to_menu(
             name="test_toolkit",
-            script_file=file,
+            script_file=str(file),
             personal_lib=aedtapp.desktop_class.personallib,
             aedt_version=aedtapp.desktop_class.aedt_version_id,
         )
@@ -468,10 +465,10 @@ class TestClass:
         )
 
     def test_load_project(self, aedtapp, desktop, local_scratch):
-        new_project = os.path.join(local_scratch.path, "new.aedt")
-        aedtapp.save_project(file_name=new_project)
+        new_project = local_scratch.path / "new.aedt"
+        aedtapp.save_project(file_name=str(new_project))
         aedtapp.close_project(name="new")
-        aedtapp = desktop.load_project(new_project)
+        aedtapp = desktop.load_project(str(new_project))
         assert aedtapp
 
     def test_get_design_settings(self, add_app):
@@ -498,27 +495,27 @@ class TestClass:
     def test_save_project_with_file_name(self, add_app, local_scratch):
         # Save into path with existing parent dir
         app = add_app(application=Hfss)
-        new_project = os.path.join(local_scratch.path, "new.aedt")
-        assert os.path.exists(local_scratch.path)
-        app.save_project(file_name=new_project)
-        assert os.path.isfile(new_project)
+        new_project = local_scratch.path / "new.aedt"
+        assert Path(local_scratch.path).exists()
+        app.save_project(file_name=str(new_project))
+        assert Path(new_project).is_file()
 
         # Save into path with non-existing parent dir
-        new_parent_dir = os.path.join(local_scratch.path, "new_dir")
-        new_project = os.path.join(new_parent_dir, "new_2.aedt")
-        assert not os.path.exists(new_parent_dir)
-        app.save_project(file_name=new_project)
-        assert os.path.isfile(new_project)
+        new_parent_dir = local_scratch.path / "new_dir"
+        new_project = new_parent_dir / "new_2.aedt"
+        assert not Path(new_parent_dir).exists()
+        app.save_project(file_name=str(new_project))
+        assert Path(new_project).is_file()
 
         app.close_project(app.project_name)
 
     def test_desktop_save_as(self, add_app, local_scratch):
         # Save as passing a string
         app = add_app(application=Hfss)
-        new_project = os.path.join(local_scratch.path, "new.aedt")
-        assert os.path.exists(local_scratch.path)
-        assert app.desktop_class.save_project(project_path=new_project)
-        assert os.path.isfile(new_project)
+        new_project = local_scratch.path / "new.aedt"
+        assert Path(local_scratch.path).exists()
+        assert app.desktop_class.save_project(project_path=str(new_project))
+        assert Path(new_project).is_file()
         assert app.project_name == "new"
 
         # Test using Path instead of string
