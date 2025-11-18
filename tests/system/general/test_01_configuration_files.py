@@ -228,6 +228,6 @@ class TestClass:
         assert Path(path).exists()
         app.insert_design("new_import")
         app.configurations.import_config(str(path))
-        export_json = local_scratch.path, "export_config.json"
+        export_json = local_scratch.path / "export_config.json"
         assert app.configurations.export_config(str(export_json))
         app.close_project(save=False)
