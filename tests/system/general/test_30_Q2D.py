@@ -39,13 +39,6 @@ q2d_q3d = "q2d_q3d_231"
 q2d_solved_name = "q2d_solved"
 
 
-@pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
-    yield app
-    app.close_project(app.project_name)
-
-
 @pytest.fixture()
 def aedtapp(add_app):
     app = add_app(application=Q2d)

@@ -27,16 +27,11 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Q2d
-from tests.conftest import config
 
 test_subfolder = "T36"
 
-if config["desktopVersion"] > "2022.2":
-    q2d_solved_sweep = "q2d_solved_sweep_231"
-    q2d_solved_nominal = "q2d_solved_nominal_231"
-else:
-    q2d_solved_sweep = "q2d_solved_sweep"
-    q2d_solved_nominal = "q2d_solved_nominal"
+q2d_solved_sweep = "q2d_solved_sweep"
+q2d_solved_nominal = "q2d_solved_nominal"
 
 
 @pytest.fixture(scope="class")
