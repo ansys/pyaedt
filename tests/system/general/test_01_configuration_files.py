@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 # standard imports
-import os
+from pathlib import Path
 
 import pytest
 
@@ -97,7 +97,9 @@ class TestClass:
         conf_file = aedtapp.configurations.export_config()
         assert aedtapp.configurations.validate(conf_file)
         filename = aedtapp.design_name
-        file_path = os.path.join(aedtapp.working_directory, filename + ".x_b")
+        output_file = filename + ".x_b"
+        file_path = Path(aedtapp.working_directory) / output_file
+
         aedtapp.export_3d_model(filename, aedtapp.working_directory, ".x_b", [], [])
         aedtapp.close_project(save=False)
 
@@ -115,7 +117,9 @@ class TestClass:
         conf_file = q3dtest.configurations.export_config()
         assert q3dtest.configurations.validate(conf_file)
         filename = q3dtest.design_name
-        file_path = os.path.join(q3dtest.working_directory, filename + ".x_b")
+        output_file = filename + ".x_b"
+        file_path = Path(q3dtest.working_directory) / output_file
+
         q3dtest.export_3d_model(filename, q3dtest.working_directory, ".x_b", [], [])
         q3dtest.close_project(save=False)
 
@@ -134,7 +138,10 @@ class TestClass:
 
         assert q2dtest.configurations.validate(conf_file)
         filename = q2dtest.design_name
-        file_path = os.path.join(q2dtest.working_directory, filename + ".x_t")
+
+        output_file = filename + ".x_t"
+        file_path = Path(q2dtest.working_directory) / output_file
+
         q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_t", [], [])
         q2dtest.close_project(save=False)
 
@@ -185,12 +192,11 @@ class TestClass:
     def test_hfss3dlayout_setup(self, hfss3dl_a, local_scratch):
         setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")  # Insert a setup.
         assert setup2.props["ViaNumSides"] == 6  # Check the default value.
-        export_path = os.path.join(local_scratch.path, "export_setup_properties.json")  # Legacy.
-        assert setup2.export_to_json(export_path)  # Export from setup directly.
+        export_path = local_scratch.path / "export_setup_properties.json"  # Legacy.
+        assert setup2.export_to_json(str(export_path))  # Export from setup directly.
         conf_file = hfss3dl_a.configurations.export_config()  # Design level export. Same as other apps.
-        assert setup2.import_from_json(
-            os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "hfss3dl_setup.json")
-        )
+        json_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "hfss3dl_setup.json"
+        assert setup2.import_from_json(str(json_file))
         assert setup2.props["ViaNumSides"] == 12
         assert hfss3dl_a.configurations.validate(conf_file)
         hfss3dl_a.configurations.import_config(conf_file)
@@ -198,28 +204,30 @@ class TestClass:
 
     def test_hfss3dlayout_existing_setup(self, hfss3dl_a, hfss3dl_b, local_scratch):
         setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")
-        export_path = os.path.join(local_scratch.path, "export_setup_properties.json")
-        assert setup2.export_to_json(export_path, overwrite=True)
-        assert not setup2.export_to_json(export_path)
+        export_path = local_scratch.path / "export_setup_properties.json"
+        assert setup2.export_to_json(str(export_path), overwrite=True)
+        assert not setup2.export_to_json(str(export_path))
         setup3 = hfss3dl_b.create_setup("My_HFSS_Setup_3")
-        assert setup3.import_from_json(export_path)
+        assert setup3.import_from_json(str(export_path))
         assert setup3.update()
 
     def test_circuit(self, circuittest, local_scratch):
         path = circuittest.configurations.export_config()
-        assert os.path.exists(path)
+        assert Path(path).is_file()
         circuittest.insert_design("new_import")
         circuittest.configurations.import_config(path)
-        assert circuittest.configurations.export_config(os.path.join(local_scratch.path, "export_config.json"))
+        export_json = local_scratch.path / "export_config.json"
+        assert circuittest.configurations.export_config(str(export_json))
 
     def test_circuit_import_config(self, add_app, local_scratch):
-        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models/T01/models")
-        dest_folder = os.path.join(local_scratch.path, "models")
+        example_project = TESTS_GENERAL_PATH / "example_models" / "T01" / "models"
+        dest_folder = local_scratch.path / "models"
         local_scratch.copyfolder(example_project, dest_folder)
         app = add_app(application=Circuit, project_name="AMI_Example", subfolder="T01")
         path = app.configurations.export_config()
-        assert os.path.exists(path)
+        assert Path(path).exists()
         app.insert_design("new_import")
-        app.configurations.import_config(path)
-        assert app.configurations.export_config(os.path.join(local_scratch.path, "export_config.json"))
+        app.configurations.import_config(str(path))
+        export_json = local_scratch.path, "export_config.json"
+        assert app.configurations.export_config(str(export_json))
         app.close_project(save=False)
