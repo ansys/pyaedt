@@ -506,7 +506,7 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
 
     assert result.exit_code == 0
     assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
-    assert "✓ PyAEDT panels installed successfully!" in result.stdout
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
     assert "• Console" in result.stdout
     assert "• Jupyter" in result.stdout
     assert "• Run Script" in result.stdout
@@ -539,7 +539,7 @@ def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aed
 
     assert result.exit_code == 0
     assert "Skipping Version Manager tab..." in result.stdout
-    assert "✓ PyAEDT panels installed successfully!" in result.stdout
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
     assert "• Version Manager" not in result.stdout
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
@@ -550,7 +550,7 @@ def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aed
     )
 
 
-def test_panels_add_short_options(cli_runner, temp_personal_lib):
+def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
     """Test panel installation with short option flags."""
     result = cli_runner.invoke(
         app,
@@ -559,7 +559,7 @@ def test_panels_add_short_options(cli_runner, temp_personal_lib):
 
     assert result.exit_code == 0
     assert "Installing PyAEDT panels for AEDT 2024.1..." in result.stdout
-    assert "✓ PyAEDT panels installed successfully!" in result.stdout
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
 
 
 def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib):
@@ -597,7 +597,9 @@ def test_panels_add_invalid_personal_lib_none(cli_runner):
     )
 
     assert result.exit_code == 1
-    assert "✗ Invalid PersonalLib path" in result.stdout
+    assert "✗" in result.stdout
+    assert "personal_lib" in result.stdout
+    assert "invalid" in result.stdout.lower()
 
 
 def test_panels_add_nonexistent_personal_lib(cli_runner):
@@ -608,7 +610,8 @@ def test_panels_add_nonexistent_personal_lib(cli_runner):
     )
 
     assert result.exit_code == 1
-    assert "✗ PersonalLib path does not exist" in result.stdout
+    assert "✗" in result.stdout
+    assert "does not exist" in result.stdout
     assert "Common PersonalLib locations:" in result.stdout
 
 
@@ -623,7 +626,8 @@ def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path):
     )
 
     assert result.exit_code == 1
-    assert "✗ PersonalLib path is not a directory" in result.stdout
+    assert "✗" in result.stdout
+    assert "not a directory" in result.stdout
 
 
 def test_panels_add_installer_returns_false(cli_runner, temp_personal_lib):
