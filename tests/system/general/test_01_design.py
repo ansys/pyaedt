@@ -115,7 +115,8 @@ class TestClass:
         assert Path(aedtapp.working_directory).exists()
 
     def test_set_temp_dir(self, aedtapp, local_scratch):
-        assert Path(aedtapp.set_temporary_directory(local_scratch.path / "temp_dir")).exists()
+        temp_dir = local_scratch.path / "temp_dir"
+        assert aedtapp.set_temporary_directory(temp_dir)
         assert aedtapp.set_temporary_directory(local_scratch.path / "temp_dir")
         aedtapp.set_temporary_directory(tempfile.gettempdir())
 

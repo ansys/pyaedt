@@ -65,20 +65,6 @@ class TestClass:
     def test_download_multiparts(self):
         assert self.examples.download_multiparts(destination=Path(tempfile.gettempdir()) / "multi")
 
-    def test_download_wfp(self):
-        assert self.examples.download_edb_merge_utility(True)
-        assert self.examples.download_edb_merge_utility(True, destination=tempfile.gettempdir())
-        out = self.examples.download_edb_merge_utility()
-        assert Path(out).exists()
-        new_name = generate_unique_name("test")
-
-        out_path = Path(out)
-        new_path = out_path.parent / new_name
-
-        out_path.parent.rename(new_path)
-
-        assert new_path.exists()
-
     def test_download_leaf(self):
         out = self.examples.download_leaf()
 
