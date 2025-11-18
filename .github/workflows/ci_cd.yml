@@ -261,18 +261,20 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         run: |
-          python -m venv .venv
+          uv venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -328,15 +330,17 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          python -m venv .venv
+          uv venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
@@ -345,7 +349,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -400,18 +404,20 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         run: |
-          python -m venv .venv
+          uv venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -474,15 +480,17 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          python -m venv .venv
+          uv venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
@@ -491,7 +499,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -553,18 +561,20 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         run: |
-          python -m venv .venv
+          uv venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -628,15 +638,17 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          python -m venv .venv
+          uv venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
@@ -645,7 +657,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -716,18 +728,20 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         run: |
-          python -m venv .venv
+          uv venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -790,15 +804,17 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          python -m venv .venv
+          uv venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
@@ -807,7 +823,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -863,18 +879,20 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         run: |
-          python -m venv .venv
+          uv venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -931,18 +949,20 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
       - name: Create virtual environment
         run: |
-          python -m venv .venv
+          uv venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          uv pip install --upgrade wheel setuptools
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1002,15 +1022,17 @@ jobs:
          with:
            python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+       - name: Install uv
+         uses: astral-sh/setup-uv@5a7eac68fb9809dea845d802897dc5c723910fa3 # v7.1.3
+
        - name: Create virtual environment
          env:
            ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
          run: |
            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-           python -m venv .venv
+           uv venv .venv
            source .venv/bin/activate
-           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+           uv pip install --upgrade wheel setuptools
            python -c "import sys; print(sys.executable)"
 
        - name: Install pyaedt and tests dependencies
@@ -1019,7 +1041,7 @@ jobs:
          run: |
            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
            source .venv/bin/activate
-           pip install .[tests]
+           uv pip install .[tests]
 
        - name: "Install X Virtual Frame Buffer"
          run: |
