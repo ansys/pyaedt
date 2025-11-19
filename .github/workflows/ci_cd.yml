@@ -969,7 +969,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Check for changes in filter solutions folder
+      - name: Check for changes in filter solutions
         id: changes
         env:
           GITHUB_REF: ${{ github.ref }}
@@ -980,7 +980,7 @@ jobs:
           $changed_files = git diff --name-only origin/main...HEAD
           $run_tests = $false
           foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/filtersolutions_core/*") {
+            if ($file -like "src/ansys/aedt/core/filtersolutions_core/*" -or $file -eq "src/ansys/aedt/core/filtersolutions.py") {
               $run_tests = $true
               break
             }
@@ -1084,7 +1084,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Check for changes in EMIT folder
+      - name: Check for changes in EMIT
         id: changes
         env:
           GITHUB_REF: ${{ github.ref }}
@@ -1095,7 +1095,7 @@ jobs:
           $changed_files = git diff --name-only origin/main...HEAD
           $run_tests = $false
           foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/emit_core/*") {
+            if ($file -like "src/ansys/aedt/core/emit_core/*" -or $file -eq "src/ansys/aedt/core/emit.py") {
               $run_tests = $true
               break
             }
