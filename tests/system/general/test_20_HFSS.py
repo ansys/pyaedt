@@ -1642,7 +1642,7 @@ def test_create_near_field_line(aedtapp):
     assert bound
 
 
-def test_test_nastran(aedtapp, local_scratch):
+def test_nastran(aedtapp, local_scratch):
     aedtapp.insert_design("Nas_test")
     example_project = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_cad.nas"
     example_project2 = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_cad_2.nas"
