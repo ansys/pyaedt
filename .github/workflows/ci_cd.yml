@@ -755,7 +755,7 @@ jobs:
           } else {
             echo "ℹ️ No changes in extensions folder"
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "run_tests=$run_tests"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
 
       - name: Skip extensions tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -997,7 +997,7 @@ jobs:
           } else {
             echo "ℹ️ No changes in filter solutions folder"
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "run_tests=$run_tests"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
 
       - name: Skip filter solutions tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -1113,7 +1113,7 @@ jobs:
           } else {
             echo "ℹ️ No changes in EMIT folder"
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "run_tests=$run_tests"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
 
       - name: Skip EMIT tests
         if: steps.changes.outputs.run_tests == 'false'
