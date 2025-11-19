@@ -109,8 +109,8 @@ def test_bounding_box(aedtapp):
 
 
 def test_convert_to_selection(coaxial):
-    assert type(coaxial.modeler.convert_to_selections("inner", True)) is list
-    assert type(coaxial.modeler.convert_to_selections("inner", False)) is str
+    assert isinstance(coaxial.modeler.convert_to_selections("inner", True), list)
+    assert isinstance(coaxial.modeler.convert_to_selections("inner", False), str)
 
 
 def test_split(aedtapp):
