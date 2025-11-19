@@ -583,7 +583,6 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m visualization -x
