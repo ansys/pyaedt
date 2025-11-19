@@ -379,9 +379,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Examples
         --------
-        Create an instance of Maxwell and link to a project named
-        ``projectname``. If this project does not exist, create one with
-        this name.
+        Create an instance of Maxwell and attach it to an existing session where project name is  ``project_name``. If this project does not exist, create one with this name.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(project_name)
@@ -395,7 +393,6 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         Now the inception voltage evaluation can be performed on all (or a subset) of the created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
-
         """
         if self._app.solution_type != "Electrostatic":
             raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
