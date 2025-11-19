@@ -179,9 +179,9 @@ jobs:
           whitelist-license-check: 'fpdf2'
 
       - name: Import python package
-        shell: bash
         env:
           ACTIVATE_VENV: ${{ steps.build-wheelhouse.outputs.activate-venv }}
+        shell: bash
         run: |
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
@@ -270,10 +270,10 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -343,10 +343,10 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         run: |
           source .venv/bin/activate
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -415,10 +415,10 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -495,10 +495,10 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         run: |
           source .venv/bin/activate
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -574,10 +574,10 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -655,10 +655,10 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         run: |
           source .venv/bin/activate
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
@@ -716,7 +716,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-windows:
-    name: Test extensions (windows) if needed
+    name: Test extensions - windows (if needed)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -731,6 +731,7 @@ jobs:
         id: changes
         env:
           GITHUB_REF: ${{ github.ref }}
+        shell: powershell
         run: |
           $GITHUB_REF = "${env:GITHUB_REF}"
           $is_main_branch = $GITHUB_REF -eq "refs/heads/main"
@@ -752,12 +753,12 @@ jobs:
             echo "ℹ️ No changes in extensions folder"
           }
           echo "run_tests=$run_tests" >> $env:GITHUB_OUTPUT
-        shell: powershell
+
 
       - name: Skip extensions tests
         if: steps.changes.outputs.run_tests == 'false'
-        run: echo "Skipped - No changes in src/ansys/aedt/core/extensions"
         shell: bash
+        run: echo "Skipped - No changes in src/ansys/aedt/core/extensions"
 
       - name: Set up headless display
         if: steps.changes.outputs.run_tests == 'true'
@@ -780,11 +781,11 @@ jobs:
         if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         if: steps.changes.outputs.run_tests == 'true'
@@ -835,7 +836,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-linux:
-    name: Test extensions (linux) if needed 
+    name: Test extensions - linux (if needed)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -851,9 +852,9 @@ jobs:
 
       - name: Check for changes in extensions folder
         id: changes
-        shell: bash
         env:
           GITHUB_REF: ${{ github.ref }}
+        shell: bash
         run: |
           is_main_branch=false
           if [ "$GITHUB_REF" = "refs/heads/main" ]; then
@@ -903,11 +904,11 @@ jobs:
         if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
         run: |
           source .venv/bin/activate
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         if: steps.changes.outputs.run_tests == 'true'
@@ -957,7 +958,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-filter-windows:
-    name: Test filter solutions (windows, if needed)
+    name: Test filter solutions - windows (if needed)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -997,8 +998,8 @@ jobs:
 
       - name: Skip filter solutions tests
         if: steps.changes.outputs.run_tests == 'false'
-        run: echo "Skipped - No changes in src/ansys/aedt/core/filtersolutions_core"
         shell: bash
+        run: echo "Skipped - No changes in src/ansys/aedt/core/filtersolutions_core"
 
       - name: Setup Python
         if: steps.changes.outputs.run_tests == 'true'
@@ -1017,11 +1018,11 @@ jobs:
         if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         if: steps.changes.outputs.run_tests == 'true'
@@ -1112,8 +1113,8 @@ jobs:
 
       - name: Skip EMIT tests
         if: steps.changes.outputs.run_tests == 'false'
-        run: echo "Skipped - No changes in src/ansys/aedt/core/emit_core"
         shell: bash
+        run: echo "Skipped - No changes in src/ansys/aedt/core/emit_core"
 
       - name: Setup Python
         if: steps.changes.outputs.run_tests == 'true'
@@ -1132,11 +1133,11 @@ jobs:
         if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         if: steps.changes.outputs.run_tests == 'true'
@@ -1202,9 +1203,9 @@ jobs:
           fetch-depth: 0
       - name: Check for changes in flaky test areas
         id: changes
-        shell: bash
         env:
           GITHUB_REF: ${{ github.ref }}
+        shell: bash
         run: |
           is_main_branch=false
           if [ "$GITHUB_REF" = "refs/heads/main" ]; then
@@ -1254,11 +1255,11 @@ jobs:
         if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
-      - name: Upgrade pip, wheel and setuptools
+      - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
         run: |
           source .venv/bin/activate
-          uv pip install -U pip wheel setuptools
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         if: steps.changes.outputs.run_tests == 'true'
