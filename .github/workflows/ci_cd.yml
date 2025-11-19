@@ -265,7 +265,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -338,7 +338,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -410,7 +410,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -490,7 +490,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -569,7 +569,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -650,7 +650,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         run: uv venv .venv
@@ -752,8 +752,7 @@ jobs:
           } else {
             echo "ℹ️ No changes in extensions folder"
           }
-          echo "run_tests=$run_tests" >> $env:GITHUB_OUTPUT
-
+          "run_tests=$run_tests" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Skip extensions tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -775,7 +774,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
@@ -898,7 +897,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
@@ -994,7 +993,7 @@ jobs:
           } else {
             echo "ℹ️ No changes in filter solutions folder"
           }
-          echo "run_tests=$run_tests" >> $env:GITHUB_OUTPUT
+          "run_tests=$run_tests" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Skip filter solutions tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -1012,7 +1011,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
@@ -1109,7 +1108,7 @@ jobs:
           } else {
             echo "ℹ️ No changes in EMIT folder"
           }
-          echo "run_tests=$run_tests" >> $env:GITHUB_OUTPUT
+          "run_tests=$run_tests" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Skip EMIT tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -1127,7 +1126,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
@@ -1249,7 +1248,7 @@ jobs:
         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
         with:
           enable-cache: false
-          prune-uv-cache: true
+          prune-cache: true
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
