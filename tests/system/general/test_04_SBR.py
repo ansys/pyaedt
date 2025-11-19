@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import re
 from pathlib import Path
+import re
 
 import pytest
 
@@ -38,7 +38,6 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 
-
 test_project_name = "Cassegrain_231"
 tunnel = "tunnel1_231"
 person = "person3_231"
@@ -47,9 +46,7 @@ bird = "bird1_231"
 
 test_subfolder = "T04"
 
-custom_array = (
-    Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "custom_array.sarr"
-)
+custom_array = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "custom_array.sarr"
 
 
 @pytest.fixture()
@@ -69,6 +66,7 @@ def source(add_app, aedtapp):
     app = add_app(project_name=aedtapp.project_name, design_name="feeder", just_open=True)
     return app
 
+
 @pytest.fixture()
 def aedt_terminal(add_app):
     app = add_app(
@@ -77,6 +75,7 @@ def aedt_terminal(add_app):
     )
     yield app
     app.close_project(app.project_name)
+
 
 @pytest.fixture(autouse=True)
 def configure_osmnx_cache(local_scratch):
@@ -113,12 +112,11 @@ def test_open_source(aedtapp, source):
     )
     assert len(aedtapp.native_components) == 6
 
+
 def test_add_antennas(aedtapp):
     aedtapp.insert_design("add_antennas")
     dict1 = {"Polarization": "Horizontal"}
-    par_beam = aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.ParametricBeam, parameters=dict1, name="TX1"
-    )
+    par_beam = aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.ParametricBeam, parameters=dict1, name="TX1")
     assert par_beam.definition_name == "TX1"
     assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.ConicalHorn, parameters=dict1, name="RX1")
     par_beam.native_properties["Unit"] = "in"
@@ -128,30 +126,14 @@ def test_add_antennas(aedtapp):
     assert len(aedtapp.native_components) == 2
     assert len(aedtapp.modeler.user_defined_components) == 2
     assert aedtapp.set_sbr_txrx_settings({"TX1_1_p1": "RX1_1_p1"})
-    assert aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.CrossDipole, use_current_source_representation=True
-    )
-    assert aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.HalfWaveDipole, use_current_source_representation=True
-    )
-    assert aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.HorizontalDipole, use_current_source_representation=True
-    )
-    assert aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.ParametricSlot, use_current_source_representation=True
-    )
-    assert aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.PyramidalHorn, use_current_source_representation=True
-    )
-    assert aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.ShortDipole, use_current_source_representation=True
-    )
-    assert aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.SmallLoop, use_current_source_representation=True
-    )
-    toberemoved = aedtapp.create_sbr_antenna(
-        aedtapp.SbrAntennas.WireDipole, use_current_source_representation=True
-    )
+    assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.CrossDipole, use_current_source_representation=True)
+    assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.HalfWaveDipole, use_current_source_representation=True)
+    assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.HorizontalDipole, use_current_source_representation=True)
+    assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.ParametricSlot, use_current_source_representation=True)
+    assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.PyramidalHorn, use_current_source_representation=True)
+    assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.ShortDipole, use_current_source_representation=True)
+    assert aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.SmallLoop, use_current_source_representation=True)
+    toberemoved = aedtapp.create_sbr_antenna(aedtapp.SbrAntennas.WireDipole, use_current_source_representation=True)
 
     native_components = len(aedtapp.native_components)
 
@@ -182,104 +164,63 @@ def test_add_antennas(aedtapp):
         aedtapp.SbrAntennas.SmallLoop, use_current_source_representation=True, custom_array=str(custom_array)
     )
 
+
 def test_add_ffd_antenna(aedtapp):
     aedtapp.insert_design("ffd_antenna")
-    ffd_path = (
-        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.ffd"
-    )
-    assert aedtapp.create_sbr_file_based_antenna(
-        far_field_data=str(ffd_path)
-    )
+    ffd_path = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.ffd"
+    assert aedtapp.create_sbr_file_based_antenna(far_field_data=str(ffd_path))
 
-    assert aedtapp.create_sbr_file_based_antenna(
-        far_field_data=str(ffd_path), is_array=True
-    )
+    assert aedtapp.create_sbr_file_based_antenna(far_field_data=str(ffd_path), is_array=True)
 
     assert aedtapp.create_sbr_file_based_antenna(
         far_field_data=str(ffd_path),
         custom_array=str(custom_array),
     )
 
+
 def test_add_environment(aedtapp):
     aedtapp.insert_design("Environment_test")
-    env_folder = (
-        Path(TESTS_GENERAL_PATH)
-        / "example_models"
-        / "library"
-        / "environment_library"
-        / tunnel
-    )
+    env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / tunnel
     road1 = aedtapp.modeler.add_environment(str(env_folder))
     assert road1.name
 
+
 def test_add_person(aedtapp):
-    person_folder = (
-        Path(TESTS_GENERAL_PATH)
-        / "example_models"
-        / "library"
-        / "actor_library"
-        / person
-    )
-    person1 = aedtapp.modeler.add_person(
-        str(person_folder), 1.0, [25, 1.5, 0], 180
-    )
+    person_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "actor_library" / person
+    person1 = aedtapp.modeler.add_person(str(person_folder), 1.0, [25, 1.5, 0], 180)
     assert person1.offset == [25, 1.5, 0]
     assert person1.yaw == "180deg"
     assert person1.pitch == "0deg"
     assert person1.roll == "0deg"
 
+
 def test_add_car(aedtapp):
-    car_folder = (
-        Path(TESTS_GENERAL_PATH)
-        / "example_models"
-        / "library"
-        / "actor_library"
-        / vehicle
-    )
-    car1 = aedtapp.modeler.add_vehicle(
-        str(car_folder), 1.0, [3, -2.5, 0]
-    )
+    car_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "actor_library" / vehicle
+    car1 = aedtapp.modeler.add_vehicle(str(car_folder), 1.0, [3, -2.5, 0])
     assert car1.offset == [3, -2.5, 0]
     assert car1.yaw == "0deg"
     assert car1.pitch == "0deg"
     assert car1.roll == "0deg"
 
+
 def test_add_bird(aedtapp):
-    bird_folder = (
-        Path(TESTS_GENERAL_PATH)
-        / "example_models"
-        / "library"
-        / "actor_library"
-        / bird
-    )
-    bird1 = aedtapp.modeler.add_bird(
-        str(bird_folder), 1.0, [19, 4, 3], 120, -5, flapping_rate=30
-    )
+    bird_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "actor_library" / bird
+    bird1 = aedtapp.modeler.add_bird(str(bird_folder), 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
     assert bird1.offset == [19, 4, 3]
     assert bird1.yaw == "120deg"
     assert bird1.pitch == "-5deg"
     assert bird1.roll == "0deg"
     assert bird1._flapping_rate == "30Hz"
 
+
 def test_add_radar(aedtapp):
-    radar_lib = (
-        Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "radar_modules"
-    )
-    assert aedtapp.create_sbr_radar_from_json(
-        str(radar_lib), name="Example_1Tx_1Rx", speed=3
-    )
-    assert aedtapp.create_sbr_radar_from_json(
-        str(radar_lib), name="Example_1Tx_4Rx"
-    )
+    radar_lib = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "radar_modules"
+    assert aedtapp.create_sbr_radar_from_json(str(radar_lib), name="Example_1Tx_1Rx", speed=3)
+    assert aedtapp.create_sbr_radar_from_json(str(radar_lib), name="Example_1Tx_4Rx")
+
 
 def test_add_doppler_sweep(aedtapp):
-    env_folder = (
-    Path(TESTS_GENERAL_PATH)
-    / "example_models"
-    / "library"
-    / "environment_library"
-    / tunnel
-)
+    env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / tunnel
     aedtapp.modeler.add_environment(str(env_folder))
     setup, sweep = aedtapp.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
     assert "PulseSetup" in setup.name
@@ -287,14 +228,9 @@ def test_add_doppler_sweep(aedtapp):
     assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
     assert sweep.props["Sim. Setups"] == [setup.name]
 
+
 def test_add_chirp_sweep(aedtapp):
-    env_folder = (
-    Path(TESTS_GENERAL_PATH)
-    / "example_models"
-    / "library"
-    / "environment_library"
-    / tunnel
-)
+    env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / tunnel
     aedtapp.modeler.add_environment(str(env_folder))
     setup, sweep = aedtapp.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
     assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
@@ -305,18 +241,16 @@ def test_add_chirp_sweep(aedtapp):
     assert setup.props["ChannelConfiguration"] == "IQChannels"
     assert sweep.props["Sim. Setups"] == [setup.name]
 
+
 def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal):
     # sbr file based antenna should only work for SBR+ solution.
-    ffd_test_path = (
-        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.ffd"
-    )
+    ffd_test_path = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.ffd"
     with pytest.raises(
         AEDTRuntimeError,
         match=re.escape("This native component only applies to a SBR+ solution."),
     ):
-        aedt_terminal.create_sbr_file_based_antenna(
-            far_field_data=str(ffd_test_path)
-        )
+        aedt_terminal.create_sbr_file_based_antenna(far_field_data=str(ffd_test_path))
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_import_map(aedtapp):
@@ -327,6 +261,7 @@ def test_import_map(aedtapp):
     )
     for part in parts_dict["parts"]:
         assert Path(parts_dict["parts"][part]["file_name"]).exists()
+
 
 def test_create_custom_array(aedtapp):
     output_file1 = aedtapp.create_sbr_custom_array_file()
@@ -350,21 +285,12 @@ def test_create_custom_array(aedtapp):
     )
     assert Path(output_file2).is_file()
 
+
 @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
 def test_read_hdm(aedtapp, local_scratch):
     aedtapp.insert_design("hdm")
-    hdm_path = (
-        Path(TESTS_GENERAL_PATH)
-        / "example_models"
-        / test_subfolder
-        / "freighter_rays.hdm"
-    )
-    stl_path = (
-        Path(TESTS_GENERAL_PATH)
-        / "example_models"
-        / test_subfolder
-        / "freighter_ship.stl"
-    )
+    hdm_path = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "freighter_rays.hdm"
+    stl_path = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "freighter_ship.stl"
     aedtapp.modeler.model_units = "meter"
     aedtapp.modeler.import_3d_cad(str(stl_path))
     assert aedtapp.parse_hdm_file(str(hdm_path))
@@ -377,6 +303,7 @@ def test_read_hdm(aedtapp, local_scratch):
     bounce2_path = Path(local_scratch.path) / "bounce2.jpg"
     plotter.plot_rays(str(bounce2_path))
     assert bounce2_path.exists()
+
 
 def test_boundary_perfect_e(aedtapp):
     aedtapp.insert_design("sbr_boundaries_perfect_e")
@@ -395,6 +322,7 @@ def test_boundary_perfect_e(aedtapp):
     with pytest.raises(AEDTRuntimeError):
         aedtapp.assign_perfect_e(assignment="invented")
 
+
 def test_boundary_perfect_h(aedtapp):
     aedtapp.insert_design("sbr_boundaries_perfect_h")
     b = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
@@ -411,6 +339,7 @@ def test_boundary_perfect_h(aedtapp):
 
     with pytest.raises(AEDTRuntimeError):
         aedtapp.assign_perfect_h(assignment="invented")
+
 
 def test_boundaries_finite_conductivity(aedtapp):
     aedtapp.insert_design("hfss_finite_conductivity")
@@ -451,15 +380,14 @@ def test_boundaries_finite_conductivity(aedtapp):
     }
 
     coat2 = aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
-    assert (
-        coat2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{aedtapp.modeler.model_units}"
-    )
+    assert coat2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{aedtapp.modeler.model_units}"
 
     with pytest.raises(AEDTRuntimeError):
         aedtapp.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
 
     with pytest.raises(AEDTRuntimeError):
         aedtapp.assign_finite_conductivity(["insulator2"])
+
 
 def test_boundaries_layered_impedance(aedtapp):
     aedtapp.insert_design("hfss_layered_impedance")
