@@ -379,16 +379,17 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Examples
         --------
-        Create an instance of Maxwell and attach it to an existing session where project name is  ``project_name``. If this project does not exist, create one with this name.
+        Create an instance of Maxwell and attach it to an existing session where project name is ``project_name``.
+        If this project does not exist, create one with this name.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(project_name)
 
         Create a field line traces plot in the Region from seeding faces (insulator faces).
         >>> plot = m2d.post.create_fieldplot_line_traces(
-        >>> seeding_faces = (["Ground", "Electrode", "Region"],)
-        >>> in_volume_tracing_objs = (["Region"],)
-        >>> plot_name="LineTracesTest")
+        >>>                                              seeding_faces = (["Region"])
+        >>>                                              in_volume_tracing_objs = (["Region"])
+        >>>                                              plot_name="LineTracesTest")
 
         Now the inception voltage evaluation can be performed on all (or a subset) of the created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
