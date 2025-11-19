@@ -749,11 +749,11 @@ jobs:
           # Always run tests on main branch for code coverage
           if ($is_main_branch) {
             $run_tests = $true
-            echo "✅ Running on main branch - all tests will be executed"
+            echo "Running on main branch - all tests will be executed"
           } elseif ($run_tests) {
-            echo "✅ Changes detected in extensions folder"
+            echo "Changes detected in extensions folder"
           } else {
-            echo "ℹ️ No changes in extensions folder"
+            echo "No changes in extensions folder"
           }
           Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
 
@@ -874,11 +874,11 @@ jobs:
   #         # Always run tests on main branch for code coverage
   #         if [ "$is_main_branch" = "true" ]; then
   #           run_tests=true
-  #           echo "✅ Running on main branch - all tests will be executed"
+  #           echo "Running on main branch - all tests will be executed"
   #         elif [ "$run_tests" = "true" ]; then
-  #           echo "✅ Changes detected in extensions folder"
+  #           echo "Changes detected in extensions folder"
   #         else
-  #           echo "ℹ️ No changes in extensions folder"
+  #           echo "No changes in extensions folder"
   #         fi
   #         echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
 
@@ -991,11 +991,11 @@ jobs:
           # Always run tests on main branch for code coverage
           if ($is_main_branch) {
             $run_tests = $true
-            echo "✅ Running on main branch - all tests will be executed"
+            echo "Running on main branch - all tests will be executed"
           } elseif ($run_tests) {
-            echo "✅ Changes detected in filter solutions folder"
+            echo "Changes detected in filter solutions folder"
           } else {
-            echo "ℹ️ No changes in filter solutions folder"
+            echo "No changes in filter solutions folder"
           }
           Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
 
@@ -1107,11 +1107,11 @@ jobs:
           # Always run tests on main branch for code coverage
           if ($is_main_branch) {
             $run_tests = $true
-            echo "✅ Running on main branch - all tests will be executed"
+            echo "Running on main branch - all tests will be executed"
           } elseif ($run_tests) {
-            echo "✅ Changes detected in EMIT folder"
+            echo "Changes detected in EMIT folder"
           } else {
-            echo "ℹ️ No changes in EMIT folder"
+            echo "No changes in EMIT folder"
           }
           Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
 
@@ -1227,11 +1227,11 @@ jobs:
   #         # Always run tests on main branch for code coverage
   #         if [ "$is_main_branch" = "true" ]; then
   #           run_tests=true
-  #           echo "✅ Running on main branch - all tests will be executed"
+  #           echo "Running on main branch - all tests will be executed"
   #         elif [ "$run_tests" = "true" ]; then
-  #           echo "✅ Changes detected in extensions folder"
+  #           echo "Changes detected in extensions folder"
   #         else
-  #           echo "ℹ️ No changes in extensions folder"
+  #           echo "No changes in extensions folder"
   #         fi
   #         echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
 
