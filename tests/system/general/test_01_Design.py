@@ -217,11 +217,11 @@ class TestClass:
         assert len(aedtapp.design_list) == 1
 
     def test_15c_copy_example(self, aedtapp):
-        example_name = aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+        example_project = aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
         from ansys.aedt.core.generic.file_utils import remove_project_lock
 
-        remove_project_lock(example_name)
-        aedtapp.copy_design_from(example_name, "0_5G Aperture Element")
+        remove_project_lock(example_project)
+        aedtapp.copy_design_from(str(example_project), "0_5G Aperture Element")
         assert aedtapp.design_name == "0_5G Aperture Element"
         assert not aedtapp.desktop_class.get_example("fake")
 
@@ -552,3 +552,21 @@ class TestClass:
         aedtapp.create_new_project("Test_notes")
         assert aedtapp.edit_notes("this a test")
         assert not aedtapp.edit_notes(1)
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_close_desktop(self, desktop, aedtapp, monkeypatch):
+        called = {}
+
+        # Use monkeypatch to replace desktop.close_desktop with a fake tracker
+        def fake_close_desktop():
+            called["was_called"] = True
+            return True
+
+        monkeypatch.setattr(desktop, "close_desktop", fake_close_desktop)
+
+        # Call the method
+        result = aedtapp.close_desktop()
+
+        # Verify
+        assert called.get("was_called", False) is True
+        assert result is True

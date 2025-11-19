@@ -9,6 +9,135 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.22.2 <https://github.com/ansys/pyaedt/releases/tag/v0.22.2>`_ - November 18, 2025
+====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update plotly requirement from <6.4,>=6.0 to >=6.0,<6.5
+          - `#6881 <https://github.com/ansys/pyaedt/pull/6881>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Test_configure_layout.py
+          - `#6809 <https://github.com/ansys/pyaedt/pull/6809>`_
+
+        * - Fixed blue checkboxes issue
+          - `#6836 <https://github.com/ansys/pyaedt/pull/6836>`_
+
+        * - ServiceManager.start_service ignores configured AEDT path in PYAEDT_SERVER_AEDT_PATH env var
+          - `#6867 <https://github.com/ansys/pyaedt/pull/6867>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.22.1
+          - `#6876 <https://github.com/ansys/pyaedt/pull/6876>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Refactor HFSS tests to be independent from each other
+          - `#6873 <https://github.com/ansys/pyaedt/pull/6873>`_
+
+
+`0.22.1 <https://github.com/ansys/pyaedt/releases/tag/v0.22.1>`_ - November 13, 2025
+====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add CLI using typer
+          - `#6857 <https://github.com/ansys/pyaedt/pull/6857>`_
+
+        * - Added multi-page support to Nexxim Circuit components
+          - `#6863 <https://github.com/ansys/pyaedt/pull/6863>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump actions/download-artifact from 5.0.0 to 6.0.0
+          - `#6843 <https://github.com/ansys/pyaedt/pull/6843>`_
+
+        * - Bump actions/upload-artifact from 4.6.2 to 5.0.0
+          - `#6845 <https://github.com/ansys/pyaedt/pull/6845>`_
+
+        * - Update grpcio requirement from <1.76,>=1.50.0 to >=1.50.0,<1.77
+          - `#6846 <https://github.com/ansys/pyaedt/pull/6846>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Kernel converter import fix
+          - `#6871 <https://github.com/ansys/pyaedt/pull/6871>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Downgrade log message when error occurs in ansysedt session search loop
+          - `#6853 <https://github.com/ansys/pyaedt/pull/6853>`_
+
+        * - Remove static oDesktop string from add_pyaedt_to_aedt calls in installer script
+          - `#6864 <https://github.com/ansys/pyaedt/pull/6864>`_
+
+        * - Removed deprecation for design.close_desktop() method
+          - `#6865 <https://github.com/ansys/pyaedt/pull/6865>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.22.0
+          - `#6859 <https://github.com/ansys/pyaedt/pull/6859>`_
+
+        * - Bump version 0.23.dev0
+          - `#6860 <https://github.com/ansys/pyaedt/pull/6860>`_
+
+        * - Leverage new vtk osmesa logic
+          - `#6868 <https://github.com/ansys/pyaedt/pull/6868>`_
+
+
 `0.22.0 <https://github.com/ansys/pyaedt/releases/tag/v0.22.0>`_ - November 05, 2025
 ====================================================================================
 
