@@ -1441,7 +1441,6 @@ def test_set_differential_pair(diff_pairs_app):
         matched=False,
     )
     assert not diff_pairs_app.set_differential_pair(assignment="P2_T1", reference="P2_T3")
-    diff_pairs_app.close_project()
 
 
 @pytest.mark.skipif(
@@ -1546,7 +1545,6 @@ def test_import_source_excitation(aedtapp):
         y_scale=1e-3,
         data_format="Voltage",
     )
-    aedtapp.close_project(save=False)
 
 
 def test_assign_symmetry(aedtapp):
@@ -1570,7 +1568,6 @@ def test_assign_symmetry(aedtapp):
     with pytest.raises(TypeError, match="Entities have to be provided as a list."):
         aedtapp.assign_symmetry("test")
     assert aedtapp.set_impedance_multiplier(2)
-    aedtapp.close_project(save=False)
 
 
 def test_create_near_field_sphere(aedtapp):
