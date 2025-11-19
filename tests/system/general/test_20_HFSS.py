@@ -65,13 +65,6 @@ def aedtapp(add_app):
 
 
 @pytest.fixture()
-def hfss_copied(add_app):
-    app = add_app(application=Hfss)
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture()
 def diff_pairs_app(add_app):
     app = add_app(project_name=diff_proj_name, design_name="Hfss_Terminal", subfolder=test_subfolder)
     yield app
@@ -1119,10 +1112,12 @@ def test_get_property_value(aedtapp):
     assert aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
 
-def test_copy_solid_bodies(aedtapp, hfss_copied):
-    num_orig_bodies = len(hfss_copied.modeler.solid_names)
-    assert hfss_copied.copy_solid_bodies_from(aedtapp, no_vacuum=False, no_pec=False)
-    assert len(hfss_copied.modeler.solid_bodies) == num_orig_bodies
+def test_copy_solid_bodies(aedtapp, add_app):
+    aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
+    num_orig_bodies = len(aedtapp.modeler.solid_names)
+    app = add_app(application=Hfss, design_name="new_design_copy")
+    assert app.copy_solid_bodies_from(aedtapp, no_vacuum=False, no_pec=False)
+    assert len(app.modeler.solid_bodies) == num_orig_bodies
 
 
 def test_object_material_properties(aedtapp):
