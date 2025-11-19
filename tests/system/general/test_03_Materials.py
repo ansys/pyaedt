@@ -78,11 +78,11 @@ def maxwellapp(add_app):
     app.close_project(app.project_name)
 
 
-def test_01_vacuum(aedtapp):
+def test_vacuum(aedtapp):
     assert "vacuum" in list(aedtapp.materials.material_keys.keys())
 
 
-def test_02_create_material(aedtapp):
+def test_create_material(aedtapp):
     mat1 = aedtapp.materials.add_material("new_copper2")
     assert mat1
     mat1.conductivity = 59000000000
@@ -163,7 +163,7 @@ def test_02_create_material(aedtapp):
         mat1.material_appearance = [11, 22]
 
 
-def test_03_create_modifiers(aedtapp):
+def test_create_modifiers(aedtapp):
     aedtapp.materials.add_material("new_copper")
     assert aedtapp.materials["new_copper"].mass_density.add_thermal_modifier_free_form(
         "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
@@ -209,19 +209,19 @@ def test_03_create_modifiers(aedtapp):
     assert aedtapp.materials["new_mat3"].mass_density.add_thermal_modifier_closed_form()
 
 
-def test_04_duplicate_material(aedtapp):
+def test_duplicate_material(aedtapp):
     aedtapp.materials.add_material("copper")
     assert aedtapp.materials.duplicate_material("copper", "copper2")
     assert not aedtapp.materials.duplicate_material("nonexistent_copper", "copper2")
 
 
-def test_05_delete_material(aedtapp):
+def test_delete_material(aedtapp):
     aedtapp.materials.add_material("copper")
     assert aedtapp.materials.remove_material("copper")
     assert not aedtapp.materials.remove_material("copper2")
 
 
-def test_06_surface_material(icepakapp):
+def test_surface_material(icepakapp):
     mat2 = icepakapp.materials.add_surface_material("Steel")
     mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
     mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(aedtname="surface_diffuse_absorptance")
@@ -238,12 +238,12 @@ def test_06_surface_material(icepakapp):
     assert icepakapp.materials.duplicate_surface_material("Steel")
 
 
-def test_07_export_materials(aedtapp, local_scratch):
+def test_export_materials(aedtapp, local_scratch):
     assert aedtapp.materials.export_materials_to_file(Path(local_scratch.path) / "materials.json")
     assert (Path(local_scratch.path) / "materials.json").exists()
 
 
-def test_08_import_materials(aedtapp):
+def test_import_materials(aedtapp):
     assert aedtapp.materials.import_materials_from_file(
         Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "mats.json"
     )
@@ -266,7 +266,7 @@ def test_08_import_materials(aedtapp):
     )
 
 
-def test_08B_import_materials_from_excel(aedtapp):
+def test_import_materials_from_excel(aedtapp):
     mats = aedtapp.materials.import_materials_from_excel(
         Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "mats.xlsx"
     )
@@ -280,7 +280,7 @@ def test_08B_import_materials_from_excel(aedtapp):
     assert len(mats) == 2
 
 
-def test_09_non_linear_materials(maxwellapp, local_scratch):
+def test_non_linear_materials(maxwellapp, local_scratch):
     mat1 = maxwellapp.materials.add_material("myMat")
     mat1.permeability = [[0, 0], [1, 12], [10, 30]]
     mat1.permeability.set_non_linear(x_unit="Oe", y_unit="gauss")
@@ -304,7 +304,7 @@ def test_09_non_linear_materials(maxwellapp, local_scratch):
     assert maxwellapp.materials.material_keys["mymat2"].is_used
 
 
-def test_10_add_material_sweep(aedtapp):
+def test_add_material_sweep(aedtapp):
     material_name = "sweep_material"
     assert aedtapp.materials.add_material_sweep(["copper", "aluminum", "FR4_epoxy"], material_name)
     assert material_name in list(aedtapp.materials.material_keys.keys())
@@ -332,13 +332,13 @@ def test_10_add_material_sweep(aedtapp):
         assert mat_prop == var_name + "[$ID" + material_name + "]"
 
 
-def test_11_material_case(aedtapp):
+def test_material_case(aedtapp):
     assert aedtapp.materials["Aluminum"] == aedtapp.materials["aluminum"]
     assert aedtapp.materials["Aluminum"].name == "aluminum"
     assert aedtapp.materials.add_material("AluMinum") == aedtapp.materials["aluminum"]
 
 
-def test_12_material_model(aedtapp):
+def test_material_model(aedtapp):
     mat = aedtapp.materials.add_material("ds_material")
     aedtapp["$dk"] = 3
     aedtapp["$df"] = 0.01
@@ -346,14 +346,14 @@ def test_12_material_model(aedtapp):
 
 
 @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-def test_13_get_materials_in_project(aedtapp):
+def test_get_materials_in_project(aedtapp):
     used_materials = aedtapp.materials.get_used_project_material_names()
     assert isinstance(used_materials, list)
     for m in [mat for mat in aedtapp.materials if mat.is_used]:
         assert m.name in used_materials
 
 
-def test_14_get_coreloss_coefficients(aedtapp):
+def test_get_coreloss_coefficients(aedtapp):
     aedtapp.materials.add_material("mat_test")
     # Test points_list_at_freq
     coeff = aedtapp.materials["mat_test"].get_core_loss_coefficients(
@@ -403,7 +403,7 @@ def test_14_get_coreloss_coefficients(aedtapp):
         )
 
 
-def test_14_set_core_loss(aedtapp):
+def test_set_core_loss(aedtapp):
     aedtapp.materials.add_material("mat_test")
     # Test points_list_at_freq
     assert aedtapp.materials["mat_test"].set_coreloss_at_frequency(
@@ -450,7 +450,7 @@ def test_14_set_core_loss(aedtapp):
         )
 
 
-def test_15_thermalmodifier_and_spatialmodifier(aedtapp):
+def test_thermalmodifier_and_spatialmodifier(aedtapp):
     assert aedtapp.materials["vacuum"].conductivity.thermalmodifier is None
     assert aedtapp.materials["vacuum"].conductivity.spatialmodifier is None
 
@@ -490,7 +490,7 @@ def test_15_thermalmodifier_and_spatialmodifier(aedtapp):
     aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
 
 
-def test_16_import_materials_from_workbench(aedtapp):
+def test_import_materials_from_workbench(aedtapp):
     assert aedtapp.materials.import_materials_from_workbench("not_existing.xml") is False
 
     imported_mats = aedtapp.materials.import_materials_from_workbench(
@@ -569,7 +569,7 @@ def test_16_import_materials_from_workbench(aedtapp):
     new_callable=mock_open,
     read_data=MISSING_RGB_MATERIALS,
 )
-def test_17_json_missing_rgb(mock_file, aedtapp, caplog):
+def test_json_missing_rgb(mock_file, aedtapp, caplog):
     input_path = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "mats.json"
     with pytest.raises(KeyError):
         aedtapp.materials.import_materials_from_file(input_path)
