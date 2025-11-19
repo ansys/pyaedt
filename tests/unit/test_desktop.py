@@ -107,8 +107,8 @@ def test_desktop_odesktop_setter():
     assert desktop._odesktop == aedt_app
 
 
-def test_desktop_check_setttings_failure_with_lsf_num_cores(mock_settings):
-    """Test _check_setttings failure due to lsf_num_cores value."""
+def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings):
+    """Test _check_settings failure due to lsf_num_cores value."""
     settings = Settings()
     settings.lsf_num_cores = -1
 
@@ -116,8 +116,8 @@ def test_desktop_check_setttings_failure_with_lsf_num_cores(mock_settings):
         _check_settings(settings)
 
 
-def test_desktop_check_setttings_failure_with_lsf_ram(mock_settings):
-    """Test _check_setttings failure due to lsf_ram value."""
+def test_desktop_check_settings_failure_with_lsf_ram(mock_settings):
+    """Test _check_settings failure due to lsf_ram value."""
     settings = Settings()
     settings.lsf_num_cores = 1
     settings.lsf_ram = -1
@@ -126,8 +126,8 @@ def test_desktop_check_setttings_failure_with_lsf_ram(mock_settings):
         _check_settings(settings)
 
 
-def test_desktop_check_setttings_failure_with_lsf_aedt_command(mock_settings):
-    """Test _check_setttings failure due to lsf_aedt_command value."""
+def test_desktop_check_settings_failure_with_lsf_aedt_command(mock_settings):
+    """Test _check_settings failure due to lsf_aedt_command value."""
     settings = Settings()
     settings.lsf_num_cores = 1
     settings.lsf_ram = 1

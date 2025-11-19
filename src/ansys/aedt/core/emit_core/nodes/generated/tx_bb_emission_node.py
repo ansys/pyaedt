@@ -55,10 +55,10 @@ class TxBbEmissionNode(EmitNode):
     def table_data(self):
         """Tx Broadband Noise Profile Table.
         Table consists of 2 columns.
-        Frequency (MHz):
-            Value should be a mathematical expression.
-        Amplitude (dBm/Hz):
-            Value should be between -200.0 and 150.0.
+        Frequency, Bandwidth, or Offset:
+            Value should be between -100e9 and 100e9.
+        Amplitude:
+            Value should be between -1000 and 200.
         """
         return self._get_table_data()
 

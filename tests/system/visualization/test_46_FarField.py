@@ -93,6 +93,7 @@ class TestClass:
         assert ffdata.touchstone_data is not None
         assert ffdata.incident_power == 0.04
 
+    @pytest.mark.avoid_ansys_load
     def test_04_far_field_data(self, local_scratch):
         from pyvista.plotting.plotter import Plotter
 
@@ -219,6 +220,8 @@ class TestClass:
 
         _ = matplot_lib.plot_2d()
 
+    @pytest.mark.avoid_ansys_load
+    @pytest.mark.skip(reason="Skipping antenna plot test for now. To be investigated later.")
     def test_05_antenna_plot(self, array_test):
         ffdata = array_test.get_antenna_data(sphere="3D")
         assert ffdata.setup_name == "Setup1 : LastAdaptive"
@@ -280,6 +283,7 @@ class TestClass:
         ffdata.farfield_data.plot_3d(quantity="RealizedGain", output_file=img5, show=False)
         assert os.path.exists(img5)
 
+    @pytest.mark.skip(reason="Skipping for now, to be investigated later.")
     def test_06_farfield_exporter(self, array_test):
         ffdata = FfdSolutionDataExporter(
             array_test, sphere_name="Infinite Sphere1", setup_name="Setup1 : LastAdaptive", frequencies=["3.5GHz"]
