@@ -138,7 +138,8 @@ def version():
     import ansys.aedt.core
 
     version = ansys.aedt.core.__version__
-    typer.echo(f"PyAEDT version: {version}")
+    typer.echo("PyAEDT version: ", nl=False)
+    typer.secho(version, fg="cyan")
 
 
 @app.command()
@@ -147,14 +148,17 @@ def processes():
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
 
     if not aedt_procs:
-        typer.echo("No AEDT processes currently running.")
+        typer.secho("No AEDT processes currently running.", fg="yellow")
         return
 
-    typer.echo(f"Found {len(aedt_procs)} AEDT process(es):")
+    typer.echo("Found ", nl=False)
+    typer.secho(f"{len(aedt_procs)}", fg="green", nl=False)
+    typer.echo(" AEDT process(es):")
     typer.echo("-" * 80)
 
     for proc in aedt_procs:
-        typer.echo(f"PID: {proc.pid}")
+        typer.echo("PID: ", nl=False)
+        typer.secho(f"{proc.pid}", fg="cyan")
         typer.echo(f"Name: {proc.name()}")
         cmd_line = proc.cmdline()
         if cmd_line:
@@ -162,8 +166,11 @@ def processes():
             typer.echo(f"Command: {cmd_line[:100]}{extra}")
             port = _get_port(proc)
             if port is None:
-                port = "not found"
-            typer.echo(f"Port: {port}")
+                typer.echo("Port: ", nl=False)
+                typer.secho("not found", fg="yellow")
+            else:
+                typer.echo("Port: ", nl=False)
+                typer.secho(f"{port}", fg="cyan")
         typer.echo("-" * 40)
 
 
@@ -176,7 +183,9 @@ def start(
 ):
     """Start a new AEDT process."""
     try:
-        typer.echo(f"Starting AEDT {version}...")
+        typer.echo("Starting AEDT ", nl=False)
+        typer.secho(version, fg="cyan", nl=False)
+        typer.echo("...")
 
         from ansys.aedt.core import settings
         from ansys.aedt.core.desktop import Desktop
@@ -194,7 +203,8 @@ def start(
         # Add port if specified
         if port > 0:
             args["port"] = port
-            typer.echo(f"Using port: {port}")
+            typer.echo("Using port: ", nl=False)
+            typer.secho(f"{port}", fg="cyan")
 
         if non_graphical:
             typer.echo("Starting in non-graphical mode...")
@@ -224,10 +234,10 @@ def start(
         progress_running = False
         time.sleep(0.2)  # Give time for thread to finish
 
-        typer.echo("✓ AEDT started successfully")
+        typer.secho("✓ AEDT started successfully", fg="green")
         return
     except Exception as e:
-        typer.echo(f"✗ Error starting AEDT: {str(e)}")
+        typer.secho(f"✗ Error starting AEDT: {str(e)}", fg="red")
         typer.echo("Common issues:")
         typer.echo("  - AEDT not installed or not in PATH")
         typer.echo("  - Invalid version specified")
@@ -256,13 +266,7 @@ def stop(
     ]
 
     if not pids and not ports and not stop_all:
-        typer.echo("Please provide PID(s), port(s), or use --all to stop all AEDT processes.")
-        typer.echo("Examples:")
-        typer.echo("  pyaedt stop --pid 1234")
-        typer.echo("  pyaedt stop --pid 1234 --pid 5678")
-        typer.echo("  pyaedt stop --port 50051")
-        typer.echo("  pyaedt stop --all")
-        return
+        raise typer.BadParameter("Please provide at least one option: --pid, --port, or --all")
 
     if stop_all:
         aedt_procs = _find_aedt_processes()
@@ -271,18 +275,18 @@ def stop(
             try:
                 if not _can_access_process(proc):
                     failed = True
-                    typer.echo(f"✗ Access denied for process with PID {proc.pid}.")
+                    typer.secho(f"✗ Access denied for process with PID {proc.pid}.", fg="red")
                     continue
                 proc.kill()
             except psutil.NoSuchProcess:
-                typer.echo(f"! Process {proc.pid} no longer exists")
+                typer.secho(f"! Process {proc.pid} no longer exists", fg="yellow")
             except Exception:
                 failed = True
-                typer.echo(f"✗ Error stopping process {proc.pid}")
+                typer.secho(f"✗ Error stopping process {proc.pid}", fg="red")
         if failed:
-            typer.echo("Some AEDT processes could not be stopped.")
+            typer.secho("Some AEDT processes could not be stopped.", fg="yellow")
         else:
-            typer.echo("All AEDT processes have been stopped.")
+            typer.secho("All AEDT processes have been stopped.", fg="green")
         return
 
     if pids:
@@ -290,17 +294,17 @@ def stop(
             try:
                 proc = psutil.Process(pid)
                 if not _can_access_process(proc):
-                    typer.echo(f"✗ Access denied for process with PID {pid}.")
+                    typer.secho(f"✗ Access denied for process with PID {pid}.", fg="red")
                     continue
                 if proc.status() not in PROCESS_OK_STATUS:
-                    typer.echo(f"✗ Process with PID {pid} is not in a stoppable state.")
+                    typer.secho(f"✗ Process with PID {pid} is not in a stoppable state.", fg="red")
                     continue
                 proc.kill()
-                typer.echo(f"Process with PID {pid} has been stopped.")
+                typer.secho(f"✓ Process with PID {pid} has been stopped.", fg="green")
             except psutil.NoSuchProcess:
-                typer.echo(f"! Process {pid} no longer exists.")
+                typer.secho(f"! Process {pid} no longer exists.", fg="yellow")
             except Exception:
-                typer.echo(f"✗ Error stopping process {pid}.")
+                typer.secho(f"✗ Error stopping process {pid}.", fg="red")
 
     if ports:
         aedt_procs = _find_aedt_processes()
@@ -313,20 +317,22 @@ def stop(
                     break
 
             if target_proc is None:
-                typer.echo(f"✗ No AEDT process found listening on port {port}.")
+                typer.secho(f"✗ No AEDT process found listening on port {port}.", fg="red")
                 return
 
             if not _can_access_process(target_proc):
-                typer.echo(f"✗ Access denied for process with PID {target_proc.pid}.")
+                typer.secho(f"✗ Access denied for process with PID {target_proc.pid}.", fg="red")
                 return
 
             try:
                 target_proc.kill()
-                typer.echo(f"Process with PID {target_proc.pid} listening on port {port} has been stopped.")
+                typer.secho(
+                    f"✓ Process with PID {target_proc.pid} listening on port {port} has been stopped.", fg="green"
+                )
             except psutil.NoSuchProcess:
-                typer.echo(f"! Process {target_proc.pid} no longer exists.")
+                typer.secho(f"! Process {target_proc.pid} no longer exists.", fg="yellow")
             except Exception:
-                typer.echo(f"✗ Error stopping process {target_proc.pid}.")
+                typer.secho(f"✗ Error stopping process {target_proc.pid}.", fg="red")
 
     return
 
