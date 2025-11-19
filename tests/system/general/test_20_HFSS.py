@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import math
-import os
+from pathlib import Path
 import re
 import shutil
 
@@ -66,14 +66,7 @@ def aedtapp(add_app):
 
 @pytest.fixture()
 def hfss_copied(add_app):
-    app = add_app(project_name="HfssCopiedProject", design_name="HfssCopiedBodies")
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture()
-def eigenmode(add_app):
-    app = add_app(solution_type="Eigenmode", project_name="Eigenmode")
+    app = add_app(application=Hfss)
     yield app
     app.close_project(app.project_name)
 
@@ -86,45 +79,17 @@ def diff_pairs_app(add_app):
 
 
 @pytest.fixture()
-def modal_setup(add_app):
-    app = add_app(solution_type="Modal", project_name="ModalSolutionType")
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture()
 def component_array_app(add_app):
     app = add_app(project_name=component_array, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
 
-@pytest.fixture()
-def excitation_file(add_app):
-    app = add_app(solution_type="Eigenmode", project_name="ExcitationFromFile")
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture()
-def terminal_setup(add_app):
-    app = add_app(solution_type="Terminal", project_name="TerminalSolutionType")
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture()
-def sbr_app(add_app):
-    app = add_app(project_name="SBRProject", solution_type="SBR+")
-    yield app
-    app.close_project(app.project_name)
-
-
 def test_save(aedtapp, local_scratch):
-    project_name = "Test_Exercse201119"
-    test_project = os.path.join(local_scratch.path, project_name + ".aedt")
-    aedtapp.save_project(test_project)
-    assert os.path.exists(test_project)
+    project_name = "Test_Exercse201119" + ".aedt"
+    test_project = Path(local_scratch.path / project_name)
+    aedtapp.save_project(str(test_project))
+    assert test_project.is_file
 
 
 def test_check_setup(aedtapp):
@@ -919,10 +884,11 @@ def test_a_create_impedance_on_sheets(aedtapp):
     assert imp3.name in aedtapp.modeler.get_boundaries_name()
 
 
-def test_b_create_impedance_on_sheets_eigenmode(eigenmode):
-    rect = eigenmode.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 2], name="ImpBound", material="Copper")
-    imp1 = eigenmode.assign_impedance_to_sheet(rect.name, "TL2", 50, 25)
-    assert imp1.name in eigenmode.modeler.get_boundaries_name()
+def test_b_create_impedance_on_sheets_eigenmode(aedtapp):
+    aedtapp.solution_type = "Eigenmode"
+    rect = aedtapp.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 2], name="ImpBound", material="Copper")
+    imp1 = aedtapp.assign_impedance_to_sheet(rect.name, "TL2", 50, 25)
+    assert imp1.name in aedtapp.modeler.get_boundaries_name()
 
 
 def test_create_lumpedrlc_on_sheets(aedtapp):
@@ -1206,7 +1172,8 @@ def test_export_step(aedtapp):
     file_name = "test"
     aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
     assert aedtapp.export_3d_model(file_name, aedtapp.working_directory, ".x_t", [], [])
-    assert os.path.exists(os.path.join(aedtapp.working_directory, file_name + ".x_t"))
+    output_file = file_name + ".x_t"
+    assert Path(aedtapp.working_directory, output_file).is_file()
 
 
 def test_floquet_port(aedtapp):
@@ -1410,8 +1377,8 @@ def test_mesh_settings(aedtapp):
 
 
 def test_convert_near_field(aedtapp, local_scratch):
-    example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "nf_test")
-    assert os.path.exists(convert_nearfield_data(example_project, output_folder=local_scratch.path))
+    example_project = TESTS_GENERAL_PATH / "example_models" / "nf_test"
+    assert Path(convert_nearfield_data(str(example_project), output_folder=local_scratch.path))
 
 
 def test_traces(aedtapp):
@@ -1490,9 +1457,9 @@ def test_array(aedtapp):
     aedtapp.insert_design("Array_simple", "Terminal")
     from ansys.aedt.core.generic.file_utils import read_json
 
-    json_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
+    json_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "array_simple_232.json"
     dict_in = read_json(json_file)
-    dict_in["Patch"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+    dict_in["Patch"] = str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / component)
     dict_in["cells"][(3, 3)] = {"name": "Patch"}
     dict_in["cells"][(1, 1)] = {"name": "Patch"}
     dict_in["primarylattice"] = "Patch_LatticePair1"
@@ -1507,7 +1474,7 @@ def test_array(aedtapp):
     assert aedtapp.component_array_names
     array_1.cells[2][2].rotation = 180
 
-    dict_in["Patch_2"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+    dict_in["Patch_2"] = str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / component)
     dict_in["referencecs"] = "Relative_CS1"
     del dict_in["referencecsid"]
     for el in dict_in["cells"].values():
@@ -1533,13 +1500,13 @@ def test_array(aedtapp):
 
 def test_array_json(aedtapp):
     aedtapp.insert_design("Array_simple_json", "Terminal")
-    json_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
-    component_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+    json_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "array_simple_232.json"
+    component_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / component
     aedtapp.modeler.insert_3d_component(component_file, name="Patch")
-    array1 = aedtapp.create_3d_component_array(json_file)
+    array1 = aedtapp.create_3d_component_array(str(json_file))
     assert array1.name in aedtapp.component_array_names
     # Edit array
-    array2 = aedtapp.create_3d_component_array(json_file, name=array1.name)
+    array2 = aedtapp.create_3d_component_array(str(json_file), name=array1.name)
     assert array1.name == array2.name
 
 
@@ -1565,48 +1532,50 @@ def test_crate_setup_hybrid_sbr(aedtapp):
     assert bound.props["Type"] == "PO"
 
 
-def test_import_source_excitation(modal_setup):
-    freq_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "S Parameter Table 1.csv")
-    time_domain = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Sinusoidal.csv")
+def test_import_source_excitation(aedtapp):
+    aedtapp.solution_type = "Modal"
+    freq_domain = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "S Parameter Table 1.csv"
+    time_domain = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Sinusoidal.csv"
 
-    box1 = modal_setup.modeler.create_box([0, 0, 0], [10, 20, 20])
-    modal_setup.wave_port(assignment=box1.bottom_face_x, create_port_sheet=False, name="Port1")
-    modal_setup.create_setup()
-    assert modal_setup.edit_source_from_file(
-        assignment=modal_setup.excitation_names[0], input_file=freq_domain, is_time_domain=False, x_scale=1e9
+    box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+    aedtapp.wave_port(assignment=box1.bottom_face_x, create_port_sheet=False, name="Port1")
+    aedtapp.create_setup()
+    assert aedtapp.edit_source_from_file(
+        assignment=aedtapp.excitation_names[0], input_file=str(freq_domain), is_time_domain=False, x_scale=1e9
     )
-    assert modal_setup.edit_source_from_file(
-        assignment=modal_setup.excitation_names[0],
-        input_file=time_domain,
+    assert aedtapp.edit_source_from_file(
+        assignment=aedtapp.excitation_names[0],
+        input_file=str(time_domain),
         is_time_domain=True,
         x_scale=1e-6,
         y_scale=1e-3,
         data_format="Voltage",
     )
-    modal_setup.close_project(save=False)
+    aedtapp.close_project(save=False)
 
 
-def test_assign_symmetry(modal_setup):
-    modal_setup.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
-    ids = [i.id for i in modal_setup.modeler["SymmetryForFaces"].faces]
-    assert modal_setup.assign_symmetry(ids)
-    assert modal_setup.assign_symmetry([ids[0], ids[1], ids[2]])
+def test_assign_symmetry(aedtapp):
+    aedtapp.solution_type = "Modal"
+    aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
+    ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
+    assert aedtapp.assign_symmetry(ids)
+    assert aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
     with pytest.raises(TypeError, match="Entities have to be provided as a list."):
-        modal_setup.assign_symmetry(modal_setup.modeler.object_list[0].faces[0])
-    assert modal_setup.assign_symmetry([modal_setup.modeler.object_list[0].faces[0]])
-    assert modal_setup.assign_symmetry(
+        aedtapp.assign_symmetry(aedtapp.modeler.object_list[0].faces[0])
+    assert aedtapp.assign_symmetry([aedtapp.modeler.object_list[0].faces[0]])
+    assert aedtapp.assign_symmetry(
         [
-            modal_setup.modeler.object_list[0].faces[0],
-            modal_setup.modeler.object_list[0].faces[1],
-            modal_setup.modeler.object_list[0].faces[2],
+            aedtapp.modeler.object_list[0].faces[0],
+            aedtapp.modeler.object_list[0].faces[1],
+            aedtapp.modeler.object_list[0].faces[2],
         ]
     )
     with pytest.raises(TypeError, match="Entities have to be provided as a list."):
-        modal_setup.assign_symmetry(ids[0])
+        aedtapp.assign_symmetry(ids[0])
     with pytest.raises(TypeError, match="Entities have to be provided as a list."):
-        modal_setup.assign_symmetry("test")
-    assert modal_setup.set_impedance_multiplier(2)
-    modal_setup.close_project(save=False)
+        aedtapp.assign_symmetry("test")
+    assert aedtapp.set_impedance_multiplier(2)
+    aedtapp.close_project(save=False)
 
 
 def test_create_near_field_sphere(aedtapp):
@@ -1683,25 +1652,25 @@ def test_create_near_field_line(aedtapp):
 
 def test_test_nastran(aedtapp, local_scratch):
     aedtapp.insert_design("Nas_test")
-    example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_cad.nas")
-    example_project2 = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_cad_2.nas")
-    cads, _ = aedtapp.modeler.import_nastran(example_project, lines_thickness=0.1)
+    example_project = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_cad.nas"
+    example_project2 = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_cad_2.nas"
+    cads, _ = aedtapp.modeler.import_nastran(str(example_project), lines_thickness=0.1)
     assert len(cads) > 0
-    stl, _ = aedtapp.modeler.import_nastran(example_project, decimation=0.3, preview=True, save_only_stl=True)
-    assert os.path.exists(stl[0])
-    assert aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
-    assert aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
+    stl, _ = aedtapp.modeler.import_nastran(str(example_project), decimation=0.3, preview=True, save_only_stl=True)
+    assert Path(stl[0]).is_file()
+    assert aedtapp.modeler.import_nastran(str(example_project2), decimation=0.1, preview=True, save_only_stl=True)
+    assert aedtapp.modeler.import_nastran(str(example_project2), decimation=0.5)
 
-    sphere_orig = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "sphere.stl")
-    example_project = os.path.join(local_scratch.path, "sphere.stl")
+    sphere_orig = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "sphere.stl"
+    example_project = local_scratch.path / "sphere.stl"
     shutil.copyfile(sphere_orig, example_project)
 
     from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
 
-    out = simplify_and_preview_stl(example_project, decimation=0.8)
-    assert os.path.exists(out)
-    out = simplify_and_preview_stl(example_project, decimation=0.8, preview=True)
-    assert out
+    out = simplify_and_preview_stl(str(example_project), decimation=0.8)
+    assert Path(out).is_file()
+    out = simplify_and_preview_stl(str(example_project), decimation=0.8, preview=True)
+    assert Path(out).is_file()
 
 
 def test_set_variable(aedtapp):
@@ -1791,8 +1760,8 @@ def test_set_phase_center_per_port(aedtapp):
 @pytest.mark.parametrize(
     ("dxf_file", "object_count", "self_stitch_tolerance"),
     (
-        (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf"), 1, 0.0),
-        (os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf_r12.dxf"), 4, -1),
+        (str(TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf2.dxf"), 1, 0.0),
+        (str(TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf_r12.dxf"), 4, -1),
     ),
 )
 def test_import_dxf(dxf_file: str, object_count: int, self_stitch_tolerance: float, aedtapp):
@@ -1913,8 +1882,8 @@ def test_component_array(component_array_app):
     array.coordinate_system = "Corner"
     array.coordinate_system = "Global"
 
-    array_csv = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_info.csv")
-    array_info = array.parse_array_info_from_csv(array_csv)
+    array_csv = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "array_info.csv"
+    array_info = array.parse_array_info_from_csv(str(array_csv))
     assert len(array_info) == 4
     assert array_info["component"][1] == "02_Patch1"
 
@@ -1949,17 +1918,17 @@ def test_transient_composite(aedtapp):
 
 def test_import_gds_3d(aedtapp):
     aedtapp.insert_design("gds_import_H3D")
-    gds_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "GDS", "gds1.gds")
-    assert aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+    gds_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1.gds"
+    assert aedtapp.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
     assert len(aedtapp.modeler.solid_names) == 3
     assert len(aedtapp.modeler.sheet_names) == 0
-    assert aedtapp.import_gds_3d(gds_file, {7: (0, 0), 9: (0, 0)})
+    assert aedtapp.import_gds_3d(str(gds_file), {7: (0, 0), 9: (0, 0)})
     assert len(aedtapp.modeler.sheet_names) == 3
-    assert aedtapp.import_gds_3d(gds_file, {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
+    assert aedtapp.import_gds_3d(str(gds_file), {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
     assert len(aedtapp.modeler.solid_names) == 6
-    assert not aedtapp.import_gds_3d(gds_file, {})
-    gds_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "GDS", "gds1not.gds")
-    assert not aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+    assert not aedtapp.import_gds_3d(str(gds_file), {})
+    gds_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1not.gds"
+    assert not aedtapp.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
 
 
 def test_plane_wave(aedtapp):
@@ -2014,44 +1983,46 @@ def test_export_on_completion(aedtapp, local_scratch):
     assert aedtapp.export_touchstone_on_completion()
 
 
-def test_edit_source_excitation_from_file(excitation_file):
-    _ = excitation_file.modeler.create_box([0, 0, 0], [10, 20, 20])
-    setup = excitation_file.create_setup()
+def test_edit_source_excitation_from_file(aedtapp):
+    aedtapp.solution_type = "Eigenmode"
+    _ = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+    setup = aedtapp.create_setup()
     setup.props["NumModes"] = 2
     sources = {"1": "10", "2": "0"}
-    assert excitation_file.edit_sources(sources, eigenmode_stored_energy=True)
+    assert aedtapp.edit_sources(sources, eigenmode_stored_energy=True)
     sources = {"1": ("0", "0deg"), "2": ("2", "90deg")}
-    assert excitation_file.edit_sources(sources, eigenmode_stored_energy=False)
+    assert aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
     sources = {"1": "20", "2": "0"}
-    assert excitation_file.edit_sources(sources, eigenmode_stored_energy=False)
-    input_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "source_eigen.csv")
-    assert excitation_file.edit_source_from_file(input_file=input_file)
+    assert aedtapp.edit_sources(sources, eigenmode_stored_energy=False)
+    input_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "source_eigen.csv"
+    assert aedtapp.edit_source_from_file(input_file=str(input_file))
 
 
-def test_import_table(terminal_setup):
-    file_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_header.csv")
-    file_no_header = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "table_no_header.csv")
+def test_import_table(aedtapp):
+    aedtapp.solution_type = "Terminal"
+    file_header = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "table_header.csv"
+    file_no_header = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "table_no_header.csv"
     file_invented = "invented.csv"
-    file_format = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "sphere.stl")
+    file_format = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "sphere.stl"
 
-    assert not terminal_setup.table_names
-    terminal_setup.create_setup()
-    assert not terminal_setup.table_names
+    assert not aedtapp.table_names
+    aedtapp.create_setup()
+    assert not aedtapp.table_names
 
     with pytest.raises(FileNotFoundError, match="File does not exist."):
-        terminal_setup.import_table(input_file=file_invented, name="Table1")
+        aedtapp.import_table(input_file=file_invented, name="Table1")
     with pytest.raises(ValueError, match=re.escape("Invalid file extension. It must be ``.csv``.")):
-        terminal_setup.import_table(input_file=file_format, name="Table1")
+        aedtapp.import_table(input_file=file_format, name="Table1")
 
-    assert terminal_setup.import_table(input_file=file_header, name="Table1")
-    assert "Table1" in terminal_setup.table_names
+    assert aedtapp.import_table(input_file=file_header, name="Table1")
+    assert "Table1" in aedtapp.table_names
     with pytest.raises(AEDTRuntimeError, match="Table name already assigned."):
-        terminal_setup.import_table(input_file=file_header, name="Table1")
+        aedtapp.import_table(input_file=file_header, name="Table1")
 
-    assert terminal_setup.import_table(input_file=file_no_header, name="Table2")
-    assert "Table2" in terminal_setup.table_names
+    assert aedtapp.import_table(input_file=file_no_header, name="Table2")
+    assert "Table2" in aedtapp.table_names
 
-    assert terminal_setup.import_table(
+    assert aedtapp.import_table(
         input_file=file_no_header,
         name="Table3",
         is_real_imag=False,
@@ -2059,13 +2030,13 @@ def test_import_table(terminal_setup):
         column_names=["col1_test", "col2_test"],
         independent_columns=[True, False],
     )
-    assert "Table3" in terminal_setup.table_names
+    assert "Table3" in aedtapp.table_names
 
-    assert terminal_setup.delete_table("Table2")
-    assert "Table2" not in terminal_setup.table_names
+    assert aedtapp.delete_table("Table2")
+    assert "Table2" not in aedtapp.table_names
 
-    assert terminal_setup.import_table(input_file=file_no_header, name="Table2")
-    assert "Table2" in terminal_setup.table_names
+    assert aedtapp.import_table(input_file=file_no_header, name="Table2")
+    assert "Table2" in aedtapp.table_names
 
 
 def test_hertzian_dipole_wave(aedtapp):
@@ -2090,29 +2061,29 @@ def test_hertzian_dipole_wave(aedtapp):
     assert exc2.name == "dipole"
 
 
-def test_wave_port_integration_line(modal_setup):
-    c = modal_setup.modeler.create_circle("XY", [-1.4, -1.6, 0], 1, name="wave_port")
+def test_wave_port_integration_line(aedtapp):
+    aedtapp.solution_type = "Modal"
+    c = aedtapp.modeler.create_circle("XY", [-1.4, -1.6, 0], 1, name="wave_port")
     start = [["-1.4mm", "-1.6mm", "0mm"], ["-1.4mm", "-1.6mm", "0mm"]]
     end = [["-1.4mm", "-0.6mm", "0mm"], ["-1.4mm", "-2.6mm", "0mm"]]
 
     with pytest.raises(ValueError, match=re.escape("List of characteristic impedance is not set correctly.")):
-        modal_setup.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave"], modes=2)
+        aedtapp.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave"], modes=2)
 
-    assert modal_setup.wave_port(
-        c.name, integration_line=[start, end], characteristic_impedance=["Zwave", "Zpv"], modes=2
-    )
+    assert aedtapp.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave", "Zpv"], modes=2)
 
-    assert modal_setup.wave_port(c.name, integration_line=[start, end], modes=2)
+    assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=2)
 
     start = [["-1.4mm", "-1.6mm", "0mm"], None, ["-1.4mm", "-1.6mm", "0mm"]]
     end = [["-1.4mm", "-0.6mm", "0mm"], None, ["-1.4mm", "-2.6mm", "0mm"]]
 
-    assert modal_setup.wave_port(c.name, integration_line=[start, end], modes=3)
+    assert aedtapp.wave_port(c.name, integration_line=[start, end], modes=3)
 
 
-def test_create_near_field_point(sbr_app):
-    sample_points_file = os.path.join(TESTS_SOLVERS_PATH, "example_models", "T00", "temp_points.pts")
-    bound = sbr_app.insert_near_field_points(input_file=sample_points_file)
+def test_create_near_field_point(aedtapp):
+    aedtapp.solution_type = "SBR+"
+    sample_points_file = TESTS_SOLVERS_PATH / "example_models" / "T00" / "temp_points.pts"
+    bound = aedtapp.insert_near_field_points(input_file=sample_points_file)
     assert bound
 
 
@@ -2293,11 +2264,11 @@ def test_port_driven(aedtapp):
 
 
 def test_convert_far_field(local_scratch):
-    output_file = os.path.join(local_scratch.path, "test_AAA.ffd")
-    example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "ff_test", "test.ffs")
-    assert os.path.exists(convert_farfield_data(example_project, output_file))
-    example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "ff_test", "test.ffe")
-    assert os.path.exists(convert_farfield_data(example_project, output_file))
+    output_file = local_scratch.path / "test_AAA.ffd"
+    example_project = TESTS_GENERAL_PATH / "example_models" / "ff_test" / "test.ffs"
+    assert Path(convert_farfield_data(example_project, output_file)).is_file()
+    example_project = TESTS_GENERAL_PATH / "example_models" / "ff_test" / "test.ffe"
+    assert Path(convert_farfield_data(example_project, output_file)).is_file()
     with pytest.raises(FileNotFoundError):
         convert_farfield_data("non_existing_file.ffs")
     with pytest.raises(FileNotFoundError):

@@ -39,103 +39,105 @@ def desktop():
     return
 
 
-class TestClass:
-    def test_write_new_xml(self, local_scratch):
-        project_path = local_scratch.path / "Project"
-        project_path.mkdir(parents=True, exist_ok=True)
-        file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
-        root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
-        panels = root.findall("./panel")
-        panel_names = [panel.attrib["label"] for panel in panels]
-        assert len(panel_names) == 1
+def test_write_new_xml(local_scratch):
+    project_path = local_scratch.path / "Project"
+    project_path.mkdir(parents=True, exist_ok=True)
+    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    root = validate_file_exists_and_pyaedt_tabs_added(file_path)
+    panels = root.findall("./panel")
+    panel_names = [panel.attrib["label"] for panel in panels]
+    assert len(panel_names) == 1
 
-    def test_add_pyaedt_config_to_existing_existing_xml(self, local_scratch):
-        """
-        First write a dummy XML with a different Panel and then add PyAEDT's tabs
-        :return:
-        """
-        project_path = local_scratch.path / "Project"
-        project_path.mkdir(parents=True, exist_ok=True)
-        file_path = project_path / "TabConfig.xml"
-        with open(file_path, "w") as fid:
-            fid.write(
-                """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+def test_add_pyaedt_config_to_existing_existing_xml(local_scratch):
+    """
+    First write a dummy XML with a different Panel and then add PyAEDT's tabs
+    :return:
+    """
+    project_path = local_scratch.path / "Project"
+    project_path.mkdir(parents=True, exist_ok=True)
+    file_path = project_path / "TabConfig.xml"
+    with open(file_path, "w") as fid:
+        fid.write(
+            """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <TabConfig>
-    <panel label="Panel_1">
-        <gallery imagewidth="32" imageheight="32">
-            <button label="Dummy1" />
-            <group label="Dummy1">
-                <button label="Dummy 1" script="ScriptDir/Dummy1" />
-                <button label="Dummy 2" script="ScriptDir/Dummy2" />
-            </group>
-        </gallery>
-    </panel>
+<panel label="Panel_1">
+    <gallery imagewidth="32" imageheight="32">
+        <button label="Dummy1" />
+        <group label="Dummy1">
+            <button label="Dummy 1" script="ScriptDir/Dummy1" />
+            <button label="Dummy 2" script="ScriptDir/Dummy2" />
+        </group>
+    </gallery>
+</panel>
 </TabConfig>
 """
-            )
+        )
 
-        file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
-        root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
-        panels = root.findall("./panel")
-        panel_names = [panel.attrib["label"] for panel in panels]
-        assert len(panel_names) == 2
-        assert "Panel_1" in panel_names
+    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    root = validate_file_exists_and_pyaedt_tabs_added(file_path)
+    panels = root.findall("./panel")
+    panel_names = [panel.attrib["label"] for panel in panels]
+    assert len(panel_names) == 2
+    assert "Panel_1" in panel_names
 
-    def test_overwrite_existing_pyaedt_config(self, local_scratch):
-        project_path = local_scratch.path / "Project"
-        project_path.mkdir(parents=True, exist_ok=True)
-        file_path = project_path / "TabConfig.xml"
-        with open(file_path, "w") as fid:
-            fid.write(
-                """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+def test_overwrite_existing_pyaedt_config(local_scratch):
+    project_path = local_scratch.path / "Project"
+    project_path.mkdir(parents=True, exist_ok=True)
+    file_path = project_path / "TabConfig.xml"
+    with open(file_path, "w") as fid:
+        fid.write(
+            """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <TabConfig>
-    <panel label="Panel_PyAEDT">
-        <gallery imagewidth="32" imageheight="32">
-            <button label="Dummy1" />
-            <group label="Dummy1">
-                <button label="Dummy 1" script="ScriptDir/Dummy1" />
-                <button label="Dummy 2" script="ScriptDir/Dummy2" />
-            </group>
-        </gallery>
-    </panel>
+<panel label="Panel_PyAEDT">
+    <gallery imagewidth="32" imageheight="32">
+        <button label="Dummy1" />
+        <group label="Dummy1">
+            <button label="Dummy 1" script="ScriptDir/Dummy1" />
+            <button label="Dummy 2" script="ScriptDir/Dummy2" />
+        </group>
+    </gallery>
+</panel>
 </TabConfig>
 """
-            )
-        file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
-        root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
-        panels = root.findall("./panel")
-        panel_names = [panel.attrib["label"] for panel in panels]
-        assert len(panel_names) == 2
+        )
+    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    root = validate_file_exists_and_pyaedt_tabs_added(file_path)
+    panels = root.findall("./panel")
+    panel_names = [panel.attrib["label"] for panel in panels]
+    assert len(panel_names) == 2
 
-    def test_write_to_existing_file_but_no_panels(self, local_scratch):
-        project_path = local_scratch.path / "Project"
-        project_path.mkdir(parents=True, exist_ok=True)
-        file_path = project_path / "TabConfig.xml"
-        with open(file_path, "w") as fid:
-            fid.write(
-                """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+def test_write_to_existing_file_but_no_panels(local_scratch):
+    project_path = local_scratch.path / "Project"
+    project_path.mkdir(parents=True, exist_ok=True)
+    file_path = project_path / "TabConfig.xml"
+    with open(file_path, "w") as fid:
+        fid.write(
+            """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <TabConfig>
-    <junk label="Junk_1" />
+<junk label="Junk_1" />
 </TabConfig>
 """
-            )
-        file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
-        root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
-        junks = root.findall("./junk")
-        junk_names = [junk.attrib["label"] for junk in junks]
-        assert junk_names[0] == "Junk_1"
-        assert len(junks) == 1
-        panels = root.findall("./panel")
-        panel_names = [panel.attrib["label"] for panel in panels]
-        assert len(panel_names) == 1
+        )
+    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    root = validate_file_exists_and_pyaedt_tabs_added(file_path)
+    junks = root.findall("./junk")
+    junk_names = [junk.attrib["label"] for junk in junks]
+    assert junk_names[0] == "Junk_1"
+    assert len(junks) == 1
+    panels = root.findall("./panel")
+    panel_names = [panel.attrib["label"] for panel in panels]
+    assert len(panel_names) == 1
 
-    @staticmethod
-    def validate_file_exists_and_pyaedt_tabs_added(file_path):
-        assert Path(file_path).is_file() is True
-        assert ET.parse(file_path) is not None
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-        panels = root.findall("./panel")
-        panel_names = [panel.attrib["label"] for panel in panels]
-        assert "Panel_PyAEDT_Extensions" in panel_names
-        return root
+
+def validate_file_exists_and_pyaedt_tabs_added(file_path):
+    assert Path(file_path).is_file() is True
+    assert ET.parse(file_path) is not None
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+    panels = root.findall("./panel")
+    panel_names = [panel.attrib["label"] for panel in panels]
+    assert "Panel_PyAEDT_Extensions" in panel_names
+    return root

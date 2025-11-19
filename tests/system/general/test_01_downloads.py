@@ -38,75 +38,84 @@ def desktop():
     return
 
 
-class TestClass:
-    @pytest.fixture(autouse=True)
-    def init(self):
-        self.examples = downloads
+def test_download_edb():
+    assert downloads.download_aedb()
 
-    def test_download_edb(self):
-        assert self.examples.download_aedb()
 
-    def test_download_touchstone(self):
-        assert self.examples.download_touchstone()
+def test_download_touchstone():
+    assert downloads.download_touchstone()
 
-    def test_download_netlist(self):
-        assert self.examples.download_netlist()
 
-    def test_download_sbr(self):
-        assert self.examples.download_sbr()
+def test_download_netlist():
+    assert downloads.download_netlist()
 
-    def test_download_antenna_array(self):
-        assert self.examples.download_antenna_array()
 
-    def test_download_antenna_sherlock(self):
-        assert self.examples.download_sherlock(destination=Path(tempfile.gettempdir()) / "sherlock")
+def test_download_sbr():
+    assert downloads.download_sbr()
 
-    @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
-    def test_download_multiparts(self):
-        assert self.examples.download_multiparts(destination=Path(tempfile.gettempdir()) / "multi")
 
-    def test_download_leaf(self):
-        out = self.examples.download_leaf()
+def test_download_antenna_array():
+    assert downloads.download_antenna_array()
 
-        assert Path(out[0]).exists()
-        assert Path(out[1]).exists()
 
-        new_name = generate_unique_name("test")
+def test_download_antenna_sherlock():
+    assert downloads.download_sherlock(destination=Path(tempfile.gettempdir()) / "sherlock")
 
-        orig_path = Path(out[0])
-        orig_dir = orig_path.parent
 
-        new_path = orig_dir.with_name(new_name)
+@pytest.mark.skipif(is_linux, reason="Crashes on Linux")
+def test_download_multiparts():
+    assert downloads.download_multiparts(destination=Path(tempfile.gettempdir()) / "multi")
 
-        orig_dir.rename(new_path)
 
-        assert new_path.exists()
+def test_download_leaf():
+    out = downloads.download_leaf()
 
-    def test_download_custom_report(self):
-        out = self.examples.download_custom_reports()
-        assert Path(out).exists()
+    assert Path(out[0]).exists()
+    assert Path(out[1]).exists()
 
-    def test_download_3dcomp(self):
-        out = self.examples.download_3dcomponent()
-        assert Path(out).exists()
+    new_name = generate_unique_name("test")
 
-    def test_download_twin_builder_data(self):
-        example_folder = self.examples.download_twin_builder_data("Ex1_Mechanical_DynamicRom.zip", True)
-        assert Path(example_folder).exists()
+    orig_path = Path(out[0])
+    orig_dir = orig_path.parent
 
-    def test_download_specific_file(self):
-        example_folder = self.examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
-        assert Path(example_folder).exists()
+    new_path = orig_dir.with_name(new_name)
 
-    def test_download_specific_folder(self):
-        example_folder = self.examples.download_file(directory="nissan")
-        assert Path(example_folder).exists()
-        example_folder = self.examples.download_file(directory="wpf_edb_merge")
-        assert Path(example_folder).exists()
+    orig_dir.rename(new_path)
 
-    def test_download_icepak_3d_component(self):
-        assert self.examples.download_icepak_3d_component()
+    assert new_path.exists()
 
-    def test_download_fss_file(self):
-        example_folder = self.examples.download_fss_3dcomponent()
-        assert Path(example_folder).exists()
+
+def test_download_custom_report():
+    out = downloads.download_custom_reports()
+    assert Path(out).exists()
+
+
+def test_download_3dcomp():
+    out = downloads.download_3dcomponent()
+    assert Path(out).exists()
+
+
+def test_download_twin_builder_data():
+    example_folder = downloads.download_twin_builder_data("Ex1_Mechanical_DynamicRom.zip", True)
+    assert Path(example_folder).exists()
+
+
+def test_download_specific_file():
+    example_folder = downloads.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
+    assert Path(example_folder).exists()
+
+
+def test_download_specific_folder():
+    example_folder = downloads.download_file(directory="nissan")
+    assert Path(example_folder).exists()
+    example_folder = downloads.download_file(directory="wpf_edb_merge")
+    assert Path(example_folder).exists()
+
+
+def test_download_icepak_3d_component():
+    assert downloads.download_icepak_3d_component()
+
+
+def test_download_fss_file():
+    example_folder = downloads.download_fss_3dcomponent()
+    assert Path(example_folder).exists()
