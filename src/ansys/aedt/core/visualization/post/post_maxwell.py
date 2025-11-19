@@ -373,9 +373,10 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
         Create a field line traces plot in the Region from seeding faces (insulator faces).
         >>> plot = m2d.post.create_fieldplot_line_traces(
-        >>>                                              seeding_faces = (["Region"])
-        >>>                                              in_volume_tracing_objs = (["Region"])
-        >>>                                              plot_name="LineTracesTest")
+        ...     seeding_faces = (["Region"],)
+        ...     in_volume_tracing_objs = (["Region"],)
+        ...     plot_name="LineTracesTest"
+        ... )
 
         Now the inception voltage evaluation can be performed on all (or a subset) of the created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
