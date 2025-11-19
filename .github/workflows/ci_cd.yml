@@ -261,8 +261,9 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           enable-cache: false
           prune-cache: true
@@ -406,8 +407,9 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           enable-cache: false
           prune-cache: true
@@ -565,8 +567,9 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           enable-cache: false
           prune-cache: true
@@ -769,9 +772,10 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1006,9 +1010,10 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1121,9 +1126,10 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1243,9 +1249,10 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           enable-cache: false
           prune-cache: true
