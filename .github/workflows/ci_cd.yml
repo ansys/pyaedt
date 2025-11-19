@@ -729,8 +729,11 @@ jobs:
 
       - name: Check for changes in extensions folder
         id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          $is_main_branch = "${{ github.ref }}" -eq "refs/heads/main"
+          $GITHUB_REF = "${env:GITHUB_REF}"
+          $is_main_branch = $GITHUB_REF -eq "refs/heads/main"
           $changed_files = git diff --name-only origin/main...HEAD
           $run_tests = $false
           foreach ($file in $changed_files) {
@@ -849,11 +852,12 @@ jobs:
       - name: Check for changes in extensions folder
         id: changes
         shell: bash
+        env:
+          GITHUB_REF: ${{ github.ref }}
         run: |
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          is_main_branch=false
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
             is_main_branch=true
-          else
-            is_main_branch=false
           fi
           changed_files=$(git diff --name-only origin/main...HEAD)
           run_tests=false
@@ -966,27 +970,30 @@ jobs:
 
       - name: Check for changes in filter solutions folder
         id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        shell: powershell
         run: |
-          $isMainBranch = "${{ github.ref }}" -eq "refs/heads/main"
-          $changedFiles = git diff --name-only origin/main...HEAD
-          $runTests = $false
-          foreach ($file in $changedFiles) {
+          $github_ref = "${env:GITHUB_REF}"
+          $is_main_branch = $github_ref -eq "refs/heads/main"
+          $changed_files = git diff --name-only origin/main...HEAD
+          $run_tests = $false
+          foreach ($file in $changed_files) {
             if ($file -like "src/ansys/aedt/core/filtersolutions_core/*") {
-              $runTests = $true
+              $run_tests = $true
               break
             }
           }
           # Always run tests on main branch for code coverage
-          if ($isMainBranch) {
-            $runTests = $true
+          if ($is_main_branch) {
+            $run_tests = $true
             echo "✅ Running on main branch - all tests will be executed"
-          } elseif ($runTests) {
+          } elseif ($run_tests) {
             echo "✅ Changes detected in filter solutions folder"
           } else {
             echo "ℹ️ No changes in filter solutions folder"
           }
-          echo "run_tests=$runTests" >> $env:GITHUB_OUTPUT
-        shell: powershell
+          echo "run_tests=$run_tests" >> $env:GITHUB_OUTPUT
 
       - name: Skip filter solutions tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -1078,27 +1085,30 @@ jobs:
 
       - name: Check for changes in EMIT folder
         id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        shell: powershell
         run: |
-          $isMainBranch = "${{ github.ref }}" -eq "refs/heads/main"
-          $changedFiles = git diff --name-only origin/main...HEAD
-          $runTests = $false
-          foreach ($file in $changedFiles) {
+          $github_ref = "${env:GITHUB_REF}"
+          $is_main_branch = $github_ref -eq "refs/heads/main"
+          $changed_files = git diff --name-only origin/main...HEAD
+          $run_tests = $false
+          foreach ($file in $changed_files) {
             if ($file -like "src/ansys/aedt/core/emit_core/*") {
-              $runTests = $true
+              $run_tests = $true
               break
             }
           }
           # Always run tests on main branch for code coverage
-          if ($isMainBranch) {
-            $runTests = $true
+          if ($is_main_branch) {
+            $run_tests = $true
             echo "✅ Running on main branch - all tests will be executed"
-          } elseif ($runTests) {
+          } elseif ($run_tests) {
             echo "✅ Changes detected in EMIT folder"
           } else {
             echo "ℹ️ No changes in EMIT folder"
           }
-          echo "run_tests=$runTests" >> $env:GITHUB_OUTPUT
-        shell: powershell
+          echo "run_tests=$run_tests" >> $env:GITHUB_OUTPUT
 
       - name: Skip EMIT tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -1177,28 +1187,28 @@ jobs:
  # =================================================================================================
 
   system-tests-flaky-linux:
-     name: Test flaky (linux)
-     if: github.event.pull_request.draft == false
-     needs: [integration-tests]
-     runs-on: [ self-hosted, Linux, pyaedt ]
-     env:
-       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-       ANS_NODEPCHECK: '1'
-     steps:
-       - name: Install Git and checkout project
-         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-         with:
-           persist-credentials: false
-           fetch-depth: 0
-
-       - name: Check for changes in flaky test areas
-         id: changes
-         shell: bash
-         run: |
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+    name: Test flaky (linux)
+    if: github.event.pull_request.draft == false
+    needs: [integration-tests]
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check for changes in flaky test areas
+        id: changes
+        shell: bash
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          is_main_branch=false
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
             is_main_branch=true
-          else
-            is_main_branch=false
           fi
           changed_files=$(git diff --name-only origin/main...HEAD)
           run_tests=false
@@ -1219,79 +1229,79 @@ jobs:
           fi
           echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
 
-       - name: Skip flaky tests
-         if: steps.changes.outputs.run_tests == 'false'
-         run: echo "Skipped - No changes affecting flaky tests"
+      - name: Skip flaky tests
+        if: steps.changes.outputs.run_tests == 'false'
+        run: echo "Skipped - No changes affecting flaky tests"
 
-       - name: Set up headless display
-         if: steps.changes.outputs.run_tests == 'true'
-         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+      - name: Set up headless display
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-       - name: Setup Python
-         if: steps.changes.outputs.run_tests == 'true'
-         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
-         with:
-           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+      - name: Setup Python
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-       - name: Set up uv
-         if: steps.changes.outputs.run_tests == 'true'
-         uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
-         with:
-           enable-cache: false
-           prune-uv-cache: true
+      - name: Set up uv
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+        with:
+          enable-cache: false
+          prune-uv-cache: true
 
-       - name: Create virtual environment
-         if: steps.changes.outputs.run_tests == 'true'
-         run: uv venv .venv
+      - name: Create virtual environment
+        if: steps.changes.outputs.run_tests == 'true'
+        run: uv venv .venv
 
-       - name: Upgrade pip, wheel and setuptools
-         if: steps.changes.outputs.run_tests == 'true'
-         run: |
-           source .venv/bin/activate
-           uv pip install -U pip wheel setuptools
+      - name: Upgrade pip, wheel and setuptools
+        if: steps.changes.outputs.run_tests == 'true'
+        run: |
+          source .venv/bin/activate
+          uv pip install -U pip wheel setuptools
 
-       - name: Install pyaedt and tests dependencies
-         if: steps.changes.outputs.run_tests == 'true'
-         run: |
-           source .venv/bin/activate
-           uv pip install .[tests]
+      - name: Install pyaedt and tests dependencies
+        if: steps.changes.outputs.run_tests == 'true'
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
 
-       - name: Remove Ansys processes (if any)
-         if: steps.changes.outputs.run_tests == 'true'
-         shell: bash
-         run: |
-           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-             echo "Killing PID $pid"
-             kill -9 "$pid"
-           done
+      - name: Remove Ansys processes (if any)
+        if: steps.changes.outputs.run_tests == 'true'
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
-       - name: Run tests marked with 'flaky'
-         if: steps.changes.outputs.run_tests == 'true'
-         env:
-           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-         with:
-           max_attempts: 2
-           retry_on: error
-           timeout_minutes: 120
-           command: |
-             export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-             source .venv/bin/activate
-             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
+      - name: Run tests marked with 'flaky'
+        if: steps.changes.outputs.run_tests == 'true'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
 
-       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-         if: steps.changes.outputs.run_tests == 'true'
-         with:
-           name: codecov-system-flaky-tests-linux
-           files: ./coverage.xml
-           flags: linux_system_flaky
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: steps.changes.outputs.run_tests == 'true'
+        with:
+          name: codecov-system-flaky-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_flaky
 
-       - name: Upload pytest test results
-         if: steps.changes.outputs.run_tests == 'true'
-         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
-         with:
-           name: pytest-flaky-linux
-           path: junit/test-results.xml
+      - name: Upload pytest test results
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: pytest-flaky-linux
+          path: junit/test-results.xml
 
   package:
     name: Package library
