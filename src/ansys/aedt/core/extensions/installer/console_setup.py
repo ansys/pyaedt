@@ -34,8 +34,10 @@ provided by the launcher
 """
 
 import atexit
-import os
+from pathlib import Path
 import sys
+from IPython import get_ipython
+import tempfile
 
 aedt_process_id = int(sys.argv[1])
 version = sys.argv[2]
@@ -50,12 +52,13 @@ try:
         from ansys.aedt.core import Desktop
         from ansys.aedt.core.generic.general_methods import active_sessions
         from ansys.aedt.core.generic.general_methods import is_windows
+        from ansys.aedt.core.generic.file_utils import available_file_name
 except ImportError:
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
-    console_setup_dir = os.path.dirname(__file__)
-    if "PersonalLib" in console_setup_dir:
-        sys.path.append(os.path.join(console_setup_dir, "../..", "..", ".."))
+    console_setup_dir = Path(__file__).resolve().parent
+    if "PersonalLib" in console_setup_dir.parts:
+        sys.path.append(str(console_setup_dir / ".." / ".." / ".."))
     if version <= "2023.1":
         from pyaedt import Desktop
         from pyaedt.generic.general_methods import active_sessions
@@ -64,6 +67,7 @@ except ImportError:
         from ansys.aedt.core import Desktop
         from ansys.aedt.core.generic.general_methods import active_sessions
         from ansys.aedt.core.generic.general_methods import is_windows
+        from ansys.aedt.core.generic.file_utils import available_file_name
 
 
 def release(d):
@@ -113,6 +117,7 @@ else:
     print("Error. AEDT should be started in gRPC mode in Linux to connect to PyAEDT")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
+
 if not error: # pragma: no cover
     print(" ")
 
@@ -127,8 +132,7 @@ if not error: # pragma: no cover
     print("*  \033[94mdesktop.logger.info('Hello world')\033[92m")
     print("****************************************************************\033[0m")
     print(" ")
-    print(" ")
-    print(" ")
+
     if is_windows:
         try:
             import win32api
@@ -156,3 +160,40 @@ if not error: # pragma: no cover
         except ImportError:
             pass
         atexit.register(release, desktop)
+
+if version > "2023.1":
+
+    log_file = Path(tempfile.gettempdir()) / "pyaedt_script.py"
+    log_file = available_file_name(log_file)
+
+    def log_successful_command(result):
+        """
+        IPython Hook: Executes after every command (cell).
+        Logs the input command only if 'result.error_in_exec' is False (no exception).
+        """
+        # Check for execution error
+        if not result.error_in_exec:
+            command = result.info.raw_cell.strip()
+
+            # Avoid logging empty lines, comments, or the hook code itself
+            if command and not command.startswith('#') and "log_successful_command" not in command:
+                try:
+                    # Append the successful command to the log file
+                    with open(log_file, 'a', encoding='utf-8') as f:
+                        f.write(f"\n# In[{result.execution_count}]:\n")
+                        f.write(command + "\n")
+                except Exception as e:
+                    # Handle potential file writing errors
+                    print(f"ERROR: Failed to write to log file: {e}")
+
+
+    # Register the Hook
+    ip = get_ipython()
+    if ip:
+        # Register the function to run after every command execution
+        ip.events.register('post_run_cell', log_successful_command)
+        # Inform the user that logging is active
+        print(f"Successful commands will be saved to: \033[94m'{log_file}'\033[92m")
+        print(" ")
+        print(" ")
+        print(" ")
