@@ -627,49 +627,47 @@ def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path):
     assert "not a directory" in result.stdout
 
 
-def test_panels_add_installer_returns_false(cli_runner, temp_personal_lib):
+@patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt", return_value=False)
+def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal_lib):
     """Test panel installation when installer returns False."""
-    with patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt") as mock_func:
-        mock_func.return_value = False
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+    )
 
-        result = cli_runner.invoke(
-            app,
-            ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
-        )
-
-        assert result.exit_code == 1
-        assert "✗ Failed to install PyAEDT panels" in result.stdout
+    assert result.exit_code == 1
+    assert "✗ Failed to install PyAEDT panels" in result.stdout
 
 
-def test_panels_add_import_error(cli_runner, temp_personal_lib):
+@patch(
+    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+    side_effect=ImportError("Cannot import installer"),
+)
+def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib):
     """Test panel installation when import fails."""
-    with patch(
-        "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
-        side_effect=ImportError("Cannot import installer"),
-    ):
-        result = cli_runner.invoke(
-            app,
-            ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
-        )
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+    )
 
-        assert result.exit_code == 1
-        assert "✗ Import error: Cannot import installer" in result.stdout
-        assert "Make sure PyAEDT is properly installed" in result.stdout
+    assert result.exit_code == 1
+    assert "✗ Import error: Cannot import installer" in result.stdout
+    assert "Make sure PyAEDT is properly installed" in result.stdout
 
 
-def test_panels_add_generic_exception(cli_runner, temp_personal_lib):
+@patch(
+    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+    side_effect=Exception("Unexpected error"),
+)
+def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib):
     """Test panel installation when generic exception occurs."""
-    with patch(
-        "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
-        side_effect=Exception("Unexpected error"),
-    ):
-        result = cli_runner.invoke(
-            app,
-            ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
-        )
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+    )
 
-        assert result.exit_code == 1
-        assert "✗ Error installing panels: Unexpected error" in result.stdout
+    assert result.exit_code == 1
+    assert "✗ Error installing panels: Unexpected error" in result.stdout
 
 
 @patch("platform.system", return_value="Windows")
