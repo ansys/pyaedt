@@ -728,8 +728,8 @@ def test_set_as_working_object_cs(aedtapp):
     )
     assert obj_cs.set_as_working_cs()
     assert obj_cs_1.set_as_working_cs()
-    obj_cs.delete()
-    obj_cs_1.delete()
+    assert obj_cs.delete()
+    assert obj_cs_1.delete()
 
 
 def test_set_working_coordinate_system(aedtapp):
