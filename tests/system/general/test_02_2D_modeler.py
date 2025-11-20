@@ -239,7 +239,7 @@ def test_edit_menu_commands(aedtapp):
 
 
 def test_move_edge(aedtapp):
-    poly = aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
+    poly = aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
     assert poly.faces[0].edges[0].move_along_normal(1)
     assert aedtapp.modeler.move_edge([poly.edges[0], poly.edges[1]])
 

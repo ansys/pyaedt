@@ -419,10 +419,11 @@ def test_create_waveguide(aedtapp):
     assert not wgfail
 
 
-def test_set_objects_unmodel(coaxial):
-    o2 = coaxial.modeler.create_airbox(50, "Relative", "Second_airbox")
-    assert coaxial.modeler.set_object_model_state(o2.name, False)
-    assert coaxial.modeler.set_object_model_state([o2.name, "AirBox_Auto"], False)
+def test_set_objects_unmodel(aedtapp):
+    o2 = aedtapp.modeler.create_airbox(50, "Relative", "Second_airbox")
+    box = aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+    assert aedtapp.modeler.set_object_model_state(o2.name, False)
+    assert aedtapp.modeler.set_object_model_state([o2.name, box.name], False)
 
 
 def test_find_port_faces(coaxial):
@@ -557,8 +558,7 @@ def test_create_face_coordinate_system(aedtapp):
 
 
 def test_create_object_coordinate_system(aedtapp):
-    _ = aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
-    box = aedtapp.modeler.objects_by_name["box_cs"]
+    box = aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     cs = aedtapp.modeler.create_object_coordinate_system(
         assignment=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
     )
@@ -631,7 +631,7 @@ def test_rename_coordinate(aedtapp):
 
 
 def test_rename_face_coordinate(aedtapp):
-    box = aedtapp.modeler.objects_by_name["box_cs"]
+    box = aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     face = box.faces[0]
     fcs = aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="oldname")
     assert fcs.name == "oldname"
@@ -710,9 +710,7 @@ def test_set_as_working_cs(aedtapp):
 
 
 def test_set_as_working_face_cs(aedtapp):
-    for sys in aedtapp.modeler.coordinate_systems:
-        sys.delete()
-    box = aedtapp.modeler.objects_by_name["box_cs"]
+    box = aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     face = box.faces[0]
     fcs1 = aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
     fcs2 = aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1])
@@ -721,9 +719,7 @@ def test_set_as_working_face_cs(aedtapp):
 
 
 def test_set_as_working_object_cs(aedtapp):
-    for sys in aedtapp.modeler.coordinate_systems:
-        sys.delete()
-    box = aedtapp.modeler.objects_by_name["box_cs"]
+    box = aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
     obj_cs = aedtapp.modeler.create_object_coordinate_system(
         assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
     )
@@ -955,7 +951,7 @@ def test_set_variable(aedtapp):
 def test_scale(aedtapp):
     o2 = aedtapp.modeler.create_airbox(50, "Relative", "Second_airbox")
     aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
-    assert aedtapp.modeler.scale([aedtapp.modeler.object_list[0], o2.NAME])
+    assert aedtapp.modeler.scale([aedtapp.modeler.object_list[0], o2.name])
 
 
 def test_global_to_cs(aedtapp):
@@ -1231,7 +1227,7 @@ def test_copy_solid_bodies_udm(aedtapp, add_app):
     assert len(obj_3dcomp.parts) == 4
 
     dest = add_app(application=Icepak)
-    dest.copy_solid_bodies_from(hfssapp, [obj_udm.name, obj_3dcomp.name])
+    dest.copy_solid_bodies_from(hfssapp, [obj_3dcomp.name])
     assert len(dest.modeler.object_list) == 9
     assert "Arm" in dest.modeler.object_names
     dest.delete_design("IcepakDesign1")
