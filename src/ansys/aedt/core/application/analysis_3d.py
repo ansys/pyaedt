@@ -436,7 +436,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects and user defined models from one design to the active design.
 
-        If user defined models are selected, the project will be saved automatically.
+        If user defined models are selected, the project will be saved automatically. If the destination design
+        is not the same application type, 3DComponents are not copied.
 
         Parameters
         ----------
