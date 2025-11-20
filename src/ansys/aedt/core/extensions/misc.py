@@ -385,8 +385,8 @@ class ExtensionCommon(PyAedtBase):
             sys.last_value = val
             sys.last_traceback = tb
             traceback.print_exception(exc, val, tb)
-            val = "".join(traceback.format_tb(tb))
-            showerror("Error", message=f"{val}")
+            tb_txt = "".join(traceback.format_tb(tb))
+            showerror("Error", message=f"{val}\n\n{tb_txt}")
 
         def report_callback_exception_withdraw(self, exc, val, tb):
             """Custom exception that raises the error without showing a message box."""
