@@ -45,7 +45,7 @@ def maxwellapp(add_app):
     app.close_project(app.project_name)
 
 
-def test_01_assign_model_resolution(aedtapp):
+def test_assign_model_resolution(aedtapp):
     udp = aedtapp.modeler.Position(0, 0, 0)
     coax_dimension = 200
     o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
@@ -78,7 +78,7 @@ def test_01_assign_model_resolution(aedtapp):
     assert aedtapp.mesh[mr1.name].type == "DefeatureBased"
 
 
-def test_02_assign_surface_mesh(aedtapp):
+def test_assign_surface_mesh(aedtapp):
     udp = aedtapp.modeler.Position(10, 10, 0)
     coax_dimension = 200
     o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
@@ -87,7 +87,7 @@ def test_02_assign_surface_mesh(aedtapp):
     assert surface.props["SliderMeshSettings"] == 3
 
 
-def test_03_assign_surface_mesh_manual(aedtapp):
+def test_assign_surface_mesh_manual(aedtapp):
     udp = aedtapp.modeler.Position(20, 20, 0)
     coax_dimension = 200
     o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface_manual")
@@ -109,7 +109,7 @@ def test_03_assign_surface_mesh_manual(aedtapp):
     assert surface_default_value.props["NormalDev"] == "1"
 
 
-def test_04_assign_surface_priority(aedtapp):
+def test_assign_surface_priority(aedtapp):
     surface = aedtapp.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)
     assert surface.props["SurfaceRepPriority"] == 1
     surface.props["SurfaceRepPriority"] = 0
@@ -130,7 +130,7 @@ def test_04_assign_surface_priority(aedtapp):
 
 
 @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-def test_05_delete_mesh_ops(aedtapp):
+def test_delete_mesh_ops(aedtapp):
     udp = aedtapp.modeler.Position(20, 20, 0)
     coax_dimension = 200
     o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
@@ -139,7 +139,7 @@ def test_05_delete_mesh_ops(aedtapp):
     assert len(aedtapp.mesh.meshoperation_names) == 0
 
 
-def test_06_curvature_extraction(aedtapp):
+def test_curvature_extraction(aedtapp):
     aedtapp.solution_type = "SBR+"
     curv = aedtapp.mesh.assign_curvature_extraction("inner")
     assert curv.props["DisableForFacetedSurfaces"]
@@ -149,7 +149,7 @@ def test_06_curvature_extraction(aedtapp):
     )
 
 
-def test_07_maxwell_mesh(maxwellapp):
+def test_maxwell_mesh(maxwellapp):
     o = maxwellapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
     rot = maxwellapp.mesh.assign_rotational_layer(o.name, total_thickness="5mm", name="Rotational")
     assert rot.props["Number of Layers"] == "3"
