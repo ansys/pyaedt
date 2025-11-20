@@ -26,7 +26,8 @@ import math
 
 import pytest
 
-from ansys.aedt.core import MaxwellCircuit, Hfss
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
@@ -37,7 +38,7 @@ from tests.conftest import desktop_version
 
 @pytest.fixture()
 def aedtapp(add_app):
-    app = add_app(application= Hfss)
+    app = add_app(application=Hfss)
     yield app
     app.close_project(app.project_name)
 
@@ -84,8 +85,6 @@ def validation_float_input():
     return property_names, expected_settings, actual_settings
 
 
-
-
 def test_set_globals(aedtapp):
     var = aedtapp.variable_manager
     aedtapp["$Test_Global1"] = "5rad"
@@ -110,6 +109,7 @@ def test_set_globals(aedtapp):
     del aedtapp["$test"]
     assert "$test" not in aedtapp.variable_manager.variables
 
+
 def test_set_var_simple(aedtapp):
     var = aedtapp.variable_manager
     aedtapp["Var1"] = "1rpm"
@@ -125,6 +125,7 @@ def test_set_var_simple(aedtapp):
     assert "test2" not in aedtapp.variable_manager.variables
     del aedtapp["test"]
     assert "test" not in aedtapp.variable_manager.variables
+
 
 def test_test_formula(aedtapp):
     aedtapp["Var1"] = 3
@@ -144,6 +145,7 @@ def test_test_formula(aedtapp):
     assert abs(v["$PrjVar3"].numeric_value - math.sqrt(34 * 45.0 / c2pi)) < tol
     assert abs(v["Var3"].numeric_value - 3.0 * 12.0) < tol
     assert v["Var3"].units == "deg"
+
 
 def test_test_evaluated_value(aedtapp):
     aedtapp["p1"] = "10mm"
@@ -172,6 +174,7 @@ def test_test_evaluated_value(aedtapp):
     v_app["p2"].expression = "5rad"
     assert v_app["p2"].expression == "5rad"
 
+
 def test_set_variable(aedtapp):
     assert aedtapp.variable_manager.set_variable("p1", expression="10mm")
     assert aedtapp["p1"] == "10mm"
@@ -188,6 +191,7 @@ def test_set_variable(aedtapp):
     )
     assert aedtapp.variable_manager.set_variable("$p1", expression="10mm")
     assert aedtapp.variable_manager.set_variable("$p1", expression="12mm")
+
 
 def test_variable_class():
     v = Variable("4mm")
@@ -223,6 +227,7 @@ def test_variable_class():
     assert v.numeric_value == 0.01
     assert v.evaluated_value == "0.01W"
     assert v.value == 0.01
+
 
 def test_multiplication():
     v1 = Variable("10mm")
@@ -271,6 +276,7 @@ def test_multiplication():
     assert result_8.units == "kW"
     assert result_8.unit_system == "Power"
 
+
 def test_addition():
     v1 = Variable("10mm")
     v2 = Variable(3)
@@ -295,6 +301,7 @@ def test_addition():
     assert result_3.numeric_value == 6.0
     assert result_3.units == "mA"
     assert result_3.unit_system == "Current"
+
 
 def test_subtraction():
     v1 = Variable("10mm")
@@ -322,6 +329,7 @@ def test_subtraction():
     assert result_3.numeric_value == 0.0
     assert result_3.units == "mA"
     assert result_3.unit_system == "Current"
+
 
 def test_specify_units():
     # Scaling of the unit system "Angle"
@@ -362,6 +370,7 @@ def test_specify_units():
     assert distance.evaluated_value == "2000.0meter"
     distance.rescale_to("in")
     assert is_close(distance.numeric_value, 2000 / 0.0254)
+
 
 def test_division():
     """
@@ -418,9 +427,11 @@ def test_division():
     assert result_6.units == "rad_per_sec"
     assert result_6.unit_system == "AngularSpeed"
 
+
 def test_delete_variable(aedtapp):
     aedtapp["Var1"] = 1
     assert aedtapp.variable_manager.delete_variable("Var1")
+
 
 def test_decompose_variable_value():
     assert decompose_variable_value("3.123456m") == (3.123456, "m")
@@ -432,6 +443,7 @@ def test_decompose_variable_value():
     assert decompose_variable_value("3.123456kg2m2") == (3.123456, "kg2m2")
     assert decompose_variable_value("3.123456kgm2") == (3.123456, "kgm2")
 
+
 def test_postprocessing(aedtapp):
     v1 = aedtapp.variable_manager.set_variable("test_post1", 10, is_post_processing=True)
     assert v1
@@ -442,10 +454,12 @@ def test_postprocessing(aedtapp):
     )
     assert x1 == 11
 
+
 def test_intrinsics(aedtapp):
     aedtapp["fc"] = "Freq"
     assert aedtapp["fc"] == "Freq"
     assert aedtapp.variable_manager.dependent_variables["fc"].units == aedtapp.units.frequency
+
 
 def test_arrays(aedtapp):
     aedtapp["arr_index"] = 0
@@ -455,6 +469,7 @@ def test_arrays(aedtapp):
     aedtapp["getvalue2"] = "arr2[arr_index]"
     assert aedtapp.variable_manager["getvalue1"].numeric_value == 1.0
     assert aedtapp.variable_manager["getvalue2"].numeric_value == 1.0
+
 
 def test_maxwell_circuit_variables(aedtapp):
     mc = MaxwellCircuit(version=desktop_version)
@@ -469,12 +484,14 @@ def test_maxwell_circuit_variables(aedtapp):
     assert mc["var3"] == "10deg"
     assert mc["var4"] == "10rad"
 
+
 def test_project_variable_operation(aedtapp):
     aedtapp["$my_proj_test"] = "1mm"
     aedtapp["$my_proj_test2"] = 2
     aedtapp["$my_proj_test3"] = "$my_proj_test*$my_proj_test2"
     assert aedtapp.variable_manager["$my_proj_test3"].units == "mm"
     assert aedtapp.variable_manager["$my_proj_test3"].numeric_value == 2.0
+
 
 def test_test_optimization_properties(aedtapp):
     var = "v1"
@@ -514,6 +531,7 @@ def test_test_optimization_properties(aedtapp):
     v[var].sensitivity_initial_disp = "0.5mm"
     assert v[var].sensitivity_initial_disp == "0.5mm"
 
+
 def test_test_optimization_global_properties(aedtapp):
     var = "$v1"
     aedtapp[var] = "10mm"
@@ -552,6 +570,7 @@ def test_test_optimization_global_properties(aedtapp):
     v[var].sensitivity_initial_disp = "0.5mm"
     assert v[var].sensitivity_initial_disp == "0.5mm"
 
+
 def test_variable_with_units(aedtapp):
     aedtapp["v1"] = "3mm"
     aedtapp["v2"] = "2*v1"
@@ -560,10 +579,12 @@ def test_variable_with_units(aedtapp):
     assert aedtapp.variable_manager["v2"].decompose() == (6.0, "mm")
     assert aedtapp.variable_manager.decompose("5mm") == (5.0, "mm")
 
+
 def test_test_validator_exact_match(validation_input):
     property_names, expected_settings, actual_settings = validation_input
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
     assert len(validation_errors) == 0
+
 
 def test_test_validator_tolerance(validation_input):
     property_names, expected_settings, actual_settings = validation_input
@@ -576,6 +597,7 @@ def test_test_validator_tolerance(validation_input):
 
     assert len(validation_errors) == 0
 
+
 def test_test_validator_invalidate_offset_type(validation_input):
     property_names, expected_settings, actual_settings = validation_input
 
@@ -585,6 +607,7 @@ def test_test_validator_invalidate_offset_type(validation_input):
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
     assert len(validation_errors) == 1
+
 
 def test_test_validator_invalidate_value(validation_input):
     property_names, expected_settings, actual_settings = validation_input
@@ -596,6 +619,7 @@ def test_test_validator_invalidate_value(validation_input):
 
     assert len(validation_errors) == 1
 
+
 def test_test_validator_invalidate_unit(validation_input):
     property_names, expected_settings, actual_settings = validation_input
 
@@ -604,6 +628,7 @@ def test_test_validator_invalidate_unit(validation_input):
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
     assert len(validation_errors) == 1
+
 
 def test_test_validator_invalidate_multiple(validation_input):
     property_names, expected_settings, actual_settings = validation_input
@@ -616,6 +641,7 @@ def test_test_validator_invalidate_multiple(validation_input):
 
     assert len(validation_errors) == 3
 
+
 def test_test_validator_invalidate_wrong_type(validation_input):
     property_names, expected_settings, actual_settings = validation_input
 
@@ -625,12 +651,14 @@ def test_test_validator_invalidate_wrong_type(validation_input):
 
     assert len(validation_errors) == 1
 
+
 def test_test_validator_float_type(validation_float_input):
     property_names, expected_settings, actual_settings = validation_float_input
 
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
     assert len(validation_errors) == 0
+
 
 def test_test_validator_float_type_tolerance(validation_float_input):
     property_names, expected_settings, actual_settings = validation_float_input
@@ -644,6 +672,7 @@ def test_test_validator_float_type_tolerance(validation_float_input):
 
     assert len(validation_errors) == 0
 
+
 def test_test_validator_float_type_invalidate(validation_float_input):
     property_names, expected_settings, actual_settings = validation_float_input
 
@@ -656,6 +685,7 @@ def test_test_validator_float_type_invalidate(validation_float_input):
 
     assert len(validation_errors) == 3
 
+
 def test_test_validator_float_type_invalidate(validation_float_input):
     property_names, expected_settings, actual_settings = validation_float_input
 
@@ -664,6 +694,7 @@ def test_test_validator_float_type_invalidate(validation_float_input):
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
     assert len(validation_errors) == 1
+
 
 def test_delete_unused_variables(aedtapp):
     aedtapp.insert_design("used_variables")
@@ -681,6 +712,7 @@ def test_delete_unused_variables(aedtapp):
     assert aedtapp.variable_manager.delete_unused_variables()
     new_number_of_variables = len(aedtapp.variable_manager.variable_names)
     assert number_of_variables != new_number_of_variables
+
 
 def test_value_with_units(aedtapp):
     assert aedtapp.value_with_units("10mm") == "10mm"

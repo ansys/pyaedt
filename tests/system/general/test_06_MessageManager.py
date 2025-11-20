@@ -27,7 +27,8 @@ import os.path
 
 import pytest
 
-from ansys.aedt.core import Icepak, Hfss
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Icepak
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
 from tests.conftest import config
@@ -40,6 +41,7 @@ def aedtapp(add_app):
     app = add_app(application=Hfss)
     yield app
     app.close_project(app.project_name)
+
 
 @pytest.fixture()
 def icepak_app(add_app):
@@ -57,6 +59,7 @@ def test_00_global_messenger(aedtapp):
     msg.add_info_message("Test desktop level - Info", level="Global")
     msg.clear_messages(level=0)
     msg.clear_messages(level=3)
+
 
 @pytest.mark.skipif(config["NonGraphical"], reason="Messages not functional in non-graphical mode")
 def test_01_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cover
@@ -81,6 +84,7 @@ def test_01_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cove
     assert len(msg_comp.messages.info_level) >= 1
     settings.enable_desktop_logs = False
     ipk_app_comp.close_project()
+
 
 def test_02_messaging(aedtapp, icepak_app):  # pragma: no cover
     settings.enable_desktop_logs = True
