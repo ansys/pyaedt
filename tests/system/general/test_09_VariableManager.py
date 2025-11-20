@@ -686,7 +686,7 @@ def test_test_validator_float_type_invalidate(validation_float_input):
     assert len(validation_errors) == 3
 
 
-def test_test_validator_float_type_invalidate(validation_float_input):
+def test_test_validator_float_type_invalidate_b(validation_float_input):
     property_names, expected_settings, actual_settings = validation_float_input
 
     actual_settings[0] *= 2
