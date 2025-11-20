@@ -1185,7 +1185,8 @@ def test_get_face_by_id(aedtapp):
     assert not face
 
 
-def test_copy_solid_bodies_udm(aedtapp, add_app):
+def test_copy_solid_bodies_udm(hfssapp, add_app):
+    hfssapp.solution_type = "Modal"
     my_udmPairs = []
     mypair = ["ILD Thickness (ILD)", "0.006mm"]
     my_udmPairs.append(mypair)
@@ -1211,7 +1212,7 @@ def test_copy_solid_bodies_udm(aedtapp, add_app):
     mypair = ["Via Thickness (VT)", "0.001mm"]
     my_udmPairs.append(mypair)
 
-    obj_udm = aedtapp.modeler.create_udm(
+    obj_udm = hfssapp.modeler.create_udm(
         udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udmPairs, library="syslib"
     )
     assert len(obj_udm.parts) == 5
@@ -1219,15 +1220,12 @@ def test_copy_solid_bodies_udm(aedtapp, add_app):
     assert "Inductor" in names
     assert "Substrate" in names
 
-    hfssapp = add_app(application=Hfss)
-
-    hfssapp.solution_type = "Modal"
     compfile = hfssapp.components3d["Bowtie_DM"]
     obj_3dcomp = hfssapp.modeler.insert_3d_component(compfile)
     assert len(obj_3dcomp.parts) == 4
 
     dest = add_app(application=Icepak)
-    dest.copy_solid_bodies_from(hfssapp, [obj_3dcomp.name])
+    dest.copy_solid_bodies_from(hfssapp, [obj_udm.name, obj_3dcomp.name])
     assert len(dest.modeler.object_list) == 9
     assert "Arm" in dest.modeler.object_names
     dest.delete_design("IcepakDesign1")
