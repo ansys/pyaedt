@@ -172,6 +172,7 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             title=f"Azimuth at {ffdata.frequency}Hz",
             quantity_format="dB10",
+            show=False,
         )
         matplot_lib.add_note(
             "Hello Pyaedt2",
