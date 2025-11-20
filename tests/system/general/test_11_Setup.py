@@ -26,7 +26,8 @@ import os
 
 import pytest
 
-from ansys.aedt.core import Circuit, Hfss
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.constants import Setups
 from tests.conftest import desktop_version
 
@@ -43,11 +44,13 @@ def aedtapp(add_app):
     yield app
     app.close_project(app.project_name)
 
+
 @pytest.fixture()
 def circuit_app(add_app):
     app = add_app(application=Circuit, project_name="circuit_setup", subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
+
 
 def test_create_hfss_setup(aedtapp):
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
@@ -103,15 +106,14 @@ def test_create_hfss_setup(aedtapp):
         max_delta_phase=8,
         custom_entries=[["1", "2", 0.03, 4]],
     )
-    setup2 = aedtapp.create_setup(
-        "MulitFreqSetup", MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"], MaximumPasses=3
-    )
+    setup2 = aedtapp.create_setup("MulitFreqSetup", MultipleAdaptiveFreqsSetup=["1GHz", "2GHz"], MaximumPasses=3)
     assert setup2.props["SolveType"] == "MultiFrequency"
     assert setup2.props["MaximumPasses"] == 3
 
     setup3 = aedtapp.create_setup(Frequency=["1GHz", "2GHz"], MaximumPasses=3)
     assert setup3.props["SolveType"] == "MultiFrequency"
     assert setup3.props["MaximumPasses"] == 3
+
 
 def test_create_hfss_sweep(aedtapp):
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
@@ -146,6 +148,7 @@ def test_create_hfss_sweep(aedtapp):
     assert sweep5.props["RangeEnd"] == range_end
     assert sweep5.props["RangeStep"] == range_step
 
+
 def test_create_hfss_setup_auto_open(aedtapp):
     aedtapp.duplicate_design("auto_open")
     for setup in aedtapp.get_setups():
@@ -157,6 +160,7 @@ def test_create_hfss_setup_auto_open(aedtapp):
     setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
     assert setup1.update({"MaximumPasses": 20})
     assert setup1.props["SolveType"] == "MultiFrequency"
+
 
 def test_create_circuit_setup(circuit_app):
     setup1 = circuit_app.create_setup("circuit", Setups.NexximLNA)
@@ -170,6 +174,7 @@ def test_create_circuit_setup(circuit_app):
     setup1.update()
     setup1.disable()
     setup1.enable()
+
 
 def test_non_valid_setup(aedtapp):
     aedtapp.set_active_design("HFSSDesign")
@@ -185,6 +190,7 @@ def test_non_valid_setup(aedtapp):
     assert not setup1.enable_adaptive_setup_single(3.5)
     aedtapp.solution_type = sol
 
+
 def test_delete_setup(aedtapp):
     aedtapp.insert_design("delete_setups")
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
@@ -193,11 +199,13 @@ def test_delete_setup(aedtapp):
     assert len(aedtapp.setups) == 0
     assert not aedtapp.get_setups()
 
+
 def test_sweep_auto(aedtapp):
     aedtapp.insert_design("sweep")
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
+
 
 def test_delete_sweep(aedtapp):
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
@@ -209,6 +217,7 @@ def test_delete_sweep(aedtapp):
     sweeps = setup1.get_sweep_names()
     assert len(sweeps) == 0
 
+
 def test_sweep_sbr(aedtapp):
     aedtapp.insert_design("sweepsbr")
     aedtapp.solution_type = "SBR+"
@@ -216,6 +225,7 @@ def test_sweep_sbr(aedtapp):
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
+
 
 def test_create_parametrics(aedtapp, local_scratch):
     aedtapp.set_active_design("HFSSDesign")
@@ -244,28 +254,26 @@ def test_create_parametrics(aedtapp, local_scratch):
     assert "Modal Solution Data" in oo_calculation
     assert setup1.export_to_csv(os.path.join(local_scratch.path, "test.csv"))
     assert os.path.exists(os.path.join(local_scratch.path, "test.csv"))
-    assert aedtapp.parametrics.add_from_file(
-        os.path.join(local_scratch.path, "test.csv"), "ParametricsfromFile"
-    )
+    assert aedtapp.parametrics.add_from_file(os.path.join(local_scratch.path, "test.csv"), "ParametricsfromFile")
     with pytest.raises(ValueError):
         aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")
     oo = aedtapp.get_oo_object(aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
     assert oo
     assert aedtapp.parametrics.delete("ParametricsfromFile")
 
+
 def test_create_parametrics_sync(aedtapp):
     aedtapp["a1"] = "10mm"
     aedtapp["a2"] = "2mm"
     aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
-    setup1 = aedtapp.parametrics.add(
-        "a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount"
-    )
+    setup1 = aedtapp.parametrics.add("a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount")
     assert setup1
     assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
     assert not setup1.sync_variables(["invalid"], sync_n=1)
     assert setup1.sync_variables(["a1", "a2"], sync_n=1)
     assert setup1.sync_variables(["a1", "a2"], sync_n=0)
     setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
+
 
 def test_create_optimization(aedtapp):
     aedtapp["w1"] = "10mm"
@@ -332,6 +340,7 @@ def test_create_optimization(aedtapp):
     assert setup3.props["Variables"]["w1"][19] == "[1, 20] mm"
     assert aedtapp.optimizations.delete(setup3.name)
 
+
 def test_create_doe(aedtapp):
     aedtapp["w1"] = "10mm"
     aedtapp["w2"] = "2mm"
@@ -360,6 +369,7 @@ def test_create_doe(aedtapp):
             solution=f"{new_setup.name} : {sweep.name}",
         )
     assert setup2.delete()
+
 
 def test_create_optislang(aedtapp):
     aedtapp["w1"] = "10mm"
@@ -390,6 +400,7 @@ def test_create_optislang(aedtapp):
         calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
     )
 
+
 def test_create_dx(aedtapp):
     aedtapp["w1"] = "10mm"
     aedtapp["w2"] = "2mm"
@@ -418,6 +429,7 @@ def test_create_dx(aedtapp):
         calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
     )
 
+
 def test_create_sensitivity(aedtapp):
     aedtapp["w1"] = "10mm"
     calculation = "db(S(1,1))"
@@ -435,6 +447,7 @@ def test_create_sensitivity(aedtapp):
     assert setup2.add_calculation(
         calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
     )
+
 
 def test_create_statistical(aedtapp):
     aedtapp["w1"] = "10mm"
