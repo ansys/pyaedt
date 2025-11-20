@@ -90,21 +90,13 @@ def test_02_read_ibis_from_circuit(aedtapp):
 
 def test_03_read_ibis_ami(aedtapp, local_scratch):
     # Copy AMI files to local_scratch to avoid modifying source files
-    source_dir = os.path.join(
-        TESTS_GENERAL_PATH, "example_models", test_subfolder
-    )
+    source_dir = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder)
     for file_name in os.listdir(source_dir):
         source_file = os.path.join(source_dir, file_name)
         if os.path.isfile(source_file):
             shutil.copy(source_file, local_scratch.path)
 
-    ibis_file = os.path.join(
-        local_scratch.path, "ibis_ami_example_tx.ibs"
-    )
-    ibis_model = aedtapp.get_ibis_model_from_file(
-        ibis_file, is_ami=True
-    )
+    ibis_file = os.path.join(local_scratch.path, "ibis_ami_example_tx.ibs")
+    ibis_model = aedtapp.get_ibis_model_from_file(ibis_file, is_ami=True)
     assert ibis_model.buffers["example_model_tx"].insert(0, 0)
-    assert ibis_model.components["example_device_tx"].differential_pins[
-        "14"
-    ].insert(0, 0.0512)
+    assert ibis_model.components["example_device_tx"].differential_pins["14"].insert(0, 0.0512)
