@@ -741,7 +741,7 @@ jobs:
           $changed_files = git diff --name-only origin/main...HEAD
           $run_tests = $false
           foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/extensions/*") {
+            if ($file -like "src/ansys/aedt/core/extensions/*" -or $file -eq "tests/system/extensions/*") {
               $run_tests = $true
               break
             }
@@ -866,7 +866,7 @@ jobs:
           changed_files=$(git diff --name-only origin/main...HEAD)
           run_tests=false
           for file in $changed_files; do
-            if [[ $file == src/ansys/aedt/core/extensions/* ]]; then
+            if [[ $file == src/ansys/aedt/core/extensions/* ]] || [[ $file == tests/system/extensions/* ]]; then
               run_tests=true
               break
             fi
@@ -983,7 +983,7 @@ jobs:
           $changed_files = git diff --name-only origin/main...HEAD
           $run_tests = $false
           foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/filtersolutions_core/*" -or $file -eq "src/ansys/aedt/core/filtersolutions.py") {
+            if ($file -like "src/ansys/aedt/core/filtersolutions_core/*" -or $file -eq "src/ansys/aedt/core/filtersolutions.py" -or $file -eq "tests/system/filter_solutions/*") {
               $run_tests = $true
               break
             }
@@ -1099,7 +1099,7 @@ jobs:
           $changed_files = git diff --name-only origin/main...HEAD
           $run_tests = $false
           foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/emit_core/*" -or $file -eq "src/ansys/aedt/core/emit.py") {
+            if ($file -like "src/ansys/aedt/core/emit_core/*" -or $file -eq "src/ansys/aedt/core/emit.py" -or $file -eq "tests/system/emit/*") {
               $run_tests = $true
               break
             }
@@ -1219,7 +1219,7 @@ jobs:
           changed_files=$(git diff --name-only origin/main...HEAD)
           run_tests=false
           for file in $changed_files; do
-            if [[ $file == src/ansys/aedt/core/extensions/* ]]; then
+            if [[ $file == src/ansys/aedt/core/extensions/* ]] || [[ $file == tests/system/extensions/* ]]; then
               run_tests=true
               break
             fi
