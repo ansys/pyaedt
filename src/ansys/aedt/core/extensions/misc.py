@@ -36,6 +36,7 @@ import sys
 import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
+import traceback
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -45,7 +46,6 @@ from typing import Union
 import PIL.Image
 import PIL.ImageTk
 import requests
-import traceback
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core.base import PyAedtBase
@@ -378,7 +378,6 @@ class ExtensionCommon(PyAedtBase):
 
         def report_callback_exception(self, exc, val, tb):
             """Custom exception showing an error message."""
-
             if not val:
                 val = "An error occurred when using the extension."
 
@@ -386,7 +385,7 @@ class ExtensionCommon(PyAedtBase):
             sys.last_value = val
             sys.last_traceback = tb
             traceback.print_exception(exc, val, tb)
-            val =  ''.join(traceback.format_tb(tb))
+            val = "".join(traceback.format_tb(tb))
             showerror("Error", message=f"{val}")
 
         def report_callback_exception_withdraw(self, exc, val, tb):
