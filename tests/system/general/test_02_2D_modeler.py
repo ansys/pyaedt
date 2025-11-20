@@ -60,6 +60,7 @@ def test_objects(aedtapp):
 
 
 def test_create_rectangle(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     test_color = (220, 90, 0)
     rect1 = aedtapp.modeler.create_rectangle([0, -2, -2], [3, 8])
     rect2 = aedtapp.modeler.create_rectangle(
@@ -88,6 +89,7 @@ def test_create_rectangle(aedtapp):
 
 
 def test_create_rectangle_material_array(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     materials = ["copper", "steel_1008"]
     material_array = []
     for m in materials:
@@ -123,6 +125,7 @@ def test_create_rectangle_rz(aedtapp):
 
 
 def test_create_circle(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     circle1 = aedtapp.modeler.create_circle([0, -2, 0], 3)
 
     # TODO: deprecate "matname" as named argument, replace it with the Object3D property "material_name"
@@ -162,6 +165,7 @@ def test_create_circle(aedtapp):
 
 
 def test_calculate_radius_2D(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     circle1 = aedtapp.modeler.create_circle([0, -2, 0], 3)
     radius = aedtapp.modeler.calculate_radius_2D(circle1.name)
     assert isinstance(radius, float)
@@ -170,12 +174,14 @@ def test_calculate_radius_2D(aedtapp):
 
 
 def test_radial_split(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     circle1 = aedtapp.modeler.create_circle([0, -2, 0], 3)
     radius = aedtapp.modeler.calculate_radius_2D(circle1.name)
     assert aedtapp.modeler.radial_split_2D(radius, circle1.name)
 
 
 def test_create_ellipse(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     ellipse1 = aedtapp.modeler.create_ellipse([0, -2, 0], 4.0, 3)
     ellipse2 = aedtapp.modeler.create_ellipse(
         position=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", material="Copper"
@@ -192,6 +198,7 @@ def test_create_ellipse(aedtapp):
 
 
 def test_create_regular_polygon(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     pg1 = aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
     pg2 = aedtapp.modeler.create_regular_polygon(
         position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", material="Copper"
@@ -233,12 +240,14 @@ def test_plot(aedtapp, local_scratch):
 
 
 def test_edit_menu_commands(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     rect1 = aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
     assert aedtapp.modeler.mirror(rect1, [1, 0, 0], [1, 0, 0])
     assert aedtapp.modeler.move(rect1, [1, 1, 0])
 
 
 def test_move_edge(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     poly = aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
     assert poly.faces[0].edges[0].move_along_normal(1)
     assert aedtapp.modeler.move_edge([poly.edges[0], poly.edges[1]])
@@ -268,6 +277,7 @@ def test_objects_in_bounding_box(aedtapp):
 
 
 def test_set_variable(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     aedtapp.variable_manager.set_variable("var_test", expression="123")
     aedtapp["var_test"] = "234"
     assert "var_test" in aedtapp.variable_manager.design_variable_names
@@ -275,6 +285,7 @@ def test_set_variable(aedtapp):
 
 
 def test_split(aedtapp):
+    aedtapp.solution_type = "MagnetostaticXY"
     rect1 = aedtapp.modeler.create_rectangle([0, -2, 0], [3, 8])
     poly1 = aedtapp.modeler.create_polyline(points=[[-2, 2, 0], [1, 5, 0], [5, 3, 0]], segment_type="Arc")
     assert not aedtapp.modeler.split(assignment=rect1)
