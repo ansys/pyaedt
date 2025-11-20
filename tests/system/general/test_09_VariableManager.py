@@ -189,7 +189,7 @@ def test_set_variable(aedtapp):
     assert aedtapp.variable_manager.set_variable("$p1", expression="10mm")
     assert aedtapp.variable_manager.set_variable("$p1", expression="12mm")
 
-def test_variable_class(aedtapp):
+def test_variable_class():
     v = Variable("4mm")
     num_value = v.numeric_value
     assert num_value == 4.0
@@ -224,7 +224,7 @@ def test_variable_class(aedtapp):
     assert v.evaluated_value == "0.01W"
     assert v.value == 0.01
 
-def test_multiplication(aedtapp):
+def test_multiplication():
     v1 = Variable("10mm")
     v2 = Variable(3)
     v3 = Variable("3mA")
@@ -271,7 +271,7 @@ def test_multiplication(aedtapp):
     assert result_8.units == "kW"
     assert result_8.unit_system == "Power"
 
-def test_addition(aedtapp):
+def test_addition():
     v1 = Variable("10mm")
     v2 = Variable(3)
     v3 = Variable("3mA")
@@ -296,7 +296,7 @@ def test_addition(aedtapp):
     assert result_3.units == "mA"
     assert result_3.unit_system == "Current"
 
-def test_subtraction(aedtapp):
+def test_subtraction():
     v1 = Variable("10mm")
     v2 = Variable(3)
     v3 = Variable("3mA")
@@ -323,7 +323,7 @@ def test_subtraction(aedtapp):
     assert result_3.units == "mA"
     assert result_3.unit_system == "Current"
 
-def test_specify_units(aedtapp):
+def test_specify_units():
     # Scaling of the unit system "Angle"
     angle = Variable("1rad")
     angle.rescale_to("deg")
@@ -363,7 +363,7 @@ def test_specify_units(aedtapp):
     distance.rescale_to("in")
     assert is_close(distance.numeric_value, 2000 / 0.0254)
 
-def test_division(aedtapp):
+def test_division():
     """
     'Power_divide_Voltage': 'Current',
     'Power_divide_Current': 'Voltage',
@@ -422,7 +422,7 @@ def test_delete_variable(aedtapp):
     aedtapp["Var1"] = 1
     assert aedtapp.variable_manager.delete_variable("Var1")
 
-def test_decompose_variable_value(aedtapp):
+def test_decompose_variable_value():
     assert decompose_variable_value("3.123456m") == (3.123456, "m")
     assert decompose_variable_value("3m") == (3, "m")
     assert decompose_variable_value("3") == (3, "")
