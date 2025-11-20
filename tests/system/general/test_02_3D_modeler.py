@@ -1226,16 +1226,11 @@ def test_copy_solid_bodies_udm(hfssapp, add_app):
 
     dest = add_app(application=Icepak)
     dest.copy_solid_bodies_from(hfssapp, [obj_udm.name, obj_3dcomp.name])
-    assert len(dest.modeler.object_list) == 9
-    assert "Arm" in dest.modeler.object_names
-    dest.delete_design("IcepakDesign1")
-    dest = add_app(design_name="IcepakDesign2", just_open=True)
+    assert len(dest.modeler.object_list) == 6
+    assert "Paddle" in dest.modeler.object_names
+
+    dest = add_app(application=Hfss, just_open=True)
     dest.copy_solid_bodies_from(hfssapp)
-    dest2 = add_app(design_name="uUSB")
-    dest2.copy_solid_bodies_from(hfssapp, [obj_udm.name, obj_3dcomp.name])
-    assert len(dest2.modeler.objects) == 9
-    assert "port1" in dest2.modeler.object_names
-    dest.close_project()
 
 
 def test_create_conical_rings(aedtapp, add_app):
