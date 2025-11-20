@@ -1614,7 +1614,7 @@ class Stackup3D(PyAedtBase):
         """Add a new ground layer to the stackup.
 
         A ground layer is negative.
-        The layer is entirely filled with  metal. Any polygon will draw a void in it.
+        The layer is entirely filled with metal. Any polygon will draw a void in it.
 
         Parameters
         ----------
