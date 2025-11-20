@@ -37,6 +37,7 @@ def aedtapp(add_app):
     yield app
     app.close_project(app.project_name)
 
+
 @pytest.fixture()
 def maxwellapp(add_app):
     app = add_app(application=Maxwell3d)
@@ -76,6 +77,7 @@ def test_01_assign_model_resolution(aedtapp):
     assert not mr2
     assert aedtapp.mesh[mr1.name].type == "DefeatureBased"
 
+
 def test_02_assign_surface_mesh(aedtapp):
     udp = aedtapp.modeler.Position(10, 10, 0)
     coax_dimension = 200
@@ -83,6 +85,7 @@ def test_02_assign_surface_mesh(aedtapp):
     surface = aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
     assert "Surface" in [i.name for i in aedtapp.mesh.meshoperations]
     assert surface.props["SliderMeshSettings"] == 3
+
 
 def test_03_assign_surface_mesh_manual(aedtapp):
     udp = aedtapp.modeler.Position(20, 20, 0)
@@ -93,21 +96,18 @@ def test_03_assign_surface_mesh_manual(aedtapp):
     assert surface.props["SurfDev"] == 1e-6
     surface.props["SurfDev"] = 1e-05
     assert (
-        aedtapp.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Surface Deviation")
-        == "1e-05"
+        aedtapp.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Surface Deviation") == "1e-05"
     )
     assert surface.props["NormalDev"] == "1"
     surface.props["AspectRatio"] = 20
-    assert (
-        aedtapp.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Aspect Ratio")
-        == "20"
-    )
+    assert aedtapp.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Aspect Ratio") == "20"
 
     cylinder_zx = aedtapp.modeler.create_cylinder(Plane.ZX, udp, 3, coax_dimension, 0, "surface_manual")
     surface_default_value = aedtapp.mesh.assign_surface_mesh_manual(cylinder_zx.id)
     assert surface_default_value.name in [i.name for i in aedtapp.mesh.meshoperations]
     assert surface_default_value.props["SurfDevChoice"] == 0
     assert surface_default_value.props["NormalDev"] == "1"
+
 
 def test_04_assign_surface_priority(aedtapp):
     surface = aedtapp.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)
@@ -128,6 +128,7 @@ def test_04_assign_surface_priority(aedtapp):
         == "High"
     )
 
+
 @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
 def test_05_delete_mesh_ops(aedtapp):
     udp = aedtapp.modeler.Position(20, 20, 0)
@@ -137,16 +138,16 @@ def test_05_delete_mesh_ops(aedtapp):
     assert aedtapp.mesh.delete_mesh_operations("surface")
     assert len(aedtapp.mesh.meshoperation_names) == 0
 
+
 def test_06_curvature_extraction(aedtapp):
     aedtapp.solution_type = "SBR+"
     curv = aedtapp.mesh.assign_curvature_extraction("inner")
     assert curv.props["DisableForFacetedSurfaces"]
     curv.props["DisableForFacetedSurfaces"] = False
     assert (
-        not aedtapp.odesign.GetChildObject("Mesh")
-        .GetChildObject(curv.name)
-        .GetPropValue("Disable for Faceted Surface")
+        not aedtapp.odesign.GetChildObject("Mesh").GetChildObject(curv.name).GetPropValue("Disable for Faceted Surface")
     )
+
 
 def test_07_maxwell_mesh(maxwellapp):
     o = maxwellapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
