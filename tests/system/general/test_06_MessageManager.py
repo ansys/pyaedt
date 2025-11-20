@@ -41,8 +41,14 @@ def aedtapp(add_app):
     yield app
     app.close_project(app.project_name)
 
+@pytest.fixture()
+def icepak_app(add_app):
+    app = add_app(application=Icepak)
+    yield app
+    app.close_project(app.project_name)
 
-def test_00_global_messenger(self):
+
+def test_00_global_messenger(aedtapp):
     msg = AedtLogger()
     msg.clear_messages()
     msg.add_info_message("Test desktop level - Info")
@@ -53,9 +59,9 @@ def test_00_global_messenger(self):
     msg.clear_messages(level=3)
 
 @pytest.mark.skipif(config["NonGraphical"], reason="Messages not functional in non-graphical mode")
-def test_01_get_messages(self, add_app):  # pragma: no cover
+def test_01_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cover
     settings.enable_desktop_logs = True
-    msg = self.aedtapp.logger
+    msg = aedtapp.logger
     msg.clear_messages(level=3)
     msg.add_info_message("Test Info design level")
     msg.add_info_message("Test Info project level", "Project")
@@ -64,11 +70,10 @@ def test_01_get_messages(self, add_app):  # pragma: no cover
     assert msg.aedt_info_messages
     assert len(msg.messages.info_level) >= 1
     assert len(msg.aedt_messages.project_level) >= 1
-    ipk_app = add_app(application=Icepak)
-    box = ipk_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-    ipk_app.modeler.create_3dcomponent(os.path.join(self.local_scratch.path, "test_m.a3dcomp"))
+    box = icepak_app.modeler.create_box([0, 0, 0], [1, 1, 1])
+    icepak_app.modeler.create_3dcomponent(os.path.join(local_scratch.path, "test_m.a3dcomp"))
     box.delete()
-    cmp = ipk_app.modeler.insert_3d_component(os.path.join(self.local_scratch.path, "test_m.a3dcomp"))
+    cmp = icepak_app.modeler.insert_3d_component(os.path.join(local_scratch.path, "test_m.a3dcomp"))
     ipk_app_comp = cmp.edit_definition()
     msg_comp = ipk_app_comp.logger
     msg_comp.add_info_message("3dcomp, Test Info design level")
@@ -77,10 +82,9 @@ def test_01_get_messages(self, add_app):  # pragma: no cover
     settings.enable_desktop_logs = False
     ipk_app_comp.close_project()
 
-def test_02_messaging(self, add_app):  # pragma: no cover
+def test_02_messaging(aedtapp, icepak_app):  # pragma: no cover
     settings.enable_desktop_logs = True
-    ipk_app = add_app(application=Icepak)
-    msg = ipk_app.logger
+    msg = icepak_app.logger
     msg.clear_messages(level=3)
     msg.add_info_message("Test Info")
     msg.add_info_message("Test Info", "Project")
@@ -104,5 +108,5 @@ def test_02_messaging(self, add_app):  # pragma: no cover
     assert len(msg.aedt_messages.design_level) >= 4
     settings.enable_desktop_logs = False
 
-    assert ipk_app.desktop_class.messenger
-    assert ipk_app.desktop_class.clear_messages()
+    assert icepak_app.desktop_class.messenger
+    assert icepak_app.desktop_class.clear_messages()
