@@ -80,7 +80,7 @@ def mock_add_pyaedt_to_aedt():
 def mock_installed_versions():
     """Mock aedt_versions.installed_versions with typical installed versions."""
     from unittest.mock import PropertyMock
-    
+
     mock_versions = {
         "2025.2": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
         "2025.1": "C:\\Program Files\\ANSYS Inc\\v251\\AnsysEM",
@@ -92,7 +92,7 @@ def mock_installed_versions():
     with patch(
         "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
         new_callable=PropertyMock,
-        return_value=mock_versions
+        return_value=mock_versions,
     ):
         yield mock_versions
 
@@ -520,7 +520,9 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
     )
 
 
-def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
+def test_panels_add_with_skip_version_manager(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+):
     """Test panel installation with skip version manager flag."""
     result = cli_runner.invoke(
         app,
@@ -712,6 +714,7 @@ def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_
         skip_version_manager=False,
         odesktop=None,
     )
+
 
 @patch("ansys.aedt.core.cli._get_tests_folder")
 def test_save_config(mock_get_tests_folder, tmp_path):

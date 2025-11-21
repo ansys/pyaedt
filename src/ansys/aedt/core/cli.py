@@ -31,6 +31,7 @@ import threading
 import time
 
 import psutil
+
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 try:
@@ -212,6 +213,8 @@ def _display_config(config: dict, title: str = "Configuration", descriptions: di
             typer.secho(f"    {desc}", fg="bright_black")
 
     typer.echo()
+
+
 panels_app = typer.Typer(help="Manage PyAEDT panels in AEDT", no_args_is_help=True)
 app.add_typer(panels_app, name="panels")
 
@@ -837,7 +840,6 @@ def add_panels(
         pyaedt panels add  # Interactive mode: select from installed versions
     """
     try:
-
         installed = aedt_versions.installed_versions
 
         if not installed:
