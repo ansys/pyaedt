@@ -1934,11 +1934,6 @@ class Variable(PyAedtBase):
         if not is_number(numeric):
             return self._value
 
-        # If the numeric part is not a scalar number,
-        # we cannot convert it to SI consistently, so just return the cache.
-        if not is_number(numeric):
-            return self._value
-
         # Convert the evaluated numeric value to SI and update the cache.
         self._value = self.__to_si(numeric, self._units)
         return self._value
