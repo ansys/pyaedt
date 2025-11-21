@@ -1515,7 +1515,6 @@ class Variable(PyAedtBase):
                     return "DefinitionParameters"
             except Exception:  # pragma: no cover
                 return "LocalVariables"
-            # Otherwise it is either LocalVariables or Variables
             return "LocalVariables"
         return name
 
