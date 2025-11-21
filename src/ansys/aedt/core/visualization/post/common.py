@@ -1676,7 +1676,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @pyaedt_function_handler(input_dict="report_settings")
     def create_report_from_configuration(
-        self, input_file=None, report_settings=None, solution_name=None, name=None, matplotlib=False
+        self, input_file=None, report_settings=None, solution_name=None, name=None, matplotlib=False, show=True
     ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
@@ -1690,6 +1690,9 @@ class PostProcessorCommon(PyAedtBase):
             Setup name to use.
         matplotlib : bool, optional
             Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+        show : bool, optional
+            Whether to show the plot when using ReportPlotter. The default is ``True``.
+            If matplotlib is ``False``, this parameter is ignored.
 
         Returns
         -------
@@ -1807,7 +1810,7 @@ class PostProcessorCommon(PyAedtBase):
                 if props.get("report_type", "").lower() in ["eye diagram", "statistical eye"]:  # pragma: no cover
                     self.logger.warning("Eye Diagrams are not supported by Matplotlib.")
                 else:
-                    return self._report_plotter(report)
+                    return self._report_plotter(report, show=show)
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -1818,7 +1821,16 @@ class PostProcessorCommon(PyAedtBase):
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _report_plotter(self, report):
+    def _report_plotter(self, report, show=True):
+        """Create a Matplotlib plot from a report.
+
+        Parameters
+        ----------
+        report : :class:`ansys.aedt.core.modules.report_templates.Standard`
+            Report object.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+        """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
@@ -1846,10 +1858,6 @@ class PostProcessorCommon(PyAedtBase):
             pass
         try:
             report_plotter.grid_enable_major_y = report._legacy_props["general"]["grid"]["major_y"]
-        except KeyError:
-            pass
-        try:
-            report_plotter.grid_enable_minor_yi = report._legacy_props["general"]["grid"]["minor_y"]
         except KeyError:
             pass
         try:
@@ -1918,17 +1926,16 @@ class PostProcessorCommon(PyAedtBase):
             except KeyError:
                 self.logger.warning("Equation lines not supported yet.")
         if report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
-            _ = report_plotter.plot_2d()
-            return report_plotter
+            _ = report_plotter.plot_2d(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Polar Plot":
-            _ = report_plotter.plot_polar()
-            return report_plotter
+            _ = report_plotter.plot_polar(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Contour Plot":
-            _ = report_plotter.plot_contour()
-            return report_plotter
+            _ = report_plotter.plot_contour(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
-            _ = report_plotter.plot_3d()
-            return report_plotter
+            _ = report_plotter.plot_3d(show=show)
+        else:
+            self.logger.warning("Plot type not supported.")
+        return report_plotter
 
     @staticmethod
     @pyaedt_function_handler()
