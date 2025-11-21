@@ -1217,8 +1217,7 @@ class VariableManager(PyAedtBase):
                 if (
                     self._app._is_object_oriented_enabled()
                     and variable.is_circuit_parameter
-                    and self._app.design_type
-                    in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "Maxwell Circuit"]
+                    and variable.has_definition_parameters
                 ):
                     desktop_object.ChangeProperty(
                         [
@@ -1471,7 +1470,7 @@ class Variable(PyAedtBase):
 
         # Convert numeric value to SI if we have a scale
         if si_value is None and is_number(self._value):
-            self._value = self._to_si(self._value, self._units)
+            self._value = self.__to_si(self._value, self._units)
 
     @property
     def _aedt_obj(self):
@@ -1482,18 +1481,7 @@ class Variable(PyAedtBase):
             return self._app._odesign
         return None
 
-    @property
-    def __has_definition_parameters(self):
-        """Whether the design type has DefinitionParameters or only LocalVariables."""
-        if not self._app:  # pragma: no cover
-            return False
-        return self._app.design_type in {
-            "Circuit Design",
-            "Twin Builder",
-            "HFSS 3D Layout Design",
-            "Maxwell Circuit",
-        }
-
+    @pyaedt_function_handler()
     def _oo(self, obj, path):
         return self._app.get_oo_object(obj, path)
 
@@ -1514,12 +1502,13 @@ class Variable(PyAedtBase):
             circuit_parameter=self._circuit_parameter,
         )
 
+    @pyaedt_function_handler()
     def __target_container_name(self):
         """Resolve the property container name for this variable."""
         name = "Variables"
         if not self._app:
             return name
-        if self.__has_definition_parameters and self.is_circuit_parameter:
+        if self.has_definition_parameters and self.is_circuit_parameter:
             # If the variable lives in DefinitionParameters, return that
             try:
                 if self._variable_name in list(self._oo(self._app.odesign, "DefinitionParameters").GetPropNames()):
@@ -1574,7 +1563,7 @@ class Variable(PyAedtBase):
             app = self._aedt_obj
 
             # DefinitionParameters only available in circuit and HFSS 3D Layout design type
-            if self.__has_definition_parameters:
+            if self.has_definition_parameters:
                 inst_name = f"Instance:{app.GetName()}"
                 if self.is_circuit_parameter:
                     # Definition parameters properties do not work with Object-Oriented-Programming API
@@ -1628,6 +1617,18 @@ class Variable(PyAedtBase):
             self._variable_name = fallback_val
             if self._app:
                 raise AEDTRuntimeError('Failed to update property "name".')
+
+    @property
+    def has_definition_parameters(self) -> bool:
+        """Whether the design type has DefinitionParameters or only LocalVariables."""
+        if not self._app:  # pragma: no cover
+            return False
+        return self._app.design_type in {
+            "Circuit Design",
+            "Twin Builder",
+            "HFSS 3D Layout Design",
+            "Maxwell Circuit",
+        }
 
     @property
     def is_optimization_enabled(self) -> bool:
@@ -1941,7 +1942,7 @@ class Variable(PyAedtBase):
             return self._value
 
         # Convert the evaluated numeric value to SI and update the cache.
-        self._value = self._to_si(numeric, self._units)
+        self._value = self.__to_si(numeric, self._units)
         return self._value
 
     @property
@@ -2116,7 +2117,7 @@ class Variable(PyAedtBase):
         # Fall back to local cached value
         if is_number(self._value):
             # Cached value is stored as SI → return it in "native" units.
-            return self._from_si(self._value, self._units)
+            return self.__from_si(self._value, self._units)
 
         val, _ = decompose_variable_value(str(self._value))
         return val
@@ -2129,7 +2130,8 @@ class Variable(PyAedtBase):
         self._units = units
         return self._units
 
-    def _to_si(self, numeric: float, units: Optional[str] = None) -> float:
+    @pyaedt_function_handler()
+    def __to_si(self, numeric: float, units: Optional[str] = None) -> float:
         """Convert a numeric value from the given units to SI units.
 
         Parameters
@@ -2163,7 +2165,8 @@ class Variable(PyAedtBase):
             # Scalar scale factor.
             return numeric * scale
 
-    def _from_si(self, si_numeric: float, units: Optional[str] = None) -> float:
+    @pyaedt_function_handler()
+    def __from_si(self, si_numeric: float, units: Optional[str] = None) -> float:
         """Convert a numeric value from SI units to the given units.
 
         Parameters
