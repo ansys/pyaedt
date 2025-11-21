@@ -1004,7 +1004,7 @@ class VariableManager(PyAedtBase):
 
         if name in self.variables:
             variable = self.variables[name]
-            circuit_parameter = variable.circuit_parameter
+            circuit_parameter = variable.is_circuit_parameter
 
         desktop_object = self.aedt_object(name)
         if name.startswith("$"):
@@ -1216,7 +1216,7 @@ class VariableManager(PyAedtBase):
                 variable = self.variables[name]
                 if (
                     self._app._is_object_oriented_enabled()
-                    and variable.circuit_parameter
+                    and variable.is_circuit_parameter
                     and self._app.design_type
                     in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "Maxwell Circuit"]
                 ):
@@ -1519,7 +1519,7 @@ class Variable(PyAedtBase):
         name = "Variables"
         if not self._app:
             return name
-        if self.__has_definition_parameters and self.circuit_parameter:
+        if self.__has_definition_parameters and self.is_circuit_parameter:
             # If the variable lives in DefinitionParameters, return that
             try:
                 if self._variable_name in list(self._oo(self._app.odesign, "DefinitionParameters").GetPropNames()):
@@ -1576,7 +1576,7 @@ class Variable(PyAedtBase):
             # DefinitionParameters only available in circuit and HFSS 3D Layout design type
             if self.__has_definition_parameters:
                 inst_name = f"Instance:{app.GetName()}"
-                if self.circuit_parameter:
+                if self.is_circuit_parameter:
                     # Definition parameters properties do not work with Object-Oriented-Programming API
                     obj = self._oo(app, "DefinitionParameters")
                     if not obj or prop != self.name:
@@ -1805,7 +1805,7 @@ class Variable(PyAedtBase):
         return False
 
     @property
-    def circuit_parameter(self) -> bool:
+    def is_circuit_parameter(self) -> bool:
         """Whether this variable is a circuit parameter (for supported design types)."""
         if not self._app or "$" in (self._variable_name or ""):
             return False
@@ -1822,6 +1822,20 @@ class Variable(PyAedtBase):
             except Exception:
                 return False
         return False
+
+    @property
+    def circuit_parameter(self) -> bool:  # pragma: no cover
+        """Whether this variable is a circuit parameter (for supported design types).
+
+        .. deprecated:: 0.23.0
+            Use :func:`is_circuit_parameter` property instead.
+
+        """
+        warnings.warn(
+            "`circuit_parameter` is deprecated. Use `is_circuit_parameter` instead.",
+            DeprecationWarning,
+        )
+        return self.is_circuit_parameter
 
     @property
     def expression(self) -> str:

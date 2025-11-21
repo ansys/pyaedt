@@ -172,9 +172,9 @@ def test_test_formula(app):
 
     assert app.variable_manager.variables["Var3"].numeric_value == 36.0
     if app.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design"]:
-        assert app.variable_manager.variables["Var3"].circuit_parameter
+        assert app.variable_manager.variables["Var3"].is_circuit_parameter
     else:
-        assert not app.variable_manager.variables["Var3"].circuit_parameter
+        assert not app.variable_manager.variables["Var3"].is_circuit_parameter
 
     assert app.variable_manager.variables["Var3"].units == "deg"
 
@@ -255,7 +255,7 @@ def test_evaluated_value(app):
 def test_set_variable(app):
     assert app.variable_manager.set_variable("p1", expression="10mm", circuit_parameter=False)
     assert app["p1"] == "10mm"
-    assert not app.variable_manager.variables["p1"].circuit_parameter
+    assert not app.variable_manager.variables["p1"].is_circuit_parameter
     assert app.variable_manager.variables["p1"].numeric_value == 10.0
     assert app.variable_manager.set_variable("p1", expression="20mm", overwrite=False)
     assert app["p1"] == "10mm"
