@@ -186,7 +186,7 @@ class TestClass:
 
         matplot_lib.traces_by_index[0].trace_style = "--"
         matplot_lib.x_scale = "log"
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
         matplot_lib.add_note(
             "Hello Pyaedt",
             [0, -10],
@@ -198,10 +198,10 @@ class TestClass:
         matplot_lib.x_scale = "linear"
         matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
         matplot_lib.grid_enable_minor_x = True
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
         matplot_lib.traces["Phi=-180"].symbol_style = "v"
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
         matplot_lib.apply_style("dark_background")
         matplot_lib.add_limit_line(
@@ -211,7 +211,7 @@ class TestClass:
             },
             name="LimitLine1",
         )
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
         matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
         matplot_lib.grid_enable_minor_x = True
@@ -219,10 +219,9 @@ class TestClass:
         matplot_lib.grid_enable_minor_x = False
         matplot_lib.grid_enable_minor_y = False
 
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
     @pytest.mark.avoid_ansys_load
-    @pytest.mark.skip(reason="Skipping antenna plot test for now. To be investigated later.")
     def test_05_antenna_plot(self, array_test):
         ffdata = array_test.get_antenna_data(sphere="3D")
         assert ffdata.setup_name == "Setup1 : LastAdaptive"
@@ -284,7 +283,6 @@ class TestClass:
         ffdata.farfield_data.plot_3d(quantity="RealizedGain", output_file=img5, show=False)
         assert os.path.exists(img5)
 
-    @pytest.mark.skip(reason="Skipping for now, to be investigated later.")
     def test_06_farfield_exporter(self, array_test):
         ffdata = FfdSolutionDataExporter(
             array_test, sphere_name="Infinite Sphere1", setup_name="Setup1 : LastAdaptive", frequencies=["3.5GHz"]
