@@ -1462,7 +1462,7 @@ class Variable(PyAedtBase):
         if units is not None:
             enforced_system = unit_system(units)
             if not enforced_system:
-                raise RuntimeError(f"Unrecognized units '{units}'.")
+                raise AEDTRuntimeError(f"Unrecognized units '{units}'.")
             if self._units and self._units != units:
                 raise RuntimeError(
                     f"The unit specification {units} is inconsistent with the identified units {self._units}."
