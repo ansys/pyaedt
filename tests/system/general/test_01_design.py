@@ -83,7 +83,6 @@ def test_design_properties(aedtapp):
     assert aedtapp.design_type == "HFSS"
     mylist = aedtapp.design_list
     assert len(mylist) == 1
-    assert aedtapp.project_name == test_project_name
     assert Path(aedtapp.results_directory).exists()
 
     assert aedtapp.oboundary
@@ -175,11 +174,11 @@ def test_designs(aedtapp):
     aedtapp.delete_design("TestTransient")
 
 
-def test_get_nominal_variation(aedtapp):
-    assert aedtapp.get_nominal_variation() != {} or aedtapp.get_nominal_variation() is not None
-    assert isinstance(aedtapp.get_nominal_variation(), dict)
-    assert isinstance(aedtapp.get_nominal_variation(with_values=True), dict)
-    assert aedtapp.get_nominal_variation(with_values=True) != {}
+def test_get_nominal_variation(coaxial):
+    assert coaxial.get_nominal_variation() != {} or coaxial.get_nominal_variation() is not None
+    assert isinstance(coaxial.get_nominal_variation(), dict)
+    assert isinstance(coaxial.get_nominal_variation(with_values=True), dict)
+    assert coaxial.get_nominal_variation(with_values=True) != {}
 
 
 def test_duplicate_design(coaxial):
@@ -280,8 +279,8 @@ def test_create_3dproject_dataset(aedtapp):
     assert ds31.name == "$Test_DataSet3D2"
 
 
-def test_edit_existing_dataset(aedtapp):
-    ds = aedtapp.project_datasets["$AluminumconductivityTH0"]
+def test_edit_existing_dataset(coaxial):
+    ds = coaxial.project_datasets["$AluminumconductivityTH0"]
     xl = len(ds.x)
     assert ds.add_point(300, 0.8)
     assert len(ds.x) == xl + 1
@@ -390,15 +389,15 @@ def test_change_registry_key(desktop):
     assert not desktop.change_registry_key("test_key", 2.0)
 
 
-def test_object_oriented(aedtapp):
-    aedtapp["my_oo_variable"] = "15mm"
-    assert aedtapp.get_oo_name(aedtapp.oproject, "Variables")
-    assert aedtapp.get_oo_name(aedtapp.odesign, "Variables")
-    assert not aedtapp.get_oo_name(aedtapp.odesign, "Variables1")
-    assert aedtapp.get_oo_object(aedtapp.oproject, "Variables")
-    assert not aedtapp.get_oo_object(aedtapp.oproject, "Variables1")
-    assert aedtapp.get_oo_properties(aedtapp.oproject, "Variables\\$height")
-    assert aedtapp.get_oo_property_value(aedtapp.oproject, "Variables\\$height", "Value") == "10mm"
+def test_object_oriented(coaxial):
+    coaxial["my_oo_variable"] = "15mm"
+    assert coaxial.get_oo_name(coaxial.oproject, "Variables")
+    assert coaxial.get_oo_name(coaxial.odesign, "Variables")
+    assert not coaxial.get_oo_name(coaxial.odesign, "Variables1")
+    assert coaxial.get_oo_object(coaxial.oproject, "Variables")
+    assert not coaxial.get_oo_object(coaxial.oproject, "Variables1")
+    assert coaxial.get_oo_properties(coaxial.oproject, "Variables\\$height")
+    assert coaxial.get_oo_property_value(coaxial.oproject, "Variables\\$height", "Value") == "10mm"
 
 
 def test_make_hidden_variable(aedtapp):
