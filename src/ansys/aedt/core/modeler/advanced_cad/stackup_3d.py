@@ -389,7 +389,7 @@ class Layer3D(PyAedtBase):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
-                    matname=self.material_name,
+                    material=self.material_name,
                 )
         elif self._layer_type == "signal":
             if thickness:
@@ -405,7 +405,7 @@ class Layer3D(PyAedtBase):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
-                    matname=self._fill_material.name,
+                    material=self._fill_material.name,
                 )
         obj_3d.group_name = f"Layer_{self._name}"
         if obj_3d:

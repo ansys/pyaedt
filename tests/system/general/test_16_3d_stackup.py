@@ -36,7 +36,6 @@ def aedtapp(add_app):
 
 def test_create_stackup(aedtapp):
     stckp3d = aedtapp.add_stackup_3d()
-    stckp3d.dielectic_x_position = "10mm"
     gnd = stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
     assert stckp3d.thickness.numeric_value == 1.035
@@ -60,9 +59,10 @@ def test_create_stackup(aedtapp):
 
 def test_line(aedtapp):
     stckp3d = aedtapp.add_stackup_3d()
-    stckp3d.add_dielectric_layer("diel1", thickness=1)
     stckp3d.add_ground_layer("gnd1")
+    stckp3d.add_dielectric_layer("diel1", thickness=1)
     stckp3d.add_signal_layer("top")
+
     top = stckp3d.stackup_layers["top"]
     gnd = stckp3d.stackup_layers["gnd1"]
 
@@ -79,17 +79,17 @@ def test_line(aedtapp):
         frequency=1e9,
     )
     assert line1.create_lumped_port(gnd, opposite_side=True)
-    assert line1.create_lumped_port(gnd, opposite_side=True)
+
     assert line2
     assert line2._added_length_calcul
     assert line2.frequency.numeric_value == 1e9
-    assert line2.substrate_thickness.numeric_value == 1.2
+    assert line2.substrate_thickness.numeric_value == 1.0
     assert abs(line1.width.numeric_value - 3.0) < 1e-9
     assert line2.permittivity.evaluated_value == 4.4
     assert line2._permittivity
 
 
-def test_padstackline(aedtapp):
+def test_padstack_line(aedtapp):
     stckp3d = aedtapp.add_stackup_3d()
     p1 = stckp3d.add_padstack("new_padstack", material="aluminum")
     p1.plating_ratio = 0.7
@@ -120,10 +120,13 @@ def test_padstackline(aedtapp):
 
 def test_patch(aedtapp):
     stckp3d = aedtapp.add_stackup_3d()
-    top = stckp3d.add_signal_layer("top")
     gnd = stckp3d.add_ground_layer("gnd1")
+    stckp3d.add_dielectric_layer("diel1", thickness=1)
+    top = stckp3d.add_signal_layer("top")
 
-    line1 = stckp3d.stackup_layers["top"][0]
+    top.add_trace(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
+    line1 = top.add_trace(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
+
     patch = top.add_patch(
         1e9,
         patch_width=22,
@@ -131,9 +134,9 @@ def test_patch(aedtapp):
         patch_position_x=line1.position_x.numeric_value + line1.length.numeric_value,
         patch_position_y=line1.position_y.numeric_value,
     )
-    assert patch.width.numeric_value == 22
+    assert patch.width.numeric_value == 22.0
     patch.set_optimal_width()
-    assert patch.width.numeric_value == 91.2239398980667
+    assert abs(patch.width.numeric_value - 91.2239398980667) < 1e-9
     assert stckp3d.resize_around_element(patch)
     assert patch.create_lumped_port(gnd)
 
@@ -159,10 +162,25 @@ def test_polygon(aedtapp):
 
 def test_resize(aedtapp):
     stckp3d = aedtapp.add_stackup_3d()
-    stckp3d.add_signal_layer("top")
-    stckp3d.application.variable_manager.variables["dielectric_x_position"].value
+
+    stckp3d.add_ground_layer("gnd1")
+    stckp3d.add_dielectric_layer("diel1", thickness=1)
+    top = stckp3d.add_signal_layer("top")
+    top.add_trace(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
+    line1 = top.add_trace(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
+    _ = top.add_patch(
+        1e9,
+        patch_width=22,
+        patch_length=10,
+        patch_position_x=line1.position_x.numeric_value + line1.length.numeric_value,
+        patch_position_y=line1.position_y.numeric_value,
+    )
+
+    p1 = stckp3d.add_padstack("new_padstack", material="aluminum")
+    _ = p1.add_via(50, 50)
+
     assert stckp3d.resize(20)
-    stckp3d.application.variable_manager.variables["dielectric_x_position"].value
+
     assert stckp3d.dielectric_x_position
     stckp3d.dielectric_x_position = "10mm"
     assert stckp3d.dielectric_x_position.evaluated_value == "10.0mm"

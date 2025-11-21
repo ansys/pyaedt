@@ -1471,16 +1471,7 @@ class Variable(PyAedtBase):
 
         # Convert numeric value to SI if we have a scale
         if si_value is None and is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except Exception:
-                scale = 1
-            if isinstance(scale, tuple):
-                self._value = scale[0](self._value, inverse=False)
-            elif isinstance(scale, types.FunctionType):
-                self._value = scale(self._value, False)
-            else:
-                self._value = self._value * scale
+            self._value = self._to_si(self._value, self._units)
 
     @property
     def _aedt_obj(self):
@@ -1893,7 +1884,50 @@ class Variable(PyAedtBase):
 
     @property
     def value(self) -> float:
-        """Current value in SI units (float)."""
+        """Current value in SI units (float).
+
+        This getter keeps the cached SI value in sync with the AEDT backend.
+        It queries the evaluated variable value from AEDT, converts it to SI
+        units using the current unit system and unit string.
+        """
+        # If there is no AEDT app attached, just return the cached value.
+        if not self._app:
+            return self._value
+
+        try:
+            # Get the evaluated value from AEDT
+            evaluated_value = self._get_prop_evaluated_val()
+        except Exception:  # pragma: no cover
+            # If anything goes wrong while querying AEDT, return the cached value.
+            return self._value
+
+        if evaluated_value is None:  # pragma: no cover
+            # No evaluated value available, fall back to cached value.
+            return self._value
+
+        try:
+            # Decompose into numeric part and units.
+            numeric, units = decompose_variable_value(evaluated_value)
+
+            # Keep the local unit cache up to date.
+            if units:
+                self._units = units
+        except Exception:  # pragma: no cover
+            # If parsing fails, do not touch the cache.
+            return self._value
+
+        # If the numeric part is not a scalar number,
+        # we cannot convert it to SI consistently, so just return the cache.
+        if not is_number(numeric):
+            return self._value
+
+        # If the numeric part is not a scalar number,
+        # we cannot convert it to SI consistently, so just return the cache.
+        if not is_number(numeric):
+            return self._value
+
+        # Convert the evaluated numeric value to SI and update the cache.
+        self._value = self._to_si(numeric, self._units)
         return self._value
 
     @property
@@ -2067,17 +2101,10 @@ class Variable(PyAedtBase):
     def _value_fallback(self):
         # Fall back to local cached value
         if is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except Exception:
-                scale = 1
-            if isinstance(scale, tuple):
-                return scale[0](self._value, True)
-            elif isinstance(scale, types.FunctionType):
-                return scale(self._value, True)
-            else:
-                return self._value / scale
-        val, _ = decompose_variable_value(self._value)
+            # Cached value is stored as SI → return it in "native" units.
+            return self._from_si(self._value, self._units)
+
+        val, _ = decompose_variable_value(str(self._value))
         return val
 
     @pyaedt_function_handler()
@@ -2087,6 +2114,74 @@ class Variable(PyAedtBase):
             _, units = decompose_variable_value(self._value)
         self._units = units
         return self._units
+
+    def _to_si(self, numeric: float, units: Optional[str] = None) -> float:
+        """Convert a numeric value from the given units to SI units.
+
+        Parameters
+        ----------
+        numeric : float
+            Numeric value expressed in ``units``.
+        units : str, optional
+            Unit string. If not provided, uses ``self._units``.
+
+        Returns
+        -------
+        float
+            Numeric value expressed in SI units for the current unit system.
+        """
+        units = units or self._units
+
+        try:
+            scale = AEDT_UNITS[self.unit_system][units]
+        except Exception:
+            # If there is no scale information, assume the value is already SI.
+            return numeric
+
+        if isinstance(scale, tuple):
+            # Tuple convention: first element is a conversion function.
+            # inverse=False means: from current units to SI.
+            return scale[0](numeric, inverse=False)
+        elif isinstance(scale, types.FunctionType):
+            # Custom conversion function, False means: from current units to SI.
+            return scale(numeric, False)
+        else:
+            # Scalar scale factor.
+            return numeric * scale
+
+    def _from_si(self, si_numeric: float, units: Optional[str] = None) -> float:
+        """Convert a numeric value from SI units to the given units.
+
+        Parameters
+        ----------
+        si_numeric : float
+            Numeric value expressed in SI units.
+        units : str, optional
+            Target unit string. If not provided, uses ``self._units``.
+
+        Returns
+        -------
+        float
+            Numeric value expressed in ``units``.
+        """
+        units = units or self._units
+
+        try:
+            scale = AEDT_UNITS[self.unit_system][units]
+        except Exception:
+            # If there is no scale information, assume SI == target units.
+            return si_numeric
+
+        if isinstance(scale, tuple):
+            # Tuple convention: first element is a conversion function.
+            # inverse=True means: from SI to current units.
+            return scale[0](si_numeric, inverse=True)
+        elif isinstance(scale, types.FunctionType):
+            # Custom conversion function, True means: from SI to current units.
+            return scale(si_numeric, True)
+        else:
+            # Scalar scale factor: invert it to go from SI to current units.
+            return si_numeric / scale
 
 
 class DataSet(PyAedtBase):
