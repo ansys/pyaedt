@@ -49,12 +49,13 @@ try:  # pragma: no cover
         from pyaedt.generic.general_methods import active_sessions
         from pyaedt.generic.general_methods import is_windows
     else:
+        from ansys.aedt.core import *
+        import ansys.aedt.core  # noqa: F401
         from ansys.aedt.core import Desktop
         from ansys.aedt.core.generic.general_methods import active_sessions
         from ansys.aedt.core.generic.general_methods import is_windows
         from ansys.aedt.core.generic.file_utils import available_file_name
-        import ansys.aedt.core
-        from ansys.aedt.core import *
+
 except ImportError:  # pragma: no cover
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
@@ -66,8 +67,8 @@ except ImportError:  # pragma: no cover
         from pyaedt.generic.general_methods import active_sessions
         from pyaedt.generic.general_methods import is_windows
     else:
-        import ansys.aedt.core
-        from ansys.aedt.core import *
+        from ansys.aedt.core import *  # noqa: F401
+        import ansys.aedt.core  # noqa: F401
         from ansys.aedt.core import Desktop
         from ansys.aedt.core.generic.general_methods import active_sessions
         from ansys.aedt.core.generic.general_methods import is_windows
@@ -129,11 +130,10 @@ if not error:  # pragma: no cover
     print(f"*  ElectronicsDesktop {version} Process ID {aedt_process_id}")
     print(f"*  CPython {sys.version.split(' ')[0]}")
     print("*---------------------------------------------------------------")
-    print("*  Example: \033[94m hfss = ansys.aedt.core.Hfss() \033[92m")
-    print("*  Example: \033[94m m2d = ansys.aedt.core.Maxwell2d() \033[92m")
+    print("*  Example: \033[94m hfss = Hfss() \033[92m")
+    print("*  Example: \033[94m m2d = Maxwell2d() \033[92m")
+    print("*  Desktop object is initialized: \033[94mdesktop.logger.info('Hello world')\033[92m")
     print("*  \033[31mType exit() to close the console and release the desktop.  \033[92m ")
-    print("*  desktop object is initialized and available. Example: ")
-    print("*  \033[94mdesktop.logger.info('Hello world')\033[92m")
     print("****************************************************************\033[0m")
     print(" ")
 
@@ -171,7 +171,7 @@ if version > "2023.1":  # pragma: no cover
     log_file = available_file_name(log_file)
 
     with open(log_file, 'a', encoding='utf-8') as f:
-        f.write(f"# PyAEDT script recorded from PyAEDT Console:\n\n")
+        f.write("# PyAEDT script recorded from PyAEDT Console:\n\n")
         f.write("import ansys.aedt.core\n")
         f.write("from ansys.aedt.core import *\n")
 
