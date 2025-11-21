@@ -81,18 +81,6 @@ def _get_tests_folder() -> Path:
         typer.echo("! Error finding tests folder, fallbacking to current working directory.")
     # Fallback: search from current working directory
     cwd = Path.cwd()
-    if cwd.name == "tests":
-        return cwd
-
-    tests_folder = cwd / "tests"
-    if tests_folder.exists():
-        return tests_folder
-
-    for parent in [cwd] + list(cwd.parents):
-        tests_folder = parent / "tests"
-        if tests_folder.exists():
-            return tests_folder
-
     return cwd / "tests"
 
 

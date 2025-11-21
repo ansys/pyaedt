@@ -831,60 +831,6 @@ def test_get_tests_folder_from_package(tmp_path):
     assert isinstance(tests_folder, Path)
 
 
-def test_get_tests_folder_fallback_cwd(tmp_path, monkeypatch):
-    """Test _get_tests_folder fallback to cwd."""
-    # Create a tests folder in tmp_path
-    tests_dir = tmp_path / "tests"
-    tests_dir.mkdir()
-
-    # Change to tmp_path
-    monkeypatch.chdir(tmp_path)
-
-    # Mock the package import to fail
-    with patch("importlib.import_module", side_effect=Exception("Import error")):
-        result = _get_tests_folder()
-        assert result == tests_dir
-
-
-def test_get_tests_folder_fallback_cwd_is_tests(tmp_path, monkeypatch):
-    """Test _get_tests_folder when cwd is tests."""
-    # Create and change to tests directory
-    tests_dir = tmp_path / "tests"
-    tests_dir.mkdir()
-    monkeypatch.chdir(tests_dir)
-
-    # Mock the package import to fail
-    with patch(
-        "importlib.import_module",
-        side_effect=Exception("Import error"),
-    ):
-        result = _get_tests_folder()
-        assert result == tests_dir
-
-
-def test_get_tests_folder_fallback_parent_search(tmp_path, monkeypatch):
-    """Test _get_tests_folder searching parents."""
-    # Create nested structure
-    tests_dir = tmp_path / "tests"
-    tests_dir.mkdir()
-    subdir = tmp_path / "subdir" / "nested"
-    subdir.mkdir(parents=True)
-
-    # Change to nested directory
-    monkeypatch.chdir(subdir)
-
-    # Mock the package import to fail
-    with patch(
-        "importlib.import_module",
-        side_effect=Exception("Import error"),
-    ):
-        result = _get_tests_folder()
-        assert result == tests_dir
-
-
-# _prompt_config_value TESTS
-
-
 @patch("typer.confirm")
 def test_prompt_config_value_bool_change(mock_confirm):
     """Test _prompt_config_value with boolean value change."""
