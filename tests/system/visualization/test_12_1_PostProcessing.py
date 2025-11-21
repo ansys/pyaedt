@@ -507,6 +507,7 @@ class TestClass:
             str(output_file),
             solution_name=aedtapp.nominal_sweep,
             matplotlib=True,
+            show=False,
         )
 
     def test_create_report_from_configuration_2(self, aedtapp):
@@ -1075,7 +1076,7 @@ class TestClass:
         input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / "report_json" / "Modal_Report_Simple.json"
         dict_vals = read_json(str(input_file))
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
-        assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
+        assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True, show=False)
 
     def test_sweep_from_json_1(self, aedtapp):
         input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / "report_json" / "Modal_Report.json"
@@ -1083,6 +1084,7 @@ class TestClass:
         assert aedtapp.post.create_report_from_configuration(
             str(input_file),
             matplotlib=True,
+            show=False,
         )
 
     def test_dynamic_update(self, aedtapp):

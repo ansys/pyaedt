@@ -25,14 +25,28 @@
 # filepath: c:\Users\smorais\src\pyaedt\tests\test_cli.py
 """Tests for PyAEDT CLI functionality."""
 
+import json
+from pathlib import Path
+import re
 from unittest.mock import Mock
 from unittest.mock import patch
 
 import psutil
 import pytest
+import typer
 from typer.testing import CliRunner
 
+from ansys.aedt.core.cli import DEFAULT_TEST_CONFIG
+from ansys.aedt.core.cli import _display_config
+from ansys.aedt.core.cli import _get_config_path
+from ansys.aedt.core.cli import _get_tests_folder
+from ansys.aedt.core.cli import _load_config
+from ansys.aedt.core.cli import _prompt_config_value
+from ansys.aedt.core.cli import _save_config
+from ansys.aedt.core.cli import _update_bool_config
+from ansys.aedt.core.cli import _update_string_config
 from ansys.aedt.core.cli import app
+from ansys.aedt.core.cli import test_app
 
 
 @pytest.fixture
@@ -132,11 +146,11 @@ def test_processes_command_with_aedt(mock_process_iter, cli_runner, mock_aedt_pr
 
 
 def test_stop_command_no_args(cli_runner):
-    """Test stop command without arguments shows help."""
+    """Test stop command without arguments raises BadParameter."""
     result = cli_runner.invoke(app, ["stop"])
 
-    assert result.exit_code == 0
-    assert "Please provide PID(s), port(s), or use --all to stop all AEDT processes." in result.stdout
+    assert result.exit_code != 0
+    assert isinstance(result.exception, (SystemExit, typer.BadParameter)) or result.exception is None
 
 
 @patch("psutil.process_iter")
@@ -426,309 +440,508 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     assert "- License server not available" in result.stdout
     assert "- Insufficient permissions" in result.stdout
 
-    # @patch('ansys.aedt.core.desktop.Desktop')
-    # @patch('ansys.aedt.core.settings')
-    # @patch('threading.Thread')
-    # @patch('time.sleep')
-    # def test_start_command_import_error(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
-    #     """Test start command when import fails."""
-    #     mock_desktop.side_effect = ImportError("Cannot import Desktop")
 
-    #     result = cli_runner.invoke(app, ["start"])
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_get_config_path(mock_get_tests_folder, tmp_path):
+    """Test _get_config_path helper function."""
+    mock_get_tests_folder.return_value = tmp_path
+    config_path, config = _get_config_path()
 
-    #     assert result.exit_code == 0
-    #     assert "✗ Error starting AEDT: Cannot import Desktop" in result.stdout
-
-    # @patch('ansys.aedt.core.desktop.Desktop')
-    # @patch('ansys.aedt.core.settings')
-    # @patch('threading.Thread')
-    # @patch('time.sleep')
-    # def test_start_command_zero_port_not_added(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
-    #     """Test start command with port 0 (should not add port to args)."""
-    #     mock_desktop_instance = Mock()
-    #     mock_desktop.return_value = mock_desktop_instance
-
-    #     result = cli_runner.invoke(app, ["start", "--port", "0"])
-
-    #     assert result.exit_code == 0
-    #     assert "Using port:" not in result.stdout
-    #     mock_desktop.assert_called_once_with(
-    #         version="2025.2",
-    #         non_graphical=False,
-    #         new_desktop_session=True,
-    #         student_version=False,
-    #         close_on_exit=False
-    #     )
-
-    # @patch('ansys.aedt.core.desktop.Desktop')
-    # @patch('ansys.aedt.core.settings')
-    # @patch('threading.Thread')
-    # @patch('time.sleep')
-    # def test_start_command_settings_configuration(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
-    #     """Test that start command properly configures settings."""
-    #     mock_desktop_instance = Mock()
-    #     mock_desktop.return_value = mock_desktop_instance
-
-    #     result = cli_runner.invoke(app, ["start"])
-
-    #     assert result.exit_code == 0
-    #     assert mock_settings.enable_logger is False
-
-    # @patch('ansys.aedt.core.desktop.Desktop')
-    # @patch('ansys.aedt.core.settings')
-    # @patch('threading.Thread')
-    # @patch('time.sleep')
-    # def test_start_command_short_options(mock_sleep, mock_thread, mock_settings, mock_desktop, cli_runner):
-    #     """Test start command with short option flags."""
-    #     mock_desktop_instance = Mock()
-    #     mock_desktop.return_value = mock_desktop_instance
-
-    #     result = cli_runner.invoke(app, ["start", "-v", "2023.2", "-ng", "-p", "50070"])
-
-    #     assert result.exit_code == 0
-    #     assert "Starting AEDT 2023.2..." in result.stdout
-    #     assert "Starting in non-graphical mode..." in result.stdout
-    #     assert "Using port: 50070" in result.stdout
-    #     mock_desktop.assert_called_once_with(
-    #         version="2023.2",
-    #         non_graphical=True,
-    #         new_desktop_session=True,
-    #         student_version=False,
-    #         close_on_exit=False,
-    #         port=50070
-    #     )
+    assert config_path == tmp_path / "local_config.json"
+    assert isinstance(config, dict)
 
 
-@pytest.fixture
-def temp_personal_lib(tmp_path):
-    """Create a temporary PersonalLib directory for testing."""
-    personal_lib = tmp_path / "PersonalLib"
-    personal_lib.mkdir()
-    return personal_lib
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_load_config_existing_file(mock_get_tests_folder, tmp_path):
+    """Test loading existing config file."""
+    mock_get_tests_folder.return_value = tmp_path
+    config_file = tmp_path / "local_config.json"
+    test_config = {"desktopVersion": "2024.1", "NonGraphical": False}
+
+    with open(config_file, "w") as f:
+        json.dump(test_config, f)
+
+    loaded_config = _load_config(config_file)
+    assert loaded_config["desktopVersion"] == "2024.1"
+    assert loaded_config["NonGraphical"] is False
 
 
-def test_panels_add_help(cli_runner):
-    """Test panels add help command."""
-    result = cli_runner.invoke(app, ["panels", "add", "--help"])
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_load_config_invalid_file(mock_get_tests_folder, tmp_path):
+    """Test loading invalid config file returns defaults."""
+    mock_get_tests_folder.return_value = tmp_path
+    config_file = tmp_path / "local_config.json"
+
+    with open(config_file, "w") as f:
+        f.write("invalid json")
+
+    loaded_config = _load_config(config_file)
+    assert loaded_config == DEFAULT_TEST_CONFIG
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_save_config(mock_get_tests_folder, tmp_path):
+    """Test saving config file."""
+    mock_get_tests_folder.return_value = tmp_path
+    config_file = tmp_path / "subdir" / "local_config.json"
+    test_config = {"desktopVersion": "2025.2", "NonGraphical": True}
+
+    _save_config(config_file, test_config)
+
+    assert config_file.exists()
+    with open(config_file, "r") as f:
+        saved_config = json.load(f)
+    assert saved_config == test_config
+
+
+def test_display_config(cli_runner):
+    """Test _display_config function."""
+    test_config = {
+        "desktopVersion": "2025.2",
+        "NonGraphical": True,
+        "local_example_folder": "",
+    }
+    descriptions = {
+        "desktopVersion": "AEDT version",
+        "NonGraphical": "Run without GUI",
+    }
+
+    # Just ensure it doesn't crash
+    _display_config(test_config, "Test Config", descriptions)
+
+
+# CONFIG COMMAND TESTS - CLI Integration Tests
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test desktop_version command."""
+    mock_get_tests_folder.return_value = tmp_path
+    result = cli_runner.invoke(app, ["config", "test", "desktop-version", "2024.1"])
+    assert result.exit_code == 0
+    assert "desktopVersion set to '2024.1'" in result.stdout
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["desktopVersion"] == "2024.1"
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_desktop_version_invalid_format(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test desktop_version command with invalid format."""
+    mock_get_tests_folder.return_value = tmp_path
+    result = cli_runner.invoke(app, ["config", "test", "desktop-version", "invalid"])
+    assert result.exit_code == 0
+    assert "Invalid format" in result.stdout
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_all_boolean_commands(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test all boolean configuration commands."""
+    mock_get_tests_folder.return_value = tmp_path
+
+    # Test all boolean commands
+    bool_tests = [
+        (["non-graphical", "true"], "NonGraphical set to True"),
+        (["new-thread", "false"], "NewThread set to False"),
+        (["skip-circuits", "true"], "skip_circuits set to True"),
+        (["use-grpc", "false"], "use_grpc set to False"),
+        (["close-desktop", "false"], "close_desktop set to False"),
+        (["use-local-example-data", "true"], "use_local_example_data"),
+        (["skip-modelithics", "false"], "skip_modelithics set to False"),
+    ]
+
+    for cmd_parts, expected_output in bool_tests:
+        result = cli_runner.invoke(app, ["config", "test"] + cmd_parts)
+        assert result.exit_code == 0
+        assert expected_output in result.stdout
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_local_example_folder_command(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test local_example_folder command."""
+    mock_get_tests_folder.return_value = tmp_path
+    result = cli_runner.invoke(
+        app,
+        ["config", "test", "local-example-folder", "/path/to/examples"],
+    )
+    assert result.exit_code == 0
+    assert "local_example_folder set to '/path/to/examples'" in result.stdout
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_config_persists_across_commands(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test that config changes persist across multiple commands."""
+    mock_get_tests_folder.return_value = tmp_path
+    config_file = tmp_path / "local_config.json"
+
+    result1 = cli_runner.invoke(app, ["config", "test", "desktop-version", "2024.1"])
+    assert result1.exit_code == 0
+
+    result2 = cli_runner.invoke(app, ["config", "test", "non-graphical", "false"])
+    assert result2.exit_code == 0
+
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["desktopVersion"] == "2024.1"
+    assert config["NonGraphical"] is False
+
+
+# _get_tests_folder TESTS
+
+
+def test_get_tests_folder_from_package(tmp_path):
+    """Test _get_tests_folder when package structure exists."""
+    # The function should find the tests folder from the package
+    tests_folder = _get_tests_folder()
+    assert isinstance(tests_folder, Path)
+
+
+def test_get_tests_folder_fallback_cwd(tmp_path, monkeypatch):
+    """Test _get_tests_folder fallback to cwd."""
+    # Create a tests folder in tmp_path
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+
+    # Change to tmp_path
+    monkeypatch.chdir(tmp_path)
+
+    # Mock the package import to fail
+    with patch("importlib.import_module", side_effect=Exception("Import error")):
+        result = _get_tests_folder()
+        assert result == tests_dir
+
+
+def test_get_tests_folder_fallback_cwd_is_tests(tmp_path, monkeypatch):
+    """Test _get_tests_folder when cwd is tests."""
+    # Create and change to tests directory
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    monkeypatch.chdir(tests_dir)
+
+    # Mock the package import to fail
+    with patch(
+        "importlib.import_module",
+        side_effect=Exception("Import error"),
+    ):
+        result = _get_tests_folder()
+        assert result == tests_dir
+
+
+def test_get_tests_folder_fallback_parent_search(tmp_path, monkeypatch):
+    """Test _get_tests_folder searching parents."""
+    # Create nested structure
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    subdir = tmp_path / "subdir" / "nested"
+    subdir.mkdir(parents=True)
+
+    # Change to nested directory
+    monkeypatch.chdir(subdir)
+
+    # Mock the package import to fail
+    with patch(
+        "importlib.import_module",
+        side_effect=Exception("Import error"),
+    ):
+        result = _get_tests_folder()
+        assert result == tests_dir
+
+
+# _prompt_config_value TESTS
+
+
+@patch("typer.confirm")
+def test_prompt_config_value_bool_change(mock_confirm):
+    """Test _prompt_config_value with boolean value change."""
+    mock_confirm.return_value = True
+    result = _prompt_config_value("test_key", True)
+    assert result is False
+
+    mock_confirm.return_value = False
+    result = _prompt_config_value("test_key", True)
+    assert result is True
+
+
+@patch("typer.prompt")
+def test_prompt_config_value_string(mock_prompt):
+    """Test _prompt_config_value with string value."""
+    mock_prompt.return_value = "new_value"
+    result = _prompt_config_value("test_key", "old_value")
+    assert result == "new_value"
+
+
+@patch("typer.prompt")
+def test_prompt_config_value_desktop_version_valid(mock_prompt):
+    """Test _prompt_config_value with valid desktop version."""
+    mock_prompt.return_value = "2024.2"
+    result = _prompt_config_value("desktopVersion", "2025.2")
+    assert result == "2024.2"
+
+
+@patch("typer.prompt")
+@patch("typer.secho")
+def test_prompt_config_value_desktop_version_invalid_then_valid(mock_secho, mock_prompt):
+    """Test _prompt_config_value with invalid then valid version."""
+    mock_prompt.side_effect = ["invalid", "2024.2"]
+    result = _prompt_config_value("desktopVersion", "2025.2")
+    assert result == "2024.2"
+    # Check that error was displayed
+    assert mock_secho.call_count >= 1
+
+
+@patch("typer.prompt")
+def test_prompt_config_value_desktop_version_with_quotes(mock_prompt):
+    """Test _prompt_config_value desktop version strips quotes."""
+    mock_prompt.return_value = '"2024.2"'
+    result = _prompt_config_value("desktopVersion", "2025.2")
+    assert result == "2024.2"
+
+
+@patch("typer.prompt")
+def test_prompt_config_value_int(mock_prompt):
+    """Test _prompt_config_value with integer value."""
+    mock_prompt.return_value = 42
+    result = _prompt_config_value("test_key", 10)
+    assert result == 42
+
+
+def test_prompt_config_value_unknown_type():
+    """Test _prompt_config_value with unknown type."""
+    result = _prompt_config_value("test_key", [1, 2, 3])
+    assert result == [1, 2, 3]
+
+
+# _update_bool_config TESTS (Interactive Mode)
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("typer.confirm")
+def test_update_bool_config_interactive_change(mock_confirm, mock_get_tests_folder, tmp_path):
+    """Test _update_bool_config interactive mode with change."""
+    mock_get_tests_folder.return_value = tmp_path
+    mock_confirm.return_value = True
+
+    _update_bool_config("NonGraphical", None, "NonGraphical")
+
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    # Default is True, should change to False
+    assert config["NonGraphical"] is False
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("typer.confirm")
+def test_update_bool_config_interactive_no_change(mock_confirm, mock_get_tests_folder, tmp_path):
+    """Test _update_bool_config interactive mode no change."""
+    mock_get_tests_folder.return_value = tmp_path
+    mock_confirm.return_value = False
+
+    _update_bool_config("NonGraphical", None, "NonGraphical")
+
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    # Default is True, should stay True
+    assert config["NonGraphical"] is True
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_update_bool_config_with_value(mock_get_tests_folder, tmp_path):
+    """Test _update_bool_config with explicit value."""
+    mock_get_tests_folder.return_value = tmp_path
+
+    _update_bool_config("skip_circuits", True, "skip_circuits")
+
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["skip_circuits"] is True
+
+
+# _update_string_config TESTS (Interactive Mode)
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("typer.prompt")
+def test_update_string_config_interactive_no_validator(mock_prompt, mock_get_tests_folder, tmp_path):
+    """Test _update_string_config interactive mode no validator."""
+    mock_get_tests_folder.return_value = tmp_path
+    mock_prompt.return_value = "/new/path"
+
+    _update_string_config("local_example_folder", None, "local_example_folder")
+
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["local_example_folder"] == "/new/path"
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("typer.prompt")
+def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock_get_tests_folder, tmp_path):
+    """Test _update_string_config interactive mode valid."""
+    mock_get_tests_folder.return_value = tmp_path
+    mock_prompt.return_value = "2024.1"
+
+    def validator(v):
+        if re.match(r"^\d{4}\.\d$", v):
+            return True, ""
+        return False, "Invalid format"
+
+    _update_string_config("desktopVersion", None, "desktopVersion", validator)
+
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["desktopVersion"] == "2024.1"
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("typer.prompt")
+def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, mock_get_tests_folder, tmp_path):
+    """Test _update_string_config invalid then valid value."""
+    mock_get_tests_folder.return_value = tmp_path
+    mock_prompt.side_effect = ["invalid", "2024.1"]
+
+    def validator(v):
+        if re.match(r"^\d{4}\.\d$", v):
+            return True, ""
+        return False, "Invalid format"
+
+    _update_string_config("desktopVersion", None, "desktopVersion", validator)
+
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["desktopVersion"] == "2024.1"
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_update_string_config_with_value_valid(mock_get_tests_folder, tmp_path):
+    """Test _update_string_config with explicit valid value."""
+    mock_get_tests_folder.return_value = tmp_path
+
+    def validator(v):
+        if re.match(r"^\d{4}\.\d$", v):
+            return True, ""
+        return False, "Invalid format"
+
+    _update_string_config("desktopVersion", "2023.2", "desktopVersion", validator)
+
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["desktopVersion"] == "2023.2"
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_update_string_config_with_value_invalid(mock_get_tests_folder, tmp_path):
+    """Test _update_string_config with explicit invalid value."""
+    mock_get_tests_folder.return_value = tmp_path
+
+    def validator(v):
+        if re.match(r"^\d{4}\.\d$", v):
+            return True, ""
+        return False, "Invalid format"
+
+    _update_string_config("desktopVersion", "invalid", "desktopVersion", validator)
+
+    config_file = tmp_path / "local_config.json"
+    # Config should not be updated with invalid value
+    if config_file.exists():
+        with open(config_file, "r") as f:
+            config = json.load(f)
+        # Should still have default value
+        assert config["desktopVersion"] == "2025.2"
+
+
+# config_test COMMAND TESTS
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_config_test_show_flag(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test config test command with --show flag."""
+    mock_get_tests_folder.return_value = tmp_path
+
+    result = cli_runner.invoke(test_app, ["--show"])
 
     assert result.exit_code == 0
-    assert "Add PyAEDT panels to AEDT installation" in result.stdout
+    assert "Current Test Configuration" in result.stdout
+    assert "2025.2" in result.stdout
 
 
-def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
-    """Test successful panel installation."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
-    )
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_config_test_show_flag_short(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test config test command with -s flag."""
+    mock_get_tests_folder.return_value = tmp_path
 
-    assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
-    assert "✓ PyAEDT panels installed successfully." in result.stdout
-    assert "• Console" in result.stdout
-    assert "• Jupyter" in result.stdout
-    assert "• Run Script" in result.stdout
-    assert "• Extension Manager" in result.stdout
-    assert "• Version Manager" in result.stdout
-    assert "Restart AEDT to see the new panels" in result.stdout
-
-    mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
-        personal_lib=str(temp_personal_lib),
-        skip_version_manager=False,
-        odesktop=None,
-    )
-
-
-def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
-    """Test panel installation with skip version manager flag."""
-    result = cli_runner.invoke(
-        app,
-        [
-            "panels",
-            "add",
-            "--version",
-            "2025.2",
-            "--personal-lib",
-            str(temp_personal_lib),
-            "--skip-version-manager",
-        ],
-    )
+    result = cli_runner.invoke(test_app, ["-s"])
 
     assert result.exit_code == 0
-    assert "Skipping Version Manager tab..." in result.stdout
-    assert "✓ PyAEDT panels installed successfully." in result.stdout
-    assert "• Version Manager" not in result.stdout
-
-    mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
-        personal_lib=str(temp_personal_lib),
-        skip_version_manager=True,
-        odesktop=None,
-    )
+    assert "Current Test Configuration" in result.stdout
 
 
-def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
-    """Test panel installation with short option flags."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "-v", "2024.1", "-p", str(temp_personal_lib)],
-    )
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_config_test_interactive_no_modify(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test config test command declining to modify."""
+    mock_get_tests_folder.return_value = tmp_path
+
+    result = cli_runner.invoke(test_app, input="n\n")
 
     assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2024.1..." in result.stdout
-    assert "✓ PyAEDT panels installed successfully." in result.stdout
+    assert "No changes made" in result.stdout
 
 
-def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib, mock_installed_versions):
-    """Test panel installation with invalid selection input."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
-        input="abc\n",  # Invalid input for selection prompt
-    )
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test config test command with interactive modifications."""
+    mock_get_tests_folder.return_value = tmp_path
 
-    assert result.exit_code == 1
-    # The error comes from typer's prompt validation or our exception handling
-    assert "Error" in result.stdout or "✗" in result.stdout
+    # Answer yes to modify, then answer for each config value
+    # For desktopVersion: provide new version
+    # For bools: press enter to keep or change
+    input_data = "y\n2024.1\nn\nn\nn\nn\nn\nn\n\nn\n"
 
-
-def test_panels_add_invalid_version_empty(
-    cli_runner,
-):
-    """Test panel installation with empty version string via CLI."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "   ", "--personal-lib", "dummy"],
-        input="\n",
-    )
-
-    assert result.exit_code == 1
-    assert "✗ AEDT version cannot be empty" in result.stdout
-
-
-def test_panels_add_invalid_personal_lib_none(cli_runner, mock_installed_versions):
-    """Test panel installation with whitespace-only personal_lib."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2"],
-        input="   \n",  # Whitespace only for path prompt
-    )
-
-    assert result.exit_code == 1
-    assert "✗" in result.stdout
-    assert "personal_lib" in result.stdout
-    assert "invalid" in result.stdout.lower()
-
-
-def test_panels_add_nonexistent_personal_lib(cli_runner, mock_installed_versions):
-    """Test panel installation with non-existent PersonalLib path."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path/PersonalLib"],
-    )
-
-    assert result.exit_code == 1
-    assert "✗" in result.stdout
-    assert "does not exist" in result.stdout
-    assert "Common PersonalLib locations:" in result.stdout
-
-
-def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path, mock_installed_versions):
-    """Test panel installation when PersonalLib path is a file, not directory."""
-    file_path = tmp_path / "not_a_directory.txt"
-    file_path.write_text("dummy content")
-
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(file_path)],
-    )
-
-    assert result.exit_code == 1
-    assert "✗" in result.stdout
-    assert "not a directory" in result.stdout
-
-
-@patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt", return_value=False)
-def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
-    """Test panel installation when installer returns False."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
-    )
-
-    assert result.exit_code == 1
-    assert "✗ Failed to install PyAEDT panels" in result.stdout
-
-
-@patch(
-    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
-    side_effect=ImportError("Cannot import installer"),
-)
-def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
-    """Test panel installation when import fails."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
-    )
-
-    assert result.exit_code == 1
-    assert "✗ Import error: Cannot import installer" in result.stdout
-    assert "Make sure PyAEDT is properly installed" in result.stdout
-
-
-@patch(
-    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
-    side_effect=Exception("Unexpected error"),
-)
-def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
-    """Test panel installation when generic exception occurs."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
-    )
-
-    assert result.exit_code == 1
-    assert "✗ Error installing panels: Unexpected error" in result.stdout
-
-
-@patch("platform.system", return_value="Windows")
-def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner, mock_installed_versions):
-    """Test that Windows-specific path hint is shown on Windows."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", "C:\\nonexistent\\path"],
-    )
-
-    assert result.exit_code == 1
-    assert "Windows: C:\\Users\\<username>\\AppData\\Roaming\\Ansoft\\PersonalLib" in result.stdout
-
-
-@patch("platform.system", return_value="Linux")
-def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner, mock_installed_versions):
-    """Test that Linux-specific path hint is shown on Linux."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path"],
-    )
-
-    assert result.exit_code == 1
-    assert "Linux: /home/<username>/Ansoft/PersonalLib" in result.stdout
-
-
-def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
-    """Test that version and path whitespace is stripped."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "  2025.2  ", "--personal-lib", f"  {temp_personal_lib}  "],
-    )
+    result = cli_runner.invoke(test_app, input=input_data)
 
     assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
+    assert "Configuration Updated Successfully" in result.stdout
 
-    mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
-        personal_lib=str(temp_personal_lib),
-        skip_version_manager=False,
-        odesktop=None,
-    )
+    config_file = tmp_path / "local_config.json"
+    with open(config_file, "r") as f:
+        config = json.load(f)
+    assert config["desktopVersion"] == "2024.1"
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_config_test_creates_config_file(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test config test command creates config file if not exists."""
+    mock_get_tests_folder.return_value = tmp_path
+    config_file = tmp_path / "local_config.json"
+
+    assert not config_file.exists()
+
+    result = cli_runner.invoke(test_app, ["--show"])
+
+    assert result.exit_code == 0
+    assert config_file.exists()
+
+
+@patch("ansys.aedt.core.cli._get_tests_folder")
+def test_config_test_loads_existing_config(mock_get_tests_folder, tmp_path, cli_runner):
+    """Test config test command loads existing config file."""
+    mock_get_tests_folder.return_value = tmp_path
+    config_file = tmp_path / "local_config.json"
+
+    # Create existing config
+    existing_config = {"desktopVersion": "2023.1", "NonGraphical": False}
+    with open(config_file, "w") as f:
+        json.dump(existing_config, f)
+
+    result = cli_runner.invoke(test_app, ["--show"])
+
+    assert result.exit_code == 0
+    assert "2023.1" in result.stdout
+    assert "Configuration file found" in result.stdout

@@ -217,11 +217,11 @@ class TestClass:
         assert len(aedtapp.design_list) == 1
 
     def test_15c_copy_example(self, aedtapp):
-        example_name = aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+        example_project = aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
         from ansys.aedt.core.generic.file_utils import remove_project_lock
 
-        remove_project_lock(example_name)
-        aedtapp.copy_design_from(example_name, "0_5G Aperture Element")
+        remove_project_lock(example_project)
+        aedtapp.copy_design_from(str(example_project), "0_5G Aperture Element")
         assert aedtapp.design_name == "0_5G Aperture Element"
         assert not aedtapp.desktop_class.get_example("fake")
 
