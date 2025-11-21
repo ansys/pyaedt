@@ -56,7 +56,7 @@ def coaxial(add_app):
 
 @pytest.fixture()
 def aedtapp(add_app):
-    app = add_app(app_name=Hfss)
+    app = add_app(application=Hfss)
     yield app
     app.close_project(save=False)
 
