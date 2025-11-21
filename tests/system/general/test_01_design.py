@@ -380,8 +380,8 @@ def test_odesktop(aedtapp):
 
 
 def test_get_pyaedt_app(aedtapp):
-    _ = get_pyaedt_app(aedtapp.project_name, aedtapp.design_name)
-    assert aedtapp.design_type == "HFSS"
+    app = get_pyaedt_app(aedtapp.project_name, aedtapp.design_name)
+    assert app.design_type == "HFSS"
 
 
 def test_change_registry_key(desktop):
