@@ -479,6 +479,240 @@ def test_load_config_invalid_file(mock_get_tests_folder, tmp_path):
     assert loaded_config == DEFAULT_TEST_CONFIG
 
 
+@pytest.fixture
+def temp_personal_lib(tmp_path):
+    """Create a temporary PersonalLib directory for testing."""
+    personal_lib = tmp_path / "PersonalLib"
+    personal_lib.mkdir()
+    return personal_lib
+
+
+def test_panels_add_help(cli_runner):
+    """Test panels add help command."""
+    result = cli_runner.invoke(app, ["panels", "add", "--help"])
+
+    assert result.exit_code == 0
+    assert "Add PyAEDT panels to AEDT installation" in result.stdout
+
+
+def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
+    """Test successful panel installation."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+    )
+
+    assert result.exit_code == 0
+    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
+    assert "• Console" in result.stdout
+    assert "• Jupyter" in result.stdout
+    assert "• Run Script" in result.stdout
+    assert "• Extension Manager" in result.stdout
+    assert "• Version Manager" in result.stdout
+    assert "Restart AEDT to see the new panels" in result.stdout
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        aedt_version="2025.2",
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=False,
+        odesktop=None,
+    )
+
+
+def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
+    """Test panel installation with skip version manager flag."""
+    result = cli_runner.invoke(
+        app,
+        [
+            "panels",
+            "add",
+            "--version",
+            "2025.2",
+            "--personal-lib",
+            str(temp_personal_lib),
+            "--skip-version-manager",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Skipping Version Manager tab..." in result.stdout
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
+    assert "• Version Manager" not in result.stdout
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        aedt_version="2025.2",
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=True,
+        odesktop=None,
+    )
+
+
+def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
+    """Test panel installation with short option flags."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "-v", "2024.1", "-p", str(temp_personal_lib)],
+    )
+
+    assert result.exit_code == 0
+    assert "Installing PyAEDT panels for AEDT 2024.1..." in result.stdout
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
+
+
+def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib, mock_installed_versions):
+    """Test panel installation with invalid selection input."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
+        input="abc\n",  # Invalid input for selection prompt
+    )
+
+    assert result.exit_code == 1
+    # The error comes from typer's prompt validation or our exception handling
+    assert "Error" in result.stdout or "✗" in result.stdout
+
+
+def test_panels_add_invalid_version_empty(
+    cli_runner,
+):
+    """Test panel installation with empty version string via CLI."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "   ", "--personal-lib", "dummy"],
+        input="\n",
+    )
+
+    assert result.exit_code == 1
+    assert "✗ AEDT version cannot be empty" in result.stdout
+
+
+def test_panels_add_invalid_personal_lib_none(cli_runner, mock_installed_versions):
+    """Test panel installation with whitespace-only personal_lib."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2"],
+        input="   \n",  # Whitespace only for path prompt
+    )
+
+    assert result.exit_code == 1
+    assert "✗" in result.stdout
+    assert "personal_lib" in result.stdout
+    assert "invalid" in result.stdout.lower()
+
+
+def test_panels_add_nonexistent_personal_lib(cli_runner, mock_installed_versions):
+    """Test panel installation with non-existent PersonalLib path."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path/PersonalLib"],
+    )
+
+    assert result.exit_code == 1
+    assert "✗" in result.stdout
+    assert "does not exist" in result.stdout
+    assert "Common PersonalLib locations:" in result.stdout
+
+
+def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path, mock_installed_versions):
+    """Test panel installation when PersonalLib path is a file, not directory."""
+    file_path = tmp_path / "not_a_directory.txt"
+    file_path.write_text("dummy content")
+
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(file_path)],
+    )
+
+    assert result.exit_code == 1
+    assert "✗" in result.stdout
+    assert "not a directory" in result.stdout
+
+
+@patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt", return_value=False)
+def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
+    """Test panel installation when installer returns False."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+    )
+
+    assert result.exit_code == 1
+    assert "✗ Failed to install PyAEDT panels" in result.stdout
+
+
+@patch(
+    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+    side_effect=ImportError("Cannot import installer"),
+)
+def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
+    """Test panel installation when import fails."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+    )
+
+    assert result.exit_code == 1
+    assert "✗ Import error: Cannot import installer" in result.stdout
+    assert "Make sure PyAEDT is properly installed" in result.stdout
+
+
+@patch(
+    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+    side_effect=Exception("Unexpected error"),
+)
+def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
+    """Test panel installation when generic exception occurs."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+    )
+
+    assert result.exit_code == 1
+    assert "✗ Error installing panels: Unexpected error" in result.stdout
+
+
+@patch("platform.system", return_value="Windows")
+def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner, mock_installed_versions):
+    """Test that Windows-specific path hint is shown on Windows."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", "C:\\nonexistent\\path"],
+    )
+
+    assert result.exit_code == 1
+    assert "Windows: C:\\Users\\<username>\\AppData\\Roaming\\Ansoft\\PersonalLib" in result.stdout
+
+
+@patch("platform.system", return_value="Linux")
+def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner, mock_installed_versions):
+    """Test that Linux-specific path hint is shown on Linux."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path"],
+    )
+
+    assert result.exit_code == 1
+    assert "Linux: /home/<username>/Ansoft/PersonalLib" in result.stdout
+
+
+def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
+    """Test that version and path whitespace is stripped."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--version", "  2025.2  ", "--personal-lib", f"  {temp_personal_lib}  "],
+    )
+
+    assert result.exit_code == 0
+    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        aedt_version="2025.2",
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=False,
+        odesktop=None,
+    )
+
 @patch("ansys.aedt.core.cli._get_tests_folder")
 def test_save_config(mock_get_tests_folder, tmp_path):
     """Test saving config file."""
