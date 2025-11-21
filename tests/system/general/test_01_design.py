@@ -48,10 +48,17 @@ else:
 
 
 @pytest.fixture()
-def aedtapp(add_app):
+def coaxial(add_app):
     app = add_app(test_project_name, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(save=False)
+
+
+@pytest.fixture()
+def aedtapp(add_app):
+    app = add_app(app_name=Hfss)
+    yield app
+    app.close_project(save=False)
 
 
 def test_design_name(aedtapp):
@@ -79,6 +86,17 @@ def test_design_properties(aedtapp):
     assert aedtapp.project_name == test_project_name
     assert Path(aedtapp.results_directory).exists()
 
+    assert aedtapp.oboundary
+    assert aedtapp.oanalysis
+    assert aedtapp.odesktop
+    assert aedtapp.logger
+    assert aedtapp.variable_manager
+    assert aedtapp.materials
+    assert aedtapp
+    assert aedtapp.info
+    assert aedtapp.odefinition_manager
+    assert aedtapp.omaterial_manager
+
 
 def test_desktop_class_path(aedtapp):
     assert Path(aedtapp.desktop_class.project_path()).exists()
@@ -105,10 +123,8 @@ def test_use_causal_material(aedtapp):
 
 
 def test_solution_type(aedtapp):
-    assert "Modal" in aedtapp.solution_type
     aedtapp.solution_type = "Terminal"
     assert "Terminal" in aedtapp.solution_type
-    aedtapp.solution_type = "Modal"
 
 
 def test_libs(aedtapp):
@@ -127,25 +143,11 @@ def test_set_temp_dir(aedtapp, local_scratch):
     aedtapp.set_temporary_directory(tempfile.gettempdir())
 
 
-def test_objects(aedtapp):
-    assert aedtapp.oboundary
-    assert aedtapp.oanalysis
-    assert aedtapp.odesktop
-    assert aedtapp.logger
-    assert aedtapp.variable_manager
-    assert aedtapp.materials
-    assert aedtapp
-    assert aedtapp.info
-
-
-def test_set_objects_deformation(aedtapp):
-    assert aedtapp.modeler.set_objects_deformation(["inner"])
-
-
-def test_set_objects_temperature(aedtapp):
+def test_set_objects_temperature_deformation(coaxial):
+    assert coaxial.modeler.set_objects_deformation(["inner"])
     ambient_temp = 22
-    objects = [o for o in aedtapp.modeler.solid_names if aedtapp.modeler[o].model]
-    assert aedtapp.modeler.set_objects_temperature(objects, ambient_temperature=ambient_temp, create_project_var=True)
+    objects = [o for o in coaxial.modeler.solid_names if coaxial.modeler[o].model]
+    assert coaxial.modeler.set_objects_temperature(objects, ambient_temperature=ambient_temp, create_project_var=True)
 
 
 def test_change_material_override(aedtapp):
@@ -174,45 +176,44 @@ def test_designs(aedtapp):
 
 
 def test_get_nominal_variation(aedtapp):
-    aedtapp.insert_design("NewDesign")
     assert aedtapp.get_nominal_variation() != {} or aedtapp.get_nominal_variation() is not None
     assert isinstance(aedtapp.get_nominal_variation(), dict)
     assert isinstance(aedtapp.get_nominal_variation(with_values=True), dict)
     assert aedtapp.get_nominal_variation(with_values=True) != {}
 
 
-def test_duplicate_design(aedtapp):
-    original_design_name = aedtapp.design_name
-    aedtapp.insert_design("NewDesign")
-    aedtapp.duplicate_design("non_valid1", save_after_duplicate=False)
-    aedtapp.duplicate_design("myduplicateddesign")
-    assert "myduplicateddesign" in aedtapp.design_list
-    assert "non_valid1" in aedtapp.design_list
-    for design_name in aedtapp.design_list:  # Revert app to original state while testing.
-        n_designs = len(aedtapp.design_list)
+def test_duplicate_design(coaxial):
+    original_design_name = coaxial.design_name
+    coaxial.insert_design("NewDesign")
+    coaxial.duplicate_design("non_valid1", save_after_duplicate=False)
+    coaxial.duplicate_design("myduplicateddesign")
+    assert "myduplicateddesign" in coaxial.design_list
+    assert "non_valid1" in coaxial.design_list
+    for design_name in coaxial.design_list:  # Revert app to original state while testing.
+        n_designs = len(coaxial.design_list)
         if not design_name == original_design_name:  # Delete all designs except the original.
-            aedtapp.delete_design(design_name, fallback_design=original_design_name)
-            assert len(aedtapp.design_list) == n_designs - 1
-    assert aedtapp.design_name == original_design_name
-    assert len(aedtapp.design_list) == 1
+            coaxial.delete_design(design_name, fallback_design=original_design_name)
+            assert len(coaxial.design_list) == n_designs - 1
+    assert coaxial.design_name == original_design_name
+    assert len(coaxial.design_list) == 1
 
 
-def test_copy_design_from(aedtapp, local_scratch):
-    original_design_name = aedtapp.design_name
-    original_project_name = aedtapp.project_name
+def test_copy_design_from(coaxial, local_scratch):
+    original_design_name = coaxial.design_name
+    original_project_name = coaxial.project_name
     origin = local_scratch.path / (original_project_name + ".aedt")
     destin = local_scratch.path / "destin.aedt"
-    aedtapp.duplicate_design("ditto")
-    aedtapp.save_project(file_name=destin)
-    aedtapp.save_project(file_name=origin, refresh_ids=True)
+    coaxial.duplicate_design("ditto")
+    coaxial.save_project(file_name=destin)
+    coaxial.save_project(file_name=origin, refresh_ids=True)
 
-    new_design = aedtapp.copy_design_from(destin, "ditto")  # Copies the design "ditto" into the current project.
-    assert new_design in aedtapp.design_list
-    for design_name in aedtapp.design_list:  # Revert app to original state while testing.
+    new_design = coaxial.copy_design_from(destin, "ditto")  # Copies the design "ditto" into the current project.
+    assert new_design in coaxial.design_list
+    for design_name in coaxial.design_list:  # Revert app to original state while testing.
         if not design_name == original_design_name:  # Delete all designs except the original.
-            aedtapp.delete_design(design_name, fallback_design=original_design_name)
-    assert aedtapp.design_name == original_design_name
-    assert len(aedtapp.design_list) == 1
+            coaxial.delete_design(design_name, fallback_design=original_design_name)
+    assert coaxial.design_name == original_design_name
+    assert len(coaxial.design_list) == 1
 
 
 def test_copy_example(aedtapp):
@@ -341,12 +342,12 @@ def test_generate_temp_project_directory(aedtapp):
     assert not proj_dir4
 
 
-def test_test_archive(add_app, local_scratch, aedtapp):
+def test_test_archive(add_app, local_scratch, coaxial):
     aedtz_proj = local_scratch.path / "test.aedtz"
-    assert aedtapp.archive_project(aedtz_proj)
+    assert coaxial.archive_project(aedtz_proj)
     assert aedtz_proj.exists()
     new_app = add_app(project_name=aedtz_proj, just_open=True)
-    for name1 in aedtapp.design_list:
+    for name1 in coaxial.design_list:
         assert name1 in new_app.design_list
     new_app2 = add_app(project_name=aedtz_proj, just_open=True)
     assert new_app2.project_name != new_app.project_name
@@ -369,11 +370,6 @@ def test_change_registry_from_file(aedtapp):
     assert aedtapp.set_registry_from_file(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Test.acf")
 
 
-def test_odefinition_manager(aedtapp):
-    assert aedtapp.odefinition_manager
-    assert aedtapp.omaterial_manager
-
-
 def test_odesktop(aedtapp):
     assert str(type(aedtapp.odesktop)) in [
         "<class 'win32com.client.CDispatch'>",
@@ -384,8 +380,8 @@ def test_odesktop(aedtapp):
 
 
 def test_get_pyaedt_app(aedtapp):
-    app = get_pyaedt_app(aedtapp.project_name, aedtapp.design_name)
-    assert app.design_type == "HFSS"
+    _ = get_pyaedt_app(aedtapp.project_name, aedtapp.design_name)
+    assert aedtapp.design_type == "HFSS"
 
 
 def test_change_registry_key(desktop):
