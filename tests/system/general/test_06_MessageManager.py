@@ -50,19 +50,34 @@ def icepak_app(add_app):
     app.close_project(app.project_name)
 
 
-def test_00_global_messenger(aedtapp):
+def test_global_messenger():
     msg = AedtLogger()
     msg.clear_messages()
+
+    # Add messages at different levels
     msg.add_info_message("Test desktop level - Info")
     msg.add_info_message("Test desktop level - Info", level="Design")
     msg.add_info_message("Test desktop level - Info", level="Project")
     msg.add_info_message("Test desktop level - Info", level="Global")
+
+    # Verify messages were added
+    assert len(msg._messages) == 4, "Expected 4 messages"
+
+    # Verify all messages are info type (type 0)
+    for message in msg._messages:
+        assert message[0] == 0, "Expected info type (0)"
+        assert "Test desktop level - Info" in message[1]
+
+    # Verify messages can be retrieved
+    messages = msg.get_messages()
+    assert len(messages.info_level) >= 4
+
     msg.clear_messages(level=0)
     msg.clear_messages(level=3)
 
 
 @pytest.mark.skipif(config["NonGraphical"], reason="Messages not functional in non-graphical mode")
-def test_01_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cover
+def test_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cover
     settings.enable_desktop_logs = True
     msg = aedtapp.logger
     msg.clear_messages(level=3)
@@ -86,7 +101,7 @@ def test_01_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cove
     ipk_app_comp.close_project()
 
 
-def test_02_messaging(aedtapp, icepak_app):  # pragma: no cover
+def test_messaging(icepak_app):  # pragma: no cover
     settings.enable_desktop_logs = True
     msg = icepak_app.logger
     msg.clear_messages(level=3)
