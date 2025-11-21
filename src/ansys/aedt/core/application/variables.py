@@ -1549,9 +1549,8 @@ class Variable(PyAedtBase):
                 )
                 _retry_ntimes(n_times, self._oo(self._aedt_obj, path).SetPropValue, prop, val)
             return True
-        except Exception:
-            if self._app:
-                raise AEDTRuntimeError(f"Failed to set property '{prop}' value.")
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
 
     def _get_prop_generic(self, prop, evaluated=False):
         """Generic property getter. If *evaluated* is True, returns the evaluated value."""
