@@ -1952,7 +1952,7 @@ class Variable(PyAedtBase):
         Returns
         -------
         tuple
-            (numeric_value, units)
+            The float value of the variable and the units exposed as a string.
         """
         return decompose_variable_value(self.evaluated_value)
 
