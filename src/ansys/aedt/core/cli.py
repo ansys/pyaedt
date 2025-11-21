@@ -30,6 +30,7 @@ import threading
 import time
 
 import psutil
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 try:
     import typer
@@ -172,7 +173,7 @@ def processes():
 
 @app.command()
 def start(
-    version: str = typer.Option("2025.2", "--version", "-v", help="AEDT version to start (e.g., 2025.1, 2025.2)"),
+    version: str = typer.Option("2025.2", "--version", "-v", help="AEDT version to start (latest 2025.2)"),
     non_graphical: bool = typer.Option(False, "--non-graphical", "-ng", help="Start AEDT in non-graphical mode"),
     port: int = typer.Option(0, "--port", "-p", help="Port for AEDT connection (0 for auto)"),
     student_version: bool = typer.Option(False, "--student", help="Start AEDT Student version"),
@@ -340,8 +341,7 @@ def add_panels(
         None,
         "--version",
         "-v",
-        help="AEDT version (such as 2025.2)",
-        prompt="Enter AEDT version",
+        help="AEDT version (such as 2025.2). If not provided, you'll be prompted to select from installed versions.",
     ),
     personal_lib: str = typer.Option(
         None,
@@ -365,8 +365,44 @@ def add_panels(
     --------
         pyaedt panels add --version 2025.2 --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
         pyaedt panels add -v 2025.2 -p "/home/username/Ansoft/PersonalLib"
+        pyaedt panels add  # Interactive mode: select from installed versions
     """
     try:
+
+        installed = aedt_versions.installed_versions
+
+        if not installed:
+            typer.secho(
+                "✗ No AEDT versions found on this system.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+            typer.echo("\nPlease install AEDT before running this command.")
+            raise typer.Exit(code=1)
+
+        main_versions = [v for v in installed.keys() if not any(suffix in v for suffix in ["AWP", "CL", "SV"])]
+
+        if not main_versions:
+            main_versions = list(installed.keys())
+
+        if not aedt_version:
+            typer.secho("\nInstalled AEDT versions:", fg=typer.colors.CYAN, bold=True)
+            for idx, ver in enumerate(main_versions, 1):
+                typer.echo(f"  {idx}. {ver}")
+
+            selection = typer.prompt("\nSelect AEDT version number", type=int, default=1)
+
+            if selection < 1 or selection > len(main_versions):
+                typer.secho(
+                    f"✗ Invalid selection. Please choose a number between 1 and {len(main_versions)}.",
+                    fg=typer.colors.RED,
+                    bold=True,
+                )
+                raise typer.Exit(code=1)
+
+            aedt_version = main_versions[selection - 1]
+            typer.secho(f"\nSelected version: {aedt_version}", fg=typer.colors.GREEN)
+
         # Validate AEDT version format
         if not aedt_version or not isinstance(aedt_version, str):
             typer.secho(
@@ -379,6 +415,18 @@ def add_panels(
         aedt_version = aedt_version.strip()
         if not aedt_version:
             typer.secho("✗ AEDT version cannot be empty.", fg=typer.colors.RED, bold=True)
+            raise typer.Exit(code=1)
+
+        # Validate that the selected version is installed
+        if aedt_version not in installed:
+            typer.secho(
+                f"✗ AEDT version '{aedt_version}' is not installed on this system.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+            typer.echo("\nInstalled versions:")
+            for ver in main_versions:
+                typer.secho(f"  • {ver}", fg=typer.colors.CYAN)
             raise typer.Exit(code=1)
 
         # Validate personal_lib path

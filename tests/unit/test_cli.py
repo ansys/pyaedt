@@ -62,6 +62,27 @@ def mock_add_pyaedt_to_aedt():
         yield mock_func
 
 
+@pytest.fixture
+def mock_installed_versions():
+    """Mock aedt_versions.installed_versions with typical installed versions."""
+    from unittest.mock import PropertyMock
+    
+    mock_versions = {
+        "2025.2": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
+        "2025.1": "C:\\Program Files\\ANSYS Inc\\v251\\AnsysEM",
+        "2024.2": "C:\\Program Files\\AnsysEM\\v242\\Win64",
+        "2024.1": "C:\\Program Files\\AnsysEM\\v241\\Win64",
+        "2025.2AWP": "C:\\Program Files\\ANSYS Inc\\v252",
+        "2025.1AWP": "C:\\Program Files\\ANSYS Inc\\v251",
+    }
+    with patch(
+        "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
+        new_callable=PropertyMock,
+        return_value=mock_versions
+    ):
+        yield mock_versions
+
+
 def test_cli_help_command(cli_runner):
     """Verify that help command executes without errors."""
     result = cli_runner.invoke(app, ["--help"])
@@ -494,7 +515,7 @@ def test_panels_add_help(cli_runner):
     assert "Add PyAEDT panels to AEDT installation" in result.stdout
 
 
-def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
+def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
     """Test successful panel installation."""
     result = cli_runner.invoke(
         app,
@@ -519,7 +540,7 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
     )
 
 
-def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
+def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
     """Test panel installation with skip version manager flag."""
     result = cli_runner.invoke(
         app,
@@ -547,7 +568,7 @@ def test_panels_add_with_skip_version_manager(cli_runner, mock_add_pyaedt_to_aed
     )
 
 
-def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
+def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
     """Test panel installation with short option flags."""
     result = cli_runner.invoke(
         app,
@@ -559,16 +580,17 @@ def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_pers
     assert "✓ PyAEDT panels installed successfully." in result.stdout
 
 
-def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib):
-    """Test panel installation with whitespace-only version."""
+def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib, mock_installed_versions):
+    """Test panel installation with invalid selection input."""
     result = cli_runner.invoke(
         app,
         ["panels", "add", "--personal-lib", str(temp_personal_lib)],
-        input="   \n",  # Whitespace only for version prompt
+        input="abc\n",  # Invalid input for selection prompt
     )
 
     assert result.exit_code == 1
-    assert "✗ AEDT version cannot be empty" in result.stdout
+    # The error comes from typer's prompt validation or our exception handling
+    assert "Error" in result.stdout or "✗" in result.stdout
 
 
 def test_panels_add_invalid_version_empty(
@@ -585,7 +607,7 @@ def test_panels_add_invalid_version_empty(
     assert "✗ AEDT version cannot be empty" in result.stdout
 
 
-def test_panels_add_invalid_personal_lib_none(cli_runner):
+def test_panels_add_invalid_personal_lib_none(cli_runner, mock_installed_versions):
     """Test panel installation with whitespace-only personal_lib."""
     result = cli_runner.invoke(
         app,
@@ -599,7 +621,7 @@ def test_panels_add_invalid_personal_lib_none(cli_runner):
     assert "invalid" in result.stdout.lower()
 
 
-def test_panels_add_nonexistent_personal_lib(cli_runner):
+def test_panels_add_nonexistent_personal_lib(cli_runner, mock_installed_versions):
     """Test panel installation with non-existent PersonalLib path."""
     result = cli_runner.invoke(
         app,
@@ -612,7 +634,7 @@ def test_panels_add_nonexistent_personal_lib(cli_runner):
     assert "Common PersonalLib locations:" in result.stdout
 
 
-def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path):
+def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path, mock_installed_versions):
     """Test panel installation when PersonalLib path is a file, not directory."""
     file_path = tmp_path / "not_a_directory.txt"
     file_path.write_text("dummy content")
@@ -628,7 +650,7 @@ def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path):
 
 
 @patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt", return_value=False)
-def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal_lib):
+def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
     """Test panel installation when installer returns False."""
     result = cli_runner.invoke(
         app,
@@ -643,7 +665,7 @@ def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal
     "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
     side_effect=ImportError("Cannot import installer"),
 )
-def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib):
+def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
     """Test panel installation when import fails."""
     result = cli_runner.invoke(
         app,
@@ -659,7 +681,7 @@ def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib):
     "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
     side_effect=Exception("Unexpected error"),
 )
-def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib):
+def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
     """Test panel installation when generic exception occurs."""
     result = cli_runner.invoke(
         app,
@@ -671,7 +693,7 @@ def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib):
 
 
 @patch("platform.system", return_value="Windows")
-def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner):
+def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner, mock_installed_versions):
     """Test that Windows-specific path hint is shown on Windows."""
     result = cli_runner.invoke(
         app,
@@ -683,7 +705,7 @@ def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner):
 
 
 @patch("platform.system", return_value="Linux")
-def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner):
+def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner, mock_installed_versions):
     """Test that Linux-specific path hint is shown on Linux."""
     result = cli_runner.invoke(
         app,
@@ -694,7 +716,7 @@ def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner):
     assert "Linux: /home/<username>/Ansoft/PersonalLib" in result.stdout
 
 
-def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib):
+def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
     """Test that version and path whitespace is stripped."""
     result = cli_runner.invoke(
         app,
