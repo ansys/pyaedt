@@ -74,18 +74,18 @@ def ami_model(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_01a_create_inductor(aedtapp):
+def test_create_inductor(aedtapp):
     myind = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
     assert type(myind.id) is int
     assert myind.parameters["L"] == "1e-09"
 
-def test_02_create_resistor(aedtapp):
+def test_create_resistor(aedtapp):
     myres = aedtapp.modeler.schematic.create_resistor(value=50, location=[2000, 1000])
     assert myres.refdes != ""
     assert type(myres.id) is int
     assert myres.parameters["R"] == "50"
 
-def test_03_create_capacitor(aedtapp):
+def test_create_capacitor(aedtapp):
     mycap = aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
     assert type(mycap.id) is int
     assert mycap.parameters["C"] == "1e-12"
@@ -93,7 +93,7 @@ def test_03_create_capacitor(aedtapp):
     assert abs(mycap.pins[0].location[1] - 2000) < tol
     assert abs(mycap.pins[0].location[0] - 800) < tol
 
-def test_04_getpin_names(aedtapp):
+def test_getpin_names(aedtapp):
     mycap2 = aedtapp.modeler.schematic.create_capacitor(value=1e-12)
     pinnames = aedtapp.modeler.schematic.get_pins(mycap2)
     pinnames2 = aedtapp.modeler.schematic.get_pins(mycap2.id)
@@ -102,14 +102,14 @@ def test_04_getpin_names(aedtapp):
     assert type(pinnames) is list
     assert len(pinnames) == 2
 
-def test_05a_getpin_location(aedtapp):
+def test_getpin_location(aedtapp):
     for el in aedtapp.modeler.schematic.components:
         pinnames = aedtapp.modeler.schematic.get_pins(el)
         for pinname in pinnames:
             pinlocation = aedtapp.modeler.schematic.get_pin_location(el, pinname)
             assert len(pinlocation) == 2
 
-def test_05b_add_pin_iport(aedtapp):
+def test_add_pin_iport(aedtapp):
     mycap3 = aedtapp.modeler.schematic.create_capacitor(value=1e-12)
     assert aedtapp.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
     assert len(aedtapp.get_all_sparameter_list) == 3
@@ -123,27 +123,27 @@ def test_05b_add_pin_iport(aedtapp):
     assert len(aedtapp.get_fext_xtalk_list()) == 2
     assert len(aedtapp.get_fext_xtalk_list(math_formula="abs")) == 2
 
-def test_05c_create_component(aedtapp):
+def test_create_component(aedtapp):
     assert aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
     assert aedtapp.modeler.schematic.create_new_component_from_symbol(
         "Test1", [1, 2], parameters=["Author:=", "NumTerminals:="], values=["pyaedt", 2]
     )
 
-def test_06a_create_setup(aedtapp):
+def test_create_setup(aedtapp):
     setup_name = "LNA"
     LNA_setup = aedtapp.create_setup(setup_name)
     assert LNA_setup.name == "LNA"
 
-def test_08_import_mentor_netlist(aedtapp, local_scratch):
+def test_import_mentor_netlist(aedtapp, local_scratch):
     netlist_file = local_scratch.copyfile(netlist_file2)
     assert aedtapp.create_schematic_from_mentor_netlist(netlist_file)
 
-def test_09_import_netlist(aedtapp, local_scratch):
+def test_import_netlist(aedtapp, local_scratch):
     netlist_file = local_scratch.copyfile(netlist_file1)
     aedtapp.modeler.schematic.limits_mils = 5000
     assert aedtapp.create_schematic_from_netlist(netlist_file)
 
-def test_10_import_touchstone(aedtapp, local_scratch):
+def test_import_touchstone(aedtapp, local_scratch):
     touchstone_1 = local_scratch.copyfile(touchstone_file)
     touchstone_2 = local_scratch.copyfile(touchstone_file2)
     aedtapp.modeler.schematic_units = "mils"
@@ -160,12 +160,12 @@ def test_10_import_touchstone(aedtapp, local_scratch):
     touchstone_data = aedtapp.get_touchstone_data()
     assert touchstone_data
 
-def test_11_export_fullwave(aedtapp, local_scratch):
+def test_export_fullwave(aedtapp, local_scratch):
     touchstone_1 = local_scratch.copyfile(touchstone_file)
     output = aedtapp.export_fullwave_spice(touchstone_1, is_solution_file=True)
     assert output
 
-def test_12_connect_components(aedtapp):
+def test_connect_components(aedtapp):
     myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
     myind2 = aedtapp.modeler.schematic.create_inductor("L1001", 1e-9)
     myind3 = aedtapp.modeler.schematic.create_inductor("L1002", 1e-9)
@@ -188,7 +188,7 @@ def test_12_connect_components(aedtapp):
     for pin in L1_pins:
         L1_pin2location[pin.name] = pin.location
 
-def test_12a_connect_components(aedtapp):
+def test_connect_components(aedtapp):
     myind = aedtapp.modeler.schematic.create_inductor("L101", 1e-9)
     myres = aedtapp.modeler.schematic.create_resistor("R101", 50)
     mycap = aedtapp.modeler.schematic.create_capacitor("C1", 1)
@@ -208,12 +208,12 @@ def test_12a_connect_components(aedtapp):
     assert p2.reference_node == "Ground"
     assert "port_name_test" in aedtapp.modeler.schematic.nets
 
-def test_13_properties(aedtapp):
+def test_properties(aedtapp):
     assert aedtapp.modeler.model_units
 
 # TODO: Remove test skip once https://github.com/ansys/pyaedt/issues/6333 is fixed
 @pytest.mark.skipif(is_linux, reason="Crashes on Linux in non-graphical when the component is connected.")
-def test_14_move(aedtapp):
+def test_move(aedtapp):
     aedtapp.modeler.schematic_units = "mil"
     myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
     aedtapp.modeler.schematic_units = "meter"
@@ -223,19 +223,19 @@ def test_14_move(aedtapp):
     assert aedtapp.modeler.move("L14", [0, 200])
     assert myind.location == [400.0, 400.0]
 
-def test_15_rotate(aedtapp):
+def test_rotate(aedtapp):
     myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
     assert aedtapp.modeler.rotate(
         myind,
     )
 
-def test_16_read_touchstone(local_scratch):
+def test_read_touchstone(local_scratch):
     from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
     touchstone_1 = local_scratch.copyfile(touchstone_file)
     data = read_touchstone(touchstone_1)
     assert len(data.port_names) > 0
 
-def test_18_export_touchstone(aedtapp, local_scratch):
+def test_export_touchstone(aedtapp, local_scratch):
     myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
     aedtapp.modeler.schematic.create_interface_port(name="Port1", location=myind.pins[0].location)
     aedtapp.modeler.schematic.create_interface_port(name="Port2", location=myind.pins[1].location)
@@ -262,7 +262,7 @@ def test_18_export_touchstone(aedtapp, local_scratch):
     exported_files = aedtapp.export_results()
     assert len(exported_files) > 0
 
-def test_19a_create_sweeps(aedtapp):
+def test_create_sweeps(aedtapp):
     setup_name = "Sweep_LNA"
     LNA_setup = aedtapp.create_setup(setup_name)
     LNA_setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
@@ -275,7 +275,7 @@ def test_19a_create_sweeps(aedtapp):
     assert LNA_setup.props["SweepDefinition"][1]["Variable"] == "Temp"
     assert LNA_setup.props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
 
-def test_19b_create_eye_setups(aedtapp):
+def test_create_eye_setups(aedtapp):
     setup_name = "Dom_Verify"
     assert aedtapp.create_setup(setup_name, "NexximVerifEye")
     setup_name = "Dom_Quick"
@@ -290,7 +290,7 @@ def test_19b_create_eye_setups(aedtapp):
     is_linux and config["desktopVersion"] == "2024.1",
     reason="Project with multiple circuit designs is not working.",
 )
-def test_20a_create_ami_plots(ami_model):
+def test_create_ami_plots(ami_model):
     report_name = "MyReport"
     assert (
         ami_model.post.create_ami_initial_response_plot(
@@ -329,7 +329,7 @@ def test_20a_create_ami_plots(ami_model):
     )
 
 @pytest.mark.skipif(config["desktopVersion"] > "2021.2", reason="Skipped on versions higher than 2021.2")
-def test_20b_create_ami_plots(aedtapp):
+def test_create_ami_plots_b(aedtapp):
     assert (
         aedtapp.post.create_statistical_eye_plot(
             "Dom_Verify",
@@ -340,23 +340,23 @@ def test_20b_create_ami_plots(aedtapp):
         == "MyReportV"
     )
 
-def test_21_assign_voltage_sinusoidal_excitation_to_ports(aedtapp):
+def test_assign_voltage_sinusoidal_excitation_to_ports(aedtapp):
     aedtapp.modeler.schematic.create_interface_port("Port1")
     aedtapp.modeler.schematic.create_interface_port("Port2")
     ports_list = ["Port1", "Port2"]
     assert aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
-def test_22_assign_current_sinusoidal_excitation_to_ports(aedtapp):
+def test_assign_current_sinusoidal_excitation_to_ports(aedtapp):
     aedtapp.modeler.schematic.create_interface_port("Port1")
     ports_list = ["Port1"]
     assert aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list)
 
-def test_23_assign_power_sinusoidal_excitation_to_ports(aedtapp):
+def test_assign_power_sinusoidal_excitation_to_ports(aedtapp):
     aedtapp.modeler.schematic.create_interface_port("Port2")
     ports_list = ["Port2"]
     assert aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
-def test_24_new_connect_components(aedtapp):
+def test_new_connect_components(aedtapp):
     myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
     myres = aedtapp.modeler.components.create_resistor("R100", 50)
     mycap = aedtapp.modeler.components.create_capacitor("C100", 1e-12)
@@ -367,7 +367,7 @@ def test_24_new_connect_components(aedtapp):
     assert aedtapp.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
     assert aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
 
-def test_25_import_model(aedtapp):
+def test_import_model(aedtapp):
     touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
     t1 = aedtapp.modeler.schematic.create_touchstone_component(touch)
     assert t1
@@ -384,13 +384,13 @@ def test_25_import_model(aedtapp):
     assert t1
     assert len(t1.pins) == 26
 
-def test_25_zoom_to_fit(aedtapp):
+def test_zoom_to_fit(aedtapp):
     aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
     aedtapp.modeler.components.create_resistor("R100", 50)
     aedtapp.modeler.components.create_capacitor("C100", 1e-12)
     aedtapp.modeler.zoom_to_fit()
 
-def test_26_component_catalog(aedtapp):
+def test_component_catalog(aedtapp):
     comp_catalog = aedtapp.modeler.components.components_catalog
     assert comp_catalog["Capacitors:Cap_"]
     assert comp_catalog["capacitors:cAp_"]
@@ -399,7 +399,7 @@ def test_26_component_catalog(aedtapp):
     assert not comp_catalog["Capacitors"]
     assert comp_catalog["LISN:CISPR25_LISN"].props
 
-def test_27_set_differential_pairs(circuitprj):
+def test_set_differential_pairs(circuitprj):
     assert circuitprj.set_differential_pair(
         assignment="Port3",
         reference="Port4",
@@ -410,7 +410,7 @@ def test_27_set_differential_pairs(circuitprj):
     )
     assert circuitprj.set_differential_pair(assignment="Port3", reference="Port5")
 
-def test_28_load_and_save_diff_pair_file(circuitprj, local_scratch):
+def test_load_and_save_diff_pair_file(circuitprj, local_scratch):
     diff_def_file = (
         Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "differential_pairs_definition.txt"
     )
@@ -422,13 +422,13 @@ def test_28_load_and_save_diff_pair_file(circuitprj, local_scratch):
         lines = fh.read().splitlines()
     assert len(lines) == 3
 
-def test_29_create_circuit_from_spice(aedtapp):
+def test_create_circuit_from_spice(aedtapp):
     model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
     assert aedtapp.modeler.schematic.create_component_from_spicemodel(model)
     assert aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
     assert not aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
-def test_29a_create_circuit_from_spice_edit_symbol(aedtapp):
+def test_create_circuit_from_spice_edit_symbol(aedtapp):
     model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
     assert aedtapp.modeler.schematic.create_component_from_spicemodel(
         input_file=model, model="GRM5678", symbol="nexx_cap"
@@ -440,7 +440,7 @@ def test_29a_create_circuit_from_spice_edit_symbol(aedtapp):
         input_file=model, model="GRM9012", symbol="nexx_res"
     )
 
-def test_30_create_subcircuit(aedtapp):
+def test_create_subcircuit(aedtapp):
     subcircuit = aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
     assert type(subcircuit.location) is list
     assert type(subcircuit.id) is int
@@ -453,7 +453,7 @@ def test_30_create_subcircuit(aedtapp):
     config["NonGraphical"] and config["desktopVersion"] < "2023.1",
     reason="Duplicate doesn't work in non-graphical mode.",
 )
-def test_31_duplicate(aedtapp):  # pragma: no cover
+def test_duplicate(aedtapp):  # pragma: no cover
     subcircuit = aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
     aedtapp.modeler.schematic_units = "meter"
     new_subcircuit = aedtapp.modeler.schematic.duplicate(subcircuit.composed_name, location=[0.0508, 0.0], angle=0)
@@ -464,7 +464,7 @@ def test_31_duplicate(aedtapp):  # pragma: no cover
     assert new_subcircuit.location[1] == -0.00254
     assert new_subcircuit.angle == 0.0
 
-def test_32_push_down(aedtapp):
+def test_push_down(aedtapp):
     subcircuit_1 = aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
     active_project = aedtapp.oproject.GetActiveDesign()
     if is_linux and config["desktopVersion"] == "2024.1":
@@ -484,7 +484,7 @@ def test_32_push_down(aedtapp):
     assert subcircuit_2.component_info["RefDes"] == "U2"
     assert aedtapp.push_down(subcircuit_1)
 
-def test_33_pop_up(aedtapp):
+def test_pop_up(aedtapp):
     assert aedtapp.pop_up()
     active_project = aedtapp.oproject.GetActiveDesign()
     if is_linux and config["desktopVersion"] == "2024.1":
@@ -500,7 +500,7 @@ def test_33_pop_up(aedtapp):
     active_project_name_2 = active_project.GetName()
     assert active_project_name_1 == active_project_name_2
 
-def test_34_activate_variables(aedtapp):
+def test_activate_variables(aedtapp):
     aedtapp["desvar"] = "1mm"
     aedtapp["$prjvar"] = "2mm"
     assert aedtapp["desvar"] == "1mm"
@@ -515,7 +515,7 @@ def test_34_activate_variables(aedtapp):
     except Exception:
         assert True
 
-def test_35_netlist_data_block(aedtapp, local_scratch):
+def test_netlist_data_block(aedtapp, local_scratch):
     with open(Path(local_scratch.path) / "lc.net", "w") as f:
         for i in range(10):
             f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
@@ -528,15 +528,15 @@ def test_35_netlist_data_block(aedtapp, local_scratch):
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
     assert aedtapp.analyze()
 
-def test_36_create_voltage_probe(aedtapp):
+def test_create_voltage_probe(aedtapp):
     myprobe = aedtapp.modeler.components.create_voltage_probe(name="voltage_probe")
     assert type(myprobe.id) is int
 
-def test_37_draw_graphical_primitives(aedtapp):
+def test_draw_graphical_primitives(aedtapp):
     line = aedtapp.modeler.components.create_line([[0, 0], [1, 1]])
     assert line
 
-def test_38_browse_log_file(aedtapp, local_scratch):
+def test_browse_log_file(aedtapp, local_scratch):
     with open(Path(local_scratch.path) / "lc.net", "w") as f:
         for i in range(10):
             f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
@@ -555,7 +555,7 @@ def test_38_browse_log_file(aedtapp, local_scratch):
         assert not aedtapp.browse_log_file(Path(aedtapp.working_directory) / "logfiles")
         assert aedtapp.browse_log_file(aedtapp.working_directory)
 
-def test_40_assign_sources(aedtapp):
+def test_assign_sources(aedtapp):
     c = aedtapp
     filepath = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "frequency_dependent_source.fds"
     name = "PowerSinusoidal3"
@@ -707,7 +707,7 @@ def test_40_assign_sources(aedtapp):
     c.sources["freq_pyaedt"].delete()
     assert len(c.source_objects) == 5
 
-def test_41_assign_excitations(aedtapp):
+def test_assign_excitations(aedtapp):
     c = aedtapp
     port = c.modeler.schematic.create_interface_port(name="Port1")
 
@@ -753,13 +753,13 @@ def test_41_assign_excitations(aedtapp):
     c.design_excitations["PortTest"].delete()
     assert len(c.design_excitations) == 0
 
-def test_41_set_variable(aedtapp):
+def test_set_variable(aedtapp):
     aedtapp.variable_manager.set_variable("var_test", expression="123")
     aedtapp["var_test"] = "234"
     assert "var_test" in aedtapp.variable_manager.design_variable_names
     assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-def test_42_create_wire(aedtapp):
+def test_create_wire(aedtapp):
     myind = aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
     myres = aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
     aedtapp.modeler.components.get_component(myres.composed_name)
@@ -788,7 +788,7 @@ def test_42_create_wire(aedtapp):
                 assert point_list[2] == 0.04
                 assert point_list[3] == 0.02
 
-def test_43_display_wire_properties(aedtapp):
+def test_display_wire_properties(aedtapp):
     wire = aedtapp.modeler.schematic.create_wire([["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1")
     assert wire.display_wire_properties(
         name="wire_name_test1", property_to_display="NetName", visibility="Value", location="Top"
@@ -803,7 +803,7 @@ def test_43_display_wire_properties(aedtapp):
         name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
     )
 
-def test_44_auto_wire(aedtapp):
+def test_auto_wire(aedtapp):
     aedtapp.modeler.schematic_units = "mil"
     p1 = aedtapp.modeler.schematic.create_interface_port(name="In", location=[200, 300])
     r1 = aedtapp.modeler.schematic.create_resistor(value=50, location=[3700, "3mm"])
@@ -821,7 +821,7 @@ def test_44_auto_wire(aedtapp):
     assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
 @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="Bug introduced in 2025R2 and fixed in 2026R1")
-def test_43_create_and_change_prop_text(aedtapp):
+def test_create_and_change_prop_text(aedtapp):
     aedtapp.modeler.schematic_units = "mil"
     text = aedtapp.modeler.create_text("text test", 100, 300)
     assert isinstance(text, str)
@@ -830,7 +830,7 @@ def test_43_create_and_change_prop_text(aedtapp):
 
 @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
 @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
-def test_44_change_text_property(aedtapp):
+def test_change_text_property(aedtapp):
     aedtapp.set_active_design("text")
     text_id = aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
     assert aedtapp.modeler.change_text_property(text_id, "Font", "Calibri")
@@ -844,7 +844,7 @@ def test_44_change_text_property(aedtapp):
 
 @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
 @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
-def test_45_create_circuit_from_multizone_layout(add_edb):
+def test_create_circuit_from_multizone_layout(add_edb):
     edb = add_edb(project_name="multi_zone_project")
     common_reference_net = "gnd"
     edb_zones = edb.copy_zones()
@@ -856,7 +856,7 @@ def test_45_create_circuit_from_multizone_layout(add_edb):
     assert [mod for mod in list(aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
     assert aedtapp.remove_all_unused_definitions()
 
-def test_46_create_vpwl(aedtapp):
+def test_create_vpwl(aedtapp):
     # default inputs
     myres = aedtapp.modeler.schematic.create_voltage_pwl(name="V1")
     assert myres.refdes != ""
@@ -877,7 +877,7 @@ def test_46_create_vpwl(aedtapp):
     myres = aedtapp.modeler.schematic.create_voltage_pwl(name="V3", time_list=[0], voltage_list=[0, 1])
     assert myres is False
 
-def test_47_automatic_lna(aedtapp, local_scratch):
+def test_automatic_lna(aedtapp, local_scratch):
 
     touchstone_1 = local_scratch.copyfile(touchstone_file)
 
@@ -895,7 +895,7 @@ def test_47_automatic_lna(aedtapp, local_scratch):
 @pytest.mark.skipif(
     config["NonGraphical"] and is_linux, reason="Method is not working in Linux and non-graphical mode."
 )
-def test_48_automatic_tdr(aedtapp, local_scratch):
+def test_automatic_tdr(aedtapp, local_scratch):
     touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
     result, tdr_probe_name = aedtapp.create_tdr_schematic_from_snp(
         input_file=touchstone_1,
@@ -931,7 +931,7 @@ def test_48_automatic_tdr(aedtapp, local_scratch):
     assert result
 
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
-def test_49_automatic_ami(aedtapp, local_scratch):
+def test_automatic_ami(aedtapp, local_scratch):
     touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
     ami_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "pcieg5_32gt.ibs"
     result, _, _ = aedtapp.create_ami_schematic_from_snp(
@@ -973,7 +973,7 @@ def test_49_automatic_ami(aedtapp, local_scratch):
     assert result
 
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
-def test_49_automatic_ibis(aedtapp, local_scratch):
+def test_automatic_ibis(aedtapp, local_scratch):
     touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
     ibis_file = Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
     result, _, _ = aedtapp.create_ibis_schematic_from_snp(
@@ -994,7 +994,7 @@ def test_49_automatic_ibis(aedtapp, local_scratch):
     )
     assert result
 
-def test_50_enforce_touchstone_passive(aedtapp, local_scratch):
+def test_enforce_touchstone_passive(aedtapp, local_scratch):
     aedtapp.modeler.schematic_units = "mil"
     touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
     s_parameter_component = aedtapp.modeler.schematic.create_touchstone_component(touchstone_1)
@@ -1009,7 +1009,7 @@ def test_50_enforce_touchstone_passive(aedtapp, local_scratch):
     assert "" == nexxim_customization["ModelOption"]
     assert 2 == nexxim_customization["DataType"]
 
-def test_51_change_symbol_pin_location(aedtapp, local_scratch):
+def test_change_symbol_pin_location(aedtapp, local_scratch):
     aedtapp.modeler.schematic_units = "mil"
     touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
     ts_component = aedtapp.modeler.schematic.create_touchstone_component(touchstone_1)
@@ -1022,18 +1022,18 @@ def test_51_change_symbol_pin_location(aedtapp, local_scratch):
     pin_locations = {"left": [pins[0].name, pins[1].name, pins[2].name], "right": [pins[5].name]}
     assert not ts_component.change_symbol_pin_locations(pin_locations)
 
-def test_51_import_asc(aedtapp):
+def test_import_asc(aedtapp):
     asc_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "butter.asc"
     assert aedtapp.create_schematic_from_asc_file(asc_file)
 
-def test_52_create_current_probe(aedtapp):
+def test_create_current_probe(aedtapp):
     iprobe = aedtapp.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
     assert type(iprobe.id) is int
     assert iprobe.InstanceName == "test_probe"
     iprobe2 = aedtapp.modeler.schematic.create_current_probe(location=[0.8, 0.2])
     assert type(iprobe2.id) is int
 
-def test_53_import_table(aedtapp):
+def test_import_table(aedtapp):
     file_header = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "table_header.csv"
     file_invented = "invented.csv"
 
@@ -1048,11 +1048,11 @@ def test_53_import_table(aedtapp):
     assert aedtapp.delete_imported_data(table)
     assert table not in aedtapp.existing_analysis_sweeps
 
-def test_54_value_with_units(aedtapp):
+def test_value_with_units(aedtapp):
     assert aedtapp.value_with_units("10mm") == "10mm"
     assert aedtapp.value_with_units("10") == "10mm"
 
-def test_55_get_component_path_and_import_sss_files(aedtapp, local_scratch):
+def test_get_component_path_and_import_sss_files(aedtapp, local_scratch):
     model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
     model_copy = local_scratch.copyfile(model)
     touchstone_1 = local_scratch.copyfile(touchstone_file)
