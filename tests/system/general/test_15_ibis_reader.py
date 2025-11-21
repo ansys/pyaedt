@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -41,9 +41,9 @@ def aedtapp(add_app):
     app.close_project(app.project_name)
 
 
-def test_01_read_ibis(aedtapp):
+def test_read_ibis(aedtapp):
     reader = ibis_reader.IbisReader(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "u26a_800_modified.ibs"), aedtapp
+        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "u26a_800_modified.ibs", aedtapp
     )
     reader.parse_ibis_file()
     ibis = reader.ibis_model
@@ -80,23 +80,22 @@ def test_01_read_ibis(aedtapp):
     assert buffer.name == "CompInst@RDQS#_u26a_800_modified"
 
 
-def test_02_read_ibis_from_circuit(aedtapp):
+def test_read_ibis_from_circuit(aedtapp):
     ibis_model = aedtapp.get_ibis_model_from_file(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "u26a_800_modified.ibs")
+        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "u26a_800_modified.ibs"
     )
     assert len(ibis_model.components) == 6
     assert len(ibis_model.models) == 17
 
 
-def test_03_read_ibis_ami(aedtapp, local_scratch):
+def test_read_ibis_ami(aedtapp, local_scratch):
     # Copy AMI files to local_scratch to avoid modifying source files
-    source_dir = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder)
-    for file_name in os.listdir(source_dir):
-        source_file = os.path.join(source_dir, file_name)
-        if os.path.isfile(source_file):
-            shutil.copy(source_file, local_scratch.path)
+    source_dir = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder
+    for file_path in source_dir.iterdir():
+        if file_path.is_file():
+            shutil.copy(file_path, local_scratch.path)
 
-    ibis_file = os.path.join(local_scratch.path, "ibis_ami_example_tx.ibs")
+    ibis_file = Path(local_scratch.path) / "ibis_ami_example_tx.ibs"
     ibis_model = aedtapp.get_ibis_model_from_file(ibis_file, is_ami=True)
     assert ibis_model.buffers["example_model_tx"].insert(0, 0)
     assert ibis_model.components["example_device_tx"].differential_pins["14"].insert(0, 0.0512)
