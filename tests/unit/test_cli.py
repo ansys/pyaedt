@@ -576,7 +576,7 @@ def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib, mock_ins
 
 
 def test_panels_add_invalid_version_empty(
-    cli_runner,
+    cli_runner, mock_installed_versions
 ):
     """Test panel installation with empty version string via CLI."""
     result = cli_runner.invoke(
