@@ -202,7 +202,7 @@ def test_connect_components(aedtapp):
         L1_pin2location[pin.name] = pin.location
 
 
-def test_connect_components(aedtapp):
+def test_connect_components_b(aedtapp):
     myind = aedtapp.modeler.schematic.create_inductor("L101", 1e-9)
     myres = aedtapp.modeler.schematic.create_resistor("R101", 50)
     mycap = aedtapp.modeler.schematic.create_capacitor("C1", 1)
