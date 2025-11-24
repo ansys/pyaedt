@@ -1899,6 +1899,20 @@ class Variable(PyAedtBase):
     def value(self) -> float:
         """Current value in SI units (float).
 
+        .. deprecated:: 0.23.0
+        Use :func:`ocomponent_manager` property instead.
+
+        This getter keeps the cached SI value in sync with the AEDT backend.
+        It queries the evaluated variable value from AEDT, converts it to SI
+        units using the current unit system and unit string.
+        """
+        warnings.warn("`value` is deprecated. Use `si_value` instead.", DeprecationWarning)
+        return self.si_value
+
+    @property
+    def si_value(self) -> float:
+        """Current value in SI units (float).
+
         This getter keeps the cached SI value in sync with the AEDT backend.
         It queries the evaluated variable value from AEDT, converts it to SI
         units using the current unit system and unit string.
@@ -1939,11 +1953,11 @@ class Variable(PyAedtBase):
         return self._value
 
     @property
-    def evaluated_value(self) -> Union[float, Any]:
+    def evaluated_value(self) -> "Quantity":
         """Concatenated numeric value and unit string."""
         if self.numeric_value is None:
             return None
-        return f"{self.numeric_value}{self.units}"
+        return Quantity(f"{self.numeric_value}{self.units}")
 
     @pyaedt_function_handler()
     def decompose(self) -> tuple:
