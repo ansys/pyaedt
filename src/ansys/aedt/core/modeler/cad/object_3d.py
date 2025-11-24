@@ -80,6 +80,9 @@ class Object3d(PyAedtBase):
     >>> part = prim[id]
     """
 
+    def __repr__(self):
+        return self.name
+
     def __init__(self, primitives, name=None):
         self._id = None
         self._positions = None

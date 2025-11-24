@@ -251,33 +251,33 @@ class Matrix(PyAedtBase):
 
     @pyaedt_function_handler()
     def _write_command(self, source_names, new_name, new_source, new_sink):
-        if self._operations[-1] == "JoinSeries":
-            command = f"""{self._operations[-1]}('{new_name}', '{"', '".join(source_names)}')"""
-        elif self._operations[-1] == "JoinParallel":
-            command = (
-                f"""{self._operations[-1]}('{new_name}', '{new_source}', '{new_sink}', '{"', '".join(source_names)}')"""
-            )
-        elif self._operations[-1] == "JoinSelectedTerminals":
-            command = f"""{self._operations[-1]}('', '{"', '".join(source_names)}')"""
-        elif self._operations[-1] == "FloatInfinity":
+        if hasattr(self._operations[-1], "value"):
+            operation = self._operations[-1].value
+        elif isinstance(self._operations[-1], str):
+            operation = self._operations[-1]
+        else:  # pragma: no cover
+            raise TypeError("Incorrect or not supported operation.")
+        if operation == "JoinSeries":
+            command = f"""{operation}('{new_name}', '{"', '".join(source_names)}')"""
+        elif operation == "JoinParallel":
+            command = f"""{operation}('{new_name}', '{new_source}', '{new_sink}', '{"', '".join(source_names)}')"""
+        elif operation == "JoinSelectedTerminals":
+            command = f"""{operation}('', '{"', '".join(source_names)}')"""
+        elif operation == "FloatInfinity":
             command = "FloatInfinity()"
-        elif self._operations[-1] == "AddGround":
-            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+        elif operation == "AddGround":
+            command = f"""{operation}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
             OverrideInfo())"""
-        elif (
-            self._operations[-1] == "SetReferenceGround"
-            or self._operations[-1] == "SetReferenceGround"
-            or self._operations[-1] == "Float"
-        ):
-            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+        elif operation == "SetReferenceGround" or operation == "SetReferenceGround" or operation == "Float":
+            command = f"""{operation}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
             OverrideInfo())"""
-        elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
+        elif operation == "Parallel" or operation == "DiffPair":
             id_ = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     id_ = self._app.modeler[el.props["Objects"][0]].id
-            command = f"""{self._operations[-1]}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
+            command = f"""{operation}(SelectionArray[{len(source_names)}: '{"', '".join(source_names)}'],
             OverrideInfo({id_}, '{new_name}'))"""
         else:
-            command = f"""{self._operations[-1]}('{"', '".join(source_names)}')"""
+            command = f"""{operation}('{"', '".join(source_names)}')"""
         return command

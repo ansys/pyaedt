@@ -53,6 +53,7 @@ from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
+import ansys.aedt.core.visualization.post.solution_data
 
 
 class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
@@ -366,7 +367,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         polyline_points=1001,
         math_formula=None,
         sweep=None,
-    ):
+    ) -> "ansys.aedt.core.visualization.post.solution_data.SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -414,7 +415,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution Data object.
 
         References
@@ -492,7 +493,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         polyline_points=1001,
         name=None,
         sweep=None,
-    ):
+    ) -> "ansys.aedt.core.visualization.report.standard.Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
         Parameters
@@ -1683,7 +1684,7 @@ class SetupCircuit(CommonSetup):
         polyline_points=1001,
         math_formula=None,
         sweep=None,
-    ):
+    ) -> "ansys.aedt.core.visualization.post.solution_data.SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1734,7 +1735,7 @@ class SetupCircuit(CommonSetup):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution Data object.
 
         References
@@ -1767,7 +1768,7 @@ class SetupCircuit(CommonSetup):
         subdesign_id=None,
         polyline_points=1001,
         name=None,
-    ):
+    ) -> "ansys.aedt.core.visualization.report.standard.Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
         Parameters
@@ -1806,7 +1807,7 @@ class SetupCircuit(CommonSetup):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.visualization.report.standard.Standard`
             ``True`` when successful, ``False`` when failed.
 
 

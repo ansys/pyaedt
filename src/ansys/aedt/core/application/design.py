@@ -159,6 +159,9 @@ class Design(AedtObjects, PyAedtBase):
         the existing project if needed and raise an exception.
     """
 
+    def __repr__(self):
+        return f"Project: {self.project_name}\nDesign: {self.design_name}\nPath: {self.project_path}"
+
     def __init__(
         self,
         design_type: str,

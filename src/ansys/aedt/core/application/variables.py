@@ -1365,6 +1365,12 @@ class Variable(PyAedtBase):
 
     """
 
+    def __repr__(self):
+        return self.expression
+
+    def __str__(self):
+        return self.expression
+
     def __init__(
         self,
         expression,
