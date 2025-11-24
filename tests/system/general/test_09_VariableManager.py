@@ -36,9 +36,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
     params=[
         pyaedt.Circuit,
         pyaedt.Hfss,
-        pyaedt.Maxwell3d,
         pyaedt.Maxwell2d,
-        pyaedt.Q2d,
         pyaedt.Hfss3dLayout,
         pyaedt.Rmxprt,
         pyaedt.TwinBuilder,
@@ -46,9 +44,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
     ids=[
         "circuit",
         "hfss",
-        "maxwell_3d",
         "maxwell_2d",
-        "q2d",
         "hfss3d_layout",
         "rmxprt",
         "twin_builder",
