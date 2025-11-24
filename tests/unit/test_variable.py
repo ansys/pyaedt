@@ -30,7 +30,6 @@ from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_close
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture()
@@ -110,9 +109,8 @@ def test_variable_class():
     assert v.evaluated_value == "0.01W"
     assert v.si_value == 0.01
 
-    v = Variable("4mm")
-    with pytest.raises(AEDTRuntimeError):
-        v.update_var()
+    with pytest.raises(ValueError):
+        _ = Variable("4", units="invented")
 
 
 def test_multiplication():
