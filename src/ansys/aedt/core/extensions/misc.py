@@ -376,7 +376,7 @@ class ExtensionCommon(PyAedtBase):
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def show_error_with_details(self, exc, val, tb):
+        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
             """Custom exception showing an error message with details button."""
             win = tkinter.Toplevel()
             win.title("Error")
