@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class Matrix(PyAedtBase):
@@ -254,6 +255,8 @@ class Matrix(PyAedtBase):
 
     @pyaedt_function_handler()
     def _write_command(self, source_names, new_name, new_source, new_sink):
+        if not self._operations:
+            raise AEDTRuntimeError("Operations list is empty")
         operation_name = self._operations[-1]
         operation_name = (
             str(operation_name.value) if isinstance(operation_name, MatrixOperationsQ3D) else operation_name

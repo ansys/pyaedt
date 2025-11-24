@@ -282,6 +282,8 @@ class TestClass:
         assert len(q3d_solved.matrices[0].sources(False)) > 0
         mm = q3d_solved.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest_mm")
         assert mm.name == "JointTest_mm"
+        with pytest.raises(AEDTRuntimeError):
+            mm._write_command(source_names="dummy", new_name="dummy", new_source="dummy", new_sink="dummy")
         mm.delete()
         mm = q3d_solved.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest_mm", "New_net")
         assert "New_net" in mm.sources()
