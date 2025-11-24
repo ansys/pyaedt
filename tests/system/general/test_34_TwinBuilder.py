@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import shutil
 from pathlib import Path
+import shutil
 
 import pytest
 
@@ -49,9 +49,7 @@ def examples(local_scratch):
         local_scratch.copyfile(
             Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Q2D_ArmouredCableExample.aedt"
         ),
-        local_scratch.copyfile(
-            Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Q3D_DynamicLink.aedt"
-        ),
+        local_scratch.copyfile(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Q3D_DynamicLink.aedt"),
         local_scratch.copyfile(
             Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "TB_excitation_model.aedt"
         ),
@@ -202,9 +200,7 @@ def test_add_dynamic_link(aedtapp, examples, local_scratch, add_app):
     )
     assert tb.add_q3d_dynamic_component(q3d_dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
     with pytest.raises(ValueError):
-        tb.add_q3d_dynamic_component(
-            "", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
-        )
+        tb.add_q3d_dynamic_component("", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm")
     with pytest.raises(ValueError):
         tb.add_q3d_dynamic_component(
             "invalid", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
@@ -286,7 +282,9 @@ def test_add_excitation_model(aedtapp, examples, local_scratch, add_app):
 
     example_project_copy = Path(local_scratch.path) / f"{project_name}_copy.aedt"
     shutil.copyfile(excitation_model, example_project_copy)
-    assert tb.add_excitation_model(project=str(example_project_copy), design="1 maxwell busbar", excitations=excitations)
+    assert tb.add_excitation_model(
+        project=str(example_project_copy), design="1 maxwell busbar", excitations=excitations
+    )
 
     # shutil.rmtree(example_project_copy)
     tb.close_project(name=project_name, save=False)
