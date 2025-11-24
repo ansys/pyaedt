@@ -323,7 +323,7 @@ class Pin(PyAedtBase):
             Circuit Component Object.
 
         """
-        if self.name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
+        if self.buffer_name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
             self._app._app.import_model_in_aedt(pins=self.name)
         return self._circuit.modeler.schematic.create_component(
             component_library=None,
@@ -495,7 +495,7 @@ class DifferentialPin(PyAedtBase):
             Circuit Component Object.
 
         """
-        if self.name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
+        if self.buffer_name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
             self._app.import_model_in_aedt(pins=self.name)
         return self._circuit.modeler.schematic.create_component(
             component_library=None,
