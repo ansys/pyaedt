@@ -702,7 +702,7 @@ class TestClass:
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2025.1",
-        reason="Not working in non-graphical in version lower than 2022.2",
+        reason="Not working in non-graphical in version lower than 2025.1",
     )
     def test_eddy_current_sweep(self, m2d_setup):
         m2d_setup.set_active_design("setup_ec")

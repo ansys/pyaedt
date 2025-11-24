@@ -1012,7 +1012,7 @@ class TestClass:
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2025.1",
-        reason="Not working in non-graphical in version lower than 2022.2",
+        reason="Not working in non-graphical in version lower than 2025.1",
     )
     def test_order_coil_terminals(self, m3d_app):
         m3d_app.solution_type = "TransientAPhiFormulation"
