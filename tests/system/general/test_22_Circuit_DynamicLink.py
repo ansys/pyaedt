@@ -144,7 +144,7 @@ def test_add_subcircuits_3dlayout(circuit_app):
 def test_add_subcircuits_hfss_link(usb_app, circuit_app):
     hfss_comp = circuit_app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name=src_design_name)
     assert hfss_comp.id == 86
-    assert usb_app.modeler.schematic.refresh_dynamic_link(src_design_name)
+    assert circuit_app.modeler.schematic.refresh_dynamic_link(src_design_name)
 
 
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
@@ -218,8 +218,9 @@ def test_hfss_link(q3d_app, add_app):
 def test_siwave_link(add_app, local_scratch):
     app = add_app(application=Circuit)
     model = TESTS_GENERAL_PATH / "example_models" / test_subfloder / "siwave_syz.siw"
+    model_results = TESTS_GENERAL_PATH / "example_models" / test_subfloder / "siwave_syz.siwaveresults"
     model_out = local_scratch.copyfile(model)
-    local_scratch.copyfolder(model + "averesults", local_scratch.path / "siwave_syz.siwaveresults")
+    local_scratch.copyfolder(model_results, local_scratch.path / "siwave_syz.siwaveresults")
     siw_comp = app.modeler.schematic.add_siwave_dynamic_link(model_out)
     assert siw_comp
     assert len(siw_comp.pins) == 4
