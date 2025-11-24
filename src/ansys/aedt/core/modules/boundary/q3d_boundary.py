@@ -255,8 +255,8 @@ class Matrix(PyAedtBase):
 
     @pyaedt_function_handler()
     def _write_command(self, source_names, new_name, new_source, new_sink):
-        if not self._operations:
-            raise AEDTRuntimeError("Operations list is empty")
+        if not self._operations:  # pragma: no cover
+            raise AEDTRuntimeError("Operations list is empty.")
         operation_name = self._operations[-1]
         operation_name = (
             str(operation_name.value) if isinstance(operation_name, MatrixOperationsQ3D) else operation_name
