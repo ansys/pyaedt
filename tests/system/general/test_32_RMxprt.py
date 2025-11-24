@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import pytest
 
@@ -43,9 +43,9 @@ def aedtapp(add_app):
 
 
 def test_save(aedtapp, local_scratch):
-    test_project = os.path.join(local_scratch.path, test_project_name + ".aedt")
+    test_project = Path(local_scratch.path) / f"{test_project_name}.aedt"
     aedtapp.save_project(test_project)
-    assert os.path.exists(test_project)
+    assert test_project.exists()
 
 def test_changeesolution(aedtapp):
     assert aedtapp.disable_modelcreation("ORIM")
