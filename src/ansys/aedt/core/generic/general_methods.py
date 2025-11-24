@@ -230,7 +230,9 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
         except BaseException as e:
             msg = str(sys.exc_info()[1])
             if "ANSYS_GRPC_CERTIFICATES" in msg:
-                msg = re.sub(r"ANSYS_GRPC_CERTIFICATES", "ANSYS_GRPC_CERTIFICATES", msg.capitalize(), flags=re.IGNORECASE)
+                msg = re.sub(
+                    r"ANSYS_GRPC_CERTIFICATES", "ANSYS_GRPC_CERTIFICATES", msg.capitalize(), flags=re.IGNORECASE
+                )
             else:
                 msg = msg.capitalize()
             _exception(sys.exc_info(), user_function, args, kwargs, msg)

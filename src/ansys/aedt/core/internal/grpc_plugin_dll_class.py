@@ -33,8 +33,6 @@ from pathlib import Path
 import re
 import types
 
-import grpc
-
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
@@ -127,7 +125,7 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
-            settings.logger.debug(f"Failed to execute gRPC AEDT command:")
+            settings.logger.debug("Failed to execute gRPC AEDT command:")
             settings.logger.debug(f"{funcName}({argv})")
             raise GrpcApiError(f"Failed to execute gRPC AEDT command: {funcName}")
 
@@ -341,9 +339,12 @@ class AEDT:
             settings.logger.debug(f"Starting client with machine {machine} and port {port}")
             if machine.endswith("InsecureMode"):
                 target = machine.split(":")[0]
-                settings.logger.warning(f"Starting gRPC client without TLS on {target}. This is INSECURE. Consider using a secure connection.")
+                settings.logger.warning(
+                    f"Starting gRPC client without TLS on {target}. This is INSECURE. "
+                    "Consider using a secure connection."
+                )
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
-            settings.logger.info(f"Client application successfully started.")
+            settings.logger.info("Client application successfully started.")
         except Exception:
             settings.logger.warning("Failed to create AedtApplication.")
             self.aedt = None
