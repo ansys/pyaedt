@@ -24,6 +24,7 @@
 from dataclasses import asdict
 from dataclasses import dataclass
 import os
+from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
 
@@ -470,9 +471,21 @@ def main(data: CoilExtensionData):
             0,
         ]
     # Create coil profile
-    coil.create_sweep_profile(start_point, polyline)
-    # Replace 3D Component
-    # aedtapp.modeler.replace_3dcomponent(name=data.name)
+    coil_name = coil.create_sweep_profile(start_point, polyline)
+    # Create and replace 3D Component
+    comp_path = Path(aedtapp.working_directory, coil_name + ".a3dcomp")
+    parameters = data_dict.keys() & aedtapp.variable_manager.design_variables.keys()
+    aedtapp.modeler.create_3dcomponent(
+        input_file=str(comp_path),
+        variables_to_include=list(parameters),
+        name=coil_name,
+        assignment=[coil_name],
+    )
+    aedtapp.modeler.replace_3dcomponent(
+        name=coil_name,
+        variables_to_include=list(parameters),
+        assignment=[coil_name],
+    )
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         aedtapp.release_desktop(False, False)

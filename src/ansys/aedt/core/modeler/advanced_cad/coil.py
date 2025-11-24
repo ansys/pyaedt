@@ -387,3 +387,4 @@ class Coil(PyAedtBase):
             "YZ", start_point, "wire_radius", name=self.name, num_sides="section_segmentation"
         )
         self._app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
+        return profile.name
