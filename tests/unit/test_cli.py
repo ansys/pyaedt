@@ -1135,9 +1135,7 @@ def test_config_test_loads_existing_config(mock_get_tests_folder, tmp_path, cli_
     "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
     new_callable=lambda: property(lambda self: {}),
 )
-def test_panels_add_no_versions_installed(
-    mock_installed_versions, cli_runner
-):
+def test_panels_add_no_versions_installed(mock_installed_versions, cli_runner):
     """Test panels add when no AEDT versions are installed."""
     result = cli_runner.invoke(
         app,
@@ -1153,17 +1151,13 @@ def test_panels_add_no_versions_installed(
 
     assert result.exit_code == 1
     assert "✗ No AEDT versions found on this system." in result.stdout
-    assert "Please install AEDT before running this command." in (
-        result.stdout
-    )
+    assert "Please install AEDT before running this command." in (result.stdout)
 
 
 # PANELS ADD - INVALID SELECTION TESTS
 
 
-def test_panels_add_selection_out_of_range_above(
-    cli_runner, mock_installed_versions
-):
+def test_panels_add_selection_out_of_range_above(cli_runner, mock_installed_versions):
     """Test panels add with selection number above range."""
     result = cli_runner.invoke(
         app,
@@ -1176,9 +1170,7 @@ def test_panels_add_selection_out_of_range_above(
     assert "Please choose a number between 1 and 4" in result.stdout
 
 
-def test_panels_add_selection_out_of_range_below(
-    cli_runner, mock_installed_versions
-):
+def test_panels_add_selection_out_of_range_below(cli_runner, mock_installed_versions):
     """Test panels add with selection number below range."""
     result = cli_runner.invoke(
         app,
@@ -1191,9 +1183,7 @@ def test_panels_add_selection_out_of_range_below(
     assert "Please choose a number between 1 and 4" in result.stdout
 
 
-def test_panels_add_selection_negative(
-    cli_runner, mock_installed_versions
-):
+def test_panels_add_selection_negative(cli_runner, mock_installed_versions):
     """Test panels add with negative selection number."""
     result = cli_runner.invoke(
         app,
