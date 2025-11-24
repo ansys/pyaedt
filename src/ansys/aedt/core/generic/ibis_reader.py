@@ -917,7 +917,7 @@ class IbisReader(PyAedtBase):
         elif isinstance(pins, str):
             pins = [pins]
         bufs = [i.name for i in self._ibis_model.buffers.values()]
-        model_names = [i.name for i in self._ibis_model.models]
+        model_names = [i.name for i in self._ibis_model.models] + [i.name for i in self._ibis_model.model_selectors]
         bufs = [i for i in bufs if i not in self._circuit.modeler.schematic.ocomponent_manager.GetNames()]
 
         if not bufs and not (buffers or pins):
@@ -1368,7 +1368,7 @@ class AMIReader(IbisReader, PyAedtBase):
             pins = [pins]
         bufs = [i.name for i in self._ibis_model.buffers.values()]
         bufs = [i for i in bufs if i not in self._circuit.modeler.schematic.ocomponent_manager.GetNames()]
-        model_names = [i.name for i in self._ibis_model.models]
+        model_names = [i.name for i in self._ibis_model.models] + [i.name for i in self._ibis_model.model_selectors]
 
         if not bufs and not (buffers or pins):
             return False
