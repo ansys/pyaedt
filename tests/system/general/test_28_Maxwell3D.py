@@ -58,7 +58,7 @@ layout_component_name = "LayoutForce"
 def m3d_app(add_app):
     app = add_app(application=Maxwell3d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
@@ -70,7 +70,7 @@ def maxwell_versioned():
 def layout_comp(add_app):
     app = add_app(application=Maxwell3d, project_name=layout_component_name, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

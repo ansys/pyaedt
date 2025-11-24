@@ -58,7 +58,7 @@ def aedtapp(add_app):
         subfolder=test_subfolder,
     )
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
@@ -74,7 +74,7 @@ def aedt_terminal(add_app):
         solution_type="Terminal",
     )
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture(autouse=True)

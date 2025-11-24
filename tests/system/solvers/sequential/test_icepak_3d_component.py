@@ -49,14 +49,14 @@ resolution = 2
 def aedtapp(add_app):
     app = add_app(application=Icepak)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def ipk(add_app):
     app = add_app(project_name=original_project_name, application=Icepak, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

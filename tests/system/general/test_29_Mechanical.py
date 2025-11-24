@@ -38,7 +38,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 def aedtapp(add_app):
     app = add_app(application=Mechanical, solution_type="Thermal")
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()

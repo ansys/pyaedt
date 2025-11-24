@@ -39,7 +39,7 @@ MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"
 def hfss_app(add_app):
     app = add_app(application=Hfss)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @patch("tkinter.filedialog.askopenfilename")

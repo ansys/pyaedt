@@ -47,7 +47,7 @@ aedt_proj_name = "differential_microstrip"
 def hfss3dl(add_app):
     app = add_app(project_name=aedt_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

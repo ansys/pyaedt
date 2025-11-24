@@ -61,21 +61,21 @@ transient = "Hfss_Transient"
 def aedtapp(add_app):
     app = add_app(application=Hfss)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def diff_pairs_app(add_app):
     app = add_app(project_name=diff_proj_name, design_name="Hfss_Terminal", subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def component_array_app(add_app):
     app = add_app(project_name=component_array, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_save(aedtapp, local_scratch):

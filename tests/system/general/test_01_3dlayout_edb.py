@@ -39,7 +39,7 @@ original_project_name = "ANSYS-HSD_V1"
 def aedtapp(add_app):
     app = add_app(project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
@@ -48,14 +48,14 @@ def flipchip(add_app):
         project_name="Package", design_name="FlipChip_TopBot", application=Hfss3dLayout, subfolder=test_subfolder
     )
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def ic_mode_design(add_app):
     app = add_app(project_name="ic_mode_design", application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_get_components(aedtapp):

@@ -545,7 +545,7 @@ def test_save_project_with_file_name(add_app, local_scratch):
     app.save_project(file_name=str(new_project))
     assert Path(new_project).is_file()
 
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_desktop_save_as(add_app, local_scratch):
@@ -573,14 +573,14 @@ def test_desktop_save_as(add_app, local_scratch):
     assert app.desktop_class.save_project(project_name=project_name, project_path=new_project_path)
     assert new_project_path.exists()
     assert app.project_name == "new_3"
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_edit_notes(add_app):
     app = add_app(application=Hfss)
     assert app.edit_notes("this a test")
     assert not app.edit_notes(1)
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_close_desktop(desktop, aedtapp, monkeypatch):

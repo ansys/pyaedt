@@ -79,7 +79,7 @@ def ipk(add_app, request) -> Icepak:
         prj_name = None
     app = add_app(project_name=prj_name, application=Icepak, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name, False)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

@@ -81,6 +81,20 @@ def aedtapp(add_app, local_scratch):
     app.close_project(app.project_name, save=False)
 
 
+@pytest.fixture()
+def usb_app(add_app):
+    app = add_app(project_name=src_project_name, application=Circuit, subfolder=test_subfloder)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture()
+def circuit_app(add_app):
+    app = add_app(project_name=test_project_name, application=Circuit, subfolder=test_subfloder)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
 # @pytest.fixture()
 # def examples(local_scratch):
 #     source_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, src_project_name + ".aedt")
@@ -96,25 +110,24 @@ def aedtapp(add_app, local_scratch):
 #     self.q3d = examples[1]
 
 
-def test_pin_names(aedtapp, local_scratch):
-    pin_names = aedtapp.get_source_pin_names("Circuit1", test_project_name, port_selector=2)
+def test_pin_names(usb_app):
+    pin_names = usb_app.get_source_pin_names(src_design_name, src_project_name, port_selector=2)
     assert len(pin_names) == 4
     assert "usb_P_pcb" in pin_names
 
 
 @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-def test_add_subcircuits_3dlayout(aedtapp):
-    layout_design = "layout_cutout"
-    hfss3Dlayout_comp = aedtapp.modeler.schematic.add_subcircuit_3dlayout(layout_design)
+def test_add_subcircuits_3dlayout(circuit_app):
+    hfss3Dlayout_comp = circuit_app.modeler.schematic.add_subcircuit_3dlayout(layout_design_name)
     assert hfss3Dlayout_comp.id == 86
     assert hfss3Dlayout_comp
 
 
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
-def test_add_subcircuits_hfss_link(aedtapp):
-    hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(aedtapp, comp_name="uUSB")
+def test_add_subcircuits_hfss_link(usb_app):
+    hfss_comp = usb_app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name=src_design_name)
     assert hfss_comp.id == 86
-    assert aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
+    assert usb_app.modeler.schematic.refresh_dynamic_link(src_design_name)
 
 
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")

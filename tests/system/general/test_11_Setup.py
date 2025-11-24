@@ -42,14 +42,14 @@ else:
 def aedtapp(add_app):
     app = add_app(application=Hfss, project_name=test_project_name, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def circuit_app(add_app):
     app = add_app(application=Circuit, project_name="circuit_setup", subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_create_hfss_setup(aedtapp):

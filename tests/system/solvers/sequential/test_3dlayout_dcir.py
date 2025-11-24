@@ -36,21 +36,21 @@ original_project_name = "ANSYS-HSD_V1"
 def dummy_prj(add_app):
     app = add_app("Dummy_license_checkout_prj")
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def aedtapp(add_app):
     app = add_app(project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def dcir_example_project(add_app):
     app = add_app(project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

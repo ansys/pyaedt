@@ -40,7 +40,7 @@ from ansys.aedt.core.maxwell import Maxwell2d
 def aedtapp(add_app):
     app = add_app(application=Maxwell2d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_model_units(aedtapp):
