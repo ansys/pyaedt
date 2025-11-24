@@ -161,7 +161,7 @@ class CSVDataset(PyAedtBase):
                                 if var_name in self._unit_dict:
                                     var_value = Variable(value).rescale_to(self._unit_dict[var_name]).numeric_value
                                 else:
-                                    var_value = Variable(value).value
+                                    var_value = Variable(value).si_value
                                 self._data[var_name].append(var_value)
 
                             # Add augmented quantities
@@ -2035,7 +2035,7 @@ class Variable(PyAedtBase):
                 return self.numeric_value * other
             if other.unit_system == "None":
                 return other.numeric_value * self
-            result_value = self.value * other.value
+            result_value = self.si_value * other.si_value
             result_units = _resolve_unit_system(
                 self.unit_system, other.unit_system, "multiply"
             ) or _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
@@ -2060,7 +2060,7 @@ class Variable(PyAedtBase):
         if self.unit_system != other.unit_system:
             raise ValueError("Only Variable objects with the same unit system can be added.")
 
-        result_value = self.value + other.value
+        result_value = self.si_value + other.si_value
         result_units = SI_UNITS[self.unit_system]
         result_variable = Variable(f"{result_value}{result_units}")
         if self.units == other.units:
@@ -2084,7 +2084,7 @@ class Variable(PyAedtBase):
         if self.unit_system != other.unit_system:
             raise ValueError("Only Variable objects with the same unit system can be subtracted.")
 
-        result_value = self.value - other.value
+        result_value = self.si_value - other.si_value
         result_units = SI_UNITS[self.unit_system]
         result_variable = Variable(f"{result_value}{result_units}")
         if self.units == other.units:
@@ -2109,7 +2109,7 @@ class Variable(PyAedtBase):
             result_value = self.numeric_value / other
             result_units = self.units
         else:
-            result_value = self.value / other.value
+            result_value = self.si_value / other.si_value
             result_units = _resolve_unit_system(self.unit_system, other.unit_system, "divide")
         return Variable(f"{result_value}{result_units}")
 
