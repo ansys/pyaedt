@@ -207,13 +207,11 @@ def test_q3d_link(q3d_app, add_app):
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
 def test_hfss_link(q3d_app, add_app):
     app = add_app(application=Circuit)
-
-    comp = app.modeler.schematic.add_subcircuit_dynamic_link(q3d_app, solution_name="Setup1 : Sweep")
+    hfss_app = add_app(application=Hfss)
+    comp = app.modeler.schematic.add_subcircuit_dynamic_link(hfss_app, solution_name="Setup1 : Sweep")
     assert comp
     assert len(comp.pins) == 2
-
-    hfss2 = add_app()
-    assert app.modeler.schematic.add_subcircuit_dynamic_link(hfss2, solution_name="Setup2 : Sweep", tline_port="1")
+    assert app.modeler.schematic.add_subcircuit_dynamic_link(hfss_app, solution_name="Setup2 : Sweep", tline_port="1")
 
 
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
