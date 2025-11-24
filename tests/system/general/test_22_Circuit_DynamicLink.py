@@ -180,18 +180,14 @@ def test_10_hfss_link(add_app, aedtapp, q3d_project):
     assert hfss_comp
     assert len(hfss_comp.pins) == 2
     hfss2 = add_app(project_name=q3d_project, just_open=True)
-    assert aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-        hfss2, solution_name="Setup2 : Sweep", tline_port="1"
-    )
+    assert aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss2, solution_name="Setup2 : Sweep", tline_port="1")
 
 
 @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
 def test_11_siwave_link(aedtapp, local_scratch):
     model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfloder / "siwave_syz.siw"
     model_out = local_scratch.copyfile(model)
-    local_scratch.copyfolder(
-        str(model) + "averesults", Path(local_scratch.path) / "siwave_syz.siwaveresults"
-    )
+    local_scratch.copyfolder(str(model) + "averesults", Path(local_scratch.path) / "siwave_syz.siwaveresults")
     siw_comp = aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
     assert siw_comp
     assert len(siw_comp.pins) == 4

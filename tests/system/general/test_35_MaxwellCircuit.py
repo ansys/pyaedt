@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from pathlib import Path
+
 import pytest
 
 from ansys.aedt.core import Maxwell2d
@@ -29,7 +31,6 @@ from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.internal.checks import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from pathlib import Path
 
 test_subfolder = "T35"
 
@@ -43,29 +44,36 @@ def aedtapp(add_app):
     yield app
     app.close_project(app.project_name)
 
+
 def test_create_resistor(aedtapp):
     resistor = aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
     assert resistor.parameters["R"] == "10"
+
 
 def test_create_inductor(aedtapp):
     inductor = aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
     assert inductor.parameters["L"] == "1.5"
 
+
 def test_create_capacitor(aedtapp):
     capacitor = aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
     assert capacitor.parameters["C"] == "7.5"
 
+
 def test_create_diode(aedtapp):
     assert aedtapp.modeler.schematic.create_diode("Diode1")
 
+
 def test_create_winding(aedtapp):
     assert aedtapp.modeler.schematic.create_winding("mywinding")
+
 
 def test_set_variable(aedtapp):
     aedtapp.variable_manager.set_variable("var_test", expression="123")
     aedtapp["var_test"] = "234"
     assert "var_test" in aedtapp.variable_manager.design_variable_names
     assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
 
 def test_export_netlist(aedtapp, add_app, local_scratch):
     design_name = "ExportCircuitNetlist"
@@ -104,6 +112,7 @@ def test_export_netlist(aedtapp, add_app, local_scratch):
     i_source.parameters["Name"] = "ISource"
     aedtapp.export_netlist_from_schematic(str(netlist_file_2))
     assert m2d.edit_external_circuit(str(netlist_file_2), aedtapp.design_name)
+
 
 def test_import_netlist(aedtapp):
     netlist_file1 = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / netlist1

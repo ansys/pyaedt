@@ -40,12 +40,11 @@ def aedtapp(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
-
-
 def test_save(aedtapp, local_scratch):
     test_project = Path(local_scratch.path) / f"{test_project_name}.aedt"
     aedtapp.save_project(test_project)
     assert test_project.exists()
+
 
 def test_changeesolution(aedtapp):
     assert aedtapp.disable_modelcreation("ORIM")
@@ -56,12 +55,14 @@ def test_changeesolution(aedtapp):
     assert aedtapp.disable_modelcreation("LSSM")
     assert aedtapp.enable_modelcreation("WRIM")
 
+
 def test_getchangeproperty(aedtapp):
     # test increment statorOD by 1mm
     aedtapp.disable_modelcreation("ASSM")
     statorOD = aedtapp.stator["Outer Diameter"]
     assert statorOD
     aedtapp.stator["Outer Diameter"] = statorOD + "+1mm"
+
 
 def test_create_setup(aedtapp):
     # first test GRM (use Inner-Rotor Induction Machine)
@@ -85,6 +86,7 @@ def test_create_setup(aedtapp):
     mysetup.props["RatedVoltage"] = "208V"
     assert mysetup.update()  # update only needed for assertion
 
+
 def test_set_material_threshold(aedtapp):
     assert aedtapp.set_material_threshold()
     conductivity = 123123123
@@ -93,6 +95,7 @@ def test_set_material_threshold(aedtapp):
     assert aedtapp.set_material_threshold(str(conductivity), str(permeability))
     assert not aedtapp.set_material_threshold("e", str(permeability))
     assert not aedtapp.set_material_threshold(conductivity, "p")
+
 
 def test_set_variable(aedtapp):
     aedtapp.variable_manager.set_variable("var_test", expression="123")

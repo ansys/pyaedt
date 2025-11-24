@@ -36,6 +36,7 @@ def desktop():
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
+
 def test_ga_launch():
     def f(X):
         return np.sum(X)
@@ -63,6 +64,7 @@ def test_ga_launch():
     )
     assert model.run()
     assert model.best_function
+
 
 def test_ga_timeout():
     def f(X):
