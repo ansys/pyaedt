@@ -29,8 +29,7 @@ Getting started
             :link-type: doc
             :margin: 2 2 0 0
 
-            Launch PyAEDT on a client machine and control Electronics Desktop
-            on a remote server.
+            Launch PyAEDT on a client machine and control Electronics Desktop on a remote server.
 
     .. grid-item-card:: Command line interface
             :link: Cli
