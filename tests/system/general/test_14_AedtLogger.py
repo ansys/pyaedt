@@ -47,7 +47,6 @@ def aedtapp(add_app):
     app = add_app()
     yield app
     app.close_project(save=False)
-    settings.enable_local_log_file = False
 
 
 def test_formatter(local_scratch):
@@ -124,7 +123,6 @@ def test_output_file_with_app_filter(local_scratch):
     assert "Elapsed time:" in content[12]
 
     shutil.rmtree(path, ignore_errors=True)
-    settings.enable_debug_logger = True
 
 
 def test_stdout_with_app_filter():
@@ -141,10 +139,7 @@ def test_stdout_with_app_filter():
     assert "PyAEDT ERROR: Error for Global" in capture.content
 
 
-def test_disable_output_file_handler(aedtapp, local_scratch):
-    settings.enable_local_log_file = True
-    settings.enable_debug_logger = False
-
+def test_disable_output_file_handler(local_scratch):
     tempfile.gettempdir()
     path = local_scratch.path / "test04.txt"
     if path.is_file():
@@ -208,8 +203,6 @@ def test_disable_output_file_handler(aedtapp, local_scratch):
             design_logger.removeHandler(handler)
 
     shutil.rmtree(path, ignore_errors=True)
-    settings.logger_file_path = ""
-    settings.enable_local_log_file = True
 
 
 def test_disable_stdout():
