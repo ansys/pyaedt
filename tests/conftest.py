@@ -223,7 +223,7 @@ def remove_all_filehandlers():
     import logging
     from logging import FileHandler
 
-    for logger_name, logger_obj in logging.Logger.manager.loggerDict.items():
+    for _, logger_obj in logging.Logger.manager.loggerDict.items():
         if isinstance(logger_obj, logging.Logger):
             for h in list(logger_obj.handlers):
                 if isinstance(h, FileHandler):
