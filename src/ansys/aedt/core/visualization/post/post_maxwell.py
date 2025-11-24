@@ -182,38 +182,41 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
-        if not isinstance(seeding_faces, list):
-            seeding_faces = [seeding_faces]
-        seeding_faces_ids = []
-        for face in seeding_faces:
-            if self._app.modeler[face]:
-                seeding_faces_ids.append(self._app.modeler[face].id)
-            else:
-                self.logger.error(f"Object {face} doesn't exist in current design")
-                return False
-        if not isinstance(in_volume_tracing_objs, list):
-            in_volume_tracing_objs = [in_volume_tracing_objs]
-        in_volume_tracing_ids = []
-        for volume in in_volume_tracing_objs:
-            if self._app.modeler[volume]:
-                in_volume_tracing_ids.append(self._app.modeler[volume].id)
-            else:
-                self.logger.error(f"Object {volume} doesn't exist in current design")
-                return False
-        if not isinstance(surface_tracing_objs, list):
-            surface_tracing_objs = [surface_tracing_objs]
-        surface_tracing_ids = []
-        for surface in surface_tracing_objs:
-            if self._app.modeler[surface]:
-                surface_tracing_ids.append(self._app.modeler[surface].id)
-            else:
-                self.logger.error(f"Object {surface} doesn't exist in current design")
-                return False
-        seeding_faces_ids.insert(0, len(seeding_faces_ids))
+
+        seeding_faces_ids = [0] if seeding_faces is None else []
+        if seeding_faces:
+            faces = seeding_faces if isinstance(seeding_faces, list) else [seeding_faces]
+            for face in faces:
+                if self._app.modeler[face]:
+                    seeding_faces_ids.append(self._app.modeler[face].id)
+                else:
+                    raise AEDTRuntimeError(f"Object {face} doesn't exist in current design")
+
+        in_volume_tracing_ids = [0] if in_volume_tracing_objs is None else []
+        if in_volume_tracing_objs:
+            volumes = in_volume_tracing_objs if isinstance(in_volume_tracing_objs, list) else [in_volume_tracing_objs]
+            for volume in volumes:
+                if self._app.modeler[volume]:
+                    in_volume_tracing_ids.append(self._app.modeler[volume].id)
+                else:
+                    raise AEDTRuntimeError(f"Object {volume} doesn't exist in current design")
+
+        surface_tracing_ids = [0] if surface_tracing_objs is None else []
+        if surface_tracing_objs:
+            surfaces = surface_tracing_objs if isinstance(surface_tracing_objs, list) else [surface_tracing_objs]
+            for surface in surfaces:
+                if self._app.modeler[surface]:
+                    surface_tracing_ids.append(self._app.modeler[surface].id)
+                else:
+                    raise AEDTRuntimeError(f"Object {surface} doesn't exist in current design")
+
+        if seeding_faces_ids != [0]:
+            seeding_faces_ids.insert(0, len(seeding_faces_ids))
         if in_volume_tracing_ids != [0]:
             in_volume_tracing_ids.insert(0, len(in_volume_tracing_ids))
         if surface_tracing_ids != [0]:
             surface_tracing_ids.insert(0, len(surface_tracing_ids))
+
         return self._create_fieldplot_line_traces(
             seeding_faces_ids,
             in_volume_tracing_ids,
