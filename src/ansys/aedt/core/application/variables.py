@@ -1537,9 +1537,10 @@ class Variable(PyAedtBase):
             return
 
         container = self.__target_container_name()
-        try:
-            if container == "DefinitionParameters":
-                prop_name, prop_to_set = prop.split("/")
+
+        if container == "DefinitionParameters":
+            prop_name, prop_to_set = prop.split("/")
+            try:
                 self._app.odesign.ChangeProperty(
                     [
                         "NAME:AllTabs",
@@ -1553,7 +1554,11 @@ class Variable(PyAedtBase):
                         ],
                     ]
                 )
-            else:
+                return True
+            except Exception as e:
+                raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
+        else:
+            try:
                 # Object-oriented set property value
                 path = (
                     f"{container}/{self._variable_name}"
@@ -1561,9 +1566,9 @@ class Variable(PyAedtBase):
                     else f"Variables/{self._variable_name}"
                 )
                 _retry_ntimes(n_times, self._oo(self._aedt_obj, path).SetPropValue, prop, val)
-            return True
-        except Exception as e:
-            raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
+                return True
+            except Exception as e:
+                raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
 
     def _get_prop_generic(self, prop, evaluated=False):
         """Generic property getter. If *evaluated* is True, returns the evaluated value."""
