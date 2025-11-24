@@ -1490,7 +1490,7 @@ class Variable(PyAedtBase):
     def update_var(self):
         """Push the current variable state to AEDT via variable manager."""
         if not self._app:
-            return False
+            raise AEDTRuntimeError("Variable manager has not been initialized. You need to connect to AEDT.")
         return self._app.variable_manager.set_variable(
             self._variable_name,
             self._expression,
@@ -1953,11 +1953,11 @@ class Variable(PyAedtBase):
         return self._value
 
     @property
-    def evaluated_value(self) -> "Quantity":
+    def evaluated_value(self):
         """Concatenated numeric value and unit string."""
         if self.numeric_value is None:
             return None
-        return Quantity(f"{self.numeric_value}{self.units}")
+        return f"{self.numeric_value}{self.units}"
 
     @pyaedt_function_handler()
     def decompose(self) -> tuple:
