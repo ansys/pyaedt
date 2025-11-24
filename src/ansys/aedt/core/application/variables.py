@@ -1535,8 +1535,9 @@ class Variable(PyAedtBase):
         """Set a property value with retries, handling AEDT containers automatically."""
         if not self._app or self._app.design_type == "Maxwell Circuit":
             return
+
+        container = self.__target_container_name()
         try:
-            container = self.__target_container_name()
             if container == "DefinitionParameters":
                 prop_name, prop_to_set = prop.split("/")
                 self._app.odesign.ChangeProperty(
