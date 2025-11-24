@@ -169,6 +169,7 @@ def local_scratch(init_scratch):
     tmp_path = init_scratch
     scratch = Scratch(tmp_path)
     yield scratch
+    remove_all_filehandlers()
     scratch.remove()
 
 
@@ -216,3 +217,21 @@ def patch_graphics_modules(monkeypatch):
     viz_backends.pyvista = mocks["ansys.tools.visualization_interface.backends.pyvista"]
 
     yield mocks
+
+
+def remove_all_filehandlers():
+    import logging
+    from logging import FileHandler
+
+    for logger_name, logger_obj in logging.Logger.manager.loggerDict.items():
+        if isinstance(logger_obj, logging.Logger):
+            for h in list(logger_obj.handlers):
+                if isinstance(h, FileHandler):
+                    h.close()
+                    logger_obj.removeHandler(h)
+
+    root = logging.getLogger()
+    for h in list(root.handlers):
+        if isinstance(h, FileHandler):
+            h.close()
+            root.removeHandler(h)
