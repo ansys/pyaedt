@@ -1475,7 +1475,7 @@ class Variable(PyAedtBase):
     @property
     def _aedt_obj(self):
         """Return the correct AEDT object based on variable scope."""
-        if self._variable_name and "$" in self._variable_name and self._app:
+        if self._variable_name and self._variable_name.startswith("$") and self._app:
             return self._app._oproject
         elif self._app:
             return self._app._odesign
