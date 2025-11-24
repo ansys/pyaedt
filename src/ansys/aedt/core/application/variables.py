@@ -1575,41 +1575,37 @@ class Variable(PyAedtBase):
         if not self._aedt_obj:
             return None
         prop = prop or self.name
-        try:
-            app = self._aedt_obj
+        app = self._aedt_obj
+        # DefinitionParameters only available in circuit and HFSS 3D Layout design type
+        if self.has_definition_parameters:
+            inst_name = f"Instance:{app.GetName()}"
 
-            # DefinitionParameters only available in circuit and HFSS 3D Layout design type
-            if self.has_definition_parameters:
-                inst_name = f"Instance:{app.GetName()}"
-                if self.is_circuit_parameter:
-                    # Definition parameters properties do not work with Object-Oriented-Programming API
-                    obj = self._oo(app, "DefinitionParameters")
-                    if not obj or prop != self.name:
-                        self._app.logger.error(
-                            "Parameter Default variable properties can not be load. AEDT API limitation."
-                        )
-                        return None
-                    return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
+            if self.is_circuit_parameter:
+                # Definition parameters properties do not work with Object-Oriented-Programming API
+                obj = self._oo(app, "DefinitionParameters")
+                if not obj or prop != self.name:
+                    self._app.logger.error(
+                        "Parameter Default variable properties can not be load. AEDT API limitation."
+                    )
+                    return None
+                return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
 
-                else:
-                    if self.name in self._app.get_oo_name(app, inst_name):
-                        var_obj = self._oo(app, f"{inst_name}/{self.name}")
-                        return var_obj.GetPropEvaluatedValue(prop) if evaluated else var_obj.GetPropValue(prop)
+            else:
+                if self.name in self._app.get_oo_name(app, inst_name):
+                    var_obj = self._oo(app, f"{inst_name}/{self.name}")
+                    return var_obj.GetPropEvaluatedValue(prop) if evaluated else var_obj.GetPropValue(prop)
 
-            if self.name in self._app.get_oo_name(app, "Variables"):
-                var_obj = self._oo(app, f"Variables/{self.name}")
-                if evaluated and self._app._aedt_version <= "2024.2":  # pragma: no cover
-                    return var_obj.GetPropEvaluatedValue("EvaluatedValue")
-                elif evaluated and self._app._aedt_version >= "2024.2":
-                    return var_obj.GetPropEvaluatedValue()
-                return var_obj.GetPropValue(prop)
+        if self.name in self._app.get_oo_name(app, "Variables"):
+            var_obj = self._oo(app, f"Variables/{self.name}")
+            if evaluated and self._app._aedt_version <= "2024.2":  # pragma: no cover
+                return var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            elif evaluated and self._app._aedt_version >= "2024.2":
+                return var_obj.GetPropEvaluatedValue()
+            return var_obj.GetPropValue(prop)
 
-            # Fallback: simple path
-            obj = self._oo(app, "Variables")
-            return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
-        except Exception:
-            if self._app:
-                raise AEDTRuntimeError(f"Failed to get {prop} value of parameter {self.name}.")
+        # Fallback: simple path
+        obj = self._oo(app, "Variables")
+        return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
 
     @pyaedt_function_handler()
     def _get_prop_val(self, prop=None):
@@ -1835,9 +1831,9 @@ class Variable(PyAedtBase):
             prop_server = f"Instance:{self._aedt_obj.GetName()}"
             try:
                 props = self._aedt_obj.GetProperties("DefinitionParameterTab", prop_server)
-                return self._variable_name in props
             except Exception:
                 return False
+            return self._variable_name in props
         return False
 
     @property
