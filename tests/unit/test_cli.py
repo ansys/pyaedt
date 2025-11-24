@@ -1126,3 +1126,106 @@ def test_config_test_loads_existing_config(mock_get_tests_folder, tmp_path, cli_
     assert result.exit_code == 0
     assert "2023.1" in result.stdout
     assert "Configuration file found" in result.stdout
+
+
+# PANELS ADD - NO VERSIONS INSTALLED TEST
+
+
+@patch(
+    "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
+    new_callable=lambda: property(lambda self: {}),
+)
+def test_panels_add_no_versions_installed(
+    mock_installed_versions, cli_runner
+):
+    """Test panels add when no AEDT versions are installed."""
+    result = cli_runner.invoke(
+        app,
+        [
+            "panels",
+            "add",
+            "--version",
+            "2025.2",
+            "--personal-lib",
+            "dummy",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "✗ No AEDT versions found on this system." in result.stdout
+    assert "Please install AEDT before running this command." in (
+        result.stdout
+    )
+
+
+# PANELS ADD - INVALID SELECTION TESTS
+
+
+def test_panels_add_selection_out_of_range_above(
+    cli_runner, mock_installed_versions
+):
+    """Test panels add with selection number above range."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", "dummy"],
+        input="10\n",  # Out of range (only 4 versions available)
+    )
+
+    assert result.exit_code == 1
+    assert "✗ Invalid selection" in result.stdout
+    assert "Please choose a number between 1 and 4" in result.stdout
+
+
+def test_panels_add_selection_out_of_range_below(
+    cli_runner, mock_installed_versions
+):
+    """Test panels add with selection number below range."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", "dummy"],
+        input="0\n",  # Out of range (minimum is 1)
+    )
+
+    assert result.exit_code == 1
+    assert "✗ Invalid selection" in result.stdout
+    assert "Please choose a number between 1 and 4" in result.stdout
+
+
+def test_panels_add_selection_negative(
+    cli_runner, mock_installed_versions
+):
+    """Test panels add with negative selection number."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", "dummy"],
+        input="-1\n",  # Negative number
+    )
+
+    assert result.exit_code == 1
+    assert "✗ Invalid selection" in result.stdout
+    assert "Please choose a number between 1 and 4" in result.stdout
+
+
+def test_panels_add_valid_selection(
+    cli_runner,
+    mock_add_pyaedt_to_aedt,
+    temp_personal_lib,
+    mock_installed_versions,
+):
+    """Test panels add with valid selection from menu."""
+    result = cli_runner.invoke(
+        app,
+        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
+        input="2\n",  # Select version 2025.1
+    )
+
+    assert result.exit_code == 0
+    assert "Selected version: 2025.1" in result.stdout
+    assert "✓ PyAEDT panels installed successfully." in result.stdout
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        aedt_version="2025.1",
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=False,
+        odesktop=None,
+    )
