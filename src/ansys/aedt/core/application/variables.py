@@ -1507,18 +1507,28 @@ class Variable(PyAedtBase):
     @pyaedt_function_handler()
     def __target_container_name(self):
         """Resolve the property container name for this variable."""
-        name = "Variables"
+        # Default container
+        default_container = "Variables"
+
+        # If AEDT is not connected, always fall back to the default container
         if not self._app:
-            return name
+            return default_container
+
+        # Check for DefinitionParameters if applicable
         if self.has_definition_parameters and self.is_circuit_parameter:
-            # If the variable lives in DefinitionParameters, return that
             try:
-                if self._variable_name in list(self._oo(self._app.odesign, "DefinitionParameters").GetPropNames()):
-                    return "DefinitionParameters"
+                definition_params = self._oo(self._app.odesign, "DefinitionParameters")
+                props = definition_params.GetPropNames()
+                variable_in_definition_parameters = self._variable_name in list(props)
             except Exception:  # pragma: no cover
+                # If the parameters cannot be accessed, use LocalVariables
                 return "LocalVariables"
+
+            if variable_in_definition_parameters:
+                return "DefinitionParameters"
             return "LocalVariables"
-        return name
+
+        return default_container
 
     @pyaedt_function_handler()
     def _set_prop_val(self, prop, val, n_times=10):
