@@ -1490,7 +1490,9 @@ class Variable(PyAedtBase):
     def update_var(self):
         """Push the current variable state to AEDT via variable manager."""
         if not self._app:
-            raise AEDTRuntimeError("Variable manager has not been initialized. You need to connect to AEDT.")
+            raise AEDTRuntimeError(
+                f"Cannot update variable {self._variable_name}: the AEDT application connection is not initialized."
+            )
         return self._app.variable_manager.set_variable(
             self._variable_name,
             self._expression,
