@@ -131,7 +131,7 @@ class _ServerArgs:
         if self.__mode not in (TransportMode.MTLS, TransportMode.INSECURE):
             raise ValueError(f"Invalid transport mode {self.__mode}.")
 
-        host = self.__host if not settings.grpc_listen_all else "0.0.0.0"
+        host = self.__host if not settings.grpc_listen_all else "0.0.0.0"  # nosec
         mode = (
             "SecureMode"
             if self.__mode == TransportMode.MTLS and os.environ.get("ANSYS_GRPC_CERTIFICATES", None)
