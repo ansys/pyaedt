@@ -47,6 +47,7 @@ def aedtapp(add_app):
     app = add_app()
     yield app
     app.close_project(save=False)
+    settings.logger_file_path = None
 
 
 def test_formatter(local_scratch):
