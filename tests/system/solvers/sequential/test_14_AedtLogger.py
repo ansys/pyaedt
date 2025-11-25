@@ -155,8 +155,8 @@ def test_disable_output_file_handler(local_scratch):
         content = f.readlines()
 
     disablement_succeeded = True
-    for i in range(len(content)):
-        if "Info for Global after disabling the log file handler." in content[i]:
+    for _, line in enumerate(content):
+        if "Info for Global after disabling the log file handler." in line:
             disablement_succeeded = False
     assert disablement_succeeded
 
@@ -168,8 +168,8 @@ def test_disable_output_file_handler(local_scratch):
         content = f.readlines()
 
     enablement_succeeded = False
-    for i in range(len(content)):
-        if "Info for Global after re-enabling the log file handler." in content[i]:
+    for _, line in enumerate(content):
+        if "Info for Global after re-enabling the log file handler." in line:
             enablement_succeeded = True
     assert enablement_succeeded
 
@@ -238,7 +238,7 @@ class CaptureStdOut:
     def __enter__(self):
         sys.stdout = self._stream
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         sys.stdout = sys.__stdout__
 
     def release(self):
