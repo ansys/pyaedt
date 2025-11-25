@@ -115,6 +115,7 @@ def test_01_creatematerial(aedtapp):
     assert mymat.youngs_modulus.value == 1e10
     assert len(aedtapp.materials.material_keys) == 3
 
+
 def test_02_stackup(aedtapp):
     s1 = aedtapp.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="iron"
@@ -262,6 +263,7 @@ def test_02_stackup(aedtapp):
     s1.user = False
     s1.usp = False
 
+
 def test_03_create_circle(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Top",
@@ -273,6 +275,7 @@ def test_03_create_circle(aedtapp):
     )
     n1 = aedtapp.modeler.create_circle("Top", 0, 5, 40, "mycircle")
     assert n1.name == "mycircle"
+
 
 def test_04_create_create_rectangle(aedtapp):
     aedtapp.modeler.layers.add_layer(
@@ -286,6 +289,7 @@ def test_04_create_create_rectangle(aedtapp):
     n2 = aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
     assert n2.name == "myrectangle"
 
+
 def test_05_subtract(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Top",
@@ -298,6 +302,7 @@ def test_05_subtract(aedtapp):
     aedtapp.modeler.create_circle("Top", 0, 5, 40, "mycircle")
     aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
     assert aedtapp.modeler.subtract("mycircle", "myrectangle")
+
 
 def test_06_unite(aedtapp):
     aedtapp.modeler.layers.add_layer(
@@ -314,6 +319,7 @@ def test_06_unite(aedtapp):
         [n1, n2],
     )
 
+
 def test_07_intersect(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Top",
@@ -329,6 +335,7 @@ def test_07_intersect(aedtapp):
         [n1, n2],
     )
 
+
 def test_08_objectlist(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Top",
@@ -343,12 +350,14 @@ def test_08_objectlist(aedtapp):
     a = aedtapp.modeler.geometries
     assert len(a) > 0
 
+
 def test_09_modify_padstack(aedtapp):
     pad_0 = aedtapp.modeler.padstacks["PlanarEMVia"]
     assert aedtapp.modeler.padstacks["PlanarEMVia"].plating != 55
     pad_0.plating = "55"
     pad_0.update()
     assert aedtapp.modeler.padstacks["PlanarEMVia"].plating == "55"
+
 
 def test_10_create_padstack(aedtapp):
     pad1 = aedtapp.modeler.new_padstack("My_padstack2")
@@ -361,6 +370,7 @@ def test_10_create_padstack(aedtapp):
     pad1.plating = 70
     assert pad1.create()
 
+
 def test_11_create_via(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
@@ -368,7 +378,7 @@ def test_11_create_via(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Top", layer_type="signal", thickness="0.035mm", elevation="1.035mm", material="copper"
     )
-    
+
     cvia = aedtapp.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
     via = cvia.name
     assert isinstance(via, str)
@@ -403,6 +413,7 @@ def test_11_create_via(aedtapp):
     assert via_3.holediam == "22mm"
     assert "VCC" in aedtapp.oeditor.GetNets()
 
+
 def test_12_create_line(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
@@ -419,12 +430,13 @@ def test_12_create_line(aedtapp):
     assert line.set_property_value("Pt0", "10mm ,10mm")
     assert line.get_property_value("Pt0") == "10 ,10"
 
+
 def test_13a_create_edge_port(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
     )
     aedtapp.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net="VCC")
-    
+
     port_wave = aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
     assert port_wave
     assert aedtapp.delete_port(port_wave.name)
@@ -448,6 +460,7 @@ def test_13a_create_edge_port(aedtapp):
     assert aedtapp.boundaries[0].properties["Boundary Type"] == "PEC"
     assert list(aedtapp.oboundary.GetAllBoundariesList())[0] == aedtapp.boundaries[0].name
 
+
 def test_14a_create_coaxial_port(aedtapp):
     aedtapp.modeler.layers.add_layer(
         layer="Lower", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
@@ -456,7 +469,7 @@ def test_14a_create_coaxial_port(aedtapp):
         layer="Top", layer_type="signal", thickness="0.035mm", elevation="1.035mm", material="copper"
     )
     aedtapp.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
-    
+
     port = aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
     assert port.name == "Port1"  # First port when test runs independently
     assert port.props["Radial Extent Factor"] == "0.5"
@@ -467,11 +480,13 @@ def test_14a_create_coaxial_port(aedtapp):
     assert len(aedtapp.port_list) == 0
     aedtapp.odesign.Undo()
 
+
 def test_14_create_setup(aedtapp):
     setup_name = "RFBoardSetup"
     setup = aedtapp.create_setup(name=setup_name)
     assert setup.name == aedtapp.setup_names[0]
     assert setup.solver_type == "HFSS"
+
 
 def test_15_edit_setup(aedtapp):
     aedtapp.modeler.layers.add_layer(
@@ -480,7 +495,7 @@ def test_15_edit_setup(aedtapp):
     aedtapp.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1")
     # Create a port for matrix convergence testing
     aedtapp.create_edge_port("line1", 3, False)
-    
+
     setup_name = "RFBoardSetup2"
     setup2 = aedtapp.create_setup(name=setup_name)
     assert not setup2.get_sweep()
@@ -490,9 +505,7 @@ def test_15_edit_setup(aedtapp):
     assert sweep1 == sweep
     sweep2 = setup2.get_sweep()
     assert sweep2 == sweep1
-    setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = (
-        "1GHz"
-    )
+    setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 23
     setup2.props["AdvancedSettings"]["OrderBasis"] = 2
     setup2.props["PercentRefinementPerPass"] = 17
@@ -531,6 +544,7 @@ def test_15_edit_setup(aedtapp):
         custom_entries=[["1", "2", 0.03, 4]],
     )
 
+
 def test_16_disable_enable_setup(aedtapp):
     setup_name = "RFBoardSetup3"
     setup3 = aedtapp.create_setup(name=setup_name)
@@ -548,6 +562,7 @@ def test_16_disable_enable_setup(aedtapp):
     assert sweep.set_save_fields(True, True)
     assert sweep.set_save_fields(False, False)
 
+
 def test_17_get_setup(aedtapp):
     setup_name = "RFBoardSetup4"
     aedtapp.create_setup(name=setup_name)
@@ -557,6 +572,7 @@ def test_17_get_setup(aedtapp):
     assert setup4.update()
     assert setup4.disable()
     assert setup4.enable()
+
 
 def test_18a_create_linear_count_sweep(aedtapp):
     setup_name = "RF_create_linear_count"
@@ -583,6 +599,7 @@ def test_18a_create_linear_count_sweep(aedtapp):
         interpolation_max_solutions=255,
     )
     assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
+
 
 def test_18b_create_linear_step_sweep(aedtapp):
     setup_name = "RF_create_linear_step"
@@ -645,6 +662,7 @@ def test_18b_create_linear_step_sweep(aedtapp):
             "'Interpolating', or 'Fast'."
         )
 
+
 def test_18c_create_single_point_sweep(aedtapp):
     setup_name = "RF_create_single_point"
     aedtapp.create_setup(name=setup_name)
@@ -675,6 +693,7 @@ def test_18c_create_single_point_sweep(aedtapp):
         )
         assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
 
+
 def test_18d_delete_setup(aedtapp):
     setup_name = "SetupToDelete"
     setuptd = aedtapp.create_setup(name=setup_name)
@@ -682,35 +701,32 @@ def test_18d_delete_setup(aedtapp):
     aedtapp.delete_setup(setup_name)
     assert setuptd.name not in aedtapp.setup_names
 
+
 def test_19a_validate(aedtapp):
     assert aedtapp.validate_full_design()
 
+
 def test_19d_export_to_hfss(aedtapp, local_scratch, examples):
     assert aedtapp.import_edb(examples[0])
-    
+
     filename = "export_to_hfss_test"
     filename2 = "export_to_hfss_test2"
     filename3 = "export_to_hfss_test_non_unite"
     setup_name = "SetupToDelete"
     setup = aedtapp.create_setup(name=setup_name)
-    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"][
-        "AdaptiveFrequencyData"
-    ]["AdaptiveFrequency"] = "1GHz"
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup.update()
-    
+
     file_fullname = str(Path(local_scratch.path) / filename)
     file_fullname2 = str(Path(local_scratch.path) / filename2)
     file_fullname3 = str(Path(local_scratch.path) / filename3)
     assert setup.export_to_hfss(output_file=file_fullname)
     if not is_linux:
         # TODO: EDB failing in Linux
-        assert setup.export_to_hfss(
-            output_file=file_fullname2, keep_net_name=True
-        )
+        assert setup.export_to_hfss(output_file=file_fullname2, keep_net_name=True)
 
-        assert setup.export_to_hfss(
-            output_file=file_fullname3, keep_net_name=True, unite=False
-        )
+        assert setup.export_to_hfss(output_file=file_fullname3, keep_net_name=True, unite=False)
+
 
 def test_19e_export_to_q3d(aedtapp, local_scratch, examples):
     assert aedtapp.import_edb(examples[0])
@@ -719,11 +735,10 @@ def test_19e_export_to_q3d(aedtapp, local_scratch, examples):
     file_fullname = str(Path(local_scratch.path) / filename)
     setup_name = "Q3DExportSetup"
     setup = aedtapp.create_setup(name=setup_name)
-    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"][
-        "AdaptiveFrequencyData"
-    ]["AdaptiveFrequency"] = "1GHz"
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup.update()
     assert setup.export_to_q3d(file_fullname)
+
 
 def test_19f_export_to_q3d(aedtapp, local_scratch, examples):
     assert aedtapp.import_edb(examples[0])
@@ -732,13 +747,10 @@ def test_19f_export_to_q3d(aedtapp, local_scratch, examples):
     file_fullname = str(Path(local_scratch.path) / filename)
     setup_name = "Q3DExportSetup2"
     setup = aedtapp.create_setup(name=setup_name)
-    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"][
-        "AdaptiveFrequencyData"
-    ]["AdaptiveFrequency"] = "1GHz"
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup.update()
-    assert setup.export_to_q3d(
-        file_fullname, keep_net_name=True, unite=False
-    )
+    assert setup.export_to_q3d(file_fullname, keep_net_name=True, unite=False)
+
 
 def test_21_variables(aedtapp):
     assert isinstance(aedtapp.available_variations.nominal_values, dict)
@@ -748,6 +760,7 @@ def test_21_variables(aedtapp):
     # Deprecated
     assert isinstance(aedtapp.available_variations.nominal_w_values_dict, dict)
     assert isinstance(aedtapp.available_variations.nominal_w_values, list)
+
 
 def test_26_duplicate(aedtapp):
     aedtapp.modeler.layers.add_layer(
@@ -764,20 +777,13 @@ def test_26_duplicate(aedtapp):
         elevation="0mm",
         material="copper",
     )
-    
-    n2 = aedtapp.modeler.create_rectangle(
-        "Top", [0, 0], [6, 8], 3, 2, "myrectangle_d"
-    )
-    n3 = aedtapp.modeler.create_rectangle(
-        "Top", [0, 0], [6, 8], 3, 2, "myrectangle_d2"
-    )
-    new_objects = aedtapp.modeler.duplicate(
-        [n2.name, n3.name], 2, [1, 1]
-    )
+
+    n2 = aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle_d")
+    n3 = aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle_d2")
+    new_objects = aedtapp.modeler.duplicate([n2.name, n3.name], 2, [1, 1])
     assert len(new_objects[0]) == 4
-    assert aedtapp.modeler.duplicate_across_layers(
-        "myrectangle_d", "Bottom"
-    )
+    assert aedtapp.modeler.duplicate_across_layers("myrectangle_d", "Bottom")
+
 
 def test_27_create_pin_port(aedtapp):
     # Create signal layers required for pin port
@@ -804,10 +810,12 @@ def test_27_create_pin_port(aedtapp):
     port.properties["Magnitude"] = "5V"
     assert port.properties["Magnitude"] == "5V"
 
+
 def test_29_duplicate_material(aedtapp):
     aedtapp.materials.add_material("FirstMaterial")
     new_material = aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
     assert new_material.name == "SecondMaterial"
+
 
 def test_30_expand(aedtapp):
     aedtapp.modeler.layers.add_layer(
@@ -817,16 +825,11 @@ def test_30_expand(aedtapp):
         elevation="0mm",
         material="copper",
     )
-    aedtapp.modeler.create_rectangle(
-        "Bottom", [20, 20], [50, 50], name="rect_1"
-    )
-    aedtapp.modeler.create_line(
-        "Bottom", [[25, 25], [40, 40]], name="line_3"
-    )
-    out1 = aedtapp.modeler.expand(
-        "line_3", size=1, expand_type="ROUND", replace_original=False
-    )
+    aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
+    aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
+    out1 = aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
     assert isinstance(out1, str)
+
 
 def test_31_heal(aedtapp):
     aedtapp.modeler.layers.add_layer(
@@ -843,9 +846,11 @@ def test_31_heal(aedtapp):
     )
     assert aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 
+
 def test_32_cosim_simulation(aedtapp):
     assert aedtapp.edit_cosim_options()
     assert not aedtapp.edit_cosim_options(interpolation_algorithm="auto1")
+
 
 def test_33_set_temperature_dependence(aedtapp):
     assert aedtapp.modeler.set_temperature_dependence(
@@ -864,6 +869,7 @@ def test_33_set_temperature_dependence(aedtapp):
         create_project_var=True,
     )
 
+
 def test_34_create_additional_setup(aedtapp):
     setup_name = "SiwaveDC"
     setup = aedtapp.create_setup(name=setup_name, setup_type="SiwaveDC3DLayout")
@@ -874,6 +880,7 @@ def test_34_create_additional_setup(aedtapp):
     setup_name = "LNA"
     setup = aedtapp.create_setup(name=setup_name, setup_type="LNA3DLayout")
     assert setup_name == setup.name
+
 
 def test_35a_export_layout(aedtapp):
     aedtapp.insert_design("export_layout")
@@ -890,6 +897,7 @@ def test_35a_export_layout(aedtapp):
     if time_out == 10:
         assert False
 
+
 @pytest.mark.skipif(is_linux, reason="Failing on linux")
 def test_36_import_gerber(aedtapp, local_scratch):
     aedtapp.insert_design("gerber")
@@ -903,6 +911,7 @@ def test_36_import_gerber(aedtapp, local_scratch):
     aedb_file = str(Path(local_scratch.path) / (generate_unique_name("gerber_out") + ".aedb"))
     assert aedtapp.import_gerber(gerber_file, output_dir=aedb_file, control_file=control_file)
 
+
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
 def test_37_import_gds(aedtapp, local_scratch):
     aedtapp.insert_design("gds")
@@ -914,6 +923,7 @@ def test_37_import_gds(aedtapp, local_scratch):
     assert aedtapp.import_gds(gds_file, output_dir=aedb_file)
     assert aedtapp.import_gds(gds_file, output_dir=aedb_file, control_file=control_file)
 
+
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
 def test_38_import_dxf(aedtapp, local_scratch):
     aedtapp.insert_design("dxf")
@@ -922,15 +932,18 @@ def test_38_import_dxf(aedtapp, local_scratch):
     aedb_file = str(Path(local_scratch.path) / "dxf_out.aedb")
     assert aedtapp.import_gerber(dxf_file, output_dir=aedb_file, control_file=control_file)
 
+
 def test_39_import_ipc(aedtapp, local_scratch):
     aedtapp.insert_design("ipc")
     dxf_file = str(Path(TESTS_GENERAL_PATH) / "example_models" / "cad" / "ipc" / "layout.xml")
     aedb_file = str(Path(local_scratch.path) / "ipc_out.aedb")
     assert aedtapp.import_ipc2581(dxf_file, output_dir=aedb_file, control_file="")
 
+
 @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
 def test_40_test_flex(flex_app):
     assert flex_app.enable_rigid_flex()
+
 
 def test_41_test_create_polygon(aedtapp):
     aedtapp.modeler.layers.add_layer(
@@ -949,6 +962,7 @@ def test_41_test_create_polygon(aedtapp):
 
     assert p2.name == "poly_test_41_void"
     assert not aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
+
 
 @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
 @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
@@ -1012,6 +1026,7 @@ def test_42_post_processing(maxwell, hfss):
         nets=["GND", "V3P3_S5"],
     )
 
+
 @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
 @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
 def test_42_post_processing_3d_layout(hfss3dl_post_app):
@@ -1068,6 +1083,7 @@ def test_42_post_processing_3d_layout(hfss3dl_post_app):
 
     assert pl2.export_image_from_aedtplt(Path(tempfile.gettempdir()))
 
+
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
 def test_90_set_differential_pairs(aedtapp, hfss3dl):
     assert not aedtapp.get_differential_pairs()
@@ -1083,6 +1099,7 @@ def test_90_set_differential_pairs(aedtapp, hfss3dl):
     assert hfss3dl.get_differential_pairs()
     assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 
+
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
 def test_91_load_and_save_diff_pair_file(hfss3dl, local_scratch):
     diff_def_file = str(
@@ -1097,8 +1114,10 @@ def test_91_load_and_save_diff_pair_file(hfss3dl, local_scratch):
         lines = fh.read().splitlines()
     assert len(lines) == 3
 
+
 def test_92_import_edb(aedtapp, examples):
     assert aedtapp.import_edb(examples[0])
+
 
 @pytest.mark.skipif(
     config["desktopVersion"] < "2022.2", reason="This test does not work on versions earlier than 2022 R2."
@@ -1106,6 +1125,7 @@ def test_92_import_edb(aedtapp, examples):
 def test_93_clip_plane(aedtapp):
     cp_name = aedtapp.modeler.clip_plane()
     assert cp_name in aedtapp.modeler.clip_planes
+
 
 def test_94_edit_3dlayout_extents(aedtapp):
     assert aedtapp.edit_hfss_extents(
@@ -1117,8 +1137,10 @@ def test_94_edit_3dlayout_extents(aedtapp):
         air_horizontal_padding="1mm",
     )
 
+
 def test_95_create_text(aedtapp):
     assert aedtapp.modeler.create_text("test", [0, 0], "SIwave Regions")
+
 
 def test_96_change_nets_visibility(aedtapp, local_scratch):
     # Use test_post_processing project which has the required nets (V3P3_S0, V3P3_S3, V3P3_S5)
@@ -1135,35 +1157,34 @@ def test_96_change_nets_visibility(aedtapp, local_scratch):
     # visualize all
     assert aedtapp.modeler.change_net_visibility(visible="true")
     # visualize selected nets only
-    assert aedtapp.modeler.change_net_visibility(
-        ["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True
-    )
+    assert aedtapp.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True)
     # hide selected nets and show others
-    assert aedtapp.modeler.change_net_visibility(
-        ["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False
-    )
+    assert aedtapp.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False)
     assert not aedtapp.modeler.change_net_visibility(["test1, test2"])
     assert not aedtapp.modeler.change_net_visibility(visible="")
     assert not aedtapp.modeler.change_net_visibility(visible=0)
+
 
 @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
 def test_96_2_report_design(aedtapp):
     report = AnsysReport()
     report.create()
 
+
 def test_97_mesh_settings(aedtapp):
     assert aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
     assert aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)
 
+
 def test_98_geom_check(aedtapp):
     assert aedtapp.modeler.geometry_check_and_fix_all()
+
 
 @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
 def test_99_export_on_completion(aedtapp, local_scratch):
     assert aedtapp.export_touchstone_on_completion()
-    assert aedtapp.export_touchstone_on_completion(
-        export=True, output_dir=local_scratch.path
-    )
+    assert aedtapp.export_touchstone_on_completion(export=True, output_dir=local_scratch.path)
+
 
 def test_create_coordinate_system(aedtapp):
     cs1 = aedtapp.modeler.create_coordinate_system()
@@ -1174,9 +1195,7 @@ def test_create_coordinate_system(aedtapp):
     assert cs1["Location"] == "0 ,0"
     assert cs1.delete()
 
-    cs2 = aedtapp.modeler.create_coordinate_system(
-        name="new", origin=["1mm", "2mm"]
-    )
+    cs2 = aedtapp.modeler.create_coordinate_system(name="new", origin=["1mm", "2mm"])
     assert len(aedtapp.modeler.coordinate_systems) == 1
     cs_location = cs2.get_property_value("Location")
     assert cs_location == "1 ,2"
@@ -1192,6 +1211,7 @@ def test_create_coordinate_system(aedtapp):
 
     # If CS is renamed, it can not be deleted
     assert not cs2.delete()
+
 
 def test_create_scattering(hfss3dl):
     hfss3dl.create_setup()
