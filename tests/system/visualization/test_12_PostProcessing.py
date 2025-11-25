@@ -602,7 +602,9 @@ class TestClass:
                 ["Ground", "Electrode"], "Region", ["Invalid"], plot_name="LineTracesTest7"
             )
         with pytest.raises(AEDTRuntimeError):
-            m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], ["Invalid"], plot_name="LineTracesTest8")
+            m2dtest.post.create_fieldplot_line_traces("Invalid", "Region", plot_name="LineTracesTest8")
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], ["Invalid"], plot_name="LineTracesTest9")
         plot.TraceStepLength = "0.002mm"
         plot.SeedingPointsNumber = 20
         plot.LineStyle = "Cylinder"

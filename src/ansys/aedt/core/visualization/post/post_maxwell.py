@@ -342,7 +342,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def evaluate_inception_voltage(self, plot_name, field_line_number=None):
+    def evaluate_inception_voltage(self, plot_name, field_line_number=None):  # pragma: no cover
         """Perform Inception voltage evaluation on selected field line traces.
 
         .. note::
