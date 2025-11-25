@@ -830,6 +830,7 @@ class AedtLogger:
         for logger in (self._global, self.design_logger, self.project_logger):
             for handler in list(logger.handlers):
                 if isinstance(handler, logging.FileHandler):
+                    handler.close()
                     logger.removeHandler(handler)
 
         self.info("Log on file is disabled.")

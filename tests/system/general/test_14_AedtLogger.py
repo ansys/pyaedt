@@ -24,7 +24,7 @@
 
 import io
 import logging
-import shutil
+from pathlib import Path
 import sys
 import tempfile
 import unittest.mock
@@ -56,12 +56,7 @@ def test_formatter(local_scratch):
     assert logger.formatter == settings.formatter
     settings.formatter = None
     logger.disable_log_on_file()
-
-    for handler in [i for i in logger._global.handlers]:
-        if isinstance(handler, logging.FileHandler):
-            handler.close()
-            logger._global.removeHandler(handler)
-    logger.enable_log_on_file()
+    path.unlink(missing_ok=True)
 
 
 def test_output_file_with_app_filter(local_scratch):
@@ -95,16 +90,6 @@ def test_output_file_with_app_filter(local_scratch):
     # it is used to write some info messages when closing AEDT.
     logger.disable_log_on_file()
 
-    for handler in project_logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            handler.close()
-            project_logger.removeHandler(handler)
-
-    for handler in design_logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            handler.close()
-            design_logger.removeHandler(handler)
-
     with open(path, "r") as f:
         content = f.readlines()
     content.remove(content[0])
@@ -121,8 +106,7 @@ def test_output_file_with_app_filter(local_scratch):
     assert ":WARNING :Warning for Design" in content[10]
     assert ":ERROR   :Error for Design" in content[11]
     assert "Elapsed time:" in content[12]
-
-    shutil.rmtree(path, ignore_errors=True)
+    path.unlink(missing_ok=True)
 
 
 def test_stdout_with_app_filter():
@@ -142,8 +126,10 @@ def test_stdout_with_app_filter():
 def test_disable_output_file_handler(local_scratch):
     tempfile.gettempdir()
     path = local_scratch.path / "test04.txt"
+
     if path.is_file():
-        shutil.rmtree(path, ignore_errors=True)
+        path.unlink(missing_ok=True)
+
     logger = AedtLogger(filename=str(path))
     logger.info("Info for Global before disabling the log file handler.")
     project_logger = logger.add_logger("Project")
@@ -192,17 +178,7 @@ def test_disable_output_file_handler(local_scratch):
     # Otherwise, we can't read the content of the log file.
     logger.disable_log_on_file()
 
-    for handler in project_logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            handler.close()
-            project_logger.removeHandler(handler)
-
-    for handler in design_logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            handler.close()
-            design_logger.removeHandler(handler)
-
-    shutil.rmtree(path, ignore_errors=True)
+    path.unlink(missing_ok=True)
 
 
 def test_disable_stdout():
@@ -236,6 +212,14 @@ def test_disable_stdout():
     assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
     assert stream_content[1] == "PyAEDT INFO: Log on console is enabled.\n"
     assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
+
+    # Close every handlers to make sure that the
+    # file handler on every logger has been released properly.
+    # Otherwise, we can't read the content of the log file.
+    logger.disable_log_on_file()
+
+    path = Path(logger.filename)
+    path.unlink(missing_ok=True)
 
 
 def test_log_when_accessing_non_existing_object(aedtapp, caplog):
