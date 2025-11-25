@@ -1518,12 +1518,17 @@ class Variable(PyAedtBase):
         if self.has_definition_parameters and self.is_circuit_parameter:
             try:
                 definition_params = self._oo(self._app.odesign, "DefinitionParameters")
-                props = definition_params.GetPropNames()
-                variable_in_definition_parameters = self._variable_name in list(props)
             except Exception:  # pragma: no cover
                 # If the parameters cannot be accessed, use LocalVariables
                 return "LocalVariables"
 
+            try:
+                props = definition_params.GetPropNames()
+            except Exception:  # pragma: no cover
+                # If the properties cannot be accessed, use LocalVariables
+                return "LocalVariables"
+
+            variable_in_definition_parameters = self._variable_name in list(props)
             if variable_in_definition_parameters:
                 return "DefinitionParameters"
             return "LocalVariables"
