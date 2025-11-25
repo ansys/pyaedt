@@ -2130,6 +2130,8 @@ class Variable(PyAedtBase):
         -------
         :class:`ansys.aedt.core.application.variables.Variable`
         """
+        if not is_number(other) and not isinstance(other, Variable):
+            raise ValueError("Divisor must be a scalar quantity or a variable.")
         if is_number(other):
             result_value = other / self.numeric_value
             result_units = _resolve_unit_system("None", self.unit_system, "divide")
