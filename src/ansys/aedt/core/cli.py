@@ -1048,7 +1048,7 @@ app.add_typer(doc_app, name="doc")
 # ============================================================================
 
 
-@doc_app.command(name="examples")
+@doc_app.command(name="examples", help="Open the online Examples section of the PyAEDT documentation")
 def examples():
     """Open Examples url."""
     from ansys.aedt.core.help import online_help
@@ -1057,7 +1057,7 @@ def examples():
     online_help.examples()
 
 
-@doc_app.command(name="github")
+@doc_app.command(name="github", help="Open PyAEDT repository on GitHub")
 def github():
     """Open Github url."""
     from ansys.aedt.core.help import online_help
@@ -1066,7 +1066,7 @@ def github():
     online_help.github()
 
 
-@doc_app.command(name="home")
+@doc_app.command(name="home", help="Open the online Home section of the PyAEDT documentation")
 def home():
     """Open Home url."""
     from ansys.aedt.core.help import online_help
@@ -1075,7 +1075,7 @@ def home():
     online_help.home()
 
 
-@doc_app.command(name="user_guide")
+@doc_app.command(name="user_guide", help="Open the online User guide section of the PyAEDT documentation")
 def user_guide():
     """Open User guide url."""
     from ansys.aedt.core.help import online_help
@@ -1084,7 +1084,7 @@ def user_guide():
     online_help.user_guide()
 
 
-@doc_app.command(name="getting_started")
+@doc_app.command(name="getting_started", help="Open the online Getting started section of the PyAEDT documentation")
 def getting_started():
     """Open Getting started url."""
     from ansys.aedt.core.help import online_help
@@ -1093,7 +1093,7 @@ def getting_started():
     online_help.getting_started()
 
 
-@doc_app.command(name="installation")
+@doc_app.command(name="installation", help="Open the online installation section of the PyAEDT documentation")
 def installation():
     """Open installation url."""
     from ansys.aedt.core.help import online_help
@@ -1102,7 +1102,7 @@ def installation():
     online_help.installation_guide()
 
 
-@doc_app.command(name="api_reference")
+@doc_app.command(name="api_reference", help="Open the online API reference section of the PyAEDT documentation")
 def api_reference():
     """Open api reference url."""
     from ansys.aedt.core.help import online_help
@@ -1111,7 +1111,7 @@ def api_reference():
     online_help.api_reference()
 
 
-@doc_app.command(name="changelog")
+@doc_app.command(name="changelog", help="Open the PyAEDT changelog")
 def changelog(pyaedt_version: str = typer.Argument(None)):
     """Open API reference changelog."""
     from ansys.aedt.core.help import online_help
@@ -1120,7 +1120,7 @@ def changelog(pyaedt_version: str = typer.Argument(None)):
     online_help.changelog(pyaedt_version)
 
 
-@doc_app.command(name="issues")
+@doc_app.command(name="issues", help="Open the PyAEDT issues")
 def issues():
     """Open api reference url."""
     from ansys.aedt.core.help import online_help
@@ -1129,7 +1129,7 @@ def issues():
     online_help.issues()
 
 
-@doc_app.command(name="search")
+@doc_app.command(name="search", help="One or more search keywords for the documentation")
 def search(search_keys: List[str] = typer.Argument(None)):
     """Search the online documentation."""
     from ansys.aedt.core.help import online_help
