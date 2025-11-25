@@ -233,7 +233,7 @@ class AedtPropServer(AedtObjWrapper):
             return
         propMap = self.__GetPropAttributes()
         try:
-            if attr in propMap:
+            if attr not in ["dllapi", "is_linux"] and attr in propMap:
                 self.SetPropValue(propMap[attr], val)
                 return
         except Exception:

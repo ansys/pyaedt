@@ -493,6 +493,10 @@ def test_desktop_default_to_uds_on_linux(monkeypatch):
     desktop.release_desktop()
 
 
+@pytest.mark.skipif(
+    desktop_version < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
 @pytest.mark.parametrize("missing_file", ("ca.crt", "client.crt", "client.key"))
 def test_desktop_default_mtls_failure_due_to_missing_certificate(missing_file, monkeypatch):
     """Test that Desktop raises FileNotFoundError when a required certificate file is missing."""
@@ -513,6 +517,10 @@ def test_desktop_default_mtls_failure_due_to_missing_certificate(missing_file, m
     assert f"Certificate file '{missing_file}' not found in folder" in str(exc.value)
 
 
+@pytest.mark.skipif(
+    desktop_version < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
 def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_path):
     """Test that Desktop raises an exception when certificate files are present but invalid."""
     monkeypatch.setattr(settings, "grpc_local", DEFAULT_GRPC_LOCAL)
@@ -536,6 +544,10 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
             os.kill(j, signal.SIGTERM)
 
 
+@pytest.mark.skipif(
+    desktop_version < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
 @pytest.mark.parametrize("machine", LOCAL_HOSTS)
 def test_desktop_local_insecure_success(machine, monkeypatch):
     """Test that Desktop can connect in local insecure mode."""
@@ -549,6 +561,10 @@ def test_desktop_local_insecure_success(machine, monkeypatch):
     desktop.release_desktop()
 
 
+@pytest.mark.skipif(
+    desktop_version < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
 @pytest.mark.parametrize("machine", LOCAL_HOSTS)
 def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path):
     """Test that Desktop can connect in local mTLS mode."""
@@ -565,6 +581,10 @@ def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path):
     desktop.release_desktop()
 
 
+@pytest.mark.skipif(
+    desktop_version < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
 @pytest.mark.parametrize("machine", REMOTE_HOSTS)
 def test_desktop_remote_insecure_success(machine, monkeypatch):
     """Test that Desktop can connect in remote insecure mode."""
@@ -595,6 +615,10 @@ def test_desktop_remote_insecure_success(machine, monkeypatch):
 #     desktop.release_desktop()
 
 
+@pytest.mark.skipif(
+    desktop_version < "2026.1",
+    reason="Not working in versions without grpc patch",
+)
 @pytest.mark.parametrize("machine", REMOTE_HOSTS)
 def test_desktop_remote_mtls_success(machine, monkeypatch, tmp_path):
     """Test that Desktop can connect in remote mTLS mode."""

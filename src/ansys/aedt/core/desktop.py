@@ -2648,6 +2648,7 @@ class Desktop(PyAedtBase):
             else:
                 project_dir = tempfile.gettempdir()
             self.__logfile = Path(project_dir) / f"pyaedt{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        self.logger._desktop_class = self
         if settings.enable_debug_logger:
             self.logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
         else:
