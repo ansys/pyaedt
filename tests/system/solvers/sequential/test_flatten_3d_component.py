@@ -28,10 +28,11 @@ components_flatten = "components_flatten_231"
 test_subfolder = "flatten_component"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def flatten(add_app):
     app = add_app(project_name=components_flatten, subfolder=test_subfolder)
-    return app
+    yield app
+    app.close_project(save=False)
 
 
 class TestClass:

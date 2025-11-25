@@ -32,20 +32,6 @@ test_subfolder = "dcir"
 original_project_name = "ANSYS-HSD_V1"
 
 
-@pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
 @pytest.fixture()
 def dcir_example_project(add_app):
     app = add_app(project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder)
@@ -53,26 +39,25 @@ def dcir_example_project(add_app):
     app.close_project(app.project_name, save=False)
 
 
-class TestClass:
-    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING BUG FIX")
-    def test_dcir(self, dcir_example_project):
-        import pandas as pd
+@pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING BUG FIX")
+def test_dcir(dcir_example_project):
+    import pandas as pd
 
-        setup = dcir_example_project.get_setup("SIwaveDCIR1")
-        assert setup.is_solved
-        assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
-        assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Vias", "Current")
-        assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
-        assert dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
-        assert dcir_example_project.post.create_report(
-            dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
-            domain="DCIR",
-            context="Vias",
-        )
-        assert isinstance(dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
-        assert dcir_example_project.post.compute_power_by_layer()
-        assert dcir_example_project.post.compute_power_by_layer(layers=["1_Top"])
-        assert dcir_example_project.post.compute_power_by_net()
-        assert dcir_example_project.post.compute_power_by_net(nets=["5V", "GND"])
-        assert dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
+    setup = dcir_example_project.get_setup("SIwaveDCIR1")
+    assert setup.is_solved
+    assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
+    assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Vias", "Current")
+    assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
+    assert dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
+    assert dcir_example_project.post.create_report(
+        dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
+        domain="DCIR",
+        context="Vias",
+    )
+    assert isinstance(dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
+    assert dcir_example_project.post.compute_power_by_layer()
+    assert dcir_example_project.post.compute_power_by_layer(layers=["1_Top"])
+    assert dcir_example_project.post.compute_power_by_net()
+    assert dcir_example_project.post.compute_power_by_net(nets=["5V", "GND"])
+    assert dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")

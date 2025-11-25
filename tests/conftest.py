@@ -170,6 +170,7 @@ def local_scratch(init_scratch):
     scratch = Scratch(tmp_path)
     yield scratch
     scratch.remove()
+    settings.logger_file_path = None
 
 
 @pytest.fixture

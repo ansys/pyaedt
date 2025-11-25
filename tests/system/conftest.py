@@ -117,7 +117,7 @@ def add_app(local_scratch):
             application = Hfss
 
         args = {
-            "project": test_project,
+            "project": str(test_project),
             "design": design_name,
             "version": config["desktopVersion"],
             "non_graphical": NONGRAPHICAL,

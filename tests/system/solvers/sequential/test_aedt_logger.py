@@ -42,12 +42,14 @@ desktop_version = config["desktopVersion"]
 
 
 @pytest.fixture()
-def aedtapp(add_app):
+def aedtapp(add_app, local_scratch):
     settings.enable_local_log_file = True
-    app = add_app()
+    project_file = local_scratch.path / "aedt_logger.aedt"
+    app = add_app(project_name=project_file, just_open=True)
     yield app
     app.close_project(save=False)
     settings.logger_file_path = None
+    settings.enable_local_log_file = False
 
 
 def test_formatter(local_scratch):

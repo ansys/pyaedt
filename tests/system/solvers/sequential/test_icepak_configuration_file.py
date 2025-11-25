@@ -30,23 +30,23 @@ import pytest
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.file_utils import read_json
 
-ipk_name = "Icepak_test"
+
+@pytest.fixture()
+def icepak_a(add_app, local_scratch):
+    project_file = local_scratch.path / "Icepak_test_a.aedt"
+    app = add_app(project_name=project_file, application=Icepak, just_open=True)
+    yield app
 
 
-@pytest.fixture(scope="class")
-def icepak_a(add_app):
-    app = add_app(project_name=ipk_name + "_a", application=Icepak)
-    return app
-
-
-@pytest.fixture(scope="class")
-def icepak_b(add_app):
-    app = add_app(project_name=ipk_name + "_b", application=Icepak)
-    return app
+@pytest.fixture()
+def icepak_b(add_app, local_scratch):
+    project_file = local_scratch.path / "Icepak_test_b.aedt"
+    app = add_app(project_name=project_file, application=Icepak, just_open=True)
+    yield app
 
 
 class TestClass:
-    def test_configuration_file_1(self, icepak_a, add_app):
+    def test_configuration_file_1(self, icepak_a, add_app, local_scratch):
         box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
         icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
         box1.surface_material_name = "Shellac-Dull-surface"
@@ -98,7 +98,9 @@ class TestClass:
         f.delete()
         file_parasolid = filename + ".x_b"
         file_path = Path(icepak_a.working_directory) / file_parasolid
-        app = add_app(application=Icepak, project_name="new_proj_Ipk_a", just_open=True)
+
+        new_path = local_scratch.path / "new_proj_Ipk_a.aedt"
+        app = add_app(application=Icepak, project_name=new_path, just_open=True)
         app.modeler.import_3d_cad(str(file_path))
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
@@ -120,14 +122,15 @@ class TestClass:
         old_conf_file = conf_file + ".old.json"
         with open(old_conf_file, "w") as f:
             json.dump(old_dict_format, f)
-        app = add_app(application=Icepak, project_name="new_proj_Ipk_a_test2", just_open=True)
+        new_path = local_scratch.path / "new_proj_Ipk_a_test2.aedt"
+        app = add_app(application=Icepak, project_name=new_path, just_open=True)
         app.modeler.import_3d_cad(str(file_path))
         out = app.configurations.import_config(old_conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         app.close_project(save=False)
 
-    def test_configuration_file_2(self, icepak_b, add_app):
+    def test_configuration_file_2(self, icepak_b, add_app, local_scratch):
         box1 = icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
         box1.surface_material_name = "Shellac-Dull-surface"
         region = icepak_b.modeler["Region"]
@@ -176,9 +179,11 @@ class TestClass:
         assert icepak_b.configurations.validate(conf_file)
         file_parasolid = filename + ".x_b"
         file_path = Path(icepak_b.working_directory) / file_parasolid
-        app = add_app(application=Icepak, project_name="new_proj_Ipk", just_open=True)
+        new_path = local_scratch.path / "new_proj_Ipk.aedt"
+        app = add_app(application=Icepak, project_name=new_path, just_open=True)
         app.modeler.import_3d_cad(str(file_path))
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
         assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
+        app.close_project(save=False)

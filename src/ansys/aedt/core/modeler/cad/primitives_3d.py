@@ -35,6 +35,7 @@ from math import sqrt
 from math import tan
 import os
 from pathlib import Path
+import shutil
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Edb
@@ -1443,7 +1444,15 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 )
             return cs_name
         else:
-            app.close_project()
+            results_directory = Path(app.results_directory)
+            project_file = Path(app.project_file)
+            app.close_project(save=False)
+            try:
+                if results_directory.is_dir():
+                    shutil.rmtree(results_directory)
+            except PermissionError:  # pragma: no cover
+                self.logger.warning(f"{results_directory} can not be deleted.")
+            project_file.unlink(missing_ok=True)
             return assignment.target_coordinate_system
 
     @staticmethod
