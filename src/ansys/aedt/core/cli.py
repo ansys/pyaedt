@@ -29,6 +29,7 @@ import platform
 import sys
 import threading
 import time
+from typing import List
 
 import psutil
 
@@ -1058,7 +1059,7 @@ def examples():
 
 @doc_app.command(name="github")
 def github():
-    """ "Open Github url."""
+    """Open Github url."""
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
@@ -1126,6 +1127,17 @@ def issues():
 
     online_help.silent = False
     online_help.issues()
+
+
+@doc_app.command(name="search")
+def search(search_keys: List[str] = typer.Argument(None)):
+    """Search the online documentation."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+
+    query = " ".join(search_keys)
+    online_help.search(query)
 
 
 if __name__ == "__main__":
