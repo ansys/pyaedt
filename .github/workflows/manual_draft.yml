@@ -822,7 +822,6 @@ jobs:
           }
 
       - name: Run tests marked with 'filter_solutions'
-        if: steps.changes.outputs.run_tests == 'true'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
