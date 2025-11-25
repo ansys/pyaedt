@@ -170,7 +170,7 @@ def test_layout_design_toolkit_microvia(add_app, local_scratch):
     file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_microvia.aedb"
 
     local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
+        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "Diff_Via.aedb",
         file_path,
     )
 
@@ -183,7 +183,7 @@ def test_layout_design_toolkit_microvia(add_app, local_scratch):
 
     # Get valid padstack definition from the design
     pedb = h3d.modeler.primitives.edb
-    available_padstacks = ["v40h20-1"]
+    available_padstacks = ["pad1"]
     pedb.close()
 
     # Skip test if no padstacks available

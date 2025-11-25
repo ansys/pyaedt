@@ -436,7 +436,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects and user defined models from one design to the active design.
 
-        If user defined models are selected, the project will be saved automatically.
+        If user defined models are selected, the project will be saved automatically. If the destination design
+        is not the same application type, 3DComponents are not copied.
 
         Parameters
         ----------
@@ -517,29 +518,33 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         self.modeler.refresh_all_ids()
         return True
 
-    @pyaedt_function_handler(filename="input_file")
+    @pyaedt_function_handler(
+        filename="input_file",
+        create_lightweigth_part="create_lightweight_part",
+        point_coicidence_tolerance="point_coincidence_tolerance",
+    )
     def import_3d_cad(
         self,
-        input_file,
-        healing=False,
-        refresh_all_ids=True,
-        import_materials=False,
-        create_lightweigth_part=False,
-        group_by_assembly=False,
-        create_group=True,
-        separate_disjoints_lumped_object=False,
-        import_free_surfaces=False,
-        point_coicidence_tolerance=1e-6,
-        reduce_stl=False,
-        reduce_percentage=0,
-        reduce_error=0,
-        merge_planar_faces=True,
-    ):
+        input_file: Union[str, Path],
+        healing: bool = False,
+        refresh_all_ids: bool = True,
+        import_materials: bool = False,
+        create_lightweight_part: bool = False,
+        group_by_assembly: bool = False,
+        create_group: bool = True,
+        separate_disjoints_lumped_object: bool = False,
+        import_free_surfaces: bool = False,
+        point_coincidence_tolerance: float = 1e-6,
+        reduce_stl: bool = False,
+        reduce_percentage: int = 0,
+        reduce_error: int = 0,
+        merge_planar_faces: bool = True,
+    ) -> bool:
         """Import a CAD model.
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path and name of the CAD file.
         healing : bool, optional
             Whether to perform healing. The default is ``False``.
@@ -550,7 +555,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         import_materials : bool optional
             Whether to import material names from the file if present. The
             default is ``False``.
-        create_lightweigth_part : bool ,optional
+        create_lightweight_part : bool ,optional
             Whether to import a lightweight part. The default is ``True``.
         group_by_assembly : bool, optional
             Whether to import by subassembly. The default is ``False``, in which
@@ -561,7 +566,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
             Whether to automatically separate disjoint parts. The default is ``False``.
         import_free_surfaces : bool, optional
             Whether to import free surfaces parts. The default is ``False``.
-        point_coicidence_tolerance : float, optional
+        point_coincidence_tolerance : float, optional
             Tolerance on the point. The default is ``1e-6``.
         reduce_stl : bool, optional
             Whether to reduce the STL file on import. The default is ``True``.
@@ -581,17 +586,19 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         ----------
         >>> oEditor.Import
         """
+        input_file = Path(input_file)
+
         return self.modeler.import_3d_cad(
             input_file=input_file,
             healing=healing,
             refresh_all_ids=refresh_all_ids,
             import_materials=import_materials,
-            create_lightweigth_part=create_lightweigth_part,
+            create_lightweight_part=create_lightweight_part,
             group_by_assembly=group_by_assembly,
             create_group=create_group,
             separate_disjoints_lumped_object=separate_disjoints_lumped_object,
             import_free_surfaces=import_free_surfaces,
-            point_coicidence_tolerance=point_coicidence_tolerance,
+            point_coincidence_tolerance=point_coincidence_tolerance,
             reduce_stl=reduce_stl,
             reduce_percentage=reduce_percentage,
             reduce_error=reduce_error,

@@ -121,6 +121,8 @@ class TouchstoneData(rf.Network, PyAedtBase):
                     if not pnames:
                         pnames = [f"{i + 1}" for i in range(self.nports)]
                 self.port_names = pnames
+            else:
+                self.port_names = [pname.strip() for pname in self.port_names]
         self.log_x = True
 
     @pyaedt_function_handler()
