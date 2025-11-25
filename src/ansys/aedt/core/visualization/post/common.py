@@ -95,7 +95,7 @@ class PostProcessorCommon(PyAedtBase):
     def __init__(self, app):
         self._app = app
         self._scratch = self._app.working_directory
-        self.__plots = None
+        self.__plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
@@ -108,9 +108,13 @@ class PostProcessorCommon(PyAedtBase):
         list[ansys.aedt.core.visualization.report.standard.Standard]
             List of reports created in active design.
         """
-        if not self.__plots:
+        if self.__plots is None:
             self.__plots = self._get_plot_inputs()
         return self.__plots
+
+    @plots.setter
+    def plots(self, value):
+        self.__plots = value
 
     @property
     def available_report_types(self) -> list[str]:
