@@ -24,7 +24,9 @@
 from __future__ import absolute_import
 
 from enum import Enum
+from enum import IntEnum
 from enum import auto
+from enum import unique
 import math
 from typing import Type
 import warnings
@@ -719,7 +721,24 @@ def deprecate_enum(new_enum):
     return decorator
 
 
-class InfiniteSphereType(str):
+class EnumProps(str, Enum):
+    def __repr__(self):
+        return str(self.value)
+
+    def __str__(self):
+        return str(self.value)
+
+
+class IntEnumProps(IntEnum):
+    def __repr__(self):
+        return str(self.value)
+
+    def __str__(self):
+        return str(self.value)
+
+
+@unique
+class InfiniteSphereType(EnumProps):
     """Infinite sphere type enum class."""
 
     ThetaPhi = "Theta-Phi"
@@ -727,13 +746,15 @@ class InfiniteSphereType(str):
     ElOverAz = "El Over Az"
 
 
-class Fillet(int):
+@unique
+class Fillet(IntEnumProps):
     """Fillet enum class."""
 
     (Round, Mitered) = range(2)
 
 
-class Axis(int):
+@unique
+class Axis(IntEnumProps):
     """Coordinate system axis enum class.
 
     This static class defines integer constants corresponding to the
@@ -769,7 +790,8 @@ class Axis(int):
     (X, Y, Z) = range(3)
 
 
-class Plane(int):
+@unique
+class Plane(IntEnumProps):
     """Coordinate system plane enum class.
 
     This static class defines integer constants corresponding to the
@@ -789,7 +811,8 @@ class Plane(int):
     (YZ, ZX, XY) = range(3)
 
 
-class Gravity(int):
+@unique
+class Gravity(IntEnumProps):
     """Gravity direction enum class.
 
     This static class defines integer constants corresponding to the
@@ -814,7 +837,8 @@ class Gravity(int):
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(6)
 
 
-class View(str):
+@unique
+class View(EnumProps, Enum):
     """View enum class.
 
     This static class defines integer constants corresponding to the
@@ -836,13 +860,15 @@ class View(str):
     (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
-class GlobalCS(str):
+@unique
+class GlobalCS(EnumProps, Enum):
     """Global coordinate system enum class."""
 
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
 
-class MatrixOperationsQ3D(str):
+@unique
+class MatrixOperationsQ3D(EnumProps, Enum):
     """Matrix operations for Q3D."""
 
     (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
@@ -858,7 +884,8 @@ class MatrixOperationsQ3D(str):
     )
 
 
-class MatrixOperationsQ2D(str):
+@unique
+class MatrixOperationsQ2D(EnumProps, Enum):
     """Matrix operations for Q2D."""
 
     (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
@@ -870,13 +897,15 @@ class MatrixOperationsQ2D(str):
     )
 
 
-class PlotCategoriesQ3D(str):
+@unique
+class PlotCategoriesQ3D(EnumProps, Enum):
     """Plot categories for Q3D."""
 
     (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
 
 
-class PlotCategoriesQ2D(str):
+@unique
+class PlotCategoriesQ2D(EnumProps, Enum):
     """Plot categories for Q2D."""
 
     (
@@ -895,61 +924,71 @@ class PlotCategoriesQ2D(str):
     ) = ("C", "G", "R", "L", "lumpC", "lumpG", "lumpR", "lumpL", "Z0", "Kf", "lumpKf", "Kb")
 
 
-class CSMode(str):
+@unique
+class CSMode(EnumProps, Enum):
     """Coordinate system mode enum class."""
 
     (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
 
 
-class SegmentType(int):
+@unique
+class SegmentType(IntEnumProps):
     """Segment type enum class."""
 
     (Line, Arc, Spline, AngularArc) = range(0, 4)
 
 
-class CrossSection(int):
+@unique
+class CrossSection(IntEnumProps):
     """Cross section enum class."""
 
     (NONE, Line, Circle, Rectangle, Trapezoid) = range(0, 5)
 
 
-class SweepDraft(int):
+@unique
+class SweepDraft(IntEnumProps):
     """Sweep draft type enum class."""
 
     (Extended, Round, Natural, Mixed) = range(0, 4)
 
 
-class FlipChipOrientation(int):
+@unique
+class FlipChipOrientation(IntEnumProps):
     """Flip chip orientation enum class."""
 
     (Up, Down) = range(0, 2)
 
 
-class SolverType(int):
+@unique
+class SolverType(IntEnumProps):
     """Provides solver type classes."""
 
     (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
 
 
-class CutoutSubdesignType(int):
+@unique
+class CutoutSubdesignType(IntEnumProps):
     """Cutout subdesign type enum class."""
 
     (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
 
 
-class RadiationBoxType(int):
+@unique
+class RadiationBoxType(IntEnumProps):
     """Radiation box type enum class."""
 
     (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
 
 
-class SweepType(int):
+@unique
+class SweepType(IntEnumProps):
     """Sweep type enum class."""
 
     (Linear, LogCount, Invalid) = range(0, 3)
 
 
-class BasisOrder(int):
+@unique
+class BasisOrder(IntEnumProps):
     """HFSS basis order settings enum class.
 
     Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
@@ -959,19 +998,22 @@ class BasisOrder(int):
     (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
 
 
-class NodeType(int):
+@unique
+class NodeType(IntEnumProps):
     """Enum class on the type of node for source creation."""
 
     (Positive, Negative, Floating) = range(0, 3)
 
 
-class SourceType(int):
+@unique
+class SourceType(IntEnumProps):
     """Type of excitation enum class."""
 
     (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc, DcTerminal) = range(0, 7)
 
 
-class SolutionsHfss(str):
+@unique
+class SolutionsHfss(EnumProps, Enum):
     """HFSS solution types enum class."""
 
     (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, CharacteristicMode) = (
@@ -984,7 +1026,7 @@ class SolutionsHfss(str):
     )
 
 
-class SolutionsMaxwell3D(str):
+class SolutionsMaxwell3D(EnumProps, Enum):
     """Maxwell 3D solution types enum class."""
 
     (
@@ -1058,7 +1100,7 @@ class SolutionsMaxwell3D(str):
         return new_enum
 
 
-class SolutionsMaxwell2D(str):
+class SolutionsMaxwell2D(EnumProps, Enum):
     """Maxwell 2D solution types enum class."""
 
     (
@@ -1147,9 +1189,8 @@ class SolutionsMaxwell2D(str):
         return new_enum
 
 
-class SolutionsIcepak(
-    str,
-):
+@unique
+class SolutionsIcepak(EnumProps, Enum):
     """Icepak solution types enum class."""
 
     (SteadyState, Transient) = (
@@ -1158,9 +1199,8 @@ class SolutionsIcepak(
     )
 
 
-class SolutionsCircuit(
-    str,
-):
+@unique
+class SolutionsCircuit(EnumProps, Enum):
     """Circuit solution types enum class."""
 
     (
@@ -1198,9 +1238,8 @@ class SolutionsCircuit(
     )
 
 
-class SolutionsMechanical(
-    str,
-):
+@unique
+class SolutionsMechanical(EnumProps, Enum):
     """Mechanical solution types enum class."""
 
     (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
@@ -1212,7 +1251,8 @@ class SolutionsMechanical(
     )
 
 
-class Setups(int):
+@unique
+class Setups(IntEnumProps):
     """Setup types enum class."""
 
     HFSSDrivenAuto = 0
@@ -1269,9 +1309,8 @@ class Setups(int):
     NSSM = 51
 
 
-class LineStyle(
-    str,
-):
+@unique
+class LineStyle(EnumProps, Enum):
     """Line style enum class."""
 
     (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
@@ -1287,9 +1326,8 @@ class LineStyle(
     )
 
 
-class TraceType(
-    str,
-):
+@unique
+class TraceType(EnumProps, Enum):
     """Trace type enum class."""
 
     (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
@@ -1306,9 +1344,8 @@ class TraceType(
     )
 
 
-class SymbolStyle(
-    str,
-):
+@unique
+class SymbolStyle(EnumProps, Enum):
     """Symbol style enum class."""
 
     (
@@ -1332,7 +1369,8 @@ class SymbolStyle(
     )
 
 
-class EnumUnits(int):
+@unique
+class EnumUnits(IntEnumProps):
     # Frequency
     hz = 0
     khz = auto()
@@ -2468,7 +2506,8 @@ class EnumUnits(int):
     Nppermi = auto()
 
 
-class AllowedMarkers(int):
+@unique
+class AllowedMarkers(IntEnumProps):
     Octahedron = 12
     Tetrahedron = 11
     Sphere = 9
