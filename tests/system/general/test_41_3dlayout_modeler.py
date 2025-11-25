@@ -97,14 +97,7 @@ def hfss3dl_post_app(add_app):
     app.close_project(app.project_name)
 
 
-@pytest.fixture()
-def hfss3dl_nets_app(add_app):
-    app = add_app(application=Hfss3dLayout, subfolder=test_subfolder, project_name=test_post_processing)
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="function")
 def examples(local_scratch):
     example_project = str(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Package.aedb")
     target_path = str(Path(local_scratch.path) / "Package_test_41.aedb")
@@ -1127,27 +1120,31 @@ def test_94_edit_3dlayout_extents(aedtapp):
 def test_95_create_text(aedtapp):
     assert aedtapp.modeler.create_text("test", [0, 0], "SIwave Regions")
 
-def test_96_change_nets_visibility(hfss3dl_nets_app):
+def test_96_change_nets_visibility(aedtapp, local_scratch):
     # Use test_post_processing project which has the required nets (V3P3_S0, V3P3_S3, V3P3_S5)
     # hide all
-    assert hfss3dl_nets_app.modeler.change_net_visibility(visible=False)
+    aedtapp.insert_design("ipc")
+    dxf_file = str(Path(TESTS_GENERAL_PATH) / "example_models" / "cad" / "ipc" / "layout.xml")
+    aedb_file = str(Path(local_scratch.path) / "ipc_out.aedb")
+    aedtapp.import_ipc2581(dxf_file, output_dir=aedb_file, control_file="")
+    assert aedtapp.modeler.change_net_visibility(visible=False)
     # hide all
-    assert hfss3dl_nets_app.modeler.change_net_visibility(visible="false")
+    assert aedtapp.modeler.change_net_visibility(visible="false")
     # visualize all
-    assert hfss3dl_nets_app.modeler.change_net_visibility(visible=True)
+    assert aedtapp.modeler.change_net_visibility(visible=True)
     # visualize all
-    assert hfss3dl_nets_app.modeler.change_net_visibility(visible="true")
+    assert aedtapp.modeler.change_net_visibility(visible="true")
     # visualize selected nets only
-    assert hfss3dl_nets_app.modeler.change_net_visibility(
+    assert aedtapp.modeler.change_net_visibility(
         ["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True
     )
     # hide selected nets and show others
-    assert hfss3dl_nets_app.modeler.change_net_visibility(
+    assert aedtapp.modeler.change_net_visibility(
         ["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False
     )
-    assert not hfss3dl_nets_app.modeler.change_net_visibility(["test1, test2"])
-    assert not hfss3dl_nets_app.modeler.change_net_visibility(visible="")
-    assert not hfss3dl_nets_app.modeler.change_net_visibility(visible=0)
+    assert not aedtapp.modeler.change_net_visibility(["test1, test2"])
+    assert not aedtapp.modeler.change_net_visibility(visible="")
+    assert not aedtapp.modeler.change_net_visibility(visible=0)
 
 @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
 def test_96_2_report_design(aedtapp):
