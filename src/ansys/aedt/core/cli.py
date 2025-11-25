@@ -1049,11 +1049,83 @@ app.add_typer(doc_app, name="doc")
 
 @doc_app.command(name="examples")
 def examples():
-    """Display PyAEDT version."""
+    """Open Examples url."""
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
     online_help.examples()
+
+
+@doc_app.command(name="github")
+def github():
+    """ "Open Github url."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.github()
+
+
+@doc_app.command(name="home")
+def home():
+    """Open Home url."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.home()
+
+
+@doc_app.command(name="user_guide")
+def user_guide():
+    """Open User guide url."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.user_guide()
+
+
+@doc_app.command(name="getting_started")
+def getting_started():
+    """Open Getting started url."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.getting_started()
+
+
+@doc_app.command(name="installation")
+def installation():
+    """Open installation url."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.installation_guide()
+
+
+@doc_app.command(name="api_reference")
+def api_reference():
+    """Open api reference url."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.api_reference()
+
+
+@doc_app.command(name="changelog")
+def changelog(pyaedt_version: str = typer.Argument(None)):
+    """Open API reference changelog."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.changelog(pyaedt_version)
+
+
+@doc_app.command(name="issues")
+def issues():
+    """Open api reference url."""
+    from ansys.aedt.core.help import online_help
+
+    online_help.silent = False
+    online_help.issues()
 
 
 if __name__ == "__main__":
