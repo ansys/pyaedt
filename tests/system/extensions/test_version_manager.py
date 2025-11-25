@@ -209,7 +209,7 @@ def test_version_manager_get_installed_version(add_app):
 
             # Test getting version of non-existent package
             fake_version = vm.get_installed_version("nonexistent-package-xyz")
-            assert fake_version == "Please restart"
+            assert fake_version == "Unknown"
 
             raise tkinter.TclError("Force error to exit cleanly")
     finally:

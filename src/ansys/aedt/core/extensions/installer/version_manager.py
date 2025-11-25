@@ -24,13 +24,14 @@
 
 import logging
 import os
-from pathlib import Path
 import platform
 import shutil
 import subprocess  # nosec
 import sys
+import tempfile
 import threading
 import tkinter
+from pathlib import Path
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
@@ -56,6 +57,119 @@ DISCLAIMER = (
     "Do you want to proceed?\n"
 )
 UNKNOWN_VERSION = "Unknown"
+
+# Update script templates
+WINDOWS_UPDATE_SCRIPT_TEMPLATE = """@echo off
+title Ansys Version Manager Update
+mode con: cols=120 lines=30
+color 0B
+cls
+echo ==============================================================================
+echo.
+echo                     Ansys Version Manager - Update Utility
+echo.
+echo ==============================================================================
+echo.
+echo Waiting for Version Manager (PID {current_pid}) to close...
+:loop
+tasklist /FI "PID eq {current_pid}" 2>NUL | find /I /N "{current_pid}">NUL
+if "%ERRORLEVEL%"=="0" (
+    timeout /t 1 >nul
+    goto :loop
+)
+echo.
+echo Version Manager closed.
+echo.
+echo ------------------------------------------------------------------------------
+echo Starting Update Process...
+echo Command: "{uv_exe}" pip {uv_pip_args_str}
+echo ------------------------------------------------------------------------------
+echo.
+"{uv_exe}" pip {uv_pip_args_str}
+if %errorlevel% neq 0 (
+    echo.
+    echo ------------------------------------------------------------------------------
+    echo [WARNING] UV failed, falling back to pip...
+    echo Command: "{python_exe}" -m pip {pip_args_str}
+    echo ------------------------------------------------------------------------------
+    echo.
+    "{python_exe}" -m pip {pip_args_str}
+    if %errorlevel% neq 0 (
+        color 0C
+        echo.
+        echo ==============================================================================
+        echo [ERROR] Update failed with error code %errorlevel%
+        echo ==============================================================================
+        pause
+        exit /b %errorlevel%
+    )
+)
+color 0A
+echo.
+echo ==============================================================================
+echo [SUCCESS] Update Complete.
+echo ==============================================================================
+echo.
+echo Restarting Version Manager in 5 seconds...
+timeout /t 5
+start "" "{python_exe}" "{script_path}"
+del "%~f0"
+exit
+"""
+
+LINUX_UPDATE_SCRIPT_TEMPLATE = """#!/bin/bash
+GREEN='\\033[0;32m'
+RED='\\033[0;31m'
+BLUE='\\033[0;34m'
+YELLOW='\\033[1;33m'
+NC='\\033[0m' # No Color
+
+clear
+echo -e "${{BLUE}}==============================================================================${{NC}}"
+echo -e "${{BLUE}}                    Ansys Version Manager - Update Utility${{NC}}"
+echo -e "${{BLUE}}==============================================================================${{NC}}"
+echo ""
+echo "Waiting for Version Manager (PID {current_pid}) to close..."
+while kill -0 {current_pid} 2>/dev/null; do
+    sleep 1
+done
+echo ""
+echo "Version Manager closed."
+echo ""
+echo "------------------------------------------------------------------------------"
+echo "Starting Update Process..."
+echo "Command: '{uv_exe}' pip {uv_pip_args_str}"
+echo "------------------------------------------------------------------------------"
+echo ""
+"{uv_exe}" pip {uv_pip_args_str}
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "------------------------------------------------------------------------------"
+    echo -e "${{YELLOW}}[WARNING] UV failed, falling back to pip...${{NC}}"
+    echo "Command: '{python_exe}' -m pip {pip_args_str}"
+    echo "------------------------------------------------------------------------------"
+    echo ""
+    "{python_exe}" -m pip {pip_args_str}
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo -e "${{RED}}==============================================================================${{NC}}"
+        echo -e "${{RED}}[ERROR] Update failed!${{NC}}"
+        echo -e "${{RED}}==============================================================================${{NC}}"
+        read -p "Press enter to close"
+        exit 1
+    fi
+fi
+echo ""
+echo -e "${{GREEN}}==============================================================================${{NC}}"
+echo -e "${{GREEN}}[SUCCESS] Update Complete.${{NC}}"
+echo -e "${{GREEN}}==============================================================================${{NC}}"
+echo ""
+echo "Restarting Version Manager..."
+sleep 2
+"{python_exe}" "{script_path}" &
+rm "$0"
+exit
+"""
 
 class VersionManager:
     TITLE = "Version Manager"
@@ -98,7 +212,6 @@ class VersionManager:
 
     @property
     def aedt_version(self):
-        from ansys.aedt.core.extensions.misc import get_aedt_version
         return get_aedt_version()
 
     @property
@@ -284,23 +397,14 @@ class VersionManager:
             entry = ttk.Entry(frame, width=30, textvariable=self.pyedb_branch_name)
             entry.pack(side="left")
 
-        def create_ui_pyaedt_buttons(frame):
-            buttons = [["Reset AEDT panels", self.reset_pyaedt_buttons_in_aedt]]
-            for text, cmd in buttons:
-                button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
-                button.pack(side="left", padx=10, pady=10)
-
         frame0 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
         frame1 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
-        frame2 = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=0)
 
         frame0.pack(padx=5, pady=5)
         frame1.pack(padx=5, pady=5)
-        frame2.pack(padx=5, pady=5)
 
         create_ui_pyaedt(frame0)
         create_ui_pyedb(frame1)
-        create_ui_pyaedt_buttons(frame2)
 
     @staticmethod
     def is_git_available():
@@ -329,13 +433,7 @@ class VersionManager:
             self.activated_env = os.environ.copy()
 
     def run_uv_pip(self, pip_args, capture_output=False, check=True):
-        """Run pip preferring the 'uv' launcher and falling back to 'python -m pip'.
-
-        Arguments:
-            pip_args: list of arguments to pip after the pip keyword, e.g. ['install', '-U', 'pyaedt']
-            capture_output: when True returns the stdout string (uses check_output)
-            check: passed to subprocess.run when not capturing output
-        """
+        """Run pip preferring the 'uv' launcher."""
         try:
             cmd = [self.uv_exe, "pip"] + pip_args
             cmd = [arg.replace("-U", "--upgrade") for arg in cmd]
@@ -351,80 +449,105 @@ class VersionManager:
             else:
                 subprocess.run(cmd, check=check, env=self.activated_env)  # nosec
 
-    def update_and_reload(self, pip_args, modules_to_unload=None): # pragma: no cover
-        """Attempt to release processes, unload modules, run pip, and
-        reload the modules.
-        """        
-        # Confirm action
+    def _create_windows_update_script(self, pip_args):
+        current_pid = os.getpid()
+        script_path = sys.argv[0]
+        
+        uv_args = [arg.replace("-U", "--upgrade") for arg in pip_args]
+        uv_pip_args_str = " ".join([f'"{arg}"' if " " in arg else arg for arg in uv_args])
+        
+        pip_args_str = " ".join([f'"{arg}"' if " " in arg else arg for arg in pip_args])
+        
+        tf = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.bat')
+        content = WINDOWS_UPDATE_SCRIPT_TEMPLATE.format(
+            current_pid=current_pid,
+            uv_exe=self.uv_exe,
+            uv_pip_args_str=uv_pip_args_str,
+            pip_args_str=pip_args_str,
+            python_exe=self.python_exe,
+            script_path=script_path
+        )
+        tf.write(content)
+        tf.close()
+        return tf.name
+
+    def _create_linux_update_script(self, pip_args):
+        current_pid = os.getpid()
+        script_path = sys.argv[0]
+        
+        # Create uv-compatible args (use --upgrade instead of -U)
+        uv_args = [arg.replace("-U", "--upgrade") for arg in pip_args]
+        uv_pip_args_str = " ".join([f'"{arg}"' if " " in arg else arg for arg in uv_args])
+        
+        # Keep original args for pip fallback (pip supports both -U and --upgrade)
+        pip_args_str = " ".join([f'"{arg}"' if " " in arg else arg for arg in pip_args])
+
+        tf = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.sh')
+        content = LINUX_UPDATE_SCRIPT_TEMPLATE.format(
+            current_pid=current_pid,
+            uv_exe=self.uv_exe,
+            uv_pip_args_str=uv_pip_args_str,
+            pip_args_str=pip_args_str,
+            python_exe=self.python_exe,
+            script_path=script_path
+        )
+        tf.write(content)
+        tf.close()
+        os.chmod(tf.name, 0o755)
+        return tf.name
+
+    def update_and_reload(self, pip_args): 
         response = messagebox.askyesno(
-            "Confirm Action",
-            "This will temporarily unload active modules, perform the "
-            "installation, and reload them. Continue?"
+            "Confirm Update",
+            "The Version Manager must close to perform this update safely.\n\n"
+            "A separate terminal window will open to process the update.\n"
+            "The application will restart automatically when finished.\n\n"
+            "Proceed?"
         )
         if not response:
             return
 
-        # Default modules to try unloading to free file handles
-        modules = modules_to_unload or ["ansys.aedt.core", "pyedb"]
-
-        # Attempt to unload modules in current process to free handles
         try:
-            import gc as _gc
-            import sys as _sys # nosec
-
-            for m in modules:
-                if m in _sys.modules:
-                    try:
-                        del _sys.modules[m]
-                    except Exception as e:
-                        messagebox.showerror("Error", f"Failed to remove module {m}: {e}")
-            _gc.collect()
-        except Exception as e:
-            # Show error to inform the user that unloading modules failed
-            messagebox.showerror("Error", f"Failed to unload modules: {e}")
-
-        # Run pip install/upgrade
-        try:
-            self.run_uv_pip(pip_args)
-        except Exception as exc:
-            messagebox.showerror("Error: Installation Failed",
-                               f"Installation failed: {exc}")
-            return
-
-        # Attempt to reimport the modules that were unloaded
-        try:
-            import importlib
-            for m in modules:
+            if self.is_windows:
+                updater_script = self._create_windows_update_script(pip_args)
+            else:
+                updater_script = self._create_linux_update_script(pip_args)
+            
+            # Release Desktop resources before closing
+            if self.desktop:
                 try:
-                    importlib.import_module(m)
-                except Exception as e:
-                    # Module may not be available or have dependencies — show error
-                    messagebox.showerror("Error", f"Failed to import module {m}: {e}")
+                    self.desktop.release_desktop(False, False)
+                except Exception:
+                    pass
+            
+            if self.is_windows:
+                # Flags to detach the process and break away from the parent job object
+                # CREATE_NEW_CONSOLE (0x10) + CREATE_BREAKAWAY_FROM_JOB (0x01000000)
+                flags = 0x00000010 | 0x01000000
+                try:
+                    subprocess.Popen(
+                        ["cmd.exe", "/c", updater_script], 
+                        creationflags=flags,
+                        close_fds=True
+                    )
+                except OSError:
+                    # Fallback if BREAKAWAY is not allowed
+                    subprocess.Popen(
+                        ["cmd.exe", "/c", updater_script], 
+                        creationflags=0x00000010,
+                        close_fds=True
+                    )
+            else:
+                subprocess.Popen(
+                    ["x-terminal-emulator", "-e", updater_script],
+                    preexec_fn=os.setsid
+                )
+
+            self.root.destroy()
+            sys.exit(0)
+            
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to reimport modules: {e}")
-
-        try:
-            self.reset_pyaedt_buttons_in_aedt(confirm=False)
-        except Exception:  # pragma: no cover
-            messagebox.showwarning(
-                "Warning",
-                "PyAEDT panels could not be updated in AEDT. You may "
-                "need to reset them manually.",
-            )
-
-        # Refresh the UI to show updated version information
-        self.clicked_refresh(need_restart=True)
-
-        # Inform user that update is complete
-        try:
-            messagebox.showinfo(
-                "Message",
-                "Update completed successfully. Module versions have "
-                "been refreshed."
-            )
-        except Exception as e:
-            # If showing the info fails, report it to the user
-            messagebox.showerror("Error", f"Failed to show completion message: {e}")
+            messagebox.showerror("Error", f"Failed to initiate update: {e}")
 
     def update_pyaedt(self):
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
@@ -438,9 +561,9 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                pip_args = ["install", f"pyaedt=={latest_version}"]
+                pip_args = ["install", f"pyaedt[all]=={latest_version}"]
             else:
-                pip_args = ["install", "-U", "pyaedt"]
+                pip_args = ["install", "-U", "pyaedt[all]"]
 
             self.update_and_reload(pip_args)
 
@@ -463,53 +586,38 @@ class VersionManager:
 
             self.update_and_reload(pip_args)
 
-    def update_all(self): # pragma: no cover
-        """Update both pyaedt and pyedb together.
-
-        This follows the same disclaimer and install flow as the individual update
-        methods and will attempt to pin to the latest PyPI version when a downgrade
-        is required.
-        """
+    def update_all(self): 
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
-
         if not response:
             return
 
         latest_pyaedt = get_latest_version("pyaedt")
         latest_pyedb = get_latest_version("pyedb")
 
-        if latest_pyaedt == UNKNOWN_VERSION or latest_pyedb == UNKNOWN_VERSION:
-            messagebox.showerror("Error: Installation Failed", "Could not retrieve latest versions from PyPI.")
-            return
-
         pip_args = ["install"]
 
-        # Decide pyaedt install args (pin if current > latest, else upgrade)
         try:
-            if self.pyaedt_version > latest_pyaedt:
-                pip_args.append(f"pyaedt=={latest_pyaedt}")
+            if latest_pyaedt != UNKNOWN_VERSION and self.pyaedt_version > latest_pyaedt:
+                pip_args.append(f"pyaedt[all]=={latest_pyaedt}")
             else:
-                pip_args.extend(["-U", "pyaedt"])
+                pip_args.extend(["-U", "pyaedt[all]"])
         except Exception:
-            pip_args.extend(["-U", "pyaedt"])
+            pip_args.extend(["-U", "pyaedt[all]"])
 
-        # Decide pyedb install args (pin if current > latest, else upgrade)
         try:
-            if self.pyedb_version > latest_pyedb:
+            if latest_pyedb != UNKNOWN_VERSION and self.pyedb_version > latest_pyedb:
                 pip_args.append(f"pyedb=={latest_pyedb}")
             else:
-                pip_args.extend(["pyedb"])
+                pip_args.append("pyedb")
         except Exception:
-            pip_args.extend(["pyedb"])
+            pip_args.append("pyedb")
 
         self.update_and_reload(pip_args)
 
     def get_pyaedt_branch(self):
         if not self.is_git_available():
             return
-
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
-
         if response:
             branch_name = self.pyaedt_branch_name.get()
             pip_args = ["install", f"git+https://github.com/ansys/pyaedt.git@{branch_name}"]
@@ -518,9 +626,7 @@ class VersionManager:
     def get_pyedb_branch(self):
         if not self.is_git_available():
             return
-
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
-
         if response:
             branch_name = self.pyedb_branch_name.get()
             pip_args = ["install", f"git+https://github.com/ansys/pyedb.git@{branch_name}"]
@@ -537,6 +643,7 @@ class VersionManager:
                     return True
                 elif v > t:
                     return False
+            return False
 
         file_selected = filedialog.askopenfilename(title="Select Wheelhouse")
 
@@ -544,177 +651,115 @@ class VersionManager:
             fpath = Path(file_selected)
             file_name = fpath.stem
 
-            _, pyaedt_version, wh_pkg_type, _, os_system, _, wh_python_version = file_name.split("-")
-            pyaedt_version = pyaedt_version.replace("v", "")
+            try:
+                parts = file_name.split("-")
+                pyaedt_version = parts[1].replace("v", "")
+                wh_pkg_type = parts[2]
+                wh_python_version = parts[-1]
+                os_system = parts[4]
+            except IndexError:
+                messagebox.showerror("Error", "Invalid Wheelhouse filename format.")
+                return
 
             msg = []
             correct_wheelhouse = file_name
 
-            # Check Python version
-            if not wh_python_version == self.python_version:
-                msg.extend(
-                    [
-                        "Wrong Python version",
-                        f"Wheelhouse: {wh_python_version}",
-                        f"Expected version: {self.python_version}",
-                    ]
-                )
+            if wh_python_version != self.python_version:
+                msg.extend([
+                    "Wrong Python version",
+                    f"Wheelhouse: {wh_python_version}",
+                    f"Expected version: {self.python_version}"
+                ])
                 correct_wheelhouse = correct_wheelhouse.replace(wh_python_version, self.python_version)
 
-            # NOTE: For compatibility reasons, we compare with 'installer' install target
-            # when PyAEDT's version is 0.15.3 or lower.
             if version_is_leq(pyaedt_version, "0.15.3"):
                 if wh_pkg_type != "installer":
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
-                    msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
+                    msg.extend(["", "Wheelhouse missing required installer packages."])
 
-            # Check OS
             if os_system == "windows":
                 if not self.is_windows:
-                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
-                    correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-windows-")
+                    msg.extend(["", "Incompatible OS (Windows vs Linux)."])
             else:
                 if not is_linux:
-                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
-                    correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-ubuntu-")
+                    msg.extend(["", "Incompatible OS (Linux vs Windows)."])
 
             if msg:
                 msg.extend(["", f"Please download {correct_wheelhouse}."])
-                msg = "\n".join(msg)
-                messagebox.showerror("Confirm Action", msg)
+                messagebox.showerror("Compatibility Error", "\n".join(msg))
                 return
-
-            # Check wheelhouse type
 
             unzipped_path = fpath.parent / fpath.stem
             if unzipped_path.exists():
                 shutil.rmtree(unzipped_path, ignore_errors=True)
-            with zipfile.ZipFile(fpath, "r") as zip_ref:
-                # Extract all contents to a directory. (You can specify a different extraction path if needed.)
-                zip_ref.extractall(unzipped_path)
+            
+            try:
+                with zipfile.ZipFile(fpath, "r") as zip_ref:
+                    zip_ref.extractall(unzipped_path)
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to unzip wheelhouse: {e}")
+                return
 
-            self.run_uv_pip([
+            pip_args = [
                 "install",
                 "--force-reinstall",
                 "--no-cache-dir",
                 "--no-index",
                 f"--find-links={unzipped_path.as_uri()}",
                 "pyaedt[all]",
-            ])
-
-            # Always reset PyAEDT panels after installing from wheelhouse
-            try:
-                self.reset_pyaedt_buttons_in_aedt(confirm=False)
-            except Exception:  # pragma: no cover
-                messagebox.showwarning(
-                    "Warning",
-                    "PyAEDT panels could not be updated in AEDT. You may need to reset them manually.",
-                )
-
-            self.clicked_refresh(need_restart=True)
-
-    def reset_pyaedt_buttons_in_aedt(self, confirm=True):
-        """Reset PyAEDT panels in AEDT.
-
-        If confirm is True, prompt the user before proceeding and show success/error dialogs.
-        If confirm is False, perform the reset silently (no confirmation dialog) and suppress dialogs on errors.
-        """
-        if confirm:
-            response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
-            if not response:
-                return
-
-        try:
-            from ansys.aedt.core.extensions.installer.pyaedt_installer import (
-                add_pyaedt_to_aedt,
-            )
-
-            add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
-            if confirm:
-                messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
-        except Exception as e:  # pragma: no cover - best-effort panel reset
-            if confirm:
-                messagebox.showerror("Error", f"Failed to update PyAEDT panels: {e}")
+            ]
+            
+            self.update_and_reload(pip_args)
 
     def get_installed_version(self, package_name):
-        """Return the installed version of package_name inside the virtualenv.
-
-        This runs the venv Python to query the package metadata so we can show
-        the updated version without restarting the current process.
-        """
         try:
-            # Prefer importlib.metadata (Python 3.8+). Use venv python to inspect
             cmd = [self.python_exe, "-c", "import importlib.metadata as m; print(m.version(\"%s\"))" % package_name]
-            out = subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec
+            out = subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)
             return out.strip()
         except Exception:
             try:
-                # Fallback to 'pip show' and parse Version
                 out = self.run_uv_pip(["show", package_name], capture_output=True)
                 for line in out.splitlines():
                     if line.startswith("Version:"):
                         return line.split(":", 1)[1].strip()
-            except Exception:  # pragma: no cover
-                return "Please restart"
+            except Exception:
+                return UNKNOWN_VERSION
 
     def clicked_refresh(self, need_restart=False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)
 
-        if need_restart is False:
-            self.pyaedt_info.set(f"PyAEDT: {self.pyaedt_version} (Latest {get_latest_version('pyaedt')})")
-            self.pyedb_info.set(f"PyEDB: {self.pyedb_version} (Latest {get_latest_version('pyedb')})")
-        else:
-            # Try to detect the newly installed versions inside the venv so we can
-            # display the updated version immediately without forcing a restart.
-            try:
-                pyaedt_installed = self.get_installed_version("pyaedt")
-            except Exception:  # pragma: no cover
-                pyaedt_installed = "Please restart"
+        latest_pyaedt = get_latest_version("pyaedt")
+        latest_pyedb = get_latest_version("pyedb")
+        
+        self.pyaedt_info.set(f"PyAEDT: {self.pyaedt_version} (Latest {latest_pyaedt})")
+        self.pyedb_info.set(f"PyEDB: {self.pyedb_version} (Latest {latest_pyedb})")
 
-            try:
-                pyedb_installed = self.get_installed_version("pyedb")
-            except Exception:  # pragma: no cover
-                pyedb_installed = "Please restart"
-
-            latest_pyaedt = get_latest_version("pyaedt")
-            latest_pyedb = get_latest_version("pyedb")
-
-            self.pyaedt_info.set(f"PyAEDT: {pyaedt_installed} (Latest {latest_pyaedt})")
-            self.pyedb_info.set(f"PyEDB: {pyedb_installed} (Latest {latest_pyedb})")
+        if need_restart:
             messagebox.showinfo("Message", "Done")
-    def _on_close(self):
-        """Best-effort cleanup when the extension window is closed.
 
-        If a Desktop instance was provided, attempt to release it (without
-        closing AEDT). Finally, destroy the Tk root window.
-        """
+    def _on_close(self):
         try:
             desktop_obj = getattr(self, "desktop", None)
             if desktop_obj is not None:
                 try:
-                    # Release desktop without closing projects or AEDT app.
                     desktop_obj.release_desktop(False, False)
                 except Exception:
-                    # Swallow all exceptions to avoid preventing the UI from closing.
                     logging.getLogger("Global").debug("Failed to release desktop", exc_info=True)
         finally:
             try:
-                # Attempt to close the Tk window regardless of desktop release outcome.
                 if getattr(self, "root", None) is not None:
                     self.root.destroy()
             except Exception:
                 logging.getLogger("Global").debug("Failed to destroy root window", exc_info=True)
 
     def check_for_pyaedt_update_on_startup(self):
-        """Spawn a background thread to check PyPI for a newer PyAEDT release."""
         def worker():
             log = logging.getLogger("Global")
             try:
                 latest, declined_file = check_for_pyaedt_update(self.desktop.personallib)
                 if not latest:
-                    log.debug("PyAEDT update check: no prompt required or latest unavailable.")
                     return
                 try:
                     self.root.after(
@@ -722,84 +767,43 @@ class VersionManager:
                         lambda: self.show_pyaedt_update_notification(latest, declined_file)
                     )
                 except Exception:
-                    log.debug("PyAEDT update check: failed to schedule notification.", exc_info=True)
+                    pass
             except Exception:
                 log.debug("PyAEDT update check: worker failed.", exc_info=True)
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
-        """Display a notification dialog informing the user about a new PyAEDT version."""
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):
         try:
             dlg = tkinter.Toplevel(self.root)
-            dlg.title("PyAEDT Update Available")
+            dlg.title("Update Available")
             dlg.resizable(False, False)
+            
+            width, height = 500, 150
+            x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
+            y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
+            dlg.geometry(f"{width}x{height}+{x}+{y}")
 
-            # Center dialog
-            try:
-                self.root.update_idletasks()
-                width, height = 500, 150
-                x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
-                y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
-                dlg.geometry(f"{width}x{height}+{x}+{y}")
-            except Exception:
-                logging.getLogger("Global").debug("Failed to center update notification", exc_info=True)
-
-            # Create frame for label and changelog button
             label_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
-            label_frame.pack(
-                padx=20, pady=(20, 10), expand=True, fill="both"
-            )
+            label_frame.pack(padx=20, pady=(20, 10), expand=True, fill="both")
 
             ttk.Label(
                 label_frame,
-                text=(
-                    f"A new version of PyAEDT is available: "
-                    f"{latest_version}\n"
-                    "You can update it using the buttons in this "
-                    "Version Manager."
-                ),
+                text=(f"A new version of PyAEDT is available: {latest_version}\n"),
                 style="PyAEDT.TLabel",
                 anchor="center",
                 justify="center",
             ).pack(side="left", expand=True, fill="both")
 
-            def open_changelog():
-                try:
-                    url = ("https://aedt.docs.pyansys.com/version/stable/"
-                           "changelog.html")
-                    webbrowser.open(str(url))
-                    logging.getLogger("Global").info(
-                        "Opened PyAEDT changelog."
-                    )
-                except Exception:
-                    logging.getLogger("Global").debug(
-                        "Failed to open changelog", exc_info=True
-                    )
-
-            changelog_btn = ttk.Button(
-                label_frame,
-                text="?",
-                command=open_changelog,
-                style="PyAEDT.TButton",
-                width=3
-            )
-            changelog_btn.pack(side="right", padx=(5, 0))
-            ToolTip(changelog_btn, "View changelog")
-
             btn_frame = ttk.Frame(dlg, style="PyAEDT.TFrame")
             btn_frame.pack(padx=10, pady=(0, 10), fill="x")
 
             def close_notification():
-                # Save the declined version to avoid showing again
                 try:
                     declined_file_path.parent.mkdir(parents=True, exist_ok=True)
                     declined_file_path.write_text(latest_version, encoding="utf-8")
                 except Exception:
-                    logging.getLogger("Global").debug(
-                        "PyAEDT update notification: failed to record declined version.",
-                        exc_info=True,
-                    )
+                    pass
                 dlg.destroy()
 
             ttk.Button(btn_frame, text="Close", command=close_notification, style="PyAEDT.TButton").pack(
@@ -810,7 +814,7 @@ class VersionManager:
             dlg.grab_set()
             self.root.wait_window(dlg)
         except Exception:
-            logging.getLogger("Global").debug("PyAEDT update notification: failed to display.", exc_info=True)
+            logging.getLogger("Global").debug("Notification error.", exc_info=True)
 
 
 def get_desktop():
@@ -826,12 +830,10 @@ def get_desktop():
         ng = True
 
     aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
-
     return aedtapp
 
 
 if __name__ == "__main__": # pragma: no cover
-    # Initialize tkinter root window and run the app
     desktop = get_desktop()
     root = tkinter.Tk()
     app = VersionManager(root, desktop)
