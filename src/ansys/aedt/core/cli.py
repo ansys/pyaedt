@@ -1075,7 +1075,7 @@ def home():
     online_help.home()
 
 
-@doc_app.command(name="user-guide", help="Open the online User guide section of the PyAEDT documentation")
+@doc_app.command(name="user-guide", help="Open the online user guide section of the PyAEDT documentation")
 def user_guide():
     """Open User guide url."""
     from ansys.aedt.core.help import online_help
@@ -1084,7 +1084,7 @@ def user_guide():
     online_help.user_guide()
 
 
-@doc_app.command(name="getting-started", help="Open the online Getting started section of the PyAEDT documentation")
+@doc_app.command(name="getting-started", help="Open the online getting started section of the PyAEDT documentation")
 def getting_started():
     """Open Getting started url."""
     from ansys.aedt.core.help import online_help
