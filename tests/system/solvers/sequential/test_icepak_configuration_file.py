@@ -180,8 +180,8 @@ class TestClass:
         assert icepak_b.configurations.validate(conf_file)
         file_parasolid = filename + ".x_b"
         file_path = Path(icepak_b.working_directory) / file_parasolid
-        new_path = local_scratch.path / "new_proj_Ipk.aedt"
-        app = available_file_name(add_app(application=Icepak, project_name=new_path, just_open=True))
+        new_path = available_file_name(local_scratch.path / "new_proj_Ipk.aedt")
+        app = add_app(application=Icepak, project_name=new_path, just_open=True)
         app.modeler.import_3d_cad(str(file_path))
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
