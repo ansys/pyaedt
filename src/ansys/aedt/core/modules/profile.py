@@ -1508,7 +1508,7 @@ class Profiles(Mapping, PyAedtBase):
 
     def __repr__(self):
         """Unambiguous representation of the mapping."""
-        repr_str = f"{self.__class__.__name__}({dict(self)!r})"
+        repr_str = f"{self.__class__.__name__}({list(self.keys())})"
         return str(repr_str)
 
     @pyaedt_function_handler()
