@@ -2607,8 +2607,11 @@ class Desktop(PyAedtBase):
             else:
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
-        elif settings.use_multi_desktop or (
-            self.new_desktop and (not settings.grpc_local or self.aedt_version_id < "2024.2")
+        elif self.new_desktop and (
+            "PYTEST_CURRENT_TEST" in os.environ
+            or not settings.grpc_local
+            or self.aedt_version_id < "2024.2"
+            or settings.use_multi_desktop
         ):  # pragma: no cover
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
