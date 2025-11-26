@@ -354,6 +354,9 @@ def _log_method(func, new_args, new_kwargs):
         return
     if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
         return
+    # Avoid infinite recursion with __repr__ and __str__ methods
+    if func.__name__ in ("__repr__", "__str__"):
+        return
     if (
         not settings.enable_debug_edb_logger
         and "Edb" in str(func) + str(new_args)
