@@ -27,6 +27,7 @@ import threading
 import time
 
 import psutil
+
 try:
     import typer
 except ImportError:  # pragma: no cover
@@ -235,9 +236,7 @@ def stop(
 
         try:
             target_proc.kill()
-            typer.secho(
-                f"✓ Process with PID {target_proc.pid} listening on port {port} has been stopped.", fg="green"
-            )
+            typer.secho(f"✓ Process with PID {target_proc.pid} listening on port {port} has been stopped.", fg="green")
         except psutil.NoSuchProcess:
             typer.secho(f"! Process {target_proc.pid} no longer exists.", fg="yellow")
         except Exception:

@@ -22,12 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import getpass
 import json
 from pathlib import Path
 import platform
-import getpass
 
 import psutil
+
 try:
     import typer
 except ImportError:  # pragma: no cover

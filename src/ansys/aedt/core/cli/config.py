@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import json
-from pathlib import Path
 
 try:
     import typer
@@ -39,7 +37,6 @@ from ansys.aedt.core.cli.common import _get_config_path
 from ansys.aedt.core.cli.common import _load_config
 from ansys.aedt.core.cli.common import _prompt_config_value
 from ansys.aedt.core.cli.common import _save_config
-
 
 config_app = typer.Typer(help="Configuration management commands")
 test_app = typer.Typer(help="Test configuration management commands", invoke_without_command=True)
