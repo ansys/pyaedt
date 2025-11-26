@@ -1459,8 +1459,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def __create_temp_project(app):
         """Create temporary project with a duplicated design."""
         from ansys.aedt.core import Icepak
-        temp_proj_name = generate_unique_project_name()
-        ipkapp_temp = Icepak(project=Path(app.toolkit_directory) / temp_proj_name)
+        temp_proj_name = generate_unique_project_name(str(app.toolkit_directory))
+        ipkapp_temp = Icepak(project=temp_proj_name)
         ipkapp_temp.delete_design(ipkapp_temp.design_name)
         app.oproject.CopyDesign(app.design_name)
         ipkapp_temp.oproject.Paste()
