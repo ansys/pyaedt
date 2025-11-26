@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from fileinput import filename
 from pathlib import Path
 import re
 
@@ -105,6 +106,19 @@ _all_lines = []
 _len_all_lines = 0
 _count = 0
 
+def get_design_list_from_aedt_file(filename):
+    """Get the list of designs in an AEDT file.
+
+    Parameters
+    ----------
+    filename :
+        AEDT filename with path
+    returns
+    -------
+    """
+    
+    designs = load_keyword_in_aedt_file(filename, "ProjectPreview")['ProjectPreview']
+    return [info['DesignName'] for info in designs['DesignInfo']]
 
 def _parse_value(v):
     """Parse value in C# format."""
