@@ -188,14 +188,14 @@ class VersionManager:
         # Use the venv "Scripts" on Windows and "bin" on POSIX; choose platform-appropriate executable name.
         bin_dir = "Scripts" if self.is_windows else "bin"
         exe_name = "python.exe" if self.is_windows else "python"
-        return os.path.join(self.venv_path, bin_dir, exe_name)
+        return str(Path(self.venv_path) / bin_dir / exe_name)
 
     @property
     def uv_exe(self):
         # 'uv' is named 'uv.exe' on Windows, 'uv' on POSIX and lives in the venv scripts/bin dir.
         bin_dir = "Scripts" if self.is_windows else "bin"
         uv_name = "uv.exe" if self.is_windows else "uv"
-        return os.path.join(self.venv_path, bin_dir, uv_name)
+        return str(Path(self.venv_path) / bin_dir / uv_name)
 
     @property
     def python_version(self):
@@ -249,7 +249,7 @@ class VersionManager:
 
         # Install uv if not present
         if "PYTEST_CURRENT_TEST" not in os.environ: # pragma: no cover
-            if not os.path.exists(self.uv_exe):
+            if not Path(self.uv_exe).exists():
                 print("Installing uv...")
                 subprocess.run([self.python_exe, "-m", "pip", "install", "uv"], check=True, env=self.activated_env)  # nosec
 
@@ -417,9 +417,10 @@ class VersionManager:
         """Prepare a subprocess environment that has the virtual environment activated.
         """
         try:
-            scripts_dir = (
-                os.path.join(self.venv_path, "Scripts") if self.is_windows else os.path.join(self.venv_path, "bin")
-            )
+            if self.is_windows:
+                scripts_dir = str(Path(self.venv_path) / "Scripts")
+            else:
+                scripts_dir = str(Path(self.venv_path) / "bin")
             env = os.environ.copy()
             # Prepend venv scripts/bin to PATH so executables from the venv are preferred
             env["PATH"] = scripts_dir + os.pathsep + env.get("PATH", "")
@@ -452,12 +453,12 @@ class VersionManager:
     def _create_windows_update_script(self, pip_args):
         current_pid = os.getpid()
         script_path = sys.argv[0]
-        
+
         uv_args = [arg.replace("-U", "--upgrade") for arg in pip_args]
         uv_pip_args_str = " ".join([f'"{arg}"' if " " in arg else arg for arg in uv_args])
-        
+
         pip_args_str = " ".join([f'"{arg}"' if " " in arg else arg for arg in pip_args])
-        
+
         tf = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.bat')
         content = WINDOWS_UPDATE_SCRIPT_TEMPLATE.format(
             current_pid=current_pid,
@@ -493,10 +494,10 @@ class VersionManager:
         )
         tf.write(content)
         tf.close()
-        os.chmod(tf.name, 0o755)
+        os.chmod(tf.name, 0o750)  # nosec B103
         return tf.name
 
-    def update_and_reload(self, pip_args): 
+    def update_and_reload(self, pip_args):
         response = messagebox.askyesno(
             "Confirm Update",
             "The Version Manager must close to perform this update safely.\n\n"
@@ -517,28 +518,30 @@ class VersionManager:
             if self.desktop:
                 try:
                     self.desktop.release_desktop(False, False)
-                except Exception:
-                    pass
+                except Exception as ex:
+                    logging.getLogger("Global").debug(
+                        "Failed to release desktop: %s", ex
+                    )
             
             if self.is_windows:
                 # Flags to detach the process and break away from the parent job object
                 # CREATE_NEW_CONSOLE (0x10) + CREATE_BREAKAWAY_FROM_JOB (0x01000000)
                 flags = 0x00000010 | 0x01000000
                 try:
-                    subprocess.Popen(
-                        ["cmd.exe", "/c", updater_script], 
+                    subprocess.Popen(  # nosec B603
+                        ["cmd.exe", "/c", updater_script],
                         creationflags=flags,
                         close_fds=True
                     )
                 except OSError:
                     # Fallback if BREAKAWAY is not allowed
-                    subprocess.Popen(
-                        ["cmd.exe", "/c", updater_script], 
+                    subprocess.Popen(  # nosec B603
+                        ["cmd.exe", "/c", updater_script],
                         creationflags=0x00000010,
                         close_fds=True
                     )
             else:
-                subprocess.Popen(
+                subprocess.Popen(  # nosec B603
                     ["x-terminal-emulator", "-e", updater_script],
                     preexec_fn=os.setsid
                 )
@@ -586,7 +589,7 @@ class VersionManager:
 
             self.update_and_reload(pip_args)
 
-    def update_all(self): 
+    def update_all(self):
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
         if not response:
             return
@@ -714,7 +717,7 @@ class VersionManager:
     def get_installed_version(self, package_name):
         try:
             cmd = [self.python_exe, "-c", "import importlib.metadata as m; print(m.version(\"%s\"))" % package_name]
-            out = subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)
+            out = subprocess.check_output(cmd, env=self.activated_env, stderr=subprocess.DEVNULL, text=True)  # nosec B603
             return out.strip()
         except Exception:
             try:
