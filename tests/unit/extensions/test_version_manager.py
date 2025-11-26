@@ -172,9 +172,7 @@ def test_activate_venv_and_exes():
     # Ensure python and uv point inside sys.prefix
     assert manager.venv_path == sys.prefix
     pyexe = manager.python_exe
-    uve = manager.uv_exe
     assert str(manager.venv_path) in pyexe
-    assert str(manager.venv_path) in uve
 
     # Activate venv explicitly and check env keys
     manager.activate_venv()
@@ -318,7 +316,7 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     manager.update_from_wheelhouse()
     assert mock_showerror.called
     error_msg = mock_showerror.call_args[0][1]
-    assert "Wheelhouse missing required installer packages" in error_msg or "Incompatible OS" in error_msg
+    assert "Wheelhouse missing required installer packages" in error_msg or "This wheelhouse is not compatible with your operating system." in error_msg
 
     # 4) OS mismatch: wheelhouse is windows but manager running on non-windows
     manager.is_windows = False
@@ -330,10 +328,10 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_showerror.reset_mock()
     manager.update_from_wheelhouse()
     assert mock_showerror.called
-    assert "Incompatible OS" in mock_showerror.call_args[0][1]
+    assert "This wheelhouse is not compatible with your operating system." in mock_showerror.call_args[0][1]
 
     # 5) Success path: matching python, installer pkg type and OS
-    # update_and_reload should be called
+    # run_pip should be called directly (not update_and_reload)
     manager.is_windows = True
     vm.is_linux = False
     stem = "pyaedt-v1.2.3-installer-foo-windows-bar-3.10"
@@ -341,15 +339,15 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_askopen.return_value = str(z)
     mock_run.reset_mock()
     mock_showerror.reset_mock()
-    manager.update_and_reload.reset_mock()
-
-    manager.update_from_wheelhouse()
-
-    assert manager.update_and_reload.called
-    pip_args = manager.update_and_reload.call_args[0][0]
-    assert "install" in pip_args
-    assert "--force-reinstall" in pip_args
-    assert any("pyaedt[all]" in str(x) for x in pip_args)
+    
+    with patch.object(manager, 'run_pip') as mock_run_pip:
+        manager.update_from_wheelhouse()
+        
+        assert mock_run_pip.called
+        pip_args = mock_run_pip.call_args[0][0]
+        assert "install" in pip_args
+        assert "--force-reinstall" in pip_args
+        assert any("pyaedt[all]" in str(x) for x in pip_args)
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
@@ -510,19 +508,31 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     # User declines disclaimer
     mock_askyesno.return_value = False
     manager.update_all()
+    
+    # Test when pyaedt version is unknown - should show error and NOT call update_and_reload
     mock_askyesno.return_value = True
-    side_effect_unknown_pyaedt = lambda pkg: vm.UNKNOWN_VERSION if pkg == "pyaedt" else "1.0.0"
+
+    def side_effect_unknown_pyaedt(pkg):
+        return vm.UNKNOWN_VERSION if pkg == "pyaedt" else "1.0.0"
+
     mock_get_latest.side_effect = side_effect_unknown_pyaedt
     manager.update_and_reload.reset_mock()
+    mock_showerror.reset_mock()
     manager.update_all()
-    assert manager.update_and_reload.called
+    assert not manager.update_and_reload.called
+    assert mock_showerror.called
 
     mock_askyesno.return_value = True
-    side_effect_unknown_pyedb = lambda pkg: "1.0.0" if pkg == "pyaedt" else vm.UNKNOWN_VERSION
+
+    def side_effect_unknown_pyedb(pkg):
+        return "1.0.0" if pkg == "pyaedt" else vm.UNKNOWN_VERSION
+
     mock_get_latest.side_effect = side_effect_unknown_pyedb
     manager.update_and_reload.reset_mock()
+    mock_showerror.reset_mock()
     manager.update_all()
-    assert manager.update_and_reload.called
+    assert not manager.update_and_reload.called
+    assert mock_showerror.called
 
     # User accepts both versions - pin older pyaedt, upgrade pyedb
     mock_askyesno.return_value = True
@@ -806,71 +816,6 @@ def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, 
     worker_func()
 
     mock_check_update.assert_called_once_with(manager.desktop.personallib)
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.os.getpid")
-@patch("ansys.aedt.core.extensions.installer.version_manager.sys.argv", ["/path/to/script.py"])
-def test_create_windows_update_script(mock_getpid, tmp_path):
-    """Test _create_windows_update_script creates valid batch."""
-    manager = _make_vm()
-    manager.is_windows = True
-
-    # Mock process ID
-    mock_getpid.return_value = 12345
-
-    # Test with pip args containing -U and spaces
-    pip_args = ["install", "-U", "pyaedt[all]", "some package with spaces"]
-
-    # Call the method
-    script_path = manager._create_windows_update_script(pip_args)
-
-    # Verify file was created
-    assert os.path.exists(script_path)
-    assert script_path.endswith(".bat")
-
-    # Read and verify content
-    with open(script_path, "r") as f:
-        content = f.read()
-
-    # Check key elements are in the script
-    assert "12345" in content  # PID
-    assert "pyaedt[all]" in content
-    assert manager.uv_exe in content
-    assert manager.python_exe in content
-    assert "/path/to/script.py" in content
-    # -U should be replaced with --upgrade for uv
-    assert "--upgrade" in content
-    # Spaces should be quoted
-    assert '"some package with spaces"' in content
-
-    # Cleanup
-    os.remove(script_path)
-
-
-@patch("ansys.aedt.core.extensions.installer.version_manager.os.getpid")
-@patch("ansys.aedt.core.extensions.installer.version_manager.sys.argv", ["/path/to/script.py"])
-@patch("ansys.aedt.core.extensions.installer.version_manager.os.chmod")
-def test_create_linux_update_script(mock_chmod, mock_getpid, tmp_path):
-    """Test _create_linux_update_script creates valid shell."""
-    manager = _make_vm()
-    manager.is_windows = False
-    mock_getpid.return_value = 54321
-    pip_args = ["install", "-U", "pyedb", "another package"]
-    script_path = manager._create_linux_update_script(pip_args)
-    assert os.path.exists(script_path)
-    assert script_path.endswith(".sh")
-    mock_chmod.assert_called_once_with(script_path, 0o750)
-    with open(script_path, "r") as f:
-        content = f.read()
-    assert "#!/bin/bash" in content
-    assert "54321" in content
-    assert "pyedb" in content
-    assert manager.uv_exe in content
-    assert manager.python_exe in content
-    assert "/path/to/script.py" in content
-    assert "--upgrade" in content
-
-    os.remove(script_path)
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_port")
