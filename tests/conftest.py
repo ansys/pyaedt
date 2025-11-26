@@ -49,7 +49,6 @@ VISUALIZATION_GENERAL_TEST_PREFIX = "tests/system/visualization"
 EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
-GRPC_CONNECTION_TIMEOUT = 240
 
 DEFAULT_CONFIG = {
     "desktopVersion": "2025.2",
@@ -90,7 +89,6 @@ if settings.use_local_example_data:
 
 logger = pyaedt_logger
 os.environ["PYAEDT_SCRIPT_VERSION"] = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
-os.environ["AnsysEM_GRPC_Connection_Timeout"] = f"{GRPC_CONNECTION_TIMEOUT}"
 
 # Add current path to sys.path for imports
 sys.path.append(str(local_path))

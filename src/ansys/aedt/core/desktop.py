@@ -1153,6 +1153,8 @@ class Desktop(PyAedtBase):
             try:
                 active_project = self.odesktop.SetActiveProject(name)
             except Exception:
+                self.logger.error(f"Failed to set active project to {name}")
+                self.logger.error(f"Current available projects: {self.project_list}")
                 return None
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
@@ -1525,6 +1527,8 @@ class Desktop(PyAedtBase):
                             os.kill(pid, 9)
                             break
                         timeout -= 1
+                    self.grpc_plugin = None
+                    self.odesktop = None
                 return True
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
@@ -1575,8 +1579,9 @@ class Desktop(PyAedtBase):
             return True
         if self.is_grpc_api:
             self.grpc_plugin.recreate_application(True)
-        self.logger.oproject = None
-        self.logger.odesign = None
+        self.logger._desktop_class = None
+        self.logger._oproject = None
+        self.logger._odesign = None
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             close_projects = True
             close_aedt_app = True
@@ -1603,9 +1608,7 @@ class Desktop(PyAedtBase):
         if not result:  # pragma: no cover
             self.logger.error("Error releasing desktop.")
             return False
-        self.logger._desktop_class = None
-        self.logger._oproject = None
-        self.logger._odesign = None
+
         if close_aedt_app:
             self.logger.info("Desktop has been released and closed.")
         else:
@@ -2534,6 +2537,7 @@ class Desktop(PyAedtBase):
             # This environment variable is not necessary for UDS and WNUA modes.
             if os.environ.get("PYAEDT_USE_PRE_GRPC_ARGS", "False") == "True":
                 self.machine = self.machine.split(":")[0] if self.machine else self.machine
+
             oapp = self.grpc_plugin.CreateAedtApplication(self.machine, self.port, self.non_graphical, self.new_desktop)
             self.port = self.grpc_plugin.port
             self.aedt_process_id = self.odesktop.GetProcessID()
