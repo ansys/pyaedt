@@ -1370,7 +1370,11 @@ class VariableManager(PyAedtBase):
 
         if "GetVariables" in desktop_object.__dir__():
             var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
-        var_list += [i for i in list(self._app.oproject.GetArrayVariables()) if i not in var_list]
+        try:
+            arr_vars = list(self._app.oproject.GetArrayVariables())
+            var_list += [i for i in arr_vars if i not in var_list]
+        except Exception:
+            self._app.logger.debug("Could not retrieve array variables from project.")
         return var_list
 
 
