@@ -1508,11 +1508,8 @@ class Profiles(Mapping, PyAedtBase):
 
     def __repr__(self):
         """Unambiguous representation of the mapping."""
-        try:
-            repr_str = f"{self.__class__.__name__}({list(self.keys())})"
-            return str(repr_str)
-        except Exception:
-            return f"{self.__class__.__name__}"
+        repr_str = f"{self.__class__.__name__}"
+        return str(repr_str)
 
     @pyaedt_function_handler()
     def keys(self):
