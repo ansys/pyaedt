@@ -528,20 +528,20 @@ class VersionManager:
                 # CREATE_NEW_CONSOLE (0x10) + CREATE_BREAKAWAY_FROM_JOB (0x01000000)
                 flags = 0x00000010 | 0x01000000
                 try:
-                    subprocess.Popen(  # nosec B603
+                    subprocess.Popen(  # nosec B603 B607
                         ["cmd.exe", "/c", updater_script],
                         creationflags=flags,
                         close_fds=True
                     )
                 except OSError:
                     # Fallback if BREAKAWAY is not allowed
-                    subprocess.Popen(  # nosec B603
+                    subprocess.Popen(  # nosec B603 B607
                         ["cmd.exe", "/c", updater_script],
                         creationflags=0x00000010,
                         close_fds=True
                     )
             else:
-                subprocess.Popen(  # nosec B603
+                subprocess.Popen(  # nosec B603 B607
                     ["x-terminal-emulator", "-e", updater_script],
                     preexec_fn=os.setsid
                 )
@@ -769,8 +769,8 @@ class VersionManager:
                         0,
                         lambda: self.show_pyaedt_update_notification(latest, declined_file)
                     )
-                except Exception:
-                    pass
+                except Exception as ex:
+                    log.debug("Failed to schedule update notification: %s", ex)
             except Exception:
                 log.debug("PyAEDT update check: worker failed.", exc_info=True)
 
@@ -805,8 +805,10 @@ class VersionManager:
                 try:
                     declined_file_path.parent.mkdir(parents=True, exist_ok=True)
                     declined_file_path.write_text(latest_version, encoding="utf-8")
-                except Exception:
-                    pass
+                except Exception as ex:
+                    logging.getLogger("Global").debug(
+                        "Failed to save declined version: %s", ex
+                    )
                 dlg.destroy()
 
             ttk.Button(btn_frame, text="Close", command=close_notification, style="PyAEDT.TButton").pack(
