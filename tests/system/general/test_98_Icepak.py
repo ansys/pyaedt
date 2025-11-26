@@ -1337,7 +1337,7 @@ def test_assign_network(ipk_app, add_app, local_scratch):
     thermal_b = app.boundaries
     thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
     thermal_b[0].update()
-    app.close_project()
+    app.close_project(save=False)
 
 
 def test_get_fans_operating_point(fan_op_point_app):
@@ -1445,7 +1445,7 @@ def test_update_3d_component(ipk_app, local_scratch):
     comp.modeler.refresh_all_ids()
     comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
     comp.modeler.create_3dcomponent(component_filepath)
-    comp.close_project()
+    comp.close_project(save=False)
     assert ipk_app.modeler.user_defined_components["test"].update_definition()
 
 
