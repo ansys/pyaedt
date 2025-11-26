@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pathlib import Path
+import tempfile
 
 import pytest
 
@@ -50,6 +51,7 @@ def aedtapp(add_app, local_scratch):
     project_file = available_file_name(local_scratch.path / "q3d_test.aedt")
     app = add_app(application=Q3d, project_name=project_file, just_open=True)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -57,6 +59,7 @@ def aedtapp(add_app, local_scratch):
 def coupling(add_app):
     app = add_app(application=Q3d, project_name=mutual_coupling, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -64,6 +67,7 @@ def coupling(add_app):
 def bond(add_app):
     app = add_app(project_name=bondwire_project_name, subfolder=test_subfolder, application=Q3d)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -71,6 +75,7 @@ def bond(add_app):
 def q3d_solved(add_app):
     app = add_app(project_name=q3d_solved_file, subfolder=test_subfolder, application=Q3d)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -78,6 +83,7 @@ def q3d_solved(add_app):
 def q3d_solved2(add_app):
     app = add_app(project_name=q3d_solved2_file, subfolder=test_subfolder, application=Q3d)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 

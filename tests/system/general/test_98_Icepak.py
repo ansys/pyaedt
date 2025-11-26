@@ -73,89 +73,78 @@ on_ci = os.getenv("ON_CI", "false").lower() == "true"
 
 
 @pytest.fixture()
-def board_3dl_app(add_app, local_scratch):
+def board_3dl_app(add_app):
     app = add_app(project_name=board_3dl, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def board_ipk_app(add_app, local_scratch):
+def board_ipk_app(add_app):
     app = add_app(project_name=board_ipk, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def usb_ipk_app(add_app, local_scratch):
+def usb_ipk_app(add_app):
     app = add_app(project_name=usb_ipk, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def existing_setup_app(add_app, local_scratch):
+def existing_setup_app(add_app):
     app = add_app(project_name=existing_setup, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def cold_plate_app(add_app, local_scratch):
+def cold_plate_app(add_app):
     app = add_app(project_name=cold_plate, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def power_budget_app(add_app, local_scratch):
+def power_budget_app(add_app):
     app = add_app(project_name=power_budget, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def fan_op_point_app(add_app, local_scratch):
+def fan_op_point_app(add_app):
     app = add_app(project_name=fan_op_point, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def comp_priority_app(add_app, local_scratch):
+def comp_priority_app(add_app):
     app = add_app(project_name=comp_priority, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def native_app(add_app, local_scratch):
+def native_app(add_app):
     app = add_app(project_name=native_import, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def transient_app(add_app, local_scratch):
+def transient_app(add_app):
     app = add_app(project_name=transient_fs, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def max_temp_app(add_app, local_scratch):
+def max_temp_app(add_app):
     app = add_app(project_name=max_temp, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
@@ -164,7 +153,6 @@ def max_temp_app(add_app, local_scratch):
 def ipk_app(add_app, local_scratch):
     prj_name = available_file_name(local_scratch.path / "icepak_test.aedt")
     app = add_app(project_name=prj_name, application=Icepak, just_open=True)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
@@ -965,7 +953,7 @@ def test_face_monitor(ipk_app):
 
 
 def test_delete_monitors(board_ipk_app):
-    for _, mon_obj in board_ipk.monitor.all_monitors.items():
+    for _, mon_obj in board_ipk_app.monitor.all_monitors.items():
         mon_obj.delete()
     assert board_ipk_app.monitor.all_monitors == {}
     assert not board_ipk_app.monitor.delete_monitor("Test")

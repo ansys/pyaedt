@@ -25,6 +25,7 @@
 import json
 import os
 from pathlib import Path
+import tempfile
 
 import pytest
 
@@ -46,6 +47,7 @@ test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
 def aedtapp(add_app):
     app = add_app(test_project_name, application=Circuit, subfolder=str(Path(test_subfolder) / "compliance"))
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -53,6 +55,7 @@ def aedtapp(add_app):
 def circuit_test(add_app):
     app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -93,7 +96,7 @@ def test_create_pdf_schematic(circuit_test):
     assert report.add_project_info(circuit_test)
 
 
-def test_virtual_compliance(local_scratch, aedtapp):
+def test_virtual_compliance(aedtapp, local_scratch):
     template = (
         Path(TESTS_SOLVERS_PATH) / "example_models" / test_subfolder / "compliance" / "general_compliance_template.json"
     )

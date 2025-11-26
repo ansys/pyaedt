@@ -26,6 +26,7 @@ import csv
 from datetime import timedelta
 from pathlib import Path
 import sys
+import tempfile
 import time
 
 import pytest
@@ -64,6 +65,7 @@ com_project_name = "com_unit_test_23r2"
 def icepak_solved(add_app):
     app = add_app(project_name=icepak_solved_name, subfolder=test_subfolder, application=Icepak)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -71,6 +73,7 @@ def icepak_solved(add_app):
 def sbr_platform(add_app):
     app = add_app(project_name=sbr_platform_name, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -78,6 +81,7 @@ def sbr_platform(add_app):
 def sbr_platform_solved(add_app):
     app = add_app(project_name=sbr_platform_solved_name, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -85,6 +89,7 @@ def sbr_platform_solved(add_app):
 def array(add_app):
     app = add_app(project_name=array_name, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -92,6 +97,7 @@ def array(add_app):
 def sbr_app(add_app):
     app = add_app(project_name="SBR_test", solution_type="SBR+")
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -99,6 +105,7 @@ def sbr_app(add_app):
 def hfss_app(add_app):
     app = add_app(project_name="Hfss_test")
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -106,6 +113,7 @@ def hfss_app(add_app):
 def hfss3dl_solve(add_app):
     app = add_app(project_name=test_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -113,6 +121,7 @@ def hfss3dl_solve(add_app):
 def hfss3dl_solved(add_app):
     app = add_app(project_name=test_3dl_solve, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -121,6 +130,7 @@ def circuit_app(add_app):
     app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -128,6 +138,7 @@ def circuit_app(add_app):
 def circuit_erl(add_app):
     app = add_app(erl_project_name, design_name="2ports", application=Circuit, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -135,6 +146,7 @@ def circuit_erl(add_app):
 def circuit_com(add_app):
     app = add_app(com_project_name, design_name="0_simple_channel", application=Circuit, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -142,6 +154,7 @@ def circuit_com(add_app):
 def m3dtransient(add_app):
     app = add_app(application=Maxwell3d, project_name=transient, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 

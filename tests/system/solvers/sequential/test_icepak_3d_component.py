@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pathlib import Path
+import tempfile
 
 import pytest
 
@@ -50,16 +51,15 @@ resolution = 2
 def aedtapp(add_app, local_scratch):
     project_file = available_file_name(local_scratch.path / "icepak_3d_component.aedt")
     app = add_app(application=Icepak, project_name=project_file, just_open=True)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def ipk(add_app, local_scratch):
+def ipk(add_app):
     app = add_app(project_name=original_project_name, application=Icepak, subfolder=test_subfolder)
-    app.odesktop.SetTempDirectory(str(local_scratch.path))
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(app.project_name, save=False)
 
 

@@ -163,7 +163,7 @@ def init_scratch():
         print(f"Failed to delete {test_folder}. Reason: {e}")
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="function")
 def local_scratch(init_scratch):
     """Provide a module-scoped scratch directory."""
     tmp_path = init_scratch

@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import tempfile
+
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
@@ -36,6 +38,7 @@ original_project_name = "ANSYS-HSD_V1"
 def dcir_example_project(add_app):
     app = add_app(project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(app.project_name, save=False)
 
 

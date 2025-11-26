@@ -24,7 +24,6 @@
 
 import io
 import logging
-from pathlib import Path
 import sys
 import tempfile
 import unittest.mock
@@ -48,6 +47,7 @@ def aedtapp(add_app, local_scratch):
     project_file = available_file_name(local_scratch.path / "aedt_logger.aedt")
     app = add_app(project_name=project_file, just_open=True)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
     settings.logger_file_path = None
     settings.enable_local_log_file = False
@@ -221,9 +221,6 @@ def test_disable_stdout():
     # file handler on every logger has been released properly.
     # Otherwise, we can't read the content of the log file.
     logger.disable_log_on_file()
-
-    path = Path(logger.filename)
-    path.unlink(missing_ok=True)
 
 
 def test_log_when_accessing_non_existing_object(aedtapp, caplog):
