@@ -828,17 +828,14 @@ class AedtLogger:
         from logging import FileHandler
 
         self._log_on_file = False
-        for _file_handler in self._global.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
+        for _file_handler in list(self._global.handlers):
+            if isinstance(_file_handler, FileHandler) and settings.global_log_file_name not in str(_file_handler):
                 self._global.removeHandler(_file_handler)
-        for _file_handler in self.design_logger.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
+        for _file_handler in list(self.design_logger.handlers):
+            if isinstance(_file_handler, FileHandler) and settings.global_log_file_name not in str(_file_handler):
                 self.design_logger.removeHandler(_file_handler)
-        for _file_handler in self.project_logger.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
+        for _file_handler in list(self.project_logger.handlers):
+            if isinstance(_file_handler, FileHandler) and settings.global_log_file_name not in str(_file_handler):
                 self.project_logger.removeHandler(_file_handler)
         self.info("Log on file is disabled.")
 
@@ -846,7 +843,8 @@ class AedtLogger:
         """Enable writing log messages to an output file."""
         self._log_on_file = True
         for _file_handler in self._files_handlers:
-            self._global.addHandler(_file_handler)
+            if settings.global_log_file_name not in str(_file_handler):
+                self._global.addHandler(_file_handler)
             if "baseFilename" in dir(_file_handler):
                 self.info(f"Log on file {_file_handler.baseFilename} is enabled.")
 
