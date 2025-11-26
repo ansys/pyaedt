@@ -1950,9 +1950,6 @@ class Object3d(PyAedtBase):
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
 
-    def __str__(self):
-        return self.name
-
     @pyaedt_function_handler()
     def fillet(self, vertices=None, edges=None, radius=0.1, setback=0.0):
         """Add a fillet to the selected edges in 3D/vertices in 2D.

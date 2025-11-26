@@ -92,7 +92,7 @@ class PyAedtBase(DirMixin):
     """
 
     def __repr__(self):
-        return f"Class: {self.__class__.__name__}\nModule: {self.__class__.__module__}"
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
 
     def __str__(self):
-        return f"Class: {self.__class__.__name__}\nModule: {self.__class__.__module__}"
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
