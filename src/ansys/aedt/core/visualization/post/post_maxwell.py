@@ -398,3 +398,66 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         else:
             self.ofieldsreporter.EvaluateInceptionVoltage(plot_name, field_line_number)
         return True
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def export_inception_voltage(self, plot_name, export_file_name, field_line_number=None):  # pragma: no cover
+        """Export inception voltage evaluation results to a *txt file.
+
+        .. note::
+            This method requires field line traces and inception voltage evaluation to be performed beforehand.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
+        export_file_name: str
+			Name of the file to which Inception voltage results are exported to: full path and *txt extension are needed
+        field_line_number: list of int, optional
+            List of line objects on which the evaluation will be performed.
+            If the field line traces plot does not exist, this can be created with
+            ``app.post.create_fieldplot_line_traces``.
+            The default value is ``None``, in which case the inception voltage evaluation will be
+            carried out for all existing field line traces.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.ExportInceptionVoltage
+
+        Examples
+        --------
+        Create an instance of Maxwell and attach it to an existing session where project name is
+        ``project_name``.
+        If this project does not exist, create one with this name.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(project_name)
+
+        Create a field line traces plot in the Region from seeding faces (insulator faces).
+        >>> plot = m2d.post.create_fieldplot_line_traces(
+        ...     seeding_faces = (["Region"],)
+        ...     in_volume_tracing_objs = (["Region"],)
+        ...     plot_name="LineTracesTest"
+        ... )
+
+        Now the inception voltage evaluation can be performed on all (or a subset) of the
+        created field line traces.
+        >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
+        Now the inception voltage evaluation results can be written to a *txt file
+		>>> m2d.post.export_inception_voltage(plot_name=plot.name,export_file_name="D:\\export01.txt",[field_line_number=[1, 2, 4])
+        >>> m2d.desktop_class.release_desktop()
+        """
+        if self._app.solution_type != "Electrostatic":
+            raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
+        if plot_name not in (self.field_plot_names):
+            raise AEDTRuntimeError("The Field Line Tracing Plot needs to be generated.")
+        if not field_line_number:
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name,export_file_name)
+        else:
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name,export_file_name,field_line_number)
+        return True
