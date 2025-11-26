@@ -28,19 +28,20 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import read_json
 
 
 @pytest.fixture()
 def icepak_a(add_app, local_scratch):
-    project_file = local_scratch.path / "Icepak_test_a.aedt"
+    project_file = available_file_name(local_scratch.path / "Icepak_test_a.aedt")
     app = add_app(project_name=project_file, application=Icepak, just_open=True)
     yield app
 
 
 @pytest.fixture()
 def icepak_b(add_app, local_scratch):
-    project_file = local_scratch.path / "Icepak_test_b.aedt"
+    project_file = available_file_name(local_scratch.path / "Icepak_test_b.aedt")
     app = add_app(project_name=project_file, application=Icepak, just_open=True)
     yield app
 
@@ -99,7 +100,7 @@ class TestClass:
         file_parasolid = filename + ".x_b"
         file_path = Path(icepak_a.working_directory) / file_parasolid
 
-        new_path = local_scratch.path / "new_proj_Ipk_a.aedt"
+        new_path = available_file_name(local_scratch.path / "new_proj_Ipk_a.aedt")
         app = add_app(application=Icepak, project_name=new_path, just_open=True)
         app.modeler.import_3d_cad(str(file_path))
         out = app.configurations.import_config(conf_file)
@@ -122,7 +123,7 @@ class TestClass:
         old_conf_file = conf_file + ".old.json"
         with open(old_conf_file, "w") as f:
             json.dump(old_dict_format, f)
-        new_path = local_scratch.path / "new_proj_Ipk_a_test2.aedt"
+        new_path = available_file_name(local_scratch.path / "new_proj_Ipk_a_test2.aedt")
         app = add_app(application=Icepak, project_name=new_path, just_open=True)
         app.modeler.import_3d_cad(str(file_path))
         out = app.configurations.import_config(old_conf_file)
@@ -180,7 +181,7 @@ class TestClass:
         file_parasolid = filename + ".x_b"
         file_path = Path(icepak_b.working_directory) / file_parasolid
         new_path = local_scratch.path / "new_proj_Ipk.aedt"
-        app = add_app(application=Icepak, project_name=new_path, just_open=True)
+        app = available_file_name(add_app(application=Icepak, project_name=new_path, just_open=True))
         app.modeler.import_3d_cad(str(file_path))
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)

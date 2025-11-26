@@ -28,6 +28,7 @@ import pytest
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from tests.conftest import config
 
@@ -47,7 +48,7 @@ resolution = 2
 
 @pytest.fixture()
 def aedtapp(add_app, local_scratch):
-    project_file = local_scratch.path / "icepak_3d_component.aedt"
+    project_file = available_file_name(local_scratch.path / "icepak_3d_component.aedt")
     app = add_app(application=Icepak, project_name=project_file, just_open=True)
     yield app
     app.close_project(save=False)

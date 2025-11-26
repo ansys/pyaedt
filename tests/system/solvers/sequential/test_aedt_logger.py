@@ -32,6 +32,7 @@ import unittest.mock
 import pytest
 
 from ansys.aedt.core.aedt_logger import AedtLogger
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
 from tests.conftest import config
 
@@ -44,7 +45,7 @@ desktop_version = config["desktopVersion"]
 @pytest.fixture()
 def aedtapp(add_app, local_scratch):
     settings.enable_local_log_file = True
-    project_file = local_scratch.path / "aedt_logger.aedt"
+    project_file = available_file_name(local_scratch.path / "aedt_logger.aedt")
     app = add_app(project_name=project_file, just_open=True)
     yield app
     app.close_project(save=False)
