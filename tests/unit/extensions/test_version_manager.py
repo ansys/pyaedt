@@ -316,7 +316,10 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     manager.update_from_wheelhouse()
     assert mock_showerror.called
     error_msg = mock_showerror.call_args[0][1]
-    assert "Wheelhouse missing required installer packages" in error_msg or "This wheelhouse is not compatible with your operating system." in error_msg
+    assert (
+        "Wheelhouse missing required installer packages" in error_msg
+        or "This wheelhouse is not compatible with your operating system." in error_msg
+    )
 
     # 4) OS mismatch: wheelhouse is windows but manager running on non-windows
     manager.is_windows = False
@@ -339,10 +342,10 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_askopen.return_value = str(z)
     mock_run.reset_mock()
     mock_showerror.reset_mock()
-    
-    with patch.object(manager, 'run_pip') as mock_run_pip:
+
+    with patch.object(manager, "run_pip") as mock_run_pip:
         manager.update_from_wheelhouse()
-        
+
         assert mock_run_pip.called
         pip_args = mock_run_pip.call_args[0][0]
         assert "install" in pip_args
@@ -508,7 +511,7 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     # User declines disclaimer
     mock_askyesno.return_value = False
     manager.update_all()
-    
+
     # Test when pyaedt version is unknown - should show error and NOT call update_and_reload
     mock_askyesno.return_value = True
 
