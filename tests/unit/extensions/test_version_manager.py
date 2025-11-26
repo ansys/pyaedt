@@ -274,6 +274,66 @@ def test_set_light_and_set_dark():
     manager.change_theme_button.config.assert_called_with(text="\u2600")
 
 
+def test_show_loading():
+    """Test show_loading method."""
+    manager = _make_vm()
+
+    # Create a mock label
+    mock_label = MagicMock()
+    manager.loading_labels["test_key"] = mock_label
+    manager.root = MagicMock()
+
+    # Call show_loading with valid key
+    manager.show_loading("test_key")
+
+    # Verify label was configured with loading emoji
+    mock_label.config.assert_called_once_with(text="⏳")
+    # Verify root.update_idletasks was called
+    manager.root.update_idletasks.assert_called_once()
+
+
+def test_show_loading_invalid_key():
+    """Test show_loading with invalid key does nothing."""
+    manager = _make_vm()
+    manager.root = MagicMock()
+
+    # Call show_loading with non-existent key
+    manager.show_loading("nonexistent_key")
+
+    # Verify root.update_idletasks was not called
+    manager.root.update_idletasks.assert_not_called()
+
+
+def test_hide_loading():
+    """Test hide_loading method."""
+    manager = _make_vm()
+
+    # Create a mock label
+    mock_label = MagicMock()
+    manager.loading_labels["test_key"] = mock_label
+    manager.root = MagicMock()
+
+    # Call hide_loading with valid key
+    manager.hide_loading("test_key")
+
+    # Verify label was configured with empty string
+    mock_label.config.assert_called_once_with(text="")
+    # Verify root.update_idletasks was called
+    manager.root.update_idletasks.assert_called_once()
+
+
+def test_hide_loading_invalid_key():
+    """Test hide_loading with invalid key does nothing."""
+    manager = _make_vm()
+    manager.root = MagicMock()
+
+    # Call hide_loading with non-existent key
+    manager.hide_loading("nonexistent_key")
+
+    # Verify root.update_idletasks was not called
+    manager.root.update_idletasks.assert_not_called()
+
+
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
 @patch("ansys.aedt.core.extensions.installer.version_manager.filedialog.askopenfilename")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
