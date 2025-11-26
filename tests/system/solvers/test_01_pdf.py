@@ -172,7 +172,7 @@ def test_virtual_compliance(local_scratch, aedtapp):
     vc.save_configuration(compliance_folder / "main.json")
     assert (compliance_folder / "main.json").exists()
     v = VirtualCompliance(aedtapp.desktop_class, compliance_folder / "main.json")
-    assert v.create_compliance_report()
+    assert v.create_compliance_report(close_project=False)
 
 
 def test_spisim_raw_read(local_scratch):
