@@ -178,7 +178,7 @@ def test_stop_all_command_with_access_denied(mock_process_iter, cli_runner, mock
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_all_command_with_process_no_longer_exists(
     mock_process_access, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -194,7 +194,7 @@ def test_stop_all_command_with_process_no_longer_exists(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_all_command_with_generic_exception(mock_process_access, mock_process_iter, cli_runner, mock_aedt_process):
     """Test stop all when generic exception occurs during kill."""
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
@@ -208,7 +208,7 @@ def test_stop_all_command_with_generic_exception(mock_process_access, mock_proce
 
 
 @patch("psutil.Process")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_pid_success(mock_process_access, mock_process_class, cli_runner, mock_aedt_process):
     """Test successfully stopping process by PID."""
     mock_process_class.return_value = mock_aedt_process
@@ -232,7 +232,7 @@ def test_stop_command_by_pid_access_denied(mock_process_class, cli_runner, mock_
 
 
 @patch("psutil.Process")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_process_class, cli_runner):
     """Test stopping process by PID when not in stoppable state."""
     mock_proc = Mock()
@@ -245,7 +245,7 @@ def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_proce
 
 
 @patch("psutil.Process")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_pid_generic_exception(mock_process_access, mock_process_class, cli_runner, mock_aedt_process):
     """Test stopping process by PID when generic exception occurs."""
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
@@ -267,8 +267,8 @@ def test_stop_command_by_pid_invalid_pid(mock_process, cli_runner):
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_port_success(mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
     """Test successfully stopping process by port."""
     mock_process_iter.return_value = [mock_aedt_process]
@@ -281,7 +281,7 @@ def test_stop_command_by_port_success(mock_access, mock_get_port, mock_process_i
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50052)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50052)
 def test_stop_command_by_port_not_found(mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
     """Test stopping process by port when no process found on that port."""
     mock_process_iter.return_value = [mock_aedt_process]
@@ -293,8 +293,8 @@ def test_stop_command_by_port_not_found(mock_get_port, mock_process_iter, cli_ru
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=False)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=False)
 def test_stop_command_by_port_access_denied(
     mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -308,8 +308,8 @@ def test_stop_command_by_port_access_denied(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_port_no_such_process(
     mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -324,8 +324,8 @@ def test_stop_command_by_port_no_such_process(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_port_generic_exception(
     mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -340,7 +340,7 @@ def test_stop_command_by_port_generic_exception(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=None)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=None)
 def test_stop_command_by_port_no_port_info(mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
     """Test stopping process by port when process has no port information."""
     mock_process_iter.return_value = [mock_aedt_process]
@@ -441,7 +441,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     assert "- Insufficient permissions" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_get_config_path(mock_get_tests_folder, tmp_path):
     """Test _get_config_path helper function."""
     mock_get_tests_folder.return_value = tmp_path
@@ -451,7 +451,7 @@ def test_get_config_path(mock_get_tests_folder, tmp_path):
     assert isinstance(config, dict)
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_load_config_existing_file(mock_get_tests_folder, tmp_path):
     """Test loading existing config file."""
     mock_get_tests_folder.return_value = tmp_path
@@ -466,7 +466,7 @@ def test_load_config_existing_file(mock_get_tests_folder, tmp_path):
     assert loaded_config["NonGraphical"] is False
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_load_config_invalid_file(mock_get_tests_folder, tmp_path):
     """Test loading invalid config file returns defaults."""
     mock_get_tests_folder.return_value = tmp_path
@@ -714,7 +714,7 @@ def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_
     )
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_save_config(mock_get_tests_folder, tmp_path):
     """Test saving config file."""
     mock_get_tests_folder.return_value = tmp_path
@@ -748,7 +748,7 @@ def test_display_config(cli_runner):
 # CONFIG COMMAND TESTS - CLI Integration Tests
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
     """Test desktop_version command."""
     mock_get_tests_folder.return_value = tmp_path
@@ -761,7 +761,7 @@ def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_desktop_version_invalid_format(mock_get_tests_folder, tmp_path, cli_runner):
     """Test desktop_version command with invalid format."""
     mock_get_tests_folder.return_value = tmp_path
@@ -770,7 +770,7 @@ def test_desktop_version_invalid_format(mock_get_tests_folder, tmp_path, cli_run
     assert "Invalid format" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_all_boolean_commands(mock_get_tests_folder, tmp_path, cli_runner):
     """Test all boolean configuration commands."""
     mock_get_tests_folder.return_value = tmp_path
@@ -792,7 +792,7 @@ def test_all_boolean_commands(mock_get_tests_folder, tmp_path, cli_runner):
         assert expected_output in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_local_example_folder_command(mock_get_tests_folder, tmp_path, cli_runner):
     """Test local_example_folder command."""
     mock_get_tests_folder.return_value = tmp_path
@@ -804,7 +804,7 @@ def test_local_example_folder_command(mock_get_tests_folder, tmp_path, cli_runne
     assert "local_example_folder set to '/path/to/examples'" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_persists_across_commands(mock_get_tests_folder, tmp_path, cli_runner):
     """Test that config changes persist across multiple commands."""
     mock_get_tests_folder.return_value = tmp_path
@@ -896,7 +896,7 @@ def test_prompt_config_value_unknown_type():
 # _update_bool_config TESTS (Interactive Mode)
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.confirm")
 def test_update_bool_config_interactive_change(mock_confirm, mock_get_tests_folder, tmp_path):
     """Test _update_bool_config interactive mode with change."""
@@ -912,7 +912,7 @@ def test_update_bool_config_interactive_change(mock_confirm, mock_get_tests_fold
     assert config["NonGraphical"] is False
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.confirm")
 def test_update_bool_config_interactive_no_change(mock_confirm, mock_get_tests_folder, tmp_path):
     """Test _update_bool_config interactive mode no change."""
@@ -928,7 +928,7 @@ def test_update_bool_config_interactive_no_change(mock_confirm, mock_get_tests_f
     assert config["NonGraphical"] is True
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_update_bool_config_with_value(mock_get_tests_folder, tmp_path):
     """Test _update_bool_config with explicit value."""
     mock_get_tests_folder.return_value = tmp_path
@@ -944,7 +944,7 @@ def test_update_bool_config_with_value(mock_get_tests_folder, tmp_path):
 # _update_string_config TESTS (Interactive Mode)
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.prompt")
 def test_update_string_config_interactive_no_validator(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config interactive mode no validator."""
@@ -959,7 +959,7 @@ def test_update_string_config_interactive_no_validator(mock_prompt, mock_get_tes
     assert config["local_example_folder"] == "/new/path"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.prompt")
 def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config interactive mode valid."""
@@ -979,7 +979,7 @@ def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.prompt")
 def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config invalid then valid value."""
@@ -999,7 +999,7 @@ def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, m
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_update_string_config_with_value_valid(mock_get_tests_folder, tmp_path):
     """Test _update_string_config with explicit valid value."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1017,7 +1017,7 @@ def test_update_string_config_with_value_valid(mock_get_tests_folder, tmp_path):
     assert config["desktopVersion"] == "2023.2"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_update_string_config_with_value_invalid(mock_get_tests_folder, tmp_path):
     """Test _update_string_config with explicit invalid value."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1041,7 +1041,7 @@ def test_update_string_config_with_value_invalid(mock_get_tests_folder, tmp_path
 # config_test COMMAND TESTS
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_show_flag(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with --show flag."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1053,7 +1053,7 @@ def test_config_test_show_flag(mock_get_tests_folder, tmp_path, cli_runner):
     assert "2025.2" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_show_flag_short(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with -s flag."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1064,7 +1064,7 @@ def test_config_test_show_flag_short(mock_get_tests_folder, tmp_path, cli_runner
     assert "Current Test Configuration" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_interactive_no_modify(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command declining to modify."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1075,7 +1075,7 @@ def test_config_test_interactive_no_modify(mock_get_tests_folder, tmp_path, cli_
     assert "No changes made" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with interactive modifications."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1096,7 +1096,7 @@ def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_p
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_creates_config_file(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command creates config file if not exists."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1110,7 +1110,7 @@ def test_config_test_creates_config_file(mock_get_tests_folder, tmp_path, cli_ru
     assert config_file.exists()
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_loads_existing_config(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command loads existing config file."""
     mock_get_tests_folder.return_value = tmp_path
