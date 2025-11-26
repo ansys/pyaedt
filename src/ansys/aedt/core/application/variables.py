@@ -1346,35 +1346,38 @@ class VariableManager(PyAedtBase):
     @pyaedt_function_handler()
     def _get_var_list_from_aedt(self, desktop_object):
         var_list = []
-        if self._app._is_object_oriented_enabled() and self._app.design_type not in [
-            "Maxwell Circuit",
-            "Circuit Netlist",
-        ]:
-            # To retrieve local variables
-            try:
-                v = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
-            except AttributeError:
-                v = []
-            var_list += v
-        if self._app._is_object_oriented_enabled() and self._app.design_type in [
-            "Circuit Design",
-            "Twin Builder",
-            "HFSS 3D Layout Design",
-        ]:
-            # To retrieve Parameter Default Variables
-            try:
-                v = list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
-            except AttributeError:
-                v = []
-            var_list += v
+        if self._app._is_object_oriented_enabled():
+            if self._app.design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+            ]:
+                # To retrieve Parameter Default Variables
+                try:
+                    v = list(self._app.get_oo_object(desktop_object, "DefinitionParameters").GetPropNames())
+                except AttributeError:
+                    v = []
+                var_list = v
+            if self._app.design_type not in [
+                "Maxwell Circuit",
+                "Circuit Netlist",
+            ]:
+                # To retrieve local variables
+                try:
+                    v = list(self._app.get_oo_object(desktop_object, "Variables").GetPropNames())
+                except AttributeError:
+                    v = []
+                var_list += v
+            if self._app._aedt_version >= "2025.2":
+                return var_list
 
         if "GetVariables" in desktop_object.__dir__():
             var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
         try:
-            arr_vars = list(self._app.oproject.GetArrayVariables())
+            arr_vars = list(desktop_object.GetArrayVariables())
             var_list += [i for i in arr_vars if i not in var_list]
         except Exception:
-            self._app.logger.debug("Could not retrieve array variables from project.")
+            self._app.logger.debug("Could not retrieve array variables.")
         return var_list
 
 

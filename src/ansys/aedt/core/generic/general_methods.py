@@ -121,7 +121,11 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             "async_helpers",
             "plugins",
         ]
-        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
+        if (
+            any(exc in trace for exc in exceptions)
+            or "plugins" in trace
+            or ("site-packages" in trace and ("\\aedt\\" not in trace and "/aedt/" not in trace))
+        ):
             continue
         for el in trace.split("\n"):
             _write_mes(el)
@@ -136,7 +140,11 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             "async_helpers",
             "plugins",
         ]
-        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
+        if (
+            any(exc in trace for exc in exceptions)
+            or "plugins" in trace
+            or ("site-packages" in trace and ("\\aedt\\" not in trace and "/aedt/" not in trace))
+        ):
             continue
         tblist = trace.split("\n")
         for el in tblist:
