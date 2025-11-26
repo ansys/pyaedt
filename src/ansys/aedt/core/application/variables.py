@@ -722,12 +722,12 @@ class VariableManager(PyAedtBase):
     @property
     def _oproject(self):
         """Project."""
-        return self._app._oproject
+        return self._app.oproject
 
     @property
     def _odesign(self):
         """Design."""
-        return self._app._odesign
+        return self._app.odesign
 
     @property
     def _logger(self):
