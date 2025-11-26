@@ -838,7 +838,7 @@ class Gravity(IntEnumProps):
 
 
 @unique
-class View(EnumProps, Enum):
+class View(EnumProps):
     """View enum class.
 
     This static class defines integer constants corresponding to the
@@ -861,14 +861,14 @@ class View(EnumProps, Enum):
 
 
 @unique
-class GlobalCS(EnumProps, Enum):
+class GlobalCS(EnumProps):
     """Global coordinate system enum class."""
 
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
 
 @unique
-class MatrixOperationsQ3D(EnumProps, Enum):
+class MatrixOperationsQ3D(EnumProps):
     """Matrix operations for Q3D."""
 
     (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
@@ -885,7 +885,7 @@ class MatrixOperationsQ3D(EnumProps, Enum):
 
 
 @unique
-class MatrixOperationsQ2D(EnumProps, Enum):
+class MatrixOperationsQ2D(EnumProps):
     """Matrix operations for Q2D."""
 
     (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
@@ -898,14 +898,14 @@ class MatrixOperationsQ2D(EnumProps, Enum):
 
 
 @unique
-class PlotCategoriesQ3D(EnumProps, Enum):
+class PlotCategoriesQ3D(EnumProps):
     """Plot categories for Q3D."""
 
     (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
 
 
 @unique
-class PlotCategoriesQ2D(EnumProps, Enum):
+class PlotCategoriesQ2D(EnumProps):
     """Plot categories for Q2D."""
 
     (
@@ -925,7 +925,7 @@ class PlotCategoriesQ2D(EnumProps, Enum):
 
 
 @unique
-class CSMode(EnumProps, Enum):
+class CSMode(EnumProps):
     """Coordinate system mode enum class."""
 
     (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
@@ -1013,7 +1013,7 @@ class SourceType(IntEnumProps):
 
 
 @unique
-class SolutionsHfss(EnumProps, Enum):
+class SolutionsHfss(EnumProps):
     """HFSS solution types enum class."""
 
     (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, CharacteristicMode) = (
@@ -1026,7 +1026,7 @@ class SolutionsHfss(EnumProps, Enum):
     )
 
 
-class SolutionsMaxwell3D(EnumProps, Enum):
+class SolutionsMaxwell3D(EnumProps):
     """Maxwell 3D solution types enum class."""
 
     (
@@ -1100,7 +1100,7 @@ class SolutionsMaxwell3D(EnumProps, Enum):
         return new_enum
 
 
-class SolutionsMaxwell2D(EnumProps, Enum):
+class SolutionsMaxwell2D(EnumProps):
     """Maxwell 2D solution types enum class."""
 
     (
@@ -1190,7 +1190,7 @@ class SolutionsMaxwell2D(EnumProps, Enum):
 
 
 @unique
-class SolutionsIcepak(EnumProps, Enum):
+class SolutionsIcepak(EnumProps):
     """Icepak solution types enum class."""
 
     (SteadyState, Transient) = (
@@ -1200,7 +1200,7 @@ class SolutionsIcepak(EnumProps, Enum):
 
 
 @unique
-class SolutionsCircuit(EnumProps, Enum):
+class SolutionsCircuit(EnumProps):
     """Circuit solution types enum class."""
 
     (
@@ -1239,7 +1239,7 @@ class SolutionsCircuit(EnumProps, Enum):
 
 
 @unique
-class SolutionsMechanical(EnumProps, Enum):
+class SolutionsMechanical(EnumProps):
     """Mechanical solution types enum class."""
 
     (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
@@ -1310,7 +1310,7 @@ class Setups(IntEnumProps):
 
 
 @unique
-class LineStyle(EnumProps, Enum):
+class LineStyle(EnumProps):
     """Line style enum class."""
 
     (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
@@ -1327,7 +1327,7 @@ class LineStyle(EnumProps, Enum):
 
 
 @unique
-class TraceType(EnumProps, Enum):
+class TraceType(EnumProps):
     """Trace type enum class."""
 
     (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
@@ -1345,7 +1345,7 @@ class TraceType(EnumProps, Enum):
 
 
 @unique
-class SymbolStyle(EnumProps, Enum):
+class SymbolStyle(EnumProps):
     """Symbol style enum class."""
 
     (
