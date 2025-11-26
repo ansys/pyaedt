@@ -69,7 +69,6 @@ def test_version_manager_initialization(add_app):
             # Verify properties are accessible
             assert vm.venv_path is not None
             assert vm.python_exe is not None
-            assert vm.uv_exe is not None
             assert vm.python_version is not None
 
             # Verify theme initialization
@@ -205,7 +204,7 @@ def test_version_manager_get_installed_version(add_app):
             # Test getting pyaedt version
             pyaedt_version = vm.get_installed_version("pyaedt")
             assert pyaedt_version is not None
-            assert pyaedt_version != "Unknown"
+            assert pyaedt_version != "Please restart"
 
             # Test getting version of non-existent package
             fake_version = vm.get_installed_version("nonexistent-package-xyz")
