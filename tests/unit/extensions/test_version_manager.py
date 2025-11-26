@@ -808,6 +808,85 @@ def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, 
     mock_check_update.assert_called_once_with(manager.desktop.personallib)
 
 
+@patch("ansys.aedt.core.extensions.installer.version_manager.os.getpid")
+@patch(
+    "ansys.aedt.core.extensions.installer.version_manager.sys.argv",
+    ["/path/to/script.py"]
+)
+def test_create_windows_update_script(mock_getpid, tmp_path):
+    """Test _create_windows_update_script creates valid batch."""
+    manager = _make_vm()
+    manager.is_windows = True
+
+    # Mock process ID
+    mock_getpid.return_value = 12345
+
+    # Test with pip args containing -U and spaces
+    pip_args = [
+        "install",
+        "-U",
+        "pyaedt[all]",
+        "some package with spaces"
+    ]
+
+    # Call the method
+    script_path = manager._create_windows_update_script(pip_args)
+
+    # Verify file was created
+    assert os.path.exists(script_path)
+    assert script_path.endswith(".bat")
+
+    # Read and verify content
+    with open(script_path, "r") as f:
+        content = f.read()
+
+    # Check key elements are in the script
+    assert "12345" in content  # PID
+    assert "pyaedt[all]" in content
+    assert manager.uv_exe in content
+    assert manager.python_exe in content
+    assert "/path/to/script.py" in content
+    # -U should be replaced with --upgrade for uv
+    assert "--upgrade" in content
+    # Spaces should be quoted
+    assert '"some package with spaces"' in content
+
+    # Cleanup
+    os.remove(script_path)
+
+
+@patch("ansys.aedt.core.extensions.installer.version_manager.os.getpid")
+@patch(
+    "ansys.aedt.core.extensions.installer.version_manager.sys.argv",
+    ["/path/to/script.py"]
+)
+@patch("ansys.aedt.core.extensions.installer.version_manager.os.chmod")
+def test_create_linux_update_script(
+    mock_chmod,
+    mock_getpid,
+    tmp_path
+):
+    """Test _create_linux_update_script creates valid shell."""
+    manager = _make_vm()
+    manager.is_windows = False
+    mock_getpid.return_value = 54321
+    pip_args = ["install", "-U", "pyedb", "another package"]
+    script_path = manager._create_linux_update_script(pip_args)
+    assert os.path.exists(script_path)
+    assert script_path.endswith(".sh")
+    mock_chmod.assert_called_once_with(script_path, 0o750)
+    with open(script_path, "r") as f:
+        content = f.read()
+    assert "#!/bin/bash" in content
+    assert "54321" in content
+    assert "pyedb" in content
+    assert manager.uv_exe in content
+    assert manager.python_exe in content
+    assert "/path/to/script.py" in content
+    assert "--upgrade" in content
+
+    os.remove(script_path)
+
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_port")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_aedt_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_process_id")
@@ -816,22 +895,13 @@ def test_get_desktop_with_existing_process(
     mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
 ):
     """Test get_desktop when AEDT process already exists."""
-    # Mock return values
     mock_get_port.return_value = 12345
     mock_get_aedt_version.return_value = "2024.1"
-    mock_get_process_id.return_value = 9876  # Existing process
-
-    # Mock Desktop instance
+    mock_get_process_id.return_value = 9876
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
-
-    # Call get_desktop
     result = vm.get_desktop()
-
-    # Verify Desktop was called with correct parameters for existing process
     mock_desktop_class.assert_called_once_with(new_desktop=False, version="2024.1", port=12345, non_graphical=False)
-
-    # Verify the result is the mock instance
     assert result == mock_desktop_instance
 
 
@@ -843,20 +913,11 @@ def test_get_desktop_without_existing_process(
     mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
 ):
     """Test get_desktop when no AEDT process exists."""
-    # Mock return values
     mock_get_port.return_value = 54321
     mock_get_aedt_version.return_value = "2023.2"
-    mock_get_process_id.return_value = None  # No existing process
-
-    # Mock Desktop instance
+    mock_get_process_id.return_value = None
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
-
-    # Call get_desktop
     result = vm.get_desktop()
-
-    # Verify Desktop was called with correct parameters for new process
     mock_desktop_class.assert_called_once_with(new_desktop=True, version="2023.2", port=54321, non_graphical=True)
-
-    # Verify the result is the mock instance
     assert result == mock_desktop_instance

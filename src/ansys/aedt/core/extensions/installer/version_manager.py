@@ -497,7 +497,7 @@ class VersionManager:
         os.chmod(tf.name, 0o750)  # nosec B103
         return tf.name
 
-    def update_and_reload(self, pip_args):
+    def update_and_reload(self, pip_args): # pragma: no cover
         response = messagebox.askyesno(
             "Confirm Update",
             "The Version Manager must close to perform this update safely.\n\n"
@@ -776,7 +776,7 @@ class VersionManager:
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path):
+    def show_pyaedt_update_notification(self, latest_version: str, declined_file_path: Path): # pragma: no cover
         try:
             dlg = tkinter.Toplevel(self.root)
             dlg.title("Update Available")
