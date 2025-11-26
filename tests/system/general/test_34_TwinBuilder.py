@@ -59,26 +59,26 @@ def examples(local_scratch):
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_create_resistor(aedtapp):
-    id = aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
-    assert id.parameters["R"] == "10"
+    resistor = aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
+    assert resistor.parameters["R"] == "10"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_create_inductor(aedtapp):
-    id = aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
-    assert id.parameters["L"] == "1.5"
+    inductor = aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
+    assert inductor.parameters["L"] == "1.5"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_create_capacitor(aedtapp):
-    id = aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
-    assert id.parameters["C"] == "7.5"
+    capacitor = aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
+    assert capacitor.parameters["C"] == "7.5"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_create_diode(aedtapp):
-    id = aedtapp.modeler.schematic.create_diode("Diode1")
-    assert id.parameters["VF"] == "0.8V"
+    diode = aedtapp.modeler.schematic.create_diode("Diode1")
+    assert diode.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
@@ -90,8 +90,8 @@ def test_create_npn(aedtapp):
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_create_pnp(aedtapp):
-    id = aedtapp.modeler.schematic.create_pnp("PNP")
-    assert id.parameters["VF"] == "0.8V"
+    pnp = aedtapp.modeler.schematic.create_pnp("PNP")
+    assert pnp.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
@@ -112,7 +112,7 @@ def test_set_hmin(aedtapp):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_hmin(aedtapp):
+def test_set_hmin_alternate(aedtapp):
     assert aedtapp.set_hmin("2s")
 
 
@@ -131,9 +131,9 @@ def test_catalog(aedtapp):
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
 def test_create_periodic_pulse_wave(aedtapp):
-    id = aedtapp.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [3000, 0])
-    assert id.parameters["AMPL"] == "200"
-    assert id.parameters["FREQ"] == "20"
+    waveform = aedtapp.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [3000, 0])
+    assert waveform.parameters["AMPL"] == "200"
+    assert waveform.parameters["FREQ"] == "20"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")

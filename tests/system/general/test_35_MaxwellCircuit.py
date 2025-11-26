@@ -46,18 +46,18 @@ def aedtapp(add_app):
 
 
 def test_create_resistor(aedtapp):
-    id = aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
-    assert id.parameters["R"] == "10"
+    resistor = aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
+    assert resistor.parameters["R"] == "10"
 
 
 def test_create_inductor(aedtapp):
-    id = aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
-    assert id.parameters["L"] == "1.5"
+    inductor = aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
+    assert inductor.parameters["L"] == "1.5"
 
 
 def test_create_capacitor(aedtapp):
-    id = aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
-    assert id.parameters["C"] == "7.5"
+    capacitor = aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
+    assert capacitor.parameters["C"] == "7.5"
 
 
 def test_create_diode(aedtapp):
