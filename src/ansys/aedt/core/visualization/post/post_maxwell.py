@@ -412,7 +412,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         plot_name : str
             Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
         export_file_name: str
-			Name of the file to which Inception voltage results are exported to: full path and *txt extension are needed
+        Name of the file to which Inception voltage results are exported to: full path and *txt extension are needed
         field_line_number: list of int, optional
             List of line objects on which the evaluation will be performed.
             If the field line traces plot does not exist, this can be created with
@@ -449,7 +449,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         Now the inception voltage evaluation results can be written to a *txt file
-		>>> m2d.post.export_inception_voltage(plot_name=plot.name,export_file_name="D:\\export01.txt",[field_line_number=[1, 2, 4])
+        >>> m2d.post.export_inception_voltage(plot_name=plot.name,export_file_name="D:\\export01.txt",[field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
         """
         if self._app.solution_type != "Electrostatic":
@@ -457,7 +457,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         if plot_name not in (self.field_plot_names):
             raise AEDTRuntimeError("The Field Line Tracing Plot needs to be generated.")
         if not field_line_number:
-            self.ofieldsreporter.ExportInceptionVoltage(plot_name,export_file_name)
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name, export_file_name)
         else:
-            self.ofieldsreporter.ExportInceptionVoltage(plot_name,export_file_name,field_line_number)
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name, export_file_name, field_line_number)
         return True
