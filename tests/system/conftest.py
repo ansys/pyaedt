@@ -110,14 +110,14 @@ def add_app(local_scratch):
                 target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
                 local_scratch.copyfolder(example_folder, target_folder)
         elif project_name and just_open:
-            test_project = project_name
+            test_project = str(project_name)
         else:
             test_project = None
         if not application:
             application = Hfss
 
         args = {
-            "project": str(test_project),
+            "project": test_project,
             "design": design_name,
             "version": config["desktopVersion"],
             "non_graphical": NONGRAPHICAL,
