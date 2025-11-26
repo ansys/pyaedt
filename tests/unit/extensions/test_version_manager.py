@@ -809,10 +809,7 @@ def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, 
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.os.getpid")
-@patch(
-    "ansys.aedt.core.extensions.installer.version_manager.sys.argv",
-    ["/path/to/script.py"]
-)
+@patch("ansys.aedt.core.extensions.installer.version_manager.sys.argv", ["/path/to/script.py"])
 def test_create_windows_update_script(mock_getpid, tmp_path):
     """Test _create_windows_update_script creates valid batch."""
     manager = _make_vm()
@@ -822,12 +819,7 @@ def test_create_windows_update_script(mock_getpid, tmp_path):
     mock_getpid.return_value = 12345
 
     # Test with pip args containing -U and spaces
-    pip_args = [
-        "install",
-        "-U",
-        "pyaedt[all]",
-        "some package with spaces"
-    ]
+    pip_args = ["install", "-U", "pyaedt[all]", "some package with spaces"]
 
     # Call the method
     script_path = manager._create_windows_update_script(pip_args)
@@ -856,16 +848,9 @@ def test_create_windows_update_script(mock_getpid, tmp_path):
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.os.getpid")
-@patch(
-    "ansys.aedt.core.extensions.installer.version_manager.sys.argv",
-    ["/path/to/script.py"]
-)
+@patch("ansys.aedt.core.extensions.installer.version_manager.sys.argv", ["/path/to/script.py"])
 @patch("ansys.aedt.core.extensions.installer.version_manager.os.chmod")
-def test_create_linux_update_script(
-    mock_chmod,
-    mock_getpid,
-    tmp_path
-):
+def test_create_linux_update_script(mock_chmod, mock_getpid, tmp_path):
     """Test _create_linux_update_script creates valid shell."""
     manager = _make_vm()
     manager.is_windows = False
@@ -886,6 +871,7 @@ def test_create_linux_update_script(
     assert "--upgrade" in content
 
     os.remove(script_path)
+
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_port")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_aedt_version")
