@@ -110,6 +110,11 @@ def test_assign_surface_mesh_manual(aedtapp):
 
 
 def test_assign_surface_priority(aedtapp):
+    udp = aedtapp.modeler.Position(20, 20, 0)
+    coax_dimension = 200
+    aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface_manual")
+    udp = aedtapp.modeler.Position(10, 10, 0)
+    aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
     surface = aedtapp.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)
     assert surface.props["SurfaceRepPriority"] == 1
     surface.props["SurfaceRepPriority"] = 0
@@ -141,6 +146,9 @@ def test_delete_mesh_ops(aedtapp):
 
 def test_curvature_extraction(aedtapp):
     aedtapp.solution_type = "SBR+"
+    udp = aedtapp.modeler.Position(0, 0, 0)
+    coax_dimension = 200
+    o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
     curv = aedtapp.mesh.assign_curvature_extraction("inner")
     assert curv.props["DisableForFacetedSurfaces"]
     curv.props["DisableForFacetedSurfaces"] = False
