@@ -72,7 +72,7 @@ on_ci = os.getenv("ON_CI", "false").lower() == "true"
 
 
 @pytest.fixture(autouse=True)
-def ipk(add_app, request) -> Icepak:
+def ipk(add_app, request):
     if hasattr(request, "param"):
         prj_name = request.param
     else:
