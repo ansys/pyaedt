@@ -4521,7 +4521,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         flow_type="Pressure",
         pressure="AmbientPressure",
         no_reverse_flow=False,
-        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+        velocity=None,
         mass_flow_rate="0kg_per_s",
         inflow=True,
         direction_vector=None,
@@ -4530,7 +4530,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        assignment : int or str or list
+        assignment : int, str, list, or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             Integer indicating a face ID or a string indicating an object name. A list of face
             IDs or object names is also accepted.
         boundary_name : str, optional
@@ -4596,7 +4596,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> icepak.assign_free_opening(f_id)
 
         """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
         # Sanitize input
+        if velocity is None:
+            velocity = ["0m_per_sec", "0m_per_sec", "0m_per_sec"]
         for i in range(len(velocity)):
             if not isinstance(velocity[i], str) and not isinstance(velocity[i], (dict, BoundaryDictionary)):
                 velocity[i] = str(velocity[i]) + "m_per_sec"
@@ -4610,10 +4614,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             radiation_temperature = str(radiation_temperature) + "cel"
         if not isinstance(pressure, str) and not isinstance(pressure, (dict, BoundaryDictionary)):
             pressure = str(pressure) + "pascal"
+
         # Dict creation
         props = {}
-        if not isinstance(assignment, list):
-            assignment = [assignment]
         if isinstance(assignment[0], int):
             props["Faces"] = assignment
         else:
@@ -4831,7 +4834,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        assignment : int or str or list
+        assignment : int, str, list, or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             Integer indicating a face ID or a string indicating an object name. A list of face
             IDs or object names is also accepted.
         boundary_name : str, optional
@@ -4885,6 +4888,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_mass_flow_free_opening(f_id)
         """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
         return self.assign_free_opening(
             assignment,
             boundary_name=boundary_name,

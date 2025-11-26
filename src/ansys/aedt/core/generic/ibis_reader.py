@@ -280,7 +280,7 @@ class Pin(PyAedtBase):
         try:
             available_names = self._circuit.modeler.schematic.ocomponent_manager.GetNames()
             if self.name not in available_names:
-                self._app._app.import_model_in_aedt()
+                self._app._app.import_model_in_aedt(pins=self.name)
             return self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
                 self.buffer_name,
                 [
@@ -324,7 +324,7 @@ class Pin(PyAedtBase):
 
         """
         if self.buffer_name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
-            self._app._app.import_model_in_aedt()
+            self._app._app.import_model_in_aedt(pins=self.name)
         return self._circuit.modeler.schematic.create_component(
             component_library=None,
             component_name=self.buffer_name,
@@ -451,8 +451,8 @@ class DifferentialPin(PyAedtBase):
         """Add a pin to the list of components in the Project Manager."""
         try:
             available_names = self._circuit.modeler.schematic.ocomponent_manager.GetNames()
-            if self.buffer_name not in available_names:
-                self._app.import_model_in_aedt()
+            if self.name not in available_names:
+                self._app.import_model_in_aedt(pins=self.name)
             return self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
                 self.buffer_name,
                 [
@@ -496,7 +496,7 @@ class DifferentialPin(PyAedtBase):
 
         """
         if self.buffer_name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
-            self._app.import_model_in_aedt()
+            self._app.import_model_in_aedt(pins=self.name)
         return self._circuit.modeler.schematic.create_component(
             component_library=None,
             component_name=self.buffer_name,
@@ -527,7 +527,7 @@ class Buffer(PyAedtBase):
         """Add a buffer to the list of components in the Project Manager."""
         available_names = self._circuit.modeler.schematic.ocomponent_manager.GetNames()
         if self.name not in available_names:
-            self._app.import_model_in_aedt()
+            self._app.import_model_in_aedt(buffers=self.name)
         self._circuit.modeler.schematic.ocomponent_manager.AddSolverOnDemandModel(
             self.name,
             [
@@ -567,8 +567,9 @@ class Buffer(PyAedtBase):
             Circuit Component Object.
 
         """
-        if self.name not in self._circuit.modeler.schematic.ocomponent_manager.GetNames():
-            self._app.import_model_in_aedt()
+        all_names = self._circuit.modeler.schematic.ocomponent_manager.GetNames()
+        if self.name not in all_names:
+            self._app.import_model_in_aedt(buffers=self.name)
         return self._circuit.modeler.schematic.create_component(
             component_library=None, component_name=self.name, location=[x, y], angle=angle, page=page
         )
@@ -891,8 +892,15 @@ class IbisReader(PyAedtBase):
 
         return ibis_info
 
-    def import_model_in_aedt(self):
+    def import_model_in_aedt(self, pins=None, buffers=None):
         """Check and import the ibis model in AEDT.
+
+        Parameters
+        ----------
+        pins : list,str, optional
+            Pin to import.
+        buffers : list, str, optional
+            Buffers to import.
 
         Returns
         -------
@@ -900,8 +908,19 @@ class IbisReader(PyAedtBase):
             ``True`` when the model is imported successfully, ``False`` if not imported or model already present.
 
         """
-        names = [i.name for i in self._ibis_model.buffers.values()]
-        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in names]:
+        if buffers is None:
+            buffers = []
+        elif isinstance(buffers, str):
+            buffers = [buffers]
+        if pins is None:
+            pins = []
+        elif isinstance(pins, str):
+            pins = [pins]
+        bufs = [i.name for i in self._ibis_model.buffers.values()]
+        model_names = [i.name for i in self._ibis_model.models] + [i.name for i in self._ibis_model.model_selectors]
+        bufs = [i for i in bufs if i not in self._circuit.modeler.schematic.ocomponent_manager.GetNames()]
+
+        if not bufs and not (buffers or pins):
             return False
 
         if self._circuit:
@@ -919,23 +938,32 @@ class IbisReader(PyAedtBase):
             arg_buffers = ["NAME:Buffers"]
             for buffer_item in self._ibis_model.buffers.values():
                 arg_buffers.append(f"{buffer_item.short_name}:=")
-                arg_buffers.append([True, "IbisSingleEnded"])
-            # model_selector_names = [i.name for i in self._ibis_model.model_selectors]
+                arg_buffers.append(
+                    [True if (not buffers and not pins) or buffer_item.name in buffers else False, "IbisSingleEnded"]
+                )
             arg_components = ["NAME:Components"]
             for comp_value in self._ibis_model.components.values():
                 arg_component = [f"NAME:{comp_value.name}"]
                 for pin in comp_value.pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    # if pin.model not in model_selector_names:
-                    #     arg_component.append([False, False])
-                    # else:
-                    arg_component.append([True, False])
+                    arg_component.append(
+                        [
+                            True
+                            if pin.model in model_names and ((not buffers and not pins) or pin.name in pins)
+                            else False,
+                            False,
+                        ]
+                    )
                 for pin in comp_value.differential_pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    # if pin.model not in model_selector_names:
-                    #     arg_component.append([False, True])
-                    # else:
-                    arg_component.append([True, True])
+                    arg_component.append(
+                        [
+                            True
+                            if pin.model in model_names and ((not buffers and not pins) or pin.name in pins)
+                            else False,
+                            True,
+                        ]
+                    )
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
@@ -1321,10 +1349,30 @@ class AMIReader(IbisReader, PyAedtBase):
         self._ibis_model = ibis
         return ibis_info
 
-    def import_model_in_aedt(self):
-        names = [i.name for i in self._ibis_model.buffers.values()]
-        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in names]:
+    def import_model_in_aedt(self, pins=None, buffers=None):
+        """Check and import the ibis model in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when the model is imported successfully, ``False`` if not imported or model already present.
+
+        """
+        if buffers is None:
+            buffers = []
+        elif isinstance(buffers, str):
+            buffers = [buffers]
+        if pins is None:
+            pins = []
+        elif isinstance(pins, str):
+            pins = [pins]
+        bufs = [i.name for i in self._ibis_model.buffers.values()]
+        bufs = [i for i in bufs if i not in self._circuit.modeler.schematic.ocomponent_manager.GetNames()]
+        model_names = [i.name for i in self._ibis_model.models] + [i.name for i in self._ibis_model.model_selectors]
+
+        if not bufs and not (buffers or pins):
             return False
+
         if self._circuit:
             args = [
                 "NAME:Options",
@@ -1340,23 +1388,39 @@ class AMIReader(IbisReader, PyAedtBase):
             arg_buffers = ["NAME:Buffers"]
             for buffer in self._ibis_model.buffers:
                 arg_buffers.append(f"{self._ibis_model.buffers[buffer].short_name}:=")
-                arg_buffers.append([True, "IbisSingleEnded"])
-            # model_selector_names = [i.name for i in self._ibis_model.model_selectors]
+                arg_buffers.append(
+                    [
+                        True
+                        if (not buffers and not pins) or self._ibis_model.buffers[buffer].name in buffers
+                        else False,
+                        "IbisSingleEnded",
+                    ]
+                )
             arg_components = ["NAME:Components"]
             for component in self._ibis_model.components:
                 arg_component = [f"NAME:{self._ibis_model.components[component].name}"]
                 for pin in self._ibis_model.components[component].pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    # if model_selector_names and pin.model not in model_selector_names:
-                    #     arg_component.append([False, False])
-                    # else:
-                    arg_component.append([True, False])
+                    arg_component.append(
+                        [
+                            True
+                            if pin.model in model_names and ((not buffers and not pins) or pin.name in pins)
+                            else False,
+                            False,
+                        ]
+                    )
+
                 for pin in self._ibis_model.components[component].differential_pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    # if model_selector_names and pin.model not in model_selector_names:
-                    #     arg_component.append([False, True])
-                    # else:
-                    arg_component.append([True, True])
+                    arg_component.append(
+                        [
+                            True
+                            if pin.model in model_names and ((not buffers and not pins) or pin.name in pins)
+                            else False,
+                            True,
+                        ]
+                    )
+
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
