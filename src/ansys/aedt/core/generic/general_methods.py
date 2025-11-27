@@ -365,11 +365,14 @@ def _log_method(func, new_args, new_kwargs):
     # Avoid infinite recursion with __repr__ and __str__ methods
     if func.__name__ in ("__repr__", "__str__"):
         return
-    if not func or (
-        not settings.enable_debug_edb_logger
-        and "Edb" in str(func) + str(new_args)
-        or "edb_core" in str(func) + str(new_args)
-    ):
+    try:
+        if not func or (
+            not settings.enable_debug_edb_logger
+            and "Edb" in str(func) + str(new_args)
+            or "edb_core" in str(func) + str(new_args)
+        ):
+            return
+    except Exception:
         return
 
     line_begin = "ARGUMENTS: "
