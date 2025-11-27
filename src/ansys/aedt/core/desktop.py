@@ -2598,11 +2598,8 @@ class Desktop(PyAedtBase):
 
     def __init_grpc(self):
         result = False
-        if self.new_desktop:
-            self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
-        else:
-            self.logger.info(f"Connecting to AEDT gRPC session on port {self.port}.")
         if self.new_desktop and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
+            self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
             out, self.machine = launch_aedt_in_lsf(self.non_graphical, self.port)
             self.new_desktop = False
             if out:
@@ -2615,6 +2612,7 @@ class Desktop(PyAedtBase):
             # "PYTEST_CURRENT_TEST" in os.environ
             not settings.grpc_local or self.aedt_version_id < "2024.2" or settings.use_multi_desktop
         ):  # pragma: no cover
+            self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
                 installer = Path(self.aedt_install_dir) / "ansysedtsv"
@@ -2631,7 +2629,12 @@ class Desktop(PyAedtBase):
             self.launched_by_pyaedt = True
             result = self.__initialize()
         else:
+            if self.port == 0:
+                self.logger.info("Starting new AEDT gRPC session.")
+            else:
+                self.logger.info(f"Connecting to AEDT gRPC session on port {self.port}.")
             result = self.__initialize()
+            self.logger.info(f"New AEDT gRPC session session started on port {self.port}.")
         if result:
             if self.new_desktop:
                 message = (
