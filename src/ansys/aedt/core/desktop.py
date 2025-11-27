@@ -620,7 +620,6 @@ class Desktop(PyAedtBase):
 
         # save the current desktop session in the database
         _desktop_sessions[self.aedt_process_id] = self
-
         # Register the desktop closure to be called at exit unless asked not to.
         atexit.register(
             lambda: self.__release_and_close_desktop(close_projects=close_on_exit, close_aedt_app=close_on_exit)
@@ -632,6 +631,10 @@ class Desktop(PyAedtBase):
 
     @aedt_version_id.setter
     def aedt_version_id(self, value):
+        if isinstance(value, int):
+            value = f"20{str(value)[:2]}.{str(value)[2:3]}"
+        elif isinstance(value, float):
+            value = f"{value}"
         self.__aedt_version_id = value
         settings.aedt_version = value
 
@@ -2631,12 +2634,15 @@ class Desktop(PyAedtBase):
             self.launched_by_pyaedt = True
             result = self.__initialize()
         else:
+            flag_new = False
             if self.port == 0:
                 self.logger.info("Starting new AEDT gRPC session.")
+                flag_new = True
             else:
                 self.logger.info(f"Connecting to AEDT gRPC session on port {self.port}.")
             result = self.__initialize()
-            self.logger.info(f"New AEDT gRPC session session started on port {self.port}.")
+            if flag_new:
+                self.logger.info(f"New AEDT gRPC session session started on port {self.port}.")
         if result:
             if self.new_desktop:
                 message = (
@@ -2663,6 +2669,19 @@ class Desktop(PyAedtBase):
                 project_dir = tempfile.gettempdir()
             self.__logfile = Path(project_dir) / f"pyaedt{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         self.logger._desktop_class = self
+        if self.aedt_version_id >= "2024.2":
+            messages = self.odesktop.GetMessages("", "", 0)
+            check_message = f" {self.port}."
+            for message in messages:
+                if check_message in message:
+                    mes_split = message.split(".")
+                    if len(mes_split) > 1 and len(mes_split[1].strip()) == 0:
+                        self.logger.warning(
+                            "Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode."
+                        )
+                        self.logger.warning(
+                            "Please download and install latest Service Pack to use connect to AEDT in Secure Mode."
+                        )
         if settings.enable_debug_logger:
             self.logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
         else:
