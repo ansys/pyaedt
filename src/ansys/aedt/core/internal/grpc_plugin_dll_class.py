@@ -33,8 +33,6 @@ from pathlib import Path
 import re
 import types
 
-import grpc
-
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
@@ -127,6 +125,8 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
+            settings.logger.debug("Failed to execute gRPC AEDT command:")
+            settings.logger.debug(f"{funcName}({argv})")
             raise GrpcApiError(f"Failed to execute gRPC AEDT command: {funcName}")
 
     def __dir__(self):
@@ -233,7 +233,7 @@ class AedtPropServer(AedtObjWrapper):
             return
         propMap = self.__GetPropAttributes()
         try:
-            if attr in propMap:
+            if attr not in ["dllapi", "is_linux"] and attr in propMap:
                 self.SetPropValue(propMap[attr], val)
                 return
         except Exception:
@@ -334,18 +334,20 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
-    def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
-        if not alwaysNew and port:
-            grpc_channel = grpc.insecure_channel(f"{machine}:{port}")
-            try:
-                grpc.channel_ready_future(grpc_channel).result(settings.desktop_launch_timeout)
-            except grpc.FutureTimeoutError:
-                settings.logger.error("Failed to connect to Desktop Session")
-                return
+    def CreateAedtApplication(self, machine, port=0, NGmode=False, alwaysNew=True):
         try:
+            settings.logger.debug(f"Starting client with machine {machine} and port {port}")
+            if machine.endswith("InsecureMode"):
+                target = machine.split(":")[0]
+                settings.logger.warning(
+                    f"Starting gRPC client without TLS on {target}. This is INSECURE. "
+                    "Consider using a secure connection."
+                )
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
+            settings.logger.info("Client application successfully started.")
         except Exception:
             settings.logger.warning("Failed to create AedtApplication.")
+            self.aedt = None
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine
