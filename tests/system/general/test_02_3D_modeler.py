@@ -53,7 +53,7 @@ small_number = MathUtils.EPSILON
 secure_random = secrets.SystemRandom()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def coaxial(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
     yield app

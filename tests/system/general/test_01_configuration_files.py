@@ -31,6 +31,7 @@ from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.file_utils import available_file_name
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
 
@@ -51,7 +52,7 @@ hfss3dl_existing_setup_proj_name = (
 circuit_project_name = "differential_pairs.aedt"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
     yield app
@@ -64,13 +65,13 @@ def circuittest(add_app):
     app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def q3dtest(add_app):
     app = add_app(project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
     yield app
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def q2dtest(add_app):
     app = add_app(application=Q2d)
     yield app
@@ -90,7 +91,7 @@ def hfss3dl_b(add_app):
     app.close_project(save=False)
 
 
-def test_hfss_export(aedtapp, add_app):
+def test_hfss_export(aedtapp, add_app, local_scratch):
     aedtapp.mesh.assign_length_mesh("sub")
     conf_file = aedtapp.configurations.export_config()
     assert aedtapp.configurations.validate(conf_file)
@@ -101,7 +102,9 @@ def test_hfss_export(aedtapp, add_app):
     aedtapp.export_3d_model(filename, aedtapp.working_directory, ".x_b", [], [])
     aedtapp.close_project(save=False)
 
-    app = add_app(project_name="new_proj", solution_type=aedtapp.solution_type, just_open=True)
+    project_file = available_file_name(local_scratch.path / "new_proj.aedt")
+    app = add_app(project_name=project_file, solution_type=aedtapp.solution_type, just_open=True)
+
     app.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
     assert isinstance(out, dict)
@@ -110,7 +113,7 @@ def test_hfss_export(aedtapp, add_app):
     app.close_project(save=False)
 
 
-def test_q3d_export(q3dtest, add_app):
+def test_q3d_export(q3dtest, add_app, local_scratch):
     q3dtest.modeler.create_coordinate_system()
     q3dtest.setups[0].props["AdaptiveFreq"] = "100MHz"
     conf_file = q3dtest.configurations.export_config()
@@ -122,7 +125,8 @@ def test_q3d_export(q3dtest, add_app):
     q3dtest.export_3d_model(filename, q3dtest.working_directory, ".x_b", [], [])
     q3dtest.close_project(save=False)
 
-    app = add_app(application=Q3d, project_name="new_proj_Q3d")
+    project_file = available_file_name(local_scratch.path / "new_proj_Q3d.aedt")
+    app = add_app(application=Q3d, project_name=project_file, just_open=True)
     app.modeler.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
     assert isinstance(out, dict)
@@ -131,7 +135,7 @@ def test_q3d_export(q3dtest, add_app):
     app.close_project(save=False)
 
 
-def test_q2d_export(q2dtest, add_app):
+def test_q2d_export(q2dtest, add_app, local_scratch):
     q2dtest.modeler.create_coordinate_system()
     q2dtest.modeler.create_rectangle([15, 20, 0], [5, 5])
     conf_file = q2dtest.configurations.export_config()
@@ -145,7 +149,8 @@ def test_q2d_export(q2dtest, add_app):
     q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_t", [], [])
     q2dtest.close_project(save=False)
 
-    app = add_app(application=Q2d, project_name="new_proj_Q2d")
+    project_file = available_file_name(local_scratch.path / "new_proj_Q2d.aedt")
+    app = add_app(application=Q2d, project_name=project_file, just_open=True)
     app.modeler.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
     assert isinstance(out, dict)

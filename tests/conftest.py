@@ -29,7 +29,6 @@ import random
 import shutil
 import string
 import sys
-import tempfile
 from typing import List
 from unittest.mock import MagicMock
 
@@ -145,32 +144,103 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
 # ================================
 
 
-@pytest.fixture(scope="session", autouse=True)
-def init_scratch():
-    """Initialize a global scratch directory for all tests."""
-    test_folder_name = "pyaedt_test" + generate_random_ident()
-    test_folder = Path(tempfile.gettempdir()) / test_folder_name
-    try:
-        os.makedirs(test_folder, mode=0o777)
-    except FileExistsError as e:
-        print(f"Failed to create {test_folder}. Reason: {e}")
+# @pytest.fixture(scope="session", autouse=True)
+# def init_scratch():
+#     """Initialize a global scratch directory for all tests."""
+#     test_folder_name = "pyaedt_test" + generate_random_ident()
+#     test_folder = Path(tempfile.gettempdir()) / test_folder_name
+#     try:
+#         os.makedirs(test_folder, mode=0o777)
+#     except FileExistsError as e:
+#         print(f"Failed to create {test_folder}. Reason: {e}")
+#
+#     yield test_folder
+#
+#     try:
+#         shutil.rmtree(test_folder, ignore_errors=True)
+#     except Exception as e:
+#         print(f"Failed to delete {test_folder}. Reason: {e}")
 
-    yield test_folder
 
-    try:
-        shutil.rmtree(test_folder, ignore_errors=True)
-    except Exception as e:
-        print(f"Failed to delete {test_folder}. Reason: {e}")
+def pytest_addoption(parser):
+    """
+    Adds a --keep-temp option to preserve temporary directories after the test run.
+    By default, temp directories are deleted.
+    """
+    parser.addoption(
+        "--keep-temp",
+        action="store_true",
+        default=False,
+        help="Do not delete temporary directories after the test session.",
+    )
+
+
+@pytest.fixture(scope="session")
+def session_root(tmp_path_factory, request):
+    """
+    Session-level root directory for all tests, based on pytest's base temp.
+
+    Example:
+      <pytest-basetemp>/pyaedt_test-XXXX-XXXX-XXXX
+    """
+    # This is pytest's base temp dir (respects --basetemp if you set it)
+    base = tmp_path_factory.getbasetemp()
+    base_path = Path(str(base))  # normalize to pathlib.Path
+
+    # Our own random-named root under pytest's basetemp
+    root = base_path / ("pyaedt_test" + generate_random_ident())
+    root.mkdir(exist_ok=True)
+
+    yield root
+
+    # Cleanup at the end of the test session unless --keep-temp is used
+    keep = request.config.getoption("--keep-temp")
+    if not keep:
+        shutil.rmtree(root, ignore_errors=True)
 
 
 @pytest.fixture(scope="function")
-def local_scratch(init_scratch):
-    """Provide a module-scoped scratch directory."""
-    tmp_path = init_scratch
-    scratch = Scratch(tmp_path)
-    yield scratch
-    scratch.remove()
-    settings.logger_file_path = None
+def local_scratch(session_root, request):
+    """
+    Per-test scratch directory under the session root, wrapped in Scratch.
+
+    Example:
+      <pytest-basetemp>/pyaedt_test-.../test_my_function
+    """
+    raw_name = request.node.name
+    # Parametrized tests can have things like 'test_x[param]'
+    safe_name = raw_name.replace(os.sep, "_").replace("[", "_").replace("]", "_")
+
+    test_dir = session_root / safe_name
+    test_dir.mkdir(exist_ok=True)
+
+    scratch = Scratch(test_dir)
+    settings.logger_file_path = str(test_dir / "pyaedt.log")
+
+    try:
+        yield scratch
+    finally:
+        # Let Scratch clean its content
+        scratch.remove()
+        settings.logger_file_path = None
+
+
+# @pytest.fixture(scope="function")
+# def local_scratch(init_scratch):
+#     """Provide a module-scoped scratch directory."""
+#     tmp_path = init_scratch
+#     scratch = Scratch(tmp_path)
+#     yield scratch
+#     scratch.remove()
+#     settings.logger_file_path = None
+
+# @pytest.fixture
+# def local_scratch(session_root, request):
+#     test_name = request.node.name
+#
+#     path = session_root / test_name
+#     path.mkdir(exist_ok=True)
+#     return path
 
 
 @pytest.fixture

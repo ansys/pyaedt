@@ -45,7 +45,7 @@ from tests.conftest import config
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module")
 def desktop():
     d = Desktop(config["desktopVersion"], NONGRAPHICAL, config["NewThread"])
     d.odesktop.SetTempDirectory(tempfile.gettempdir())
@@ -125,7 +125,7 @@ def add_app(local_scratch, desktop):
         }
         if solution_type:
             args["solution_type"] = solution_type
-        desktop.odesktop.SetTempDirectory(str(local_scratch.path))
+        desktop.odesktop.SetTempDirectory(str(local_scratch))
         app = application(**args)
         app.odesktop.SetTempDirectory(str(app.project_path))
         return app

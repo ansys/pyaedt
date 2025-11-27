@@ -44,7 +44,7 @@ desktop_version = config["desktopVersion"]
 @pytest.fixture()
 def aedtapp(add_app, local_scratch):
     settings.enable_local_log_file = True
-    project_file = available_file_name(local_scratch.path / "aedt_logger.aedt")
+    project_file = available_file_name(local_scratch / "aedt_logger.aedt")
     app = add_app(project_name=project_file, just_open=True)
     yield app
     app.odesktop.SetTempDirectory(tempfile.gettempdir())
@@ -55,7 +55,7 @@ def aedtapp(add_app, local_scratch):
 
 def test_formatter(local_scratch):
     settings.formatter = logging.Formatter(fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S")
-    path = local_scratch.path / "test01.txt"
+    path = local_scratch / "test01.txt"
     logger = AedtLogger(filename=str(path))
     assert logger.formatter == settings.formatter
     settings.formatter = None
@@ -65,7 +65,7 @@ def test_formatter(local_scratch):
 
 def test_output_file_with_app_filter(local_scratch):
     settings.enable_debug_logger = True
-    path = local_scratch.path / "test02.txt"
+    path = local_scratch / "test02.txt"
     logger = AedtLogger(filename=str(path))
     logger.info("Info for Global")
 
@@ -129,7 +129,7 @@ def test_stdout_with_app_filter():
 
 def test_disable_output_file_handler(local_scratch):
     tempfile.gettempdir()
-    path = local_scratch.path / "test04.txt"
+    path = local_scratch / "test04.txt"
 
     if path.is_file():
         path.unlink(missing_ok=True)
