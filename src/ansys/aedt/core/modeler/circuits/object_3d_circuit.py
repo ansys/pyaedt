@@ -436,7 +436,7 @@ class ModelParameters(PyAedtBase):
 class CircuitComponent(PyAedtBase):
     """Manages circuit components."""
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> "CircuitPins":
         if isinstance(item, int):
             return self.pins[item - 1]
         for i in self.pins:
