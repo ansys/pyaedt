@@ -2574,7 +2574,7 @@ class Desktop(PyAedtBase):
 
         if (
             settings.use_multi_desktop
-            or "PYTEST_CURRENT_TEST" in os.environ
+            # or "PYTEST_CURRENT_TEST" in os.environ
             or (self.new_desktop and self.aedt_version_id < "2024.2")
         ):
             self.__port = _find_free_port()
@@ -2612,10 +2612,8 @@ class Desktop(PyAedtBase):
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
         elif self.new_desktop and (
-            "PYTEST_CURRENT_TEST" in os.environ
-            or not settings.grpc_local
-            or self.aedt_version_id < "2024.2"
-            or settings.use_multi_desktop
+            # "PYTEST_CURRENT_TEST" in os.environ
+            not settings.grpc_local or self.aedt_version_id < "2024.2" or settings.use_multi_desktop
         ):  # pragma: no cover
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
