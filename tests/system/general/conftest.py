@@ -53,6 +53,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+from tests.conftest import DEFAULT_CONFIG
 from tests.conftest import config
 from tests.conftest import logger
 
@@ -70,22 +71,33 @@ def _delete_objects():
 
 
 @pytest.fixture(scope="module", autouse=True)
-def desktop():
-    _delete_objects()
-    keys = list(_desktop_sessions.keys())
-    for key in keys:
-        del _desktop_sessions[key]
-    d = Desktop(config["desktopVersion"], config["NonGraphical"], config["NewThread"])
-    d.odesktop.SetTempDirectory(tempfile.gettempdir())
-    d.disable_autosave()
-    if config["desktopVersion"] > "2022.2":
-        d.odesktop.SetDesktopConfiguration("All")
-        d.odesktop.SetSchematicEnvironment(0)
-    yield d
-    pid = d.aedt_process_id
-    d.close_desktop()
-    time.sleep(1)
-    try:
-        os.kill(pid, 9)
-    except OSError:
-        pass
+def desktop(request):
+    desktop = None
+
+    # NOTE: Check if the test is not marked with desktop_grpc_stransport
+    if not any(mark.name == "desktop_grpc_stransport" for mark in request.node.iter_markers()):
+        _delete_objects()
+        keys = list(_desktop_sessions.keys())
+        for key in keys:
+            del _desktop_sessions[key]
+        desktop_version = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
+        non_graphical = config.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))
+        new_thread = config.get("NewThread", DEFAULT_CONFIG.get("NewThread"))
+
+        desktop = Desktop(desktop_version, non_graphical, new_thread)
+        desktop.odesktop.SetTempDirectory(tempfile.gettempdir())
+        desktop.disable_autosave()
+        if desktop_version > "2022.2":
+            desktop.odesktop.SetDesktopConfiguration("All")
+            desktop.odesktop.SetSchematicEnvironment(0)
+
+    yield desktop
+
+    if desktop is not None:
+        pid = desktop.aedt_process_id
+        desktop.close_desktop()
+        time.sleep(1)
+        try:
+            os.kill(pid, 9)
+        except OSError:
+            pass
