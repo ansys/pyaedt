@@ -45,7 +45,7 @@ q2d_solved_nominal = "q2d_solved_nominal"
 def aedtapp(add_app):
     app = add_app(application=Q2d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
@@ -56,7 +56,7 @@ def q2d_solved(add_app):
         subfolder=test_subfolder,
     )
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
@@ -67,21 +67,21 @@ def q2d_matrix(add_app):
         subfolder=test_subfolder,
     )
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def q2d_solved_sweep_app(add_app):
     app = add_app(application=Q2d, project_name=q2d_solved_sweep, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def q2d_solved_nominal_app(add_app):
     app = add_app(application=Q2d, project_name=q2d_solved_nominal, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

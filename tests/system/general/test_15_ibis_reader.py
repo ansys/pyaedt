@@ -38,7 +38,7 @@ test_subfolder = "T15"
 def aedtapp(add_app):
     app = add_app(application=Circuit)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_read_ibis(aedtapp):

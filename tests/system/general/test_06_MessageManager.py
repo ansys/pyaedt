@@ -40,14 +40,14 @@ LOGGER = logging.getLogger(__name__)
 def aedtapp(add_app):
     app = add_app(application=Hfss)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def icepak_app(add_app):
     app = add_app(application=Icepak)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_global_messenger():

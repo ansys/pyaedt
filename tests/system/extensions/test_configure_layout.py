@@ -73,7 +73,7 @@ def extension_under_test(add_app):
     yield extension
     extension.root.destroy()
     try:
-        app.close_project(app.project_name)
+        app.close_project(app.project_name, save=False)
     except Exception as e:
         warnings.warn(
             f"Failed to close project {getattr(app, 'project_name', None)}: {e}",
@@ -96,7 +96,7 @@ def test_links():
 def test_get_active_db(extension_under_test, test_folder, add_app):
     app = add_app(application=ansys.aedt.core.Hfss3dLayout, project_name="ANSYS-HSD_V1", subfolder="T45")
     assert Path(extension_under_test.get_active_edb()).exists()
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @patch(

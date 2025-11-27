@@ -60,49 +60,49 @@ def aedtapp(add_app):
         subfolder=test_subfolder,
     )
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def m2d_fields(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=m2d_export_fields, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def sinusoidal(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=sinusoidal_name, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def m2d_ctrl_prg(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=ctrl_prg, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def m2d_export_matrix(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=export_rl_c_matrix, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def m2d_app(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def m2d_setup(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d, project_name=m2d_transient_ec, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pathlib import Path
+import tempfile
 
 import pytest
 
@@ -31,6 +32,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 q3d_solved_file = "Q3d_solved"
@@ -45,9 +47,11 @@ test_subfolder = "T31"
 
 
 @pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(application=Q3d)
+def aedtapp(add_app, local_scratch):
+    project_file = available_file_name(local_scratch.path / "q3d_test.aedt")
+    app = add_app(application=Q3d, project_name=project_file, just_open=True)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -55,6 +59,7 @@ def aedtapp(add_app):
 def coupling(add_app):
     app = add_app(application=Q3d, project_name=mutual_coupling, subfolder=test_subfolder)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -62,6 +67,7 @@ def coupling(add_app):
 def bond(add_app):
     app = add_app(project_name=bondwire_project_name, subfolder=test_subfolder, application=Q3d)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -69,6 +75,7 @@ def bond(add_app):
 def q3d_solved(add_app):
     app = add_app(project_name=q3d_solved_file, subfolder=test_subfolder, application=Q3d)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
@@ -76,6 +83,7 @@ def q3d_solved(add_app):
 def q3d_solved2(add_app):
     app = add_app(project_name=q3d_solved2_file, subfolder=test_subfolder, application=Q3d)
     yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 

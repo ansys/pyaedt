@@ -61,21 +61,21 @@ MISSING_RGB_MATERIALS = b"""
 def aedtapp(add_app):
     app = add_app(application=Hfss)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def icepakapp(add_app):
     app = add_app(application=Icepak)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def maxwellapp(add_app):
     app = add_app(application=Maxwell3d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_vacuum(aedtapp):

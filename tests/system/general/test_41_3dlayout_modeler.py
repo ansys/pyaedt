@@ -59,21 +59,21 @@ def aedtapp(add_app):
 def hfss3dl(add_app):
     app = add_app(project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture(scope="class")
 def maxwell(add_app):
     app = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture(scope="class")
 def hfss(add_app):
     app = add_app(project_name=test_post, application=Hfss, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture(scope="class", autouse=True)

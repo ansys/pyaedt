@@ -87,8 +87,8 @@ def _get_test_path_from_caller():
     return TESTS_GENERAL_PATH
 
 
-@pytest.fixture(scope="module")
-def add_app(local_scratch):
+@pytest.fixture()
+def add_app(local_scratch, desktop):
     def _method(
         project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False
     ):
@@ -110,7 +110,7 @@ def add_app(local_scratch):
                 target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
                 local_scratch.copyfolder(example_folder, target_folder)
         elif project_name and just_open:
-            test_project = project_name
+            test_project = str(project_name)
         else:
             test_project = None
         if not application:
@@ -125,7 +125,10 @@ def add_app(local_scratch):
         }
         if solution_type:
             args["solution_type"] = solution_type
-        return application(**args)
+        desktop.odesktop.SetTempDirectory(str(local_scratch.path))
+        app = application(**args)
+        app.odesktop.SetTempDirectory(str(app.project_path))
+        return app
 
     return _method
 

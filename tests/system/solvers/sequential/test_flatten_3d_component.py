@@ -22,16 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import tempfile
+
 import pytest
 
 components_flatten = "components_flatten_231"
 test_subfolder = "flatten_component"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def flatten(add_app):
     app = add_app(project_name=components_flatten, subfolder=test_subfolder)
-    return app
+    yield app
+    app.odesktop.SetTempDirectory(tempfile.gettempdir())
+    app.close_project(save=False)
 
 
 class TestClass:
