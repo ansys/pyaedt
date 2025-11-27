@@ -34,6 +34,7 @@ from pathlib import Path
 import re
 import secrets
 import time
+from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -53,7 +54,10 @@ from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
-import ansys.aedt.core.visualization.post.solution_data
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
+    from ansys.aedt.core.visualization.report.standard import Standard
 
 
 class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
@@ -367,7 +371,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         polyline_points=1001,
         math_formula=None,
         sweep=None,
-    ) -> "ansys.aedt.core.visualization.post.solution_data.SolutionData":
+    ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -493,7 +497,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         polyline_points=1001,
         name=None,
         sweep=None,
-    ) -> "ansys.aedt.core.visualization.report.standard.Standard":
+    ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
         Parameters
@@ -1684,7 +1688,7 @@ class SetupCircuit(CommonSetup):
         polyline_points=1001,
         math_formula=None,
         sweep=None,
-    ) -> "ansys.aedt.core.visualization.post.solution_data.SolutionData":
+    ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1768,7 +1772,7 @@ class SetupCircuit(CommonSetup):
         subdesign_id=None,
         polyline_points=1001,
         name=None,
-    ) -> "ansys.aedt.core.visualization.report.standard.Standard":
+    ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
         Parameters

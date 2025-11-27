@@ -31,6 +31,7 @@ This module provides all functionalities for common AEDT post processing.
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
@@ -45,6 +46,9 @@ import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
 import ansys.aedt.core.visualization.report.standard
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.report.standard import Standard
 
 TEMPLATES_BY_NAME = {
     "Standard": ansys.aedt.core.visualization.report.standard.Standard,
@@ -101,7 +105,6 @@ class PostProcessorCommon(PyAedtBase):
     @property
     def plots(self) -> list[ansys.aedt.core.visualization.report.standard.Standard]:
         """Plot list.
-
 
         Returns
         -------
@@ -1403,7 +1406,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         plot_name=None,
-    ) -> "ansys.aedt.core.visualization.report.standard.Standard":
+    ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
@@ -1547,7 +1550,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         math_formula=None,
-    ) -> "ansys.aedt.core.visualization.post.solution_data.SolutionData":
+    ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
