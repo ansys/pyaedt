@@ -25,6 +25,7 @@
 
 import copy
 import os
+from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -39,6 +40,9 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 
 class LimitLine(BinaryTreeNode, PyAedtBase):
@@ -248,6 +252,12 @@ class Note(BinaryTreeNode, PyAedtBase):
 class Trace(BinaryTreeNode, PyAedtBase):
     """Provides trace management."""
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     def __init__(
         self,
         post,
@@ -434,6 +444,12 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
 class CommonReport(BinaryTreeNode, PyAedtBase):
     """Provides common reports."""
+
+    def __repr__(self):
+        return self.plot_name
+
+    def __str__(self):
+        return self.plot_name
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         self._variations = None
@@ -1703,12 +1719,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return write_configuration_file(output_dict, output_file)
 
     @pyaedt_function_handler()
-    def get_solution_data(self):
+    def get_solution_data(self) -> "SolutionData":
         """Get the report solution data.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution data object.
         """
         if self._is_created:

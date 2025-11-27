@@ -64,6 +64,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
     """
 
+    def __repr__(self):
+        return self.name
+
     def __init__(self, p_app, name, dictinputs, optimtype):
         self.auto_update = False
         self._app = p_app

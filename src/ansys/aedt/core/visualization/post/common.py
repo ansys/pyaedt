@@ -31,6 +31,7 @@ This module provides all functionalities for common AEDT post processing.
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
@@ -45,6 +46,9 @@ import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
 import ansys.aedt.core.visualization.report.standard
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.report.standard import Standard
 
 TEMPLATES_BY_NAME = {
     "Standard": ansys.aedt.core.visualization.report.standard.Standard,
@@ -95,11 +99,28 @@ class PostProcessorCommon(PyAedtBase):
     def __init__(self, app):
         self._app = app
         self._scratch = self._app.working_directory
-        self.plots = self._get_plot_inputs()
+        self.__plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
-    def available_report_types(self):
+    def plots(self) -> list[ansys.aedt.core.visualization.report.standard.Standard]:
+        """Plot list.
+
+        Returns
+        -------
+        list[ansys.aedt.core.visualization.report.standard.Standard]
+            List of reports created in active design.
+        """
+        if self.__plots is None:
+            self.__plots = self._get_plot_inputs()
+        return self.__plots
+
+    @plots.setter
+    def plots(self, value):
+        self.__plots = value
+
+    @property
+    def available_report_types(self) -> list[str]:
         """Report types.
 
         References
@@ -1385,7 +1406,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         plot_name=None,
-    ):
+    ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
@@ -1435,7 +1456,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.visualization.report.standard.Standard`
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -1529,7 +1550,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         math_formula=None,
-    ):
+    ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1589,7 +1610,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution Data object.
 
         References
@@ -1732,7 +1753,7 @@ class PostProcessorCommon(PyAedtBase):
                 new_expressions = [item for item in self.all_report_names if item not in old_expressions]
                 if new_expressions:
                     report_name = new_expressions[0]
-                    self.plots = self._get_plot_inputs()
+                    self.__plots = None
                     report = None
                     for plot in self.plots:
                         if plot.plot_name == report_name:
