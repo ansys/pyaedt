@@ -49,6 +49,8 @@ VISUALIZATION_GENERAL_TEST_PREFIX = "tests/system/visualization"
 EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
+GRPC_CONNECTION_TIMEOUT = 240
+
 
 DEFAULT_CONFIG = {
     "desktopVersion": "2025.2",
@@ -76,6 +78,7 @@ if local_config_file.exists():
         # Failed to load local_config.json; report error
         print(f"Failed to load local_config.json ({local_config_file}): {e}")
 
+os.environ["AnsysEM_GRPC_Connection_Timeout"] = f"{GRPC_CONNECTION_TIMEOUT}"
 desktop_version = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
 NONGRAPHICAL = config.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))
 new_thread = config.get("NewThread", DEFAULT_CONFIG.get("NewThread"))
