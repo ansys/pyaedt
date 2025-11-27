@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
@@ -70,392 +71,540 @@ else:
     polyline = "polyline"
 
 
-@pytest.fixture(scope="class")
+# @pytest.fixture(scope="class")
+# def aedtapp(add_app):
+#     app = add_app(project_name="test_primitives", design_name="3D_Primitives")
+#     return app
+
+
+# @pytest.fixture(scope="class", autouse=True)
+# def examples(local_scratch):
+#     scdoc_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, scdoc)
+#     scdoc_file = local_scratch.copyfile(scdoc_file)
+#     step_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, step)
+#     component3d_file = os.path.join(local_scratch.path, "comp_3d", component3d)
+#     encrypted_cylinder = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, encrypted_cyl)
+#     test_98_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly2 + ".aedt")
+#     test_98_project = local_scratch.copyfile(test_98_project)
+#     test_99_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly + ".aedt")
+#     test_99_project = local_scratch.copyfile(test_99_project)
+#     layout_component = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, layout_comp)
+#     layout_comp_si_verse_sfp = os.path.join(
+#         TESTS_GENERAL_PATH, "example_models", test_subfolder, LAYOUT_COMP_SI_VERSE_SFP
+#     )
+#     discovery_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, disco)
+#     discovery_file = local_scratch.copyfile(discovery_file)
+#     return (
+#         scdoc_file,
+#         step_file,
+#         component3d_file,
+#         encrypted_cylinder,
+#         test_98_project,
+#         test_99_project,
+#         layout_component,
+#         discovery_file,
+#         layout_comp_si_verse_sfp,
+#     )
+
+
+@pytest.fixture()
 def aedtapp(add_app):
-    app = add_app(project_name="test_primitives", design_name="3D_Primitives")
-    return app
+    app = add_app(application=Hfss)
+    yield app
+    app.close_project(app.project_name)
 
 
-@pytest.fixture(scope="class", autouse=True)
-def examples(local_scratch):
-    scdoc_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, scdoc)
-    scdoc_file = local_scratch.copyfile(scdoc_file)
-    step_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, step)
-    component3d_file = os.path.join(local_scratch.path, "comp_3d", component3d)
-    encrypted_cylinder = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, encrypted_cyl)
-    test_98_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly2 + ".aedt")
-    test_98_project = local_scratch.copyfile(test_98_project)
-    test_99_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly + ".aedt")
-    test_99_project = local_scratch.copyfile(test_99_project)
-    layout_component = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, layout_comp)
-    layout_comp_si_verse_sfp = os.path.join(
-        TESTS_GENERAL_PATH, "example_models", test_subfolder, LAYOUT_COMP_SI_VERSE_SFP
+# Utils functions
+
+
+def create_copper_box(app, name="MyBox"):
+    """Create a copper box."""
+    if app.modeler[name]:
+        app.modeler.delete(name)
+    new_object = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
+    return new_object
+
+
+def create_copper_sphere(app, name="Mysphere"):
+    """Create a copper sphere."""
+    if app.modeler[name]:
+        app.modeler.delete(name)
+    new_object = app.modeler.create_sphere([0, 0, 0], radius="1mm", name=name, material="Copper")
+    return new_object
+
+
+def create_copper_cylinder(app, name="MyCyl"):
+    """Create a copper cylinder."""
+    if app.modeler[name]:
+        app.modeler.delete(name)
+    new_object = app.modeler.create_cylinder(
+        orientation="Y", origin=[20, 20, 0], radius=5, height=20, num_sides=8, name=name, material="Copper"
     )
-    discovery_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, disco)
-    discovery_file = local_scratch.copyfile(discovery_file)
-    return (
-        scdoc_file,
-        step_file,
-        component3d_file,
-        encrypted_cylinder,
-        test_98_project,
-        test_99_project,
-        layout_component,
-        discovery_file,
-        layout_comp_si_verse_sfp,
+    return new_object
+
+
+def create_rectangle(app, name="MyRectangle"):
+    """Create a rectangle."""
+    if app.modeler[name]:
+        app.modeler.delete(name)
+    plane = Plane.XY
+    new_object = app.modeler.create_rectangle(plane, [5, 3, 8], [4, 5], name=name)
+    return new_object
+
+
+def create_copper_torus(app, name="MyTorus"):
+    """Create a copper torus."""
+    if app.modeler[name]:
+        app.modeler.delete(name)
+    new_object = app.modeler.create_torus(
+        [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material="Copper"
     )
+    return new_object
+
+
+def create_polylines(app, name="Poly_"):
+    test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
+    if app.modeler[name + "segmented"]:
+        app.modeler.delete(
+            name + "segmented",
+        )
+    if app.modeler[name + "compound"]:
+        app.modeler.delete(
+            name + "compound",
+        )
+    p1 = app.modeler.create_polyline(points=test_points, name=name + "segmented")
+    p2 = app.modeler.create_polyline(points=test_points, segment_type=["Line", "Arc"], name=name + "compound")
+    return p1, p2, test_points
+
+
+# Test functions
+
+
+def test_01_resolve_object(aedtapp):
+    """Test resolve object."""
+    box = create_copper_box(aedtapp)
+
+    # Test with object
+    resolve_object = aedtapp.modeler._resolve_object(box)
+    assert isinstance(resolve_object, Object3d)
+    assert resolve_object.id == box.id
+
+    # Test with id
+    resolve_object = aedtapp.modeler._resolve_object(box.id)
+    assert isinstance(resolve_object, Object3d)
+    assert resolve_object.id == box.id
+
+    # Test with name
+    resolve_object = aedtapp.modeler._resolve_object(box.name)
+    assert isinstance(resolve_object, Object3d)
+    assert resolve_object.id == box.id
+
+    # Test invalid inputs
+    invaloid_res = aedtapp.modeler._resolve_object(-1)
+    assert invaloid_res is None
+    invaloid_res = aedtapp.modeler._resolve_object("DummyInvalid")
+    assert invaloid_res is None
+
+
+def test_02_create_box(aedtapp):
+    """Test create box."""
+    box = create_copper_box(aedtapp, name="MyCreatedBox_11")
+
+    assert box.id > 0
+    assert box.name.startswith("MyCreatedBox_11")
+    assert box.object_type == "Solid"
+    assert box.is_3d
+    assert box.material_name == "copper"
+    assert "MyCreatedBox_11" in aedtapp.modeler.solid_names
+    assert len(aedtapp.modeler.object_names) == len(aedtapp.modeler.objects)
+
+
+def test_02_create_box_failure(aedtapp):
+    """Test create box failure."""
+    with pytest.raises(ValueError, match="The ``position`` argument must be a valid three-element list."):
+        aedtapp.modeler.create_box([0, 0], [10, 10, 10], "MyCreatedBox_12", "Copper")
+
+    with pytest.raises(ValueError, match="The ``dimension_list`` argument must be a valid three-element list."):
+        aedtapp.modeler.create_box([0, 0, 0], [10, 10], "MyCreatedBox_12", "Copper")
+
+
+def test_03_create_polyhedron_with_default_values(aedtapp):
+    """Test create polyhedron with default values."""
+    polyhedron = aedtapp.modeler.create_polyhedron()
+
+    assert polyhedron.id > 0
+    assert polyhedron.name.startswith("New")
+    assert polyhedron.object_type == "Solid"
+    assert polyhedron.is_3d
+    assert polyhedron.material_name == "vacuum"
+    assert polyhedron.solve_inside
+    assert polyhedron.name in aedtapp.modeler.solid_names
+    assert len(aedtapp.modeler.object_names) == len(aedtapp.modeler.objects)
+
+
+def test_03_create_polyhedron_with_values(aedtapp):
+    """Test create polyhedron with values."""
+    polyhedron = aedtapp.modeler.create_polyhedron(
+        orientation=Axis.Z,
+        center=[0, 0, 0],
+        origin=[0, 1, 0],
+        height=2.0,
+        num_sides=5,
+        name="MyPolyhedron",
+        material="Aluminum",
+    )
+
+    assert polyhedron.id > 0
+    assert polyhedron.object_type == "Solid"
+    assert polyhedron.is_3d
+    assert polyhedron.material_name == "aluminum"
+    assert not polyhedron.solve_inside
+    assert polyhedron.name in aedtapp.modeler.solid_names
+    assert len(aedtapp.modeler.object_names) == len(aedtapp.modeler.objects)
+
+
+def test_03_create_polyhedron_failure(aedtapp):
+    """Test create polyhedron failure."""
+    with pytest.raises(ValueError, match="The ``center`` argument must be a valid three-element list."):
+        aedtapp.modeler.create_polyhedron(center=[0, 0])
+
+    with pytest.raises(ValueError, match="The ``origin`` argument must be a valid three-element list."):
+        aedtapp.modeler.create_polyhedron(origin=[0, 1])
+
+    with pytest.raises(ValueError, match="The ``center`` and ``origin`` arguments must be different."):
+        aedtapp.modeler.create_polyhedron(center=[0, 0, 0], origin=[0, 0, 0])
+
+
+def test_05_center_and_centroid(aedtapp):
+    """Test center and center from AEDT."""
+    box = create_copper_box(aedtapp)
+    tol = 1e-9
+
+    assert GeometryOperators.v_norm(box.faces[0].center_from_aedt) - GeometryOperators.v_norm(box.faces[0].center) < tol
+
+
+def test_06_position(aedtapp):
+    """Test position."""
+    assert aedtapp.modeler.Position([0])
+
+
+def test_06_position_failure(aedtapp):
+    """Test position failure."""
+    with pytest.raises(IndexError):
+        aedtapp.modeler.Position(0, 0, 0)[3]
+
+
+def test_07_sweep_options(aedtapp):
+    """Test sweep options."""
+    assert aedtapp.modeler.SweepOptions()
+
+
+def test_11a_get_object_name_from_edge(aedtapp):
+    """Test get object name from edge."""
+    box = create_copper_box(aedtapp)
+
+    edge = box.edges[0].id
+
+    assert aedtapp.modeler.get_object_name_from_edge_id(edge) == box.name
+
+
+def test_11b_get_faces_from_materials(aedtapp):
+    """Test get faces from materials."""
+    create_copper_box(aedtapp)
+
+    faces = aedtapp.modeler.get_faces_from_materials("Copper")
+
+    assert len(faces) == len(set(faces))
+    assert len(faces) == 6
+
+
+def test_11c_access_to_object_faces(aedtapp):
+    """Test access to object faces."""
+    box = create_copper_box(aedtapp)
+    face_list = box.faces
+
+    face = box.faces[0]
+
+    assert len(face_list) == 6
+    assert isinstance(face.center, list) and len(face.center) == 3
+    assert isinstance(face.area, float) and face.area > 0
+    assert box.faces[0].move_with_offset(0.1)
+    assert box.faces[0].move_with_vector([0, 0, 0.01])
+    assert isinstance(face.normal, list)
+
+
+def test_11d_check_object_edges(aedtapp):
+    """Test access to object edges."""
+    box = create_copper_box(aedtapp, name="MyBox")
+
+    edge = box.edges[1]
+
+    assert isinstance(edge.midpoint, list) and len(edge.midpoint) == 3
+    assert isinstance(edge.length, float) and edge.length > 0
+
+
+def test_11e_check_object_vertices(aedtapp):
+    """Test access to object vertices."""
+    box = create_copper_box(aedtapp, name="MyBox")
+
+    vertex = box.vertices[0]
+
+    assert len(box.vertices) == 8
+    assert isinstance(vertex.position, list) and len(vertex.position) == 3
+
+
+# TODO: personal changes (box) might not work
+def test_12_get_objects_in_group(aedtapp):
+    """Test access to objects in group."""
+    # NOTE
+    box = create_copper_box(aedtapp, name="MyBox")
+
+    objs = aedtapp.modeler.get_objects_in_group("Solids")
+
+    assert isinstance(objs, list)
+    # NOTE
+    assert box in objs
+
+
+def test_13_create_circle(aedtapp):
+    """Test create circle."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    circle = aedtapp.modeler.create_circle(Plane.XY, origin, 2, name="MyCircle", material="Copper")
+
+    assert circle.id > 0
+    assert circle.name.startswith("MyCircle")
+    assert circle.object_type == "Sheet"
+    assert not circle.is_3d
+    assert not circle.solve_inside
+
+
+def test_13_create_circle_failure(aedtapp):
+    """Test create circle failures."""
+    with pytest.raises(ValueError, match="The ``origin`` argument must be a valid three-element list."):
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10], 2)
+
+    with pytest.raises(ValueError, match="The ``radius`` argument must be greater than 0."):
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10, 10], -1)
+
+
+def test_14_create_sphere(aedtapp):
+    """Test create sphere."""
+    origin = aedtapp.modeler.Position(20, 20, 0)
+    radius = 5
+
+    sphere = aedtapp.modeler.create_sphere(origin, radius, "MySphere", "Copper")
+
+    assert sphere.id > 0
+    assert sphere.name.startswith("MySphere")
+    assert sphere.object_type == "Solid"
+    assert sphere.is_3d
+
+
+def test_14_create_sphere_failures(aedtapp):
+    """Test create sphere failures."""
+    with pytest.raises(ValueError, match="The ``origin`` argument must be a valid three-element list."):
+        aedtapp.modeler.create_sphere([10, 10], 10)
+
+    with pytest.raises(ValueError, match="The ``radius`` argument must be greater than 0."):
+        aedtapp.modeler.create_sphere([10, 10, 10], -5)
+
+
+def test_15_create_cylinder(aedtapp):
+    """Test create cylinder."""
+    origin = aedtapp.modeler.Position(20, 20, 0)
+    radius = 5
+    height = 50
+
+    cylinder = aedtapp.modeler.create_cylinder(Axis.Y, origin, radius, height, 8, "MyCyl", "Copper")
+
+    assert cylinder.id > 0
+    assert cylinder.name.startswith("MyCyl")
+    assert cylinder.object_type == "Solid"
+    assert cylinder.is_3d
+
+
+def test_15_create_cylinder_failures(aedtapp):
+    """Test create cylinder failures."""
+    with pytest.raises(ValueError, match="The ``origin`` argument must be a valid three-element list."):
+        aedtapp.modeler.create_cylinder(Axis.Y, [2, 2], 10, 10, 8)
+    with pytest.raises(ValueError, match="The ``radius`` argument must be greater than 0."):
+        aedtapp.modeler.create_cylinder(Axis.Y, [2, 2], -1, 10, 8)
+
+
+def test_16_create_ellipse(aedtapp):
+    """Test create ellipse."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    ellipse = aedtapp.modeler.create_ellipse(Plane.XY, origin, 5, 1.5, True, name="MyEllipse", material="Copper")
+
+    assert ellipse.id > 0
+    assert ellipse.name.startswith("MyEllpise01")
+    assert ellipse.object_type == "Sheet"
+    assert not ellipse.is_3d
+    assert not ellipse.solve_inside
+
+
+def test_16_create_ellipse_with_vacuum_without_name(aedtapp):
+    """Test create ellipse with vacuum and without name."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    ellipse = aedtapp.modeler.create_ellipse(Plane.XY, origin, 5, 1.5, True, material="Vacuum")
+
+    assert ellipse.id > 0
+    assert ellipse.name.startswith("MyEllpise01")
+    assert ellipse.object_type == "Sheet"
+    assert not ellipse.is_3d
+    assert not ellipse.solve_inside
+
+
+def test_16_create_ellipse_uncovered(aedtapp):
+    """Test create uncovered ellipse."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    ellipse = aedtapp.modeler.create_ellipse(Plane.XY, origin, 5, 1.5, False)
+
+    assert ellipse.id > 0
+    assert ellipse.name.startswith("MyEllpise02")
+    assert ellipse.object_type == "Line"
+    assert not ellipse.is_3d
+    assert not ellipse.solve_inside
+
+
+def test_17_create_object_from_edge(aedtapp):
+    """Test create object from edge."""
+    cylinder = create_copper_cylinder(aedtapp)
+    edges = cylinder.edges
+
+    line_obj = aedtapp.modeler.create_object_from_edge(edges[0])
+
+    assert line_obj.id > 0
+    assert line_obj.object_type == "Line"
+    assert not line_obj.is_3d
+    assert line_obj.model
+
+
+def test_17_create_object_from_edge_with_multiple_edges(aedtapp):
+    """Test create from edge with multiple edges."""
+    cylinder_0 = create_copper_cylinder(aedtapp, "cyl_e1")
+    cylinder_1 = create_copper_cylinder(aedtapp, "cyl_e2")
+
+    edge_objects = aedtapp.modeler.create_object_from_edge(
+        [cylinder_0.edges[0], cylinder_1.edges[1], cylinder_0.edges[1]]
+    )
+
+    assert edge_objects
+    assert len(edge_objects) == 3
+
+
+def test_create_object_on_edge_as_non_model(aedtapp):
+    """Test create object from edge as non model."""
+    cylinder = create_copper_cylinder(aedtapp)
+    edge = aedtapp.modeler[cylinder.name].edges[0]
+
+    line_obj = edge.create_object(non_model=True)
+
+    assert line_obj.id > 0
+    assert line_obj.object_type == "Line"
+    assert not line_obj.is_3d
+    assert line_obj.model is False
+
+
+def test_18_create_object_from_face(aedtapp):
+    """Test create object from face."""
+    cylinder = create_copper_cylinder(aedtapp)
+    faces = cylinder.faces
+
+    sheet_obj = aedtapp.modeler.create_object_from_face(faces[0])
+
+    assert sheet_obj.id > 0
+    assert sheet_obj.object_type == "Sheet"
+    assert not sheet_obj.is_3d
+
+
+def test_18_create_object_from_multiple_faces(aedtapp):
+    """Test create object from multiple faces."""
+    cylinder_0 = create_copper_cylinder(aedtapp, "cyl_f1")
+    cylinder_1 = create_copper_cylinder(aedtapp, "cyl_f2")
+
+    face_objects = aedtapp.modeler.create_object_from_face(
+        [cylinder_0.faces[0], cylinder_1.faces[1], cylinder_1.faces[1], cylinder_0.faces[2]]
+    )
+
+    assert face_objects
+    assert len(face_objects) == 4
+
+
+# TODO: Should we call is_model instead of model ?
+def test_create_object_on_face(aedtapp):
+    """Test create object on face."""
+    cylinder = create_copper_cylinder(aedtapp)
+
+    sheet = aedtapp.modeler[cylinder.name].faces[0].create_object(non_model=True)
+
+    assert sheet.id > 0
+    assert sheet.object_type == "Sheet"
+    assert not sheet.is_3d
+    assert not sheet.model
+
+
+def test_19_create_polyline_with_cover_surface(aedtapp):
+    """Test create polyline with cover surface."""
+    position_0 = [0, 0, 0]
+    position_1 = [5, 0, 0]
+    position_2 = [5, 5, 0]
+    position_3 = [2, 5, 3]
+    arrofpos = [position_0, position_3, position_1, position_2, position_0]
+
+    polyline = aedtapp.modeler.create_polyline(arrofpos, cover_surface=True, name="Poly1", material="Copper")
+
+    assert isinstance(polyline, Polyline)
+    assert isinstance(polyline, Object3d)
+    assert polyline.object_type == "Sheet"
+    assert not polyline.is_3d
+    assert isinstance(polyline.color, tuple)
+    assert isinstance(aedtapp.modeler["Poly1"], Object3d)
+
+
+def test_19_create_polyline_with_non_model(aedtapp):
+    """Test create polyline as non model."""
+    position_0 = [0, 0, 0]
+    position_1 = [5, 0, 0]
+    position_2 = [5, 5, 0]
+    position_3 = [2, 5, 3]
+    arrofpos = [position_0, position_3, position_1, position_2, position_0]
+
+    polyline = aedtapp.modeler.create_polyline(
+        arrofpos, cover_surface=False, name="Poly_nonmodel", material="Copper", non_model=True
+    )
+
+    assert isinstance(polyline, Polyline)
+    assert isinstance(polyline, Object3d)
+    assert not polyline.model
+    assert polyline.object_type == "Sheet"
+    assert not polyline.is_3d
+
+
+def test_19_create_polyline_with_segment_type(aedtapp):
+    """Test create polyline with segment type."""
+    coordinates = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
+    segment_type = [
+        PolylineSegment(segment_type="AngularArc", arc_center=[0, 0, 0], arc_angle="180deg", arc_plane="XY"),
+        PolylineSegment(segment_type="Line"),
+        PolylineSegment(segment_type="AngularArc", arc_center=[0, -0.6, 0], arc_angle="180deg", arc_plane="XY"),
+        PolylineSegment(segment_type="Line"),
+    ]
+
+    polyline: Polyline = aedtapp.modeler.create_polyline(points=coordinates, segment_type=segment_type)
+
+    assert isinstance(polyline, Polyline)
+    assert isinstance(polyline, Object3d)
+    assert not polyline.model
+    assert polyline.object_type == "Sheet"
+    assert polyline.is_3d
 
 
 class TestClass:
-    @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch, examples):
-        self.aedtapp = aedtapp
-        self.local_scratch = local_scratch
-        self.scdoc_file = examples[0]
-        self.step_file = examples[1]
-        self.component3d_file = examples[2]
-        self.encrypted_cylinder = examples[3]
-        self.test_98_project = examples[4]
-        self.test_99_project = examples[5]
-        self.layout_component = examples[6]
-        self.discovery_file = examples[7]
-        self.layout_component_si_verse_sfp = examples[8]
-
-    def create_copper_box(self, name=None):
-        if not name:
-            name = "MyBox"
-        if self.aedtapp.modeler[name]:
-            self.aedtapp.modeler.delete(name)
-        new_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
-        return new_object
-
-    def create_copper_sphere(self, name=None):
-        if not name:
-            name = "Mysphere"
-        if self.aedtapp.modeler[name]:
-            self.aedtapp.modeler.delete(name)
-        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius="1mm", name=name, material="Copper")
-
-    def create_copper_cylinder(self, name=None):
-        if not name:
-            name = "MyCyl"
-        if self.aedtapp.modeler[name]:
-            self.aedtapp.modeler.delete(name)
-        return self.aedtapp.modeler.create_cylinder(
-            orientation="Y", origin=[20, 20, 0], radius=5, height=20, num_sides=8, name=name, material="Copper"
-        )
-
-    def create_rectangle(self, name=None):
-        if not name:
-            name = "MyRectangle"
-        if self.aedtapp.modeler[name]:
-            self.aedtapp.modeler.delete(name)
-        plane = Plane.XY
-        return self.aedtapp.modeler.create_rectangle(plane, [5, 3, 8], [4, 5], name=name)
-
-    def create_copper_torus(self, name=None):
-        if not name:
-            name = "MyTorus"
-        if self.aedtapp.modeler[name]:
-            self.aedtapp.modeler.delete(name)
-        return self.aedtapp.modeler.create_torus(
-            [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material="Copper"
-        )
-
-    def create_polylines(self, name=None):
-        if not name:
-            name = "Poly_"
-
-        test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
-
-        if self.aedtapp.modeler[name + "segmented"]:
-            self.aedtapp.modeler.delete(
-                name + "segmented",
-            )
-
-        if self.aedtapp.modeler[name + "compound"]:
-            self.aedtapp.modeler.delete(
-                name + "compound",
-            )
-
-        p1 = self.aedtapp.modeler.create_polyline(points=test_points, name=name + "segmented")
-        p2 = self.aedtapp.modeler.create_polyline(
-            points=test_points, segment_type=["Line", "Arc"], name=name + "compound"
-        )
-        return p1, p2, test_points
-
-    def test_01_resolve_object(self):
-        o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
-        o1 = self.aedtapp.modeler._resolve_object(o)
-        o2 = self.aedtapp.modeler._resolve_object(o.id)
-        o3 = self.aedtapp.modeler._resolve_object(o.name)
-
-        assert isinstance(o1, Object3d)
-        assert isinstance(o2, Object3d)
-        assert isinstance(o3, Object3d)
-        assert o1.id == o.id
-        assert o2.id == o.id
-        assert o3.id == o.id
-        oinvalid1 = self.aedtapp.modeler._resolve_object(-1)
-        oinvalid2 = self.aedtapp.modeler._resolve_object("FrankInvalid")
-        assert not oinvalid1
-        assert not oinvalid2
-
-    def test_02_create_box(self):
-        o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox_11", "Copper")
-        assert o.id > 0
-        assert o.name.startswith("MyCreatedBox_11")
-        assert o.object_type == "Solid"
-        assert o.is3d
-        assert o.material_name == "copper"
-        assert "MyCreatedBox_11" in self.aedtapp.modeler.solid_names
-        assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
-        assert not self.aedtapp.modeler.create_box([0, 0], [10, 10, 10], "MyCreatedBox_12", "Copper")
-        assert not self.aedtapp.modeler.create_box([0, 0, 0], [10, 10], "MyCreatedBox_12", "Copper")
-
-    def test_03_create_polyhedron(self):
-        o1 = self.aedtapp.modeler.create_polyhedron()
-        assert o1.id > 0
-        assert o1.name.startswith("New")
-        assert o1.object_type == "Solid"
-        assert o1.is3d
-        assert o1.material_name == "vacuum"
-        assert o1.solve_inside
-
-        o2 = self.aedtapp.modeler.create_polyhedron(
-            orientation=Axis.Z,
-            center=[0, 0, 0],
-            origin=[0, 1, 0],
-            height=2.0,
-            num_sides=5,
-            name="MyPolyhedron",
-            material="Aluminum",
-        )
-        assert o2.id > 0
-        assert o2.object_type == "Solid"
-        assert o2.is3d
-        assert o2.material_name == "aluminum"
-        assert not o2.solve_inside
-
-        assert o1.name in self.aedtapp.modeler.solid_names
-        assert o2.name in self.aedtapp.modeler.solid_names
-        assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
-
-        assert not self.aedtapp.modeler.create_polyhedron(
-            orientation=Axis.Z,
-            center=[0, 0],
-            origin=[0, 1, 0],
-            height=2.0,
-            num_sides=5,
-            name="MyPolyhedron",
-            material="Aluminum",
-        )
-
-        assert not self.aedtapp.modeler.create_polyhedron(
-            orientation=Axis.Z,
-            center=[0, 0, 0],
-            origin=[0, 1],
-            height=2.0,
-            num_sides=5,
-            name="MyPolyhedron",
-            material="Aluminum",
-        )
-
-        assert not self.aedtapp.modeler.create_polyhedron(
-            orientation=Axis.Z,
-            center=[0, 0, 0],
-            origin=[0, 0, 0],
-            height=2.0,
-            num_sides=5,
-            name="MyPolyhedron",
-            material="Aluminum",
-        )
-
-    def test_05_center_and_centroid(self):
-        o = self.create_copper_box()
-        tol = 1e-9
-        assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
-
-    def test_06_position(self):
-        with pytest.raises(IndexError) as execinfo:
-            _ = self.aedtapp.modeler.Position(0, 0, 0)[3]
-            assert str(execinfo) == "Position index not correct."
-        assert self.aedtapp.modeler.Position([0])
-
-    def test_07_sweep_options(self):
-        assert self.aedtapp.modeler.SweepOptions()
-
-    def test_11a_get_object_name_from_edge(self):
-        o = self.create_copper_box()
-        edge = o.edges[0].id
-        assert self.aedtapp.modeler.get_object_name_from_edge_id(edge) == o.name
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        dimensions = [10, 10, 5]
-        o = self.aedtapp.modeler.create_box(udp, dimensions)
-        assert len(o.name) == 16
-        assert o.material_name == "vacuum"
-
-    def test_11b_get_faces_from_mat(self):
-        self.create_copper_box()
-        faces = self.aedtapp.modeler.get_faces_from_materials("Copper")
-        assert len(faces) == len(set(faces))
-        assert len(faces) >= 6
-
-    def test_11c_check_object_faces(self):
-        o = self.create_copper_box()
-        face_list = o.faces
-        assert len(face_list) == 6
-        f = o.faces[0]
-        assert isinstance(f.center, list) and len(f.center) == 3
-        assert isinstance(f.area, float) and f.area > 0
-        assert o.faces[0].move_with_offset(0.1)
-        assert o.faces[0].move_with_vector([0, 0, 0.01])
-        assert isinstance(f.normal, list)
-
-    def test_11d_check_object_edges(self):
-        o = self.create_copper_box(name="MyBox")
-        e = o.edges[1]
-        assert isinstance(e.midpoint, list) and len(e.midpoint) == 3
-        assert isinstance(e.length, float) and e.length > 0
-
-    def test_11e_check_object_vertices(self):
-        o = self.create_copper_box(name="MyBox")
-        assert len(o.vertices) == 8
-        v = o.vertices[0]
-        assert isinstance(v.position, list) and len(v.position) == 3
-
-    def test_12_get_objects_in_group(self):
-        objs = self.aedtapp.modeler.get_objects_in_group("Solids")
-        assert isinstance(objs, list)
-
-    def test_13_create_circle(self):
-        udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = Plane.XY
-        o = self.aedtapp.modeler.create_circle(plane, udp, 2, name="MyCircle", material="Copper")
-        assert o.id > 0
-        assert o.name.startswith("MyCircle")
-        assert o.object_type == "Sheet"
-        assert o.is3d is False
-        assert not o.solve_inside
-
-    def test_14_create_sphere(self):
-        udp = self.aedtapp.modeler.Position(20, 20, 0)
-        radius = 5
-        o = self.aedtapp.modeler.create_sphere(udp, radius, "MySphere", "Copper")
-        assert o.id > 0
-        assert o.name.startswith("MySphere")
-        assert o.object_type == "Solid"
-        assert o.is3d is True
-        assert not self.aedtapp.modeler.create_sphere([10, 10], radius, "MySphere", "Copper")
-        assert not self.aedtapp.modeler.create_sphere(udp, -5, "MySphere", "Copper")
-
-    def test_15_create_cylinder(self):
-        udp = self.aedtapp.modeler.Position(20, 20, 0)
-        axis = Axis.Y
-        radius = 5
-        height = 50
-        o = self.aedtapp.modeler.create_cylinder(axis, udp, radius, height, 8, "MyCyl", "Copper")
-        assert o.id > 0
-        assert o.name.startswith("MyCyl")
-        assert o.object_type == "Solid"
-        assert o.is3d is True
-        assert not self.aedtapp.modeler.create_cylinder(axis, [2, 2], radius, height, 8, "MyCyl", "Copper")
-        assert not self.aedtapp.modeler.create_cylinder(axis, udp, -0.1, height, 8, "MyCyl", "Copper")
-
-    def test_16_create_ellipse(self):
-        udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = Plane.XY
-        o1 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, True, name="MyEllpise01", material="Copper")
-        assert o1.id > 0
-        assert o1.name.startswith("MyEllpise01")
-        assert o1.object_type == "Sheet"
-        assert o1.is3d is False
-        assert not o1.solve_inside
-
-        o2 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, True, name="MyEllpise01", material="Vacuum")
-        assert o2.id > 0
-        assert o2.name.startswith("MyEllpise01")
-        assert o2.object_type == "Sheet"
-        assert o2.is3d is False
-        assert not o2.solve_inside
-
-        o3 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, False, name="MyEllpise02")
-        assert o3.id > 0
-        assert o3.name.startswith("MyEllpise02")
-        assert o3.object_type == "Line"
-        assert o3.is3d is False
-        assert not o3.solve_inside
-
-    def test_17_create_object_from_edge(self):
-        o = self.create_copper_cylinder()
-        edges = o.edges
-        o1 = self.aedtapp.modeler.create_object_from_edge(edges[0])
-        assert o1.id > 0
-        assert o1.object_type == "Line"
-        assert o1.is3d is False
-        assert o1.model
-        o2 = self.aedtapp.modeler[o.name].edges[0].create_object(non_model=True)
-        assert o2.id > 0
-        assert o2.object_type == "Line"
-        assert o2.is3d is False
-        assert o2.model is False
-        o3 = self.create_copper_cylinder("cyl_e1")
-        o4 = self.create_copper_cylinder("cyl_e2")
-        of = self.aedtapp.modeler.create_object_from_edge([o4.edges[0], o3.edges[1], o4.edges[1]])
-        assert of
-        assert len(of) == 3
-
-    def test_18_create_object_from_face(self):
-        o = self.create_copper_cylinder()
-        faces = o.faces
-        o1 = self.aedtapp.modeler.create_object_from_face(faces[0])
-        assert o1.id > 0
-        assert o1.object_type == "Sheet"
-        assert o1.is3d is False
-        o2 = self.aedtapp.modeler[o.name].faces[0].create_object(non_model=True)
-        assert o2.id > 0
-        assert o2.object_type == "Sheet"
-        assert o2.is3d is False
-        assert o2.model is False
-        o3s = self.aedtapp.modeler.create_object_from_face(faces)
-        assert isinstance(o3s, list)
-        assert o3s[0].id > 0
-        o3 = self.create_copper_cylinder("cyl_f1")
-        o4 = self.create_copper_cylinder("cyl_f2")
-        of = self.aedtapp.modeler.create_object_from_face([o3.faces[0], o4.faces[1], o4.faces[1], o3.faces[2]])
-        assert of
-        assert len(of) == 4
-
-    def test_19_create_polyline(self):
-        udp1 = [0, 0, 0]
-        udp2 = [5, 0, 0]
-        udp3 = [5, 5, 0]
-        udp4 = [2, 5, 3]
-        arrofpos = [udp1, udp4, udp2, udp3, udp1]
-        P = self.aedtapp.modeler.create_polyline(arrofpos, cover_surface=True, name="Poly1", material="Copper")
-        assert isinstance(P, Polyline)
-        assert isinstance(P, Object3d)
-        assert P.object_type == "Sheet"
-        assert not P.is3d
-        assert isinstance(P.color, tuple)
-        get_P = self.aedtapp.modeler["Poly1"]
-        assert isinstance(get_P, Object3d)
-        P2 = self.aedtapp.modeler.create_polyline(
-            arrofpos, cover_surface=False, name="Poly_nonmodel", material="Copper", non_model=True
-        )
-        assert not P2.model
-
-        test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
-        self.aedtapp.modeler.create_polyline(
-            points=test_points_1,
-            segment_type=[
-                PolylineSegment(segment_type="AngularArc", arc_center=[0, 0, 0], arc_angle="180deg", arc_plane="XY"),
-                PolylineSegment(segment_type="Line"),
-                PolylineSegment(segment_type="AngularArc", arc_center=[0, -0.6, 0], arc_angle="180deg", arc_plane="XY"),
-                PolylineSegment(segment_type="Line"),
-            ],
-        )
-
     def test_20_create_polyline_with_crosssection(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
