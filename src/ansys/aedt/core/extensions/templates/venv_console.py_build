@@ -48,25 +48,25 @@ def main():
         # Get AEDT version
         version_short = oDesktop.GetVersion()[2:6].replace(".", "")
         oDesktop.AddMessage("", "", 0, "Opening terminal with PyAEDT environment...")
-        
+
         # Virtual environment path - use default PyAEDT venv location
         if is_linux:
             venv_path = os.path.join(os.path.expanduser("~"), ".pyaedt_env")
         else:
             # Windows: C:\Users\<username>\AppData\Roaming\.pyaedt_env
             venv_path = os.path.join(os.getenv("APPDATA"), ".pyaedt_env")
-        
+
         if not os.path.exists(venv_path):
             pyaedt_utils.show_error(
                 "PyAEDT virtual environment not found at: {}".format(venv_path),
                 oDesktop
             )
             return
-        
+
         # Add environment variables
         pyaedt_utils.environment_variables(oDesktop)
         pyaedt_utils.set_ansys_em_environment(oDesktop)
-        
+
         # Open terminal with venv activated
         if is_linux:
             # For Linux systems
@@ -89,20 +89,20 @@ def main():
             venv_flag = pyaedt_utils.check_file(venv_activate, oDesktop)
             if not venv_flag:
                 return
-            
+
             my_env = os.environ.copy()
-            
+
             # Create PowerShell command to activate venv and change directory
             # Use cmd.exe with /c to properly launch PowerShell
             repo_path = os.path.dirname(venv_path)
             ps_command = "& '{0}'; Set-Location '{1}'".format(venv_activate, repo_path)
-            
+
             # Use cmd.exe to launch PowerShell (more reliable with IronPython subprocess)
             command = 'cmd.exe /c start powershell.exe -NoExit -Command "{0}"'.format(ps_command)
             subprocess.Popen(command, env=my_env)
-                
+
         oDesktop.AddMessage("", "", 0, "Terminal opened successfully with virtual environment activated.")
-        
+
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)
 
