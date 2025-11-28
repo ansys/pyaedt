@@ -1,6 +1,0 @@
-remove\_all\_sources
-====================
-
-.. currentmodule:: pyaedt.modules.CableModeling
-
-.. automethod:: Cable.remove_all_sources

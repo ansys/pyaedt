@@ -1,6 +1,0 @@
-create\_fan
-===========
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.create_fan

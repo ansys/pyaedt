@@ -1,6 +1,0 @@
-nb\_display
-===========
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.nb_display

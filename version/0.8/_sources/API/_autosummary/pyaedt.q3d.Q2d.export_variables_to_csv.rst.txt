@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.export_variables_to_csv

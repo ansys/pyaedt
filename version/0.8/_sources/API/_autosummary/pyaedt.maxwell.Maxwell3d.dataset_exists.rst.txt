@@ -1,6 +1,0 @@
-dataset\_exists
-===============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.dataset_exists

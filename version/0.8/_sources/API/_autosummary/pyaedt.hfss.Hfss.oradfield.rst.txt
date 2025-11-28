@@ -1,6 +1,0 @@
-oradfield
-=========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.oradfield

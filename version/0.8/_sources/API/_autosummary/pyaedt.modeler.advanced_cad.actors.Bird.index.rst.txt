@@ -1,6 +1,0 @@
-index
-=====
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.actors
-
-.. autoproperty:: Bird.index

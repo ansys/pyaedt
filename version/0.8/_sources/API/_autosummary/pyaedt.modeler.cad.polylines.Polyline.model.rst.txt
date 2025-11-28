@@ -1,6 +1,0 @@
-model
-=====
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.model

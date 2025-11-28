@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.pyaedt_dir

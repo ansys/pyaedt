@@ -1,6 +1,0 @@
-remove\_all\_unused\_definitions
-================================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.remove_all_unused_definitions

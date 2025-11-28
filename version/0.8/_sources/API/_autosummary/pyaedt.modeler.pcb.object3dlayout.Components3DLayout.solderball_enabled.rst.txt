@@ -1,6 +1,0 @@
-solderball\_enabled
-===================
-
-.. currentmodule:: pyaedt.modeler.pcb.object3dlayout
-
-.. autoproperty:: Components3DLayout.solderball_enabled

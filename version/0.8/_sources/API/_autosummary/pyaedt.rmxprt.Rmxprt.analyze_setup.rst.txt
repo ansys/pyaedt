@@ -1,6 +1,0 @@
-analyze\_setup
-==============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.analyze_setup

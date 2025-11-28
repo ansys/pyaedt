@@ -1,6 +1,0 @@
-index
-=====
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.index

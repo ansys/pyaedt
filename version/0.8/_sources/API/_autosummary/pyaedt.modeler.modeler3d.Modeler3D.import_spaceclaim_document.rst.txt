@@ -1,6 +1,0 @@
-import\_spaceclaim\_document
-============================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.import_spaceclaim_document

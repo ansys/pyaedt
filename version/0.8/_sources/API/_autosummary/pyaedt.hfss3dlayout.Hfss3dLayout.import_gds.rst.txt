@@ -1,6 +1,0 @@
-import\_gds
-===========
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.import_gds

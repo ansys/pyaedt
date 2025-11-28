@@ -1,6 +1,0 @@
-set\_source\_context
-====================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.set_source_context

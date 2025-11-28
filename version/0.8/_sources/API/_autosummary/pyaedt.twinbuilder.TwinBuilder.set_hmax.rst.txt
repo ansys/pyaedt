@@ -1,6 +1,0 @@
-set\_hmax
-=========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.set_hmax

@@ -1,6 +1,0 @@
-edb
-===
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.edb

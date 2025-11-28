@@ -1,6 +1,0 @@
-remove\_all\_unused\_definitions
-================================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.remove_all_unused_definitions

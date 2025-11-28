@@ -1,6 +1,0 @@
-create\_setup
-=============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.create_setup

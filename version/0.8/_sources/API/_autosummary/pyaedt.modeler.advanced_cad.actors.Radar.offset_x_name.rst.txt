@@ -1,6 +1,0 @@
-offset\_x\_name
-===============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.actors
-
-.. autoproperty:: Radar.offset_x_name

@@ -1,6 +1,0 @@
-notes
-=====
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Standard.notes

@@ -1,6 +1,0 @@
-omeshmodule
-===========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.omeshmodule

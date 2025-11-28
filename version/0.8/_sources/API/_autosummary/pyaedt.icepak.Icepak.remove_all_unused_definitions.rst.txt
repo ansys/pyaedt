@@ -1,6 +1,0 @@
-remove\_all\_unused\_definitions
-================================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.remove_all_unused_definitions

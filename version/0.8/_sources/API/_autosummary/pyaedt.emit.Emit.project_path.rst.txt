@@ -1,6 +1,0 @@
-project\_path
-=============
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.project_path

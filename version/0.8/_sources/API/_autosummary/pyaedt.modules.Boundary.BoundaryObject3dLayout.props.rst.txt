@@ -1,6 +1,0 @@
-props
-=====
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: BoundaryObject3dLayout.props

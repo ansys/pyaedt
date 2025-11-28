@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.analyze

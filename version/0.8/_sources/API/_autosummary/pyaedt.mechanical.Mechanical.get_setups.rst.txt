@@ -1,6 +1,0 @@
-get\_setups
-===========
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.get_setups

@@ -1,6 +1,0 @@
-window
-======
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Spectral.window

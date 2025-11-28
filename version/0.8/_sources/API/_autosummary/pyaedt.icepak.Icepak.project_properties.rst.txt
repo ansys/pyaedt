@@ -1,6 +1,0 @@
-project\_properties
-===================
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.project_properties

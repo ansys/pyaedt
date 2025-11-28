@@ -1,6 +1,0 @@
-model\_units
-============
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. autoproperty:: ModelerNexxim.model_units

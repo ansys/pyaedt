@@ -1,6 +1,0 @@
-check\_if\_project\_is\_loaded
-==============================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.check_if_project_is_loaded

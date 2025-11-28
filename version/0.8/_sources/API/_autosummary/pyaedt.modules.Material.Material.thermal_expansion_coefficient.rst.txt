@@ -1,6 +1,0 @@
-thermal\_expansion\_coefficient
-===============================
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.thermal_expansion_coefficient

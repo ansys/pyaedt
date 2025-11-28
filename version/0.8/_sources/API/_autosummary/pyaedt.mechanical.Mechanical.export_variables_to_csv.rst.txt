@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.export_variables_to_csv

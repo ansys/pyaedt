@@ -1,6 +1,0 @@
-create\_equationbased\_curve
-============================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.create_equationbased_curve

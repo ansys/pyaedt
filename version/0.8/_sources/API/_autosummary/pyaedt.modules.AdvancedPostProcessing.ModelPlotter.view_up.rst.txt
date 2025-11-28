@@ -1,6 +1,0 @@
-view\_up
-========
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. autoproperty:: ModelPlotter.view_up

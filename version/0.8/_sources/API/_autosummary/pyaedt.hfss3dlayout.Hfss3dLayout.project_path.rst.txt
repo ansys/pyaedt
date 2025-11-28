@@ -1,6 +1,0 @@
-project\_path
-=============
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.project_path

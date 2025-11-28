@@ -1,6 +1,0 @@
-roll\_name
-==========
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.parts
-
-.. autoproperty:: Antenna.roll_name

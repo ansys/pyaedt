@@ -1,6 +1,0 @@
-rename\_design
-==============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.rename_design

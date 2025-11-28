@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.autosave_disable

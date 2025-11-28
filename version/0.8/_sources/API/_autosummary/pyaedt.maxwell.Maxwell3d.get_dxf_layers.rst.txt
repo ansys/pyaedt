@@ -1,6 +1,0 @@
-get\_dxf\_layers
-================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.get_dxf_layers

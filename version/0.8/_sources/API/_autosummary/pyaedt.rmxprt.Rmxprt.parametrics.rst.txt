@@ -1,6 +1,0 @@
-parametrics
-===========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.parametrics

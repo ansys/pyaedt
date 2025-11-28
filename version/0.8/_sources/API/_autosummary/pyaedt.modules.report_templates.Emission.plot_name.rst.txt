@@ -1,6 +1,0 @@
-plot\_name
-==========
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Emission.plot_name

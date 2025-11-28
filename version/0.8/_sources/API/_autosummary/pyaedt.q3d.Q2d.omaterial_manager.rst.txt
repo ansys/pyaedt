@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q2d.omaterial_manager

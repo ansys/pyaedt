@@ -1,6 +1,0 @@
-rotate
-======
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. automethod:: ModelerNexxim.rotate

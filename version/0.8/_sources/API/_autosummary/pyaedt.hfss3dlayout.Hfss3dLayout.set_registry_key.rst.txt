@@ -1,6 +1,0 @@
-set\_registry\_key
-==================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.set_registry_key

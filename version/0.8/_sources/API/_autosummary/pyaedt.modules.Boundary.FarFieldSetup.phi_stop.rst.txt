@@ -1,6 +1,0 @@
-phi\_stop
-=========
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: FarFieldSetup.phi_stop

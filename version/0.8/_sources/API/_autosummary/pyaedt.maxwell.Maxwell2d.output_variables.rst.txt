@@ -1,6 +1,0 @@
-output\_variables
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.output_variables

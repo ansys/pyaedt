@@ -1,6 +1,0 @@
-setups
-======
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.setups

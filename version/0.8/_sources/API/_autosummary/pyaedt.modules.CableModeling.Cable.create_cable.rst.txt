@@ -1,6 +1,0 @@
-create\_cable
-=============
-
-.. currentmodule:: pyaedt.modules.CableModeling
-
-.. automethod:: Cable.create_cable

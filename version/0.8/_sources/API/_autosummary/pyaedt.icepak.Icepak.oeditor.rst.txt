@@ -1,6 +1,0 @@
-oeditor
-=======
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.oeditor

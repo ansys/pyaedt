@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.autosave_disable

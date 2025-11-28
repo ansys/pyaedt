@@ -1,6 +1,0 @@
-o\_def\_manager
-===============
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. autoproperty:: ModelerMaxwellCircuit.o_def_manager

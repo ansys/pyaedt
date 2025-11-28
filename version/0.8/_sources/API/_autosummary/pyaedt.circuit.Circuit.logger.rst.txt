@@ -1,6 +1,0 @@
-logger
-======
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.logger

@@ -1,6 +1,0 @@
-oimport\_export
-===============
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.oimport_export

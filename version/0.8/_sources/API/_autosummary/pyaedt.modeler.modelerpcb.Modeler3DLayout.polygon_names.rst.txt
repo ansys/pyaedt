@@ -1,6 +1,0 @@
-polygon\_names
-==============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.polygon_names

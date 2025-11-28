@@ -1,6 +1,0 @@
-delete\_sweep
-=============
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupHFSS.delete_sweep

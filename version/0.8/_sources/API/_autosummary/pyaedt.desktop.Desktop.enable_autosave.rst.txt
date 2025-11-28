@@ -1,6 +1,0 @@
-enable\_autosave
-================
-
-.. currentmodule:: pyaedt.desktop
-
-.. automethod:: Desktop.enable_autosave

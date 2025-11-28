@@ -1,6 +1,0 @@
-cells
-=====
-
-.. currentmodule:: pyaedt.modeler.cad.component_array
-
-.. autoproperty:: ComponentArray.cells

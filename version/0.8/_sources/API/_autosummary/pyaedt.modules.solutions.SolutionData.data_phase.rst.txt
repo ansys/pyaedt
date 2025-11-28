@@ -1,6 +1,0 @@
-data\_phase
-===========
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. automethod:: SolutionData.data_phase

@@ -1,6 +1,0 @@
-find\_point\_around
-===================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.find_point_around

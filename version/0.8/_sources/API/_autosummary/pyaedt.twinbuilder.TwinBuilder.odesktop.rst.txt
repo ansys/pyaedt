@@ -1,6 +1,0 @@
-odesktop
-========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.odesktop

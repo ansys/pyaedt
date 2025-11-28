@@ -1,6 +1,0 @@
-circle\_names
-=============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.circle_names

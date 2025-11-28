@@ -1,6 +1,0 @@
-coordinate\_system
-==================
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.coordinate_system

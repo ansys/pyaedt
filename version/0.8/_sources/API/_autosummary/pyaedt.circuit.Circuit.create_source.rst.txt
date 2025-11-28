@@ -1,6 +1,0 @@
-create\_source
-==============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.create_source

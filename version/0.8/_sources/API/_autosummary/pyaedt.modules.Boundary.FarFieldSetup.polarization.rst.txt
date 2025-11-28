@@ -1,6 +1,0 @@
-polarization
-============
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: FarFieldSetup.polarization

@@ -1,6 +1,0 @@
-description
-===========
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. autoproperty:: Variable.description

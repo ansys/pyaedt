@@ -1,6 +1,0 @@
-get\_sweeps
-===========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.get_sweeps

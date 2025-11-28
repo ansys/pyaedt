@@ -1,6 +1,0 @@
-bottom\_face\_y
-===============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.bottom_face_y

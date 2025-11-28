@@ -1,6 +1,0 @@
-get\_components3d\_vars
-=======================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.get_components3d_vars

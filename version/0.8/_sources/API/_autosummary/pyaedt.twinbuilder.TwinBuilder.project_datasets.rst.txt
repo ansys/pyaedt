@@ -1,6 +1,0 @@
-project\_datasets
-=================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.project_datasets

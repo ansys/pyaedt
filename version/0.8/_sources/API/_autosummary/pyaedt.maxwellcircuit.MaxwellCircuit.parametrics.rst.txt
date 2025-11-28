@@ -1,6 +1,0 @@
-parametrics
-===========
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.parametrics

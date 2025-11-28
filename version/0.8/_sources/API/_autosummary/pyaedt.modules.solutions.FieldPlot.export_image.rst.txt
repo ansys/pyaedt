@@ -1,6 +1,0 @@
-export\_image
-=============
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. automethod:: FieldPlot.export_image

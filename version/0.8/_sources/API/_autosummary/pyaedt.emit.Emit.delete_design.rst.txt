@@ -1,6 +1,0 @@
-delete\_design
-==============
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.delete_design

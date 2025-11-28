@@ -1,6 +1,0 @@
-post\_processing
-================
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. autoproperty:: Variable.post_processing

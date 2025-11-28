@@ -1,6 +1,0 @@
-offset\_y\_name
-===============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.actors
-
-.. autoproperty:: Bird.offset_y_name

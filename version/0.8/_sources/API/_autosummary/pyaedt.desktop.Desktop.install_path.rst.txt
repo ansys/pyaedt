@@ -1,6 +1,0 @@
-install\_path
-=============
-
-.. currentmodule:: pyaedt.desktop
-
-.. autoproperty:: Desktop.install_path

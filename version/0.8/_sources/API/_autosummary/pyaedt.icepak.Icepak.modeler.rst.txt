@@ -1,6 +1,0 @@
-modeler
-=======
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.modeler

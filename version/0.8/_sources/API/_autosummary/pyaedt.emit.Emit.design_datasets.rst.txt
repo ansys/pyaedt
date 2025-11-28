@@ -1,6 +1,0 @@
-design\_datasets
-================
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.design_datasets

@@ -1,6 +1,0 @@
-solution\_type
-==============
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.solution_type

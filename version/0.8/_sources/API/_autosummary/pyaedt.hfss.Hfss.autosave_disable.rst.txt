@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.autosave_disable

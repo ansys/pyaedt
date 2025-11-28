@@ -1,6 +1,0 @@
-oeditor
-=======
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layers.oeditor

@@ -1,6 +1,0 @@
-existing\_analysis\_setups
-==========================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.existing_analysis_setups

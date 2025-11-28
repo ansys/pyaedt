@@ -1,6 +1,0 @@
-temp\_directory
-===============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.temp_directory

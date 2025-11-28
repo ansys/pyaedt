@@ -1,6 +1,0 @@
-export\_image
-=============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. automethod:: Polyline.export_image

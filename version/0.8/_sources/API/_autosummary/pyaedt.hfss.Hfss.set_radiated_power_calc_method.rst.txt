@@ -1,6 +1,0 @@
-set\_radiated\_power\_calc\_method
-==================================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.set_radiated_power_calc_method

@@ -1,6 +1,0 @@
-get\_object\_material\_properties
-=================================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.get_object_material_properties

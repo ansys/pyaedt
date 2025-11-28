@@ -1,6 +1,0 @@
-side\_model
-===========
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.side_model

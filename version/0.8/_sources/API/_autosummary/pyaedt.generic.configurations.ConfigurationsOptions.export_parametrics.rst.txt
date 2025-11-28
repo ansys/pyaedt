@@ -1,6 +1,0 @@
-export\_parametrics
-===================
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.export_parametrics

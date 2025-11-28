@@ -1,6 +1,0 @@
-glb
-===
-
-.. currentmodule:: pyaedt.aedt_logger
-
-.. autoproperty:: AedtLogger.glb

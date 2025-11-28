@@ -1,6 +1,0 @@
-working\_directory
-==================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.working_directory

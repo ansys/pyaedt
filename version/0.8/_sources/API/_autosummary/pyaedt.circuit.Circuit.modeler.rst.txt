@@ -1,6 +1,0 @@
-modeler
-=======
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.modeler

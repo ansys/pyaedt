@@ -1,6 +1,0 @@
-omeshmodule
-===========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.omeshmodule

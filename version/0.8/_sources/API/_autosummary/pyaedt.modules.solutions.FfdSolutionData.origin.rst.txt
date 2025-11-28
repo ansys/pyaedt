@@ -1,6 +1,0 @@
-origin
-======
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. autoproperty:: FfdSolutionData.origin

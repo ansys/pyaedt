@@ -1,6 +1,0 @@
-export\_rl\_matrix
-==================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.export_rl_matrix

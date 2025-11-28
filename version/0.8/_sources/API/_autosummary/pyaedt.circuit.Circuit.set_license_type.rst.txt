@@ -1,6 +1,0 @@
-set\_license\_type
-==================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.set_license_type

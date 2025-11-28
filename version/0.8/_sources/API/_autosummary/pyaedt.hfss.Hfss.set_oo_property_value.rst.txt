@@ -1,6 +1,0 @@
-set\_oo\_property\_value
-========================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.set_oo_property_value

@@ -1,6 +1,0 @@
-oproject
-========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.oproject

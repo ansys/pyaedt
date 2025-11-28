@@ -1,6 +1,0 @@
-get\_solution\_data
-===================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: Setup.get_solution_data

@@ -1,6 +1,0 @@
-edge\_by\_point
-===============
-
-.. currentmodule:: pyaedt.modeler.pcb.object3dlayout
-
-.. automethod:: Polygons3DLayout.edge_by_point

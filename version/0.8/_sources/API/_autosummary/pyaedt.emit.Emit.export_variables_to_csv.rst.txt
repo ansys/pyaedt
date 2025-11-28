@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.export_variables_to_csv

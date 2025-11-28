@@ -1,6 +1,0 @@
-number\_with\_units
-===================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.number_with_units

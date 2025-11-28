@@ -1,6 +1,0 @@
-lattice\_vector
-===============
-
-.. currentmodule:: pyaedt.modeler.cad.component_array
-
-.. automethod:: ComponentArray.lattice_vector

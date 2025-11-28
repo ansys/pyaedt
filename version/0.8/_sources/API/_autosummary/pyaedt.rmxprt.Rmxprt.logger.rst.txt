@@ -1,6 +1,0 @@
-logger
-======
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.logger
