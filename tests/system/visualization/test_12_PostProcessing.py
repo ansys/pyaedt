@@ -815,15 +815,15 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Method not available before 2026.1")
     def test_m2d_export_inception_voltage(self, m2dtest):
         m2dtest.set_active_design("field_line_trace")
-
+        file_path = str(Path(m2dtest.working_directory, "my_file.txt"))
         with pytest.raises(AEDTRuntimeError):
-            m2dtest.post.export_inception_voltage("my_plot", str(Path(m2d.working_directory, "my_file.txt")), [1, 2, 4])
+            m2dtest.post.export_inception_voltage("my_plot", file_path, [1, 2, 4])
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="my_plot")
         m2dtest.post.evaluate_inception_voltage("my_plot", [1, 2, 4])
-        assert m2dtest.post.export_inception_voltage(plot.name, str(Path(m2d.working_directory, "my_file.txt")))
+        assert m2dtest.post.export_inception_voltage(plot.name, file_path)
         assert m2dtest.post.export_inception_voltage(
-            plot.name, str(Path(m2d.working_directory, "my_file.txt")), [1, 2, 4]
+            plot.name, str(Path(m2dtest.working_directory, "my_file.txt")), [1, 2, 4]
         )
         m2dtest.solution_type = "Magnetostatic"
         with pytest.raises(AEDTRuntimeError):
-            m2dtest.post.export_inception_voltage("my_plot", str(Path(m2d.working_directory, "my_file.txt")), [1, 2, 4])
+            m2dtest.post.export_inception_voltage("my_plot", file_path, [1, 2, 4])

@@ -412,7 +412,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         plot_name : str
             Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
         output_file: str
-        Path of the TXT file where inception voltage results are exported to.
+            Path of the TXT file where inception voltage results are exported to.
         field_line_number: list of int, optional
             List of line objects on which the evaluation will be performed.
             If the field line traces plot does not exist, this can be created with
@@ -457,7 +457,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         if plot_name not in (self.field_plot_names):
             raise AEDTRuntimeError("The field line tracing plot must be generated.")
         if not field_line_number:
-            self.ofieldsreporter.ExportInceptionVoltage(plot_name, export_file_name)
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name, output_file)
         else:
-            self.ofieldsreporter.ExportInceptionVoltage(plot_name, export_file_name, field_line_number)
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name, output_file, field_line_number)
         return True
