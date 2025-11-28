@@ -1,0 +1,6 @@
+inverse\_rotate\_vector
+=======================
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. automethod:: Quaternion.inverse_rotate_vector

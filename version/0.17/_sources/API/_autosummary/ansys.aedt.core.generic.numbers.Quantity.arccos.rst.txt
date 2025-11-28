@@ -1,0 +1,6 @@
+arccos
+======
+
+.. currentmodule:: ansys.aedt.core.generic.numbers
+
+.. automethod:: Quantity.arccos

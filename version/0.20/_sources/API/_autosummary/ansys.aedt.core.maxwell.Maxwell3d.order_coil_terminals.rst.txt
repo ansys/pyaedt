@@ -1,0 +1,6 @@
+order\_coil\_terminals
+======================
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. automethod:: Maxwell3d.order_coil_terminals

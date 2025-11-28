@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.common
+
+.. autoproperty:: Reports.public_dir

@@ -1,0 +1,6 @@
+﻿read\_component\_file
+=====================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: read_component_file

@@ -1,0 +1,34 @@
+﻿ProfileStep
+===========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: ProfileStep
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ProfileStep.table
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ProfileStep.cpu_time
+      ProfileStep.max_memory
+      ProfileStep.process_steps
+      ProfileStep.real_time
+   
+   

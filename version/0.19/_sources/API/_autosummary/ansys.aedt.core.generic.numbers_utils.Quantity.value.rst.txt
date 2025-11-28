@@ -1,0 +1,6 @@
+value
+=====
+
+.. currentmodule:: ansys.aedt.core.generic.numbers_utils
+
+.. autoproperty:: Quantity.value

@@ -1,0 +1,6 @@
+table
+=====
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. automethod:: TransientProfile.table

@@ -1,0 +1,6 @@
+setup\_sweeps\_names
+====================
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.setup_sweeps_names

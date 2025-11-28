@@ -1,0 +1,6 @@
+insert\_em\_field\_sphere
+=========================
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. automethod:: Q3d.insert_em_field_sphere

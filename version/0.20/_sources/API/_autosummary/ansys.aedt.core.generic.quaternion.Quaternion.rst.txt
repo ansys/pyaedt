@@ -1,0 +1,88 @@
+﻿Quaternion
+==========
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. autoclass:: Quaternion
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Quaternion.add
+      
+      
+      Quaternion.axis_to_rotation_matrix
+      
+      
+      Quaternion.coefficients
+      
+      
+      Quaternion.conjugate
+      
+      
+      Quaternion.div
+      
+      
+      Quaternion.from_axis_angle
+      
+      
+      Quaternion.from_euler
+      
+      
+      Quaternion.from_rotation_matrix
+      
+      
+      Quaternion.hamilton_prod
+      
+      
+      Quaternion.inverse
+      
+      
+      Quaternion.inverse_rotate_vector
+      
+      
+      Quaternion.mul
+      
+      
+      Quaternion.norm
+      
+      
+      Quaternion.normalize
+      
+      
+      Quaternion.rotate_vector
+      
+      
+      Quaternion.rotation_matrix_to_axis
+      
+      
+      Quaternion.to_axis_angle
+      
+      
+      Quaternion.to_euler
+      
+      
+      Quaternion.to_rotation_matrix
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Quaternion.a
+      Quaternion.b
+      Quaternion.c
+      Quaternion.d
+   
+   

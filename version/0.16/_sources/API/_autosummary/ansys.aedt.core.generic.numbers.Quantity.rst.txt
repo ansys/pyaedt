@@ -1,0 +1,75 @@
+﻿Quantity
+========
+
+.. currentmodule:: ansys.aedt.core.generic.numbers
+
+.. autoclass:: Quantity
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      Quantity.arccos
+      
+      
+      Quantity.arcsin
+      
+      
+      Quantity.arctan2
+      
+      
+      Quantity.as_integer_ratio
+      
+      
+      Quantity.conjugate
+      
+      
+      Quantity.cos
+      
+      
+      Quantity.fromhex
+      
+      
+      Quantity.hex
+      
+      
+      Quantity.is_integer
+      
+      
+      Quantity.log10
+      
+      
+      Quantity.sin
+      
+      
+      Quantity.sqrt
+      
+      
+      Quantity.tan
+      
+      
+      Quantity.to
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      Quantity.expression
+      Quantity.imag
+      Quantity.real
+      Quantity.unit
+      Quantity.unit_system
+      Quantity.value
+   
+   

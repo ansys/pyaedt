@@ -1,0 +1,6 @@
+﻿check\_and\_download\_file
+==========================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: check_and_download_file

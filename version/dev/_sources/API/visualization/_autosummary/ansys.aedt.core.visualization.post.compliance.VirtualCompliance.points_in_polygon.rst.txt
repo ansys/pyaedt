@@ -1,0 +1,6 @@
+points\_in\_polygon
+===================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.compliance
+
+.. automethod:: VirtualCompliance.points_in_polygon
