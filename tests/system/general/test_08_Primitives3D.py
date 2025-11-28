@@ -39,6 +39,11 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
+from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_CENTER
+from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_ORIGIN
+from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_RADIUS
+from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_SIZES_2
+from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_SIZES_3
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
@@ -69,42 +74,6 @@ else:
     assembly = "assembly"
     assembly2 = "assembly2"
     polyline = "polyline"
-
-
-# @pytest.fixture(scope="class")
-# def aedtapp(add_app):
-#     app = add_app(project_name="test_primitives", design_name="3D_Primitives")
-#     return app
-
-
-# @pytest.fixture(scope="class", autouse=True)
-# def examples(local_scratch):
-#     scdoc_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, scdoc)
-#     scdoc_file = local_scratch.copyfile(scdoc_file)
-#     step_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, step)
-#     component3d_file = os.path.join(local_scratch.path, "comp_3d", component3d)
-#     encrypted_cylinder = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, encrypted_cyl)
-#     test_98_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly2 + ".aedt")
-#     test_98_project = local_scratch.copyfile(test_98_project)
-#     test_99_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly + ".aedt")
-#     test_99_project = local_scratch.copyfile(test_99_project)
-#     layout_component = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, layout_comp)
-#     layout_comp_si_verse_sfp = os.path.join(
-#         TESTS_GENERAL_PATH, "example_models", test_subfolder, LAYOUT_COMP_SI_VERSE_SFP
-#     )
-#     discovery_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, disco)
-#     discovery_file = local_scratch.copyfile(discovery_file)
-#     return (
-#         scdoc_file,
-#         step_file,
-#         component3d_file,
-#         encrypted_cylinder,
-#         test_98_project,
-#         test_99_project,
-#         layout_component,
-#         discovery_file,
-#         layout_comp_si_verse_sfp,
-#     )
 
 
 @pytest.fixture()
@@ -221,10 +190,10 @@ def test_02_create_box(aedtapp):
 
 def test_02_create_box_failure(aedtapp):
     """Test create box failure."""
-    with pytest.raises(ValueError, match="The ``position`` argument must be a valid three-element list."):
+    with pytest.raises(ValueError, match=ERROR_MSG_ORIGIN):
         aedtapp.modeler.create_box([0, 0], [10, 10, 10], "MyCreatedBox_12", "Copper")
 
-    with pytest.raises(ValueError, match="The ``dimension_list`` argument must be a valid three-element list."):
+    with pytest.raises(ValueError, match=ERROR_MSG_SIZES_3):
         aedtapp.modeler.create_box([0, 0, 0], [10, 10], "MyCreatedBox_12", "Copper")
 
 
@@ -265,10 +234,10 @@ def test_03_create_polyhedron_with_values(aedtapp):
 
 def test_03_create_polyhedron_failure(aedtapp):
     """Test create polyhedron failure."""
-    with pytest.raises(ValueError, match="The ``center`` argument must be a valid three-element list."):
+    with pytest.raises(ValueError, match=ERROR_MSG_CENTER):
         aedtapp.modeler.create_polyhedron(center=[0, 0])
 
-    with pytest.raises(ValueError, match="The ``origin`` argument must be a valid three-element list."):
+    with pytest.raises(ValueError, match=ERROR_MSG_ORIGIN):
         aedtapp.modeler.create_polyhedron(origin=[0, 1])
 
     with pytest.raises(ValueError, match="The ``center`` and ``origin`` arguments must be different."):
@@ -381,10 +350,10 @@ def test_13_create_circle(aedtapp):
 
 def test_13_create_circle_failure(aedtapp):
     """Test create circle failures."""
-    with pytest.raises(ValueError, match="The ``origin`` argument must be a valid three-element list."):
+    with pytest.raises(ValueError, match=ERROR_MSG_ORIGIN):
         aedtapp.modeler.create_circle(Plane.XY, [10, 10], 2)
 
-    with pytest.raises(ValueError, match="The ``radius`` argument must be greater than 0."):
+    with pytest.raises(ValueError, match=ERROR_MSG_RADIUS):
         aedtapp.modeler.create_circle(Plane.XY, [10, 10, 10], -1)
 
 
@@ -535,7 +504,7 @@ def test_18_create_object_from_multiple_faces(aedtapp):
     assert len(face_objects) == 4
 
 
-# TODO: Should we call is_model instead of model ?
+# NOTE: Should we call is_model instead of model ?
 def test_create_object_on_face(aedtapp):
     """Test create object on face."""
     cylinder = create_copper_cylinder(aedtapp)
@@ -604,151 +573,208 @@ def test_19_create_polyline_with_segment_type(aedtapp):
     assert polyline.is_3d
 
 
+def test_20_create_polyline_with_crosssection(aedtapp):
+    """Test create polyline with cross section."""
+    coordinates = [[0, 0, 0], [5, 0, 0], [5, 5, 0]]
+
+    polyline = aedtapp.modeler.create_polyline(coordinates, name="Poly_xsection", xsection_type="Rectangle")
+
+    assert isinstance(polyline, Polyline)
+    assert aedtapp.modeler[polyline.id].object_type == "Solid"
+    assert aedtapp.modeler[polyline.id].is3d
+
+
+def test_21_sweep_along_path_with_single_assignment(aedtapp):
+    """Test sweep along path with single assignment."""
+    coordinates = [[0, 0, 0], [5, 0, 0], [5, 5, 0]]
+    poyline = aedtapp.modeler.create_polyline(coordinates, name="poly_vector1")
+    rectangle = aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, -4], [4, 3], name="rect_1")
+
+    assert aedtapp.modeler.sweep_along_path(rectangle, poyline)
+    assert rectangle.name in aedtapp.modeler.solid_names
+
+
+def test_21_sweep_along_path_with_multiple_assignment(aedtapp):
+    """Test sweep along path with multiple assignment."""
+    coordinates = [[0, 0, 0], [5, 0, 0], [5, 5, 0]]
+    polyline = aedtapp.modeler.create_polyline(coordinates, name="poly_vector1")
+    rectangle_0 = aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 2], [4, 3], name="rect_2")
+    rectangle_1 = aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 8], [4, 3], name="rect_3")
+
+    assert aedtapp.modeler.sweep_along_path([rectangle_0, rectangle_1], polyline)
+    assert rectangle_0.name in aedtapp.modeler.solid_names
+    assert rectangle_1.name in aedtapp.modeler.solid_names
+
+
+def test_22_sweep_along_vector_with_single_assignment(aedtapp):
+    """Test sweep along vector method with single assignment."""
+    rectangle = aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, -2], [4, 3], name="rect_1")
+
+    assert aedtapp.modeler.sweep_along_vector(rectangle, [10, 20, 20])
+    assert rectangle.name in aedtapp.modeler.solid_names
+
+
+def test_22_sweep_along_vector_with_multiple_assignment(aedtapp):
+    """Test sweep along vector method with multiple assignment."""
+    rectangle_0 = aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 2], [4, 3], name="rect_2")
+    rectangle_1 = aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 4], [4, 3], name="rect_3")
+
+    assert aedtapp.modeler.sweep_along_vector([rectangle_0, rectangle_1], [10, 20, 20])
+    assert rectangle_0.name in aedtapp.modeler.solid_names
+    assert rectangle_1.name in aedtapp.modeler.solid_names
+
+
+def test_23_create_rectangle(aedtapp):
+    """Test create rectangle."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    rectangle = aedtapp.modeler.create_rectangle(Plane.XY, origin, [4, 5], name="MyRectangle", material="Copper")
+
+    assert rectangle.id > 0
+    assert rectangle.name.startswith("MyRectangle")
+    assert rectangle.object_type == "Sheet"
+    assert rectangle.is_3d is not False
+
+
+def test_23_create_rectangle_failure(aedtapp):
+    """Test create rectangle failures."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    with pytest.raises(ValueError, match=ERROR_MSG_SIZES_2):
+        aedtapp.modeler.create_rectangle(Plane.XY, origin, [4, 5, 10], name="MyRectangle", material="Copper")
+
+
+def test_24_create_cone(aedtapp):
+    """Test create cone."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    cone = aedtapp.modeler.create_cone(Axis.Z, origin, 20, 10, 5, name="MyCone", material="Copper")
+
+    assert cone.id > 0
+    assert cone.name.startswith("MyCone")
+    assert cone.object_type == "Solid"
+    assert cone.is_3d
+
+
+def test_24_create_cone_failure(aedtapp):
+    """Test create cone failures."""
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    with pytest.raises(ValueError):
+        aedtapp.modeler.create_cone(Axis.Z, [1, 1], 20, 10, 5, name="MyCone", material="Copper")
+    with pytest.raises(ValueError):
+        aedtapp.modeler.create_cone(Axis.Z, origin, -20, 20, 5, name="MyCone", material="Copper")
+    with pytest.raises(ValueError):
+        aedtapp.modeler.create_cone(Axis.Z, origin, 20, -20, 5, name="MyCone", material="Copper")
+    with pytest.raises(ValueError):
+        aedtapp.modeler.create_cone(Axis.Z, origin, 20, 20, -5, name="MyCone", material="Copper")
+
+
+def test_25_get_object_id(aedtapp):
+    """Test get object id."""
+    rectangle = aedtapp.modeler.create_rectangle(Plane.XY, [5, 3, 8], [4, 5], name="MyRectangle5")
+
+    assert aedtapp.modeler.get_obj_id(rectangle.name) == rectangle.id
+
+
+def test_26_get_solid_objects(aedtapp):
+    """Test solid objects retrieval and properties."""
+    box = create_copper_box(aedtapp)
+    solid_list = aedtapp.modeler.solid_names
+    solid_obj = aedtapp.modeler[box.name]
+    all_objects_list = aedtapp.modeler.object_names
+
+    assert box.name in solid_list
+    assert box.name in all_objects_list
+    assert solid_obj.is_3d
+    assert solid_obj.object_type == "Solid"
+
+
+def test_26_get_sheet_objects(aedtapp):
+    """Test sheet objects retrieval and properties."""
+    rectangle = create_rectangle(aedtapp)
+    sheet_list = aedtapp.modeler.sheet_names
+    sheet_obj = aedtapp.modeler[rectangle.name]
+    all_objects_list = aedtapp.modeler.object_names
+
+    assert rectangle.name in sheet_list
+    assert rectangle.name in all_objects_list
+    assert not sheet_obj.is_3d
+    assert sheet_obj.object_type == "Sheet"
+
+
+def test_26_get_line_objects(aedtapp):
+    """Test line objects retrieval and properties."""
+    polyline_0, polyline_1, _ = create_polylines(aedtapp)
+    line_list = aedtapp.modeler.line_names
+    line_obj_0 = aedtapp.modeler[polyline_0.name]
+    line_obj_1 = aedtapp.modeler[polyline_1.name]
+    all_objects_list = aedtapp.modeler.object_names
+
+    assert polyline_0.name in line_list
+    assert polyline_0.name in all_objects_list
+    assert polyline_1.name in line_list
+    assert polyline_1.name in all_objects_list
+    assert not line_obj_0.is_3d
+    assert line_obj_0.object_type == "Line"
+    assert not line_obj_1.is_3d
+    assert line_obj_1.object_type == "Line"
+
+
+def test_26d_object_count_consistency(aedtapp):
+    """Test that total object count is consistent across all lists."""
+    # Create objects of all types
+    polyline_0, polyline_1, _ = create_polylines()
+    box = create_copper_box()
+    rectangle = create_rectangle()
+
+    # Get all lists
+    solid_list = aedtapp.modeler.solid_names
+    sheet_list = aedtapp.modeler.sheet_names
+    line_list = aedtapp.modeler.line_names
+    all_objects_list = aedtapp.modeler.object_names
+
+    # Test count consistency
+    assert len(all_objects_list) == len(solid_list) + len(line_list) + len(sheet_list)
+
+    # Test all our objects are present
+    created_objects = [box.name, rectangle.name, polyline_0.name, polyline_1.name]
+    assert all(map(lambda obj: obj in all_objects_list, created_objects))
+
+
+def test_27_get_object_by_material(aedtapp):
+    """Test get objects by material."""
+    _ = create_copper_box(aedtapp)
+
+    copper_objects = aedtapp.modeler.get_objects_by_material("copper")
+    fr4_objects = aedtapp.modeler.get_objects_by_material("FR4")
+    lists_objects = aedtapp.modeler.get_objects_by_material()
+
+    assert len(copper_objects) > 0
+    assert len(fr4_objects) == 0
+    assert set(aedtapp.materials.conductors).issubset([mat for sublist in lists_objects for mat in sublist])
+    assert set(aedtapp.materials.dielectrics).issubset([mat for sublist in lists_objects for mat in sublist])
+
+
+def test_29_get_edges_from_position(aedtapp):
+    """Test get edges from position."""
+    _ = create_rectangle(aedtapp, name="MyRectangle_for_primitives")
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    edge_id = aedtapp.modeler.get_edgeid_from_position(origin)
+    assert edge_id > 0
+
+
+def test_29_get_edges_from_position_with_assignment(aedtapp):
+    """Test get edges from position with assignment."""
+    rectangle = create_rectangle(aedtapp, name="MyRectangle_for_primitives")
+    origin = aedtapp.modeler.Position(5, 3, 8)
+
+    edge_id = aedtapp.modeler.get_edgeid_from_position(origin, rectangle.name)
+    assert edge_id > 0
+
+
 class TestClass:
-    def test_20_create_polyline_with_crosssection(self):
-        udp1 = [0, 0, 0]
-        udp2 = [5, 0, 0]
-        udp3 = [5, 5, 0]
-        arrofpos = [udp1, udp2, udp3]
-        P = self.aedtapp.modeler.create_polyline(arrofpos, name="Poly_xsection", xsection_type="Rectangle")
-        assert isinstance(P, Polyline)
-        assert self.aedtapp.modeler[P.id].object_type == "Solid"
-        assert self.aedtapp.modeler[P.id].is3d
-
-    def test_21_sweep_along_path(self):
-        udp1 = [0, 0, 0]
-        udp2 = [5, 0, 0]
-        udp3 = [5, 5, 0]
-        arrofpos = [udp1, udp2, udp3]
-        path1 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector1")
-        path2 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector2")
-
-        rect1 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, -4], [4, 3], name="rect_1")
-        rect2 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 2], [4, 3], name="rect_2")
-        rect3 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 8], [4, 3], name="rect_3")
-        assert self.aedtapp.modeler.sweep_along_path(rect1, path1)
-        assert self.aedtapp.modeler.sweep_along_path([rect2, rect3], path2)
-        assert rect1.name in self.aedtapp.modeler.solid_names
-        assert rect2.name in self.aedtapp.modeler.solid_names
-        assert rect3.name in self.aedtapp.modeler.solid_names
-
-    def test_22_sweep_along_vector(self):
-        rect1 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, -2], [4, 3], name="rect_1")
-        rect2 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 2], [4, 3], name="rect_2")
-        rect3 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 4], [4, 3], name="rect_3")
-        assert self.aedtapp.modeler.sweep_along_vector(rect1, [10, 20, 20])
-        assert self.aedtapp.modeler.sweep_along_vector([rect2, rect3], [10, 20, 20])
-        assert rect1.name in self.aedtapp.modeler.solid_names
-        assert rect2.name in self.aedtapp.modeler.solid_names
-        assert rect3.name in self.aedtapp.modeler.solid_names
-
-    def test_23_create_rectangle(self):
-        udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = Plane.XY
-        o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle", material="Copper")
-        assert o.id > 0
-        assert o.name.startswith("MyRectangle")
-        assert o.object_type == "Sheet"
-        assert o.is3d is False
-        assert not self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5, 10], name="MyRectangle", material="Copper")
-
-    def test_24_create_cone(self):
-        udp = self.aedtapp.modeler.Position(5, 3, 8)
-        axis = Axis.Z
-        o = self.aedtapp.modeler.create_cone(axis, udp, 20, 10, 5, name="MyCone", material="Copper")
-        assert o.id > 0
-        assert o.name.startswith("MyCone")
-        assert o.object_type == "Solid"
-        assert o.is3d is True
-        assert not self.aedtapp.modeler.create_cone(axis, [1, 1], 20, 10, 5, name="MyCone", material="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, -20, 20, 5, name="MyCone", material="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, -20, 5, name="MyCone", material="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, -5, name="MyCone", material="Copper")
-
-    def test_25_get_object_id(self):
-        udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = Plane.XY
-        o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
-        assert (
-            self.aedtapp.modeler.get_obj_id(
-                o.name,
-            )
-            == o.id
-        )
-
-    def test_26_get_object_names(self):
-        p1, p2, points = self.create_polylines()
-        c1 = self.create_copper_box()
-        r1 = self.create_rectangle()
-        solid_list = self.aedtapp.modeler.solid_names
-        sheet_list = self.aedtapp.modeler.sheet_names
-        line_list = self.aedtapp.modeler.line_names
-        all_objects_list = self.aedtapp.modeler.object_names
-
-        assert c1.name in solid_list
-        assert r1.name in sheet_list
-        assert p1.name in line_list
-        assert p2.name in line_list
-        assert c1.name in all_objects_list
-        assert r1.name in all_objects_list
-        assert p1.name in all_objects_list
-        assert p2.name in all_objects_list
-
-        print("Solids")
-        for solid in solid_list:
-            solid_object = self.aedtapp.modeler[solid]
-
-            print(solid)
-            print(solid_object.name)
-
-            assert solid_object.is3d
-            assert solid_object.object_type == "Solid"
-
-        print("Sheets")
-        for sheet in sheet_list:
-            sheet_object = self.aedtapp.modeler[sheet]
-            print(sheet)
-            print(sheet_object.name)
-            assert self.aedtapp.modeler[sheet].is3d is False
-            assert self.aedtapp.modeler[sheet].object_type == "Sheet"
-
-        print("Lines")
-        for line in line_list:
-            line_object = self.aedtapp.modeler[line]
-            print(line)
-            print(line_object.name)
-            assert self.aedtapp.modeler[line].is3d is False
-            assert self.aedtapp.modeler[line].object_type == "Line"
-
-        assert len(all_objects_list) == len(solid_list) + len(line_list) + len(sheet_list)
-
-    def test_27_get_object_by_material(self):
-        self.create_polylines()
-        self.create_copper_box()
-        self.create_rectangle()
-        listsobj = self.aedtapp.modeler.get_objects_by_material("copper")
-        assert len(listsobj) > 0
-        listsobj = self.aedtapp.modeler.get_objects_by_material("FR4")
-        assert len(listsobj) == 0
-        listsobj = self.aedtapp.modeler.get_objects_by_material()
-        assert set(self.aedtapp.materials.conductors).issubset([mat for sublist in listsobj for mat in sublist])
-        assert set(self.aedtapp.materials.dielectrics).issubset([mat for sublist in listsobj for mat in sublist])
-
-    def test_28_get_object_faces(self):
-        self.create_rectangle()
-        o = self.aedtapp.modeler["MyRectangle"]
-        assert len(o.faces) == 1
-        assert len(o.edges) == 4
-        assert len(o.vertices) == 4
-
-    def test_29_get_edges_from_position(self):
-        o = self.create_rectangle(name="MyRectangle_for_primitives")
-        udp = self.aedtapp.modeler.Position(5, 3, 8)
-        edge_id = self.aedtapp.modeler.get_edgeid_from_position(udp, o.name)
-        assert edge_id > 0
-        edge_id = self.aedtapp.modeler.get_edgeid_from_position(udp)
-        assert edge_id > 0
-
     def test_30_get_faces_from_position(self):
         self.create_rectangle("New_Rectangle1")
         edge_id = self.aedtapp.modeler.get_faceid_from_position([5, 3, 8], "New_Rectangle1")
