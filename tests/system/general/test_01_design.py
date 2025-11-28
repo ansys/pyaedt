@@ -583,6 +583,15 @@ def test_edit_notes(add_app):
     app.close_project(app.project_name)
 
 
+def test_value_with_units(aedtapp):
+    aedtapp.modeler.model_units = "mm"
+    assert aedtapp.value_with_units("10mm") == "10mm"
+    assert aedtapp.value_with_units("10") == "10mm"
+    assert aedtapp.value_with_units("10", units_system="Angle") == "10deg"
+    assert aedtapp.value_with_units("10", units_system="invalid") == "10"
+    assert aedtapp.value_with_units("A + Bmm") == "A + Bmm"
+
+
 def test_close_desktop(desktop, aedtapp, monkeypatch):
     called = {}
 

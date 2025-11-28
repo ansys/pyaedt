@@ -70,9 +70,14 @@ class Materials(PyAedtBase):
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
-        self.material_keys = {}
-        self._surface_material_keys = {}
+        self.__material_keys = {}
+        self.__surface_material_keys = {}
         self._load_from_project()
+
+    @property
+    def material_keys(self) -> dict[str, Material]:
+        """Material dictionary available in current project."""
+        return self.__material_keys
 
     @property
     def odefinition_manager(self):
@@ -90,7 +95,7 @@ class Materials(PyAedtBase):
     def __iter__(self):
         return iter(self.material_keys.values()) if sys.version_info.major > 2 else self.material_keys.itervalues()
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> "Material":
         matobj = self.exists_material(item)
         if matobj:
             return matobj
@@ -99,19 +104,19 @@ class Materials(PyAedtBase):
         return
 
     @property
-    def surface_material_keys(self):
+    def surface_material_keys(self) -> dict[str, SurfaceMaterial]:
         """Dictionary of Surface Material in the project.
 
         Returns
         -------
         dict of :class:`ansys.aedt.core.modules.material.Material`
         """
-        if not self._surface_material_keys and self._app.design_type == "Icepak":
-            self._surface_material_keys = self._get_surface_materials()
-        return self._surface_material_keys
+        if not self.__surface_material_keys and self._app.design_type == "Icepak":
+            self.__surface_material_keys = self._get_surface_materials()
+        return self.__surface_material_keys
 
     @property
-    def liquids(self):
+    def liquids(self) -> list[str]:
         """Return the liquids materials. A liquid is a fluid with density greater or equal to 100Kg/m3.
 
         Returns

@@ -66,12 +66,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         self._model_units = None
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
-        self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
-        self.logger.info("Layers loaded.")
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
-        self.logger.info("Primitives loaded.")
         self.rigid_flex = None
 
     @property
@@ -169,6 +166,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
+                self.logger.info("EDB loaded.")
 
         return self._edb
 

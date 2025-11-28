@@ -172,7 +172,7 @@ class Objects(dict):
         if self.__obj_type == "o":
             self.__parent._object_names_to_ids[value.name] = key
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> "Object3d":
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
         elif item in self.__obj_names:
@@ -1216,9 +1216,9 @@ class GeometryModeler(Modeler, PyAedtBase):
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if found_material == material.lower():
+                    if found_material.lower() == material.lower():
                         obj_lst.append(obj)
-                elif obj and (obj.material_name == material or obj.material_name == material.lower()):
+                elif obj and (obj.material_name.lower() == material.lower()):
                     obj_lst.append(obj)
         else:
             obj_lst = [
@@ -3572,7 +3572,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def imprint(self, blank_list, tool_list, keep_originals=True):
-        """Imprin an object list on another object list.
+        """Imprint an object list on another object list.
 
         Parameters
         ----------

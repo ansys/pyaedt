@@ -159,6 +159,9 @@ class Design(AedtObjects, PyAedtBase):
         the existing project if needed and raise an exception.
     """
 
+    def __repr__(self):
+        return f"Project: {self.project_name}\nDesign: {self.design_name}\nPath: {self.project_path}"
+
     def __init__(
         self,
         design_type: str,
@@ -221,7 +224,7 @@ class Design(AedtObjects, PyAedtBase):
 
         self._mttime: Optional[float] = None
         self._desktop = self._desktop_class.odesktop
-        self._desktop_install_dir: Optional[str] = settings.aedt_install_dir
+        self._desktop_install_dir: Optional[str] = self._desktop_class.aedt_install_dir
         self._odesign: Optional[Any] = None
         self._oproject: Optional[Any] = None
 
@@ -4122,8 +4125,12 @@ class Design(AedtObjects, PyAedtBase):
             if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design"]:
                 if name in self.get_oo_name(app, f"Instance:{self._odesign.GetName()}"):
                     var_obj = self.get_oo_object(app, f"Instance:{self._odesign.GetName()}/{name}")
+                elif name in self.get_oo_name(app, "Variables"):
+                    var_obj = self.get_oo_object(app, f"Variables/{name}")
                 elif name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
-                    val = self.get_oo_object(app, "DefinitionParameters").GetPropEvaluatedValue(name)
+                    val = self.get_oo_object(app, "DefinitionParameters").GetPropSIValue(name)
+            elif self.design_type in ["Maxwell Circuit"]:
+                return None
             else:
                 var_obj = self.get_oo_object(app, f"Variables/{name}")
         if var_obj:

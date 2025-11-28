@@ -50,7 +50,6 @@ EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
 
-
 DEFAULT_CONFIG = {
     "desktopVersion": "2025.2",
     "NonGraphical": True,
@@ -90,7 +89,6 @@ if settings.use_local_example_data:
 
 logger = pyaedt_logger
 os.environ["PYAEDT_SCRIPT_VERSION"] = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
-
 
 # Add current path to sys.path for imports
 sys.path.append(str(local_path))

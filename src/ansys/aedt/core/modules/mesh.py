@@ -117,6 +117,12 @@ class MeshOperation(BinaryTreeNode, PyAedtBase):
 
     """
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     def __init__(self, mesh, name, props, meshoptype):
         self._mesh = mesh
         self._app = self._mesh._app
