@@ -1,6 +1,0 @@
-library\_list
-=============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.library_list

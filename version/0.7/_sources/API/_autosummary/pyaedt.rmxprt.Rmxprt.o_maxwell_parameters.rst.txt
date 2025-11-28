@@ -1,6 +1,0 @@
-o\_maxwell\_parameters
-======================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.o_maxwell_parameters

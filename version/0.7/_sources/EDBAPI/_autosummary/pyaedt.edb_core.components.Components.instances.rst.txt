@@ -1,6 +1,0 @@
-instances
-=========
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. autoproperty:: Components.instances

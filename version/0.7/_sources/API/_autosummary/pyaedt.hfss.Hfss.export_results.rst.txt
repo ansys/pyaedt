@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.export_results

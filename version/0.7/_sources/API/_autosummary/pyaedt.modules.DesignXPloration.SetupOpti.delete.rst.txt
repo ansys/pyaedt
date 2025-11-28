@@ -1,6 +1,0 @@
-delete
-======
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. automethod:: SetupOpti.delete

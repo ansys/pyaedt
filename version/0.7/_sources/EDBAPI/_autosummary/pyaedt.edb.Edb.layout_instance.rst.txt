@@ -1,6 +1,0 @@
-layout\_instance
-================
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.layout_instance

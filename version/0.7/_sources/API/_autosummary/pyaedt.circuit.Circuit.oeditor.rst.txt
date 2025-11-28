@@ -1,6 +1,0 @@
-oeditor
-=======
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.oeditor

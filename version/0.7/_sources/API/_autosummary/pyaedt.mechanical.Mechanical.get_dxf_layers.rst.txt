@@ -1,6 +1,0 @@
-get\_dxf\_layers
-================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.get_dxf_layers

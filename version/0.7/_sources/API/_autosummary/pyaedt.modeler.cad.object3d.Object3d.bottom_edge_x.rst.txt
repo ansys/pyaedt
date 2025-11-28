@@ -1,6 +1,0 @@
-bottom\_edge\_x
-===============
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. autoproperty:: Object3d.bottom_edge_x

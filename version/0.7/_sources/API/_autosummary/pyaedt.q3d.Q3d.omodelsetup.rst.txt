@@ -1,6 +1,0 @@
-omodelsetup
-===========
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q3d.omodelsetup

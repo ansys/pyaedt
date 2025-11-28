@@ -1,6 +1,0 @@
-composed\_name
-==============
-
-.. currentmodule:: pyaedt.modeler.circuits.object3dcircuit
-
-.. autoproperty:: CircuitComponent.composed_name

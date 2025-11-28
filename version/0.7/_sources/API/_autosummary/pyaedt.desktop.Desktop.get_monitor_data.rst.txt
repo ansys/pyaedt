@@ -1,6 +1,0 @@
-get\_monitor\_data
-==================
-
-.. currentmodule:: pyaedt.desktop
-
-.. automethod:: Desktop.get_monitor_data

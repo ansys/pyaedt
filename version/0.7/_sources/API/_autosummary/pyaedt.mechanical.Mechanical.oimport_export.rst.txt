@@ -1,6 +1,0 @@
-oimport\_export
-===============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.oimport_export

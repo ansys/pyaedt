@@ -1,6 +1,0 @@
-ooptimetrics
-============
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.ooptimetrics

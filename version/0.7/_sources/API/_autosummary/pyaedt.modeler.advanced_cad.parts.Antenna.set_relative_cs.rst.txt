@@ -1,6 +1,0 @@
-set\_relative\_cs
-=================
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.parts
-
-.. automethod:: Antenna.set_relative_cs

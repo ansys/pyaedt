@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.save_project

@@ -1,6 +1,0 @@
-export\_mesh\_stats
-===================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.export_mesh_stats

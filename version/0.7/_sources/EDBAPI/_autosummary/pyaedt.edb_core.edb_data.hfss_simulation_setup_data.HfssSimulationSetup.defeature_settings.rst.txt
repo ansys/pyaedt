@@ -1,6 +1,0 @@
-defeature\_settings
-===================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.hfss_simulation_setup_data
-
-.. autoproperty:: HfssSimulationSetup.defeature_settings

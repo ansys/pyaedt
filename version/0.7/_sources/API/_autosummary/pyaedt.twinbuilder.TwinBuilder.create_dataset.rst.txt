@@ -1,6 +1,0 @@
-create\_dataset
-===============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.create_dataset

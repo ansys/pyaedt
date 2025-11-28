@@ -1,6 +1,0 @@
-delete\_setup
-=============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.delete_setup

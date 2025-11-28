@@ -1,6 +1,0 @@
-ac\_settings
-============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.simulation_configuration
-
-.. autoproperty:: SimulationConfiguration.ac_settings

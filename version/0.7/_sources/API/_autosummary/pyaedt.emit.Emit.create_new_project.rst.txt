@@ -1,6 +1,0 @@
-create\_new\_project
-====================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.create_new_project

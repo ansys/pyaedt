@@ -1,6 +1,0 @@
-projdir
-=======
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. autoproperty:: ModelerEmit.projdir

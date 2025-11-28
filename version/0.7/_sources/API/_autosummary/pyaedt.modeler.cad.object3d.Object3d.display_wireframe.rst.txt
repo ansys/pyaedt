@@ -1,6 +1,0 @@
-display\_wireframe
-==================
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. autoproperty:: Object3d.display_wireframe

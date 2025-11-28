@@ -1,6 +1,0 @@
-net
-===
-
-.. currentmodule:: pyaedt.edb_core.edb_data.ports
-
-.. autoproperty:: WavePort.net

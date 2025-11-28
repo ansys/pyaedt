@@ -1,6 +1,0 @@
-do\_renormalize
-===============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.ports
-
-.. autoproperty:: WavePort.do_renormalize

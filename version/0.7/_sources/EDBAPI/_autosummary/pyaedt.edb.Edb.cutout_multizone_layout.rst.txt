@@ -1,6 +1,0 @@
-cutout\_multizone\_layout
-=========================
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.cutout_multizone_layout

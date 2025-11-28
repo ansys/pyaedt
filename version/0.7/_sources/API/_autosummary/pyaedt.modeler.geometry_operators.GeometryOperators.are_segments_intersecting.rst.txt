@@ -1,6 +1,0 @@
-are\_segments\_intersecting
-===========================
-
-.. currentmodule:: pyaedt.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.are_segments_intersecting

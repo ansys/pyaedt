@@ -1,6 +1,0 @@
-create\_voltage\_probe
-======================
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.create_voltage_probe

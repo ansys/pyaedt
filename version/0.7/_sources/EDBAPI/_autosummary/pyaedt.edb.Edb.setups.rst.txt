@@ -1,6 +1,0 @@
-setups
-======
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.setups

@@ -1,6 +1,0 @@
-o\_maxwell\_parameters
-======================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.o_maxwell_parameters

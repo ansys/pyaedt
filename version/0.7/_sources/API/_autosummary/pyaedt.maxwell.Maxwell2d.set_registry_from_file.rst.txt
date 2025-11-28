@@ -1,6 +1,0 @@
-set\_registry\_from\_file
-=========================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.set_registry_from_file

@@ -1,6 +1,0 @@
-omodelsetup
-===========
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.omodelsetup

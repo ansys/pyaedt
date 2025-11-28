@@ -1,6 +1,0 @@
-get\_module
-===========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.get_module

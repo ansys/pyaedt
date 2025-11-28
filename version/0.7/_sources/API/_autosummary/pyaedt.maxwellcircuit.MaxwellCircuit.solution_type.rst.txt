@@ -1,6 +1,0 @@
-solution\_type
-==============
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.solution_type

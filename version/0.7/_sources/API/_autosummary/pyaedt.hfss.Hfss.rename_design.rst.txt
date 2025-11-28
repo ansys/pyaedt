@@ -1,6 +1,0 @@
-rename\_design
-==============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.rename_design

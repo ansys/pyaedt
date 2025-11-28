@@ -1,6 +1,0 @@
-generate\_unique\_setup\_name
-=============================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.generate_unique_setup_name

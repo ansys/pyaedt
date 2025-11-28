@@ -1,6 +1,0 @@
-remove\_stackup\_layer
-======================
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. automethod:: Layer.remove_stackup_layer

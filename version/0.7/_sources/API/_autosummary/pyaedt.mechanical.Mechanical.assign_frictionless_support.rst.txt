@@ -1,6 +1,0 @@
-assign\_frictionless\_support
-=============================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.assign_frictionless_support

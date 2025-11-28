@@ -1,6 +1,0 @@
-excitations
-===========
-
-.. currentmodule:: pyaedt.edb_core.siwave
-
-.. autoproperty:: EdbSiwave.excitations

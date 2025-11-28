@@ -1,6 +1,0 @@
-components
-==========
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.components

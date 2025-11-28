@@ -1,6 +1,0 @@
-clear\_messages
-===============
-
-.. currentmodule:: pyaedt.aedt_logger
-
-.. automethod:: AedtLogger.clear_messages

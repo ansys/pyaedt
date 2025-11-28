@@ -1,6 +1,0 @@
-ref\_terminal
-=============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.ports
-
-.. autoproperty:: GapPort.ref_terminal

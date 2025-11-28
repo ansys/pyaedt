@@ -1,6 +1,0 @@
-variable\_names
-===============
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. autoproperty:: VariableManager.variable_names

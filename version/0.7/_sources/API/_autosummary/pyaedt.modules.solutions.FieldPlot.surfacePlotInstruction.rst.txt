@@ -1,6 +1,0 @@
-surfacePlotInstruction
-======================
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. autoproperty:: FieldPlot.surfacePlotInstruction

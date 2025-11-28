@@ -1,6 +1,0 @@
-library\_list
-=============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.library_list

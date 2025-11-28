@@ -1,6 +1,0 @@
-output\_variables
-=================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.output_variables

@@ -1,6 +1,0 @@
-schematic\_units
-================
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. autoproperty:: ModelerEmit.schematic_units

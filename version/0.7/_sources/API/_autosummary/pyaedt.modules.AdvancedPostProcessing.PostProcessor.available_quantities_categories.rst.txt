@@ -1,6 +1,0 @@
-available\_quantities\_categories
-=================================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.available_quantities_categories

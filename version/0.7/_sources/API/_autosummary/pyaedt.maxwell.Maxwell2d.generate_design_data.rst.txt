@@ -1,6 +1,0 @@
-generate\_design\_data
-======================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.generate_design_data

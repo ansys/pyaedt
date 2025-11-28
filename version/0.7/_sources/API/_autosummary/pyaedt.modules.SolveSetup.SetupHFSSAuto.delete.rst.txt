@@ -1,6 +1,0 @@
-delete
-======
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupHFSSAuto.delete

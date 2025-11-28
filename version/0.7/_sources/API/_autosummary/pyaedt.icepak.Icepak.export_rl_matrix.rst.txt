@@ -1,6 +1,0 @@
-export\_rl\_matrix
-==================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.export_rl_matrix

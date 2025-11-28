@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.export_results

@@ -1,6 +1,0 @@
-oanalysis
-=========
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.oanalysis

@@ -1,6 +1,0 @@
-layout\_validation
-==================
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.layout_validation

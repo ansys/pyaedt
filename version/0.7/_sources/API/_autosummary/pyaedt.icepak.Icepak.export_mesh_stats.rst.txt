@@ -1,6 +1,0 @@
-export\_mesh\_stats
-===================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.export_mesh_stats

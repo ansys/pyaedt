@@ -1,6 +1,0 @@
-longest\_edge
-=============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. automethod:: Polyline.longest_edge

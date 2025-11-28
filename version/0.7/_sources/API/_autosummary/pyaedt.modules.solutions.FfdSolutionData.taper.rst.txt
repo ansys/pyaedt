@@ -1,6 +1,0 @@
-taper
-=====
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. autoproperty:: FfdSolutionData.taper

@@ -1,6 +1,0 @@
-get\_traces\_for\_plot
-======================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.get_traces_for_plot

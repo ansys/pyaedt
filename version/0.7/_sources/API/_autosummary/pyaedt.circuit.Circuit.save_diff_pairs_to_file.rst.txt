@@ -1,6 +1,0 @@
-save\_diff\_pairs\_to\_file
-===========================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.save_diff_pairs_to_file

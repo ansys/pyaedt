@@ -1,6 +1,0 @@
-get\_setups
-===========
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.get_setups

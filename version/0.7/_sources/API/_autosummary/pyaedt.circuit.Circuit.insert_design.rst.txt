@@ -1,6 +1,0 @@
-insert\_design
-==============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.insert_design

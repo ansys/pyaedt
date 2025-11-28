@@ -1,6 +1,0 @@
-create\_voltage\_source
-=======================
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.create_voltage_source

@@ -1,6 +1,0 @@
-insert\_infinite\_sphere
-========================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.insert_infinite_sphere

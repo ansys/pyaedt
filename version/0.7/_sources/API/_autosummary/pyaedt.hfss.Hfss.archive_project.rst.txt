@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.archive_project

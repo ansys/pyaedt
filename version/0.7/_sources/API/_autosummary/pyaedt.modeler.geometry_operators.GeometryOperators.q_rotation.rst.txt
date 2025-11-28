@@ -1,6 +1,0 @@
-q\_rotation
-===========
-
-.. currentmodule:: pyaedt.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.q_rotation

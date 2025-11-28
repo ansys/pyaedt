@@ -1,6 +1,0 @@
-duplicate\_design
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.duplicate_design

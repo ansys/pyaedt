@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.omaterial_manager

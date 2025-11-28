@@ -1,6 +1,0 @@
-primary\_sweep
-==============
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Emission.primary_sweep

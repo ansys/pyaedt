@@ -1,6 +1,0 @@
-insert\_layout\_component
-=========================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.insert_layout_component

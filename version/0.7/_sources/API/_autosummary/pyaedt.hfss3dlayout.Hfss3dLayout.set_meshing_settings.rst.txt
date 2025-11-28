@@ -1,6 +1,0 @@
-set\_meshing\_settings
-======================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.set_meshing_settings

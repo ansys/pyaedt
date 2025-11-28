@@ -1,6 +1,0 @@
-library\_list
-=============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.library_list

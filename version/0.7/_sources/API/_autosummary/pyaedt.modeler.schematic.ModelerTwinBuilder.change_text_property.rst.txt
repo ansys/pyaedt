@@ -1,6 +1,0 @@
-change\_text\_property
-======================
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. automethod:: ModelerTwinBuilder.change_text_property

@@ -1,6 +1,0 @@
-split\_to\_microvias
-====================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.padstacks_data
-
-.. automethod:: EDBPadstack.split_to_microvias

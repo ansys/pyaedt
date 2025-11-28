@@ -1,6 +1,0 @@
-eddy\_effects\_on
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.eddy_effects_on

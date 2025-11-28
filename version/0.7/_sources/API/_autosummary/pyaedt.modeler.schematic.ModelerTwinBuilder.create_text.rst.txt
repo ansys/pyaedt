@@ -1,6 +1,0 @@
-create\_text
-============
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. automethod:: ModelerTwinBuilder.create_text

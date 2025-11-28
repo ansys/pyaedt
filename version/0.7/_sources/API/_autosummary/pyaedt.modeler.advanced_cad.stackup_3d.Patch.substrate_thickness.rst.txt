@@ -1,6 +1,0 @@
-substrate\_thickness
-====================
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. autoproperty:: Patch.substrate_thickness

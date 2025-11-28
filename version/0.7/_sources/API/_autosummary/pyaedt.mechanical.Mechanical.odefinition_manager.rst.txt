@@ -1,6 +1,0 @@
-odefinition\_manager
-====================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.odefinition_manager

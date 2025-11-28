@@ -1,6 +1,0 @@
-name
-====
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autoproperty:: Setup3DLayout.name

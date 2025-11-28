@@ -1,6 +1,0 @@
-edit\_setup
-===========
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.edit_setup

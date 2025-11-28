@@ -1,6 +1,0 @@
-limit\_lines
-============
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Emission.limit_lines

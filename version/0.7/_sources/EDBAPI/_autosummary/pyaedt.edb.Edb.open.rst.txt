@@ -1,6 +1,0 @@
-open
-====
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.open

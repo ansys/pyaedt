@@ -1,6 +1,0 @@
-import\_dataset3d
-=================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.import_dataset3d

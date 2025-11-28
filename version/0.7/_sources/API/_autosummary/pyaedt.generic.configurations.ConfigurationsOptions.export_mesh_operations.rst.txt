@@ -1,6 +1,0 @@
-export\_mesh\_operations
-========================
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.export_mesh_operations

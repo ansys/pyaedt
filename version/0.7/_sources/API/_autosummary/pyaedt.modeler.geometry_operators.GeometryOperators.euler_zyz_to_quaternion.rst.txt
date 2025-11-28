@@ -1,6 +1,0 @@
-euler\_zyz\_to\_quaternion
-==========================
-
-.. currentmodule:: pyaedt.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.euler_zyz_to_quaternion

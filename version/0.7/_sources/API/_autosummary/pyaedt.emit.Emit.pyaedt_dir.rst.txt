@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.pyaedt_dir

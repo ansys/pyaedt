@@ -1,6 +1,0 @@
-set\_end\_time
-==============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.set_end_time

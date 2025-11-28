@@ -1,6 +1,0 @@
-set\_temporary\_directory
-=========================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.set_temporary_directory

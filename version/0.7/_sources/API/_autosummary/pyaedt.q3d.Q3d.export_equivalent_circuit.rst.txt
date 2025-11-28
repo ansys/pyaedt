@@ -1,6 +1,0 @@
-export\_equivalent\_circuit
-===========================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.export_equivalent_circuit

@@ -1,6 +1,0 @@
-components\_catalog
-===================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
-
-.. autoproperty:: TwinBuilderComponents.components_catalog

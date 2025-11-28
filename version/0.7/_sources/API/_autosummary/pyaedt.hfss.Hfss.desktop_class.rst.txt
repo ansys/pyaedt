@@ -1,6 +1,0 @@
-desktop\_class
-==============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.desktop_class

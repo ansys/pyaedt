@@ -1,6 +1,0 @@
-import\_object\_properties
-==========================
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.import_object_properties

@@ -1,6 +1,0 @@
-set\_dc\_slider
-===============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. automethod:: SiwaveDCSimulationSetup.set_dc_slider

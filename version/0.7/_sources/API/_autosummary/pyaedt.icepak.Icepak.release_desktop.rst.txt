@@ -1,6 +1,0 @@
-release\_desktop
-================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.release_desktop

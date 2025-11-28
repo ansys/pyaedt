@@ -1,6 +1,0 @@
-insert\_design
-==============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.insert_design

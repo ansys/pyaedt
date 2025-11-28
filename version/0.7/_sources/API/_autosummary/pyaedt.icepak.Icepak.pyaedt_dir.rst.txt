@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.pyaedt_dir

@@ -1,6 +1,0 @@
-delete\_unused\_variables
-=========================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.delete_unused_variables

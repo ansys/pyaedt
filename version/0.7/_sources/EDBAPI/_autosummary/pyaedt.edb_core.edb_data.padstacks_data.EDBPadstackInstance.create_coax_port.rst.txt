@@ -1,6 +1,0 @@
-create\_coax\_port
-==================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.padstacks_data
-
-.. automethod:: EDBPadstackInstance.create_coax_port

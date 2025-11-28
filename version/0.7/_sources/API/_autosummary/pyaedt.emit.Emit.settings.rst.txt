@@ -1,6 +1,0 @@
-settings
-========
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.settings

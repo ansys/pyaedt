@@ -1,6 +1,0 @@
-create\_dataset
-===============
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.create_dataset

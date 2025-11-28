@@ -1,6 +1,0 @@
-create\_report
-==============
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupMaxwell.create_report

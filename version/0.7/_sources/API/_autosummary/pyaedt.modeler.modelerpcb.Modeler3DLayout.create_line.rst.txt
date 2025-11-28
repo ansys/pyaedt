@@ -1,6 +1,0 @@
-create\_line
-============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.create_line

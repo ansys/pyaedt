@@ -1,6 +1,0 @@
-oeditor
-=======
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.oeditor

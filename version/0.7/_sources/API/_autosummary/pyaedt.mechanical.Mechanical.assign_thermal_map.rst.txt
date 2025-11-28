@@ -1,6 +1,0 @@
-assign\_thermal\_map
-====================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.assign_thermal_map

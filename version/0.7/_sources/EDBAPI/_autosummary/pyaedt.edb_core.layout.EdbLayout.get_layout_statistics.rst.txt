@@ -1,6 +1,0 @@
-get\_layout\_statistics
-=======================
-
-.. currentmodule:: pyaedt.edb_core.layout
-
-.. automethod:: EdbLayout.get_layout_statistics

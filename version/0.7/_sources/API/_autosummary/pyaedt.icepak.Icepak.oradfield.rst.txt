@@ -1,6 +1,0 @@
-oradfield
-=========
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.oradfield

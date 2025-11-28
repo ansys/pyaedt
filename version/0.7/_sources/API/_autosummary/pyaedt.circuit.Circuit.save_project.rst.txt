@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.save_project

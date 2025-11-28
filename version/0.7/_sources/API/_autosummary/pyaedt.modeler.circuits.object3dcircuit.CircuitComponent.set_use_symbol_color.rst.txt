@@ -1,6 +1,0 @@
-set\_use\_symbol\_color
-=======================
-
-.. currentmodule:: pyaedt.modeler.circuits.object3dcircuit
-
-.. automethod:: CircuitComponent.set_use_symbol_color

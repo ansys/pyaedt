@@ -1,6 +1,0 @@
-pitch\_name
-===========
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.multiparts
-
-.. autoproperty:: Environment.pitch_name

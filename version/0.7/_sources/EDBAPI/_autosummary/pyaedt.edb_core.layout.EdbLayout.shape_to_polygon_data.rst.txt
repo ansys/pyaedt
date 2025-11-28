@@ -1,6 +1,0 @@
-shape\_to\_polygon\_data
-========================
-
-.. currentmodule:: pyaedt.edb_core.layout
-
-.. automethod:: EdbLayout.shape_to_polygon_data

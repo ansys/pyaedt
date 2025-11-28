@@ -1,6 +1,0 @@
-locked
-======
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.locked

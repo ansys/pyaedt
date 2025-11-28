@@ -1,6 +1,0 @@
-tab\_name
-=========
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. autoproperty:: MaxwellCircuitComponents.tab_name

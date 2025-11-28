@@ -1,6 +1,0 @@
-lock\_file
-==========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.lock_file

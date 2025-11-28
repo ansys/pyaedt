@@ -1,6 +1,0 @@
-cover\_faces
-============
-
-.. currentmodule:: pyaedt.modeler.modeler2d
-
-.. automethod:: Modeler2D.cover_faces

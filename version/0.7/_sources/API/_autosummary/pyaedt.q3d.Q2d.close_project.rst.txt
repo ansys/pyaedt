@@ -1,6 +1,0 @@
-close\_project
-==============
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.close_project

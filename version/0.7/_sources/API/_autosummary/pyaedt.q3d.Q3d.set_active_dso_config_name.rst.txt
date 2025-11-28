@@ -1,6 +1,0 @@
-set\_active\_dso\_config\_name
-==============================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.set_active_dso_config_name

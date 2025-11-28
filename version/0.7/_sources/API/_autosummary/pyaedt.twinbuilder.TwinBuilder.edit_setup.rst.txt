@@ -1,6 +1,0 @@
-edit\_setup
-===========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.edit_setup

@@ -1,6 +1,0 @@
-get\_connected\_objects
-=======================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.primitives_data
-
-.. automethod:: EDBPrimitives.get_connected_objects

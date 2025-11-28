@@ -1,6 +1,0 @@
-horizontal\_extent\_factor
-==========================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.ports
-
-.. autoproperty:: WavePort.horizontal_extent_factor

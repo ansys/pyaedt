@@ -1,6 +1,0 @@
-evaluated\_value
-================
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. autoproperty:: Variable.evaluated_value

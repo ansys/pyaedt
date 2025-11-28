@@ -1,6 +1,0 @@
-configurations
-==============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.configurations

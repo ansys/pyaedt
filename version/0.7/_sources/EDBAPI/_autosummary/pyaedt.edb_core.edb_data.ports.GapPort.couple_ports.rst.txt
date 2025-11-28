@@ -1,6 +1,0 @@
-couple\_ports
-=============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.ports
-
-.. automethod:: GapPort.couple_ports

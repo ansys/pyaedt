@@ -1,6 +1,0 @@
-hfss\_setups
-============
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.hfss_setups

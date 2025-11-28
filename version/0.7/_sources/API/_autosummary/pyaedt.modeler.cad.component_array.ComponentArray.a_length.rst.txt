@@ -1,6 +1,0 @@
-a\_length
-=========
-
-.. currentmodule:: pyaedt.modeler.cad.component_array
-
-.. autoproperty:: ComponentArray.a_length

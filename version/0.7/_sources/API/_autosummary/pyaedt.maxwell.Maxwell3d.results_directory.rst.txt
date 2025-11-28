@@ -1,6 +1,0 @@
-results\_directory
-==================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.results_directory

@@ -1,6 +1,0 @@
-stop\_simulations
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.stop_simulations

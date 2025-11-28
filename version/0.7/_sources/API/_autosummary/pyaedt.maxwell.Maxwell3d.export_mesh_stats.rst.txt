@@ -1,6 +1,0 @@
-export\_mesh\_stats
-===================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.export_mesh_stats

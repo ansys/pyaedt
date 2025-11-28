@@ -1,6 +1,0 @@
-info
-====
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.info

@@ -1,6 +1,0 @@
-remove\_point
-=============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. automethod:: Polyline.remove_point

@@ -1,6 +1,0 @@
-materials\_in\_aedt
-===================
-
-.. currentmodule:: pyaedt.edb_core.materials
-
-.. autoproperty:: Materials.materials_in_aedt

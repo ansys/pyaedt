@@ -1,6 +1,0 @@
-get\_solution\_data
-===================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.get_solution_data

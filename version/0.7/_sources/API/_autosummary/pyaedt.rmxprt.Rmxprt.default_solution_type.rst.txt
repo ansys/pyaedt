@@ -1,6 +1,0 @@
-default\_solution\_type
-=======================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.default_solution_type
