@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.hidden_variable

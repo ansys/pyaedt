@@ -1,6 +1,0 @@
-project\_path
-=============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.project_path

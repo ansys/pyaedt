@@ -1,6 +1,0 @@
-object\_units
-=============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.object_units

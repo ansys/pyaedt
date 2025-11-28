@@ -1,6 +1,0 @@
-set\_solder\_ball
-=================
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.set_solder_ball

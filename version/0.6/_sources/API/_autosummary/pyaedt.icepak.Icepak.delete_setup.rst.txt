@@ -1,6 +1,0 @@
-delete\_setup
-=============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.delete_setup

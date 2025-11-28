@@ -1,6 +1,0 @@
-strand\_number
-==============
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.strand_number

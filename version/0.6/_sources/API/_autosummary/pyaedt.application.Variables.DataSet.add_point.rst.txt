@@ -1,6 +1,0 @@
-add\_point
-==========
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. automethod:: DataSet.add_point

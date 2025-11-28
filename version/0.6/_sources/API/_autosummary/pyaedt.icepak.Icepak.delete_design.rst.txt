@@ -1,6 +1,0 @@
-delete\_design
-==============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.delete_design

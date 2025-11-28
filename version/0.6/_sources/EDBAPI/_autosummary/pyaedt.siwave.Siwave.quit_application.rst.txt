@@ -1,6 +1,0 @@
-quit\_application
-=================
-
-.. currentmodule:: pyaedt.siwave
-
-.. automethod:: Siwave.quit_application

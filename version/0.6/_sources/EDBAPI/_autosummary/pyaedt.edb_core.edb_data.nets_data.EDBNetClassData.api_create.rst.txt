@@ -1,6 +1,0 @@
-api\_create
-===========
-
-.. currentmodule:: pyaedt.edb_core.edb_data.nets_data
-
-.. automethod:: EDBNetClassData.api_create

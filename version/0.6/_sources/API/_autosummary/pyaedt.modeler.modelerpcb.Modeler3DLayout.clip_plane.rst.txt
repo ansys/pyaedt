@@ -1,6 +1,0 @@
-clip\_plane
-===========
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.clip_plane

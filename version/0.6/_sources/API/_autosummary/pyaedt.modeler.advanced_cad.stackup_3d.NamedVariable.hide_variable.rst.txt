@@ -1,6 +1,0 @@
-hide\_variable
-==============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. automethod:: NamedVariable.hide_variable

@@ -1,6 +1,0 @@
-get\_object\_material\_properties
-=================================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.get_object_material_properties

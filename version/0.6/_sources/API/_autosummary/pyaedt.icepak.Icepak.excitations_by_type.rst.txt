@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.excitations_by_type

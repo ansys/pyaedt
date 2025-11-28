@@ -1,6 +1,0 @@
-submit\_job
-===========
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.submit_job

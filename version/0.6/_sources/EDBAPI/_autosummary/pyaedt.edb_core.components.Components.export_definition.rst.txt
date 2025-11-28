@@ -1,6 +1,0 @@
-export\_definition
-==================
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.export_definition

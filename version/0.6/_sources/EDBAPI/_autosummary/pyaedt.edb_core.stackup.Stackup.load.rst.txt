@@ -1,6 +1,0 @@
-load
-====
-
-.. currentmodule:: pyaedt.edb_core.stackup
-
-.. automethod:: Stackup.load

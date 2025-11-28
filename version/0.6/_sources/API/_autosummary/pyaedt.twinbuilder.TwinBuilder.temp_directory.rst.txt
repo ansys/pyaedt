@@ -1,6 +1,0 @@
-temp\_directory
-===============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.temp_directory

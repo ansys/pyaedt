@@ -1,6 +1,0 @@
-analyze\_setup
-==============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.analyze_setup

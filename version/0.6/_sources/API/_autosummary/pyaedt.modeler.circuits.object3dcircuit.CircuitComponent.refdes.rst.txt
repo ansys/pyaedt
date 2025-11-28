@@ -1,6 +1,0 @@
-refdes
-======
-
-.. currentmodule:: pyaedt.modeler.circuits.object3dcircuit
-
-.. autoproperty:: CircuitComponent.refdes

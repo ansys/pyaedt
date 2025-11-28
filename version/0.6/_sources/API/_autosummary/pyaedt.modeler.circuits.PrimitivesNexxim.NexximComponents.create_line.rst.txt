@@ -1,6 +1,0 @@
-create\_line
-============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.create_line

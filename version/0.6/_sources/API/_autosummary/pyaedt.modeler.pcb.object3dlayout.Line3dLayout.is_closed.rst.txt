@@ -1,6 +1,0 @@
-is\_closed
-==========
-
-.. currentmodule:: pyaedt.modeler.pcb.object3dlayout
-
-.. autoproperty:: Line3dLayout.is_closed

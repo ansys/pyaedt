@@ -1,6 +1,0 @@
-net\_classes
-============
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.net_classes

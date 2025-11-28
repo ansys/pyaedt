@@ -1,6 +1,0 @@
-duplicate\_design
-=================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.duplicate_design

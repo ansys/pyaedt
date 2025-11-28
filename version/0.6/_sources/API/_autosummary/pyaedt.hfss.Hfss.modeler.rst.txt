@@ -1,6 +1,0 @@
-modeler
-=======
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.modeler

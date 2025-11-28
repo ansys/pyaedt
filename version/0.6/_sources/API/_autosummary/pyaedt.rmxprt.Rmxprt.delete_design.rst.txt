@@ -1,6 +1,0 @@
-delete\_design
-==============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.delete_design

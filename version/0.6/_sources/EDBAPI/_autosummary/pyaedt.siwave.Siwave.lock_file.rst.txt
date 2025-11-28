@@ -1,6 +1,0 @@
-lock\_file
-==========
-
-.. currentmodule:: pyaedt.siwave
-
-.. autoproperty:: Siwave.lock_file

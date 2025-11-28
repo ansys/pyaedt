@@ -1,6 +1,0 @@
-parse\_hdm\_file
-================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.parse_hdm_file

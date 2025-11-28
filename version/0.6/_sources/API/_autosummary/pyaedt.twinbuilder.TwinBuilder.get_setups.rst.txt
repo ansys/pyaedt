@@ -1,6 +1,0 @@
-get\_setups
-===========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.get_setups

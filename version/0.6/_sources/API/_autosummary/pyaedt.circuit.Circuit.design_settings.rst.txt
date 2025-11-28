@@ -1,6 +1,0 @@
-design\_settings
-================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.design_settings

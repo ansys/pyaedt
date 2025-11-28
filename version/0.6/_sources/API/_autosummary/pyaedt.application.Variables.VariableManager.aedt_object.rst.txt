@@ -1,6 +1,0 @@
-aedt\_object
-============
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. automethod:: VariableManager.aedt_object

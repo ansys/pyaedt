@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q3d.excitations_by_type

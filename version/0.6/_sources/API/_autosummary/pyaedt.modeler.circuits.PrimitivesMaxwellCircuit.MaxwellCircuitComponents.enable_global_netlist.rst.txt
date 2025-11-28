@@ -1,6 +1,0 @@
-enable\_global\_netlist
-=======================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. automethod:: MaxwellCircuitComponents.enable_global_netlist

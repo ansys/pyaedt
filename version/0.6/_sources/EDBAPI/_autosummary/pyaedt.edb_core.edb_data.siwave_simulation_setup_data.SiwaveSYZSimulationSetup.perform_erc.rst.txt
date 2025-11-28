@@ -1,6 +1,0 @@
-perform\_erc
-============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. autoproperty:: SiwaveSYZSimulationSetup.perform_erc

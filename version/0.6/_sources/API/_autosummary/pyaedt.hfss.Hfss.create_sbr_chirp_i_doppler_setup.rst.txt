@@ -1,6 +1,0 @@
-create\_sbr\_chirp\_i\_doppler\_setup
-=====================================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.create_sbr_chirp_i_doppler_setup

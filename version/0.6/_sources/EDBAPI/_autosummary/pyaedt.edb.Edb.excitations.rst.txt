@@ -1,6 +1,0 @@
-excitations
-===========
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.excitations

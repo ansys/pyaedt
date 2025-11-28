@@ -1,6 +1,0 @@
-messenger
-=========
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
-
-.. autoproperty:: EmitComponents.messenger

@@ -1,6 +1,0 @@
-SolutionTypes
-=============
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.SolutionTypes

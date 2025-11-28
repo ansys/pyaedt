@@ -1,6 +1,0 @@
-import\_dataset3d
-=================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.import_dataset3d

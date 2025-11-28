@@ -1,6 +1,0 @@
-design\_variables
-=================
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.design_variables

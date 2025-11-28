@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.save_project

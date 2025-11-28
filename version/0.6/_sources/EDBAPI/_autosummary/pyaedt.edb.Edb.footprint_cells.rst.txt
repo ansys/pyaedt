@@ -1,6 +1,0 @@
-footprint\_cells
-================
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.footprint_cells

@@ -1,6 +1,0 @@
-dielectrics
-===========
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. autoproperty:: Materials.dielectrics

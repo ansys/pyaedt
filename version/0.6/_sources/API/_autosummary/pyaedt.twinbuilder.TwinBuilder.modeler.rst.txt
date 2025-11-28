@@ -1,6 +1,0 @@
-modeler
-=======
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.modeler

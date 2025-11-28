@@ -1,6 +1,0 @@
-design\_libray
-==============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. autoproperty:: MaxwellCircuitComponents.design_libray

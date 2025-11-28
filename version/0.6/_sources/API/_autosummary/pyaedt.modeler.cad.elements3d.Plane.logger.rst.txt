@@ -1,6 +1,0 @@
-logger
-======
-
-.. currentmodule:: pyaedt.modeler.cad.elements3d
-
-.. autoproperty:: Plane.logger

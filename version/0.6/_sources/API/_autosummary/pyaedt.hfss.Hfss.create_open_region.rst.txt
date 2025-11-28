@@ -1,6 +1,0 @@
-create\_open\_region
-====================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.create_open_region

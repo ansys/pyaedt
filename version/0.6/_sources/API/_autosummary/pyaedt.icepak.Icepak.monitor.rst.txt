@@ -1,6 +1,0 @@
-monitor
-=======
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.monitor

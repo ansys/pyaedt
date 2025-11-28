@@ -1,6 +1,0 @@
-directory
-=========
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.directory

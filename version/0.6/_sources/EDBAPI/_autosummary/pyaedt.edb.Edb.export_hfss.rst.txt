@@ -1,6 +1,0 @@
-export\_hfss
-============
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.export_hfss

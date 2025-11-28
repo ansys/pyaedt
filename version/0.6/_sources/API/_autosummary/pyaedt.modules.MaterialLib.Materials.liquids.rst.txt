@@ -1,6 +1,0 @@
-liquids
-=======
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. autoproperty:: Materials.liquids

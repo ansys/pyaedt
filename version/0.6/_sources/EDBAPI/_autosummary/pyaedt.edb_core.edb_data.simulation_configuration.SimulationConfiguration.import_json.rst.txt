@@ -1,6 +1,0 @@
-import\_json
-============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.simulation_configuration
-
-.. automethod:: SimulationConfiguration.import_json

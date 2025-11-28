@@ -1,6 +1,0 @@
-set\_temporary\_directory
-=========================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.set_temporary_directory

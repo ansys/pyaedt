@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.export_results

@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.hidden_variable

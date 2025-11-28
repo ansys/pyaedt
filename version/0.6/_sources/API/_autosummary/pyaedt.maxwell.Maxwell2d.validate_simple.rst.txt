@@ -1,6 +1,0 @@
-validate\_simple
-================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.validate_simple

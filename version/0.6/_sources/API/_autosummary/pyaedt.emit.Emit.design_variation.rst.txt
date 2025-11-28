@@ -1,6 +1,0 @@
-design\_variation
-=================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.design_variation

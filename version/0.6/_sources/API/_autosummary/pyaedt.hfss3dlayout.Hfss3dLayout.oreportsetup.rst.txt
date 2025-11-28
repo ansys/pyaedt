@@ -1,6 +1,0 @@
-oreportsetup
-============
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.oreportsetup

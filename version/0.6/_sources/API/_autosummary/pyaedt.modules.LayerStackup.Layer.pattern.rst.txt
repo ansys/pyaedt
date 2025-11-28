@@ -1,6 +1,0 @@
-pattern
-=======
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.pattern

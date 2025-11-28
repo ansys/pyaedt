@@ -1,6 +1,0 @@
-get\_defaultunit
-================
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. automethod:: SurfMatProperties.get_defaultunit

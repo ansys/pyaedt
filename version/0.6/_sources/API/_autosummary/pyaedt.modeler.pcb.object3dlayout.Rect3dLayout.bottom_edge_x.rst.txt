@@ -1,6 +1,0 @@
-bottom\_edge\_x
-===============
-
-.. currentmodule:: pyaedt.modeler.pcb.object3dlayout
-
-.. autoproperty:: Rect3dLayout.bottom_edge_x

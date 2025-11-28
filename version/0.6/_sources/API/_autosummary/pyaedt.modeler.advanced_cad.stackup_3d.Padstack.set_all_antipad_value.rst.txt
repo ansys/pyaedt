@@ -1,6 +1,0 @@
-set\_all\_antipad\_value
-========================
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. automethod:: Padstack.set_all_antipad_value

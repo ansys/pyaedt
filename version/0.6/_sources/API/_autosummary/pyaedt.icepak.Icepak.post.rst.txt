@@ -1,6 +1,0 @@
-post
-====
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.post

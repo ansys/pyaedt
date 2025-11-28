@@ -1,6 +1,0 @@
-export\_rl\_matrix
-==================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.export_rl_matrix

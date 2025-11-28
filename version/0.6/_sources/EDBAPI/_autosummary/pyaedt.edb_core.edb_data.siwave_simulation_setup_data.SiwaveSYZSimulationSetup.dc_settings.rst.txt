@@ -1,6 +1,0 @@
-dc\_settings
-============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. autoproperty:: SiwaveSYZSimulationSetup.dc_settings

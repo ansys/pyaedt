@@ -1,6 +1,0 @@
-export\_bom
-===========
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.export_bom

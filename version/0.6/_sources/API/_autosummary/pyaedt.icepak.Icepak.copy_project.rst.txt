@@ -1,6 +1,0 @@
-copy\_project
-=============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.copy_project

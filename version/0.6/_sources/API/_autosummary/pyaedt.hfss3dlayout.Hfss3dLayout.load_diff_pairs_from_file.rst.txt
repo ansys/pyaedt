@@ -1,6 +1,0 @@
-load\_diff\_pairs\_from\_file
-=============================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.load_diff_pairs_from_file

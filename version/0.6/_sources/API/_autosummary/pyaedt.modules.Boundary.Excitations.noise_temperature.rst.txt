@@ -1,6 +1,0 @@
-noise\_temperature
-==================
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: Excitations.noise_temperature

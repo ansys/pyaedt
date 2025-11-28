@@ -1,6 +1,0 @@
-export\_matrix\_data
-====================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.export_matrix_data

@@ -1,6 +1,0 @@
-change\_material\_override
-==========================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.change_material_override

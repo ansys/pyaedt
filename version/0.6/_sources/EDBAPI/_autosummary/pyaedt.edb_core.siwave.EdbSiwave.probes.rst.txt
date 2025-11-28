@@ -1,6 +1,0 @@
-probes
-======
-
-.. currentmodule:: pyaedt.edb_core.siwave
-
-.. autoproperty:: EdbSiwave.probes

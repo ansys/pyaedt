@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.excitations_by_type

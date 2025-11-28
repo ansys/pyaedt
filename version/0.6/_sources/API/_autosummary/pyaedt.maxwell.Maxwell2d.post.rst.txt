@@ -1,6 +1,0 @@
-post
-====
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.post

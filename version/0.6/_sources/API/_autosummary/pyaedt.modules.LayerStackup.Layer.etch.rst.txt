@@ -1,6 +1,0 @@
-etch
-====
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.etch

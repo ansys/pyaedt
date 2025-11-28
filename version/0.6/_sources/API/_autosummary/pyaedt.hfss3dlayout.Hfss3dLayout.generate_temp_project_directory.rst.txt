@@ -1,6 +1,0 @@
-generate\_temp\_project\_directory
-==================================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.generate_temp_project_directory

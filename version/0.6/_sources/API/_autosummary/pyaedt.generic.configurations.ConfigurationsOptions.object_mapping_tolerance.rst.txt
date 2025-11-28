@@ -1,6 +1,0 @@
-object\_mapping\_tolerance
-==========================
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.object_mapping_tolerance

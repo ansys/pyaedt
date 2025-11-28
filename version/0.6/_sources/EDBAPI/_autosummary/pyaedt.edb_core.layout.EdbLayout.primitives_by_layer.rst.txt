@@ -1,6 +1,0 @@
-primitives\_by\_layer
-=====================
-
-.. currentmodule:: pyaedt.edb_core.layout
-
-.. autoproperty:: EdbLayout.primitives_by_layer

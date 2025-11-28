@@ -1,6 +1,0 @@
-cell\_names
-===========
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.cell_names

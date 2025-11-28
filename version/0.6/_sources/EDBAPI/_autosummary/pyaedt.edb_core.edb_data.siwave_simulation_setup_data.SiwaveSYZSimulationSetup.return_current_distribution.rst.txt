@@ -1,6 +1,0 @@
-return\_current\_distribution
-=============================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. autoproperty:: SiwaveSYZSimulationSetup.return_current_distribution

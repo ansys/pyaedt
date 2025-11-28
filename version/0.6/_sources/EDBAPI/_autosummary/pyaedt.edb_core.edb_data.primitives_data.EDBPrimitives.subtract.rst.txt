@@ -1,6 +1,0 @@
-subtract
-========
-
-.. currentmodule:: pyaedt.edb_core.edb_data.primitives_data
-
-.. automethod:: EDBPrimitives.subtract

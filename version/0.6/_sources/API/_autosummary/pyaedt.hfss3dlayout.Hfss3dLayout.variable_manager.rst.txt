@@ -1,6 +1,0 @@
-variable\_manager
-=================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.variable_manager

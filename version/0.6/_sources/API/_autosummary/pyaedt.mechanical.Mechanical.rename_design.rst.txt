@@ -1,6 +1,0 @@
-rename\_design
-==============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.rename_design

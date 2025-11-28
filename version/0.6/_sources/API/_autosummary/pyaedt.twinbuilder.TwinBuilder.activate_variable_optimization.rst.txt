@@ -1,6 +1,0 @@
-activate\_variable\_optimization
-================================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.activate_variable_optimization

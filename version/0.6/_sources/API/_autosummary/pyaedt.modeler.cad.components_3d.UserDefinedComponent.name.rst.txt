@@ -1,6 +1,0 @@
-name
-====
-
-.. currentmodule:: pyaedt.modeler.cad.components_3d
-
-.. autoproperty:: UserDefinedComponent.name

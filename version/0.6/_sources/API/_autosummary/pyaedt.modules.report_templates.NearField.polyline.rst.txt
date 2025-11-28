@@ -1,6 +1,0 @@
-polyline
-========
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: NearField.polyline

@@ -1,6 +1,0 @@
-get\_available\_cloud\_config
-=============================
-
-.. currentmodule:: pyaedt.desktop
-
-.. automethod:: Desktop.get_available_cloud_config

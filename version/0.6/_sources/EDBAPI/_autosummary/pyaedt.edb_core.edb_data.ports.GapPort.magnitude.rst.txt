@@ -1,6 +1,0 @@
-magnitude
-=========
-
-.. currentmodule:: pyaedt.edb_core.edb_data.ports
-
-.. autoproperty:: GapPort.magnitude

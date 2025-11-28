@@ -1,6 +1,0 @@
-return\_current\_distribution
-=============================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.simulation_configuration
-
-.. autoproperty:: SimulationConfigurationAc.return_current_distribution

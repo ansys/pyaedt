@@ -1,6 +1,0 @@
-permittivity
-============
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.permittivity

@@ -1,6 +1,0 @@
-polygons
-========
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.polygons

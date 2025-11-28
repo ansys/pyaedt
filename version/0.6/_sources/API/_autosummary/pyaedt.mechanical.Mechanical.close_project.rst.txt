@@ -1,6 +1,0 @@
-close\_project
-==============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.close_project

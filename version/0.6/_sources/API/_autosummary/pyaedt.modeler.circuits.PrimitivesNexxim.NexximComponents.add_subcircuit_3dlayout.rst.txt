@@ -1,6 +1,0 @@
-add\_subcircuit\_3dlayout
-=========================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.add_subcircuit_3dlayout

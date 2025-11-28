@@ -1,6 +1,0 @@
-check\_choke\_values
-====================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.check_choke_values

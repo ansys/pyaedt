@@ -1,6 +1,0 @@
-heal\_objects
-=============
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.heal_objects

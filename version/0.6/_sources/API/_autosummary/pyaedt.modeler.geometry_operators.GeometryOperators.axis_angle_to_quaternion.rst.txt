@@ -1,6 +1,0 @@
-axis\_angle\_to\_quaternion
-===========================
-
-.. currentmodule:: pyaedt.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.axis_angle_to_quaternion

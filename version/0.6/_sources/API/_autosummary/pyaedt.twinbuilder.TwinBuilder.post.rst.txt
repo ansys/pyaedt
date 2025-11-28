@@ -1,6 +1,0 @@
-post
-====
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.post

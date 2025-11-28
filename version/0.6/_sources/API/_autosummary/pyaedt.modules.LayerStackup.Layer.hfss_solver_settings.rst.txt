@@ -1,6 +1,0 @@
-hfss\_solver\_settings
-======================
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.hfss_solver_settings

@@ -1,6 +1,0 @@
-sim\_setup\_info
-================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. autoproperty:: SiwaveDCSimulationSetup.sim_setup_info

@@ -1,6 +1,0 @@
-project\_file
-=============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.project_file

@@ -1,6 +1,0 @@
-oimport\_export
-===============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.oimport_export

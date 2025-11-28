@@ -1,6 +1,0 @@
-copy\_design\_from
-==================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.copy_design_from

@@ -1,6 +1,0 @@
-validate\_simple
-================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.validate_simple

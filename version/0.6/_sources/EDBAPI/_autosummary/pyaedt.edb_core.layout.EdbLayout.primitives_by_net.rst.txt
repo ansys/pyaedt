@@ -1,6 +1,0 @@
-primitives\_by\_net
-===================
-
-.. currentmodule:: pyaedt.edb_core.layout
-
-.. autoproperty:: EdbLayout.primitives_by_net

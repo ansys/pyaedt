@@ -1,6 +1,0 @@
-load\_project
-=============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.load_project

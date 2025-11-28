@@ -1,6 +1,0 @@
-generate\_temp\_project\_directory
-==================================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.generate_temp_project_directory

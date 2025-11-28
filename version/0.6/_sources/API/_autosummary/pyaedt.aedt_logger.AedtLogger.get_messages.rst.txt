@@ -1,6 +1,0 @@
-get\_messages
-=============
-
-.. currentmodule:: pyaedt.aedt_logger
-
-.. automethod:: AedtLogger.get_messages

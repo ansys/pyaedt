@@ -1,6 +1,0 @@
-copy\_solid\_bodies\_from
-=========================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.copy_solid_bodies_from

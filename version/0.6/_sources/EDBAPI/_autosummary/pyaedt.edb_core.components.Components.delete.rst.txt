@@ -1,6 +1,0 @@
-delete
-======
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.delete

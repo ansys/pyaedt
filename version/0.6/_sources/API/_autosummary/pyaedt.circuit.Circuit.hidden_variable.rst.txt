@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.hidden_variable

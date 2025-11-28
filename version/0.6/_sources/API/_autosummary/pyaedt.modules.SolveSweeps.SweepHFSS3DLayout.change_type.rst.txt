@@ -1,6 +1,0 @@
-change\_type
-============
-
-.. currentmodule:: pyaedt.modules.SolveSweeps
-
-.. automethod:: SweepHFSS3DLayout.change_type

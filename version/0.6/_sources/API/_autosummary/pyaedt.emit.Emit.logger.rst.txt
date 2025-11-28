@@ -1,6 +1,0 @@
-logger
-======
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.logger

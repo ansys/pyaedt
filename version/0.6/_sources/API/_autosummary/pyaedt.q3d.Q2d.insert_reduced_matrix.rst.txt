@@ -1,6 +1,0 @@
-insert\_reduced\_matrix
-=======================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.insert_reduced_matrix

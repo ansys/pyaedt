@@ -1,6 +1,0 @@
-set\_component\_model
-=====================
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.set_component_model

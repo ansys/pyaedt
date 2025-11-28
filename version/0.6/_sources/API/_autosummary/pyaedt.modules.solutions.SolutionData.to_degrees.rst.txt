@@ -1,6 +1,0 @@
-to\_degrees
-===========
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. automethod:: SolutionData.to_degrees

@@ -1,6 +1,0 @@
-basis\_frequencies
-==================
-
-.. currentmodule:: pyaedt.modules.SolveSweeps
-
-.. autoproperty:: SweepMatrix.basis_frequencies

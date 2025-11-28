@@ -1,6 +1,0 @@
-oeditor
-=======
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.oeditor

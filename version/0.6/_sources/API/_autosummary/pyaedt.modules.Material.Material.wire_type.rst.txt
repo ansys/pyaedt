@@ -1,6 +1,0 @@
-wire\_type
-==========
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.wire_type

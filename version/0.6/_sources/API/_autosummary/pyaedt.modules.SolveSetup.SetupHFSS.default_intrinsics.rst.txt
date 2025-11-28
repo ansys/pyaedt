@@ -1,6 +1,0 @@
-default\_intrinsics
-===================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autoproperty:: SetupHFSS.default_intrinsics

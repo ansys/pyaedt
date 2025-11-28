@@ -1,6 +1,0 @@
-add\_sweep\_count
-=================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupCircuit.add_sweep_count

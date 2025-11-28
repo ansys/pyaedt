@@ -1,6 +1,0 @@
-set\_as\_working\_cs
-====================
-
-.. currentmodule:: pyaedt.modeler.cad.Modeler
-
-.. automethod:: CoordinateSystem.set_as_working_cs

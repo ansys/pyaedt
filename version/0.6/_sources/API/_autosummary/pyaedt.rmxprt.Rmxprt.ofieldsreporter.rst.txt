@@ -1,6 +1,0 @@
-ofieldsreporter
-===============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.ofieldsreporter

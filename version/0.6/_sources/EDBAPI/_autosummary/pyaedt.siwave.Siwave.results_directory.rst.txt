@@ -1,6 +1,0 @@
-results\_directory
-==================
-
-.. currentmodule:: pyaedt.siwave
-
-.. autoproperty:: Siwave.results_directory

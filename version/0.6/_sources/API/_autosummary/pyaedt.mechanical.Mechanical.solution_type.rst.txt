@@ -1,6 +1,0 @@
-solution\_type
-==============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.solution_type

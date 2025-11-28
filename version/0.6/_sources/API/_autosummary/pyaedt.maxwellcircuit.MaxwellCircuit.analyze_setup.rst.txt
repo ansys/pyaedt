@@ -1,6 +1,0 @@
-analyze\_setup
-==============
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.analyze_setup

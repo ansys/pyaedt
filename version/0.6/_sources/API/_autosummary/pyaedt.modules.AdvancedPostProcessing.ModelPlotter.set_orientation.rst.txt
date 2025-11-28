@@ -1,6 +1,0 @@
-set\_orientation
-================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: ModelPlotter.set_orientation

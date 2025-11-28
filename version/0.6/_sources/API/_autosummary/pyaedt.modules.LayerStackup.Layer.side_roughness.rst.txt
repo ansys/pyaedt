@@ -1,6 +1,0 @@
-side\_roughness
-===============
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.side_roughness

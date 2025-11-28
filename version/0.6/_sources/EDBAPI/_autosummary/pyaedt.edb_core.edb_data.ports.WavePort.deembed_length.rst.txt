@@ -1,6 +1,0 @@
-deembed\_length
-===============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.ports
-
-.. autoproperty:: WavePort.deembed_length

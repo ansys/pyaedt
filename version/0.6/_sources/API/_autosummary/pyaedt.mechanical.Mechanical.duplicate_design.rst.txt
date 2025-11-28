@@ -1,6 +1,0 @@
-duplicate\_design
-=================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.duplicate_design

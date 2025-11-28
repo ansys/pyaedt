@@ -1,6 +1,0 @@
-odesign
-=======
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.odesign

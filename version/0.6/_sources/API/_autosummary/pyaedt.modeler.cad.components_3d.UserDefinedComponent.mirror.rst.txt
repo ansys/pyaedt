@@ -1,6 +1,0 @@
-mirror
-======
-
-.. currentmodule:: pyaedt.modeler.cad.components_3d
-
-.. automethod:: UserDefinedComponent.mirror

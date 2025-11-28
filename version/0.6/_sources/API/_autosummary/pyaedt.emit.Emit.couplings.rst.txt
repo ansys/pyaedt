@@ -1,6 +1,0 @@
-couplings
-=========
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.couplings
