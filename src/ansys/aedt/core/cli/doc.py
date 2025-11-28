@@ -125,6 +125,11 @@ def issues():
 @doc_app.command(name="search", help="One or more search keywords for the documentation")
 def search(search_keys: List[str] = typer.Argument(None)):
     """Search the online documentation."""
+    if not search_keys:
+        typer.secho("✗ Error: Please provide at least one search keyword", fg=typer.colors.RED)
+        typer.secho("Usage: pyaedt doc search <keyword1> [keyword2] ...", fg=typer.colors.YELLOW)
+        raise typer.Exit(1)
+    
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False

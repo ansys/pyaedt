@@ -1310,3 +1310,45 @@ def test_doc_issues_command(cli_runner, mock_online_help):
     assert result.exit_code == 0
     assert mock_online_help.silent is False
     mock_online_help.issues.assert_called_once_with()
+
+
+def test_doc_search_command_single_keyword(cli_runner, mock_online_help):
+    """Test doc search command with single keyword."""
+    result = cli_runner.invoke(app, ["doc", "search", "Maxwell"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.search.assert_called_once_with("Maxwell")
+
+
+def test_doc_search_command_multiple_keywords(cli_runner, mock_online_help):
+    """Test doc search command with multiple keywords."""
+    result = cli_runner.invoke(app, ["doc", "search", "Maxwell", "3D", "simulation"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.search.assert_called_once_with("Maxwell 3D simulation")
+
+
+def test_doc_search_command_no_keywords(cli_runner, mock_online_help):
+    """Test doc search command without keywords."""
+    result = cli_runner.invoke(app, ["doc", "search"])
+
+    assert result.exit_code == 1
+    assert "✗ Error: Please provide at least one search keyword" in result.stdout
+    assert "Usage: pyaedt doc search" in result.stdout
+    # Should not call online_help.search when no keywords provided
+    mock_online_help.search.assert_not_called()
+
+
+def test_doc_callback_opens_home_and_shows_help(cli_runner, mock_online_help):
+    """Test doc command without subcommand opens home and displays help."""
+    result = cli_runner.invoke(app, ["doc"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.home.assert_called_once_with()
+    # Verify help text is displayed
+    assert "Documentation commands" in result.stdout
+    assert "examples" in result.stdout
+    assert "github" in result.stdout
