@@ -1219,3 +1219,112 @@ def test_panels_add_valid_selection(
         skip_version_manager=False,
         odesktop=None,
     )
+
+
+# DOCUMENTATION COMMAND TESTS
+
+
+@pytest.fixture
+def mock_online_help():
+    """Mock ansys.aedt.core.help.online_help to avoid real browser / network calls."""
+    with patch("ansys.aedt.core.help.online_help") as mock_help:
+        mock_help.silent = True
+        yield mock_help
+
+
+def test_doc_group_help(cli_runner):
+    """Ensure doc command group help works."""
+    result = cli_runner.invoke(app, ["doc", "--help"])
+
+    assert result.exit_code == 0
+    assert "Documentation commands" in result.stdout
+
+
+def test_doc_examples_command(cli_runner, mock_online_help):
+    """Test doc examples command."""
+    result = cli_runner.invoke(app, ["doc", "examples"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.examples.assert_called_once_with()
+
+
+def test_doc_github_command(cli_runner, mock_online_help):
+    """Test doc github command."""
+    result = cli_runner.invoke(app, ["doc", "github"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.github.assert_called_once_with()
+
+
+def test_doc_home_command(cli_runner, mock_online_help):
+    """Test doc home command."""
+    result = cli_runner.invoke(app, ["doc", "home"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.home.assert_called_once_with()
+
+
+def test_doc_user_guide_command(cli_runner, mock_online_help):
+    """Test doc user_guide command."""
+    result = cli_runner.invoke(app, ["doc", "user-guide"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.user_guide.assert_called_once_with()
+
+
+def test_doc_getting_started_command(cli_runner, mock_online_help):
+    """Test doc getting_started command."""
+    result = cli_runner.invoke(app, ["doc", "getting-started"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.getting_started.assert_called_once_with()
+
+
+def test_doc_installation_command(cli_runner, mock_online_help):
+    """Test doc installation command."""
+    result = cli_runner.invoke(app, ["doc", "installation"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.installation_guide.assert_called_once_with()
+
+
+def test_doc_api_reference_command(cli_runner, mock_online_help):
+    """Test doc api_reference command."""
+    result = cli_runner.invoke(app, ["doc", "api"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.api_reference.assert_called_once_with()
+
+
+def test_doc_changelog_command_no_arg(cli_runner, mock_online_help):
+    """Test doc changelog command without version argument."""
+    result = cli_runner.invoke(app, ["doc", "changelog"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.changelog.assert_called_once_with(None)
+
+
+def test_doc_changelog_command_with_version(cli_runner, mock_online_help):
+    """Test doc changelog command with explicit version."""
+    result = cli_runner.invoke(app, ["doc", "changelog", "0.22.0"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.changelog.assert_called_once_with("0.22.0")
+
+
+def test_doc_issues_command(cli_runner, mock_online_help):
+    """Test doc issues command."""
+    result = cli_runner.invoke(app, ["doc", "issues"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.issues.assert_called_once_with()

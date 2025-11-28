@@ -127,3 +127,11 @@ general:
   block_figure_plot: false
   # Skip license check during Desktop initialization
   skip_license_check: true
+
+grpc:
+  # Enable or disable secure mode for gRPC connections
+  grpc_secure_mode: true
+  # Enable or disable local gRPC connections
+  grpc_local: true
+  # Enable or disable listening on all interfaces for gRPC connections
+  grpc_listen_all: false
