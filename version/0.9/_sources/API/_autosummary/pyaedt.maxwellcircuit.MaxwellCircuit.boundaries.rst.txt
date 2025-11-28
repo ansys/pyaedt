@@ -1,6 +1,0 @@
-boundaries
-==========
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.boundaries

@@ -1,6 +1,0 @@
-dataset\_exists
-===============
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.dataset_exists

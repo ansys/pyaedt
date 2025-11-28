@@ -1,6 +1,0 @@
-assign\_mesh\_reuse
-===================
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. automethod:: IcepakMesh.assign_mesh_reuse

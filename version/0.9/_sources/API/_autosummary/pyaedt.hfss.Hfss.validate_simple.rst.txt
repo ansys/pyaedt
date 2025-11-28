@@ -1,6 +1,0 @@
-validate\_simple
-================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.validate_simple

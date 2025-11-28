@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.excitations_by_type

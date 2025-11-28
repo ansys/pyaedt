@@ -1,6 +1,0 @@
-design\_type
-============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. autoproperty:: MaxwellCircuitComponents.design_type

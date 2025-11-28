@@ -1,6 +1,0 @@
-dataset\_exists
-===============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.dataset_exists

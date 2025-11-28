@@ -1,6 +1,0 @@
-assign\_source
-==============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.assign_source

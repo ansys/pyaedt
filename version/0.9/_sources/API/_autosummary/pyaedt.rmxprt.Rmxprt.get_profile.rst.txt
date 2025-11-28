@@ -1,6 +1,0 @@
-get\_profile
-============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.get_profile

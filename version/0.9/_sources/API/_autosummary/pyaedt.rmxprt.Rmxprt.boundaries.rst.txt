@@ -1,6 +1,0 @@
-boundaries
-==========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.boundaries

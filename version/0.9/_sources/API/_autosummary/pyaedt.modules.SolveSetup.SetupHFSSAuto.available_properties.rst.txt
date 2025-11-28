@@ -1,6 +1,0 @@
-available\_properties
-=====================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autoproperty:: SetupHFSSAuto.available_properties

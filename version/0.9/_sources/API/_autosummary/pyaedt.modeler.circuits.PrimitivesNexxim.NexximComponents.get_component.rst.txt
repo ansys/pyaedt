@@ -1,6 +1,0 @@
-get\_component
-==============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.get_component

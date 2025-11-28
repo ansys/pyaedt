@@ -1,6 +1,0 @@
-update
-======
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. automethod:: MeshRegion.update

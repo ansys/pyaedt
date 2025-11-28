@@ -1,6 +1,0 @@
-field\_setups
-=============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.field_setups

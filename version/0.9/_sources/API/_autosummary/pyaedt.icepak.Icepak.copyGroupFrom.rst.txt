@@ -1,6 +1,0 @@
-copyGroupFrom
-=============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.copyGroupFrom

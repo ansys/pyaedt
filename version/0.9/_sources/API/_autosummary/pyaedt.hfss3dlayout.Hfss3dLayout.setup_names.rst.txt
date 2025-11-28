@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.setup_names

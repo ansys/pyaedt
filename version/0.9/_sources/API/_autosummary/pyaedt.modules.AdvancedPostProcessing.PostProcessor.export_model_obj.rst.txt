@@ -1,6 +1,0 @@
-export\_model\_obj
-==================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.export_model_obj

@@ -1,6 +1,0 @@
-lock\_file
-==========
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.lock_file

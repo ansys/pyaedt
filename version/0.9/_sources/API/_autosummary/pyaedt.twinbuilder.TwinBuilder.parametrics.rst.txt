@@ -1,6 +1,0 @@
-parametrics
-===========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.parametrics

@@ -1,6 +1,0 @@
-read\_only\_variable
-====================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.read_only_variable

@@ -1,6 +1,0 @@
-number\_of\_columns
-===================
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. autoproperty:: CSVDataset.number_of_columns

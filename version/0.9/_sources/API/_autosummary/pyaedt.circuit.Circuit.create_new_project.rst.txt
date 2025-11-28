@@ -1,6 +1,0 @@
-create\_new\_project
-====================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.create_new_project

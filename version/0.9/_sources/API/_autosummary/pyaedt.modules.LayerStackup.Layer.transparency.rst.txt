@@ -1,6 +1,0 @@
-transparency
-============
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.transparency

@@ -1,6 +1,0 @@
-ooptimetrics
-============
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.ooptimetrics

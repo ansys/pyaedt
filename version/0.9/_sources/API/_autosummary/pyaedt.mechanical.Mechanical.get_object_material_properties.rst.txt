@@ -1,6 +1,0 @@
-get\_object\_material\_properties
-=================================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.get_object_material_properties

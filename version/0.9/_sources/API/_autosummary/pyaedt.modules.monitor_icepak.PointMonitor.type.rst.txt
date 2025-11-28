@@ -1,6 +1,0 @@
-type
-====
-
-.. currentmodule:: pyaedt.modules.monitor_icepak
-
-.. autoproperty:: PointMonitor.type

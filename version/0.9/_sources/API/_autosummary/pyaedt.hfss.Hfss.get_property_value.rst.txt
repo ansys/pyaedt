@@ -1,6 +1,0 @@
-get\_property\_value
-====================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.get_property_value

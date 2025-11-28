@@ -1,6 +1,0 @@
-padding\_types
-==============
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. autoproperty:: SubRegion.padding_types

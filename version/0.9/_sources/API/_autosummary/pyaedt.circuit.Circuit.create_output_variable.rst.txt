@@ -1,6 +1,0 @@
-create\_output\_variable
-========================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.create_output_variable

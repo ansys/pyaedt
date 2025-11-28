@@ -1,6 +1,0 @@
-set\_stop\_layer
-================
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. automethod:: Padstack.set_stop_layer

@@ -1,6 +1,0 @@
-frequencies
-===========
-
-.. currentmodule:: pyaedt.modules.SolveSweeps
-
-.. autoproperty:: SweepHFSS.frequencies

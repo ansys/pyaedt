@@ -1,6 +1,0 @@
-o\_symbol\_manager
-==================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.o_symbol_manager

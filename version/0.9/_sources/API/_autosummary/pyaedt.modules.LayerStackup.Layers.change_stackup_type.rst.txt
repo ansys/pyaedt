@@ -1,6 +1,0 @@
-change\_stackup\_type
-=====================
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. automethod:: Layers.change_stackup_type

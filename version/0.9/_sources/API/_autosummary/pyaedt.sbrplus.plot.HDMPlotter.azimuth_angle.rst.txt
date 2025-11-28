@@ -1,6 +1,0 @@
-azimuth\_angle
-==============
-
-.. currentmodule:: pyaedt.sbrplus.plot
-
-.. autoproperty:: HDMPlotter.azimuth_angle

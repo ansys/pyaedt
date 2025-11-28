@@ -1,6 +1,0 @@
-excitations\_by\_type
-=====================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.excitations_by_type

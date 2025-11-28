@@ -1,6 +1,0 @@
-assign\_primary
-===============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.assign_primary

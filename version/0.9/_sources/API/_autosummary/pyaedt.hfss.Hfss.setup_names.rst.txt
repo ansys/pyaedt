@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.setup_names

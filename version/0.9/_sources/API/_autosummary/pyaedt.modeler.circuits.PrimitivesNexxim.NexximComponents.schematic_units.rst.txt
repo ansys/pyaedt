@@ -1,6 +1,0 @@
-schematic\_units
-================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. autoproperty:: NexximComponents.schematic_units

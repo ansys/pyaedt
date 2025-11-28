@@ -1,6 +1,0 @@
-project\_name
-=============
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.project_name

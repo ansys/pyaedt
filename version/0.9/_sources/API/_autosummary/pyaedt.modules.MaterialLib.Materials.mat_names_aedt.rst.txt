@@ -1,6 +1,0 @@
-mat\_names\_aedt
-================
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. autoproperty:: Materials.mat_names_aedt

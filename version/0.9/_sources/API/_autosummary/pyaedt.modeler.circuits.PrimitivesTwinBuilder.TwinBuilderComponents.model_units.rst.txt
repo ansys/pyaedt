@@ -1,6 +1,0 @@
-model\_units
-============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
-
-.. autoproperty:: TwinBuilderComponents.model_units

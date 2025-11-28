@@ -1,6 +1,0 @@
-check\_beta\_option\_enabled
-============================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.check_beta_option_enabled

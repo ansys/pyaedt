@@ -1,6 +1,0 @@
-import\_traces
-==============
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. automethod:: FarField.import_traces

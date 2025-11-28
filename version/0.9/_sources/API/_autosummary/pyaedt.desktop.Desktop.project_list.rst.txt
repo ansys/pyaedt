@@ -1,6 +1,0 @@
-project\_list
-=============
-
-.. currentmodule:: pyaedt.desktop
-
-.. automethod:: Desktop.project_list

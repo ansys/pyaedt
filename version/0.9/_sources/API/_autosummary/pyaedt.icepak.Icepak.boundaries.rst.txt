@@ -1,6 +1,0 @@
-boundaries
-==========
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.boundaries

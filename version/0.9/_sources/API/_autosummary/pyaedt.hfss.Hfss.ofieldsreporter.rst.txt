@@ -1,6 +1,0 @@
-ofieldsreporter
-===============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.ofieldsreporter

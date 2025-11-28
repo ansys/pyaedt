@@ -1,6 +1,0 @@
-native\_components
-==================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.native_components

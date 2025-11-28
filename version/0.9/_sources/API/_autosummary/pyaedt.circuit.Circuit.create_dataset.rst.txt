@@ -1,6 +1,0 @@
-create\_dataset
-===============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.create_dataset

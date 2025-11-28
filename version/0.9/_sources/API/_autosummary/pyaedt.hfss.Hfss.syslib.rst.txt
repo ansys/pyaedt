@@ -1,6 +1,0 @@
-syslib
-======
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.syslib

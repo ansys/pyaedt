@@ -1,6 +1,0 @@
-oexcitation
-===========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.oexcitation

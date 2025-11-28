@@ -1,6 +1,0 @@
-results
-=======
-
-.. currentmodule:: pyaedt.emit
-
-.. autoattribute:: Emit.results

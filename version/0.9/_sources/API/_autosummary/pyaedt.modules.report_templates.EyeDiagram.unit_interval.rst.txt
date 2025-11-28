@@ -1,6 +1,0 @@
-unit\_interval
-==============
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: EyeDiagram.unit_interval

@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.archive_project

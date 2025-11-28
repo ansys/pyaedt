@@ -1,6 +1,0 @@
-generate\_temp\_project\_directory
-==================================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.generate_temp_project_directory

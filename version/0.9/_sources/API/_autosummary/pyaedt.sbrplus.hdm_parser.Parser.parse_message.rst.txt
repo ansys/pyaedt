@@ -1,6 +1,0 @@
-parse\_message
-==============
-
-.. currentmodule:: pyaedt.sbrplus.hdm_parser
-
-.. automethod:: Parser.parse_message

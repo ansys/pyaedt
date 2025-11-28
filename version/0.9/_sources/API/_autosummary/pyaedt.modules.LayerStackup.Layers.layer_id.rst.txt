@@ -1,6 +1,0 @@
-layer\_id
-=========
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. automethod:: Layers.layer_id

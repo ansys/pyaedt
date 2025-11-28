@@ -1,6 +1,0 @@
-create\_maxwell\_design
-=======================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.create_maxwell_design

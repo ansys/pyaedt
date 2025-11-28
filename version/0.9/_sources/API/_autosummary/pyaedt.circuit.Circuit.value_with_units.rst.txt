@@ -1,6 +1,0 @@
-value\_with\_units
-==================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.value_with_units

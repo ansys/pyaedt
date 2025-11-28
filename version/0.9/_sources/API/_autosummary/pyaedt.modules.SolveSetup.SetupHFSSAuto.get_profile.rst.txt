@@ -1,6 +1,0 @@
-get\_profile
-============
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupHFSSAuto.get_profile

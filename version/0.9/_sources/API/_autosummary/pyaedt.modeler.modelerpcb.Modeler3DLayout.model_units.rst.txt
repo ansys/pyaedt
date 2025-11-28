@@ -1,6 +1,0 @@
-model\_units
-============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.model_units

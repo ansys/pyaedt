@@ -1,6 +1,0 @@
-ports
-=====
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.ports

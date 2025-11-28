@@ -1,6 +1,0 @@
-SolutionTypes
-=============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.SolutionTypes

@@ -1,6 +1,0 @@
-layer\_name
-===========
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. autoproperty:: Polygon.layer_name

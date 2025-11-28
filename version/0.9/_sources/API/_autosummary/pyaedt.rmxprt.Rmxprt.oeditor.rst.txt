@@ -1,6 +1,0 @@
-oeditor
-=======
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.oeditor

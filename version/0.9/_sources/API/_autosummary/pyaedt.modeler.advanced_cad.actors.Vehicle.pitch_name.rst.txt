@@ -1,6 +1,0 @@
-pitch\_name
-===========
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.actors
-
-.. autoproperty:: Vehicle.pitch_name

@@ -1,6 +1,0 @@
-oimport\_export
-===============
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.oimport_export

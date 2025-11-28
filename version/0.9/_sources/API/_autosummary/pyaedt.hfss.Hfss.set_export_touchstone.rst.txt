@@ -1,6 +1,0 @@
-set\_export\_touchstone
-=======================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.set_export_touchstone

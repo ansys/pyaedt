@@ -1,6 +1,0 @@
-log\_multiplier
-===============
-
-.. currentmodule:: pyaedt.sbrplus.plot
-
-.. autoproperty:: HDMPlotter.log_multiplier

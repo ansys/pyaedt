@@ -1,6 +1,0 @@
-padding\_values
-===============
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. autoproperty:: SubRegion.padding_values

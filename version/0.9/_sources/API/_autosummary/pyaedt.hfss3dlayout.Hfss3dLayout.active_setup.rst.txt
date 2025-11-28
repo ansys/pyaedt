@@ -1,6 +1,0 @@
-active\_setup
-=============
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.active_setup

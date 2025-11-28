@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.pyaedt_dir

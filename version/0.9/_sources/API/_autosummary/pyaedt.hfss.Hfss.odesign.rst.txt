@@ -1,6 +1,0 @@
-odesign
-=======
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.odesign

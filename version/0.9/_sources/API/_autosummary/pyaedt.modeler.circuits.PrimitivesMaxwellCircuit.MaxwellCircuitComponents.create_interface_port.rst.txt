@@ -1,6 +1,0 @@
-create\_interface\_port
-=======================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. automethod:: MaxwellCircuitComponents.create_interface_port

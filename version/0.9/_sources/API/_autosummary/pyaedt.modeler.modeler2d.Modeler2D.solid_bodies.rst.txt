@@ -1,6 +1,0 @@
-solid\_bodies
-=============
-
-.. currentmodule:: pyaedt.modeler.modeler2d
-
-.. autoproperty:: Modeler2D.solid_bodies

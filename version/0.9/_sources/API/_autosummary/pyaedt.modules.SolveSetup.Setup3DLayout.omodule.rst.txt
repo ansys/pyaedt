@@ -1,6 +1,0 @@
-omodule
-=======
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autoproperty:: Setup3DLayout.omodule

@@ -1,6 +1,0 @@
-generate\_mesh
-==============
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. automethod:: IcepakMesh.generate_mesh

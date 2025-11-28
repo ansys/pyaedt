@@ -1,6 +1,0 @@
-copy\_design\_from
-==================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.copy_design_from

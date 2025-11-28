@@ -1,6 +1,0 @@
-info
-====
-
-.. currentmodule:: pyaedt.aedt_logger
-
-.. automethod:: AedtLogger.info

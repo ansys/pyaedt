@@ -1,6 +1,0 @@
-desktop\_install\_dir
-=====================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.desktop_install_dir

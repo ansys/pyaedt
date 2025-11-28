@@ -1,6 +1,0 @@
-poissons\_ratio
-===============
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.poissons_ratio

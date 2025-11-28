@@ -1,6 +1,0 @@
-materials
-=========
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.materials

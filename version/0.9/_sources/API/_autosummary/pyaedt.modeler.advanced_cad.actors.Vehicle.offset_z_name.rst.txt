@@ -1,6 +1,0 @@
-offset\_z\_name
-===============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.actors
-
-.. autoproperty:: Vehicle.offset_z_name

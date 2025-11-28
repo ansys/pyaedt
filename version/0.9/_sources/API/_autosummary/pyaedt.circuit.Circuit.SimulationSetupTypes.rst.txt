@@ -1,6 +1,0 @@
-SimulationSetupTypes
-====================
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.SimulationSetupTypes

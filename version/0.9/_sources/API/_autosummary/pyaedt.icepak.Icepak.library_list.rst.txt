@@ -1,6 +1,0 @@
-library\_list
-=============
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.library_list

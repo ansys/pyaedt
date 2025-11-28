@@ -1,6 +1,0 @@
-get\_module
-===========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.get_module

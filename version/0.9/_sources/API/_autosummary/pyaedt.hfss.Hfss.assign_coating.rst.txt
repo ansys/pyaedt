@@ -1,6 +1,0 @@
-assign\_coating
-===============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.assign_coating

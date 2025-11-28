@@ -1,6 +1,0 @@
-available\_variations
-=====================
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.available_variations

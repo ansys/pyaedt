@@ -1,6 +1,0 @@
-toolkit\_directory
-==================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.toolkit_directory

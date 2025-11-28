@@ -1,6 +1,0 @@
-definition
-==========
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: FarFieldSetup.definition

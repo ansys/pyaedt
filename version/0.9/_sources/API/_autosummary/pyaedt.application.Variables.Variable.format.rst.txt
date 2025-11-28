@@ -1,6 +1,0 @@
-format
-======
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. automethod:: Variable.format

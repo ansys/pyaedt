@@ -1,6 +1,0 @@
-omonitor
-========
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.omonitor

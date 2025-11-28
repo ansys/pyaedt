@@ -1,6 +1,0 @@
-set\_color
-==========
-
-.. currentmodule:: pyaedt.modeler.cad.elements3d
-
-.. automethod:: Point.set_color

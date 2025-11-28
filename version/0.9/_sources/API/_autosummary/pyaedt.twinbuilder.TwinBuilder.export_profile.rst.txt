@@ -1,6 +1,0 @@
-export\_profile
-===============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.export_profile

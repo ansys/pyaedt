@@ -1,6 +1,0 @@
-results\_directory
-==================
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.results_directory

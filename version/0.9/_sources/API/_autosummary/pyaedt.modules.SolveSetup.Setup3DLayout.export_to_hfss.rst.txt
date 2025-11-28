@@ -1,6 +1,0 @@
-export\_to\_hfss
-================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: Setup3DLayout.export_to_hfss

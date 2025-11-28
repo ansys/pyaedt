@@ -1,6 +1,0 @@
-ofieldsreporter
-===============
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.ofieldsreporter

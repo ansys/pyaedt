@@ -1,6 +1,0 @@
-delete\_unused\_variables
-=========================
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. automethod:: VariableManager.delete_unused_variables

@@ -1,6 +1,0 @@
-temp\_directory
-===============
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.temp_directory

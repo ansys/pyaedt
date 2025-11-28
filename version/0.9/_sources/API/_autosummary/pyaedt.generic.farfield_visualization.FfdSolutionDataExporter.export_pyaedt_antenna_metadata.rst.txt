@@ -1,6 +1,0 @@
-export\_pyaedt\_antenna\_metadata
-=================================
-
-.. currentmodule:: pyaedt.generic.farfield_visualization
-
-.. automethod:: FfdSolutionDataExporter.export_pyaedt_antenna_metadata

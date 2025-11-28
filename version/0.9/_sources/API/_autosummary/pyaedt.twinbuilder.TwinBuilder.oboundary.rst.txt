@@ -1,6 +1,0 @@
-oboundary
-=========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.oboundary

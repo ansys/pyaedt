@@ -1,6 +1,0 @@
-set\_auto\_open
-===============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.set_auto_open

@@ -1,6 +1,0 @@
-active\_setup
-=============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.active_setup

@@ -1,6 +1,0 @@
-info
-====
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.info

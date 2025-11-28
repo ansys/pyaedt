@@ -1,6 +1,0 @@
-info
-====
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.info

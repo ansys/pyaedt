@@ -1,6 +1,0 @@
-sheet\_names
-============
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. autoproperty:: Modeler3D.sheet_names

@@ -1,6 +1,0 @@
-desktop\_class
-==============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.desktop_class

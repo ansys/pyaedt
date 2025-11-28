@@ -1,6 +1,0 @@
-create\_network\_blocks
-=======================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.create_network_blocks

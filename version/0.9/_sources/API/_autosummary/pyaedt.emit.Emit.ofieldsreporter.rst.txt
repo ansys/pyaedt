@@ -1,6 +1,0 @@
-ofieldsreporter
-===============
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.ofieldsreporter

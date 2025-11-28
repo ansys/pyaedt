@@ -1,6 +1,0 @@
-ports
-=====
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.ports

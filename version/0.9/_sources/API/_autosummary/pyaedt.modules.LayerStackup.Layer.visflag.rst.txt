@@ -1,6 +1,0 @@
-visflag
-=======
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.visflag

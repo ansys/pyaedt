@@ -1,6 +1,0 @@
-export\_configuration
-=====================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.export_configuration

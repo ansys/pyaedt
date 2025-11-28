@@ -1,6 +1,0 @@
-project\_list
-=============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.project_list

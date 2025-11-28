@@ -1,6 +1,0 @@
-schematic\_units
-================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
-
-.. autoproperty:: TwinBuilderComponents.schematic_units

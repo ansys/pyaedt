@@ -1,6 +1,0 @@
-submit\_job
-===========
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.submit_job

@@ -1,6 +1,0 @@
-src\_dir
-========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.src_dir

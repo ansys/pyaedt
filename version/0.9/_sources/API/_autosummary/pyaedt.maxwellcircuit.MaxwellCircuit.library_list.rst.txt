@@ -1,6 +1,0 @@
-library\_list
-=============
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.library_list

@@ -1,6 +1,0 @@
-background\_image
-=================
-
-.. currentmodule:: pyaedt.generic.plot
-
-.. autoproperty:: ModelPlotter.background_image

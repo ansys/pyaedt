@@ -1,6 +1,0 @@
-export\_profile
-===============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.export_profile

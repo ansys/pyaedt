@@ -1,6 +1,0 @@
-assign\_em\_losses
-==================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.assign_em_losses

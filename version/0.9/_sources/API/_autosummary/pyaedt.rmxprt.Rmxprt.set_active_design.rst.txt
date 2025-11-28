@@ -1,6 +1,0 @@
-set\_active\_design
-===================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.set_active_design

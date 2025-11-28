@@ -1,6 +1,0 @@
-available\_variations
-=====================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.available_variations

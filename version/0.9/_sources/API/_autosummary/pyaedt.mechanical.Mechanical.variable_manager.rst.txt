@@ -1,6 +1,0 @@
-variable\_manager
-=================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.variable_manager

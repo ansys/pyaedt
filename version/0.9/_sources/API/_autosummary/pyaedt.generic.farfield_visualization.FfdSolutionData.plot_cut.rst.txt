@@ -1,6 +1,0 @@
-plot\_cut
-=========
-
-.. currentmodule:: pyaedt.generic.farfield_visualization
-
-.. automethod:: FfdSolutionData.plot_cut

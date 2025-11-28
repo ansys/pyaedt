@@ -1,6 +1,0 @@
-non\_graphical
-==============
-
-.. currentmodule:: pyaedt.aedt_logger
-
-.. autoproperty:: AedtLogger.non_graphical

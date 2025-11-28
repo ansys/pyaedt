@@ -1,6 +1,0 @@
-src\_dir
-========
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q3d.src_dir
