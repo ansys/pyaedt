@@ -36,6 +36,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
+from ansys.aedt.core.cli import app
 from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
 from ansys.aedt.core.cli.common import _display_config
 from ansys.aedt.core.cli.common import _get_config_path
@@ -45,7 +46,6 @@ from ansys.aedt.core.cli.common import _prompt_config_value
 from ansys.aedt.core.cli.common import _save_config
 from ansys.aedt.core.cli.config import _update_bool_config
 from ansys.aedt.core.cli.config import _update_string_config
-from ansys.aedt.core.cli import app
 from ansys.aedt.core.cli.config import test_app
 
 
@@ -91,6 +91,7 @@ def mock_installed_versions():
         return_value=mock_versions,
     ):
         yield mock_versions
+
 
 @pytest.fixture
 def mock_online_help():
@@ -1222,6 +1223,7 @@ def test_panels_add_valid_selection(
         skip_version_manager=False,
         odesktop=None,
     )
+
 
 def test_doc_group_help(cli_runner):
     """Ensure doc command group help works."""

@@ -32,8 +32,8 @@ except ImportError:  # pragma: no cover
     )
 
 from ansys.aedt.core.cli.config import config_app
-from ansys.aedt.core.cli.panels import panels_app
 from ansys.aedt.core.cli.doc import doc_app
+from ansys.aedt.core.cli.panels import panels_app
 from ansys.aedt.core.cli.process import processes
 from ansys.aedt.core.cli.process import start
 from ansys.aedt.core.cli.process import stop

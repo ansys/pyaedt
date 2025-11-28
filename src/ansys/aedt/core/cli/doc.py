@@ -24,7 +24,6 @@
 
 from typing import List
 
-
 try:
     import typer
 except ImportError:  # pragma: no cover
@@ -32,9 +31,7 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
-doc_app = typer.Typer(
-    help="Documentation commands", no_args_is_help=False
-)
+doc_app = typer.Typer(help="Documentation commands", no_args_is_help=False)
 
 
 @doc_app.callback(invoke_without_command=True)
@@ -45,7 +42,7 @@ def doc_callback(ctx: typer.Context):
 
         online_help.silent = False
         online_help.home()
-        
+
         # Display help in terminal
         typer.echo(ctx.get_help())
 
@@ -129,7 +126,7 @@ def search(search_keys: List[str] = typer.Argument(None)):
         typer.secho("✗ Error: Please provide at least one search keyword", fg=typer.colors.RED)
         typer.secho("Usage: pyaedt doc search <keyword1> [keyword2] ...", fg=typer.colors.YELLOW)
         raise typer.Exit(1)
-    
+
     from ansys.aedt.core.help import online_help
 
     online_help.silent = False
