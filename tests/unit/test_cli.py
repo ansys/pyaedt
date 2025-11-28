@@ -36,17 +36,17 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from ansys.aedt.core.cli import DEFAULT_TEST_CONFIG
-from ansys.aedt.core.cli import _display_config
-from ansys.aedt.core.cli import _get_config_path
-from ansys.aedt.core.cli import _get_tests_folder
-from ansys.aedt.core.cli import _load_config
-from ansys.aedt.core.cli import _prompt_config_value
-from ansys.aedt.core.cli import _save_config
-from ansys.aedt.core.cli import _update_bool_config
-from ansys.aedt.core.cli import _update_string_config
+from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
+from ansys.aedt.core.cli.common import _display_config
+from ansys.aedt.core.cli.common import _get_config_path
+from ansys.aedt.core.cli.common import _get_tests_folder
+from ansys.aedt.core.cli.common import _load_config
+from ansys.aedt.core.cli.common import _prompt_config_value
+from ansys.aedt.core.cli.common import _save_config
+from ansys.aedt.core.cli.config import _update_bool_config
+from ansys.aedt.core.cli.config import _update_string_config
 from ansys.aedt.core.cli import app
-from ansys.aedt.core.cli import test_app
+from ansys.aedt.core.cli.config import test_app
 
 
 @pytest.fixture
@@ -84,10 +84,6 @@ def mock_installed_versions():
     mock_versions = {
         "2025.2": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
         "2025.1": "C:\\Program Files\\ANSYS Inc\\v251\\AnsysEM",
-        "2024.2": "C:\\Program Files\\AnsysEM\\v242\\Win64",
-        "2024.1": "C:\\Program Files\\AnsysEM\\v241\\Win64",
-        "2025.2AWP": "C:\\Program Files\\ANSYS Inc\\v252",
-        "2025.1AWP": "C:\\Program Files\\ANSYS Inc\\v251",
     }
     with patch(
         "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
@@ -95,6 +91,13 @@ def mock_installed_versions():
         return_value=mock_versions,
     ):
         yield mock_versions
+
+@pytest.fixture
+def mock_online_help():
+    """Mock ansys.aedt.core.help.online_help to avoid real browser / network calls."""
+    with patch("ansys.aedt.core.help.online_help") as mock_help:
+        mock_help.silent = True
+        yield mock_help
 
 
 def test_cli_help_command(cli_runner):
@@ -554,11 +557,11 @@ def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_pers
     """Test panel installation with short option flags."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "-v", "2024.1", "-p", str(temp_personal_lib)],
+        ["panels", "add", "-v", "2025.2", "-p", str(temp_personal_lib)],
     )
 
     assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2024.1..." in result.stdout
+    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
     assert "✓ PyAEDT panels installed successfully." in result.stdout
 
 
@@ -1167,7 +1170,7 @@ def test_panels_add_selection_out_of_range_above(cli_runner, mock_installed_vers
 
     assert result.exit_code == 1
     assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 4" in result.stdout
+    assert "Please choose a number between 1 and 2" in result.stdout
 
 
 def test_panels_add_selection_out_of_range_below(cli_runner, mock_installed_versions):
@@ -1180,7 +1183,7 @@ def test_panels_add_selection_out_of_range_below(cli_runner, mock_installed_vers
 
     assert result.exit_code == 1
     assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 4" in result.stdout
+    assert "Please choose a number between 1 and 2" in result.stdout
 
 
 def test_panels_add_selection_negative(cli_runner, mock_installed_versions):
@@ -1193,7 +1196,7 @@ def test_panels_add_selection_negative(cli_runner, mock_installed_versions):
 
     assert result.exit_code == 1
     assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 4" in result.stdout
+    assert "Please choose a number between 1 and 2" in result.stdout
 
 
 def test_panels_add_valid_selection(
@@ -1219,3 +1222,91 @@ def test_panels_add_valid_selection(
         skip_version_manager=False,
         odesktop=None,
     )
+
+def test_doc_group_help(cli_runner):
+    """Ensure doc command group help works."""
+    result = cli_runner.invoke(app, ["doc", "--help"])
+
+    assert result.exit_code == 0
+    assert "Documentation commands" in result.stdout
+
+
+def test_doc_examples_command(cli_runner, mock_online_help):
+    """Test doc examples command."""
+    result = cli_runner.invoke(app, ["doc", "examples"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.examples.assert_called_once_with()
+
+
+def test_doc_github_command(cli_runner, mock_online_help):
+    """Test doc github command."""
+    result = cli_runner.invoke(app, ["doc", "github"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.github.assert_called_once_with()
+
+
+def test_doc_user_guide_command(cli_runner, mock_online_help):
+    """Test doc user_guide command."""
+    result = cli_runner.invoke(app, ["doc", "user-guide"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.user_guide.assert_called_once_with()
+
+
+def test_doc_getting_started_command(cli_runner, mock_online_help):
+    """Test doc getting_started command."""
+    result = cli_runner.invoke(app, ["doc", "getting-started"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.getting_started.assert_called_once_with()
+
+
+def test_doc_installation_command(cli_runner, mock_online_help):
+    """Test doc installation command."""
+    result = cli_runner.invoke(app, ["doc", "installation"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.installation_guide.assert_called_once_with()
+
+
+def test_doc_api_reference_command(cli_runner, mock_online_help):
+    """Test doc api_reference command."""
+    result = cli_runner.invoke(app, ["doc", "api"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.api_reference.assert_called_once_with()
+
+
+def test_doc_changelog_command_no_arg(cli_runner, mock_online_help):
+    """Test doc changelog command without version argument."""
+    result = cli_runner.invoke(app, ["doc", "changelog"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.changelog.assert_called_once_with(None)
+
+
+def test_doc_changelog_command_with_version(cli_runner, mock_online_help):
+    """Test doc changelog command with explicit version."""
+    result = cli_runner.invoke(app, ["doc", "changelog", "0.22.0"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.changelog.assert_called_once_with("0.22.0")
+
+
+def test_doc_issues_command(cli_runner, mock_online_help):
+    """Test doc issues command."""
+    result = cli_runner.invoke(app, ["doc", "issues"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.issues.assert_called_once_with()

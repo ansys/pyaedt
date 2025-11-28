@@ -33,6 +33,7 @@ except ImportError:  # pragma: no cover
 
 from ansys.aedt.core.cli.config import config_app
 from ansys.aedt.core.cli.panels import panels_app
+from ansys.aedt.core.cli.doc import doc_app
 from ansys.aedt.core.cli.process import processes
 from ansys.aedt.core.cli.process import start
 from ansys.aedt.core.cli.process import stop
@@ -43,6 +44,7 @@ app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
 # Register sub-apps
 app.add_typer(config_app, name="config")
 app.add_typer(panels_app, name="panels")
+app.add_typer(doc_app, name="doc")
 
 # Register top-level commands
 app.command()(version)
