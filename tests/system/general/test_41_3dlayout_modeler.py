@@ -97,14 +97,6 @@ def hfss3dl_post_app(add_app):
     app.close_project(app.project_name)
 
 
-@pytest.fixture(autouse=True, scope="function")
-def examples(local_scratch):
-    example_project = str(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Package.aedb")
-    target_path = str(Path(local_scratch.path) / "Package_test_41.aedb")
-    local_scratch.copyfolder(example_project, target_path)
-    return target_path, None
-
-
 def test_01_creatematerial(aedtapp):
     mymat = aedtapp.materials.add_material("myMaterial")
     mymat.permittivity = 4.1
@@ -706,8 +698,11 @@ def test_19a_validate(aedtapp):
     assert aedtapp.validate_full_design()
 
 
-def test_19d_export_to_hfss(aedtapp, local_scratch, examples):
-    assert aedtapp.import_edb(examples[0])
+def test_19d_export_to_hfss(aedtapp, local_scratch):
+    example_project = str(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Package.aedb")
+    target_path = str(Path(local_scratch.path) / "Package_test_19d.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    assert aedtapp.import_edb(target_path)
 
     filename = "export_to_hfss_test"
     filename2 = "export_to_hfss_test2"
@@ -728,8 +723,11 @@ def test_19d_export_to_hfss(aedtapp, local_scratch, examples):
         assert setup.export_to_hfss(output_file=file_fullname3, keep_net_name=True, unite=False)
 
 
-def test_19e_export_to_q3d(aedtapp, local_scratch, examples):
-    assert aedtapp.import_edb(examples[0])
+def test_19e_export_to_q3d(aedtapp, local_scratch):
+    example_project = str(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Package.aedb")
+    target_path = str(Path(local_scratch.path) / "Package_test_19e.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    assert aedtapp.import_edb(target_path)
 
     filename = "export_to_q3d_test"
     file_fullname = str(Path(local_scratch.path) / filename)
@@ -740,8 +738,11 @@ def test_19e_export_to_q3d(aedtapp, local_scratch, examples):
     assert setup.export_to_q3d(file_fullname)
 
 
-def test_19f_export_to_q3d(aedtapp, local_scratch, examples):
-    assert aedtapp.import_edb(examples[0])
+def test_19f_export_to_q3d(aedtapp, local_scratch):
+    example_project = str(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Package.aedb")
+    target_path = str(Path(local_scratch.path) / "Package_test_19f.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    assert aedtapp.import_edb(target_path)
 
     filename = "export_to_q3d_non_unite_test"
     file_fullname = str(Path(local_scratch.path) / filename)
@@ -1115,8 +1116,11 @@ def test_91_load_and_save_diff_pair_file(hfss3dl, local_scratch):
     assert len(lines) == 3
 
 
-def test_92_import_edb(aedtapp, examples):
-    assert aedtapp.import_edb(examples[0])
+def test_92_import_edb(aedtapp, local_scratch):
+    example_project = str(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Package.aedb")
+    target_path = str(Path(local_scratch.path) / "Package_test_92.aedb")
+    local_scratch.copyfolder(example_project, target_path)
+    assert aedtapp.import_edb(target_path)
 
 
 @pytest.mark.skipif(
