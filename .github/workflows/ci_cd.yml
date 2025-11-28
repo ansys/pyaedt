@@ -367,7 +367,6 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
@@ -524,7 +523,6 @@ jobs:
           retry_on: error
           timeout_minutes: 40
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
@@ -688,7 +686,6 @@ jobs:
           timeout_minutes: 30
           command: |
             source .venv/bin/activate
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
 
       - name: Run tests marked with 'visualization' and 'avoid_ansys_load'
@@ -938,7 +935,6 @@ jobs:
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
 
@@ -1292,7 +1288,6 @@ jobs:
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
 

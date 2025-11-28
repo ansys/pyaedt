@@ -103,12 +103,12 @@ if is_linux and cpython:
                 dotnet_root=str(dotnet_root),
             )
             os.environ["DOTNET_ROOT"] = dotnet_root.as_posix()
-            if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
-                warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
-                warnings.warn("export ANSYSEM_ROOT252=/path/to/AnsysEM/v251/Linux64")
-                msg = "export LD_LIBRARY_PATH="
-                msg += "$ANSYSEM_ROOT252/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
-                warnings.warn(msg)
+            # if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
+            #     warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
+            #     warnings.warn("export ANSYSEM_ROOT252=/path/to/AnsysEM/v251/Linux64")
+            #     msg = "export LD_LIBRARY_PATH="
+            #     msg += "$ANSYSEM_ROOT252/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
+            #     warnings.warn(msg)
             is_clr = True
         except ImportError:
             msg = "pythonnet or dotnetcore not installed. PyAEDT will work only in client mode."
