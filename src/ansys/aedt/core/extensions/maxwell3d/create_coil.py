@@ -74,19 +74,21 @@ class CoilExtensionData(ExtensionCommonData):
 
     coil_type: str = EXTENSION_DEFAULT_ARGUMENTS["coil_type"]
     name: str = EXTENSION_DEFAULT_ARGUMENTS["name"]
-    # Full superset of possible parameters
+    # Common parameters
     centre_x: str = EXTENSION_DEFAULT_ARGUMENTS["centre_x"]
     centre_y: str = EXTENSION_DEFAULT_ARGUMENTS["centre_y"]
-    centre_z: str = EXTENSION_DEFAULT_ARGUMENTS["centre_z"]
     turns: str = EXTENSION_DEFAULT_ARGUMENTS["turns"]
+    inner_distance: str = EXTENSION_DEFAULT_ARGUMENTS["inner_distance"]
     inner_width: str = EXTENSION_DEFAULT_ARGUMENTS["inner_width"]
     inner_length: str = EXTENSION_DEFAULT_ARGUMENTS["inner_length"]
     wire_radius: str = EXTENSION_DEFAULT_ARGUMENTS["wire_radius"]
-    inner_distance: str = EXTENSION_DEFAULT_ARGUMENTS["inner_distance"]
-    direction: str = EXTENSION_DEFAULT_ARGUMENTS["direction"]
-    pitch: str = EXTENSION_DEFAULT_ARGUMENTS["pitch"]
     arc_segmentation: str = EXTENSION_DEFAULT_ARGUMENTS["arc_segmentation"]
     section_segmentation: str = EXTENSION_DEFAULT_ARGUMENTS["section_segmentation"]
+    # Vertical parameters
+    centre_z: str = EXTENSION_DEFAULT_ARGUMENTS["centre_z"]
+    direction: str = EXTENSION_DEFAULT_ARGUMENTS["direction"]
+    pitch: str = EXTENSION_DEFAULT_ARGUMENTS["pitch"]
+    # Flat parameters
     distance_turns: str = EXTENSION_DEFAULT_ARGUMENTS["distance_turns"]
     looping_position: str = EXTENSION_DEFAULT_ARGUMENTS["looping_position"]
 
