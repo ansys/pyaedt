@@ -35,6 +35,7 @@ objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 import math
 from pathlib import Path
 import re
+import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -1017,18 +1018,37 @@ class Object3d(PyAedtBase):
 
     @property
     def is3d(self):
-        """Check for if the object is 3D.
+        """Check if the object is a 3D solid object.
+
+        This method determines whether the current object represents a
+        three-dimensional solid geometry by checking its object type.
+
+        .. deprecated::
+           Use :func:`is_3d` property instead.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
-
+            ``True`` if the object is a 3D solid, ``False`` otherwise.
         """
-        if self.object_type == "Solid":
-            return True
-        else:
-            return False
+        warnings.warn("`is3d` is deprecated. Use `is_3d` property instead.", DeprecationWarning)
+        res = self.is_3d
+        return res
+
+    @property
+    def is_3d(self):
+        """Check if the object is a 3D solid object.
+
+        This method determines whether the current object represents a
+        three-dimensional solid geometry by checking its object type.
+
+        Returns
+        -------
+        bool
+            ``True`` if the object is a 3D solid, ``False`` otherwise.
+        """
+        res = self.object_type == "Solid"
+        return res
 
     @property
     def mass(self):
