@@ -92,7 +92,6 @@ class Primitives3DLayout(PyAedtBase):
         return None
 
     def __init__(self, app):
-        # self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
         self._padstacks = {}
         self._components3d = {}
