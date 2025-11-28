@@ -1399,6 +1399,12 @@ class Material(CommonMaterial, PyAedtBase):
     >>> material = app.materials["copper"]
     """
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     def __init__(self, materiallib, name, props=None, material_update=True):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"

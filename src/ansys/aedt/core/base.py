@@ -91,4 +91,8 @@ class PyAedtBase(DirMixin):
       once in the hierarchy.
     """
 
-    pass
+    def __repr__(self):
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
+
+    def __str__(self):
+        return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"

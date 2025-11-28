@@ -2530,7 +2530,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             if i == "gnd":
                 for gnd_pin in pins:
                     location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
-                    self._app.modeler.schematic.create_gnd(location)
+                    self._app.modeler.schematic.create_gnd(location, page=gnd_pin._circuit_comp.page)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
