@@ -445,7 +445,11 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         The inception voltage evaluation results can be written to a TXT file.
-        >>> m2d.post.export_inception_voltage(plot_name=plot.name, output_file=str(Path(m2d.working_directory, "my_file.txt")), field_line_number=[1, 2, 4])
+        >>> m2d.post.export_inception_voltage(
+        ...     plot_name=plot.name,
+        ...     output_file=str(Path(m2d.working_directory, "my_file.txt")),
+        ...     field_line_number=[1, 2, 4],
+        ... )
         >>> m2d.desktop_class.release_desktop()
         """
         if self._app.solution_type != "Electrostatic":

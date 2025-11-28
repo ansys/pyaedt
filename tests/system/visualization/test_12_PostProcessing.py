@@ -821,7 +821,9 @@ class TestClass:
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="my_plot")
         m2dtest.post.evaluate_inception_voltage("my_plot", [1, 2, 4])
         assert m2dtest.post.export_inception_voltage(plot.name, str(Path(m2d.working_directory, "my_file.txt")))
-        assert m2dtest.post.export_inception_voltage(plot.name, str(Path(m2d.working_directory, "my_file.txt")), [1, 2, 4])
+        assert m2dtest.post.export_inception_voltage(
+            plot.name, str(Path(m2d.working_directory, "my_file.txt")), [1, 2, 4]
+        )
         m2dtest.solution_type = "Magnetostatic"
         with pytest.raises(AEDTRuntimeError):
             m2dtest.post.export_inception_voltage("my_plot", str(Path(m2d.working_directory, "my_file.txt")), [1, 2, 4])
