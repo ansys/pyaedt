@@ -37,8 +37,8 @@ from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
 from tests import TESTS_GENERAL_PATH
+from tests.conftest import DESKTOP_VERSION
 from tests.conftest import config
-from tests.conftest import desktop_version
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -426,7 +426,7 @@ def test_force_project_path_disable(aedtapp):
     assert settings.force_error_on_missing_project
     exception_raised = False
     try:
-        Hfss("c:/dummy/test.aedt", version=desktop_version)
+        Hfss("c:/dummy/test.aedt", version=DESKTOP_VERSION)
     except Exception as e:
         exception_raised = True
         assert e.args[0] == "Project doesn't exist. Check it and retry."
@@ -469,7 +469,7 @@ def test_load(add_app, local_scratch):
     with open(file_name2_lock, "w") as f:
         f.write(" ")
     try:
-        _ = Hfss(project=str(file_name2), version=desktop_version)
+        _ = Hfss(project=str(file_name2), version=DESKTOP_VERSION)
     except Exception:
         assert True
     try:
@@ -477,7 +477,7 @@ def test_load(add_app, local_scratch):
         file_name3 = local_scratch.path / "test_36_2.aedb" / "edb.def"
         with open(file_name3, "w") as f:
             f.write(" ")
-        _ = Hfss3dLayout(project=str(file_name3), version=desktop_version)
+        _ = Hfss3dLayout(project=str(file_name3), version=DESKTOP_VERSION)
     except Exception:
         assert True
     hfss.close_project()

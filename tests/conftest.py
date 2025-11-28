@@ -22,23 +22,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import inspect
 import json
 import os
 from pathlib import Path
-import random
 import shutil
-import string
 import sys
-from typing import List
 from unittest.mock import MagicMock
 
 import pytest
 
+from ansys.aedt.core import Desktop
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.filesystem import Scratch
+from ansys.aedt.core.hfss import Hfss
 
-# Test category prefixes for marker assignment
+# ================================
+# Category prefixes
+# ================================
 UNIT_TEST_PREFIX = "tests/unit"
 INTEGRATION_TEST_PREFIX = "tests/integration"
 SYSTEM_TEST_PREFIX = "tests/system"
@@ -49,6 +51,9 @@ EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
 
+# ================================
+# Default test configuration
+# ================================
 
 DEFAULT_CONFIG = {
     "desktopVersion": "2025.2",
@@ -62,11 +67,11 @@ DEFAULT_CONFIG = {
     "skip_modelithics": True,
 }
 
-# Load top-level configuration
 local_path = Path(__file__).parent
 local_config_file = local_path / "local_config.json"
 
 config = DEFAULT_CONFIG.copy()
+
 if local_config_file.exists():
     try:
         with open(local_config_file) as f:
@@ -76,23 +81,26 @@ if local_config_file.exists():
         # Failed to load local_config.json; report error
         print(f"Failed to load local_config.json ({local_config_file}): {e}")
 
-desktop_version = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
-NONGRAPHICAL = config.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))
-new_thread = config.get("NewThread", DEFAULT_CONFIG.get("NewThread"))
-settings.use_grpc_api = config.get("use_grpc", DEFAULT_CONFIG.get("use_grpc"))
-close_desktop = config.get("close_desktop", DEFAULT_CONFIG.get("close_desktop"))
-settings.use_local_example_data = config.get("use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data"))
-if settings.use_local_example_data:
-    local_example_folder = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
-    if local_example_folder:  # If empty string or None, keep it as is
-        settings.local_example_folder = local_example_folder
+DESKTOP_VERSION = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
+NON_GRAPHICAL = config.get("NonGraphical", DEFAULT_CONFIG.get("NonGraphical"))
+NEW_THREAD = config.get("NewThread", DEFAULT_CONFIG.get("NewThread"))
+CLOSE_DESKTOP = config.get("close_desktop", DEFAULT_CONFIG.get("close_desktop"))
+USE_GRPC = config.get("use_grpc", DEFAULT_CONFIG.get("use_grpc"))
+USE_LOCAL_EXAMPLE_DATA = config.get("use_local_example_data", DEFAULT_CONFIG.get("use_local_example_data"))
+USE_LOCAL_EXAMPLE_FOLDER = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
+SKIP_CIRCUITS = config.get("skip_circuits", DEFAULT_CONFIG.get("skip_circuits"))
+SKIP_MODELITHICS = config.get("skip_modelithics", DEFAULT_CONFIG.get("skip_modelithics"))
 
-logger = pyaedt_logger
-os.environ["PYAEDT_SCRIPT_VERSION"] = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
+os.environ["PYAEDT_SCRIPT_VERSION"] = DESKTOP_VERSION
 
+# ================================
+# PyAEDT settings
+# ================================
 
-# Add current path to sys.path for imports
-sys.path.append(str(local_path))
+settings.use_grpc_api = USE_GRPC
+settings.use_local_example_data = USE_LOCAL_EXAMPLE_DATA
+if settings.use_local_example_data and USE_LOCAL_EXAMPLE_FOLDER:
+    settings.local_example_folder = USE_LOCAL_EXAMPLE_FOLDER
 
 # NOTE: Additional environment configuration for error handling when the tests are
 # run locally and not in a CI environment.
@@ -101,146 +109,197 @@ if "PYAEDT_LOCAL_SETTINGS_PATH" not in os.environ:
     settings.release_on_exception = False
 
 
-def generate_random_string(length):
-    """Generate a random string of specified length."""
-    characters = string.ascii_letters + string.digits
-    random_string = "".join(random.sample(characters, length))
-    return random_string
-
-
-def generate_random_ident():
-    """Generate a random identifier for test folders."""
-    ident = "-" + generate_random_string(6) + "-" + generate_random_string(6) + "-" + generate_random_string(6)
-    return ident
-
-
-def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
-    """Hook used to apply marker on tests."""
-    for item in items:
-        # Mark unit, integration and system tests
-        if item.nodeid.startswith(UNIT_TEST_PREFIX):
-            item.add_marker(pytest.mark.unit)
-        elif item.nodeid.startswith(INTEGRATION_TEST_PREFIX):
-            item.add_marker(pytest.mark.integration)
-        elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
-            item.add_marker(pytest.mark.system)
-        # Finer markers for system tests
-        if item.nodeid.startswith(SYSTEM_SOLVERS_TEST_PREFIX):
-            item.add_marker(pytest.mark.solvers)
-        elif item.nodeid.startswith(SYSTEM_GENERAL_TEST_PREFIX):
-            item.add_marker(pytest.mark.general)
-        elif item.nodeid.startswith(VISUALIZATION_GENERAL_TEST_PREFIX):
-            item.add_marker(pytest.mark.visualization)
-        elif item.nodeid.startswith(EXTENSIONS_GENERAL_TEST_PREFIX):
-            item.add_marker(pytest.mark.extensions)
-        elif item.nodeid.startswith(FILTER_SOLUTIONS_TEST_PREFIX):
-            item.add_marker(pytest.mark.filter_solutions)
-        elif item.nodeid.startswith(EMIT_TEST_PREFIX):
-            item.add_marker(pytest.mark.emit)
-
-
 # ================================
-# SHARED FIXTURES
+# SESSION FIXTURES
 # ================================
 
 
-# @pytest.fixture(scope="session", autouse=True)
-# def init_scratch():
-#     """Initialize a global scratch directory for all tests."""
-#     test_folder_name = "pyaedt_test" + generate_random_ident()
-#     test_folder = Path(tempfile.gettempdir()) / test_folder_name
-#     try:
-#         os.makedirs(test_folder, mode=0o777)
-#     except FileExistsError as e:
-#         print(f"Failed to create {test_folder}. Reason: {e}")
-#
-#     yield test_folder
-#
-#     try:
-#         shutil.rmtree(test_folder, ignore_errors=True)
-#     except Exception as e:
-#         print(f"Failed to delete {test_folder}. Reason: {e}")
+@pytest.fixture(scope="session", autouse=True)
+def clean_old_pytest_temps(tmp_path_factory):
+    """Delete previous pytest temp dirs before starting a new session."""
+    base = tmp_path_factory.getbasetemp().parent
+    current = tmp_path_factory.getbasetemp().name
 
-
-def pytest_addoption(parser):
-    """
-    Adds a --keep-temp option to preserve temporary directories after the test run.
-    By default, temp directories are deleted.
-    """
-    parser.addoption(
-        "--keep-temp",
-        action="store_true",
-        default=False,
-        help="Do not delete temporary directories after the test session.",
-    )
+    for entry in base.iterdir():
+        if entry.is_dir() and entry.name.startswith("pytest-") and entry.name != current:
+            try:
+                shutil.rmtree(entry, ignore_errors=True)
+            except Exception as e:
+                pyaedt_logger.debug(f"Error {type(e)} occurred while deleting pytest directory: {e}")
 
 
 @pytest.fixture(scope="session")
-def session_root(tmp_path_factory, request):
+def desktop(tmp_path_factory):
     """
-    Session-level root directory for all tests, based on pytest's base temp.
-
-    Example:
-      <pytest-basetemp>/pyaedt_test-XXXX-XXXX-XXXX
+    Creates a Desktop instance and a root directory for each test worker (xdist).
+    Session scope ensures only one Desktop per worker is created.
     """
-    # This is pytest's base temp dir (respects --basetemp if you set it)
-    base = tmp_path_factory.getbasetemp()
-    base_path = Path(str(base))  # normalize to pathlib.Path
+    desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
+    # Original temp directory
+    desktop_temp_dir = desktop_app.odesktop.GetTempDirectory()
+    project_default_dir = desktop_app.odesktop.GetProjectDirectory()
 
-    # Our own random-named root under pytest's basetemp
-    root = base_path / ("pyaedt_test" + generate_random_ident())
-    root.mkdir(exist_ok=True)
+    # New temp directory for the test session
+    base = str(tmp_path_factory.getbasetemp())
+    desktop_app.odesktop.SetTempDirectory(base)
+    desktop_app.odesktop.SetProjectDirectory(base)
 
-    yield root
+    desktop_app.disable_autosave()
 
-    # Cleanup at the end of the test session unless --keep-temp is used
-    keep = request.config.getoption("--keep-temp")
-    if not keep:
-        shutil.rmtree(root, ignore_errors=True)
-
-
-@pytest.fixture(scope="function")
-def local_scratch(session_root, request):
-    """
-    Per-test scratch directory under the session root, wrapped in Scratch.
-
-    Example:
-      <pytest-basetemp>/pyaedt_test-.../test_my_function
-    """
-    raw_name = request.node.name
-    # Parametrized tests can have things like 'test_x[param]'
-    safe_name = raw_name.replace(os.sep, "_").replace("[", "_").replace("]", "_")
-
-    test_dir = session_root / safe_name
-    test_dir.mkdir(exist_ok=True)
-
-    scratch = Scratch(test_dir)
-    settings.logger_file_path = str(test_dir / "pyaedt.log")
+    yield desktop_app
 
     try:
-        yield scratch
-    finally:
-        # Let Scratch clean its content
-        scratch.remove()
-        settings.logger_file_path = None
+        # Restore original temp directory
+        desktop_app.odesktop.SetTempDirectory(desktop_temp_dir)
+        desktop_app.odesktop.SetProjectDirectory(project_default_dir)
+        desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
+    except Exception:
+        pass
 
 
-# @pytest.fixture(scope="function")
-# def local_scratch(init_scratch):
-#     """Provide a module-scoped scratch directory."""
-#     tmp_path = init_scratch
-#     scratch = Scratch(tmp_path)
-#     yield scratch
-#     scratch.remove()
-#     settings.logger_file_path = None
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_all_tmp_at_end(tmp_path_factory):
+    """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
+    base = tmp_path_factory.getbasetemp()
 
-# @pytest.fixture
-# def local_scratch(session_root, request):
-#     test_name = request.node.name
-#
-#     path = session_root / test_name
-#     path.mkdir(exist_ok=True)
-#     return path
+    yield
+
+    # Now the session is over, try to remove everything inside `base`
+    try:
+        for p in sorted(base.rglob("*"), key=lambda x: x.is_dir()):
+            try:
+                p.unlink()
+            except (IsADirectoryError, PermissionError):
+                shutil.rmtree(p, ignore_errors=True)
+    except Exception:
+        pass
+
+
+# ================================
+# MODULE FIXTURES
+# ================================
+
+
+@pytest.fixture(scope="module")
+def file_tmp_root(tmp_path_factory, request):
+    module_path = Path(request.fspath)
+    name = module_path.stem
+    root = tmp_path_factory.mktemp(f"{name}-")
+    return root
+
+
+# ================================
+# COMMON FIXTURES
+# ================================
+
+
+@pytest.fixture
+def test_tmp_dir(file_tmp_root, request):
+    d = file_tmp_root / request.node.name
+
+    if d.exists():
+        shutil.rmtree(d, ignore_errors=True)
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+@pytest.fixture
+def add_app(test_tmp_dir, desktop):
+    def _method(
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        application=None,
+    ):
+        if project is None:
+            project = "pyaedt_test"
+
+        project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
+
+        # Application selection
+        application_cls = application or Hfss
+
+        # Build args
+        args = _build_app_args(
+            project=str(project_file),
+            design_name=design,
+            solution_type=solution_type,
+        )
+
+        # Temp dir for this test (global Desktop temp)
+        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
+        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+        app = application_cls(**args)
+
+        # Temp dir specific to this project
+        app.odesktop.SetTempDirectory(str(app.project_path))
+        app.odesktop.SetProjectDirectory(str(app.project_path))
+
+        return app
+
+    return _method
+
+
+@pytest.fixture
+def add_app_example(test_tmp_dir, desktop):
+    def _method(
+        subfolder: str | Path,
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        application=None,
+        is_edb=False,
+    ):
+        if Path(subfolder).exists():
+            base = Path(subfolder)
+        else:
+            test_path = _get_test_path_from_caller()
+            base = test_path / "example_models" / subfolder
+
+        if not is_edb:
+            aedt_project = base / f"{project}.aedt"
+            if aedt_project.exists():
+                dst = test_tmp_dir / aedt_project.name
+                shutil.copy2(aedt_project, dst)
+                test_project = dst
+            elif aedt_project.with_suffix(aedt_project.suffix + "z").exists():
+                example_project_z = aedt_project.with_suffix(aedt_project.suffix + "z")
+                dst = test_tmp_dir / example_project_z.name
+                shutil.copy2(example_project_z, dst)
+                test_project = dst
+            else:
+                raise Exception(f"Could not find {aedt_project}")
+        else:
+            aedt_project = base / f"{project}.aedb"
+            if aedt_project.exists():
+                test_project = test_tmp_dir / aedt_project.name
+                shutil.copytree(aedt_project, test_project, dirs_exist_ok=True)
+            else:
+                raise Exception(f"Could not find {aedt_project}")
+
+        # Application selection
+        application_cls = application or Hfss
+
+        # Build args
+        args = _build_app_args(
+            project=test_project,
+            design_name=design,
+            solution_type=solution_type,
+        )
+
+        # Temp dir for this test (global Desktop temp)
+        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
+        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+
+        app = application_cls(**args)
+
+        # Temp dir specific to this project
+        app.odesktop.SetTempDirectory(str(app.project_path))
+        desktop.odesktop.SetProjectDirectory(str(app.project_path))
+
+        return app
+
+    return _method
 
 
 @pytest.fixture
@@ -287,3 +346,29 @@ def patch_graphics_modules(monkeypatch):
     viz_backends.pyvista = mocks["ansys.tools.visualization_interface.backends.pyvista"]
 
     yield mocks
+
+
+def _build_app_args(
+    project: str | None,
+    design_name: str | None,
+    solution_type: str | None,
+) -> dict:
+    """Build the kwargs dict for the AEDT application constructor."""
+    args: dict = {
+        "project": project,
+        "design": design_name,
+        "version": settings.aedt_version if hasattr(settings, "aedt_version") else None,
+        "non_graphical": settings.non_graphical if hasattr(settings, "non_graphical") else True,
+        "remove_lock": True,
+        "new_desktop_session": False,
+    }
+    if solution_type:
+        args["solution_type"] = solution_type
+    return args
+
+
+def _get_test_path_from_caller():
+    """Return directory of the test file that called add_app."""
+    frame = inspect.stack()[2]
+    module = inspect.getmodule(frame[0])
+    return Path(module.__file__).parent

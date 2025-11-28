@@ -27,8 +27,8 @@ import pytest
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.hfss import Hfss
+from tests.conftest import DESKTOP_VERSION
 from tests.conftest import config
-from tests.conftest import desktop_version
 
 
 @pytest.fixture()
@@ -71,7 +71,7 @@ def test_assign_model_resolution(aedtapp):
     assert aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Use Auto Simplify")
     o2 = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
     mr1.props["Objects"] = [o2.name, o]
-    if desktop_version >= "2023.1":
+    if DESKTOP_VERSION >= "2023.1":
         assert len(aedtapp.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
     mr2 = aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
     assert not mr2

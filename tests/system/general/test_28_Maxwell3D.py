@@ -37,8 +37,8 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests import TESTS_GENERAL_PATH
+from tests.conftest import DESKTOP_VERSION
 from tests.conftest import config
-from tests.conftest import desktop_version
 
 try:
     from IPython.display import Image
@@ -661,7 +661,7 @@ class TestClass:
         impedance_assignment_copper.name = "ImpedanceExampleCopperNonLinearModified"
         assert impedance_assignment_copper.update()
 
-    @pytest.mark.skipif(desktop_version < "2023.1", reason="Method implemented in AEDT 2023R1")
+    @pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method implemented in AEDT 2023R1")
     def test_conduction_paths(self, m3d_app):
         m3d_app.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
         m3d_app.modeler.create_box([0, 0, 0], [-10, 10, 1], material="copper")
@@ -919,7 +919,7 @@ class TestClass:
         setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
         assert setup
         setup.delete()
-        if desktop_version < "2025.2":
+        if DESKTOP_VERSION < "2025.2":
             m3d_app.solution_type = maxwell_versioned.ElectroDCConduction
         else:
             m3d_app.solution_type = maxwell_versioned.ElectricDCConduction
@@ -930,7 +930,7 @@ class TestClass:
         setup = m3d_app.create_setup(setup_type=m3d_app.solution_type)
         assert setup
         setup.delete()
-        if desktop_version < "2025.2":
+        if DESKTOP_VERSION < "2025.2":
             m3d_app.solution_type = maxwell_versioned.TransientAPhiFormulation
         else:
             m3d_app.solution_type = maxwell_versioned.TransientAPhi

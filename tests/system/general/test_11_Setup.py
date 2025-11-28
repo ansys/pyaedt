@@ -29,10 +29,10 @@ import pytest
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.constants import Setups
-from tests.conftest import desktop_version
+from tests.conftest import DESKTOP_VERSION
 
 test_subfolder = "T11"
-if desktop_version > "2022.2":
+if DESKTOP_VERSION > "2022.2":
     test_project_name = "coax_setup_231"
 else:
     test_project_name = "coax_setup"
@@ -357,7 +357,7 @@ def test_create_doe(aedtapp):
     assert setup2.add_variation("w1", 0.1, 10)
     assert setup2.add_variation("w2", 0.1, 10)
     assert setup2
-    if desktop_version < "2024.1":
+    if DESKTOP_VERSION < "2024.1":
         assert setup2.add_goal(
             calculation="dB(S(1,1))",
             ranges={"Freq": "2.5GHz"},

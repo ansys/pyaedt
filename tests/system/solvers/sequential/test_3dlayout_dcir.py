@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import tempfile
 
 import pytest
 
@@ -30,15 +29,14 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 from tests.conftest import config
 
-test_subfolder = "dcir"
-original_project_name = "ANSYS-HSD_V1"
+TEST_SUBFOLDER = "dcir"
+LAYOUT_DCIR = "ANSYS-HSD_V1_dcir"
 
 
-@pytest.fixture()
-def dcir_example_project(add_app):
-    app = add_app(project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder)
+@pytest.fixture
+def dcir_example_project(add_app_example):
+    app = add_app_example(project=LAYOUT_DCIR, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER)
     yield app
-    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(app.project_name, save=False)
 
 

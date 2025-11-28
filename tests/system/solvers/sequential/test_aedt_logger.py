@@ -31,7 +31,6 @@ import unittest.mock
 import pytest
 
 from ansys.aedt.core.aedt_logger import AedtLogger
-from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
 from tests.conftest import config
 
@@ -41,21 +40,19 @@ settings.enable_local_log_file = True
 desktop_version = config["desktopVersion"]
 
 
-@pytest.fixture()
-def aedtapp(add_app, local_scratch):
+@pytest.fixture
+def aedt_app(add_app):
     settings.enable_local_log_file = True
-    project_file = available_file_name(local_scratch / "aedt_logger.aedt")
-    app = add_app(project_name=project_file, just_open=True)
+    app = add_app(project="aedt_logger")
     yield app
-    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
     settings.logger_file_path = None
     settings.enable_local_log_file = False
 
 
-def test_formatter(local_scratch):
+def test_formatter(test_tmp_dir):
     settings.formatter = logging.Formatter(fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S")
-    path = local_scratch / "test01.txt"
+    path = test_tmp_dir / "test01.txt"
     logger = AedtLogger(filename=str(path))
     assert logger.formatter == settings.formatter
     settings.formatter = None
@@ -63,9 +60,9 @@ def test_formatter(local_scratch):
     path.unlink(missing_ok=True)
 
 
-def test_output_file_with_app_filter(local_scratch):
+def test_output_file_with_app_filter(test_tmp_dir):
     settings.enable_debug_logger = True
-    path = local_scratch / "test02.txt"
+    path = test_tmp_dir / "test02.txt"
     logger = AedtLogger(filename=str(path))
     logger.info("Info for Global")
 
@@ -127,9 +124,9 @@ def test_stdout_with_app_filter():
     assert "PyAEDT ERROR: Error for Global" in capture.content
 
 
-def test_disable_output_file_handler(local_scratch):
+def test_disable_output_file_handler(test_tmp_dir):
     tempfile.gettempdir()
-    path = local_scratch / "test04.txt"
+    path = test_tmp_dir / "test04.txt"
 
     if path.is_file():
         path.unlink(missing_ok=True)
@@ -185,8 +182,9 @@ def test_disable_output_file_handler(local_scratch):
     path.unlink(missing_ok=True)
 
 
-def test_disable_stdout():
-    with tempfile.TemporaryFile("w+") as fp:
+def test_disable_stdout(test_tmp_dir):
+    temp_file = test_tmp_dir / "dummy.tmp"
+    with temp_file.open("w+") as fp:
         stream = unittest.mock.MagicMock()
         stream.write = unittest.mock.MagicMock()
 
@@ -223,10 +221,10 @@ def test_disable_stdout():
     logger.disable_log_on_file()
 
 
-def test_log_when_accessing_non_existing_object(aedtapp, caplog):
+def test_log_when_accessing_non_existing_object(aedt_app, caplog):
     """Check that accessing a non-existent object logs an error message."""
     with pytest.raises(AttributeError):
-        aedtapp.get_object_material_properties("MS1", "conductivity")
+        aedt_app.get_object_material_properties("MS1", "conductivity")
     assert ("Global", logging.ERROR, "    assignment = MS1 ") in caplog.record_tuples
 
 

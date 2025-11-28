@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
-import tempfile
 
 import pytest
 
@@ -32,67 +30,58 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
-from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-q3d_solved_file = "Q3d_solved"
-q3d_solved2_file = "q3d_solved2"
-test_project_name = "coax_Q3D"
-bondwire_project_name = "bondwireq3d_231"
-q2d_q3d = "q2d_q3d_231"
+TEST_SUBFOLDER = "T31"
 
-mutual_coupling = "coupling"
-
-test_subfolder = "T31"
+Q3D_SOLVED = "Q3d_solved"
+Q3D_SOLVED2 = "q3d_solved2"
+COAX_Q3D = "coax_Q3D"
+BONDWIRE = "bondwireq3d_231"
+MUTUAL_COUPLING = "coupling"
 
 
-@pytest.fixture()
-def aedtapp(add_app, local_scratch):
-    project_file = available_file_name(local_scratch.path / "q3d_test.aedt")
-    app = add_app(application=Q3d, project_name=project_file, just_open=True)
+@pytest.fixture
+def aedt_app(add_app):
+    app = add_app(application=Q3d, project="q3d_test")
     yield app
-    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def coupling(add_app):
-    app = add_app(application=Q3d, project_name=mutual_coupling, subfolder=test_subfolder)
+@pytest.fixture
+def coupling(add_app_example):
+    app = add_app_example(application=Q3d, project=MUTUAL_COUPLING, subfolder=TEST_SUBFOLDER)
     yield app
-    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def bond(add_app):
-    app = add_app(project_name=bondwire_project_name, subfolder=test_subfolder, application=Q3d)
+@pytest.fixture
+def bond(add_app_example):
+    app = add_app_example(project=BONDWIRE, subfolder=TEST_SUBFOLDER, application=Q3d)
     yield app
-    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def q3d_solved(add_app):
-    app = add_app(project_name=q3d_solved_file, subfolder=test_subfolder, application=Q3d)
+@pytest.fixture
+def q3d_solved(add_app_example):
+    app = add_app_example(project=Q3D_SOLVED, subfolder=TEST_SUBFOLDER, application=Q3d)
     yield app
-    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def q3d_solved2(add_app):
-    app = add_app(project_name=q3d_solved2_file, subfolder=test_subfolder, application=Q3d)
+@pytest.fixture
+def q3d_solved2(add_app_example):
+    app = add_app_example(project=Q3D_SOLVED2, subfolder=TEST_SUBFOLDER, application=Q3d)
     yield app
-    app.odesktop.SetTempDirectory(tempfile.gettempdir())
     app.close_project(save=False)
 
 
-def test_design_file(aedtapp):
-    assert aedtapp.design_file
+def test_design_file(aedt_app):
+    assert aedt_app.design_file
 
 
-def test_create_discrete_sweep(aedtapp):
-    setup = aedtapp.create_setup()
+def test_create_discrete_sweep(aedt_app):
+    setup = aedt_app.create_setup()
     setup.props["SaveFields"] = True
     assert setup.update()
     assert setup.dc_enabled
@@ -100,11 +89,11 @@ def test_create_discrete_sweep(aedtapp):
     assert setup.dc_resistance_only
     setup.dc_enabled = False
     setup.dc_enabled = True
-    sweep = aedtapp.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
+    sweep = aedt_app.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
     assert sweep
     assert sweep.props["RangeStart"] == "1GHz"
 
-    assert not aedtapp.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
+    assert not aedt_app.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
     assert setup.create_linear_step_sweep(
         name="StepFast",
         unit="GHz",
@@ -115,8 +104,8 @@ def test_create_discrete_sweep(aedtapp):
     )
 
 
-def test_create_linear_sweep(aedtapp):
-    setup = aedtapp.create_setup()
+def test_create_linear_sweep(aedt_app):
+    setup = aedt_app.create_setup()
     assert setup.create_linear_step_sweep(
         unit="GHz",
         start_frequency=1,
@@ -136,15 +125,15 @@ def test_create_linear_sweep(aedtapp):
         assert execinfo.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
 
 
-def test_create_single_point_sweep(aedtapp):
-    setup = aedtapp.create_setup()
+def test_create_single_point_sweep(aedt_app):
+    setup = aedt_app.create_setup()
     assert setup.create_single_point_sweep(
         save_fields=True,
     )
 
 
-def test_create_frequency_sweep(aedtapp):
-    setup = aedtapp.create_setup()
+def test_create_frequency_sweep(aedt_app):
+    setup = aedt_app.create_setup()
     setup.props["SaveFields"] = True
     assert setup.update()
     assert setup.create_frequency_sweep(
@@ -169,88 +158,88 @@ def test_create_frequency_sweep(aedtapp):
         assert execinfo.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
 
 
-def test_auto_identify_nets(aedtapp):
-    aedtapp.modeler.create_box([0, 0, 0], [1, 1, 20], material="brass")
-    aedtapp.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
-    assert aedtapp.auto_identify_nets()
-    assert len(aedtapp.nets) == 2
-    assert aedtapp.delete_all_nets()
-    assert len(aedtapp.nets) == 0
-    assert aedtapp.auto_identify_nets()
-    nets = aedtapp.nets
-    assert "SignalNet" in aedtapp.nets_by_type
-    net1 = aedtapp.design_nets[nets[0]]
-    net2 = aedtapp.design_nets[nets[1]]
-    new_net1 = aedtapp.toggle_net(net1, "Floating")
+def test_auto_identify_nets(aedt_app):
+    aedt_app.modeler.create_box([0, 0, 0], [1, 1, 20], material="brass")
+    aedt_app.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
+    assert aedt_app.auto_identify_nets()
+    assert len(aedt_app.nets) == 2
+    assert aedt_app.delete_all_nets()
+    assert len(aedt_app.nets) == 0
+    assert aedt_app.auto_identify_nets()
+    nets = aedt_app.nets
+    assert "SignalNet" in aedt_app.nets_by_type
+    net1 = aedt_app.design_nets[nets[0]]
+    net2 = aedt_app.design_nets[nets[1]]
+    new_net1 = aedt_app.toggle_net(net1, "Floating")
     assert new_net1.type == "FloatingNet"
-    net1_1 = aedtapp.design_nets[nets[0]]
+    net1_1 = aedt_app.design_nets[nets[0]]
     assert net1_1.type == "FloatingNet"
-    net1_2 = aedtapp.design_nets[nets[0]]
+    net1_2 = aedt_app.design_nets[nets[0]]
     assert net1_2.type == "FloatingNet"
-    assert "FloatingNet" in list(aedtapp.nets_by_type.keys())
-    new_net2 = aedtapp.toggle_net(net2.name, "Ground")
+    assert "FloatingNet" in list(aedt_app.nets_by_type.keys())
+    new_net2 = aedt_app.toggle_net(net2.name, "Ground")
     assert new_net2.type == "GroundNet"
-    net2_1 = aedtapp.design_nets[nets[1]]
+    net2_1 = aedt_app.design_nets[nets[1]]
     assert net2_1.type == "GroundNet"
-    net2_2 = aedtapp.design_nets[nets[1]]
+    net2_2 = aedt_app.design_nets[nets[1]]
     assert net2_2.type == "GroundNet"
-    assert "GroundNet" in list(aedtapp.nets_by_type.keys())
+    assert "GroundNet" in list(aedt_app.nets_by_type.keys())
 
 
-def test_autoidentify_no_nets(aedtapp):
-    aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
-    assert aedtapp.auto_identify_nets()
-    assert not aedtapp.nets
+def test_autoidentify_no_nets(aedt_app):
+    aedt_app.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
+    assert aedt_app.auto_identify_nets()
+    assert not aedt_app.nets
 
 
-def test_create_source_sinks(aedtapp):
-    aedtapp.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, name="MyCylinder", material="brass")
-    source = aedtapp.source("MyCylinder", direction=0, name="Source1")
-    sink = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
+def test_create_source_sinks(aedt_app):
+    aedt_app.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, name="MyCylinder", material="brass")
+    source = aedt_app.source("MyCylinder", direction=0, name="Source1")
+    sink = aedt_app.sink("MyCylinder", direction=3, name="Sink1")
     assert source.name == "Source1"
     assert sink.name == "Sink1"
-    assert len(aedtapp.excitation_names) > 0
+    assert len(aedt_app.excitation_names) > 0
 
 
-def test_objects_from_nets(aedtapp):
-    aedtapp.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, name="MyCylinder", material="brass")
-    aedtapp.modeler.create_cylinder(Plane.XY, [10, 10, 10], 3, 30, 0, name="GND", material="brass")
-    aedtapp.auto_identify_nets()
-    aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
-    aedtapp.modeler.create_circle(Plane.XY, [0, 0, 30], 4, name="Sink1")
-    aedtapp.modeler.create_circle(Plane.XY, [10, 10, 0], 4, name="Source2")
-    aedtapp.modeler.create_circle(Plane.XY, [10, 10, 30], 4, name="Sink2")
-    source = aedtapp.source("Source1", name="Source3")
-    sink = aedtapp.sink("Sink1", name="Sink3")
+def test_objects_from_nets(aedt_app):
+    aedt_app.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, name="MyCylinder", material="brass")
+    aedt_app.modeler.create_cylinder(Plane.XY, [10, 10, 10], 3, 30, 0, name="GND", material="brass")
+    aedt_app.auto_identify_nets()
+    aedt_app.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+    aedt_app.modeler.create_circle(Plane.XY, [0, 0, 30], 4, name="Sink1")
+    aedt_app.modeler.create_circle(Plane.XY, [10, 10, 0], 4, name="Source2")
+    aedt_app.modeler.create_circle(Plane.XY, [10, 10, 30], 4, name="Sink2")
+    source = aedt_app.source("Source1", name="Source3")
+    sink = aedt_app.sink("Sink1", name="Sink3")
     assert source.name == "Source3"
     assert sink.name == "Sink3"
     assert source.props["TerminalType"] == "ConstantVoltage"
     assert sink.props["TerminalType"] == "ConstantVoltage"
-    aedtapp.modeler.delete("Source1")
-    aedtapp.modeler.delete("Sink1")
-    aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
-    aedtapp.modeler.create_circle(Plane.XY, [0, 0, 30], 4, name="Sink1")
-    source = aedtapp.source("Source1", name="Source3", terminal_type="current")
-    sink = aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
+    aedt_app.modeler.delete("Source1")
+    aedt_app.modeler.delete("Sink1")
+    aedt_app.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+    aedt_app.modeler.create_circle(Plane.XY, [0, 0, 30], 4, name="Sink1")
+    source = aedt_app.source("Source1", name="Source3", terminal_type="current")
+    sink = aedt_app.sink("Sink1", name="Sink3", terminal_type="current")
     assert source.props["TerminalType"] == "UniformCurrent"
     assert sink.props["TerminalType"] == "UniformCurrent"
-    source = aedtapp.source("Source2", name="Cylinder1", net_name="GND")
+    source = aedt_app.source("Source2", name="Cylinder1", net_name="GND")
     source.props["Objects"] = ["Source2"]
-    sink = aedtapp.sink("Sink2", net_name="GND")
+    sink = aedt_app.sink("Sink2", net_name="GND")
     assert source
     assert sink
     sink.name = "My_new_name"
     assert sink.update()
     assert sink.name == "My_new_name"
-    assert len(aedtapp.nets) > 0
-    assert len(aedtapp.net_sources("GND")) > 0
-    assert len(aedtapp.net_sinks("GND")) > 0
-    assert len(aedtapp.net_sources("PGND")) == 0
-    assert len(aedtapp.net_sinks("PGND")) == 0
-    obj_list = aedtapp.objects_from_nets(aedtapp.nets[0])
-    assert len(obj_list[aedtapp.nets[0]]) > 0
-    obj_list = aedtapp.objects_from_nets(aedtapp.nets[0], "steel")
-    assert len(obj_list[aedtapp.nets[0]]) == 0
+    assert len(aedt_app.nets) > 0
+    assert len(aedt_app.net_sources("GND")) > 0
+    assert len(aedt_app.net_sinks("GND")) > 0
+    assert len(aedt_app.net_sources("PGND")) == 0
+    assert len(aedt_app.net_sinks("PGND")) == 0
+    obj_list = aedt_app.objects_from_nets(aedt_app.nets[0])
+    assert len(obj_list[aedt_app.nets[0]]) > 0
+    obj_list = aedt_app.objects_from_nets(aedt_app.nets[0], "steel")
+    assert len(obj_list[aedt_app.nets[0]]) == 0
 
 
 def test_create_faceted_bondwire(bond):
@@ -260,33 +249,33 @@ def test_create_faceted_bondwire(bond):
     assert bondwire
 
 
-def test_assign_net(aedtapp):
-    box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+def test_assign_net(aedt_app):
+    box = aedt_app.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
     net_name = "my_net"
-    net = aedtapp.assign_net(box, net_name)
+    net = aedt_app.assign_net(box, net_name)
     assert net
     assert net.name == net_name
-    box = aedtapp.modeler.create_box([40, 30, 30], [10, 10, 10], name="mybox2")
-    net = aedtapp.assign_net(box, None, "Ground")
+    box = aedt_app.modeler.create_box([40, 30, 30], [10, 10, 10], name="mybox2")
+    net = aedt_app.assign_net(box, None, "Ground")
     assert net
-    box = aedtapp.modeler.create_box([60, 30, 30], [10, 10, 10], name="mybox3")
-    net = aedtapp.assign_net(box, None, "Floating")
+    box = aedt_app.modeler.create_box([60, 30, 30], [10, 10, 10], name="mybox3")
+    net = aedt_app.assign_net(box, None, "Floating")
     assert net
     net.name = "new_net_name"
     assert net.update()
     assert net.name == "new_net_name"
 
 
-def test_set_material_thresholds(aedtapp):
-    assert aedtapp.set_material_thresholds()
+def test_set_material_thresholds(aedt_app):
+    assert aedt_app.set_material_thresholds()
     insulator_threshold = 2000
     perfect_conductor_threshold = 2e30
     magnetic_threshold = 3
-    assert aedtapp.set_material_thresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
+    assert aedt_app.set_material_thresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
     insulator_threshold = 2000
     perfect_conductor_threshold = 200
     magnetic_threshold = 3
-    assert not aedtapp.set_material_thresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
+    assert not aedt_app.set_material_thresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
 
 
 def test_matrix_reduction(q3d_solved):
@@ -369,13 +358,13 @@ def test_edit_sources(q3d_solved):
     assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
 
 
-def test_export_matrix_data(q3d_solved, local_scratch):
-    file_path = Path(local_scratch.path) / "test.txt"
+def test_export_matrix_data(q3d_solved, file_tmp_root):
+    file_path = file_tmp_root / "test.txt"
     sweep = q3d_solved.setups[0].sweeps[0]
     assert len(sweep.frequencies) > 0
     assert sweep.basis_frequencies == []
     assert q3d_solved.export_matrix_data(file_path)
-    assert not q3d_solved.export_matrix_data(Path(local_scratch.path) / "test.pdf")
+    assert not q3d_solved.export_matrix_data(file_tmp_root / "test.pdf")
     assert not q3d_solved.export_matrix_data(file_name=file_path, matrix_type="Test")
     assert q3d_solved.export_matrix_data(
         file_name=file_path,
@@ -429,13 +418,13 @@ def test_export_matrix_data(q3d_solved, local_scratch):
     assert not q3d_solved.export_matrix_data(file_name=file_path, g_unit="A")
 
 
-def test_equivalent_circuit(q3d_solved2, local_scratch):
+def test_equivalent_circuit(q3d_solved2, file_tmp_root):
     exported_files = q3d_solved2.export_results()
-    file_path = Path(local_scratch.path) / "test_export_circuit.cir"
+    file_path = file_tmp_root / "test_export_circuit.cir"
     assert len(exported_files) > 0
     assert q3d_solved2.export_equivalent_circuit(file_path, variations=["d: 10mm"])
     with pytest.raises(AEDTRuntimeError):
-        q3d_solved2.export_equivalent_circuit(Path(local_scratch.path) / "test_export_circuit.doc")
+        q3d_solved2.export_equivalent_circuit(file_tmp_root / "test_export_circuit.doc")
     with pytest.raises(AEDTRuntimeError):
         q3d_solved2.export_equivalent_circuit(
             output_file=file_path,
@@ -481,12 +470,12 @@ def test_equivalent_circuit(q3d_solved2, local_scratch):
     assert q3d_solved2.export_equivalent_circuit(output_file=file_path, model="test")
 
 
-def test_assign_thin_conductor(aedtapp):
-    box = aedtapp.modeler.create_box([1, 1, 1], [10, 10, 10])
-    assert aedtapp.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
-    rect = aedtapp.modeler.create_rectangle("X", [1, 1, 1], [10, 10])
-    assert aedtapp.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
-    assert not aedtapp.assign_thin_conductor(box, material="aluminum", thickness="3mm", name="")
+def test_assign_thin_conductor(aedt_app):
+    box = aedt_app.modeler.create_box([1, 1, 1], [10, 10, 10])
+    assert aedt_app.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
+    rect = aedt_app.modeler.create_rectangle("X", [1, 1, 1], [10, 10])
+    assert aedt_app.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
+    assert not aedt_app.assign_thin_conductor(box, material="aluminum", thickness="3mm", name="")
 
 
 def test_mutual_coupling(coupling):
@@ -503,104 +492,104 @@ def test_mutual_coupling(coupling):
     assert not coupling.get_mutual_coupling("a1", "a2", "b2", "b1", calculation="ACL2")
 
 
-def test_toggle_net_with_sources(aedtapp):
-    aedtapp.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, name="MyCylinder", material="brass")
-    aedtapp.source("MyCylinder", direction=0, name="Source1")
-    aedtapp.sink("MyCylinder", direction=3, name="Sink1")
-    aedtapp.auto_identify_nets()
-    net = aedtapp.nets[0]
-    assert len(aedtapp.excitation_objects) == 3
-    assert len(aedtapp.design_excitations) == 3
-    assert "SignalNet" in aedtapp.nets_by_type
-    sources = aedtapp.net_sources(net)
-    sinks = aedtapp.net_sinks(net)
+def test_toggle_net_with_sources(aedt_app):
+    aedt_app.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, name="MyCylinder", material="brass")
+    aedt_app.source("MyCylinder", direction=0, name="Source1")
+    aedt_app.sink("MyCylinder", direction=3, name="Sink1")
+    aedt_app.auto_identify_nets()
+    net = aedt_app.nets[0]
+    assert len(aedt_app.excitation_objects) == 3
+    assert len(aedt_app.design_excitations) == 3
+    assert "SignalNet" in aedt_app.nets_by_type
+    sources = aedt_app.net_sources(net)
+    sinks = aedt_app.net_sinks(net)
     with pytest.raises(ValueError):
-        aedtapp.toggle_net(net_name="invented")
-    new_net = aedtapp.toggle_net(net, "Ground")
+        aedt_app.toggle_net(net_name="invented")
+    new_net = aedt_app.toggle_net(net, "Ground")
     assert new_net.type == "GroundNet"
-    assert len(aedtapp.boundaries) == 1
-    assert len(aedtapp.nets) == 1
-    new_sources = aedtapp.net_sources(net)
-    new_sinks = aedtapp.net_sinks(net)
+    assert len(aedt_app.boundaries) == 1
+    assert len(aedt_app.nets) == 1
+    new_sources = aedt_app.net_sources(net)
+    new_sinks = aedt_app.net_sinks(net)
     assert len(sources) != len(new_sources)
     assert len(sinks) != len(new_sinks)
-    assert "GroundNet" in aedtapp.nets_by_type
-    assert "SignalNet" not in aedtapp.nets_by_type
+    assert "GroundNet" in aedt_app.nets_by_type
+    assert "SignalNet" not in aedt_app.nets_by_type
 
 
-def test_em_field_line(aedtapp):
+def test_em_field_line(aedt_app):
     with pytest.raises(ValueError):
-        aedtapp.insert_em_field_line(assignment="my_line")
+        aedt_app.insert_em_field_line(assignment="my_line")
 
-    line = aedtapp.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
+    line = aedt_app.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
 
     with pytest.raises(AEDTRuntimeError):
-        aedtapp.insert_em_field_line(assignment="my_line")
+        aedt_app.insert_em_field_line(assignment="my_line")
 
-    _ = aedtapp.create_setup()
-    line_nf = aedtapp.insert_em_field_line(assignment=line.name, points=100)
-    assert line_nf.name in aedtapp.field_setup_names
-    assert aedtapp.field_setups
+    _ = aedt_app.create_setup()
+    line_nf = aedt_app.insert_em_field_line(assignment=line.name, points=100)
+    assert line_nf.name in aedt_app.field_setup_names
+    assert aedt_app.field_setups
     assert line_nf.properties["Num Points"] == 100
 
 
-def test_em_field_rectangle(aedtapp):
+def test_em_field_rectangle(aedt_app):
     with pytest.raises(AEDTRuntimeError):
-        aedtapp.insert_em_field_rectangle()
+        aedt_app.insert_em_field_rectangle()
 
-    _ = aedtapp.create_setup()
-    rectangle_nf = aedtapp.insert_em_field_rectangle(u_length=200)
-    assert rectangle_nf.name in aedtapp.field_setup_names
-    assert aedtapp.field_setups
+    _ = aedt_app.create_setup()
+    rectangle_nf = aedt_app.insert_em_field_rectangle(u_length=200)
+    assert rectangle_nf.name in aedt_app.field_setup_names
+    assert aedt_app.field_setups
     assert rectangle_nf.properties["U Size"] == "200mm"
 
-    cs = aedtapp.modeler.create_coordinate_system()
-    rectangle_nf2 = aedtapp.insert_em_field_rectangle(custom_coordinate_system=cs.name)
-    assert rectangle_nf2.name in aedtapp.field_setup_names
-    assert len(aedtapp.field_setups) == 2
+    cs = aedt_app.modeler.create_coordinate_system()
+    rectangle_nf2 = aedt_app.insert_em_field_rectangle(custom_coordinate_system=cs.name)
+    assert rectangle_nf2.name in aedt_app.field_setup_names
+    assert len(aedt_app.field_setups) == 2
 
 
-def test_em_field_box(aedtapp):
+def test_em_field_box(aedt_app):
     with pytest.raises(AEDTRuntimeError):
-        aedtapp.insert_em_field_box()
+        aedt_app.insert_em_field_box()
 
-    _ = aedtapp.create_setup()
-    box_nf = aedtapp.insert_em_field_box(u_length=200)
-    assert box_nf.name in aedtapp.field_setup_names
-    assert aedtapp.field_setups
+    _ = aedt_app.create_setup()
+    box_nf = aedt_app.insert_em_field_box(u_length=200)
+    assert box_nf.name in aedt_app.field_setup_names
+    assert aedt_app.field_setups
     assert box_nf.properties["U Size"] == "200mm"
 
-    cs = aedtapp.modeler.create_coordinate_system()
-    box_nf2 = aedtapp.insert_em_field_box(custom_coordinate_system=cs.name)
-    assert box_nf2.name in aedtapp.field_setup_names
-    assert len(aedtapp.field_setups) == 2
+    cs = aedt_app.modeler.create_coordinate_system()
+    box_nf2 = aedt_app.insert_em_field_box(custom_coordinate_system=cs.name)
+    assert box_nf2.name in aedt_app.field_setup_names
+    assert len(aedt_app.field_setups) == 2
 
 
-def test_em_field_sphere(aedtapp):
+def test_em_field_sphere(aedt_app):
     with pytest.raises(AEDTRuntimeError):
-        aedtapp.insert_em_field_sphere("25mm")
+        aedt_app.insert_em_field_sphere("25mm")
 
-    _ = aedtapp.create_setup()
-    sphere_nf = aedtapp.insert_em_field_sphere("27mm", x_start=5.0)
-    assert sphere_nf.name in aedtapp.field_setup_names
-    assert aedtapp.field_setups
+    _ = aedt_app.create_setup()
+    sphere_nf = aedt_app.insert_em_field_sphere("27mm", x_start=5.0)
+    assert sphere_nf.name in aedt_app.field_setup_names
+    assert aedt_app.field_setups
     assert sphere_nf.properties["Radius"] == "27mm"
     assert sphere_nf.properties["Start Theta"] == "5deg"
 
-    cs = aedtapp.modeler.create_coordinate_system()
-    sphere_nf2 = aedtapp.insert_em_field_sphere("50mm", custom_coordinate_system=cs.name)
-    assert sphere_nf2.name in aedtapp.field_setup_names
-    assert len(aedtapp.field_setups) == 2
+    cs = aedt_app.modeler.create_coordinate_system()
+    sphere_nf2 = aedt_app.insert_em_field_sphere("50mm", custom_coordinate_system=cs.name)
+    assert sphere_nf2.name in aedt_app.field_setup_names
+    assert len(aedt_app.field_setups) == 2
 
 
-def test_create_report_em_fields(aedtapp):
-    line = aedtapp.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
+def test_create_report_em_fields(aedt_app):
+    line = aedt_app.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
 
-    setup = aedtapp.create_setup()
+    setup = aedt_app.create_setup()
     setup.props["SaveFields"] = True
-    aedtapp.insert_em_field_line(assignment=line.name, points=100)
-    variations = aedtapp.available_variations.nominal_values
-    my_plots = aedtapp.post.create_report(
+    aedt_app.insert_em_field_line(assignment=line.name, points=100)
+    variations = aedt_app.available_variations.nominal_values
+    my_plots = aedt_app.post.create_report(
         expressions="re(EY)",
         variations=variations,
         primary_sweep_variable="NormalizedDistance",
