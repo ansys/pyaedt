@@ -30,8 +30,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class TxBbEmissionNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -69,7 +69,7 @@ class TxBbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -77,9 +77,9 @@ class TxBbEmissionNode(EmitNode):
 
     class NoiseBehaviorOption(Enum):
         ABSOLUTE = "Absolute"
-        RELATIVE_BANDWIDTH = "Relative (Bandwidth)"
-        RELATIVE_OFFSET = "Relative (Offset)"
-        EQUATION = "Equation"
+        RELATIVE_BANDWIDTH = "RelativeBandwidth"
+        RELATIVE_OFFSET = "RelativeOffset"
+        EQUATION = "BroadbandEquation"
 
     @property
     def noise_behavior(self) -> NoiseBehaviorOption:
