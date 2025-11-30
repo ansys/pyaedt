@@ -100,7 +100,7 @@ graphics = [
     "fpdf2",
 ]
 jupyter = [
-    "jupyterlab>=3.6.0,<4.5",
+    "jupyterlab>=3.6.0,<4.6",
     "ipython>=7.30.0,<9.1",
 ]
 all = [
