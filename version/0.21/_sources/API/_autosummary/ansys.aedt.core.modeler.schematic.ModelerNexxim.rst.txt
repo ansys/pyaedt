@@ -1,0 +1,59 @@
+﻿ModelerNexxim
+=============
+
+.. currentmodule:: ansys.aedt.core.modeler.schematic
+
+.. autoclass:: ModelerNexxim
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      ModelerNexxim.change_text_property
+      
+      
+      ModelerNexxim.connect_schematic_components
+      
+      
+      ModelerNexxim.create_text
+      
+      
+      ModelerNexxim.move
+      
+      
+      ModelerNexxim.rotate
+      
+      
+      ModelerNexxim.zoom_to_fit
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ModelerNexxim.edb
+      ModelerNexxim.layout
+      ModelerNexxim.layouteditor
+      ModelerNexxim.logger
+      ModelerNexxim.model_units
+      ModelerNexxim.o_def_manager
+      ModelerNexxim.ocomponent_manager
+      ModelerNexxim.oeditor
+      ModelerNexxim.omodel_manager
+      ModelerNexxim.pages
+      ModelerNexxim.projdir
+      ModelerNexxim.public_dir
+      ModelerNexxim.schematic
+      ModelerNexxim.schematic_units
+   
+   

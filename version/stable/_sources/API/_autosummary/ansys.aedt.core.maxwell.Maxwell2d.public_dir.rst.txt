@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.maxwell
+
+.. autoproperty:: Maxwell2d.public_dir
