@@ -700,11 +700,17 @@ def test_validate(aedt_app):
 
 
 def test_export_to_hfss(aedt_app, file_tmp_root):
-    active_project = aedt_app.project_name
-    example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
-    target_path = file_tmp_root / "Package_test_19d.aedb"
-    shutil.copytree(example_project, target_path)
-    assert aedt_app.import_edb(str(target_path))
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+    _ = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle1")
+    c2 = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle2")
+    c2.net_name = "newNet"
     aedt_app.save_project()
 
     filename = "export_to_hfss_test"
@@ -724,9 +730,6 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
         assert setup.export_to_hfss(output_file=file_fullname2, keep_net_name=True)
 
         assert setup.export_to_hfss(output_file=file_fullname3, keep_net_name=True, unite=False)
-
-    aedt_app.close_project(save=False)
-    aedt_app.desktop_class.active_project(active_project)
 
 
 def test_export_to_q3d(aedt_app, file_tmp_root):
