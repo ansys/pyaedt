@@ -1,6 +1,0 @@
-output\_variables
-=================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.output_variables

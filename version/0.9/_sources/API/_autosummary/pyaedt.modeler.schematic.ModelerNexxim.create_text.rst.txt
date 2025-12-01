@@ -1,6 +1,0 @@
-create\_text
-============
-
-.. currentmodule:: pyaedt.modeler.schematic
-
-.. automethod:: ModelerNexxim.create_text

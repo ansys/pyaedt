@@ -1,6 +1,0 @@
-temp\_directory
-===============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.temp_directory

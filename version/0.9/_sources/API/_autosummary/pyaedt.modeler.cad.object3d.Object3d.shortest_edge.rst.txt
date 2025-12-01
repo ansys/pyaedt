@@ -1,6 +1,0 @@
-shortest\_edge
-==============
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. automethod:: Object3d.shortest_edge

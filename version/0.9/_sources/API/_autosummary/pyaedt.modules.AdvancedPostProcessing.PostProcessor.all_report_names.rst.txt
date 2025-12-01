@@ -1,6 +1,0 @@
-all\_report\_names
-==================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. autoproperty:: PostProcessor.all_report_names

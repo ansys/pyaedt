@@ -1,6 +1,0 @@
-remove\_file\_logger
-====================
-
-.. currentmodule:: pyaedt.aedt_logger
-
-.. automethod:: AedtLogger.remove_file_logger

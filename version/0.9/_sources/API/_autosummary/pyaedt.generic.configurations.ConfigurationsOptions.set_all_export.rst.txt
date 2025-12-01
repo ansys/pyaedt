@@ -1,6 +1,0 @@
-set\_all\_export
-================
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. automethod:: ConfigurationsOptions.set_all_export

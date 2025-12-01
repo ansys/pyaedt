@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.setup_names

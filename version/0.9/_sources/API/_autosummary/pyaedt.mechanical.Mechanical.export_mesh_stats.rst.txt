@@ -1,6 +1,0 @@
-export\_mesh\_stats
-===================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.export_mesh_stats

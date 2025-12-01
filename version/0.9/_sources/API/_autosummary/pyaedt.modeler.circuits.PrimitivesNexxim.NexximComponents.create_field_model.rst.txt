@@ -1,6 +1,0 @@
-create\_field\_model
-====================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.create_field_model

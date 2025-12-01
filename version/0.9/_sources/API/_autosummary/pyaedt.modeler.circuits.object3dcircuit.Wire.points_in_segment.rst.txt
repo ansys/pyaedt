@@ -1,6 +1,0 @@
-points\_in\_segment
-===================
-
-.. currentmodule:: pyaedt.modeler.circuits.object3dcircuit
-
-.. autoproperty:: Wire.points_in_segment

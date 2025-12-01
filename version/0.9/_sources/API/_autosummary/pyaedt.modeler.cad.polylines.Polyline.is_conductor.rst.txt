@@ -1,6 +1,0 @@
-is\_conductor
-=============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.is_conductor

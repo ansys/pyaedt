@@ -1,6 +1,0 @@
-get\_module
-===========
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.get_module

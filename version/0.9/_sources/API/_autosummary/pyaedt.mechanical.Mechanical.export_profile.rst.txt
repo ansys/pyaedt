@@ -1,6 +1,0 @@
-export\_profile
-===============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.export_profile

@@ -1,6 +1,0 @@
-lock\_file
-==========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.lock_file

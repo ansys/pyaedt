@@ -1,6 +1,0 @@
-set\_temporary\_directory
-=========================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.set_temporary_directory

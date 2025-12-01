@@ -1,6 +1,0 @@
-signal\_nets
-============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.signal_nets

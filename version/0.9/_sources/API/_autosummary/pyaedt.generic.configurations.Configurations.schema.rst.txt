@@ -1,6 +1,0 @@
-schema
-======
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autoproperty:: Configurations.schema

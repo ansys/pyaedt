@@ -1,6 +1,0 @@
-oreportsetup
-============
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.oreportsetup

@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. autoproperty:: Materials.omaterial_manager

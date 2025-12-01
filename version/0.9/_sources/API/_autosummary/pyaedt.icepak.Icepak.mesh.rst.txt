@@ -1,6 +1,0 @@
-mesh
-====
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.mesh

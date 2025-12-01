@@ -1,6 +1,0 @@
-odefinition\_manager
-====================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.odefinition_manager

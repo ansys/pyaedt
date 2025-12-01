@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.omaterial_manager

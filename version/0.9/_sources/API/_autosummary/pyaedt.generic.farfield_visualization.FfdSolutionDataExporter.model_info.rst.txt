@@ -1,6 +1,0 @@
-model\_info
-===========
-
-.. currentmodule:: pyaedt.generic.farfield_visualization
-
-.. autoproperty:: FfdSolutionDataExporter.model_info

@@ -1,6 +1,0 @@
-set\_source\_context
-====================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.set_source_context

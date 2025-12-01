@@ -1,6 +1,0 @@
-assign\_power\_law\_resistance
-==============================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.assign_power_law_resistance

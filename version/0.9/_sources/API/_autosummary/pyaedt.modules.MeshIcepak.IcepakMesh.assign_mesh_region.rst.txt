@@ -1,6 +1,0 @@
-assign\_mesh\_region
-====================
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. automethod:: IcepakMesh.assign_mesh_region

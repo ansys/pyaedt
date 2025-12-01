@@ -1,6 +1,0 @@
-get\_property\_value
-====================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.get_property_value

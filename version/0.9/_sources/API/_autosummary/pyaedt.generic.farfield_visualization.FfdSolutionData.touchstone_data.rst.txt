@@ -1,6 +1,0 @@
-touchstone\_data
-================
-
-.. currentmodule:: pyaedt.generic.farfield_visualization
-
-.. autoproperty:: FfdSolutionData.touchstone_data

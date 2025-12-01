@@ -1,6 +1,0 @@
-omatrix
-=======
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.omatrix

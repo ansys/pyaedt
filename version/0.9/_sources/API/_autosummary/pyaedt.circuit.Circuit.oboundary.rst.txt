@@ -1,6 +1,0 @@
-oboundary
-=========
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.oboundary

@@ -1,6 +1,0 @@
-clean\_proj\_folder
-===================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.clean_proj_folder

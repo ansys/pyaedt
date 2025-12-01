@@ -1,6 +1,0 @@
-get\_objects\_in\_group
-=======================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.get_objects_in_group

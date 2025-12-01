@@ -1,6 +1,0 @@
-logger
-======
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.logger

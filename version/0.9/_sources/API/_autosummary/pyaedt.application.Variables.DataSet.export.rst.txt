@@ -1,6 +1,0 @@
-export
-======
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. automethod:: DataSet.export

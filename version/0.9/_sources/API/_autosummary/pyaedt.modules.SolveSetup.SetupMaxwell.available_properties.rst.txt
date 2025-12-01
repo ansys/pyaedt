@@ -1,6 +1,0 @@
-available\_properties
-=====================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autoproperty:: SetupMaxwell.available_properties

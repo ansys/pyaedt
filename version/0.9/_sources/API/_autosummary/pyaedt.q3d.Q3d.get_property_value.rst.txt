@@ -1,6 +1,0 @@
-get\_property\_value
-====================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.get_property_value

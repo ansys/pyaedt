@@ -1,6 +1,0 @@
-deactivate\_variable\_statistical
-=================================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.deactivate_variable_statistical

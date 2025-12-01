@@ -1,6 +1,0 @@
-bottom\_edge\_y
-===============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.bottom_edge_y

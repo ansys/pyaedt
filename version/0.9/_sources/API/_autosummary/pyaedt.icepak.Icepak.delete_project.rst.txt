@@ -1,6 +1,0 @@
-delete\_project
-===============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.delete_project

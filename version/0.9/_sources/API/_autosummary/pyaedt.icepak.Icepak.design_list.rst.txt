@@ -1,6 +1,0 @@
-design\_list
-============
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.design_list

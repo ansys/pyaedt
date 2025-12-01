@@ -1,6 +1,0 @@
-electrical\_length
-==================
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. autoproperty:: Trace.electrical_length

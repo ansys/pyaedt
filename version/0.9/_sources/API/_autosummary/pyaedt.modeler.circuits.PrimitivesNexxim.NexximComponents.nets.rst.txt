@@ -1,6 +1,0 @@
-nets
-====
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. autoproperty:: NexximComponents.nets

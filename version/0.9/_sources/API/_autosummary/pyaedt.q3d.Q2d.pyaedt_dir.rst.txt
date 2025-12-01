@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q2d.pyaedt_dir

@@ -1,6 +1,0 @@
-import\_ipc2581
-===============
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.import_ipc2581

@@ -1,6 +1,0 @@
-location
-========
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: Excitations.location

@@ -1,6 +1,0 @@
-assignmaterial\_from\_sherlock\_files
-=====================================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.assignmaterial_from_sherlock_files

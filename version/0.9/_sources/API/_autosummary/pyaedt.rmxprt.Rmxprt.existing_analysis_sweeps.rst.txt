@@ -1,6 +1,0 @@
-existing\_analysis\_sweeps
-==========================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.existing_analysis_sweeps

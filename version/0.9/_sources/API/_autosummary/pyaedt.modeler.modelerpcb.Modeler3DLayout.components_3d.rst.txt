@@ -1,6 +1,0 @@
-components\_3d
-==============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.components_3d

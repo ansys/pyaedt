@@ -1,6 +1,0 @@
-group\_name
-===========
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. autoproperty:: Object3d.group_name

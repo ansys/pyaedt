@@ -1,6 +1,0 @@
-oanalysis
-=========
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.oanalysis

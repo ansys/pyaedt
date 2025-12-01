@@ -1,6 +1,0 @@
-parametrics
-===========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.parametrics

@@ -1,6 +1,0 @@
-elevation\_angle
-================
-
-.. currentmodule:: pyaedt.generic.plot
-
-.. autoproperty:: ModelPlotter.elevation_angle

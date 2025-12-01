@@ -1,6 +1,0 @@
-results\_directory
-==================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.results_directory

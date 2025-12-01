@@ -1,6 +1,0 @@
-odesign
-=======
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.odesign

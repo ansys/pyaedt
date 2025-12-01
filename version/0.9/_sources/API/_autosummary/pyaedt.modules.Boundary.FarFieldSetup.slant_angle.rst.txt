@@ -1,6 +1,0 @@
-slant\_angle
-============
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: FarFieldSetup.slant_angle

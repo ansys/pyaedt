@@ -1,6 +1,0 @@
-design\_variation
-=================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.design_variation

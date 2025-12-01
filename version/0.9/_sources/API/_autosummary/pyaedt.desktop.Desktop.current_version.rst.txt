@@ -1,6 +1,0 @@
-current\_version
-================
-
-.. currentmodule:: pyaedt.desktop
-
-.. autoproperty:: Desktop.current_version

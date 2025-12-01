@@ -1,6 +1,0 @@
-export\_field\_jpg
-==================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.export_field_jpg

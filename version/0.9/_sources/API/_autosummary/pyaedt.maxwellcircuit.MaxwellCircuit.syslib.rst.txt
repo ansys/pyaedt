@@ -1,6 +1,0 @@
-syslib
-======
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.syslib

@@ -1,6 +1,0 @@
-camera\_position
-================
-
-.. currentmodule:: pyaedt.sbrplus.plot
-
-.. autoproperty:: HDMPlotter.camera_position

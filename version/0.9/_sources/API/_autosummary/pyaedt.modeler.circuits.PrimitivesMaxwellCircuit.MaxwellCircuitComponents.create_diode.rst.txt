@@ -1,6 +1,0 @@
-create\_diode
-=============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. automethod:: MaxwellCircuitComponents.create_diode

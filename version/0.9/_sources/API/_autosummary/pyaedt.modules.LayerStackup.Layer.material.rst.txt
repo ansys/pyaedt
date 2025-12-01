@@ -1,6 +1,0 @@
-material
-========
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.material

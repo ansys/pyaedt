@@ -1,6 +1,0 @@
-active\_design
-==============
-
-.. currentmodule:: pyaedt.desktop
-
-.. automethod:: Desktop.active_design

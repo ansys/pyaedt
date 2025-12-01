@@ -1,6 +1,0 @@
-ports
-=====
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.ports

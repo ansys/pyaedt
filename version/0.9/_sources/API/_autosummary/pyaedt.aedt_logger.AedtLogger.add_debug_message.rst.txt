@@ -1,6 +1,0 @@
-add\_debug\_message
-===================
-
-.. currentmodule:: pyaedt.aedt_logger
-
-.. automethod:: AedtLogger.add_debug_message

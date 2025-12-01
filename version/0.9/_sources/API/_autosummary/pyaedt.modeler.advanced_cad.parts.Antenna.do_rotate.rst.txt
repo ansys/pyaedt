@@ -1,6 +1,0 @@
-do\_rotate
-==========
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.parts
-
-.. automethod:: Antenna.do_rotate

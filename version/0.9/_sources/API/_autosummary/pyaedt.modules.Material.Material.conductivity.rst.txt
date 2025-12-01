@@ -1,6 +1,0 @@
-conductivity
-============
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.conductivity

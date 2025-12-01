@@ -1,6 +1,0 @@
-create\_report
-==============
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupQ3D.create_report

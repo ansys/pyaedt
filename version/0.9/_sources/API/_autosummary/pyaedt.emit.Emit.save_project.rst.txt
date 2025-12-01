@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.save_project

@@ -1,6 +1,0 @@
-is\_conductor
-=============
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. automethod:: Material.is_conductor

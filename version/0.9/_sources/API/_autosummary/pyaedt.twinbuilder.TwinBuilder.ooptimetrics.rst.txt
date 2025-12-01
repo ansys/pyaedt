@@ -1,6 +1,0 @@
-ooptimetrics
-============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.ooptimetrics

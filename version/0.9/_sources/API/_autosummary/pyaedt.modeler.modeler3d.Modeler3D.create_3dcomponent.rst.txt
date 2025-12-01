@@ -1,6 +1,0 @@
-create\_3dcomponent
-===================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.create_3dcomponent

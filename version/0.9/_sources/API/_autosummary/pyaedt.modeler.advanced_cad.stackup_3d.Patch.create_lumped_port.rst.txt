@@ -1,6 +1,0 @@
-create\_lumped\_port
-====================
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. automethod:: Patch.create_lumped_port

@@ -1,6 +1,0 @@
-change\_material\_override
-==========================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.change_material_override

@@ -1,6 +1,0 @@
-add\_object
-===========
-
-.. currentmodule:: pyaedt.generic.plot
-
-.. automethod:: ModelPlotter.add_object

@@ -1,6 +1,0 @@
-object
-======
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. autoproperty:: SubRegion.object

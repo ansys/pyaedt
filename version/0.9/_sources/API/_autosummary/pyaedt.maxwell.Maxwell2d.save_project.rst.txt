@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.save_project

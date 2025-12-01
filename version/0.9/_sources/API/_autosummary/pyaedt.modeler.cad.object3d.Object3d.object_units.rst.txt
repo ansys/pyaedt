@@ -1,6 +1,0 @@
-object\_units
-=============
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. autoproperty:: Object3d.object_units

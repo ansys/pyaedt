@@ -1,6 +1,0 @@
-unset\_all\_import
-==================
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. automethod:: ConfigurationsOptions.unset_all_import

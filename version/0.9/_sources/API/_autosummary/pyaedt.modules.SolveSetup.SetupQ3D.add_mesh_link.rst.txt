@@ -1,6 +1,0 @@
-add\_mesh\_link
-===============
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupQ3D.add_mesh_link

@@ -1,6 +1,0 @@
-create\_object
-==============
-
-.. currentmodule:: pyaedt.modeler.cad.elements3d
-
-.. automethod:: FacePrimitive.create_object

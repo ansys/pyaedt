@@ -1,6 +1,0 @@
-taper
-=====
-
-.. currentmodule:: pyaedt.generic.farfield_visualization
-
-.. autoproperty:: FfdSolutionData.taper

@@ -1,6 +1,0 @@
-close\_desktop
-==============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.close_desktop

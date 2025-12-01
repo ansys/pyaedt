@@ -1,6 +1,0 @@
-desktop\_install\_dir
-=====================
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.desktop_install_dir

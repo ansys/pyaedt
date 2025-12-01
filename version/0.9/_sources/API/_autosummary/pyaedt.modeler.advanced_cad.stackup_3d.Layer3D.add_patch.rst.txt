@@ -1,6 +1,0 @@
-add\_patch
-==========
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. automethod:: Layer3D.add_patch

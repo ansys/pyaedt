@@ -1,6 +1,0 @@
-lines
-=====
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.lines

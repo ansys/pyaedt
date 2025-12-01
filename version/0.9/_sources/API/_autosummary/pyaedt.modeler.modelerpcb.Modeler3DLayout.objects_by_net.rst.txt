@@ -1,6 +1,0 @@
-objects\_by\_net
-================
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.objects_by_net

@@ -1,6 +1,0 @@
-native\_components
-==================
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.native_components

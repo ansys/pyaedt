@@ -1,6 +1,0 @@
-materials
-=========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.materials

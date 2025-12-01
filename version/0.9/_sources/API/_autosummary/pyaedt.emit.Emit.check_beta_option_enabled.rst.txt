@@ -1,6 +1,0 @@
-check\_beta\_option\_enabled
-============================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.check_beta_option_enabled

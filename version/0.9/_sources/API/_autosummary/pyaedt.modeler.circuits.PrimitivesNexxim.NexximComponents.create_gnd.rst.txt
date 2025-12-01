@@ -1,6 +1,0 @@
-create\_gnd
-===========
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.create_gnd

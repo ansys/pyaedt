@@ -1,6 +1,0 @@
-create\_via
-===========
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.create_via

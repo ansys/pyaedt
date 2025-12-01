@@ -1,6 +1,0 @@
-duplicate\_across\_layers
-=========================
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.duplicate_across_layers

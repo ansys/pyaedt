@@ -1,6 +1,0 @@
-create\_touchstone\_report
-==========================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.create_touchstone_report

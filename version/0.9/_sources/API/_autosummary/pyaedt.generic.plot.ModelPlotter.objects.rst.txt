@@ -1,6 +1,0 @@
-objects
-=======
-
-.. currentmodule:: pyaedt.generic.plot
-
-.. autoproperty:: ModelPlotter.objects

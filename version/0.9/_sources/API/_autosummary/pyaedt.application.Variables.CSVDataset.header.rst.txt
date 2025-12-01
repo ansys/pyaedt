@@ -1,6 +1,0 @@
-header
-======
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. autoproperty:: CSVDataset.header

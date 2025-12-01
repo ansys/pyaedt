@@ -1,6 +1,0 @@
-create\_component
-=================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.create_component

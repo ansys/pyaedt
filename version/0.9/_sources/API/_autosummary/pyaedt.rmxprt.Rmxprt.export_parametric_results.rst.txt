@@ -1,6 +1,0 @@
-export\_parametric\_results
-===========================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.export_parametric_results

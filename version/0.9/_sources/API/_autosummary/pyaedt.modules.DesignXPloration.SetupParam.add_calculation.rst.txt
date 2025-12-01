@@ -1,6 +1,0 @@
-add\_calculation
-================
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. automethod:: SetupParam.add_calculation

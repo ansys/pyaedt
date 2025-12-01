@@ -1,6 +1,0 @@
-edit\_setup
-===========
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.edit_setup

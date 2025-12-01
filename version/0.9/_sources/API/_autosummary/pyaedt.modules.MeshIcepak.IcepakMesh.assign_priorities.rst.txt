@@ -1,6 +1,0 @@
-assign\_priorities
-==================
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. automethod:: IcepakMesh.assign_priorities

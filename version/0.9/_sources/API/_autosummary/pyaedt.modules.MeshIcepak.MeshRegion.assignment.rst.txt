@@ -1,6 +1,0 @@
-assignment
-==========
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. autoproperty:: MeshRegion.assignment

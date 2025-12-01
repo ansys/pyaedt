@@ -1,6 +1,0 @@
-init\_solutions\_data
-=====================
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. automethod:: SolutionData.init_solutions_data

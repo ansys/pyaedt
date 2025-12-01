@@ -1,6 +1,0 @@
-parametrics
-===========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.parametrics

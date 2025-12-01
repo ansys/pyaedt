@@ -1,6 +1,0 @@
-delete\_setup
-=============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.delete_setup

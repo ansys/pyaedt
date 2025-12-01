@@ -1,6 +1,0 @@
-osolution
-=========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.osolution

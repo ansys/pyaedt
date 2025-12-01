@@ -1,6 +1,0 @@
-create\_pcb\_from\_3dlayout
-===========================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.create_pcb_from_3dlayout

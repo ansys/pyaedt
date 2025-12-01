@@ -1,6 +1,0 @@
-metadata\_file
-==============
-
-.. currentmodule:: pyaedt.generic.farfield_visualization
-
-.. autoproperty:: FfdSolutionDataExporter.metadata_file

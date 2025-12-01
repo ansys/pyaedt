@@ -1,6 +1,0 @@
-get\_object\_material\_properties
-=================================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.get_object_material_properties

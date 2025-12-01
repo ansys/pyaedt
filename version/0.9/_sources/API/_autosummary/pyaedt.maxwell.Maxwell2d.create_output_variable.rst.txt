@@ -1,6 +1,0 @@
-create\_output\_variable
-========================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.create_output_variable

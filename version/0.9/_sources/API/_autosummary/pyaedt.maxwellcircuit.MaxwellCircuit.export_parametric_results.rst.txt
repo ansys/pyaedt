@@ -1,6 +1,0 @@
-export\_parametric\_results
-===========================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.export_parametric_results

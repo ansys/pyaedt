@@ -1,6 +1,0 @@
-settings
-========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.settings

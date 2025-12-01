@@ -1,6 +1,0 @@
-validate\_simple
-================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.validate_simple

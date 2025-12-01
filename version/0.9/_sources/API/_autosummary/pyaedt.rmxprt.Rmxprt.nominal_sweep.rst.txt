@@ -1,6 +1,0 @@
-nominal\_sweep
-==============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.nominal_sweep

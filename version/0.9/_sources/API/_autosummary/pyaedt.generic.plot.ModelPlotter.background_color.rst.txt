@@ -1,6 +1,0 @@
-background\_color
-=================
-
-.. currentmodule:: pyaedt.generic.plot
-
-.. autoproperty:: ModelPlotter.background_color

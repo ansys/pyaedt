@@ -1,6 +1,0 @@
-stacking\_factor
-================
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: Material.stacking_factor

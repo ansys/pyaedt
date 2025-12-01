@@ -1,6 +1,0 @@
-import\_edb\_in\_circuit
-========================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.import_edb_in_circuit

@@ -1,6 +1,0 @@
-smallest\_face
-==============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. automethod:: Polyline.smallest_face

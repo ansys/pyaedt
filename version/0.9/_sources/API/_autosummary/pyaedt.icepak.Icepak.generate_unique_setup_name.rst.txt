@@ -1,6 +1,0 @@
-generate\_unique\_setup\_name
-=============================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.generate_unique_setup_name

@@ -1,6 +1,0 @@
-import\_optimizations
-=====================
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.import_optimizations

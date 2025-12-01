@@ -1,6 +1,0 @@
-connect\_components\_in\_series
-===============================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.connect_components_in_series

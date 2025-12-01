@@ -1,6 +1,0 @@
-Objects
-=======
-
-.. currentmodule:: pyaedt.modules.MeshIcepak
-
-.. autoproperty:: GlobalMeshRegion.Objects
