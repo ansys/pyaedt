@@ -149,7 +149,7 @@ def main(data: ExportTo3DExtensionData):
     h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
     setup = h3d.create_setup()
     suffix = SUFFIXES[choice]
-
+    h3d.save_project()
     if choice == "Export to Q3D":
         project_file = h3d.project_file[:-5] + f"_{suffix}.aedt"
         setup.export_to_q3d(project_file, keep_net_name=True)

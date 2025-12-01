@@ -20,13 +20,14 @@ This displays all available commands and options.
 Main Commands
 -------------
 
-The PyAEDT CLI provides four main commands:
+The PyAEDT CLI provides these main commands:
 
 * ``version`` - Display the installed PyAEDT version
 * ``processes`` - List all running AEDT processes
 * ``start`` - Start a new AEDT session
 * ``stop`` - Stop running AEDT processes
 * ``config`` - Manage test configuration settings
+* ``doc`` - Quick access to PyAEDT documentation
 
 
 Display version
@@ -178,6 +179,48 @@ For a complete description of all configuration parameters and their usage, see 
 :ref:`Local testing parameters <contributing_aedt>` section in the Contributing guide.
 
 
+Documentation access
+--------------------
+
+The ``doc`` command provides quick access to PyAEDT documentation and resources directly
+from the command line. This opens the documentation in your default web browser.
+
+**Open Documentation Sections**
+
+Access different parts of the documentation:
+
+.. code-block:: bash
+
+    pyaedt doc home              # Open documentation home page
+    pyaedt doc getting-started   # Open getting started guide
+    pyaedt doc installation      # Open installation guide
+    pyaedt doc user-guide        # Open user guide
+    pyaedt doc api               # Open API reference
+    pyaedt doc examples          # Open examples gallery
+
+**Access Development Resources**
+
+.. code-block:: bash
+
+    pyaedt doc github            # Open PyAEDT GitHub repository
+    pyaedt doc issues            # Open GitHub issues page
+    pyaedt doc changelog         # Open latest changelog
+    pyaedt doc changelog 0.9.0   # Open specific version changelog
+
+**Search Documentation**
+
+Search the documentation with keywords:
+
+.. code-block:: bash
+
+    pyaedt doc search hfss        # Search for "hfss"
+    pyaedt doc search circuit     # Search for "circuit"
+    pyaedt doc search aedt mesh   # Search for "aedt mesh"
+
+The search command accepts one or more keywords and opens the documentation search page
+with your query.
+
+
 Practical examples
 ------------------
 
@@ -218,6 +261,19 @@ Here are some common workflows using the CLI:
 
     # Or set values directly
     pyaedt config test desktop-version 2025.2
+
+**Quick Documentation Access**
+
+.. code-block:: bash
+
+    # Open API reference
+    pyaedt doc api
+
+    # Search for specific topics
+    pyaedt doc search maxwell 3d
+
+    # Open GitHub repository
+    pyaedt doc github
 
 **Emergency Cleanup**
 
@@ -276,5 +332,6 @@ For detailed help on any command:
     pyaedt start --help
     pyaedt stop --help
     pyaedt config test --help
+    pyaedt doc --help
 
 For more information, visit the PyAEDT documentation or GitHub repository.
