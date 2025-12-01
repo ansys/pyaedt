@@ -700,10 +700,12 @@ def test_validate(aedt_app):
 
 
 def test_export_to_hfss(aedt_app, file_tmp_root):
+    active_project = aedt_app.project_name
     example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
     target_path = file_tmp_root / "Package_test_19d.aedb"
-    shutil.copy(example_project, target_path)
-    assert aedt_app.import_edb(target_path)
+    shutil.copytree(example_project, target_path)
+    assert aedt_app.import_edb(str(target_path))
+    aedt_app.save_project()
 
     filename = "export_to_hfss_test"
     filename2 = "export_to_hfss_test2"
@@ -723,11 +725,14 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
 
         assert setup.export_to_hfss(output_file=file_fullname3, keep_net_name=True, unite=False)
 
+    aedt_app.close_project(save=False)
+    aedt_app.desktop_class.active_project(active_project)
+
 
 def test_export_to_q3d(aedt_app, file_tmp_root):
     example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
     target_path = file_tmp_root / "Package_test_19e.aedb"
-    shutil.copy(example_project, target_path)
+    shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))
 
     filename = "export_to_q3d_test"
@@ -742,7 +747,7 @@ def test_export_to_q3d(aedt_app, file_tmp_root):
 def test_export_to_q3d_non_unite(aedt_app, file_tmp_root):
     example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
     target_path = file_tmp_root / "Package_test_19f.aedb"
-    shutil.copy(example_project, target_path)
+    shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))
 
     filename = "export_to_q3d_non_unite_test"
@@ -1049,6 +1054,7 @@ def test_post_processing(maxwell, hfss):
         intrinsics={"Freq": "1GHz", "Phase": "0deg"},
         nets=["GND", "V3P3_S5"],
     )
+    pass
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
@@ -1143,7 +1149,7 @@ def test_load_and_save_diff_pair_file(hfss3dl, file_tmp_root):
 def test_import_edb(aedt_app, file_tmp_root):
     example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
     target_path = file_tmp_root / "Package_test_92.aedb"
-    shutil.copy(example_project, target_path)
+    shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))
 
 
