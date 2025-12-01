@@ -360,7 +360,7 @@ def _build_app_args(
         "version": settings.aedt_version if hasattr(settings, "aedt_version") else None,
         "non_graphical": settings.non_graphical if hasattr(settings, "non_graphical") else True,
         "remove_lock": True,
-        "new_desktop_session": False,
+        "new_desktop": False,
     }
     if solution_type:
         args["solution_type"] = solution_type
