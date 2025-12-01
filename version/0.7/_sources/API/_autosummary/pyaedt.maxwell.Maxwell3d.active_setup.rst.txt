@@ -1,6 +1,0 @@
-active\_setup
-=============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.active_setup

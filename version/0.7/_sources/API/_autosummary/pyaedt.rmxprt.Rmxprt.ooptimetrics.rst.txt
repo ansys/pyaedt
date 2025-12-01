@@ -1,6 +1,0 @@
-ooptimetrics
-============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.ooptimetrics

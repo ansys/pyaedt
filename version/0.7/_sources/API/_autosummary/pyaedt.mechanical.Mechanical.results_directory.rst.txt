@@ -1,6 +1,0 @@
-results\_directory
-==================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.results_directory

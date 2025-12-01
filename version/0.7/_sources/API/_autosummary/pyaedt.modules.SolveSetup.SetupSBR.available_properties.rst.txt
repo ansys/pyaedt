@@ -1,6 +1,0 @@
-available\_properties
-=====================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autoproperty:: SetupSBR.available_properties

@@ -1,6 +1,0 @@
-animate
-=======
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: ModelPlotter.animate

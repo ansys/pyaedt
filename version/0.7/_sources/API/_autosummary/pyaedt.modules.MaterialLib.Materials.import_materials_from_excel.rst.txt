@@ -1,6 +1,0 @@
-import\_materials\_from\_excel
-==============================
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. automethod:: Materials.import_materials_from_excel

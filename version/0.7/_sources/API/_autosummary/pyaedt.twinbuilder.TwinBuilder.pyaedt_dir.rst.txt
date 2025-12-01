@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.pyaedt_dir

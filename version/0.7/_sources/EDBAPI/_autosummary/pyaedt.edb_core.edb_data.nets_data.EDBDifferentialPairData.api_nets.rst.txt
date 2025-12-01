@@ -1,6 +1,0 @@
-api\_nets
-=========
-
-.. currentmodule:: pyaedt.edb_core.edb_data.nets_data
-
-.. autoproperty:: EDBDifferentialPairData.api_nets

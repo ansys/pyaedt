@@ -1,6 +1,0 @@
-remove\_cables
-==============
-
-.. currentmodule:: pyaedt.modules.CableModeling
-
-.. automethod:: Cable.remove_cables

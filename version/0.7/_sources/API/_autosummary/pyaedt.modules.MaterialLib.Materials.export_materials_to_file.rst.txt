@@ -1,6 +1,0 @@
-export\_materials\_to\_file
-===========================
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. automethod:: Materials.export_materials_to_file

@@ -1,6 +1,0 @@
-set\_spice\_model
-=================
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.set_spice_model

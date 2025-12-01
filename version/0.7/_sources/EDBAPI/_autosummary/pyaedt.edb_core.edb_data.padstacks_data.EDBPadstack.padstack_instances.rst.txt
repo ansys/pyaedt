@@ -1,6 +1,0 @@
-padstack\_instances
-===================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.padstacks_data
-
-.. autoproperty:: EDBPadstack.padstack_instances

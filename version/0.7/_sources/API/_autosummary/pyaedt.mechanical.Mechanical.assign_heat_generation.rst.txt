@@ -1,6 +1,0 @@
-assign\_heat\_generation
-========================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.assign_heat_generation

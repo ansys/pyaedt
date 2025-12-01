@@ -1,6 +1,0 @@
-export\_profile
-===============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.export_profile

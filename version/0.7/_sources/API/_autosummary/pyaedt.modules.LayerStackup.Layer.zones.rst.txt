@@ -1,6 +1,0 @@
-zones
-=====
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.zones

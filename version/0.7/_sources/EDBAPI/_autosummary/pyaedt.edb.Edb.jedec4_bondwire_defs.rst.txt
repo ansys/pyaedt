@@ -1,6 +1,0 @@
-jedec4\_bondwire\_defs
-======================
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.jedec4_bondwire_defs

@@ -1,6 +1,0 @@
-export\_config
-==============
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. automethod:: Configurations.export_config

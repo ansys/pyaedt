@@ -1,6 +1,0 @@
-differential\_pairs
-===================
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: EyeDiagram.differential_pairs

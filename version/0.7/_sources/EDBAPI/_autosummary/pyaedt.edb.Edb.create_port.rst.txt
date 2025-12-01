@@ -1,6 +1,0 @@
-create\_port
-============
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.create_port

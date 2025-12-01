@@ -1,6 +1,0 @@
-get\_sweeps
-===========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.get_sweeps

@@ -1,6 +1,0 @@
-clean\_proj\_folder
-===================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.clean_proj_folder

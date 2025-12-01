@@ -1,6 +1,0 @@
-assign\_symmetry
-================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.assign_symmetry

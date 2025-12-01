@@ -1,6 +1,0 @@
-value\_string
-=============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.variables
-
-.. autoproperty:: Variable.value_string

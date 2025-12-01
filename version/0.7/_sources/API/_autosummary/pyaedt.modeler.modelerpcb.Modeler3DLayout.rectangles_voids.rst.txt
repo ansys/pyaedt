@@ -1,6 +1,0 @@
-rectangles\_voids
-=================
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.rectangles_voids

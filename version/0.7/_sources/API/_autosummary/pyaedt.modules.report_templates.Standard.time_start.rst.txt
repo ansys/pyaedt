@@ -1,6 +1,0 @@
-time\_start
-===========
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Standard.time_start

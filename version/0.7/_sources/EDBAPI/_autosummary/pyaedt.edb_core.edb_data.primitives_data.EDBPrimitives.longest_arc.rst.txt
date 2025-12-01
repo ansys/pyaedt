@@ -1,6 +1,0 @@
-longest\_arc
-============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.primitives_data
-
-.. autoproperty:: EDBPrimitives.longest_arc

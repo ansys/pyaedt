@@ -1,6 +1,0 @@
-design\_type
-============
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.design_type

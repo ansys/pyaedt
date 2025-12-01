@@ -1,6 +1,0 @@
-move
-====
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. automethod:: Polyline.move

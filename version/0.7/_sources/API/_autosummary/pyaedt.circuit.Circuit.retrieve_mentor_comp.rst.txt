@@ -1,6 +1,0 @@
-retrieve\_mentor\_comp
-======================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.retrieve_mentor_comp

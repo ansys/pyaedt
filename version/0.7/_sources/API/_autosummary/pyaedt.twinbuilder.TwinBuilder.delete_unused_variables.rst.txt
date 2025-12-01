@@ -1,6 +1,0 @@
-delete\_unused\_variables
-=========================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.delete_unused_variables

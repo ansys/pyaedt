@@ -1,6 +1,0 @@
-odefinition\_manager
-====================
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. autoproperty:: Materials.odefinition_manager

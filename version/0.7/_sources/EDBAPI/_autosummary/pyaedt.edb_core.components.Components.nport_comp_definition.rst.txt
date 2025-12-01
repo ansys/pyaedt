@@ -1,6 +1,0 @@
-nport\_comp\_definition
-=======================
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. autoproperty:: Components.nport_comp_definition

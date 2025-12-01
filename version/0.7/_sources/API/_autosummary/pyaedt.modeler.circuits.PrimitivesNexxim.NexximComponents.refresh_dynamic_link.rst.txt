@@ -1,6 +1,0 @@
-refresh\_dynamic\_link
-======================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.refresh_dynamic_link

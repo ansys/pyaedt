@@ -1,6 +1,0 @@
-primary\_sweep\_range
-=====================
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Spectral.primary_sweep_range

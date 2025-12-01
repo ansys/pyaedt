@@ -1,6 +1,0 @@
-export\_variables\_to\_csv
-==========================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.export_variables_to_csv

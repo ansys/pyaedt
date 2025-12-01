@@ -1,6 +1,0 @@
-set\_registry\_key
-==================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.set_registry_key

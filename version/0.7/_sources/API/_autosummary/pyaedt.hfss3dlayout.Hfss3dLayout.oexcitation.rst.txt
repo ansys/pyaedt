@@ -1,6 +1,0 @@
-oexcitation
-===========
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. autoproperty:: Hfss3dLayout.oexcitation

@@ -1,6 +1,0 @@
-stackup
-=======
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.stackup

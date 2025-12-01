@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.archive_project

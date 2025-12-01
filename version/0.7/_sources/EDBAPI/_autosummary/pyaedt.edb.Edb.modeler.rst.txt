@@ -1,6 +1,0 @@
-modeler
-=======
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.modeler

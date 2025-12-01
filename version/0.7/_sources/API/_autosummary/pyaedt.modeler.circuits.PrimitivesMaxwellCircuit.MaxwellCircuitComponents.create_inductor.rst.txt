@@ -1,6 +1,0 @@
-create\_inductor
-================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. automethod:: MaxwellCircuitComponents.create_inductor

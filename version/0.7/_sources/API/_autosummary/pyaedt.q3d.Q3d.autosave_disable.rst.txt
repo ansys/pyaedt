@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.autosave_disable

@@ -1,6 +1,0 @@
-add\_void
-=========
-
-.. currentmodule:: pyaedt.edb_core.layout
-
-.. automethod:: EdbLayout.add_void

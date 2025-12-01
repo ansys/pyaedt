@@ -1,6 +1,0 @@
-sync\_variables
-===============
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. automethod:: SetupParam.sync_variables

@@ -1,6 +1,0 @@
-create\_dc\_terminal
-====================
-
-.. currentmodule:: pyaedt.edb_core.siwave
-
-.. automethod:: EdbSiwave.create_dc_terminal

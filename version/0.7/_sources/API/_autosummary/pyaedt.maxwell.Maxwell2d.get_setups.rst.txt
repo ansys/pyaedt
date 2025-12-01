@@ -1,6 +1,0 @@
-get\_setups
-===========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.get_setups

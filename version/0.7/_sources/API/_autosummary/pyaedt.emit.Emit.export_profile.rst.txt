@@ -1,6 +1,0 @@
-export\_profile
-===============
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.export_profile

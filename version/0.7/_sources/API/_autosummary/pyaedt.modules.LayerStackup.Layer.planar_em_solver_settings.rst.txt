@@ -1,6 +1,0 @@
-planar\_em\_solver\_settings
-============================
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.planar_em_solver_settings

@@ -1,6 +1,0 @@
-evaluated\_value
-================
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: MatProperty.evaluated_value

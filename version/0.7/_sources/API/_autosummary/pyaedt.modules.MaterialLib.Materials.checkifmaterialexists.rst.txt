@@ -1,6 +1,0 @@
-checkifmaterialexists
-=====================
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. automethod:: Materials.checkifmaterialexists

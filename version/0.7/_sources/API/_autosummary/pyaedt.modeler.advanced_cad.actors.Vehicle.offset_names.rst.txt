@@ -1,6 +1,0 @@
-offset\_names
-=============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.actors
-
-.. autoproperty:: Vehicle.offset_names

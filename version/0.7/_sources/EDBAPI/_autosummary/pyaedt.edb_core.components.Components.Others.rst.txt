@@ -1,6 +1,0 @@
-Others
-======
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. autoproperty:: Components.Others

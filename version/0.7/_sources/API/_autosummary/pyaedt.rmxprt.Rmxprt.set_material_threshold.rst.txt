@@ -1,6 +1,0 @@
-set\_material\_threshold
-========================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.set_material_threshold

@@ -1,6 +1,0 @@
-existing\_analysis\_setups
-==========================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.existing_analysis_setups

@@ -1,6 +1,0 @@
-edit\_array
-===========
-
-.. currentmodule:: pyaedt.modeler.cad.component_array
-
-.. automethod:: ComponentArray.edit_array

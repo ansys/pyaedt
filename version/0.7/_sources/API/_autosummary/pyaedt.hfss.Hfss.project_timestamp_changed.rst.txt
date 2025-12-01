@@ -1,6 +1,0 @@
-project\_timestamp\_changed
-===========================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.project_timestamp_changed

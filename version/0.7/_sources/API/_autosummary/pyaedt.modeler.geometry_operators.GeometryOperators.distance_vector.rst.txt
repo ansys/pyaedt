@@ -1,6 +1,0 @@
-distance\_vector
-================
-
-.. currentmodule:: pyaedt.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.distance_vector

@@ -1,6 +1,0 @@
-assign\_density\_control
-========================
-
-.. currentmodule:: pyaedt.modules.Mesh
-
-.. automethod:: Mesh.assign_density_control

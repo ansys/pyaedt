@@ -1,6 +1,0 @@
-use\_dielectric\_extent\_multiple
-=================================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.simulation_configuration
-
-.. autoproperty:: SimulationConfigurationBatch.use_dielectric_extent_multiple

@@ -1,6 +1,0 @@
-dielectric\_layer
-=================
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. autoproperty:: Patch.dielectric_layer

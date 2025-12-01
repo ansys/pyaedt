@@ -1,6 +1,0 @@
-assign\_mass\_flow\_free\_opening
-=================================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.assign_mass_flow_free_opening

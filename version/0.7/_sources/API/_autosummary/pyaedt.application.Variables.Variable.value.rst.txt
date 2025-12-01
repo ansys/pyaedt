@@ -1,6 +1,0 @@
-value
-=====
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. autoproperty:: Variable.value

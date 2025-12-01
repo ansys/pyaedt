@@ -1,6 +1,0 @@
-reference\_node
-===============
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: Excitations.reference_node

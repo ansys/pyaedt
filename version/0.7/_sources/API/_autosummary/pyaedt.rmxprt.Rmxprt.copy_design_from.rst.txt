@@ -1,6 +1,0 @@
-copy\_design\_from
-==================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.copy_design_from

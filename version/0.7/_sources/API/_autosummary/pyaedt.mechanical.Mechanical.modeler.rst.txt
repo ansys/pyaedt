@@ -1,6 +1,0 @@
-modeler
-=======
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.modeler

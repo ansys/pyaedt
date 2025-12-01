@@ -1,6 +1,0 @@
-get\_all\_sources
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.get_all_sources

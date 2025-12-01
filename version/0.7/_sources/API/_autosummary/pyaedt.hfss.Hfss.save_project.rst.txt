@@ -1,6 +1,0 @@
-save\_project
-=============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.save_project

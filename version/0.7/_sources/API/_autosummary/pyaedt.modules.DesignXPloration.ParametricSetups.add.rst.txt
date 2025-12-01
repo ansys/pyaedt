@@ -1,6 +1,0 @@
-add
-===
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. automethod:: ParametricSetups.add

@@ -1,6 +1,0 @@
-clean\_cache\_and\_files
-========================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: ModelPlotter.clean_cache_and_files

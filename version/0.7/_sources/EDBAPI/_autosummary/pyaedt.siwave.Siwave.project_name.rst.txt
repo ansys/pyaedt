@@ -1,6 +1,0 @@
-project\_name
-=============
-
-.. currentmodule:: pyaedt.siwave
-
-.. autoproperty:: Siwave.project_name

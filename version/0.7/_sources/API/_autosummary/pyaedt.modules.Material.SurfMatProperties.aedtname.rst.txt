@@ -1,6 +1,0 @@
-aedtname
-========
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoattribute:: SurfMatProperties.aedtname

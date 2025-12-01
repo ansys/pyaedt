@@ -1,6 +1,0 @@
-db
-==
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.db

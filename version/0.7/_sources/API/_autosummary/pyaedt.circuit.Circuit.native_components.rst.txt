@@ -1,6 +1,0 @@
-native\_components
-==================
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.native_components

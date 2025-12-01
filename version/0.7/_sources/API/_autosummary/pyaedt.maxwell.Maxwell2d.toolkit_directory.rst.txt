@@ -1,6 +1,0 @@
-toolkit\_directory
-==================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.toolkit_directory

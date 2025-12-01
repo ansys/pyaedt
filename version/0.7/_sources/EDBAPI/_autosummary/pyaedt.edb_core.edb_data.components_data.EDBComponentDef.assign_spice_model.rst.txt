@@ -1,6 +1,0 @@
-assign\_spice\_model
-====================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.components_data
-
-.. automethod:: EDBComponentDef.assign_spice_model

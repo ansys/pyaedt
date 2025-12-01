@@ -1,6 +1,0 @@
-design\_datasets
-================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.design_datasets

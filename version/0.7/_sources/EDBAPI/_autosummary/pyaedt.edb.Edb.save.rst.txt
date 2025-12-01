@@ -1,6 +1,0 @@
-save
-====
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.save

@@ -1,6 +1,0 @@
-do\_cutout\_subdesign
-=====================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.simulation_configuration
-
-.. autoproperty:: SimulationConfigurationBatch.do_cutout_subdesign

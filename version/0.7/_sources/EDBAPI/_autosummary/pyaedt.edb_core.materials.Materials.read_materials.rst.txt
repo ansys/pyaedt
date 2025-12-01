@@ -1,6 +1,0 @@
-read\_materials
-===============
-
-.. currentmodule:: pyaedt.edb_core.materials
-
-.. automethod:: Materials.read_materials

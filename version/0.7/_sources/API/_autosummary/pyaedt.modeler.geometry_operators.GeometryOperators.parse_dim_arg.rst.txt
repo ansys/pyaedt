@@ -1,6 +1,0 @@
-parse\_dim\_arg
-===============
-
-.. currentmodule:: pyaedt.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.parse_dim_arg

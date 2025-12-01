@@ -1,6 +1,0 @@
-import\_from\_json
-==================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: Setup3DLayout.import_from_json

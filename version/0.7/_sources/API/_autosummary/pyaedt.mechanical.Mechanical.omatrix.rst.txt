@@ -1,6 +1,0 @@
-omatrix
-=======
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.omatrix

@@ -1,6 +1,0 @@
-export\_touchstone
-==================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.export_touchstone

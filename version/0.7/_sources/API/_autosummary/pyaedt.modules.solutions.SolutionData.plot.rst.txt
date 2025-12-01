@@ -1,6 +1,0 @@
-plot
-====
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. automethod:: SolutionData.plot

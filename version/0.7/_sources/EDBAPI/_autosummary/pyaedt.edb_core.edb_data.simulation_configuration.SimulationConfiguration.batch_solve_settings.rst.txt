@@ -1,6 +1,0 @@
-batch\_solve\_settings
-======================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.simulation_configuration
-
-.. autoproperty:: SimulationConfiguration.batch_solve_settings

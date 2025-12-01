@@ -1,6 +1,0 @@
-classify\_nets
-==============
-
-.. currentmodule:: pyaedt.edb_core.nets
-
-.. automethod:: EdbNets.classify_nets

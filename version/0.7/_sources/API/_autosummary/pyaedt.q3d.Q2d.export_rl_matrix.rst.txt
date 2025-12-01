@@ -1,6 +1,0 @@
-export\_rl\_matrix
-==================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.export_rl_matrix

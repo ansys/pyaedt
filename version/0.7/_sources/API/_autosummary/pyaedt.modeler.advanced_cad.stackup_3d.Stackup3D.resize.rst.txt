@@ -1,6 +1,0 @@
-resize
-======
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. automethod:: Stackup3D.resize

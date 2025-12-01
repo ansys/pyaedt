@@ -1,6 +1,0 @@
-close\_desktop
-==============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.close_desktop

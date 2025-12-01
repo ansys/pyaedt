@@ -1,6 +1,0 @@
-component\_defs
-===============
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.component_defs

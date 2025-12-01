@@ -1,6 +1,0 @@
-delete\_project
-===============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.delete_project

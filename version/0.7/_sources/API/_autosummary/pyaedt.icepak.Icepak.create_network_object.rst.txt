@@ -1,6 +1,0 @@
-create\_network\_object
-=======================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.create_network_object

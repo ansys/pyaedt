@@ -1,6 +1,0 @@
-deactivate\_variable\_statistical
-=================================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.deactivate_variable_statistical

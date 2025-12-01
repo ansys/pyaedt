@@ -1,6 +1,0 @@
-project\_list
-=============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.project_list

@@ -1,6 +1,0 @@
-do\_adaptive
-============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.hfss_simulation_setup_data
-
-.. autoproperty:: AdaptiveSettings.do_adaptive

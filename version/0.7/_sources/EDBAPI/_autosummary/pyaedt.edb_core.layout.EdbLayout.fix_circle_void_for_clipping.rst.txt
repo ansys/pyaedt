@@ -1,6 +1,0 @@
-fix\_circle\_void\_for\_clipping
-================================
-
-.. currentmodule:: pyaedt.edb_core.layout
-
-.. automethod:: EdbLayout.fix_circle_void_for_clipping

@@ -1,6 +1,0 @@
-point\_data
-===========
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.point_data

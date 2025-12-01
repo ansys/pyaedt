@@ -1,6 +1,0 @@
-popitem
-=======
-
-.. currentmodule:: pyaedt.modeler.cad.elements3d
-
-.. automethod:: HistoryProps.popitem

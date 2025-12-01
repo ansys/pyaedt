@@ -1,6 +1,0 @@
-stackup\_layers
-===============
-
-.. currentmodule:: pyaedt.edb_core.stackup
-
-.. autoproperty:: Stackup.stackup_layers

@@ -1,6 +1,0 @@
-personallib
-===========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.personallib

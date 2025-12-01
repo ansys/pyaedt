@@ -1,6 +1,0 @@
-deactivate\_variable\_tuning
-============================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.deactivate_variable_tuning

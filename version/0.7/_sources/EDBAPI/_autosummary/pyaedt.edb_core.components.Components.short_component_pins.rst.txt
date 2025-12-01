@@ -1,6 +1,0 @@
-short\_component\_pins
-======================
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.short_component_pins

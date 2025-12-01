@@ -1,6 +1,0 @@
-add\_pin\_iports
-================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
-
-.. automethod:: TwinBuilderComponents.add_pin_iports

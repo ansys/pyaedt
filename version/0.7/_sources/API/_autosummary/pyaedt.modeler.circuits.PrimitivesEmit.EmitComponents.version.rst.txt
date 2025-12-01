@@ -1,6 +1,0 @@
-version
-=======
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
-
-.. autoproperty:: EmitComponents.version

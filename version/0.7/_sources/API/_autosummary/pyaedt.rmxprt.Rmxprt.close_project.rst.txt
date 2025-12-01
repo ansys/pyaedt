@@ -1,6 +1,0 @@
-close\_project
-==============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.close_project

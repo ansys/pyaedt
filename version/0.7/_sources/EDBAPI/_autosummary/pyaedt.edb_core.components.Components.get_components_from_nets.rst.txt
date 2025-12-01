@@ -1,6 +1,0 @@
-get\_components\_from\_nets
-===========================
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.get_components_from_nets
