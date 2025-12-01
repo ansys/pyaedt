@@ -35,8 +35,8 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
 
 @pytest.fixture
-def aedtapp(add_app):
-    app = add_app(project_name="Test07")
+def aedt_app(add_app):
+    app = add_app(project="object_3d_test")
     yield app
     app.close_project(app.project_name)
 
@@ -98,12 +98,12 @@ def test_uname():
     assert test_name.startswith("NewObject")
 
 
-def test_bounding_box_and_dimension(aedtapp):
-    l1 = len(aedtapp.modeler.solid_objects)
-    box = create_copper_box(aedtapp)
-    assert len(aedtapp.modeler.solid_objects) == l1 + 1
-    assert len(aedtapp.modeler.sheet_objects) == 0
-    assert len(aedtapp.modeler.line_objects) == 0
+def test_bounding_box_and_dimension(aedt_app):
+    l1 = len(aedt_app.modeler.solid_objects)
+    box = create_copper_box(aedt_app)
+    assert len(aedt_app.modeler.solid_objects) == l1 + 1
+    assert len(aedt_app.modeler.sheet_objects) == 0
+    assert len(aedt_app.modeler.line_objects) == 0
     assert isinstance(box.color, tuple)
     bb = box.bounding_box
     assert len(bb) == 6
@@ -111,29 +111,29 @@ def test_bounding_box_and_dimension(aedtapp):
     assert len(bd) == 3
 
 
-def test_delete_object(aedtapp):
-    box = create_copper_box(aedtapp, "DeleteBox")
+def test_delete_object(aedt_app):
+    box = create_copper_box(aedt_app, "DeleteBox")
     name = box.name
-    assert name in aedtapp.modeler.object_names
+    assert name in aedt_app.modeler.object_names
     box.delete()
-    assert not aedtapp.modeler[name]
+    assert not aedt_app.modeler[name]
     assert not box.__dict__
-    assert name not in aedtapp.modeler.object_names
+    assert name not in aedt_app.modeler.object_names
     # 1 body and 1 sheet
-    circle = aedtapp.modeler.create_circle(orientation=0, origin=[0, 0, 0], radius=5)
+    circle = aedt_app.modeler.create_circle(orientation=0, origin=[0, 0, 0], radius=5)
     name_circle = circle.name
-    vacuum_box = aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10], material="vacuum")
+    vacuum_box = aedt_app.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10], material="vacuum")
     name_vacuum_box = vacuum_box.name
     vacuum_box.delete()
-    assert not aedtapp.modeler[name_vacuum_box]
+    assert not aedt_app.modeler[name_vacuum_box]
     circle.delete()
-    assert not aedtapp.modeler[name_circle]
+    assert not aedt_app.modeler[name_circle]
 
 
-def test_subtract_object(aedtapp):
-    box = create_copper_box(aedtapp, "subtract_box")
-    sphere = create_copper_sphere(aedtapp, "subtract_sphere")
-    cylinder = create_copper_cylinder(aedtapp, "subtract_cylinder")
+def test_subtract_object(aedt_app):
+    box = create_copper_box(aedt_app, "subtract_box")
+    sphere = create_copper_sphere(aedt_app, "subtract_sphere")
+    cylinder = create_copper_cylinder(aedt_app, "subtract_cylinder")
     box_2 = box.clone()
     box_2.subtract(sphere)
     box_3 = box.clone()
@@ -142,8 +142,8 @@ def test_subtract_object(aedtapp):
     assert len(box_3.faces) == 9
 
 
-def test_face_edge_vertex(aedtapp):
-    box = create_copper_box(aedtapp, "faces_box")
+def test_face_edge_vertex(aedt_app):
+    box = create_copper_box(aedt_app, "faces_box")
     object_faces = box.faces
     assert len(object_faces) == 6
     for face in object_faces:
@@ -157,14 +157,14 @@ def test_face_edge_vertex(aedtapp):
     object_vertices = box.vertices
     for vertex in object_vertices:
         assert len(vertex.position) == 3
-    circle = aedtapp.modeler.create_circle("Z", [0, 0, 0], 2)
+    circle = aedt_app.modeler.create_circle("Z", [0, 0, 0], 2)
     assert len(circle.faces) == 1
-    circle2 = aedtapp.modeler.create_circle("Z", [0, 0, 0], 2, non_model=True)
+    circle2 = aedt_app.modeler.create_circle("Z", [0, 0, 0], 2, non_model=True)
     assert not circle2.model
 
 
-def test_face_primitive(aedtapp):
-    box = create_copper_box(aedtapp, "PrimitiveBox")
+def test_face_primitive(aedt_app):
+    box = create_copper_box(aedt_app, "PrimitiveBox")
     planar_face = box.faces[0]
     assert planar_face.center == [5.0, 5.0, 5.0]
     planar_face.move_with_offset(1)
@@ -176,43 +176,43 @@ def test_face_primitive(aedtapp):
     assert isinstance(box.smallest_face(2), list)
     assert isinstance(box.longest_edge()[0], EdgePrimitive)
     assert isinstance(box.shortest_edge()[0], EdgePrimitive)
-    sphere = create_copper_sphere(aedtapp, "PrimitiveSphere")
+    sphere = create_copper_sphere(aedt_app, "PrimitiveSphere")
     non_planar_face = sphere.faces[0]
     assert is_close(non_planar_face.area, 201.06192982974676)
     assert non_planar_face.move_with_offset(1)
     assert is_close(non_planar_face.area, 314.1592653589793)
     assert not non_planar_face.normal
     assert not sphere.faces[0].is_planar
-    box2 = aedtapp.modeler.create_box([300, 300, 300], [10, 10, 5], "BoxBounding", "Copper")
+    box2 = aedt_app.modeler.create_box([300, 300, 300], [10, 10, 5], "BoxBounding", "Copper")
     for face in box2.faces:
         assert isinstance(face.is_on_bounding(), bool)
     assert len(box2.faces_on_bounding_box) == 3
     assert box2.face_closest_to_bounding_box.id in [i.id for i in box2.faces_on_bounding_box]
 
 
-def test_object_material_property_invalid(aedtapp):
-    box = create_copper_box(aedtapp, "Invalid1")
+def test_object_material_property_invalid(aedt_app):
+    box = create_copper_box(aedt_app, "Invalid1")
     box.material_name = "Copper1234Invalid"
     assert box.material_name == "copper"
 
 
-def test_object_material_property_valid(aedtapp):
-    box = create_copper_box(aedtapp, "Valid2")
+def test_object_material_property_valid(aedt_app):
+    box = create_copper_box(aedt_app, "Valid2")
     box.material_name = "aluminum"
     assert box.material_name == "aluminum"
 
 
-def test_material_name_setter(aedtapp):
-    box = create_copper_box(aedtapp)
-    aedtapp.materials.add_material("myMat")
-    aedtapp.materials.add_material("myMat2")
-    aedtapp["mat_sweep_test"] = '["myMat", "myMat2"]'
+def test_material_name_setter(aedt_app):
+    box = create_copper_box(aedt_app)
+    aedt_app.materials.add_material("myMat")
+    aedt_app.materials.add_material("myMat2")
+    aedt_app["mat_sweep_test"] = '["myMat", "myMat2"]'
     box.material_name = "mat_sweep_test[0]"
-    assert aedtapp.modeler.get_objects_by_material(material="myMat")[0].name == "MyBox"
+    assert aedt_app.modeler.get_objects_by_material(material="myMat")[0].name == "MyBox"
 
 
-def test_object3d_properties_transparency(aedtapp):
-    box = create_copper_box(aedtapp, "TransparencyBox")
+def test_object3d_properties_transparency(aedt_app):
+    box = create_copper_box(aedt_app, "TransparencyBox")
     box.transparency = 50
     assert box.transparency == 1.0
     box.transparency = 0.67
@@ -225,14 +225,14 @@ def test_object3d_properties_transparency(aedtapp):
     assert box.transparency == 0.0
 
 
-def test_object3d_properties_color(aedtapp):
-    box = create_copper_box(aedtapp, "color_box")
+def test_object3d_properties_color(aedt_app):
+    box = create_copper_box(aedt_app, "color_box")
     box.color = (0, 0, 255)
     assert box.color == (0, 0, 255)
 
 
-def test_object_clone_and_get_properties(aedtapp):
-    initial_object = create_copper_box(aedtapp, "Properties_Box")
+def test_object_clone_and_get_properties(aedt_app):
+    initial_object = create_copper_box(aedt_app, "Properties_Box")
     initial_object.transparency = 0.76
     new_object = initial_object.clone()
     assert new_object.name != initial_object.name
@@ -252,8 +252,8 @@ def test_object_clone_and_get_properties(aedtapp):
     assert not new_object.name == "Properties_Box"
 
 
-def test_top_bottom_face(aedtapp):
-    box = create_copper_box(aedtapp)
+def test_top_bottom_face(aedt_app):
+    box = create_copper_box(aedt_app)
     assert isinstance(box.top_face_x, FacePrimitive)
     assert isinstance(box.top_face_y, FacePrimitive)
     assert isinstance(box.top_face_z, FacePrimitive)
@@ -262,15 +262,15 @@ def test_top_bottom_face(aedtapp):
     assert isinstance(box.bottom_face_z, FacePrimitive)
 
 
-def test_top_bottom_edge(aedtapp):
-    box = create_copper_box(aedtapp)
+def test_top_bottom_edge(aedt_app):
+    box = create_copper_box(aedt_app)
     assert isinstance(box.faces[0].top_edge_x, EdgePrimitive)
     assert isinstance(box.faces[0].top_edge_y, EdgePrimitive)
     assert isinstance(box.faces[0].top_edge_z, EdgePrimitive)
     assert isinstance(box.top_edge_x, EdgePrimitive)
     assert isinstance(box.top_edge_y, EdgePrimitive)
     assert isinstance(box.top_edge_z, EdgePrimitive)
-    cylinder = create_copper_cylinder(aedtapp)
+    cylinder = create_copper_cylinder(aedt_app)
     assert isinstance(cylinder.bottom_edge_x, EdgePrimitive)
     assert isinstance(cylinder.bottom_edge_y, EdgePrimitive)
     assert isinstance(cylinder.bottom_edge_z, EdgePrimitive)
@@ -289,64 +289,64 @@ def test_to_boolean():
 NEW_VERTICES_POSITION = [[10.0, 0.0, 3.0], [0.0, 0.0, 3.0], [0.0, 2.0, 5.0], [10.0, 2.0, 5.0]]
 
 
-def test_chamfer_called_on_edge(aedtapp):
-    box = create_copper_box(aedtapp, "ChamferOnEdge")
+def test_chamfer_called_on_edge(aedt_app):
+    box = create_copper_box(aedt_app, "ChamferOnEdge")
     # Chamfer type 0 (default)
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     assert box.edges[0].chamfer(left_distance=2)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     assert box.edges[0].chamfer(left_distance=2, right_distance=3)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 1
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     assert box.edges[0].chamfer(left_distance=2, chamfer_type=1)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 2
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     assert box.edges[0].chamfer(left_distance=2, angle=45, chamfer_type=2)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 3
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     assert box.edges[0].chamfer(right_distance=2, angle=45, chamfer_type=3)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 4 - not valid
     assert not box.edges[0].chamfer(chamfer_type=4)
 
 
-def test_chamfer_called_on_box(aedtapp):
-    box = create_copper_box(aedtapp, "ChamferOnBox")
+def test_chamfer_called_on_box(aedt_app):
+    box = create_copper_box(aedt_app, "ChamferOnBox")
     # Chamfer type 0 (default)
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     box.chamfer(edges=box.faces[0].edges[0], left_distance=2)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     assert box.chamfer(edges=box.faces[0].edges[0], left_distance=2, right_distance=3)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 1
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     assert box.chamfer(edges=box.faces[0].edges[0], left_distance=2, chamfer_type=1)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 2
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     assert box.chamfer(edges=box.faces[0].edges[0], left_distance=2, angle=45, chamfer_type=2)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 3
     assert not (any(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION))
     assert box.chamfer(edges=box.faces[0].edges[0], right_distance=2, angle=45, chamfer_type=3)
     assert all(position in (v.position for v in box.vertices) for position in NEW_VERTICES_POSITION)
-    aedtapp._odesign.Undo()
+    aedt_app._odesign.Undo()
     # Chamfer type 4 - not valid
     assert not box.chamfer(edges=box.faces[0].edges[0], right_distance=2, chamfer_type=4)
 
 
-def test_fillet(aedtapp):
-    box = create_copper_box(aedtapp, "FilletTest")
+def test_fillet(aedt_app):
+    box = create_copper_box(aedt_app, "FilletTest")
     box_edges = box.edges
     assert len(box_edges) == 12
     test_fillet = box.edges[0].fillet(radius=0.2)
@@ -355,8 +355,8 @@ def test_fillet(aedtapp):
     assert test_fillet
 
 
-def test_object_length(aedtapp):
-    box = create_copper_box(aedtapp)
+def test_object_length(aedt_app):
+    box = create_copper_box(aedt_app)
     test_edge = box.edges[0]
     assert isinstance(test_edge.length, float)
     start_point = box.edges[0].vertices[0]
@@ -367,8 +367,8 @@ def test_object_length(aedtapp):
     assert is_close(math.sqrt(sum_sq), test_edge.length)
 
 
-def test_set_color(aedtapp):
-    box = create_copper_box(aedtapp, "ColorTest")
+def test_set_color(aedt_app):
+    box = create_copper_box(aedt_app, "ColorTest")
     box.color = "Red"
     assert box.color == (255, 0, 0)
     box.color = "Green"
@@ -389,8 +389,8 @@ def test_set_color(aedtapp):
     assert box.color == (255, 0, 0)
 
 
-def test_print_object(aedtapp):
-    box = create_copper_box(aedtapp)
+def test_print_object(aedt_app):
+    box = create_copper_box(aedt_app)
     assert box.name in box.__repr__()
     test_face = box.faces[0]
     try:
@@ -412,8 +412,8 @@ def test_print_object(aedtapp):
         pytest.fail("Conversion to int failed for VertexPrimitive __str__ or __repr__ outputs.")
 
 
-def test_translate_box(aedtapp):
-    box = create_copper_box(aedtapp)
+def test_translate_box(aedt_app):
+    box = create_copper_box(aedt_app)
     v0 = box.vertices[0].position
     box.move([1, 0, 0])
     v1 = box.vertices[0].position
@@ -423,47 +423,47 @@ def test_translate_box(aedtapp):
     assert box.move([1, 0, 0])
 
 
-def test_duplicate_around_axis_and_unite(aedtapp):
-    turn = create_example_coil(aedtapp, "single_turn")
+def test_duplicate_around_axis_and_unite(aedt_app):
+    turn = create_example_coil(aedt_app, "single_turn")
     added_objects = turn.duplicate_around_axis(axis="Z", angle=8, clones=19)
     turn.unite(added_objects)
     assert len(added_objects) == 18
-    assert "single_turn" in aedtapp.modeler.line_names
+    assert "single_turn" in aedt_app.modeler.line_names
 
 
-def test_duplicate_along_line(aedtapp):
-    turn = create_example_coil(aedtapp, "single_turn")
+def test_duplicate_along_line(aedt_app):
+    turn = create_example_coil(aedt_app, "single_turn")
     added_objects = turn.duplicate_along_line([0, 0, 15], nclones=3, attachObject=False)
     assert len(added_objects) == 2
-    assert "single_turn" in aedtapp.modeler.line_names
+    assert "single_turn" in aedt_app.modeler.line_names
 
 
-def test_section(aedtapp):
-    box = create_copper_box(aedtapp, "SectionBox")
+def test_section(aedt_app):
+    box = create_copper_box(aedt_app, "SectionBox")
     section = box.section(plane="YZ", create_new=True, section_cross_object=False)
     assert section
 
 
-def test_create_spiral(aedtapp):
-    spiral = aedtapp.modeler.create_spiral(name="ind")
+def test_create_spiral(aedt_app):
+    spiral = aedt_app.modeler.create_spiral(name="ind")
     assert spiral
     assert spiral.name == "ind"
     assert len(spiral.points) == 78
 
 
-def test_rotate(aedtapp):
-    box = create_copper_box(aedtapp)
+def test_rotate(aedt_app):
+    box = create_copper_box(aedt_app)
     assert box.rotate(axis="Y", angle=180)
 
 
-def test_mirror(aedtapp):
-    box = create_copper_box(aedtapp)
+def test_mirror(aedt_app):
+    box = create_copper_box(aedt_app)
     assert box.mirror(position=[-10, 0, 0], vector=[0, 1, 0])
 
 
-def test_groups(aedtapp):
-    box1 = create_copper_box(aedtapp, "GroupB1")
-    box2 = create_copper_box(aedtapp, "GroupB2")
+def test_groups(aedt_app):
+    box1 = create_copper_box(aedt_app, "GroupB1")
+    box2 = create_copper_box(aedt_app, "GroupB2")
     assert box1.group_name == "Model"
     box1.group_name = "NewGroup"
     assert box1.group_name == "NewGroup"
@@ -474,32 +474,32 @@ def test_groups(aedtapp):
     assert box1.group_name == "NewGroup"
 
 
-def test_mass(aedtapp):
-    aedtapp.modeler.model_units = "meter"
-    box1 = aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], material="Copper")
+def test_mass(aedt_app):
+    aedt_app.modeler.model_units = "meter"
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [5, 10, 2], material="Copper")
     assert box1.mass == 893300.0
-    new_material = aedtapp.materials.add_material("MyMaterial")
-    box2 = aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], material="MyMaterial")
+    new_material = aedt_app.materials.add_material("MyMaterial")
+    box2 = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], material="MyMaterial")
     assert box2.mass == 0.0
     new_material.mass_density = 1
     assert is_close(box2.mass, 1000.0)
     box2.model = False
     assert box2.mass == 0.0
-    rec = aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
+    rec = aedt_app.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
     assert rec.mass == 0.0
 
 
-def test_volume(aedtapp):
-    box = aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], material="Copper")
+def test_volume(aedt_app):
+    box = aedt_app.modeler.create_box([10, 10, 10], [5, 10, 2], material="Copper")
     assert is_close(box.volume, 100)
-    rec = aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
+    rec = aedt_app.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
     assert rec.volume == 0.0
 
 
-def test_filter_faces_by_area(aedtapp):
-    aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
+def test_filter_faces_by_area(aedt_app):
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     faces_equal = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.faces_by_area(100):
             faces_equal.append(obj.faces_by_area(100))
     assert len(faces_equal) > 0  # otherwise, the test is invalid
@@ -507,7 +507,7 @@ def test_filter_faces_by_area(aedtapp):
         for face in face_object:
             assert abs(face.area - 100) < 1e-12
     faces_greater_equal = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.faces_by_area(100, ">="):
             faces_greater_equal.append(obj.faces_by_area(100, ">="))
     assert len(faces_greater_equal) > 0  # otherwise, the test is invalid
@@ -515,7 +515,7 @@ def test_filter_faces_by_area(aedtapp):
         for face in face_object:
             assert (face.area - 100) >= -1e-12
     faces_smaller_equal = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.faces_by_area(100, "<="):
             faces_smaller_equal.append(obj.faces_by_area(100, "<="))
     assert len(faces_smaller_equal) > 0  # otherwise, the test is invalid
@@ -523,7 +523,7 @@ def test_filter_faces_by_area(aedtapp):
         for face in face_object:
             assert (face.area - 100) <= 1e-12
     faces_greater = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.faces_by_area(99, ">"):
             faces_greater.append(obj.faces_by_area(99, ">"))
     assert len(faces_greater) > 0  # otherwise, the test is invalid
@@ -531,7 +531,7 @@ def test_filter_faces_by_area(aedtapp):
         for face in face_object:
             assert (face.area - 99) > 0
     faces_smaller = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.faces_by_area(105, "<"):
             faces_smaller.append(obj.faces_by_area(105, "<"))
     assert len(faces_smaller) > 0  # otherwise, the test is invalid
@@ -539,13 +539,13 @@ def test_filter_faces_by_area(aedtapp):
         for face in face_object:
             assert (face.area - 105) < 0
     with pytest.raises(ValueError):
-        aedtapp.modeler.object_list[0].faces_by_area(100, "<<")
+        aedt_app.modeler.object_list[0].faces_by_area(100, "<<")
 
 
-def test_edges_by_length(aedtapp):
-    aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
+def test_edges_by_length(aedt_app):
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     edges_equal = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.edges_by_length(10):
             edges_equal.append(obj.edges_by_length(10))
     assert len(edges_equal) > 0  # otherwise, the test is invalid
@@ -553,7 +553,7 @@ def test_edges_by_length(aedtapp):
         for edge in edge_object:
             assert abs(edge.length - 10) < 1e-12
     edges_greater_equal = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.edges_by_length(10, ">="):
             edges_greater_equal.append(obj.edges_by_length(10, ">="))
     assert len(edges_greater_equal) > 0  # otherwise, the test is invalid
@@ -561,7 +561,7 @@ def test_edges_by_length(aedtapp):
         for edge in edge_object:
             assert (edge.length - 10) >= -1e-12
     edges_smaller_equal = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.edges_by_length(10, "<="):
             edges_smaller_equal.append(obj.edges_by_length(10, "<="))
     assert len(edges_smaller_equal) > 0  # otherwise, the test is invalid
@@ -569,7 +569,7 @@ def test_edges_by_length(aedtapp):
         for edge in edge_object:
             assert (edge.length - 10) <= 1e-12
     edges_greater = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.edges_by_length(9, ">"):
             edges_greater.append(obj.edges_by_length(9, ">"))
     assert len(edges_greater) > 0  # otherwise, the test is invalid
@@ -577,7 +577,7 @@ def test_edges_by_length(aedtapp):
         for edge in edge_object:
             assert (edge.length - 9) > 0
     edges_smaller = []
-    for obj in aedtapp.modeler.object_list:
+    for obj in aedt_app.modeler.object_list:
         if obj.edges_by_length(15, "<"):
             edges_smaller.append(obj.edges_by_length(15, "<"))
     assert len(edges_smaller) > 0  # otherwise, the test is invalid
@@ -585,26 +585,26 @@ def test_edges_by_length(aedtapp):
         for edge in edge_object:
             assert (edge.length - 15) < 0
     with pytest.raises(ValueError):
-        aedtapp.modeler.object_list[0].edges_by_length(10, "<<")
+        aedt_app.modeler.object_list[0].edges_by_length(10, "<<")
 
 
-def test_unclassified_object_and_delete(aedtapp):
-    box1 = aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
-    box2 = aedtapp.modeler.create_box([2, 2, 2], [2, 2, 2])
-    aedtapp.modeler.intersect([box1, box2])
+def test_unclassified_object_and_delete(aedt_app):
+    box1 = aedt_app.modeler.create_box([0, 0, 0], [2, 2, 2])
+    box2 = aedt_app.modeler.create_box([2, 2, 2], [2, 2, 2])
+    aedt_app.modeler.intersect([box1, box2])
     vArg1 = ["NAME:Selections", "Selections:=", ", ".join([box1.name, box2.name])]
     vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", False]
-    aedtapp.modeler.oeditor.Intersect(vArg1, vArg2)
-    assert box1.name in aedtapp.modeler.unclassified_names
-    unclassified = aedtapp.modeler.unclassified_objects
-    assert aedtapp.modeler.delete(unclassified)
-    assert len(aedtapp.modeler.unclassified_objects) != unclassified
-    assert len(aedtapp.modeler.unclassified_objects) == 0
+    aedt_app.modeler.oeditor.Intersect(vArg1, vArg2)
+    assert box1.name in aedt_app.modeler.unclassified_names
+    unclassified = aedt_app.modeler.unclassified_objects
+    assert aedt_app.modeler.delete(unclassified)
+    assert len(aedt_app.modeler.unclassified_objects) != unclassified
+    assert len(aedt_app.modeler.unclassified_objects) == 0
 
 
-def test_get_object_history_properties(aedtapp):
-    box = create_copper_box(aedtapp, "box_history")
-    cylinder = create_copper_cylinder(aedtapp)
+def test_get_object_history_properties(aedt_app):
+    box = create_copper_box(aedt_app, "box_history")
+    cylinder = create_copper_cylinder(aedt_app)
     box_clone = box.clone()
     box_subtract = box_clone.subtract(cylinder)
     box_subtract.rotate(axis="Y", angle=180)
@@ -631,10 +631,10 @@ def test_get_object_history_properties(aedtapp):
     assert box_clone_history.children["Subtract:1"].command == "Subtract"
     assert box_clone_history.children["Rotate:1"].command == "Rotate"
     assert box_clone_history.children["SplitEdit:1"].command == "SplitEdit"
-    project_path = aedtapp.project_file
-    aedtapp.close_project(save=True)
-    aedtapp.load_project(project_path)
-    subtract = aedtapp.modeler["box_history1"].history().children["Subtract:1"].children
+    project_path = aedt_app.project_file
+    aedt_app.close_project(save=True)
+    aedt_app.load_project(project_path)
+    subtract = aedt_app.modeler["box_history1"].history().children["Subtract:1"].children
     assert len(subtract) == 1
     for key in subtract.keys():
         assert subtract[key].command == subtract[key].properties["Command"]
@@ -644,29 +644,29 @@ def test_get_object_history_properties(aedtapp):
             assert len(subtract_child[child].children) == 0
 
 
-def test_object_history_suppress(aedtapp):
-    box = create_copper_box(aedtapp, "history_test_box")
-    cylinder = create_copper_cylinder(aedtapp)
+def test_object_history_suppress(aedt_app):
+    box = create_copper_box(aedt_app, "history_test_box")
+    cylinder = create_copper_cylinder(aedt_app)
     box = box.subtract(cylinder)
     box.rotate(axis="Y", angle=180)
     box.split("XY")
-    assert box.history().suppress_all(aedtapp)
-    assert box.history().unsuppress_all(aedtapp)
+    assert box.history().suppress_all(aedt_app)
+    assert box.history().unsuppress_all(aedt_app)
 
 
-def test_object_history_jsonalize(aedtapp):
-    box = create_copper_box(aedtapp, "history_test_box")
-    cylinder = create_copper_cylinder(aedtapp)
+def test_object_history_jsonalize(aedt_app):
+    box = create_copper_box(aedt_app, "history_test_box")
+    cylinder = create_copper_cylinder(aedt_app)
     box = box.subtract(cylinder)
     box.rotate(axis="Y", angle=180)
     box.split("XY")
     assert box.history().jsonalize_tree()
 
 
-def test_set_object_history_properties(aedtapp):
-    aedtapp.modeler.model_units = "meter"
-    box = aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", material="Copper")
-    cylinder = aedtapp.modeler.create_cylinder(
+def test_set_object_history_properties(aedt_app):
+    aedt_app.modeler.model_units = "meter"
+    box = aedt_app.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", material="Copper")
+    cylinder = aedt_app.modeler.create_cylinder(
         orientation="Y",
         origin=[10, 10, 10],
         radius=5,
@@ -678,7 +678,7 @@ def test_set_object_history_properties(aedtapp):
     box = box.subtract(cylinder)
     box = box.rotate(axis="Y", angle=180)
     box = box.split("XY")
-    history = aedtapp.modeler["box_history"].history()
+    history = aedt_app.modeler["box_history"].history()
     assert history.properties["Position/X"] == "10meter"
     history.properties["Position/X"] = "15meter"
     assert history.properties["Position/X"] == "15meter"
@@ -707,55 +707,55 @@ def test_set_object_history_properties(aedtapp):
     assert subtract_child_prop_checked  # otherwise, the test is invalid
 
 
-def test_insert_nets(aedtapp):
-    aedtapp.insert_design("nets")
-    aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], material="copper")
-    aedtapp.modeler.create_box([30, 0, 0], [5, 10, 10], material="copper")
-    aedtapp.modeler.create_box([60, 0, 0], [5, 10, 10], material="vacuum")
-    nets = aedtapp.identify_touching_conductors()
+def test_insert_nets(aedt_app):
+    aedt_app.insert_design("nets")
+    aedt_app.modeler.create_box([0, 0, 0], [5, 10, 10], material="copper")
+    aedt_app.modeler.create_box([30, 0, 0], [5, 10, 10], material="copper")
+    aedt_app.modeler.create_box([60, 0, 0], [5, 10, 10], material="vacuum")
+    nets = aedt_app.identify_touching_conductors()
     assert len(nets) == 2
 
 
-def test_heal_objects(aedtapp):
-    aedtapp.insert_design("Heal_Objects")
-    create_copper_box(aedtapp, "box_1")
-    create_copper_box(aedtapp, "box_2")
-    assert aedtapp.modeler.heal_objects(assignment="box_1")
-    assert aedtapp.modeler.heal_objects(assignment="box_1,box_2")
-    assert aedtapp.modeler.heal_objects(assignment="box_1, box_2 ")
-    assert not aedtapp.modeler.heal_objects(assignment=["box_1", "box_2"])
-    assert not aedtapp.modeler.heal_objects(assignment="box_1", simplify_type=3)
-    assert aedtapp.modeler.heal_objects(assignment="box_1", max_stitch_tolerance="0.01")
-    assert aedtapp.modeler.heal_objects(assignment="box_1", max_stitch_tolerance=0.01)
-    assert aedtapp.modeler.heal_objects(assignment="box_1", geometry_simplification_tolerance=1.2)
-    assert aedtapp.modeler.heal_objects(assignment="box_1", geometry_simplification_tolerance="1.2")
-    assert aedtapp.modeler.heal_objects(assignment="box_1", tighten_gaps_width=0.001)
-    assert aedtapp.modeler.heal_objects(assignment="box_1", tighten_gaps_width="0.001")
-    assert aedtapp.modeler.heal_objects(assignment="box_1", silver_face_tolerance=1.2)
-    assert aedtapp.modeler.heal_objects(assignment="box_1", silver_face_tolerance="1.2")
-    assert not aedtapp.modeler.heal_objects(assignment=None)
-    assert not aedtapp.modeler.heal_objects(assignment=1)
+def test_heal_objects(aedt_app):
+    aedt_app.insert_design("Heal_Objects")
+    create_copper_box(aedt_app, "box_1")
+    create_copper_box(aedt_app, "box_2")
+    assert aedt_app.modeler.heal_objects(assignment="box_1")
+    assert aedt_app.modeler.heal_objects(assignment="box_1,box_2")
+    assert aedt_app.modeler.heal_objects(assignment="box_1, box_2 ")
+    assert not aedt_app.modeler.heal_objects(assignment=["box_1", "box_2"])
+    assert not aedt_app.modeler.heal_objects(assignment="box_1", simplify_type=3)
+    assert aedt_app.modeler.heal_objects(assignment="box_1", max_stitch_tolerance="0.01")
+    assert aedt_app.modeler.heal_objects(assignment="box_1", max_stitch_tolerance=0.01)
+    assert aedt_app.modeler.heal_objects(assignment="box_1", geometry_simplification_tolerance=1.2)
+    assert aedt_app.modeler.heal_objects(assignment="box_1", geometry_simplification_tolerance="1.2")
+    assert aedt_app.modeler.heal_objects(assignment="box_1", tighten_gaps_width=0.001)
+    assert aedt_app.modeler.heal_objects(assignment="box_1", tighten_gaps_width="0.001")
+    assert aedt_app.modeler.heal_objects(assignment="box_1", silver_face_tolerance=1.2)
+    assert aedt_app.modeler.heal_objects(assignment="box_1", silver_face_tolerance="1.2")
+    assert not aedt_app.modeler.heal_objects(assignment=None)
+    assert not aedt_app.modeler.heal_objects(assignment=1)
 
 
 @pytest.mark.skipif(is_linux, reason="Crashing in linux")
-def test_simplify_objects(aedtapp):
-    create_copper_box(aedtapp, "box_1")
-    create_copper_box(aedtapp, "box_2")
-    assert aedtapp.modeler.simplify_objects(assignment="box_1")
-    assert aedtapp.modeler.simplify_objects(assignment="box_1,box_2")
-    assert aedtapp.modeler.simplify_objects(assignment="box_1, box_2")
-    assert not aedtapp.modeler.simplify_objects(assignment=["box_1", "box_2"])
-    assert aedtapp.modeler.simplify_objects(assignment="box_1", simplify_type="Primitive Fit")
-    assert not aedtapp.modeler.simplify_objects(assignment="box_1", simplify_type="Invalid")
-    assert not aedtapp.modeler.simplify_objects(assignment="box_1", simplify_type="Polygon Fit", extrusion_axis="U")
-    assert not aedtapp.modeler.simplify_objects(assignment=None)
-    assert not aedtapp.modeler.simplify_objects(assignment=1)
+def test_simplify_objects(aedt_app):
+    create_copper_box(aedt_app, "box_1")
+    create_copper_box(aedt_app, "box_2")
+    assert aedt_app.modeler.simplify_objects(assignment="box_1")
+    assert aedt_app.modeler.simplify_objects(assignment="box_1,box_2")
+    assert aedt_app.modeler.simplify_objects(assignment="box_1, box_2")
+    assert not aedt_app.modeler.simplify_objects(assignment=["box_1", "box_2"])
+    assert aedt_app.modeler.simplify_objects(assignment="box_1", simplify_type="Primitive Fit")
+    assert not aedt_app.modeler.simplify_objects(assignment="box_1", simplify_type="Invalid")
+    assert not aedt_app.modeler.simplify_objects(assignment="box_1", simplify_type="Polygon Fit", extrusion_axis="U")
+    assert not aedt_app.modeler.simplify_objects(assignment=None)
+    assert not aedt_app.modeler.simplify_objects(assignment=1)
 
 
-def test_rescale(aedtapp):
-    aedtapp.modeler.model_units = "meter"
-    box = aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], material="Copper")
+def test_rescale(aedt_app):
+    aedt_app.modeler.model_units = "meter"
+    box = aedt_app.modeler.create_box([0, 0, 0], [5, 10, 2], material="Copper")
     assert box.mass == 893300.0
-    aedtapp.modeler.rescale_model = True
-    aedtapp.modeler.model_units = "mm"
+    aedt_app.modeler.rescale_model = True
+    aedt_app.modeler.model_units = "mm"
     assert round(box.mass, 5) == 0.00089
