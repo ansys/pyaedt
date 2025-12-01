@@ -121,11 +121,13 @@ def clean_old_pytest_temps(tmp_path_factory):
     current = tmp_path_factory.getbasetemp().name
 
     for entry in base.iterdir():
-        if entry.is_dir() and entry.name.startswith("pytest-") and entry.name != current:
+        if entry.is_dir() and (
+            (entry.name.startswith("pytest-") and entry.name != current) or entry.name.startswith("pkg-")
+        ):
             try:
                 shutil.rmtree(entry, ignore_errors=True)
             except Exception as e:
-                pyaedt_logger.debug(f"Error {type(e)} occurred while deleting pytest directory: {e}")
+                pyaedt_logger.debug(f"Error {type(e)} occurred while deleting temp directory: {e}")
 
 
 @pytest.fixture(scope="session")
