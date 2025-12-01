@@ -708,13 +708,20 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
         material="copper",
         isnegative=True,
     )
+
     aedt_app.modeler.layers.add_layer(
         layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
     )
 
-    _ = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle1")
-    c2 = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle2")
-    c2.net_name = "newNet"
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
+    points = [[100, 100], [100, 200], [200, 200]]
+    p1 = aedt_app.modeler.create_polygon("Top", points, name="poly_41")
+    p1.net_name = "newNet2"
+    line = aedt_app.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net="VCC")
+    line.net_name = "newNet2"
+    via = aedt_app.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
+    via.net_name = "newNet"
 
     filename = "export_to_hfss_test"
     filename2 = "export_to_hfss_test2"
@@ -724,47 +731,27 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
     setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup.update()
 
-    file_fullname = str(file_tmp_root / filename)
-    file_fullname2 = str(file_tmp_root / filename2)
-    file_fullname3 = str(file_tmp_root / filename3)
+    file_fullname = file_tmp_root / filename
+    file_fullname2 = file_tmp_root / filename2
+    file_fullname3 = file_tmp_root / filename3
 
     aedt_app.save_project()
-    assert setup.export_to_hfss(output_file=file_fullname)
-    if not is_linux:
-        # TODO: EDB failing in Linux
-        assert setup.export_to_hfss(output_file=file_fullname2, keep_net_name=True)
-
-        assert setup.export_to_hfss(output_file=file_fullname3, keep_net_name=True, unite=False)
-
-
-def test_export_to_q3d(aedt_app, file_tmp_root):
-    example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
-    target_path = file_tmp_root / "Package_test_19e.aedb"
-    shutil.copytree(example_project, target_path)
-    assert aedt_app.import_edb(str(target_path))
+    assert setup.export_to_hfss(output_file=str(file_fullname))
+    assert (file_fullname.with_suffix(".aedt")).is_file()
+    assert setup.export_to_hfss(output_file=str(file_fullname2), keep_net_name=True)
+    assert (file_fullname2.with_suffix(".aedt")).is_file()
+    assert setup.export_to_hfss(output_file=str(file_fullname3), keep_net_name=True, unite=False)
+    assert (file_fullname3.with_suffix(".aedt")).is_file()
 
     filename = "export_to_q3d_test"
-    file_fullname = str(file_tmp_root / filename)
-    setup_name = "Q3DExportSetup"
-    setup = aedt_app.create_setup(name=setup_name)
-    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
-    setup.update()
-    assert setup.export_to_q3d(file_fullname)
+    file_fullname4 = file_tmp_root / filename
+    assert setup.export_to_q3d(str(file_fullname4))
+    assert (file_fullname4.with_suffix(".aedt")).is_file()
 
-
-def test_export_to_q3d_non_unite(aedt_app, file_tmp_root):
-    example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
-    target_path = file_tmp_root / "Package_test_19f.aedb"
-    shutil.copytree(example_project, target_path)
-    assert aedt_app.import_edb(str(target_path))
-
-    filename = "export_to_q3d_non_unite_test"
-    file_fullname = str(file_tmp_root / filename)
-    setup_name = "Q3DExportSetup2"
-    setup = aedt_app.create_setup(name=setup_name)
-    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
-    setup.update()
-    assert setup.export_to_q3d(file_fullname, keep_net_name=True, unite=False)
+    filename = "export_to_q3d_test2"
+    file_fullname5 = file_tmp_root / filename
+    assert setup.export_to_q3d(str(file_fullname5), keep_net_name=True, unite=False)
+    assert (file_fullname5.with_suffix(".aedt")).is_file()
 
 
 def test_variables(aedt_app):
