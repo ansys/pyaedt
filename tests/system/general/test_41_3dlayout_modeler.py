@@ -42,10 +42,7 @@ TEST_SUBFOLDER = "T41"
 RIGID_FLEX = "demo_flex"
 POST_PROCESSING_PROJECT = "test_post_processing"
 POST_LAYOUT_PROJECT = "test_post_3d_layout_solved_23R2"
-if DESKTOP_VERSION > "2022.2":
-    DIFF_PROJECT = "differential_pairs_t41_231"
-else:
-    DIFF_PROJECT = "differential_pairs_t41"
+DIFF_PROJECT = "differential_pairs_t41_231"
 
 
 @pytest.fixture
