@@ -1,6 +1,0 @@
-create\_line
-============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
-
-.. automethod:: MaxwellCircuitComponents.create_line

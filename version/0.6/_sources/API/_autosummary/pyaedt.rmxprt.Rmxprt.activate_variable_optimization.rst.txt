@@ -1,6 +1,0 @@
-activate\_variable\_optimization
-================================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.activate_variable_optimization

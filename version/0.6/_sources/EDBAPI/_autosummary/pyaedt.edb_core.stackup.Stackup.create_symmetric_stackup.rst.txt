@@ -1,6 +1,0 @@
-create\_symmetric\_stackup
-==========================
-
-.. currentmodule:: pyaedt.edb_core.stackup
-
-.. automethod:: Stackup.create_symmetric_stackup

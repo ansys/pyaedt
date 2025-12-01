@@ -1,6 +1,0 @@
-results\_directory
-==================
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.results_directory

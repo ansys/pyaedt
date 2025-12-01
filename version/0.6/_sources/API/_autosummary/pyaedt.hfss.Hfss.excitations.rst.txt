@@ -1,6 +1,0 @@
-excitations
-===========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.excitations

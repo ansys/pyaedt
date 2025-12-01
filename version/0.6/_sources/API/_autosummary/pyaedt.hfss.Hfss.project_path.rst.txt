@@ -1,6 +1,0 @@
-project\_path
-=============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.project_path

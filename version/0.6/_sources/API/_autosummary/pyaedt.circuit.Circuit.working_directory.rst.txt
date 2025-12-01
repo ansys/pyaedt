@@ -1,6 +1,0 @@
-working\_directory
-==================
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.working_directory

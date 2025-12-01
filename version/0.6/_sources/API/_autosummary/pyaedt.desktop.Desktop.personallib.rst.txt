@@ -1,6 +1,0 @@
-personallib
-===========
-
-.. currentmodule:: pyaedt.desktop
-
-.. autoproperty:: Desktop.personallib

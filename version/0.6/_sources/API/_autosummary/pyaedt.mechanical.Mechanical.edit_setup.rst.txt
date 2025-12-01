@@ -1,6 +1,0 @@
-edit\_setup
-===========
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.edit_setup

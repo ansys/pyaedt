@@ -1,6 +1,0 @@
-export\_setups
-==============
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autoproperty:: ConfigurationsOptions.export_setups

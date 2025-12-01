@@ -1,6 +1,0 @@
-syslib
-======
-
-.. currentmodule:: pyaedt.desktop
-
-.. autoproperty:: Desktop.syslib

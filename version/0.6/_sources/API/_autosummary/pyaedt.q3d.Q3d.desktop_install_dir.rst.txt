@@ -1,6 +1,0 @@
-desktop\_install\_dir
-=====================
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q3d.desktop_install_dir

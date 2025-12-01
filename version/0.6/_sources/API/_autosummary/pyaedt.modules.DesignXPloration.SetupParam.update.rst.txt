@@ -1,6 +1,0 @@
-update
-======
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. automethod:: SetupParam.update

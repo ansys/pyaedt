@@ -1,6 +1,0 @@
-create\_rlc\_component
-======================
-
-.. currentmodule:: pyaedt.edb_core.siwave
-
-.. automethod:: EdbSiwave.create_rlc_component

@@ -1,6 +1,0 @@
-get\_module
-===========
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.get_module

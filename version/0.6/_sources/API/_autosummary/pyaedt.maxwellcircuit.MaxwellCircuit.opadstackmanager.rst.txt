@@ -1,6 +1,0 @@
-opadstackmanager
-================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.opadstackmanager

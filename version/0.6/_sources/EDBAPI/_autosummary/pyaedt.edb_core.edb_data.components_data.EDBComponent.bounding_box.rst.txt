@@ -1,6 +1,0 @@
-bounding\_box
-=============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.components_data
-
-.. autoproperty:: EDBComponent.bounding_box

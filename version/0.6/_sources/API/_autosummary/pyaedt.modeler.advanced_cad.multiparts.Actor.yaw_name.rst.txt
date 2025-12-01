@@ -1,6 +1,0 @@
-yaw\_name
-=========
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.multiparts
-
-.. autoproperty:: Actor.yaw_name

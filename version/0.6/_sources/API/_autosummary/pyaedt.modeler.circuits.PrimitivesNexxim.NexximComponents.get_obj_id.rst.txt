@@ -1,6 +1,0 @@
-get\_obj\_id
-============
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.get_obj_id

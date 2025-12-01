@@ -1,6 +1,0 @@
-add\_rlc
-========
-
-.. currentmodule:: pyaedt.edb_core.edb_data.simulation_configuration
-
-.. automethod:: SimulationConfiguration.add_rlc

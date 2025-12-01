@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q3d.setup_names

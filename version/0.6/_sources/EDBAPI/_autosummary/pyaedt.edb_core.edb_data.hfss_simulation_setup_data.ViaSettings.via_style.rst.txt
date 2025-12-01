@@ -1,6 +1,0 @@
-via\_style
-==========
-
-.. currentmodule:: pyaedt.edb_core.edb_data.hfss_simulation_setup_data
-
-.. autoproperty:: ViaSettings.via_style

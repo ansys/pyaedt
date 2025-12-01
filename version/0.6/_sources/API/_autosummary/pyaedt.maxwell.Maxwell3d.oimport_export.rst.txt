@@ -1,6 +1,0 @@
-oimport\_export
-===============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell3d.oimport_export

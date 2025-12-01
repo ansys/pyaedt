@@ -1,6 +1,0 @@
-offset\_x\_name
-===============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.multiparts
-
-.. autoproperty:: Actor.offset_x_name

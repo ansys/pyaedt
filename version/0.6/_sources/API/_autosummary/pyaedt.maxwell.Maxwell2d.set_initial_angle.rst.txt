@@ -1,6 +1,0 @@
-set\_initial\_angle
-===================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.set_initial_angle

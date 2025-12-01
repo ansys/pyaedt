@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.analyze

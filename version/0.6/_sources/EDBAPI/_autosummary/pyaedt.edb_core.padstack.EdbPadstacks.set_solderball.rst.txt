@@ -1,6 +1,0 @@
-set\_solderball
-===============
-
-.. currentmodule:: pyaedt.edb_core.padstack
-
-.. automethod:: EdbPadstacks.set_solderball

@@ -1,6 +1,0 @@
-points\_distance
-================
-
-.. currentmodule:: pyaedt.modeler.geometry_operators
-
-.. automethod:: GeometryOperators.points_distance

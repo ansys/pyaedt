@@ -1,6 +1,0 @@
-export\_summary
-===============
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.export_summary

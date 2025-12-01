@@ -1,6 +1,0 @@
-variable\_manager
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.variable_manager

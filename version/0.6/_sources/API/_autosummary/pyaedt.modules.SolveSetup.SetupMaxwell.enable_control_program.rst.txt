@@ -1,6 +1,0 @@
-enable\_control\_program
-========================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupMaxwell.enable_control_program

@@ -1,6 +1,0 @@
-convert\_to\_selections
-=======================
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.convert_to_selections

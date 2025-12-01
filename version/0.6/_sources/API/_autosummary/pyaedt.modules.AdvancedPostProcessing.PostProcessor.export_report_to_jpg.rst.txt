@@ -1,6 +1,0 @@
-export\_report\_to\_jpg
-=======================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.export_report_to_jpg

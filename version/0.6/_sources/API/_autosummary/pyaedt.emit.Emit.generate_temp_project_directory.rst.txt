@@ -1,6 +1,0 @@
-generate\_temp\_project\_directory
-==================================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.generate_temp_project_directory

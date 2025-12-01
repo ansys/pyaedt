@@ -1,6 +1,0 @@
-compute\_inductance
-===================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. autoproperty:: SiwaveDCSimulationSetup.compute_inductance

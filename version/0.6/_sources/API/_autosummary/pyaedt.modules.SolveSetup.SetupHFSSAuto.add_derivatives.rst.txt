@@ -1,6 +1,0 @@
-add\_derivatives
-================
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupHFSSAuto.add_derivatives

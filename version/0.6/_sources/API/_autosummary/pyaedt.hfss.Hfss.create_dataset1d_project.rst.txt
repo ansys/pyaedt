@@ -1,6 +1,0 @@
-create\_dataset1d\_project
-==========================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.create_dataset1d_project

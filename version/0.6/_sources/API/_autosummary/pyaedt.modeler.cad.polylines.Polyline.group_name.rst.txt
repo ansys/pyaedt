@@ -1,6 +1,0 @@
-group\_name
-===========
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.group_name

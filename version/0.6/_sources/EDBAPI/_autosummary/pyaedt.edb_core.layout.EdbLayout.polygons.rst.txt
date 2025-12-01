@@ -1,6 +1,0 @@
-polygons
-========
-
-.. currentmodule:: pyaedt.edb_core.layout
-
-.. autoproperty:: EdbLayout.polygons

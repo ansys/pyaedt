@@ -1,6 +1,0 @@
-o\_symbol\_manager
-==================
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.o_symbol_manager

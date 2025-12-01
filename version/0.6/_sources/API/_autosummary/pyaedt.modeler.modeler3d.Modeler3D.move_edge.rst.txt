@@ -1,6 +1,0 @@
-move\_edge
-==========
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.move_edge

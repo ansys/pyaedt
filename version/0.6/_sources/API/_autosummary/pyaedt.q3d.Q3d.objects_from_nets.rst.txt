@@ -1,6 +1,0 @@
-objects\_from\_nets
-===================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q3d.objects_from_nets

@@ -1,6 +1,0 @@
-set\_license\_type
-==================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.set_license_type

@@ -1,6 +1,0 @@
-read\_only\_variable
-====================
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.read_only_variable

@@ -1,6 +1,0 @@
-omonitor
-========
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.omonitor

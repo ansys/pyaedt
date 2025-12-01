@@ -1,6 +1,0 @@
-add\_djordjevicsarkar\_material
-===============================
-
-.. currentmodule:: pyaedt.edb_core.materials
-
-.. automethod:: Materials.add_djordjevicsarkar_material

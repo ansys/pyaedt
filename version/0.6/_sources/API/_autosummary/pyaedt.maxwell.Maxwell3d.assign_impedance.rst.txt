@@ -1,6 +1,0 @@
-assign\_impedance
-=================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.assign_impedance

@@ -1,6 +1,0 @@
-read\_only\_variable
-====================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.read_only_variable

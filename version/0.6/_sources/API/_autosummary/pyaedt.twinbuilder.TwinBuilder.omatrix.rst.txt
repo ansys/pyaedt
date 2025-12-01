@@ -1,6 +1,0 @@
-omatrix
-=======
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.omatrix

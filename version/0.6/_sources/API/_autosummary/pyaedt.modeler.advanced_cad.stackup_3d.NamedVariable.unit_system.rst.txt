@@ -1,6 +1,0 @@
-unit\_system
-============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. autoproperty:: NamedVariable.unit_system

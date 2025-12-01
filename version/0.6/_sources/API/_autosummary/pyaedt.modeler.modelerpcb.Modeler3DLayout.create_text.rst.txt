@@ -1,6 +1,0 @@
-create\_text
-============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.create_text

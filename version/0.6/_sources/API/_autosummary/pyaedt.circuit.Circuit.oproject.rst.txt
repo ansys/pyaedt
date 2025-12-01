@@ -1,6 +1,0 @@
-oproject
-========
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.oproject

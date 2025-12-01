@@ -1,6 +1,0 @@
-automatic\_mesh
-===============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. autoproperty:: SiwaveSYZSimulationSetup.automatic_mesh

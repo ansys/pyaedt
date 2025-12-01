@@ -1,6 +1,0 @@
-close\_desktop
-==============
-
-.. currentmodule:: pyaedt.desktop
-
-.. automethod:: Desktop.close_desktop

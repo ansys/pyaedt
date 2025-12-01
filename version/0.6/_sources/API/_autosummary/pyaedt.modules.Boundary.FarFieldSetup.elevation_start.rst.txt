@@ -1,6 +1,0 @@
-elevation\_start
-================
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: FarFieldSetup.elevation_start

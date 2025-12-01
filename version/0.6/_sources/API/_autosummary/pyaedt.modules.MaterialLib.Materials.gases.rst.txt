@@ -1,6 +1,0 @@
-gases
-=====
-
-.. currentmodule:: pyaedt.modules.MaterialLib
-
-.. autoproperty:: Materials.gases

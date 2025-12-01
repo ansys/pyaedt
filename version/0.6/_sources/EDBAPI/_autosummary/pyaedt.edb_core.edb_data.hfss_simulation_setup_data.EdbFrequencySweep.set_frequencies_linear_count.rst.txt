@@ -1,6 +1,0 @@
-set\_frequencies\_linear\_count
-===============================
-
-.. currentmodule:: pyaedt.edb_core.edb_data.hfss_simulation_setup_data
-
-.. automethod:: EdbFrequencySweep.set_frequencies_linear_count

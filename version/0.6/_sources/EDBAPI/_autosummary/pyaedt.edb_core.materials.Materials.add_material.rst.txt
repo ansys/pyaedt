@@ -1,6 +1,0 @@
-add\_material
-=============
-
-.. currentmodule:: pyaedt.edb_core.materials
-
-.. automethod:: Materials.add_material

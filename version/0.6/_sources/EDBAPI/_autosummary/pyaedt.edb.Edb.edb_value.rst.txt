@@ -1,6 +1,0 @@
-edb\_value
-==========
-
-.. currentmodule:: pyaedt.edb
-
-.. automethod:: Edb.edb_value

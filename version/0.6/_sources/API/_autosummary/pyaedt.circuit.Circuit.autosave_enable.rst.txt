@@ -1,6 +1,0 @@
-autosave\_enable
-================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.autosave_enable

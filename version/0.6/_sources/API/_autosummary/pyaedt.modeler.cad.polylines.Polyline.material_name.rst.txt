@@ -1,6 +1,0 @@
-material\_name
-==============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.material_name

@@ -1,6 +1,0 @@
-post
-====
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.post

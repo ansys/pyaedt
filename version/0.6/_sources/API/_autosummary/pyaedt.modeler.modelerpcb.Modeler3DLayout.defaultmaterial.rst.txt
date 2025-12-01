@@ -1,6 +1,0 @@
-defaultmaterial
-===============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. autoproperty:: Modeler3DLayout.defaultmaterial

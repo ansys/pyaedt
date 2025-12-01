@@ -1,6 +1,0 @@
-max\_frequency
-==============
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Spectral.max_frequency

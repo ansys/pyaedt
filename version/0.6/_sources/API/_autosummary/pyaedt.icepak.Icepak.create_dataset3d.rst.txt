@@ -1,6 +1,0 @@
-create\_dataset3d
-=================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.create_dataset3d

@@ -1,6 +1,0 @@
-apply\_skew
-===========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.apply_skew

@@ -1,6 +1,0 @@
-create\_conduting\_plate
-========================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.create_conduting_plate

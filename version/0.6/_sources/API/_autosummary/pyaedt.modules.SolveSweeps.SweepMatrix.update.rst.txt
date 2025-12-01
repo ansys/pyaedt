@@ -1,6 +1,0 @@
-update
-======
-
-.. currentmodule:: pyaedt.modules.SolveSweeps
-
-.. automethod:: SweepMatrix.update

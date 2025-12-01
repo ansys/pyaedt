@@ -1,6 +1,0 @@
-add\_from\_toolkit
-==================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.add_from_toolkit

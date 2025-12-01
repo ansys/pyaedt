@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell3d.analyze

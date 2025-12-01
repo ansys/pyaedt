@@ -1,6 +1,0 @@
-ifft
-====
-
-.. currentmodule:: pyaedt.modules.solutions
-
-.. automethod:: SolutionData.ifft

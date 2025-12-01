@@ -1,6 +1,0 @@
-rename\_design
-==============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.rename_design

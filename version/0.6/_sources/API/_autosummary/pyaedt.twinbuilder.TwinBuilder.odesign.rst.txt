@@ -1,6 +1,0 @@
-odesign
-=======
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. autoproperty:: TwinBuilder.odesign

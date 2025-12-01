@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.export_results

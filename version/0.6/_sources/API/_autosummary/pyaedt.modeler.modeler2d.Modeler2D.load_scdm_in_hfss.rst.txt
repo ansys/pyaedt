@@ -1,6 +1,0 @@
-load\_scdm\_in\_hfss
-====================
-
-.. currentmodule:: pyaedt.modeler.modeler2d
-
-.. automethod:: Modeler2D.load_scdm_in_hfss

@@ -1,6 +1,0 @@
-points
-======
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.points

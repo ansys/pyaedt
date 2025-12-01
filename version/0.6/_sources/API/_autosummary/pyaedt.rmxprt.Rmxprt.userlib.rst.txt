@@ -1,6 +1,0 @@
-userlib
-=======
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.userlib

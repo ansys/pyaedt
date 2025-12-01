@@ -1,6 +1,0 @@
-paste
-=====
-
-.. currentmodule:: pyaedt.modeler.modeler2d
-
-.. automethod:: Modeler2D.paste

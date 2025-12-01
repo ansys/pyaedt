@@ -1,6 +1,0 @@
-available\_report\_quantities
-=============================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.available_report_quantities

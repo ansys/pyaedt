@@ -1,6 +1,0 @@
-energy\_error
-=============
-
-.. currentmodule:: pyaedt.edb_core.edb_data.siwave_simulation_setup_data
-
-.. autoproperty:: SiwaveDCSimulationSetup.energy_error

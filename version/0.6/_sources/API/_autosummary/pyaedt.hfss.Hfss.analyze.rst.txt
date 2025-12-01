@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.analyze

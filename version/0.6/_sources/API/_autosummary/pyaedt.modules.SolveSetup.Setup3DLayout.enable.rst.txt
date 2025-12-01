@@ -1,6 +1,0 @@
-enable
-======
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: Setup3DLayout.enable

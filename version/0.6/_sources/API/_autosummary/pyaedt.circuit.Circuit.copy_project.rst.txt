@@ -1,6 +1,0 @@
-copy\_project
-=============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.copy_project

@@ -1,6 +1,0 @@
-excitations
-===========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.excitations

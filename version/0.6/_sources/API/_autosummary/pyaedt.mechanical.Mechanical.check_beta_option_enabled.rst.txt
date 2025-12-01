@@ -1,6 +1,0 @@
-check\_beta\_option\_enabled
-============================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.check_beta_option_enabled

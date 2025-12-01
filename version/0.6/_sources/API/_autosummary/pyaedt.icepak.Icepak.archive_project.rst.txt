@@ -1,6 +1,0 @@
-archive\_project
-================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.archive_project

@@ -1,6 +1,0 @@
-targetcs
-========
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: NativeComponentObject.targetcs

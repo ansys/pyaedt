@@ -1,6 +1,0 @@
-ofieldsreporter
-===============
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.ofieldsreporter

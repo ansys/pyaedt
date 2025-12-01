@@ -1,6 +1,0 @@
-model\_units
-============
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. autoproperty:: PostProcessor.model_units

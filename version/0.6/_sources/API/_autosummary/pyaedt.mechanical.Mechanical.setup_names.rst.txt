@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.setup_names

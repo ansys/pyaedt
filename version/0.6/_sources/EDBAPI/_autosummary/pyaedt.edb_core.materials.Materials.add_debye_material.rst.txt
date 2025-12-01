@@ -1,6 +1,0 @@
-add\_debye\_material
-====================
-
-.. currentmodule:: pyaedt.edb_core.materials
-
-.. automethod:: Materials.add_debye_material

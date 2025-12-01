@@ -1,6 +1,0 @@
-data\_set
-=========
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoproperty:: MatProperty.data_set

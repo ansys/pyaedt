@@ -1,6 +1,0 @@
-design\_settings
-================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.design_settings

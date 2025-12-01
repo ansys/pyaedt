@@ -1,6 +1,0 @@
-get\_aedt\_pin\_name
-====================
-
-.. currentmodule:: pyaedt.edb_core.components
-
-.. automethod:: Components.get_aedt_pin_name

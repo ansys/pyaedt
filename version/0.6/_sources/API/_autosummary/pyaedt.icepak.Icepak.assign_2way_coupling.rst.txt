@@ -1,6 +1,0 @@
-assign\_2way\_coupling
-======================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.assign_2way_coupling

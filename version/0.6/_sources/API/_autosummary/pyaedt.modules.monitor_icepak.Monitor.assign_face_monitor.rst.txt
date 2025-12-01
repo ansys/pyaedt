@@ -1,6 +1,0 @@
-assign\_face\_monitor
-=====================
-
-.. currentmodule:: pyaedt.modules.monitor_icepak
-
-.. automethod:: Monitor.assign_face_monitor

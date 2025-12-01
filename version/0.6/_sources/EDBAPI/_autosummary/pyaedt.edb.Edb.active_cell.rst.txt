@@ -1,6 +1,0 @@
-active\_cell
-============
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.active_cell

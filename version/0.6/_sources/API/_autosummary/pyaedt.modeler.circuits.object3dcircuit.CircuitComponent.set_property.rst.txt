@@ -1,6 +1,0 @@
-set\_property
-=============
-
-.. currentmodule:: pyaedt.modeler.circuits.object3dcircuit
-
-.. automethod:: CircuitComponent.set_property

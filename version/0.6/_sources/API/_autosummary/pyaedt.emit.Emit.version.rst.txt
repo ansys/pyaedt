@@ -1,6 +1,0 @@
-version
-=======
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.version

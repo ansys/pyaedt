@@ -1,6 +1,0 @@
-validate\_simple
-================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.validate_simple

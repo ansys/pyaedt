@@ -1,6 +1,0 @@
-nets
-====
-
-.. currentmodule:: pyaedt.edb
-
-.. autoproperty:: Edb.nets

@@ -1,6 +1,0 @@
-duplicate
-=========
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
-
-.. automethod:: NexximComponents.duplicate
