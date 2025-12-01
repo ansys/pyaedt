@@ -145,9 +145,6 @@ def desktop(tmp_path_factory):
     Session scope ensures only one Desktop per worker is created.
     """
     desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
-    # Original temp directory
-    desktop_temp_dir = desktop_app.odesktop.GetTempDirectory()
-    project_default_dir = desktop_app.odesktop.GetProjectDirectory()
 
     # New temp directory for the test session
     base = str(tmp_path_factory.getbasetemp())
@@ -160,17 +157,18 @@ def desktop(tmp_path_factory):
 
     try:
         # Restore original temp directory
-        desktop_app.odesktop.SetTempDirectory(desktop_temp_dir)
-        desktop_app.odesktop.SetProjectDirectory(project_default_dir)
+        desktop_app.odesktop.SetTempDirectory(str(tempfile.gettempdir()))
+        desktop_app.odesktop.SetProjectDirectory(str(tempfile.gettempdir()))
         desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
-    except Exception:
-        pass
+    except Exception as e:
+        raise Exception("Failed to close Desktop instance") from e
 
 
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_all_tmp_at_end(tmp_path_factory):
     """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
     base = tmp_path_factory.getbasetemp()
+    temp_dir = Path(tempfile.gettempdir())
 
     yield
 
@@ -182,7 +180,15 @@ def cleanup_all_tmp_at_end(tmp_path_factory):
             except (IsADirectoryError, PermissionError):
                 shutil.rmtree(p, ignore_errors=True)
     except Exception:
-        pass
+        pyaedt_logger.warning(f"Failed to cleanup temporary directory {base}")
+
+    # Remove pkg- temp dirs from system temp
+    try:
+        for entry in temp_dir.iterdir():
+            if entry.is_dir() and entry.name.startswith("pkg-"):
+                shutil.rmtree(entry, ignore_errors=True)
+    except Exception:
+        pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
 
 
 # ================================
