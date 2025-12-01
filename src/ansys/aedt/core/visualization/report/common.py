@@ -702,14 +702,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 continue
             try:
                 oo1 = oo.GetChildObject(el)
-                oo1_name = oo1.GetChildNames()
-                if not oo1_name:
-                    aedt_name = f"{self.plot_name}:{el}"
+                trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
+                for aedt_name in trace_names:
                     _traces.append(Trace(self._post, aedt_name, el, oo1))
-                else:
-                    for i in oo1_name:
-                        aedt_name = f"{self.plot_name}:{el}:{i}"
-                        _traces.append(Trace(self._post, aedt_name, el, oo1))
+
             except Exception:
                 self._app.logger.debug(f"Something went wrong while processing element {el}.")
         return _traces

@@ -1354,7 +1354,7 @@ class VariableManager(PyAedtBase):
                 "Circuit Design",
                 "Twin Builder",
                 "HFSS 3D Layout Design",
-            ]:
+            ] and "GetDesignName" in dir(desktop_object):
                 # To retrieve Parameter Default Variables
                 try:
                     v = list(self._app.get_oo_object(desktop_object, "DefinitionParameters").GetPropNames())
