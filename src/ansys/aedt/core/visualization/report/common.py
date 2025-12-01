@@ -707,10 +707,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 if trace_names:
                     for aedt_name in trace_names:
                         _traces.append(Trace(self._post, aedt_name, el, oo1))
-                elif oo1_name:
-                    for i in oo1_name:
-                        aedt_name = f"{self.plot_name}:{el}:{i}"
-                        _traces.append(Trace(self._post, aedt_name, el, oo1))
+                elif not oo1_name:
+                    aedt_name = f"{self.plot_name}:{el}"
+                    _traces.append(Trace(self._post, aedt_name, el, oo1))
             except Exception:
                 self._app.logger.debug(f"Something went wrong while processing element {el}.")
         return _traces
