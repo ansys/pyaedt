@@ -36,7 +36,6 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
-from tests.conftest import NON_GRAPHICAL
 from tests.conftest import USE_GRPC
 
 TEST_SUBFOLDER = "T41"
@@ -817,7 +816,7 @@ def test_duplicate_material(aedt_app):
     assert new_material.name == "SecondMaterial"
 
 
-@pytest.mark.skipif(NON_GRAPHICAL, reason="Failing in Non-graphical mode")
+# @pytest.mark.skipif(NON_GRAPHICAL, reason="Failing in Non-graphical mode")
 def test_expand(aedt_app):
     aedt_app.modeler.layers.add_layer(
         layer="Bottom",
@@ -826,10 +825,9 @@ def test_expand(aedt_app):
         elevation="0mm",
         material="copper",
     )
-    aedt_app.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
-    aedt_app.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
+    line = aedt_app.modeler.create_line("Bottom", [[0, 0], [40, 40]], name="line_3")
     aedt_app.save_project()
-    out1 = aedt_app.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
+    out1 = aedt_app.modeler.expand(line.name, size=0.5, expand_type="ROUND", replace_original=False)
     assert isinstance(out1, str)
 
 
