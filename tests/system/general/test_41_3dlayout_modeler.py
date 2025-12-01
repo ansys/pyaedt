@@ -708,9 +708,18 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
         material="copper",
         isnegative=True,
     )
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
     _ = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle1")
     c2 = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle2")
     c2.net_name = "newNet"
+
+    aedt_app.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net="VCC")
+
+    aedt_app.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
+
     aedt_app.save_project()
 
     filename = "export_to_hfss_test"
