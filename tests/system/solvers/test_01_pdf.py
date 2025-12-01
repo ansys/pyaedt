@@ -134,11 +134,14 @@ def test_virtual_compliance(aedt_app, file_tmp_root):
         f.truncate()
     compliance_folder = file_tmp_root / "vc"
     compliance_folder.mkdir(parents=True, exist_ok=True)
+    net_image_original = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "nets.jpg"
+    net_image = shutil.copy2(net_image_original, file_tmp_root / "nets.jpg")
+
     vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
-    vc.dut_image = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "nets.jpg"
+    vc.dut_image = str(net_image)
     vc.project_file = aedt_app.project_file
     vc.add_report_from_folder(
-        input_folder=Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "compliance",
+        input_folder=file_tmp_root,
         design_name="Circuit1",
         group_plots=True,
         project=aedt_app.project_file,
