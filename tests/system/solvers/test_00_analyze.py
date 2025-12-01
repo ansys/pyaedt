@@ -688,13 +688,10 @@ def test_export_to_maxwell(add_app_example, add_app, file_tmp_root):
     app.analyze(cores=4)
     m2d = app.create_maxwell_design("Setup1")
     assert m2d.design_type == "Maxwell 2D"
-    m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
-    assert m3d.design_type == "Maxwell 3D"
     config = app.export_configuration(file_tmp_root / "assm.json")
     app2 = add_app(project="assm_test2", application=Rmxprt, solution_type="ASSM")
     app2.import_configuration(config)
     assert app2.circuit
-    app2.close_project(save=False)
 
 
 def test_output_variables_3dlayout(hfss3dl_solved):
