@@ -1,6 +1,0 @@
-design\_datasets
-================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.design_datasets

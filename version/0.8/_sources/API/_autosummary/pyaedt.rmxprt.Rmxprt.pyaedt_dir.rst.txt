@@ -1,6 +1,0 @@
-pyaedt\_dir
-===========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.pyaedt_dir

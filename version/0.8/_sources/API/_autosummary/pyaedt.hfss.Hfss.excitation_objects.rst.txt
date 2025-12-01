@@ -1,6 +1,0 @@
-excitation\_objects
-===================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.excitation_objects

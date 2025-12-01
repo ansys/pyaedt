@@ -1,6 +1,0 @@
-read\_design\_data
-==================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.read_design_data

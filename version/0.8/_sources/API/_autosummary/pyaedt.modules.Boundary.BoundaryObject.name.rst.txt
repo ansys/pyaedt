@@ -1,6 +1,0 @@
-name
-====
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: BoundaryObject.name

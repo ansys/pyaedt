@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.omaterial_manager

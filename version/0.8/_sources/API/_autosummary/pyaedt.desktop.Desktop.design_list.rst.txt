@@ -1,6 +1,0 @@
-design\_list
-============
-
-.. currentmodule:: pyaedt.desktop
-
-.. automethod:: Desktop.design_list

@@ -1,6 +1,0 @@
-export\_profile
-===============
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.export_profile

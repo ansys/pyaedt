@@ -1,6 +1,0 @@
-personallib
-===========
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.personallib

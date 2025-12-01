@@ -1,6 +1,0 @@
-temp\_directory
-===============
-
-.. currentmodule:: pyaedt.circuit
-
-.. autoproperty:: Circuit.temp_directory

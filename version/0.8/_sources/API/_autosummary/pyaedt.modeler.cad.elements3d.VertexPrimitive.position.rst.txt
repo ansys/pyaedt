@@ -1,6 +1,0 @@
-position
-========
-
-.. currentmodule:: pyaedt.modeler.cad.elements3d
-
-.. autoproperty:: VertexPrimitive.position

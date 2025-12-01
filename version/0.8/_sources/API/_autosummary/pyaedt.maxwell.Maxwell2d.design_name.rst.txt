@@ -1,6 +1,0 @@
-design\_name
-============
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.design_name

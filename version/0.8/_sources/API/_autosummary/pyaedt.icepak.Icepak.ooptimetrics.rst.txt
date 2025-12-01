@@ -1,6 +1,0 @@
-ooptimetrics
-============
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.ooptimetrics

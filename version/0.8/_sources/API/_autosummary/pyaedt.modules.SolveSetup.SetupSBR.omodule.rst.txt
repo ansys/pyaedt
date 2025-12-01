@@ -1,6 +1,0 @@
-omodule
-=======
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autoproperty:: SetupSBR.omodule

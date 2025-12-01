@@ -1,6 +1,0 @@
-remove\_all\_unused\_definitions
-================================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.remove_all_unused_definitions

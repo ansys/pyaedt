@@ -1,6 +1,0 @@
-export\_mesh\_stats
-===================
-
-.. currentmodule:: pyaedt.q3d
-
-.. automethod:: Q2d.export_mesh_stats

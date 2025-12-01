@@ -1,6 +1,0 @@
-coordinate\_systems
-===================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. autoproperty:: Modeler3D.coordinate_systems

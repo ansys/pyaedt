@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupCircuit.analyze

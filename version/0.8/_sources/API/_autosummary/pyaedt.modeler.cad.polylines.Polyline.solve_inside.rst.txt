@@ -1,6 +1,0 @@
-solve\_inside
-=============
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.solve_inside

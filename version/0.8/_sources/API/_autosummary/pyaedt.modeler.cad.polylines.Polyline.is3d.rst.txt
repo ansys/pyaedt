@@ -1,6 +1,0 @@
-is3d
-====
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.is3d

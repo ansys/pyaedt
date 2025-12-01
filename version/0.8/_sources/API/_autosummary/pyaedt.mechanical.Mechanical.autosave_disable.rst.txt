@@ -1,6 +1,0 @@
-autosave\_disable
-=================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.autosave_disable

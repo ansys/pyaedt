@@ -1,6 +1,0 @@
-separate\_bodies
-================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.separate_bodies

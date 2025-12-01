@@ -1,6 +1,0 @@
-faces\_by\_area
-===============
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. automethod:: Object3d.faces_by_area

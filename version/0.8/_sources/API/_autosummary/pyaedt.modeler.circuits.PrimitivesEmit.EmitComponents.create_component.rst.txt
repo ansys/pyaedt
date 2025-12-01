@@ -1,6 +1,0 @@
-create\_component
-=================
-
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
-
-.. automethod:: EmitComponents.create_component

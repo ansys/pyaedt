@@ -1,6 +1,0 @@
-surface\_material\_name
-=======================
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.surface_material_name

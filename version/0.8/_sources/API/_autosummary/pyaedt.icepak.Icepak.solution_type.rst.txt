@@ -1,6 +1,0 @@
-solution\_type
-==============
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.solution_type

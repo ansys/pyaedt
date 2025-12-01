@@ -1,6 +1,0 @@
-toolkit\_directory
-==================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.toolkit_directory

@@ -1,6 +1,0 @@
-value
-=====
-
-.. currentmodule:: pyaedt.modules.monitor_icepak
-
-.. automethod:: FaceMonitor.value

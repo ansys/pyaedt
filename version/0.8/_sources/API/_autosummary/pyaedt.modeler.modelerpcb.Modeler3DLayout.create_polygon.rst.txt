@@ -1,6 +1,0 @@
-create\_polygon
-===============
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.create_polygon

@@ -1,6 +1,0 @@
-desktop\_install\_dir
-=====================
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.desktop_install_dir

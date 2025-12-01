@@ -1,6 +1,0 @@
-insert\_design
-==============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.insert_design

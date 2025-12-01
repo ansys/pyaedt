@@ -1,6 +1,0 @@
-create\_temp\_dep\_assignment
-=============================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.create_temp_dep_assignment

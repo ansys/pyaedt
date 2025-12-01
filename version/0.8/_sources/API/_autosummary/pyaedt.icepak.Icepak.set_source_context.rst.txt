@@ -1,6 +1,0 @@
-set\_source\_context
-====================
-
-.. currentmodule:: pyaedt.icepak
-
-.. automethod:: Icepak.set_source_context

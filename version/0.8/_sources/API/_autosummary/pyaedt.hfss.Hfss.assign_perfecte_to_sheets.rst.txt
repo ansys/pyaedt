@@ -1,6 +1,0 @@
-assign\_perfecte\_to\_sheets
-============================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.assign_perfecte_to_sheets

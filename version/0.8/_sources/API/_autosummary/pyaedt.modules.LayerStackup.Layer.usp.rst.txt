@@ -1,6 +1,0 @@
-usp
-===
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.usp

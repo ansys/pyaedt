@@ -1,6 +1,0 @@
-generate\_unique\_setup\_name
-=============================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.generate_unique_setup_name

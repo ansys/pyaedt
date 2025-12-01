@@ -1,6 +1,0 @@
-design\_datasets
-================
-
-.. currentmodule:: pyaedt.q3d
-
-.. autoproperty:: Q2d.design_datasets

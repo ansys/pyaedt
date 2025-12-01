@@ -1,6 +1,0 @@
-edges
-=====
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. autoproperty:: Polyline.edges

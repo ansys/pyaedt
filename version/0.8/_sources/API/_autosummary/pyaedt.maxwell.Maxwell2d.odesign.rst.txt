@@ -1,6 +1,0 @@
-odesign
-=======
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.odesign

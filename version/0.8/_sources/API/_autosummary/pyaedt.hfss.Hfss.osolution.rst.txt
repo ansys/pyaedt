@@ -1,6 +1,0 @@
-osolution
-=========
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.osolution

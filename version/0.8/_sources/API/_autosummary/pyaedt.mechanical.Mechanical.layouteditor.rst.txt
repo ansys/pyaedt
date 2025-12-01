@@ -1,6 +1,0 @@
-layouteditor
-============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.layouteditor

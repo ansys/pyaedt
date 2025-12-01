@@ -1,6 +1,0 @@
-get\_units
-==========
-
-.. currentmodule:: pyaedt.emit
-
-.. automethod:: Emit.get_units

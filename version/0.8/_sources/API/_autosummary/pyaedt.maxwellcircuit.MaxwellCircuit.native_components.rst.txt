@@ -1,6 +1,0 @@
-native\_components
-==================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.native_components

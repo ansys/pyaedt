@@ -1,6 +1,0 @@
-get\_expression
-===============
-
-.. currentmodule:: pyaedt.application.Variables
-
-.. automethod:: VariableManager.get_expression

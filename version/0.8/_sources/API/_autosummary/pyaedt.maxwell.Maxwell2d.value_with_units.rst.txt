@@ -1,6 +1,0 @@
-value\_with\_units
-==================
-
-.. currentmodule:: pyaedt.maxwell
-
-.. automethod:: Maxwell2d.value_with_units

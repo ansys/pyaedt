@@ -1,6 +1,0 @@
-objects\_segmentation
-=====================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.objects_segmentation

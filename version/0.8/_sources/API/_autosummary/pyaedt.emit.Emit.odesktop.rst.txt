@@ -1,6 +1,0 @@
-odesktop
-========
-
-.. currentmodule:: pyaedt.emit
-
-.. autoproperty:: Emit.odesktop

@@ -1,6 +1,0 @@
-available\_properties
-=====================
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. autoproperty:: SetupOpti.available_properties

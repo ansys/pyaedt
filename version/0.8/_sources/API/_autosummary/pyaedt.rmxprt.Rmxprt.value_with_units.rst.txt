@@ -1,6 +1,0 @@
-value\_with\_units
-==================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.value_with_units

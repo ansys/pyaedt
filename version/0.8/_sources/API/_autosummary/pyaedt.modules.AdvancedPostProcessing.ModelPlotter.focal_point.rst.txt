@@ -1,6 +1,0 @@
-focal\_point
-============
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. autoproperty:: ModelPlotter.focal_point

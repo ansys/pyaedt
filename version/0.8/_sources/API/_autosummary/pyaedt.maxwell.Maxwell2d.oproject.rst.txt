@@ -1,6 +1,0 @@
-oproject
-========
-
-.. currentmodule:: pyaedt.maxwell
-
-.. autoproperty:: Maxwell2d.oproject

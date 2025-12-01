@@ -1,6 +1,0 @@
-disable
-=======
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupHFSS.disable

@@ -1,6 +1,0 @@
-set\_objects\_deformation
-=========================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.set_objects_deformation

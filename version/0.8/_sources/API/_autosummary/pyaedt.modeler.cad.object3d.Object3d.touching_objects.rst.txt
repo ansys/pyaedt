@@ -1,6 +1,0 @@
-touching\_objects
-=================
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. autoproperty:: Object3d.touching_objects

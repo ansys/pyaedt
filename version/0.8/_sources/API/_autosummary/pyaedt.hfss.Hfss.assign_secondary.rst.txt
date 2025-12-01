@@ -1,6 +1,0 @@
-assign\_secondary
-=================
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.assign_secondary

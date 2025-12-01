@@ -1,6 +1,0 @@
-omatrix
-=======
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. autoproperty:: MaxwellCircuit.omatrix

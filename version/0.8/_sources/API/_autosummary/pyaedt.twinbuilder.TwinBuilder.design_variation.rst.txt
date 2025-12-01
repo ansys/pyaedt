@@ -1,6 +1,0 @@
-design\_variation
-=================
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.design_variation

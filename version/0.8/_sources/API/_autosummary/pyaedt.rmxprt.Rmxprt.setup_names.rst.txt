@@ -1,6 +1,0 @@
-setup\_names
-============
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.setup_names

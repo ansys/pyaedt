@@ -1,6 +1,0 @@
-analyze
-=======
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. automethod:: SetupOpti.analyze

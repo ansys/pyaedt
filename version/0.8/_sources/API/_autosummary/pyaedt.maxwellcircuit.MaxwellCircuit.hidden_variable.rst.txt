@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.hidden_variable

@@ -1,6 +1,0 @@
-oproject
-========
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.oproject

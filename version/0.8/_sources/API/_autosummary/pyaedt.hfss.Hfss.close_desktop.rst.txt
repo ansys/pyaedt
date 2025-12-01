@@ -1,6 +1,0 @@
-close\_desktop
-==============
-
-.. currentmodule:: pyaedt.hfss
-
-.. automethod:: Hfss.close_desktop

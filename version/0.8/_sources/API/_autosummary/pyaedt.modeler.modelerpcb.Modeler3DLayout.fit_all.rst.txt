@@ -1,6 +1,0 @@
-fit\_all
-========
-
-.. currentmodule:: pyaedt.modeler.modelerpcb
-
-.. automethod:: Modeler3DLayout.fit_all

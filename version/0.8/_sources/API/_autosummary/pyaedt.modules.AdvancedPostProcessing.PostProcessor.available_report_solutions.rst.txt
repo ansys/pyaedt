@@ -1,6 +1,0 @@
-available\_report\_solutions
-============================
-
-.. currentmodule:: pyaedt.modules.AdvancedPostProcessing
-
-.. automethod:: PostProcessor.available_report_solutions

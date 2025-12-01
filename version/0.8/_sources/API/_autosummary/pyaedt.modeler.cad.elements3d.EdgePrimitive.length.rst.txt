@@ -1,6 +1,0 @@
-length
-======
-
-.. currentmodule:: pyaedt.modeler.cad.elements3d
-
-.. autoproperty:: EdgePrimitive.length

@@ -1,6 +1,0 @@
-update
-======
-
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. automethod:: SetupHFSSAuto.update

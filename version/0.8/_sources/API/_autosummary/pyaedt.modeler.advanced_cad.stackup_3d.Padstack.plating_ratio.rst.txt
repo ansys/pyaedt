@@ -1,6 +1,0 @@
-plating\_ratio
-==============
-
-.. currentmodule:: pyaedt.modeler.advanced_cad.stackup_3d
-
-.. autoproperty:: Padstack.plating_ratio

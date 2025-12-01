@@ -1,6 +1,0 @@
-defaultvalue
-============
-
-.. currentmodule:: pyaedt.modules.Material
-
-.. autoattribute:: SurfMatProperties.defaultvalue

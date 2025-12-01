@@ -1,6 +1,0 @@
-delete\_project
-===============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.delete_project

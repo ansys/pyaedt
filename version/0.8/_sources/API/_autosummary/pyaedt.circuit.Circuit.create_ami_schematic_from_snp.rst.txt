@@ -1,6 +1,0 @@
-create\_ami\_schematic\_from\_snp
-=================================
-
-.. currentmodule:: pyaedt.circuit
-
-.. automethod:: Circuit.create_ami_schematic_from_snp

@@ -1,6 +1,0 @@
-native\_components
-==================
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.native_components

@@ -1,6 +1,0 @@
-set\_oo\_property\_value
-========================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.set_oo_property_value

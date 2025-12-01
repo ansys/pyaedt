@@ -1,6 +1,0 @@
-optimodule
-==========
-
-.. currentmodule:: pyaedt.modules.DesignXPloration
-
-.. autoproperty:: ParametricSetups.optimodule

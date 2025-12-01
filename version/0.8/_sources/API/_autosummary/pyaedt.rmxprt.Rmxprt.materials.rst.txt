@@ -1,6 +1,0 @@
-materials
-=========
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.materials

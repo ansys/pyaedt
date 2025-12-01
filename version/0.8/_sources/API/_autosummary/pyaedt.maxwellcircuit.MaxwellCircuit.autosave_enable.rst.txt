@@ -1,6 +1,0 @@
-autosave\_enable
-================
-
-.. currentmodule:: pyaedt.maxwellcircuit
-
-.. automethod:: MaxwellCircuit.autosave_enable

@@ -1,6 +1,0 @@
-export\_results
-===============
-
-.. currentmodule:: pyaedt.twinbuilder
-
-.. automethod:: TwinBuilder.export_results

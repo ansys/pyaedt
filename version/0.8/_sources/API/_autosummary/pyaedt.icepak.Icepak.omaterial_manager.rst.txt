@@ -1,6 +1,0 @@
-omaterial\_manager
-==================
-
-.. currentmodule:: pyaedt.icepak
-
-.. autoproperty:: Icepak.omaterial_manager

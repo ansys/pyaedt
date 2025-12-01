@@ -1,6 +1,0 @@
-omodelsetup
-===========
-
-.. currentmodule:: pyaedt.mechanical
-
-.. autoproperty:: Mechanical.omodelsetup

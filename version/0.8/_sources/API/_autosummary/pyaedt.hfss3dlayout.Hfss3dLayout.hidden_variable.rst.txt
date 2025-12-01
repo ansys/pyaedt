@@ -1,6 +1,0 @@
-hidden\_variable
-================
-
-.. currentmodule:: pyaedt.hfss3dlayout
-
-.. automethod:: Hfss3dLayout.hidden_variable

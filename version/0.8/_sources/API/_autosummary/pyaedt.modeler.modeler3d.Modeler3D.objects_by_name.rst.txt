@@ -1,6 +1,0 @@
-objects\_by\_name
-=================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. autoproperty:: Modeler3D.objects_by_name

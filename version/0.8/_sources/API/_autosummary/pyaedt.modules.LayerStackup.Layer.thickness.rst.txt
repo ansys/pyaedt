@@ -1,6 +1,0 @@
-thickness
-=========
-
-.. currentmodule:: pyaedt.modules.LayerStackup
-
-.. autoproperty:: Layer.thickness

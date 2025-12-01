@@ -1,6 +1,0 @@
-angle
-=====
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: Excitations.angle

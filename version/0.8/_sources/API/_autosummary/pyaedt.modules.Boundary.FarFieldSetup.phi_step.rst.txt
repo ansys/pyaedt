@@ -1,6 +1,0 @@
-phi\_step
-=========
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autoproperty:: FarFieldSetup.phi_step

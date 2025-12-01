@@ -1,6 +1,0 @@
-set\_license\_type
-==================
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.set_license_type

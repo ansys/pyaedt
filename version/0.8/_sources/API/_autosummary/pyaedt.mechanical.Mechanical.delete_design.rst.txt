@@ -1,6 +1,0 @@
-delete\_design
-==============
-
-.. currentmodule:: pyaedt.mechanical
-
-.. automethod:: Mechanical.delete_design

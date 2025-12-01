@@ -1,6 +1,0 @@
-are\_there\_simulations\_running
-================================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. autoproperty:: Rmxprt.are_there_simulations_running

@@ -1,6 +1,0 @@
-matrix
-======
-
-.. currentmodule:: pyaedt.modules.report_templates
-
-.. autoproperty:: Emission.matrix

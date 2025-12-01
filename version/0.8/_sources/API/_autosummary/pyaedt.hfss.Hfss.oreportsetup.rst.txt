@@ -1,6 +1,0 @@
-oreportsetup
-============
-
-.. currentmodule:: pyaedt.hfss
-
-.. autoproperty:: Hfss.oreportsetup

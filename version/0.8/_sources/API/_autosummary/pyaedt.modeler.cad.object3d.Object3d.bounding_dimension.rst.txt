@@ -1,6 +1,0 @@
-bounding\_dimension
-===================
-
-.. currentmodule:: pyaedt.modeler.cad.object3d
-
-.. autoproperty:: Object3d.bounding_dimension

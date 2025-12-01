@@ -1,6 +1,0 @@
-validate\_simple
-================
-
-.. currentmodule:: pyaedt.rmxprt
-
-.. automethod:: Rmxprt.validate_simple

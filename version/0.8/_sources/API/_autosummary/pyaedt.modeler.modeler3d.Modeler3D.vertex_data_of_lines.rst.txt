@@ -1,6 +1,0 @@
-vertex\_data\_of\_lines
-=======================
-
-.. currentmodule:: pyaedt.modeler.modeler3d
-
-.. automethod:: Modeler3D.vertex_data_of_lines

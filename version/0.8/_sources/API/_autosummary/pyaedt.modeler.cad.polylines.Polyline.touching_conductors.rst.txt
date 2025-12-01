@@ -1,6 +1,0 @@
-touching\_conductors
-====================
-
-.. currentmodule:: pyaedt.modeler.cad.polylines
-
-.. automethod:: Polyline.touching_conductors

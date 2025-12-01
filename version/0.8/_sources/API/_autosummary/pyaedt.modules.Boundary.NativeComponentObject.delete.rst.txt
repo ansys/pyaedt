@@ -1,6 +1,0 @@
-delete
-======
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. automethod:: NativeComponentObject.delete
