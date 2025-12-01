@@ -716,12 +716,6 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
     c2 = aedt_app.modeler.create_circle("Top", 0, 5, 40, "mycircle2")
     c2.net_name = "newNet"
 
-    aedt_app.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net="VCC")
-
-    aedt_app.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
-
-    aedt_app.save_project()
-
     filename = "export_to_hfss_test"
     filename2 = "export_to_hfss_test2"
     filename3 = "export_to_hfss_test_non_unite"
@@ -733,6 +727,8 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
     file_fullname = str(file_tmp_root / filename)
     file_fullname2 = str(file_tmp_root / filename2)
     file_fullname3 = str(file_tmp_root / filename3)
+
+    aedt_app.save_project()
     assert setup.export_to_hfss(output_file=file_fullname)
     if not is_linux:
         # TODO: EDB failing in Linux
