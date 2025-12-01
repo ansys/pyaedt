@@ -1,0 +1,15 @@
+﻿ProfileStepSummary
+==================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoclass:: ProfileStepSummary
+
+   
+
+   
+   
+
+   
+   
+   

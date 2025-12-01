@@ -1,0 +1,6 @@
+﻿get\_dxf\_layers
+================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: get_dxf_layers

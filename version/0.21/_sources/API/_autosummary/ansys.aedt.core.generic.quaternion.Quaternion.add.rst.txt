@@ -1,0 +1,6 @@
+add
+===
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. automethod:: Quaternion.add

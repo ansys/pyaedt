@@ -1,0 +1,6 @@
+design\_excitations
+===================
+
+.. currentmodule:: ansys.aedt.core.rmxprt
+
+.. autoproperty:: Rmxprt.design_excitations

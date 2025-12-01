@@ -1,0 +1,6 @@
+to\_rotation\_matrix
+====================
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. automethod:: Quaternion.to_rotation_matrix

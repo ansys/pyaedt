@@ -1,0 +1,6 @@
+line\_min\_segment\_lengths
+===========================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_parasitics
+
+.. autoproperty:: DistributedParasitics.line_min_segment_lengths

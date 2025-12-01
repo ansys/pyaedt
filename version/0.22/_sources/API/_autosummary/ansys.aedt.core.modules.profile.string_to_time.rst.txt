@@ -1,0 +1,6 @@
+﻿string\_to\_time
+================
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autofunction:: string_to_time

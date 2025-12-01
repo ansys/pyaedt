@@ -1,0 +1,6 @@
+opadstack\_manager
+==================
+
+.. currentmodule:: ansys.aedt.core.emit
+
+.. autoproperty:: Emit.opadstack_manager
