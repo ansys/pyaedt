@@ -13,7 +13,8 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.10'
+  MAIN_PYTHON_VERSION: '3.12'
+  EMIT_FILTERS_PYTHON_VERSION: '3.10'
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
@@ -1016,7 +1017,7 @@ jobs:
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
-        run: uv venv .venv
+        run: uv venv .venv --python ${{ env.EMIT_FILTERS_PYTHON_VERSION }}
 
       - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
@@ -1132,7 +1133,7 @@ jobs:
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
-        run: uv venv .venv
+        run: uv venv .venv --python ${{ env.EMIT_FILTERS_PYTHON_VERSION }}
 
       - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
