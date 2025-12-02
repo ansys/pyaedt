@@ -1416,7 +1416,7 @@ class Object3d(PyAedtBase):
             return False
 
     @property
-    def model(self):
+    def is_model(self):
         """Part model or non-model property.
 
         Returns
@@ -1440,12 +1440,37 @@ class Object3d(PyAedtBase):
                 self._model = True
             return self._model
 
-    @model.setter
-    def model(self, fModel):
+    @is_model.setter
+    def is_model(self, fModel):
         vArg1 = ["NAME:Model", "Value:=", fModel]
         fModel = _to_boolean(fModel)
         self._change_property(vArg1)
         self._model = fModel
+
+    @property
+    def model(self):
+        """Part model or non-model property.
+
+        .. deprecated::
+           Use :func:`is_model` property instead.
+
+        Returns
+        -------
+        bool
+            ``True`` when model, ``False`` otherwise.
+
+        References
+        ----------
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        warnings.warn("`model` is deprecated. Use `is_model` property instead.", DeprecationWarning)
+        return self.is_model
+
+    @model.setter
+    def model(self, fModel):
+        self.is_model = fModel
 
     @pyaedt_function_handler(object_list="assignment")
     def unite(self, assignment):
