@@ -826,7 +826,9 @@ def test_expand(aedt_app):
         material="copper",
     )
     line = aedt_app.modeler.create_line("Bottom", [[0, 0], [40, 40]], name="line_3")
-    aedt_app.save_project()
+    aedt_app.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
+    # Bug in AEDT API, if not via is created,
+    # the method self.oeditor.Point().Set(pos[0], pos[1]) is failing in non-graphical mode
     out1 = aedt_app.modeler.expand(line.name, size=0.5, expand_type="ROUND", replace_original=False)
     assert isinstance(out1, str)
 
