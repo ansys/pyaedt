@@ -37,8 +37,9 @@ FILTER_BOARD = "FilterBoard"
 @pytest.fixture
 def aedt_app(add_app):
     app = add_app(application=Icepak, project="icepak_3d_component")
+    project_name = app.project_name
     yield app
-    app.close_project(save=False)
+    app.close_project(name=project_name, save=False)
 
 
 @pytest.fixture

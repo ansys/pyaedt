@@ -37,8 +37,9 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 @pytest.fixture
 def aedt_app(add_app):
     app = add_app(project="object_3d_test")
+    project_name = app.project_name
     yield app
-    app.close_project(app.project_name)
+    app.close_project(name=project_name, save=False)
 
 
 def create_example_coil(app, name=None):

@@ -48,8 +48,9 @@ DIFF_PROJECT = "differential_pairs_t41_231"
 @pytest.fixture
 def aedt_app(add_app):
     app = add_app(application=Hfss3dLayout)
+    project_name = app.project_name
     yield app
-    app.close_project(save=False)
+    app.close_project(name=project_name, save=False)
 
 
 @pytest.fixture
@@ -816,7 +817,6 @@ def test_duplicate_material(aedt_app):
     assert new_material.name == "SecondMaterial"
 
 
-# @pytest.mark.skipif(NON_GRAPHICAL, reason="Failing in Non-graphical mode")
 def test_expand(aedt_app):
     aedt_app.modeler.layers.add_layer(
         layer="Bottom",
@@ -827,7 +827,7 @@ def test_expand(aedt_app):
     )
     line = aedt_app.modeler.create_line("Bottom", [[0, 0], [40, 40]], name="line_3")
     aedt_app.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
-    # Bug in AEDT API, if not via is created,
+    # Bug in AEDT API, if a via is not created,
     # the method self.oeditor.Point().Set(pos[0], pos[1]) is failing in non-graphical mode
     out1 = aedt_app.modeler.expand(line.name, size=0.5, expand_type="ROUND", replace_original=False)
     assert isinstance(out1, str)
@@ -1146,6 +1146,7 @@ def test_import_edb(aedt_app, file_tmp_root):
     target_path = file_tmp_root / "Package_test_92.aedb"
     shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))
+    aedt_app.close_project(save=False)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="This test does not work on versions earlier than 2022 R2.")
