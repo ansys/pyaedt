@@ -58,6 +58,13 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
+# Error messages
+ERROR_MSG_CENTER = "The ``center`` argument must be a valid three-element list."
+ERROR_MSG_ORIGIN = "The ``origin`` argument must be a valid three-element list."
+ERROR_MSG_RADIUS = "The ``radius`` argument must be greater than 0."
+ERROR_MSG_SIZES_2 = "The ``sizes`` argument must be a valid two-element list."
+ERROR_MSG_SIZES_3 = "The ``sizes`` argument must be a valid three-element list."
+
 
 class Primitives3D(GeometryModeler, PyAedtBase):
     """Manages primitives in applications using the 3D modeler.
@@ -161,11 +168,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         if len(sizes) != 3:
-            self.logger.error("The ``dimension_list`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_SIZES_3)
 
         x_position, y_position, z_position = self._pos_with_arg(origin)
         x_size, y_size, z_size = self._pos_with_arg(sizes)
@@ -244,11 +249,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
-            self.logger.error("The ``radius`` argument must be greater than 0.")
-            return False
+            raise ValueError(ERROR_MSG_RADIUS)
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
 
         axis = GeometryOperators.cs_axis_str(orientation)
         x_center, y_center, z_center = self._pos_with_arg(origin)
@@ -333,14 +336,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         """
         orientation = GeometryOperators.cs_axis_str(orientation)
         if len(center) != 3:
-            self.logger.error("The ``center_position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_CENTER)
         if len(origin) != 3:
-            self.logger.error("The ``start_position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         if center == origin:
-            self.logger.error("The ``center_position`` and ``start_position`` arguments must be different.")
-            return False
+            raise ValueError("The ``center`` and ``origin`` arguments must be different.")
 
         x_center, y_center, z_center = self._pos_with_arg(center)
         x_start, y_start, z_start = self._pos_with_arg(origin)
@@ -420,17 +420,13 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
-            self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``bottom_radius`` argument must be greater than 0.")
         if isinstance(top_radius, (int, float)) and top_radius < 0:
-            self.logger.error("The ``top_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``top_radius`` argument must be greater than 0.")
         if isinstance(height, (int, float)) and height <= 0:
-            self.logger.error("The ``height`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``height`` argument must be greater than 0.")
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
 
         x_center, y_center, z_center = self._pos_with_arg(origin)
         axis = GeometryOperators.cs_axis_str(orientation)
@@ -493,10 +489,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> ret_object = aedtapp.modeler.create_sphere(origin=[0,0,0],radius=2,name="mysphere",material="copper")
         """
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         if isinstance(radius, (int, float)) and radius < 0:
-            self.logger.error("The ``radius`` argument must be greater than 0.")
+            self.logger.error(ERROR_MSG_RADIUS)
             return False
 
         x_center, y_center, z_center = self._pos_with_arg(origin)
@@ -566,8 +561,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if len(origin) != 3:
-            self.logger.error("The ``center`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         # if major_radius <= 0 or minor_radius <= 0:
         #     raise ValueError("Both major and minor radius must be greater than 0.")
         # if minor_radius >= major_radius:
@@ -664,12 +658,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                          beta=4,bond_type=0,name="mybox",material="copper")
         """
         if len(start) != 3:
-            self.logger.error("The ``start_position`` argument must be a valid three-Element List")
-            return False
+            raise ValueError("The ``start`` argument must be a valid three-Element List")
         x_position, y_position, z_position = self._pos_with_arg(start)
         if len(end) != 3:
-            self.logger.error("The ``end_position`` argument must be a valid three-Element List")
-            return False
+            raise ValueError("The ``end`` argument must be a valid three-Element List")
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end)
 
         cont = 0
@@ -738,7 +730,16 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler(csPlane="orientation", position="origin", dimension_list="sizes", matname="material")
-    def create_rectangle(self, orientation, origin, sizes, name=None, material=None, is_covered=True, **kwargs):
+    def create_rectangle(
+        self,
+        orientation,
+        origin,
+        sizes,
+        name=None,
+        material=None,
+        is_covered=True,
+        **kwargs
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -773,8 +774,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> oEditor.CreateRectangle
         """
         if len(sizes) != 2:
-            self.logger.error("The ``sizes`` argument must be a valid two-element list.")
-            return False
+            raise ValueError(ERROR_MSG_SIZES_2)
 
         axis = GeometryOperators.cs_plane_to_axis_str(orientation)
         x_start, y_start, z_start = self._pos_with_arg(origin)
@@ -1224,8 +1224,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             return False
 
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         x_center, y_center, z_center = self._pos_with_arg(origin)
 
         arg_1 = [
@@ -1370,11 +1369,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             Polyline object or ``False`` if it fails.
         """
         if internal_radius < 0:
-            self.logger.error("The ``internal_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``internal_radius`` argument must be greater than 0.")
         if faces < 0:
-            self.logger.error("The ``faces`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``faces`` argument must be greater than 0.")
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
