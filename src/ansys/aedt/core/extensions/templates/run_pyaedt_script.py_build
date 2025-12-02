@@ -37,11 +37,7 @@ if is_linux:
 else:
     import subprocess
 
-# Ensure your specific path is preserved
-appdata = os.environ["APPDATA"]
-venv = os.path.join(appdata, ".pyaedt_env")
-venv = os.path.join(venv, "3_10")
-sys.path.append(os.path.join(venv, r"lib\site-packages\ansys\aedt\core\extensions\templates"))
+sys.path.append(r"##EXTENSION_TEMPLATES##")
 
 import pyaedt_utils
 
@@ -184,7 +180,7 @@ def main():
         # Get AEDT version
         version_short = oDesktop.GetVersion()[2:6].replace(".", "")
         # CPython interpreter
-        python_exe = os.path.join(venv, r"Scripts\python.exe")
+        python_exe = r"##PYTHON_EXE##" % version
         # Check if CPython interpreter and AEDT release match
         python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
 
