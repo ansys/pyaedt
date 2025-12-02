@@ -22,9 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 
 # import sys
+from pathlib import Path
+from typing import Union
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -91,7 +92,6 @@ class Primitives3DLayout(PyAedtBase):
         return None
 
     def __init__(self, app):
-        # self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
         self._padstacks = {}
         self._components3d = {}
@@ -1375,21 +1375,21 @@ class Primitives3DLayout(PyAedtBase):
     @pyaedt_function_handler()
     def place_3d_component(
         self,
-        component_path,
-        number_of_terminals=1,
-        placement_layer=None,
-        component_name=None,
-        pos_x=0,
-        pos_y=0,
-        create_ports=True,
-        is_3d_placement=False,
-        pos_z=0,
+        component_path: Union[str, Path],
+        number_of_terminals: int = 1,
+        placement_layer: str = None,
+        component_name: str = None,
+        pos_x: float = 0.0,
+        pos_y: float = 0.0,
+        create_ports: bool = True,
+        is_3d_placement: bool = False,
+        pos_z: float = 0.0,
     ):
         """Place an HFSS 3D component in HFSS 3D Layout.
 
         Parameters
         ----------
-        component_path : str
+        component_path : str or :class:`pathlib.Path`
             Full path to the A3DCOMP file.
         number_of_terminals : int, optional
             Number of ports in the 3D component. The default is ``1``.
@@ -1415,8 +1415,11 @@ class Primitives3DLayout(PyAedtBase):
         -------
             :class:`ansys.aedt.core.modeler.pcb.object_3d_layout.ComponentsSubCircuit3DLayout`
         """
+        component_path = Path(component_path)
+
         if not component_name:
-            component_name = os.path.basename(component_path).split(".")[0]
+            component_name = Path(component_path).stem
+
         args = ["NAME:" + component_name]
         infos = [
             "Type:=",
@@ -1477,7 +1480,7 @@ class Primitives3DLayout(PyAedtBase):
         args.append("CompExtID:=")
         args.append(8)
         args.append("3DCompSourceFileName:=")
-        args.append(component_path)
+        args.append(str(component_path))
 
         self.modeler.ocomponent_manager.Add(args)
         stack_layers = [f"0:{i.name}" for i in self.modeler.layers.stackup_layers]

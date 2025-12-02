@@ -172,9 +172,7 @@ def test_activate_venv_and_exes():
     # Ensure python and uv point inside sys.prefix
     assert manager.venv_path == sys.prefix
     pyexe = manager.python_exe
-    uve = manager.uv_exe
     assert str(manager.venv_path) in pyexe
-    assert str(manager.venv_path) in uve
 
     # Activate venv explicitly and check env keys
     manager.activate_venv()
@@ -276,6 +274,66 @@ def test_set_light_and_set_dark():
     manager.change_theme_button.config.assert_called_with(text="\u2600")
 
 
+def test_show_loading():
+    """Test show_loading method."""
+    manager = _make_vm()
+
+    # Create a mock label
+    mock_label = MagicMock()
+    manager.loading_labels["test_key"] = mock_label
+    manager.root = MagicMock()
+
+    # Call show_loading with valid key
+    manager.show_loading("test_key")
+
+    # Verify label was configured with loading emoji
+    mock_label.config.assert_called_once_with(text="⏳")
+    # Verify root.update_idletasks was called
+    manager.root.update_idletasks.assert_called_once()
+
+
+def test_show_loading_invalid_key():
+    """Test show_loading with invalid key does nothing."""
+    manager = _make_vm()
+    manager.root = MagicMock()
+
+    # Call show_loading with non-existent key
+    manager.show_loading("nonexistent_key")
+
+    # Verify root.update_idletasks was not called
+    manager.root.update_idletasks.assert_not_called()
+
+
+def test_hide_loading():
+    """Test hide_loading method."""
+    manager = _make_vm()
+
+    # Create a mock label
+    mock_label = MagicMock()
+    manager.loading_labels["test_key"] = mock_label
+    manager.root = MagicMock()
+
+    # Call hide_loading with valid key
+    manager.hide_loading("test_key")
+
+    # Verify label was configured with empty string
+    mock_label.config.assert_called_once_with(text="")
+    # Verify root.update_idletasks was called
+    manager.root.update_idletasks.assert_called_once()
+
+
+def test_hide_loading_invalid_key():
+    """Test hide_loading with invalid key does nothing."""
+    manager = _make_vm()
+    manager.root = MagicMock()
+
+    # Call hide_loading with non-existent key
+    manager.hide_loading("nonexistent_key")
+
+    # Verify root.update_idletasks was not called
+    manager.root.update_idletasks.assert_not_called()
+
+
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showerror")
 @patch("ansys.aedt.core.extensions.installer.version_manager.filedialog.askopenfilename")
 @patch("ansys.aedt.core.extensions.installer.version_manager.subprocess.run")
@@ -317,7 +375,11 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_showerror.reset_mock()
     manager.update_from_wheelhouse()
     assert mock_showerror.called
-    assert "doesn't contain required packages" in mock_showerror.call_args[0][1]
+    error_msg = mock_showerror.call_args[0][1]
+    assert (
+        "Wheelhouse missing required installer packages" in error_msg
+        or "This wheelhouse is not compatible with your operating system." in error_msg
+    )
 
     # 4) OS mismatch: wheelhouse is windows but manager running on non-windows
     manager.is_windows = False
@@ -329,9 +391,10 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_showerror.reset_mock()
     manager.update_from_wheelhouse()
     assert mock_showerror.called
-    assert "not compatible with your operating system" in mock_showerror.call_args[0][1]
+    assert "This wheelhouse is not compatible with your operating system." in mock_showerror.call_args[0][1]
 
-    # 5) Success path: matching python, installer pkg type and OS -> run called
+    # 5) Success path: matching python, installer pkg type and OS
+    # run_pip should be called directly (not update_and_reload)
     manager.is_windows = True
     vm.is_linux = False
     stem = "pyaedt-v1.2.3-installer-foo-windows-bar-3.10"
@@ -340,15 +403,14 @@ def test_update_from_wheelhouse_all_paths(mock_run, mock_askopen, mock_showerror
     mock_run.reset_mock()
     mock_showerror.reset_mock()
 
-    def ok_run(cmd, **kwargs):
-        class _CP:
-            returncode = 0
+    with patch.object(manager, "run_pip") as mock_run_pip:
+        manager.update_from_wheelhouse()
 
-        return _CP()
-
-    mock_run.side_effect = ok_run
-    manager.update_from_wheelhouse()
-    assert mock_run.called
+        assert mock_run_pip.called
+        pip_args = mock_run_pip.call_args[0][0]
+        assert "install" in pip_args
+        assert "--force-reinstall" in pip_args
+        assert any("pyaedt[all]" in str(x) for x in pip_args)
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.askyesno")
@@ -386,8 +448,8 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
 
     # Check that update_and_reload was called with correct pip_args
     assert manager.update_and_reload.called
-    pip_args = manager.update_and_reload.call_args[0][0]  # First positional argument
-    assert any("pyaedt==1.0.0" in str(x) for x in pip_args)
+    pip_args = manager.update_and_reload.call_args[0][0]
+    assert any("pyaedt[all]==1.0.0" in str(x) for x in pip_args)
 
     # Simulate installed version <= latest to force upgrade
     manager.get_installed_version = lambda pkg: "1.0.0"
@@ -396,7 +458,7 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
 
     # Check that update_and_reload was called with upgrade arguments
     assert manager.update_and_reload.called
-    pip_args = manager.update_and_reload.call_args[0][0]  # First positional argument
+    pip_args = manager.update_and_reload.call_args[0][0]
     assert any("-U" in str(x) or "install" in str(x) for x in pip_args)
 
 
@@ -510,24 +572,45 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     mock_askyesno.return_value = False
     manager.update_all()
 
-    # User accepts but pyaedt latest unknown -> showerror
+    # Test when pyaedt version is unknown - should show error and NOT call update_and_reload
     mock_askyesno.return_value = True
-    mock_get_latest.side_effect = lambda pkg: vm.UNKNOWN_VERSION if pkg == "pyaedt" else "1.0.0"
+
+    def side_effect_unknown_pyaedt(pkg):
+        return vm.UNKNOWN_VERSION if pkg == "pyaedt" else "1.0.0"
+
+    mock_get_latest.side_effect = side_effect_unknown_pyaedt
+    manager.update_and_reload.reset_mock()
+    mock_showerror.reset_mock()
     manager.update_all()
+    assert not manager.update_and_reload.called
     assert mock_showerror.called
 
-    # User accepts but pyedb latest unknown -> showerror
+    mock_askyesno.return_value = True
+
+    def side_effect_unknown_pyedb(pkg):
+        return "1.0.0" if pkg == "pyaedt" else vm.UNKNOWN_VERSION
+
+    mock_get_latest.side_effect = side_effect_unknown_pyedb
+    manager.update_and_reload.reset_mock()
     mock_showerror.reset_mock()
-    mock_get_latest.side_effect = lambda pkg: "1.0.0" if pkg == "pyaedt" else vm.UNKNOWN_VERSION
     manager.update_all()
+    assert not manager.update_and_reload.called
     assert mock_showerror.called
 
     # User accepts both versions - pin older pyaedt, upgrade pyedb
     mock_askyesno.return_value = True
-    mock_get_latest.side_effect = lambda pkg: "1.0.0" if pkg == "pyaedt" else "2.0.0"
+
+    def side_effect_versions(pkg):
+        return "1.0.0" if pkg == "pyaedt" else "2.0.0"
+
+    mock_get_latest.side_effect = side_effect_versions
     # Simulate installed pyaedt > latest to force pinned install
     # Simulate installed pyedb <= latest to force upgrade
-    manager.get_installed_version = lambda pkg: "2.0.0" if pkg == "pyaedt" else "1.5.0"
+
+    def installed_versions(pkg):
+        return "2.0.0" if pkg == "pyaedt" else "1.5.0"
+
+    manager.get_installed_version = installed_versions
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
@@ -536,13 +619,21 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     # Check that update_and_reload was called with correct pip_args
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]
-    assert any("pyaedt==1.0.0" in str(x) for x in pip_args)
+    assert any("pyaedt[all]==1.0.0" in str(x) for x in pip_args)
     assert any("pyedb" in str(x) for x in pip_args)
 
     # User accepts both versions available - both need upgrade
-    mock_get_latest.side_effect = lambda pkg: "3.0.0" if pkg == "pyaedt" else "3.5.0"
+
+    def side_effect_higher_versions(pkg):
+        return "3.0.0" if pkg == "pyaedt" else "3.5.0"
+
+    mock_get_latest.side_effect = side_effect_higher_versions
     # Simulate installed versions <= latest to force upgrade for both
-    manager.get_installed_version = lambda pkg: "2.0.0" if pkg == "pyaedt" else "2.5.0"
+
+    def installed_lower_versions(pkg):
+        return "2.0.0" if pkg == "pyaedt" else "2.5.0"
+
+    manager.get_installed_version = installed_lower_versions
 
     # Reset the mock to capture calls
     manager.update_and_reload.reset_mock()
@@ -551,7 +642,8 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     # Check that update_and_reload was called with correct pip_args
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]
-    assert any("-U" in str(x) for x in pip_args) and any("pyaedt" in str(x) for x in pip_args)
+    pyaedt_found = any("-U" in str(x) for x in pip_args) and any("pyaedt" in str(x) for x in pip_args)
+    assert pyaedt_found
     assert any("pyedb" in str(x) for x in pip_args)
 
     # Test exception handling during version comparison
@@ -570,7 +662,8 @@ def test_update_all_flows(mock_showerror, mock_get_latest, mock_askyesno):
     # Check update_and_reload called with fallback upgrade args
     assert manager.update_and_reload.called
     pip_args = manager.update_and_reload.call_args[0][0]
-    assert any("-U" in str(x) for x in pip_args) and any("pyaedt" in str(x) for x in pip_args)
+    pyaedt_found = any("-U" in str(x) for x in pip_args) and any("pyaedt" in str(x) for x in pip_args)
+    assert pyaedt_found
     assert any("pyedb" in str(x) for x in pip_args)
 
 
@@ -785,8 +878,7 @@ def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, 
     worker_func = mock_thread.call_args[1]["target"]
     worker_func()
 
-    # Verify exception was logged
-    mock_logger.debug.assert_called_with("PyAEDT update check: failed to schedule notification.", exc_info=True)
+    mock_check_update.assert_called_once_with(manager.desktop.personallib)
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_port")
@@ -797,22 +889,13 @@ def test_get_desktop_with_existing_process(
     mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
 ):
     """Test get_desktop when AEDT process already exists."""
-    # Mock return values
     mock_get_port.return_value = 12345
     mock_get_aedt_version.return_value = "2024.1"
-    mock_get_process_id.return_value = 9876  # Existing process
-
-    # Mock Desktop instance
+    mock_get_process_id.return_value = 9876
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
-
-    # Call get_desktop
     result = vm.get_desktop()
-
-    # Verify Desktop was called with correct parameters for existing process
     mock_desktop_class.assert_called_once_with(new_desktop=False, version="2024.1", port=12345, non_graphical=False)
-
-    # Verify the result is the mock instance
     assert result == mock_desktop_instance
 
 
@@ -824,20 +907,11 @@ def test_get_desktop_without_existing_process(
     mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
 ):
     """Test get_desktop when no AEDT process exists."""
-    # Mock return values
     mock_get_port.return_value = 54321
     mock_get_aedt_version.return_value = "2023.2"
-    mock_get_process_id.return_value = None  # No existing process
-
-    # Mock Desktop instance
+    mock_get_process_id.return_value = None
     mock_desktop_instance = MagicMock()
     mock_desktop_class.return_value = mock_desktop_instance
-
-    # Call get_desktop
     result = vm.get_desktop()
-
-    # Verify Desktop was called with correct parameters for new process
     mock_desktop_class.assert_called_once_with(new_desktop=True, version="2023.2", port=54321, non_graphical=True)
-
-    # Verify the result is the mock instance
     assert result == mock_desktop_instance

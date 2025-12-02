@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import socket
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
@@ -30,10 +29,12 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core.desktop import Desktop
+from ansys.aedt.core.desktop import TransportMode
 from ansys.aedt.core.desktop import _check_port
 from ansys.aedt.core.desktop import _check_settings
 from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.desktop import _is_port_occupied
+from ansys.aedt.core.desktop import _ServerArgs
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -52,17 +53,24 @@ def mock_settings():
         yield
 
 
-# Test _is_port_occupied
-def test_is_port_occupied_free_port():
-    with patch("socket.socket") as mock_socket:
-        mock_socket.return_value.connect.side_effect = socket.error
-        assert not _is_port_occupied(5000)
+@patch("socket.socket")
+def test_is_port_occupied_on_occupied_port(mock_socket_class):
+    """Test _is_port_occupied on an occupied port."""
+    mock_socket = MagicMock()
+    mock_socket.connect_ex.return_value = 0
+    mock_socket_class.return_value.__enter__.return_value = mock_socket
+
+    assert _is_port_occupied(8080)
 
 
-def test_is_port_occupied_used_port():
-    with patch("socket.socket") as mock_socket:
-        mock_socket.return_value.connect.return_value = None
-        assert _is_port_occupied(5000)
+@patch("socket.socket")
+def test_is_port_occupied_on_unoccupied_port(mock_socket_class):
+    """Test _is_port_occupied on an unoccupied port."""
+    mock_socket = MagicMock()
+    mock_socket.connect_ex.return_value = 1
+    mock_socket_class.return_value.__enter__.return_value = mock_socket
+
+    assert not _is_port_occupied(8080)
 
 
 # Test _find_free_port
@@ -104,11 +112,11 @@ def test_desktop_odesktop_setter():
 
     desktop.odesktop = aedt_app
 
-    assert desktop._odesktop == aedt_app
+    assert desktop.odesktop == aedt_app
 
 
-def test_desktop_check_setttings_failure_with_lsf_num_cores(mock_settings):
-    """Test _check_setttings failure due to lsf_num_cores value."""
+def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings):
+    """Test _check_settings failure due to lsf_num_cores value."""
     settings = Settings()
     settings.lsf_num_cores = -1
 
@@ -116,8 +124,8 @@ def test_desktop_check_setttings_failure_with_lsf_num_cores(mock_settings):
         _check_settings(settings)
 
 
-def test_desktop_check_setttings_failure_with_lsf_ram(mock_settings):
-    """Test _check_setttings failure due to lsf_ram value."""
+def test_desktop_check_settings_failure_with_lsf_ram(mock_settings):
+    """Test _check_settings failure due to lsf_ram value."""
     settings = Settings()
     settings.lsf_num_cores = 1
     settings.lsf_ram = -1
@@ -126,8 +134,8 @@ def test_desktop_check_setttings_failure_with_lsf_ram(mock_settings):
         _check_settings(settings)
 
 
-def test_desktop_check_setttings_failure_with_lsf_aedt_command(mock_settings):
-    """Test _check_setttings failure due to lsf_aedt_command value."""
+def test_desktop_check_settings_failure_with_lsf_aedt_command(mock_settings):
+    """Test _check_settings failure due to lsf_aedt_command value."""
     settings = Settings()
     settings.lsf_num_cores = 1
     settings.lsf_ram = 1
@@ -178,3 +186,64 @@ def test_desktop_check_version_failure_with_unknown_specified_version(mock_aedt_
 
     with pytest.raises(ValueError, match=f"Specified version {specified_version} is not installed on your system"):
         desktop._Desktop__check_version(specified_version, False)
+
+
+@pytest.mark.parametrize(
+    ("mode", "port"),
+    [(TransportMode.WNUA, None), (TransportMode.WNUA, 12345), (TransportMode.UDS, None), (TransportMode.UDS, 12345)],
+)
+@patch("ansys.aedt.core.desktop.settings")
+def test_grpc_server_args_repr_local(mock_settings, mode, port, monkeypatch):
+    """Test the string representation of _ServerArgs for WNUA and UDS modes."""
+    mock_settings.grpc_local = True
+    mock_settings.grpc_listen_all = False
+
+    server_args = _ServerArgs(port=port, mode=mode)
+    assert f"{server_args}" == "" if port is None else port
+
+
+@pytest.mark.parametrize("port", [None, 12345])
+@patch("ansys.aedt.core.desktop.settings")
+def test_grpc_server_args_repr_with_mtls(mock_settings, port, monkeypatch):
+    """Test the string representation of _ServerArgs for MTLS mode."""
+    monkeypatch.setenv("ANSYS_GRPC_CERTIFICATES", "dummy_path")
+    mock_settings.grpc_local = True
+    mock_settings.grpc_listen_all = False
+    host = "127.0.0.1"
+
+    server_args = _ServerArgs(host=host, port=port, mode=TransportMode.MTLS)
+    assert f"{server_args}" == f"{host}:{port}:SecureMode" if port is not None else f"{host}:SecureMode"
+
+
+@pytest.mark.parametrize("port", [None, 12345])
+@patch("ansys.aedt.core.desktop.settings")
+def test_grpc_server_args_repr_with_insecure(mock_settings, port, monkeypatch):
+    """Test the string representation of _ServerArgs for Insecure mode."""
+    mock_settings.grpc_local = True
+    mock_settings.grpc_listen_all = False
+    host = "127.0.0.1"
+
+    server_args = _ServerArgs(host=host, port=port, mode=TransportMode.INSECURE)
+    assert f"{server_args}" == f"{host}:{port}:InsecureMode" if port is not None else f"{host}:InsecureMode"
+
+
+@pytest.mark.parametrize("port", [None, 12345])
+@patch("ansys.aedt.core.desktop.settings")
+def test_grpc_server_args_repr_with_insecure_all_interfaces(mock_settings, port, monkeypatch):
+    """Test the string representation of _ServerArgs for Insecure mode with listen on all interfaces."""
+    mock_settings.grpc_local = False
+    mock_settings.grpc_listen_all = True
+    host = "SomeDummyHost"
+
+    server_args = _ServerArgs(host=host, port=port, mode=TransportMode.INSECURE)
+    assert f"{server_args}" == f"0.0.0.0:{port}:InsecureMode" if port is not None else "0.0.0.0:InsecureMode"
+
+
+@patch("ansys.aedt.core.desktop.settings")
+def test_grpc_server_args_repr_with_insecure_all_raise_error(mock_settings, monkeypatch):
+    """Test that _ServerArgs raises an error when both local and listen_all are True."""
+    mock_settings.grpc_local = True
+    mock_settings.grpc_listen_all = True
+
+    with pytest.raises(AEDTRuntimeError):
+        str(_ServerArgs(mode=TransportMode.INSECURE))

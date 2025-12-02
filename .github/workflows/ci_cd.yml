@@ -36,7 +36,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+      - uses: ansys/actions/doc-deploy-changelog@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -49,7 +49,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-vulnerabilities@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+      - uses: ansys/actions/check-vulnerabilities@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -63,7 +63,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-actions-security@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+      - uses: ansys/actions/check-actions-security@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -109,7 +109,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/check-pr-title@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -126,7 +126,7 @@ jobs:
       contents: read
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/doc-style@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -144,7 +144,7 @@ jobs:
           sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/doc-build@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -168,7 +168,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/build-wheelhouse@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -176,10 +176,12 @@ jobs:
           target: 'all'
           attest-provenance: true
           use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
       - name: Import python package
-        shell: bash
         env:
           ACTIVATE_VENV: ${{ steps.build-wheelhouse.outputs.activate-venv }}
+        shell: bash
         run: |
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
@@ -190,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/tests-pytest@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           pytest-postargs: 'tests/unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -206,7 +208,7 @@ jobs:
           flags: linux_unit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-unit
           path: junit/test-results.xml
@@ -218,7 +220,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run integration tests
-        uses: ansys/actions/tests-pytest@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/tests-pytest@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           pytest-postargs: 'tests/integration'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -233,15 +235,15 @@ jobs:
           flags: linux_integration
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-integration
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-solvers-windows:
     name: Test solvers (windows)
@@ -250,7 +252,7 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
 
@@ -259,25 +261,25 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -304,15 +306,15 @@ jobs:
           flags: windows_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-solvers-linux:
     name: Test solvers (linux)
@@ -324,7 +326,7 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
 
@@ -333,24 +335,24 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          python -m venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pip install .[tests]
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -365,7 +367,6 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
@@ -376,15 +377,15 @@ jobs:
           flags: linux_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-general-windows:
     name: Test general (windows)
@@ -393,34 +394,37 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -451,15 +455,15 @@ jobs:
           flags: windows_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-general-linux:
     name: Test general (linux)
@@ -471,40 +475,36 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          python -m venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          source .venv/bin/activate
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
           source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -515,13 +515,14 @@ jobs:
           done
 
       - name: Run tests marked with 'general'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
@@ -532,16 +533,16 @@ jobs:
           flags: linux_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-visualization-windows:
     name: Test visualization (windows)
@@ -552,34 +553,37 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -598,10 +602,10 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 40
+          timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m visualization -x
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -610,15 +614,15 @@ jobs:
           flags: windows_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-visualization-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-visualization-linux:
     name: Test visualization (linux)
@@ -631,40 +635,36 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          python -m venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          source .venv/bin/activate
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
           source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -674,16 +674,29 @@ jobs:
             kill -9 "$pid"
           done
 
-      - name: Run tests marked with 'visualization'
+      # NOTE: Run visualization tests in two separate steps to avoid conflicts when
+      # loading Ansys EM libraries and vtk osmesa backend.
+      - name: Run tests marked with 'visualization' and not 'avoid_ansys_load'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 30
+          command: |
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
+
+      - name: Run tests marked with 'visualization' and 'avoid_ansys_load'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
@@ -692,53 +705,96 @@ jobs:
           flags: linux_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-visualization-linux
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-extensions-windows:
-    name: Test extensions (windows)
+    name: Test extensions - windows (if needed)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Check for changes in extensions folder
+        id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        shell: powershell
+        run: |
+          $GITHUB_REF = "${env:GITHUB_REF}"
+          $is_main_branch = $GITHUB_REF -eq "refs/heads/main"
+          $changed_files = git diff --name-only origin/main...HEAD
+          $run_tests = $false
+          foreach ($file in $changed_files) {
+            if ($file -like "src/ansys/aedt/core/extensions/*" -or $file -eq "tests/system/extensions/*") {
+              $run_tests = $true
+              break
+            }
+          }
+          # Always run tests on main branch for code coverage
+          if ($is_main_branch) {
+            $run_tests = $true
+            echo "Running on main branch - all tests will be executed"
+          } elseif ($run_tests) {
+            echo "Changes detected in extensions folder"
+          } else {
+            echo "No changes in extensions folder"
+          }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+
+      - name: Skip extensions tests
+        if: steps.changes.outputs.run_tests == 'false'
+        shell: bash
+        run: echo "Skipped - No changes in src/ansys/aedt/core/extensions"
+
+      - name: Set up headless display
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
+        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Set up uv
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
+        if: steps.changes.outputs.run_tests == 'true'
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
-          python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
+        if: steps.changes.outputs.run_tests == 'true'
         shell: powershell
         run: |
           Get-Process | Where-Object {
@@ -749,6 +805,7 @@ jobs:
           }
 
       - name: Run tests marked with 'extensions'
+        if: steps.changes.outputs.run_tests == 'true'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
@@ -761,24 +818,25 @@ jobs:
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
           flags: windows_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
-        if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-extensions-linux:
-    name: Test extensions (linux)
+    name: Test extensions - linux (if needed)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -787,47 +845,79 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Check for changes in extensions folder
+        id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        shell: bash
+        run: |
+          is_main_branch=false
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            is_main_branch=true
+          fi
+          changed_files=$(git diff --name-only origin/main...HEAD)
+          run_tests=false
+          for file in $changed_files; do
+            if [[ $file == src/ansys/aedt/core/extensions/* ]] || [[ $file == tests/system/extensions/* ]]; then
+              run_tests=true
+              break
+            fi
+          done
+          # Always run tests on main branch for code coverage
+          if [ "$is_main_branch" = "true" ]; then
+            run_tests=true
+            echo "Running on main branch - all tests will be executed"
+          elif [ "$run_tests" = "true" ]; then
+            echo "Changes detected in extensions folder"
+          else
+            echo "No changes in extensions folder"
+          fi
+          echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
+
+      - name: Skip extensions tests
+        if: steps.changes.outputs.run_tests == 'false'
+        run: echo "Skipped - No changes in src/ansys/aedt/core/extensions"
+
+      - name: Set up headless display
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
+        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Set up uv
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        if: steps.changes.outputs.run_tests == 'true'
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          python -m venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          source .venv/bin/activate
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
           source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
-      - name: "Install X Virtual Frame Buffer"
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
+        if: steps.changes.outputs.run_tests == 'true'
         shell: bash
         run: |
           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
@@ -836,70 +926,112 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
+        if: steps.changes.outputs.run_tests == 'true'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
           flags: linux_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
-        if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-filter-windows:
-    name: Test filter solutions (windows)
+    name: Test filter solutions - windows (if needed)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Check for changes in filter solutions
+        id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        shell: powershell
+        run: |
+          $github_ref = "${env:GITHUB_REF}"
+          $is_main_branch = $github_ref -eq "refs/heads/main"
+          $changed_files = git diff --name-only origin/main...HEAD
+          $run_tests = $false
+          foreach ($file in $changed_files) {
+            if ($file -like "src/ansys/aedt/core/filtersolutions_core/*" -or $file -eq "src/ansys/aedt/core/filtersolutions.py" -or $file -eq "tests/system/filter_solutions/*") {
+              $run_tests = $true
+              break
+            }
+          }
+          # Always run tests on main branch for code coverage
+          if ($is_main_branch) {
+            $run_tests = $true
+            echo "Running on main branch - all tests will be executed"
+          } elseif ($run_tests) {
+            echo "Changes detected in filter solutions folder"
+          } else {
+            echo "No changes in filter solutions folder"
+          }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+
+      - name: Skip filter solutions tests
+        if: steps.changes.outputs.run_tests == 'false'
+        shell: bash
+        run: echo "Skipped - No changes in src/ansys/aedt/core/filtersolutions_core"
 
       - name: Setup Python
+        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Set up uv
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
+        if: steps.changes.outputs.run_tests == 'true'
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
-          python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
+        if: steps.changes.outputs.run_tests == 'true'
         shell: powershell
         run: |
           Get-Process | Where-Object {
@@ -910,6 +1042,7 @@ jobs:
           }
 
       - name: Run tests marked with 'filter_solutions'
+        if: steps.changes.outputs.run_tests == 'true'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
@@ -922,59 +1055,99 @@ jobs:
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
           flags: windows_system_filter
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
-        if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-emit-windows:
-    name: Test EMIT (windows)
+    name: Test EMIT - windows (if needed)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Check for changes in EMIT
+        id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        shell: powershell
+        run: |
+          $github_ref = "${env:GITHUB_REF}"
+          $is_main_branch = $github_ref -eq "refs/heads/main"
+          $changed_files = git diff --name-only origin/main...HEAD
+          $run_tests = $false
+          foreach ($file in $changed_files) {
+            if ($file -like "src/ansys/aedt/core/emit_core/*" -or $file -eq "src/ansys/aedt/core/emit.py" -or $file -eq "tests/system/emit/*") {
+              $run_tests = $true
+              break
+            }
+          }
+          # Always run tests on main branch for code coverage
+          if ($is_main_branch) {
+            $run_tests = $true
+            echo "Running on main branch - all tests will be executed"
+          } elseif ($run_tests) {
+            echo "Changes detected in EMIT folder"
+          } else {
+            echo "No changes in EMIT folder"
+          }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+
+      - name: Skip EMIT tests
+        if: steps.changes.outputs.run_tests == 'false'
+        shell: bash
+        run: echo "Skipped - No changes in src/ansys/aedt/core/emit_core"
 
       - name: Setup Python
+        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Set up uv
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
+        if: steps.changes.outputs.run_tests == 'true'
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
-          python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
+        if: steps.changes.outputs.run_tests == 'true'
         shell: powershell
         run: |
           Get-Process | Where-Object {
@@ -985,6 +1158,7 @@ jobs:
           }
 
       - name: Run tests marked with 'emit'
+        if: steps.changes.outputs.run_tests == 'true'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
@@ -997,21 +1171,22 @@ jobs:
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
           flags: windows_system_emit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
-        if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+ # =================================================================================================
+ # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+ # =================================================================================================
 
   system-tests-flaky-linux:
     name: Test flaky (linux)
@@ -1023,47 +1198,79 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - name: Check for changes in flaky test areas
+        id: changes
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        shell: bash
+        run: |
+          is_main_branch=false
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            is_main_branch=true
+          fi
+          changed_files=$(git diff --name-only origin/main...HEAD)
+          run_tests=false
+          for file in $changed_files; do
+            if [[ $file == src/ansys/aedt/core/extensions/* ]] || [[ $file == tests/system/extensions/* ]]; then
+              run_tests=true
+              break
+            fi
+          done
+          # Always run tests on main branch for code coverage
+          if [ "$is_main_branch" = "true" ]; then
+            run_tests=true
+            echo "Running on main branch - all tests will be executed"
+          elif [ "$run_tests" = "true" ]; then
+            echo "Changes detected in extensions folder"
+          else
+            echo "No changes in extensions folder"
+          fi
+          echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
+
+      - name: Skip flaky tests
+        if: steps.changes.outputs.run_tests == 'false'
+        run: echo "Skipped - No changes affecting flaky tests"
+
+      - name: Set up headless display
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
+        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Set up uv
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        if: steps.changes.outputs.run_tests == 'true'
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          python -m venv .venv
           source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          source .venv/bin/activate
-          pip install .[tests]
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
+        if: steps.changes.outputs.run_tests == 'true'
         run: |
           source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
-
-      - name: "Install X Virtual Frame Buffer"
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
+          uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
+        if: steps.changes.outputs.run_tests == 'true'
         shell: bash
         run: |
           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
@@ -1072,35 +1279,38 @@ jobs:
           done
 
       - name: Run tests marked with 'flaky'
+        if: steps.changes.outputs.run_tests == 'true'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
 
       - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-flaky-tests-linux
           files: ./coverage.xml
           flags: linux_system_flaky
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: steps.changes.outputs.run_tests == 'true'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: pytest-flaky-linux
           path: junit/test-results.xml
-        if: ${{ always() }}
 
   package:
     name: Package library
-    needs: [system-tests-general-windows,
-            system-tests-general-linux,
-            system-tests-solvers-windows,
+    needs: [system-tests-solvers-windows,
             system-tests-solvers-linux,
+            system-tests-general-windows,
+            system-tests-general-linux,
             system-tests-visualization-windows,
             system-tests-visualization-linux,
             system-tests-extensions-windows,
@@ -1116,7 +1326,7 @@ jobs:
       id-token: write
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/build-library@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -1135,7 +1345,7 @@ jobs:
       contents: write
     steps:
       - name: Download the library artifacts from build-library step
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: ${{ env.PACKAGE_NAME }}-artifacts
           path: ${{ env.PACKAGE_NAME }}-artifacts
@@ -1149,7 +1359,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/release-github@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -1165,7 +1375,7 @@ jobs:
       contents: write
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@c2fa7c93f6883114e0e643599431b33d29f0b13f # v10.1.4
+        uses: ansys/actions/doc-deploy-stable@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}

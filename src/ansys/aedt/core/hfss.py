@@ -27,6 +27,7 @@
 import math
 from pathlib import Path
 import tempfile
+from typing import List
 from typing import Optional
 from typing import Union
 import warnings
@@ -7740,24 +7741,24 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def import_table(
         self,
-        input_file,
-        name,
-        is_real_imag=True,
-        is_field=False,
-        column_names=None,
-        independent_columns=None,
-    ):
+        input_file: Union[str, Path],
+        name: str,
+        is_real_imag: bool = True,
+        is_field: bool = False,
+        column_names: Optional[List[str]] = None,
+        independent_columns: Optional[List[bool]] = None,
+    ) -> bool:
         """Import a data table.
 
             The table can have multiple independent real-valued columns of data,
             and multiple dependent real- or complex-valued columns of data.
-            The data supported is comma delimited format (.csv).
+            The data supported is comma-delimited format (.csv).
             The first row may contain column names. Complex data columns are inferred from the column data format.
-            In comma delimited format, "(double, double)" denotes a complex number.
+            In comma-delimited format, "(double, double)" denotes a complex number.
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the file. Supported formats is ``".csv"``.
         name : str
             Table name.

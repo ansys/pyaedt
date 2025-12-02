@@ -24,9 +24,8 @@
 
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
-`EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,
-`Nets3DLayout`, `Object3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`,
-`Pins3DLayout', and `VertexPrimitive`.
+`Geometries3DLayout`, `Nets3DLayout`, `Object3DLayout`, `Object3d`, `Padstack`,
+`PDSHole`, `PDSLayer` and `Pins3DLayout'.
 
 This module provides methods and data structures for managing all properties of
 objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
@@ -80,6 +79,9 @@ class Object3d(PyAedtBase):
     >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
     """
+
+    def __repr__(self):
+        return self.name
 
     def __init__(self, primitives, name=None):
         self._id = None
@@ -1947,9 +1949,6 @@ class Object3d(PyAedtBase):
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
-
-    def __str__(self):
-        return self.name
 
     @pyaedt_function_handler()
     def fillet(self, vertices=None, edges=None, radius=0.1, setback=0.0):
