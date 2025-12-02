@@ -491,8 +491,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         if len(origin) != 3:
             raise ValueError(ERROR_MSG_ORIGIN)
         if isinstance(radius, (int, float)) and radius < 0:
-            self.logger.error(ERROR_MSG_RADIUS)
-            return False
+            raise ValueError(ERROR_MSG_RADIUS)
 
         x_center, y_center, z_center = self._pos_with_arg(origin)
         radius = self._app.value_with_units(radius)
@@ -855,6 +854,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                                   radius=2, num_sides=8, name="mycyl",
         ...                                                   material="vacuum")
         """
+        if isinstance(radius, (int, float)) and radius < 0:
+            raise ValueError(ERROR_MSG_RADIUS)
+
         non_model_flag = ""
         if non_model:
             non_model_flag = "NonModel#"
