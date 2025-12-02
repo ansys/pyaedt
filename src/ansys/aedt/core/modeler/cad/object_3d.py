@@ -1996,8 +1996,7 @@ class Object3d(PyAedtBase):
 
         """
         if not vertices and not edges:
-            self.logger.error("Either vertices or edges have to be provided as input.")
-            return False
+            raise ValueError("Either vertices or edges have to be provided as input.")
         edge_id_list = []
         vertex_id_list = []
         if edges is not None:
