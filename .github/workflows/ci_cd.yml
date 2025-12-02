@@ -1017,7 +1017,9 @@ jobs:
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
-        run: uv venv .venv --python ${{ env.EMIT_FILTERS_PYTHON_VERSION }}
+        env:
+          UV_PYTHON_VERSION: ${{ env.EMIT_FILTERS_PYTHON_VERSION }}
+        run: uv venv .venv --python $UV_PYTHON_VERSION
 
       - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
@@ -1133,7 +1135,9 @@ jobs:
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
-        run: uv venv .venv --python ${{ env.EMIT_FILTERS_PYTHON_VERSION }}
+        env:
+          UV_PYTHON_VERSION: ${{ env.EMIT_FILTERS_PYTHON_VERSION }}
+        run: uv venv .venv --python $UV_PYTHON_VERSION
 
       - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
