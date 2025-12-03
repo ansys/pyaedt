@@ -36,6 +36,7 @@ from ansys.aedt.core.application.design import DesignSettings
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.load_aedt_file import get_design_list_from_aedt_file
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
 from tests.conftest import desktop_version
@@ -217,11 +218,12 @@ def test_copy_design_from(coaxial, local_scratch):
 
 def test_copy_example(aedtapp):
     example_name = aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+    design = get_design_list_from_aedt_file(example_name)[0]    
     from ansys.aedt.core.generic.file_utils import remove_project_lock
 
     remove_project_lock(example_name)
-    aedtapp.copy_design_from(example_name, "0_5G Aperture Element")
-    assert aedtapp.design_name == "0_5G Aperture Element"
+    aedtapp.copy_design_from(example_name, design)
+    assert aedtapp.design_name == design
     assert not aedtapp.desktop_class.get_example("fake")
 
 
