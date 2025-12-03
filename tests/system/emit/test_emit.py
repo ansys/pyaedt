@@ -25,6 +25,7 @@
 from enum import Enum
 import inspect
 import os
+from pathlib import Path
 import sys
 import tempfile
 import types
@@ -466,7 +467,7 @@ def test_units_getters(emit_app):
     assert valid is False
 
 
-@pytest.mark.skipif(DESKTOP_VERSION <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
+@pytest.mark.skipif(DESKTOP_VERSION <= "2023.1", reason="Skipped on versions earlier than 2023.2")
 def test_antenna_component(emit_app):
     antenna = emit_app.modeler.components.create_component("Antenna")
     # Default pattern filename is empty string
@@ -925,13 +926,13 @@ def test_basic_run(emit_app):
     rev = emit_app.results.analyze()
     assert len(emit_app.results.revisions) == 1
     if emit_app._emit_api is not None:
-        path = emit_app.oproject.GetPath()
+        path = Path(emit_app.oproject.GetPath())
         subfolder = ""
-        for f in os.scandir(path):
-            if os.path.splitext(f.name)[1].lower() in ".aedtresults":
-                subfolder = os.path.join(f.path, "EmitDesign1")
-        file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
-        emit_app._emit_api.load_project(file.path)
+        for f in path.iterdir():
+            if f.suffix.lower() in ".aedtresults":
+                subfolder = f / "EmitDesign1"
+        file = max([f for f in subfolder.iterdir()], key=lambda x: x.stat().st_mtime)
+        emit_app._emit_api.load_project(str(file))
         assert rev.revision_loaded
         domain = emit_app.results.interaction_domain()
         assert domain is not None
@@ -1374,23 +1375,22 @@ def test_license_session(interference):
     # Find the license log for this process
     appdata_local_path = tempfile.gettempdir()
     pid = os.getpid()
-    dot_ansys_directory = os.path.join(appdata_local_path, ".ansys")
+    dot_ansys_directory = Path(appdata_local_path) / ".ansys"
 
     license_file_path = ""
-    with os.scandir(dot_ansys_directory) as directory:
-        for file in directory:
-            filename_pieces = file.name.split(".")
-            # Since machine names can contain periods, there may be over five splits here
-            # We only care about the first split and last three splits
-            if len(filename_pieces) >= 5:
-                if (
-                    filename_pieces[0] == "ansyscl"
-                    and filename_pieces[-3] == str(pid)
-                    and filename_pieces[-2].isnumeric()
-                    and filename_pieces[-1] == "log"
-                ):
-                    license_file_path = os.path.join(dot_ansys_directory, file.name)
-                    break
+    for file in dot_ansys_directory.iterdir():
+        filename_pieces = file.name.split(".")
+        # Since machine names can contain periods, there may be over five splits here
+        # We only care about the first split and last three splits
+        if len(filename_pieces) >= 5:
+            if (
+                filename_pieces[0] == "ansyscl"
+                and filename_pieces[-3] == str(pid)
+                and filename_pieces[-2].isnumeric()
+                and filename_pieces[-1] == "log"
+            ):
+                license_file_path = dot_ansys_directory / file.name
+                break
 
     assert license_file_path != ""
 

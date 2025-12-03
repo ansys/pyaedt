@@ -1049,7 +1049,6 @@ def test_post_processing(maxwell, hfss):
         intrinsics={"Freq": "1GHz", "Phase": "0deg"},
         nets=["GND", "V3P3_S5"],
     )
-    pass
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")

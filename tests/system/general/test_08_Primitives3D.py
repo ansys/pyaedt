@@ -253,7 +253,8 @@ def test_position(aedt_app):
 def test_position_failure(aedt_app):
     """Test position failure."""
     with pytest.raises(IndexError):
-        aedt_app.modeler.Position(0, 0, 0)[3]
+        pos = aedt_app.modeler.Position(0, 0, 0)
+        _ = pos[3]
 
 
 def test_sweep_options(aedt_app):
@@ -1185,7 +1186,7 @@ def test_modify_crossection(aedt_app):
 
 
 def test_remove_vertex_from_polyline(aedt_app):
-    p1, p2, test_points = create_polylines(aedt_app, "Poly_remove_")
+    _, p2, test_points = create_polylines(aedt_app, "Poly_remove_")
 
     P = aedt_app.modeler["Poly_remove_segmented"]
     P.remove_point(test_points[2])
@@ -1732,7 +1733,7 @@ def test_create_point(aedt_app):
     assert len(aedt_app.modeler.points) == 2
     aedt_app.modeler.points[point.name].delete()
     assert name not in aedt_app.modeler.points
-    aedt_app.modeler.points
+
     assert len(aedt_app.modeler.point_objects) == 1
     assert len(aedt_app.modeler.point_names) == 1
     assert aedt_app.modeler.point_objects[0].name == "mypoint2"
