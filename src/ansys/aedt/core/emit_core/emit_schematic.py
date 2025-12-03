@@ -182,7 +182,8 @@ class EmitSchematic:
             new_antenna = self.create_component("Antenna", antenna_name, "Antennas")
             if new_radio and new_antenna:
                 self.connect_components(new_antenna.name, new_radio.name)  # Connect antenna to radio
-            return new_radio, new_antenna
+                return new_radio, new_antenna
+            raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna.")
         except Exception as e:
             self.emit_instance.logger.error(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
             raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna: {e}")

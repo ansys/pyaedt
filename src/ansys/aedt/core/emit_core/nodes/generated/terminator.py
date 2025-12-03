@@ -30,19 +30,19 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class Terminator(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
+    def rename(self, new_name: str = ""):
         """Rename this node"""
         self._rename(new_name)
 
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -103,24 +103,24 @@ class Terminator(EmitNode):
     def notes(self, value: str):
         self._set_property("Notes", f"{value}")
 
-    class TypeOption(Enum):
-        BY_FILE = "By File"
+    class TerminatorTypeOption(Enum):
+        BY_FILE = "ByFile"
         PARAMETRIC = "Parametric"
 
     @property
-    def type(self) -> TypeOption:
-        """Type.
+    def terminator_type(self) -> TerminatorTypeOption:
+        """Terminator Type.
 
         Type of terminator model to use. Options include: By File (measured or
         simulated) or Parametric.
         """
-        val = self._get_property("Type")
-        val = self.TypeOption[val.upper()]
+        val = self._get_property("Terminator Type")
+        val = self.TerminatorTypeOption[val.upper()]
         return val
 
-    @type.setter
-    def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+    @terminator_type.setter
+    def terminator_type(self, value: TerminatorTypeOption):
+        self._set_property("Terminator Type", f"{value.value}")
 
     @property
     def vswr(self) -> float:
