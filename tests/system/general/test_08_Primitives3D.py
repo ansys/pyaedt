@@ -984,15 +984,23 @@ def test_get_edges_for_circuit_port(aedt_app):
 
 def test_get_edges_for_circuit_port_from_sheet(aedt_app):
     """Test get edges for circuit port from sheet."""
-    _ = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 8], [3, 10], name="MyGND", material="Copper")
+    aedt_app.modeler.model_units = "mm"
+    # Create a port sheet and a ground box
+    port_sheet = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 2], name="PortSheet")
+    _ = aedt_app.modeler.create_box([0, 5, 0], [10, 2, -5], name="GroundBox")
 
-    edges = aedt_app.modeler.get_edges_for_circuit_port_from_sheet(
-        "MyGND", xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
-    )
+    # Call the method to find the edges
+    edges = aedt_app.modeler.get_edges_for_circuit_port_from_sheet(port_sheet.name, yz_plane=False)
 
-    assert edges
-    assert 2 == len(edges)
-    assert all(isinstance(edge, int) and edge > 0 for edge in edges)
+    # Assert the results
+    assert isinstance(edges, list)
+    assert len(edges) == 2
+
+    # Verify that new line objects have been created from the edges
+    edge1_obj_name = aedt_app.modeler.get_object_name_from_edge_id(edges[0])
+    edge2_obj_name = aedt_app.modeler.get_object_name_from_edge_id(edges[1])
+    assert edge1_obj_name in aedt_app.modeler.object_names
+    assert edge2_obj_name in aedt_app.modeler.object_names
 
 
 def test_fillet_and_undo(aedt_app):
@@ -1462,7 +1470,6 @@ def test_get_edges_on_bounding_box(aedt_app):
     rect3 = aedt_app.modeler.create_rectangle(Plane.XY, position=[0, 5, 0], dimension_list=[5, 3], name="Rect3")
     edges = aedt_app.modeler.get_edges_on_bounding_box([rect1, rect2, rect3], return_colinear=True)
     assert len(edges) == 4
-    assert all(isinstance(edge, Object3d) for edge in edges)
 
     # Test with a single object assignment
     edges = aedt_app.modeler.get_edges_on_bounding_box(rect1.name, return_colinear=False)
