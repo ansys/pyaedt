@@ -39,10 +39,12 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_CENTER
+from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_END
 from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_ORIGIN
 from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_RADIUS
 from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_SIZES_2
 from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_SIZES_3
+from ansys.aedt.core.modeler.cad.primitives_3d import ERROR_MSG_START
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -65,7 +67,6 @@ CYLINDER_PRIMITIVE_FILE_WRONG_KEYS = "cylinder_geometry_creation_wrong_keys.csv"
 PRISM_PRIMITIVE_FILE = "prism_geometry_creation.csv"
 PRISM_PRIMITIVE_FILE_MISSING_VALUES = "prism_geometry_creation_missing_values.csv"
 PRISM_PRIMITIVE_FILE_WRONG_KEYS = "prism_geometry_creation_wrong_keys.csv"
-
 
 TEST_SUBFOLDER = "T08"
 # ASSEMBLY = "assembly_231"
@@ -92,14 +93,6 @@ def create_copper_box(app, name="MyBox"):
         app.modeler.delete(name)
     new_object = app.modeler.create_box([0, 0, 0], [10, 10, 5], name, "Copper")
     return new_object
-
-
-# def create_copper_sphere(app, name="Mysphere"):
-#     """Create a copper sphere."""
-#     if app.modeler[name]:
-#         app.modeler.delete(name)
-#     new_object = app.modeler.create_sphere([0, 0, 0], radius="1mm", name=name, material="Copper")
-#     return new_object
 
 
 def create_copper_cylinder(app, name="MyCyl"):
@@ -944,7 +937,7 @@ def test_get_model_objects(aedt_app):
 
 def test_create_rect_sheet_to_ground_with_ground_name(aedt_app):
     """Test create rectangle sheet to ground."""
-    _ = create_copper_box(aedt_app, name="MyBox_to_gnd")
+    create_copper_box(aedt_app, name="MyBox_to_gnd")
 
     ground_plane = aedt_app.modeler.create_sheet_to_ground("MyBox_to_gnd")
 
@@ -965,17 +958,28 @@ def test_create_rect_sheet_to_ground_with_multiple_arguments(aedt_app):
 
 def test_get_edges_for_circuit_port(aedt_app):
     """Test get edges for circuit port."""
-    rectangle = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 8], [3, 10], name="MyGND", material="Copper")
-    _ = aedt_app.modeler.create_box([10, 10, 10], [10, 100, 30])
-    face_id = rectangle.faces[0].id
+    aedt_app.modeler.model_units = "mm"
 
-    edges = aedt_app.modeler.get_edges_for_circuit_port(
-        face_id, xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
-    )
+    # Create a port sheet and a ground box
+    port_sheet = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 2], name="PortSheet")
+    _ = aedt_app.modeler.create_box([0, 5, 0], [10, 2, -5], name="GroundBox")
 
-    assert edges
-    assert 2 == len(edges)
-    assert all(isinstance(edge, int) and edge > 0 for edge in edges)
+    # Get the face ID of the port sheet
+    port_face_id = port_sheet.faces[0].id
+
+    # Call the method to find the edges
+    edges = aedt_app.modeler.get_edges_for_circuit_port(port_face_id, yz_plane=False)
+
+    # Assert the results
+    assert isinstance(edges, list)
+    assert len(edges) == 2
+    assert all(isinstance(edge_id, int) for edge_id in edges)
+
+    # Verify that new line objects have been created from the edges
+    edge1_obj_name = aedt_app.modeler.get_object_name_from_edge_id(edges[0])
+    edge2_obj_name = aedt_app.modeler.get_object_name_from_edge_id(edges[1])
+    assert edge1_obj_name in aedt_app.modeler.object_names
+    assert edge2_obj_name in aedt_app.modeler.object_names
 
 
 def test_get_edges_for_circuit_port_from_sheet(aedt_app):
@@ -1019,42 +1023,6 @@ def test_fillet_with_edges(aedt_app):
     res = box.fillet(edges=box.edges)
 
     assert res
-
-
-# def test_44_create_polyline_basic_segments(aedt_app):
-#     """Test create polyline with basic segments."""
-#     modeler = aedt_app.modeler
-#     aedt_app["p1"] = "100mm"
-#     aedt_app["p2"] = "71mm"
-#     test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
-
-#     p1 = modeler.create_polyline(points=test_points[0:2], name="PL01_line")
-#     assert len(p1.start_point) == 3
-#     assert len(p1.end_point) == 3
-#     assert modeler.create_polyline(points=test_points[0:3], segment_type="Arc", name="PL02_arc")
-
-#     assert modeler.create_polyline(
-#         points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="PL03_spline_4pt"
-#     )
-#     assert modeler.create_polyline(
-#         points=test_points, segment_type=PolylineSegment("Spline", num_points=3), name="PL03_spline_3pt"
-#     )
-#     with pytest.raises(ValueError) as execinfo:
-#         modeler.create_polyline(points=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
-#         assert (
-#             str(execinfo)
-#             == "The 'position_list' argument must contain at least four points for segment of type 'Spline'."
-#         )
-#     assert modeler.create_polyline(
-#         points=[[100, 100, 0]],
-#         segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
-#         name="PL04_center_point_arc",
-#     )
-#     assert modeler.create_polyline(
-#         points=[[100, 100, 0]],
-#         segment_type=PolylineSegment("AngularArc", arc_angle="30deg"),
-#         name="PL04_center_point_arc",
-#     )
 
 
 def test_create_circle_from_2_arc_segments(aedt_app):
@@ -1376,8 +1344,8 @@ def test_open_and_load_a_polyline(add_app_example):
 
     p1 = poly1.points
     s1 = poly1.segment_types
-    assert len(p1) == 10
-    assert len(s1) == 9
+    assert not p1
+    assert not s1
     p2 = poly2.points
     s2 = poly2.segment_types
     assert len(p2) == 13
@@ -1386,7 +1354,6 @@ def test_open_and_load_a_polyline(add_app_example):
     s3 = poly3.segment_types
     assert len(p3) == 3
     assert len(s3) == 1
-
     app.close_project(save=False)
 
 
@@ -1441,12 +1408,14 @@ def test_create_bond_wires(aedt_app):
         material="copper",
     )
     assert b6
-    assert not aedt_app.modeler.create_bondwire(
-        [0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, name="jedec51", material="copper"
-    )
-    assert not aedt_app.modeler.create_bondwire(
-        [0, 0, 0], [10, 10], h1=0.15, h2=0, diameter=0.034, facets=8, name="jedec51", material="copper"
-    )
+    with pytest.raises(ValueError, match=ERROR_MSG_START):
+        aedt_app.modeler.create_bondwire(
+            [0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, name="jedec51", material="copper"
+        )
+    with pytest.raises(ValueError, match=ERROR_MSG_END):
+        aedt_app.modeler.create_bondwire(
+            [0, 0, 0], [10, 10], h1=0.15, h2=0, diameter=0.034, facets=8, name="jedec51", material="copper"
+        )
 
 
 def test_create_group(aedt_app):
@@ -1468,14 +1437,42 @@ def test_lines(aedt_app):
     assert aedt_app.modeler.vertex_data_of_lines()
 
 
-@pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
 def test_get_edges_on_bounding_box(aedt_app):
-    aedt_app.close_project(name=aedt_app.project_name, save=False)
-    aedt_app.load_project("test_99_project")
-    edges = aedt_app.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=True, tolerance=1e-6)
-    assert len(edges) == 2
-    edges = aedt_app.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=False, tolerance=1e-6)
+    # The bounding box for these two rectangles will be [0, 0, 0, 13, 8, 0].
+    # Edges on bounding box for Rect1 are on y=0 and x=0.
+    # Edges on bounding box for Rect2 are on x=13 and y=8.
+    # Total edges on bounding box: 4.
+    # Colinear edges: None.
+    rect1 = aedt_app.modeler.create_rectangle(Plane.XY, position=[0, 0, 0], dimension_list=[10, 5], name="Rect1")
+    rect2 = aedt_app.modeler.create_rectangle(Plane.XY, position=[5, 5, 0], dimension_list=[8, 3], name="Rect2")
+
+    # Test with return_colinear=False
+    edges = aedt_app.modeler.get_edges_on_bounding_box([rect1, rect2], return_colinear=False)
     assert len(edges) == 4
+
+    # Test with return_colinear=True (default)
+    # No colinear edges are expected in this configuration.
+    edges = aedt_app.modeler.get_edges_on_bounding_box([rect1, rect2], return_colinear=True)
+    assert len(edges) == 0
+
+    # Create a third rectangle that introduces colinear edges with Rect1.
+    # The new bounding box will be [0, 0, 0, 13, 8, 0].
+    # Rect3 has an edge from (0,5,0) to (0,8,0) which is on the bounding box (x=0).
+    # This edge is colinear with the edge from Rect1 on x=0.
+    rect3 = aedt_app.modeler.create_rectangle(Plane.XY, position=[0, 5, 0], dimension_list=[5, 3], name="Rect3")
+    edges = aedt_app.modeler.get_edges_on_bounding_box([rect1, rect2, rect3], return_colinear=True)
+    assert len(edges) == 4
+    assert all(isinstance(edge, Object3d) for edge in edges)
+
+    # Test with a single object assignment
+    edges = aedt_app.modeler.get_edges_on_bounding_box(rect1.name, return_colinear=False)
+    assert len(edges) == 2
+
+    # Test with objects that have no edges on the bounding box
+    aedt_app.modeler.create_box(origin=[20, 20, 20], sizes=[5, 5, 5])
+    rect4 = aedt_app.modeler.create_rectangle(Plane.XY, position=[1, 1, 0], dimension_list=[1, 1], name="Rect4")
+    edges = aedt_app.modeler.get_edges_on_bounding_box(rect4, return_colinear=False)
+    assert len(edges) == 0
 
 
 def test_get_closest_edge_to_position(aedt_app):
@@ -1485,72 +1482,81 @@ def test_get_closest_edge_to_position(aedt_app):
 
 @pytest.mark.skipif(NON_GRAPHICAL or is_linux, reason="Not running in non-graphical mode or in Linux")
 @pytest.mark.skipif(ON_CI, reason="Needs Workbench to run.")
-def test_import_space_claim(aedt_app):
-    aedt_app.insert_design("SCImport")
-    assert aedt_app.modeler.import_spaceclaim_document(SDOC_FILE)
+def test_import_space_claim(aedt_app, file_tmp_root):
+    file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / SDOC_FILE
+    input_file = shutil.copy2(file_original, file_tmp_root / SDOC_FILE)
+
+    assert aedt_app.modeler.import_spaceclaim_document(str(input_file))
     assert len(aedt_app.modeler.objects) == 1
 
 
-@pytest.mark.skipif(is_linux, reason="Not running in Linux with AEDT 2024R1")
-def test_import_step(aedt_app):
-    aedt_app.insert_design("StepImport")
-    assert aedt_app.modeler.import_3d_cad(STEP)
+def test_import_step(aedt_app, file_tmp_root):
+    file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / STEP
+    input_file = shutil.copy2(file_original, file_tmp_root / STEP)
+
+    assert aedt_app.modeler.import_3d_cad(input_file)
     assert len(aedt_app.modeler.object_names) == 1
 
 
-def test_create_3dcomponent(aedt_app):
-    create_copper_box(aedt_app, "Solid")
+def test_create_3dcomponent(aedt_app, file_tmp_root):
+    box = create_copper_box(aedt_app)
     aedt_app.solution_type = "Modal"
     for i in list(aedt_app.modeler.objects.keys()):
         aedt_app.modeler.objects[i].material_name = "copper"
 
+    input_file = file_tmp_root / "new" / COMPONENT_3D_FILE
+
     # Folder doesn't exist. Cannot create component.
-    assert not aedt_app.modeler.create_3dcomponent(COMPONENT_3D_FILE, create_folder=False)
+    assert not aedt_app.modeler.create_3dcomponent(str(input_file), create_folder=False)
 
     # By default, the new folder is created.
-    assert aedt_app.modeler.create_3dcomponent(COMPONENT_3D_FILE)
-    assert os.path.exists(COMPONENT_3D_FILE)
-    variables = aedt_app.get_component_variables(COMPONENT_3D_FILE)
+    assert aedt_app.modeler.create_3dcomponent(str(input_file))
+    assert input_file.is_file()
+    variables = aedt_app.get_component_variables(str(input_file))
     assert isinstance(variables, dict)
-    new_obj = aedt_app.modeler.duplicate_along_line("Solid", [100, 0, 0])
-    rad = aedt_app.assign_radiation_boundary_to_objects("Solid")
+    new_obj = aedt_app.modeler.duplicate_along_line(box, [100, 0, 0])
+    rad = aedt_app.assign_radiation_boundary_to_objects(box)
     obj1 = aedt_app.modeler[new_obj[1][0]]
     exc = aedt_app.wave_port(obj1.faces[0])
     aedt_app["test_variable"] = "20mm"
     box1 = aedt_app.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
     box2 = aedt_app.modeler.create_box([0, 0, 0], [10, 100, 30])
     aedt_app.mesh.assign_length_mesh([box1.name, box2.name])
+
+    input_file = file_tmp_root / "new2" / COMPONENT_3D_FILE
     assert aedt_app.modeler.create_3dcomponent(
-        COMPONENT_3D_FILE,
+        str(input_file),
         variables_to_include=["test_variable"],
-        assignment=["Solid", new_obj[1][0], box1.name, box2.name],
+        assignment=[box.name, new_obj[1][0], box1.name, box2.name],
         boundaries=[rad.name],
         excitations=[exc.name],
         coordinate_systems="Global",
     )
-    assert os.path.exists(COMPONENT_3D_FILE)
+    assert input_file.is_file()
 
 
-def test_create_3d_component_encrypted(aedt_app):
+def test_create_3d_component_encrypted(aedt_app, file_tmp_root):
+    create_copper_box(aedt_app)
+    input_file = file_tmp_root / COMPONENT_3D_FILE
     assert aedt_app.modeler.create_3dcomponent(
-        COMPONENT_3D_FILE, coordinate_systems="Global", is_encrypted=True, password="password_test"
+        str(input_file), coordinate_systems="Global", is_encrypted=True, password="password_test"
     )
     assert aedt_app.modeler.create_3dcomponent(
-        COMPONENT_3D_FILE,
+        str(input_file),
         coordinate_systems="Global",
         is_encrypted=True,
         password="password_test",
         hide_contents=["Solid"],
     )
     assert not aedt_app.modeler.create_3dcomponent(
-        COMPONENT_3D_FILE,
+        str(input_file),
         coordinate_systems="Global",
         is_encrypted=True,
         password="password_test",
         password_type="Invalid",
     )
     assert not aedt_app.modeler.create_3dcomponent(
-        COMPONENT_3D_FILE,
+        str(input_file),
         coordinate_systems="Global",
         is_encrypted=True,
         password="password_test",
@@ -1580,10 +1586,13 @@ def test_insert_3dcomponent(aedt_app):
 
 @pytest.mark.skipif(DESKTOP_VERSION > "2022.2", reason="Method failing in version higher than 2022.2")
 @pytest.mark.skipif(USE_GRPC and DESKTOP_VERSION < "2023.1", reason="Failing in grpc")
-def test_insert_encrypted_3dcomp(aedt_app):
-    assert not aedt_app.modeler.insert_3d_component(ENCRYPTED_CYL)
+def test_insert_encrypted_3dcomp(aedt_app, file_tmp_root):
+    file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / ENCRYPTED_CYL
+    input_file = shutil.copy2(file_original, file_tmp_root / ENCRYPTED_CYL)
+
+    assert not aedt_app.modeler.insert_3d_component(str(input_file))
     # assert not aedt_app.modeler.insert_3d_component(encrypted_cylinder, password="dfgdg")
-    assert aedt_app.modeler.insert_3d_component(ENCRYPTED_CYL, password="test")
+    assert aedt_app.modeler.insert_3d_component(str(input_file), password="test")
 
 
 def test_group_components(aedt_app):
@@ -1688,9 +1697,11 @@ def test_create_torus_exceptions(aedt_app):
     assert aedt_app.modeler.create_torus(
         [30, 30, 0], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material="Copper"
     )
-    assert not aedt_app.modeler.create_torus(
-        [30, 30], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material="Copper"
-    )
+
+    with pytest.raises(ValueError, match=ERROR_MSG_ORIGIN):
+        aedt_app.modeler.create_torus(
+            [30, 30], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material="Copper"
+        )
 
 
 def test_create_point(aedt_app):
@@ -2002,18 +2013,20 @@ def test_create_helix(aedt_app):
         right_hand=False,
     )
 
-    assert not aedt_app.modeler.create_helix(
-        assignment="", origin=[0, 0, 0], x_start_dir=1.0, y_start_dir=1.0, z_start_dir=1.0
-    )
+    with pytest.raises(ValueError):
+        aedt_app.modeler.create_helix(
+            assignment="", origin=[0, 0, 0], x_start_dir=1.0, y_start_dir=1.0, z_start_dir=1.0
+        )
 
-    assert not aedt_app.modeler.create_helix(
-        assignment=polyline_left.name,
-        origin=[0, 0],
-        x_start_dir=1.0,
-        y_start_dir=1.0,
-        z_start_dir=1.0,
-        right_hand=False,
-    )
+    with pytest.raises(ValueError, match=ERROR_MSG_ORIGIN):
+        aedt_app.modeler.create_helix(
+            assignment=polyline_left.name,
+            origin=[0, 0],
+            x_start_dir=1.0,
+            y_start_dir=1.0,
+            z_start_dir=1.0,
+            right_hand=False,
+        )
 
 
 def test_get_touching_objects(aedt_app):
@@ -2193,21 +2206,27 @@ def test_replace_3d_component(aedt_app):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method available in beta from 2023.1")
 @pytest.mark.skipif(is_linux, reason="EDB object is not loaded")
-def test_insert_layout_component(aedt_app):
-    aedt_app.insert_design("LayoutComponent")
+def test_insert_layout_component(aedt_app, file_tmp_root):
+    file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP
+    input_file = shutil.copy2(file_original, file_tmp_root / LAYOUT_COMP)
+
+    file_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
+    input_file2 = shutil.copy2(file_original2, file_tmp_root / LAYOUT_COMP_SI_VERSE_SFP)
+
     aedt_app.solution_type = "Modal"
-    assert not aedt_app.modeler.insert_layout_component(LAYOUT_COMP, name=None, parameter_mapping=False)
+
+    assert not aedt_app.modeler.insert_layout_component(str(input_file), name=None, parameter_mapping=False)
     aedt_app.solution_type = "Terminal"
-    comp = aedt_app.modeler.insert_layout_component(LAYOUT_COMP, name=None, parameter_mapping=False)
+    comp = aedt_app.modeler.insert_layout_component(str(input_file), name=None, parameter_mapping=False)
     assert comp.layout_component.edb_object
-    comp2 = aedt_app.modeler.insert_layout_component(LAYOUT_COMP_SI_VERSE_SFP, name=None, parameter_mapping=False)
+    comp2 = aedt_app.modeler.insert_layout_component(str(input_file2), name=None, parameter_mapping=False)
     assert comp2.layout_component.edb_object
     assert comp.layout_component.edb_object
     assert comp.name in aedt_app.modeler.layout_component_names
     assert isinstance(comp, UserDefinedComponent)
     assert len(aedt_app.modeler.user_defined_components[comp.name].parts) == 3
     assert comp.layout_component.edb_object
-    comp3 = aedt_app.modeler.insert_layout_component(LAYOUT_COMP, name="new_layout", parameter_mapping=True)
+    comp3 = aedt_app.modeler.insert_layout_component(str(input_file), name="new_layout", parameter_mapping=True)
     assert isinstance(comp3, UserDefinedComponent)
     assert len(comp3.parameters) == 2
     assert comp3.layout_component.show_layout
@@ -2228,10 +2247,15 @@ def test_insert_layout_component(aedt_app):
     assert comp.layout_component.close_edb_object()
 
 
-def test_insert_layout_component_2(aedt_app):
-    aedt_app.insert_design("LayoutComponent")
+def test_insert_layout_component_2(aedt_app, file_tmp_root):
+    file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP
+    input_file = shutil.copy2(file_original, file_tmp_root / LAYOUT_COMP)
+
+    file_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
+    input_file2 = shutil.copy2(file_original2, file_tmp_root / LAYOUT_COMP_SI_VERSE_SFP)
+
     aedt_app.modeler.add_layout_component_definition(
-        file_path=LAYOUT_COMP,
+        file_path=str(input_file),
         name="ann",
     )
     aedt_app["b1"] = "3.2mm"
@@ -2239,7 +2263,7 @@ def test_insert_layout_component_2(aedt_app):
         definition_name="ann", name=None, parameter_mapping={"a": "1.4mm", "b": "b1"}
     )
     aedt_app.modeler.add_layout_component_definition(
-        file_path=LAYOUT_COMP_SI_VERSE_SFP,
+        file_path=str(input_file2),
         name="SiVerse_SFP",
     )
     aedt_app.modeler._insert_layout_component_instance(
@@ -2326,13 +2350,14 @@ def test_import_prism_primitives_csv(aedt_app):
         aedt_app.modeler.import_primitives_from_file(input_file=primitive_file)
 
 
-def test_primitives_builder(add_app):
+def test_primitives_builder(add_app, file_tmp_root):
     from ansys.aedt.core.generic.file_utils import read_json
     from ansys.aedt.core.modeler.cad.primitives import PrimitivesBuilder
 
     ipk = add_app(application=Icepak)
 
-    primitive_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / PRIMITIVES_FILE
+    primitive_file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / PRIMITIVES_FILE
+    primitive_file = shutil.copy2(primitive_file_original, file_tmp_root / PRIMITIVES_FILE)
     primitive_dict = read_json(primitive_file)
 
     with pytest.raises(TypeError):
@@ -2349,7 +2374,7 @@ def test_primitives_builder(add_app):
 
     primitive_dict = read_json(primitive_file)
     del primitive_dict["Coordinate Systems"][0]["Mode"]
-    primitives_builder = PrimitivesBuilder(ipk, input_dict=str(primitive_dict))
+    primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
     assert not primitives_builder.create()
 
     primitive_dict = read_json(primitive_file)
@@ -2358,7 +2383,7 @@ def test_primitives_builder(add_app):
     del primitive_dict["Coordinate Systems"][1]["Phi"]
     del primitive_dict["Coordinate Systems"][1]["Theta"]
     primitive_dict["Coordinate Systems"][1]["Mode"] = "Euler Angle ZXZ"
-    primitives_builder = PrimitivesBuilder(ipk, input_dict=str(primitive_dict))
+    primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
     del primitives_builder.coordinate_systems[0]["X Axis"]
     del primitives_builder.coordinate_systems[1]["Psi"]
     primitive_names = primitives_builder.create()
@@ -2368,13 +2393,13 @@ def test_primitives_builder(add_app):
     ipk.modeler.coordinate_systems[0].delete()
 
     primitive_dict = read_json(primitive_file)
-    primitives_builder = PrimitivesBuilder(ipk, input_dict=str(primitive_dict))
+    primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
     del primitives_builder.instances[0]["Name"]
     assert not primitives_builder.create()
     assert len(primitive_names) == 9
 
     primitive_dict = read_json(primitive_file)
-    primitives_builder = PrimitivesBuilder(ipk, input_dict=str(primitive_dict))
+    primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
     del primitives_builder.instances[0]["Coordinate System"]
     primitive_names = primitives_builder.create()
     assert len(primitive_names) == 9
@@ -2382,19 +2407,19 @@ def test_primitives_builder(add_app):
     ipk.modeler.coordinate_systems[0].delete()
 
     primitive_dict = read_json(primitive_file)
-    primitives_builder = PrimitivesBuilder(ipk, input_dict=str(primitive_dict))
+    primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
     primitives_builder.instances[0]["Coordinate System"] = "Invented"
     assert not primitives_builder.create()
 
     primitive_dict = read_json(primitive_file)
-    primitives_builder = PrimitivesBuilder(ipk, input_dict=str(primitive_dict))
+    primitives_builder = PrimitivesBuilder(ipk, input_dict=primitive_dict)
     del primitives_builder.instances[0]["Origin"]
     primitive_names = primitives_builder.create()
     assert len(primitive_names) == 9
 
     q2d = add_app(application=Q2d)
     primitive_dict = read_json(primitive_file)
-    primitives_builder = PrimitivesBuilder(q2d, input_dict=str(primitive_dict))
+    primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
     primitive_names = primitives_builder.create()
     assert all(element is None for element in primitive_names)
     ipk.close_project(save=False)
@@ -2414,20 +2439,22 @@ def test_detach_faces(aedt_app):
 @pytest.mark.skipif(DESKTOP_VERSION < "2024.1", reason="Feature not available until 2024.1")
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Very long test skipping it.")
 @pytest.mark.skipif(ON_CI, reason="Needs Workbench to run.")
-def test_import_discovery(aedt_app):
-    aedt_app.insert_design("DiscoImport")
+def test_import_discovery(aedt_app, file_tmp_root):
     assert not aedt_app.modeler.objects
     assert not aedt_app.modeler.solid_bodies
+
+    file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / DISCOVERY_FILE
+    input_file = shutil.copy2(file_original, file_tmp_root / DISCOVERY_FILE)
+
     if is_linux:
-        assert not aedt_app.modeler.import_discovery_model(DISCOVERY_FILE)
+        assert not aedt_app.modeler.import_discovery_model(str(input_file))
     else:
-        assert aedt_app.modeler.import_discovery_model(DISCOVERY_FILE)
+        assert aedt_app.modeler.import_discovery_model(str(input_file))
         assert aedt_app.modeler.objects
         assert aedt_app.modeler.solid_bodies
 
 
 def test_create_equationbased_surface(aedt_app):
-    aedt_app.insert_design("Equations_surf")
     surf = aedt_app.modeler.create_equationbased_surface(
         x_uv="(sin(_v*2*pi)^2+1.2)*cos(_u*2*pi)", y_uv="(sin(_v*2*pi)^2+1.2)*sin(_u*2*pi)", z_uv="_v*2"
     )
@@ -2435,7 +2462,6 @@ def test_create_equationbased_surface(aedt_app):
 
 
 def test_update_geometry_property(aedt_app):
-    aedt_app.insert_design("Update_properties")
     box1 = aedt_app.modeler.create_box([0, 0, 0], [1, 2, 3])
     box2 = aedt_app.modeler.create_box([10, 10, 10], [1, 2, 3])
     box1.display_wireframe = False

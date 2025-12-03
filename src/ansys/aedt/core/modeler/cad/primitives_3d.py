@@ -64,6 +64,8 @@ ERROR_MSG_ORIGIN = "The ``origin`` argument must be a valid three-element list."
 ERROR_MSG_RADIUS = "The ``radius`` argument must be greater than 0."
 ERROR_MSG_SIZES_2 = "The ``sizes`` argument must be a valid two-element list."
 ERROR_MSG_SIZES_3 = "The ``sizes`` argument must be a valid three-element list."
+ERROR_MSG_START = "The ``start`` argument must be a valid three-element list."
+ERROR_MSG_END = "The ``end`` argument must be a valid three-element list."
 
 
 class Primitives3D(GeometryModeler, PyAedtBase):
@@ -657,10 +659,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                          beta=4,bond_type=0,name="mybox",material="copper")
         """
         if len(start) != 3:
-            raise ValueError("The ``start`` argument must be a valid three-Element List")
+            raise ValueError(ERROR_MSG_START)
         x_position, y_position, z_position = self._pos_with_arg(start)
         if len(end) != 3:
-            raise ValueError("The ``end`` argument must be a valid three-Element List")
+            raise ValueError(ERROR_MSG_END)
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end)
 
         cont = 0
@@ -1169,7 +1171,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler(polyline_name="assignment", position="origin", num_thread="turns")
     def create_helix(self, assignment, origin, x_start_dir, y_start_dir, z_start_dir, turns=1,
                      right_hand=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
-        """Create an helix from a polyline.
+        """Create a helix from a polyline.
 
         Parameters
         ----------
@@ -1222,8 +1224,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                                 turns=1,right_hand=True,radius_increment=0.0,thread=1.0)
         """
         if not assignment or assignment == "":
-            self.logger.error("The name of the polyline cannot be an empty string.")
-            return False
+            raise ValueError("The name of the polyline cannot be an empty string.")
 
         if len(origin) != 3:
             raise ValueError(ERROR_MSG_ORIGIN)

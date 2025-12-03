@@ -516,8 +516,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("Fillet is possible only on a vertex in 2D designs.")
-                return False
+                raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
 
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:FilletParameters"]
