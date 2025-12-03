@@ -722,12 +722,12 @@ class VariableManager(PyAedtBase):
     @property
     def _oproject(self):
         """Project."""
-        return self._app._oproject
+        return self._app.oproject
 
     @property
     def _odesign(self):
         """Design."""
-        return self._app._odesign
+        return self._app.odesign
 
     @property
     def _logger(self):
@@ -1350,27 +1350,34 @@ class VariableManager(PyAedtBase):
             "Maxwell Circuit",
             "Circuit Netlist",
         ]:
+            if self._app.design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+            ] and "GetDesignName" in dir(desktop_object):
+                # To retrieve Parameter Default Variables
+                try:
+                    v = list(self._app.get_oo_object(desktop_object, "DefinitionParameters").GetPropNames())
+                except AttributeError:
+                    v = []
+                var_list = v
+
             # To retrieve local variables
             try:
-                v = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
+                v = list(self._app.get_oo_object(desktop_object, "Variables").GetPropNames())
             except AttributeError:
                 v = []
             var_list += v
-        if self._app._is_object_oriented_enabled() and self._app.design_type in [
-            "Circuit Design",
-            "Twin Builder",
-            "HFSS 3D Layout Design",
-        ]:
-            # To retrieve Parameter Default Variables
-            try:
-                v = list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
-            except AttributeError:
-                v = []
-            var_list += v
+            if self._app._aedt_version >= "2025.2":
+                return var_list
 
         if "GetVariables" in desktop_object.__dir__():
             var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
-        var_list += [i for i in list(self._app.oproject.GetArrayVariables()) if i not in var_list]
+        try:
+            arr_vars = list(desktop_object.GetArrayVariables())
+            var_list += [i for i in arr_vars if i not in var_list]
+        except Exception:
+            self._app.logger.debug("Could not retrieve array variables.")
         return var_list
 
 
@@ -1421,6 +1428,12 @@ class Variable(PyAedtBase):
     >>> assert v.units = "mm"
 
     """
+
+    def __repr__(self):
+        return self.expression
+
+    def __str__(self):
+        return self.expression
 
     def __init__(
         self,

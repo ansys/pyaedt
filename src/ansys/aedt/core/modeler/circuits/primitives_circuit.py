@@ -55,7 +55,7 @@ class CircuitComponents(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, partname):
+    def __getitem__(self, partname) -> CircuitComponent:
         """Retrieve a part.
 
         Parameters
@@ -65,7 +65,7 @@ class CircuitComponents(PyAedtBase):
 
         Returns
         -------
-        type
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Part object details.
         """
         if isinstance(partname, int):

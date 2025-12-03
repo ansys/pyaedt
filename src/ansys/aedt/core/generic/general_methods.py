@@ -121,7 +121,11 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             "async_helpers",
             "plugins",
         ]
-        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
+        if (
+            any(exc in trace for exc in exceptions)
+            or "plugins" in trace
+            or ("site-packages" in trace and ("\\aedt\\" not in trace and "/aedt/" not in trace))
+        ):
             continue
         for el in trace.split("\n"):
             _write_mes(el)
@@ -136,7 +140,11 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             "async_helpers",
             "plugins",
         ]
-        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
+        if (
+            any(exc in trace for exc in exceptions)
+            or "plugins" in trace
+            or ("site-packages" in trace and ("\\aedt\\" not in trace and "/aedt/" not in trace))
+        ):
             continue
         tblist = trace.split("\n")
         for el in tblist:
@@ -228,7 +236,14 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
             _exception(sys.exc_info(), user_function, args, kwargs, "AEDT API Error")
             return raise_exception_or_return_false(e)
         except BaseException as e:
-            _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
+            msg = str(sys.exc_info()[1])
+            if "ANSYS_GRPC_CERTIFICATES" in msg:
+                msg = re.sub(
+                    r"ANSYS_GRPC_CERTIFICATES", "ANSYS_GRPC_CERTIFICATES", msg.capitalize(), flags=re.IGNORECASE
+                )
+            else:
+                msg = msg.capitalize()
+            _exception(sys.exc_info(), user_function, args, kwargs, msg)
             return raise_exception_or_return_false(e)
 
     return wrapper
@@ -347,12 +362,19 @@ def _log_method(func, new_args, new_kwargs):
         return
     if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
         return
-    if (
-        not settings.enable_debug_edb_logger
-        and "Edb" in str(func) + str(new_args)
-        or "edb_core" in str(func) + str(new_args)
-    ):
+    # Avoid infinite recursion with __repr__ and __str__ methods
+    if func.__name__ in ("__repr__", "__str__"):
         return
+    try:
+        if not func or (
+            not settings.enable_debug_edb_logger
+            and "Edb" in str(func) + str(new_args)
+            or "edb_core" in str(func) + str(new_args)
+        ):
+            return
+    except Exception:
+        return
+
     line_begin = "ARGUMENTS: "
     message = []
     delta = time.time() - settings.time_tick
@@ -683,7 +705,7 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def active_sessions(version=None, student_version=False, non_graphical=False):
+def active_sessions(version=None, student_version=False, non_graphical=False) -> dict:
     """Get information for the active AEDT sessions.
 
     Parameters
@@ -735,13 +757,19 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
             pid = p.info["pid"]
             name = p.info["name"]
             cmd = p.info.get("cmdline", [])
+            if cmd is None:
+                cmd = []
             if name in keys:
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
                         if "-grpcsrv" in cmd:
                             if not version or (version and version in cmd[0]):
                                 try:
-                                    return_dict[pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                                    options = cmd[cmd.index("-grpcsrv") + 1].split(":")
+                                    if len(options) > 1:
+                                        return_dict[pid] = int(options[1])
+                                    else:
+                                        return_dict[pid] = int(options[0])
                                 except (IndexError, ValueError):
                                     # default desktop grpc port.
                                     return_dict[pid] = 50051

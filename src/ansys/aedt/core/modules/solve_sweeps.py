@@ -888,6 +888,11 @@ class SweepMaxwellEC(SweepCommon):
                 self.props["RangeEnd"] = self.props["RangeStart"]
 
     @property
+    def name(self):
+        """Setup name."""
+        return self.setup_name
+
+    @property
     def is_solved(self):
         """Verify if solutions are available for the sweep.
 

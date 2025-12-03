@@ -45,7 +45,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 try:
     import skrf as rf
-except ImportError:  # pragma: no cover
+except ImportError:
     warnings.warn(
         "The Scikit-rf module is required to run functionalities of TouchstoneData.\n"
         "Install with \n\npip install scikit-rf"
