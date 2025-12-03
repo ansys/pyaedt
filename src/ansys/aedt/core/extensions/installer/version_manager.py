@@ -405,7 +405,7 @@ class VersionManager:
             if self.pyaedt_version > latest_version:
                 pip_args = ["install", f"pyaedt[all]=={latest_version}"]
             else:
-                pip_args = ["install", "-U", "pyaedt[all]"]
+                pip_args = ["install", "-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
 
             self.update_and_reload(pip_args, loading_key="pyaedt[all]")
 
@@ -424,7 +424,7 @@ class VersionManager:
             if self.pyedb_version > latest_version:
                 pip_args = ["install", f"pyedb=={latest_version}"]
             else:
-                pip_args = ["install", "-U", "pyedb"]
+                pip_args = ["install", "-U", "--upgrade-strategy", "eager","pyedb"]
 
             self.update_and_reload(pip_args, loading_key="pyedb")
 
