@@ -46,7 +46,7 @@ def hfss_app(add_app):
 @patch("tkinter.filedialog.askopenfilename")
 def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir):
     """Test the examples provided in the via design extension."""
-    shutil.copytree(MODEL_FOLDER / "example_models", test_tmp_dir)
+    shutil.copytree(MODEL_FOLDER, test_tmp_dir)
     config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
         json.dump(DATA, f, indent=4)

@@ -219,6 +219,7 @@ def test_create_report_extension_ui_integration(add_app):
     assert "CustomReport" == extension.data.report_name
     assert extension.data.open_report
     assert "" == extension.data.save_path  # Default save path
+    aedt_app.close_project(save=False)
 
 
 def test_create_report_custom_save_path(add_app, test_tmp_dir):

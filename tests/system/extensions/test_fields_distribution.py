@@ -253,7 +253,7 @@ def test_fields_distribution_error_no_export_file(add_app_example):
     aedtapp.close_project(aedtapp.project_name, save=False)
 
 
-def test_fields_distribution_error_wrong_design_type(add_app_example, test_tmp_dir):
+def test_fields_distribution_error_wrong_design_type(add_app, test_tmp_dir):
     """Test error handling when design type is not Maxwell."""
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
     from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
@@ -262,11 +262,7 @@ def test_fields_distribution_error_wrong_design_type(add_app_example, test_tmp_d
     file_path = test_tmp_dir / "test_export.csv"
 
     # Use HFSS instead of Maxwell
-    aedtapp = add_app_example(
-        application=ansys.aedt.core.Hfss,
-        subfolder=TEST_SUBFOLDER,
-        project="test_hfss",
-    )
+    aedtapp = add_app(application=ansys.aedt.core.Hfss)
 
     data = FieldsDistributionExtensionData(
         points_file="",

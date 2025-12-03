@@ -40,7 +40,6 @@ def test_export_to_3d_extension_button(add_app, test_tmp_dir):
         application=Hfss3dLayout,
         project="export_to_3d",
     )
-    original_name = aedt_app.project_name
 
     # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
@@ -55,8 +54,8 @@ def test_export_to_3d_extension_button(add_app, test_tmp_dir):
     extension.root.nametowidget("export").invoke()
     assert data.choice == extension.data.choice
     result = main(extension.data)
-    aedt_app.close_project(name=aedt_app.project_name, save=False)
-    aedt_app.close_project(name=original_name, save=False)
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
     assert result
 
 
@@ -67,7 +66,6 @@ def test_export_to_3d_q3d_choice(add_app):
         application=Hfss3dLayout,
         project="export_to_3d_q3d",
     )
-    original_name = aedt_app.project_name
 
     # Create a simple stackup for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
@@ -79,8 +77,8 @@ def test_export_to_3d_q3d_choice(add_app):
 
     data = ExportTo3DExtensionData(choice="Export to Q3D")
     result = main(data)
-    aedt_app.close_project(name=aedt_app.project_name, save=False)
-    aedt_app.close_project(name=original_name, save=False)
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
     assert result is True
 
 
@@ -104,7 +102,6 @@ def test_export_to_3d_maxwell_choice(add_app):
         application=Hfss3dLayout,
         project="export_to_3d_maxwell",
     )
-    original_name = aedt_app.project_name
 
     # Create a simple stackup for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
@@ -115,8 +112,8 @@ def test_export_to_3d_maxwell_choice(add_app):
     )
     data = ExportTo3DExtensionData(choice="Export to Maxwell 3D")
     result = main(data)
-    aedt_app.close_project(name=aedt_app.project_name, save=False)
-    aedt_app.close_project(name=original_name, save=False)
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
     assert result is True
 
 
@@ -127,7 +124,6 @@ def test_export_to_3d_icepak_choice(add_app):
         application=Hfss3dLayout,
         project="export_to_3d_icepak",
     )
-    original_name = aedt_app.project_name
 
     # Create a simple stackup for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
@@ -139,6 +135,6 @@ def test_export_to_3d_icepak_choice(add_app):
 
     data = ExportTo3DExtensionData(choice="Export to Icepak")
     result = main(data)
-    aedt_app.close_project(name=aedt_app.project_name, save=False)
-    aedt_app.close_project(name=original_name, save=False)
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
     assert result is True

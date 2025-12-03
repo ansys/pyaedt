@@ -227,6 +227,10 @@ def add_app(test_tmp_dir, desktop):
         solution_type: str | None = None,
         application=None,
     ):
+        if desktop.project_list:
+            projects = desktop.project_list.copy()
+            for project in projects:
+                desktop.odesktop.CloseProject(project)
         if project is None:
             project = "pyaedt_test"
 
@@ -266,6 +270,11 @@ def add_app_example(test_tmp_dir, desktop):
         application=None,
         is_edb=False,
     ):
+        if desktop.project_list:
+            projects = desktop.project_list.copy()
+            for project in projects:
+                desktop.odesktop.CloseProject(project)
+
         if Path(subfolder).exists():
             base = Path(subfolder)
         else:

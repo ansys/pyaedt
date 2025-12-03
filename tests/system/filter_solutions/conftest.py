@@ -22,29 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
 
-import shutil
-
-from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData
-from ansys.aedt.core.extensions.icepak.power_map_from_csv import main
-from ansys.aedt.core.icepak import Icepak
-from tests import TESTS_EXTENSIONS_PATH
-
-CSV_FILENAME = "icepak_classic_powermap.csv"
-TEST_SUBFOLDER = "T45"
-CSV_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / CSV_FILENAME
+from ansys.aedt.core.filtersolutions import DistributedDesign
+from ansys.aedt.core.filtersolutions import LumpedDesign
+from tests.conftest import DESKTOP_VERSION
 
 
-def test_power_map_success(add_app, test_tmp_dir):
-    """Test the successful execution of the power map creation in Icepak."""
-    file = test_tmp_dir / CSV_FILENAME
-    shutil.copy2(CSV_FILE_PATH, file)
-    DATA = PowerMapFromCSVExtensionData(file_path=file)
-    aedtapp = add_app(application=Icepak)
+@pytest.fixture
+def lumped_design():
+    """Fixture for creating a LumpedDesign object."""
+    return LumpedDesign(DESKTOP_VERSION)
 
-    assert main(DATA)
-    assert "power_map_0" in aedtapp.modeler.object_names
-    assert "power_map_1" in aedtapp.modeler.object_names
-    assert len([boundary.name for boundary in aedtapp.boundaries if boundary.name.startswith("Source_")]) == 2
 
-    aedtapp.close_project(save=False)
+@pytest.fixture
+def distributed_design():
+    """Fixture for creating a DistributedDesign object."""
+    return DistributedDesign(DESKTOP_VERSION)
