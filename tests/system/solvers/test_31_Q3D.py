@@ -359,13 +359,13 @@ def test_edit_sources(q3d_solved):
     assert not q3d_solved.edit_sources(harmonic_loss=harmonic_loss)
 
 
-def test_export_matrix_data(q3d_solved, file_tmp_root):
-    file_path = file_tmp_root / "test.txt"
+def test_export_matrix_data(q3d_solved, test_tmp_dir):
+    file_path = test_tmp_dir / "test.txt"
     sweep = q3d_solved.setups[0].sweeps[0]
     assert len(sweep.frequencies) > 0
     assert sweep.basis_frequencies == []
     assert q3d_solved.export_matrix_data(file_path)
-    assert not q3d_solved.export_matrix_data(file_tmp_root / "test.pdf")
+    assert not q3d_solved.export_matrix_data(test_tmp_dir / "test.pdf")
     assert not q3d_solved.export_matrix_data(file_name=file_path, matrix_type="Test")
     assert q3d_solved.export_matrix_data(
         file_name=file_path,
@@ -419,13 +419,13 @@ def test_export_matrix_data(q3d_solved, file_tmp_root):
     assert not q3d_solved.export_matrix_data(file_name=file_path, g_unit="A")
 
 
-def test_equivalent_circuit(q3d_solved2, file_tmp_root):
+def test_equivalent_circuit(q3d_solved2, test_tmp_dir):
     exported_files = q3d_solved2.export_results()
-    file_path = file_tmp_root / "test_export_circuit.cir"
+    file_path = test_tmp_dir / "test_export_circuit.cir"
     assert len(exported_files) > 0
     assert q3d_solved2.export_equivalent_circuit(file_path, variations=["d: 10mm"])
     with pytest.raises(AEDTRuntimeError):
-        q3d_solved2.export_equivalent_circuit(file_tmp_root / "test_export_circuit.doc")
+        q3d_solved2.export_equivalent_circuit(test_tmp_dir / "test_export_circuit.doc")
     with pytest.raises(AEDTRuntimeError):
         q3d_solved2.export_equivalent_circuit(
             output_file=file_path,

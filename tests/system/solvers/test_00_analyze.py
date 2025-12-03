@@ -202,7 +202,7 @@ def test_sbr_link_array(sbr_platform, array):
 
 
 @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-def test_sbr_link_array_solved(sbr_platform_solved, file_tmp_root):
+def test_sbr_link_array_solved(sbr_platform_solved, test_tmp_dir):
     profile = sbr_platform_solved.setups[0].get_profile()
     assert isinstance(profile, Profiles)
     key0 = list(profile.keys())[0]
@@ -224,9 +224,9 @@ def test_sbr_link_array_solved(sbr_platform_solved, file_tmp_root):
         title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
         quantity_format="dB10",
         show=False,
-        output_file=file_tmp_root / "2d1_array.jpg",
+        output_file=test_tmp_dir / "2d1_array.jpg",
     )
-    assert (file_tmp_root / "2d1_array.jpg").exists()
+    assert (test_tmp_dir / "2d1_array.jpg").exists()
     assert Path(ffdata2.metadata_file).is_file()
 
 
@@ -264,7 +264,7 @@ def test_sbr_create_vrt_creeping(sbr_app):
     DESKTOP_VERSION < "2022.2",
     reason="Not working in non-graphical in version lower than 2022.2",
 )
-def test_hfss_export_results(hfss_app, file_tmp_root):
+def test_hfss_export_results(hfss_app, test_tmp_dir):
     hfss_app.insert_design("Array_simple_resuts", "Modal")
     from ansys.aedt.core.generic.file_utils import read_json
 
@@ -293,17 +293,17 @@ def test_hfss_export_results(hfss_app, file_tmp_root):
         matrix_type="Y",
     )
     assert len(exported_files) > 0
-    fld_file1 = file_tmp_root / "test_fld_hfss1.fld"
+    fld_file1 = test_tmp_dir / "test_fld_hfss1.fld"
     assert hfss_app.post.export_field_file(
         quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics=solve_freq, phase="5deg"
     )
     assert fld_file1.exists()
-    fld_file2 = file_tmp_root / "test_fld_hfss2.fld"
+    fld_file2 = test_tmp_dir / "test_fld_hfss2.fld"
     assert hfss_app.post.export_field_file(
         quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": solve_freq}
     )
     assert fld_file2.exists()
-    fld_file2 = file_tmp_root / "test_fld_hfss3.fld"
+    fld_file2 = test_tmp_dir / "test_fld_hfss3.fld"
     assert hfss_app.post.export_field_file(
         quantity="Mag_E",
         output_file=fld_file2,
@@ -311,7 +311,7 @@ def test_hfss_export_results(hfss_app, file_tmp_root):
         intrinsics={"frequency": solve_freq, "phase": "30deg"},
     )
     assert fld_file2.exists()
-    fld_file2 = file_tmp_root / "test_fld_hfss4.fld"
+    fld_file2 = test_tmp_dir / "test_fld_hfss4.fld"
     assert hfss_app.post.export_field_file(
         quantity="Mag_E",
         output_file=fld_file2,
@@ -320,14 +320,14 @@ def test_hfss_export_results(hfss_app, file_tmp_root):
         phase="30deg",
     )
     assert fld_file2.exists()
-    fld_file2 = file_tmp_root / "test_fld_hfss5.fld"
+    fld_file2 = test_tmp_dir / "test_fld_hfss5.fld"
     assert hfss_app.post.export_field_file(
         quantity="Mag_E",
         output_file=fld_file2,
         assignment="Box1",
     )
     assert fld_file2.exists()
-    fld_file2 = file_tmp_root / "test_fld_hfss6.fld"
+    fld_file2 = test_tmp_dir / "test_fld_hfss6.fld"
     with pytest.raises(TypeError):
         hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics=[])
     assert not fld_file2.exists()
@@ -427,8 +427,8 @@ def test_icepak_eval_tempc(icepak_solved):
     ).exists()
 
 
-def test_icepak_export_fld(icepak_solved, file_tmp_root):
-    fld_file = file_tmp_root / "test_fld.fld"
+def test_icepak_export_fld(icepak_solved, test_tmp_dir):
+    fld_file = test_tmp_dir / "test_fld.fld"
     icepak_solved.post.export_field_file(
         quantity="Temp",
         solution=icepak_solved.nominal_sweep,
@@ -437,7 +437,7 @@ def test_icepak_export_fld(icepak_solved, file_tmp_root):
         assignment="box",
     )
     assert fld_file.exists()
-    fld_file_1 = file_tmp_root / "test_fld_1.fld"
+    fld_file_1 = test_tmp_dir / "test_fld_1.fld"
     sample_points_file = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "temp_points.pts"
     icepak_solved.available_variations.independent = True
     icepak_solved.post.export_field_file(
@@ -449,7 +449,7 @@ def test_icepak_export_fld(icepak_solved, file_tmp_root):
         sample_points_file=sample_points_file,
     )
     assert fld_file_1.exists()
-    fld_file_2 = file_tmp_root / "test_fld_2.fld"
+    fld_file_2 = test_tmp_dir / "test_fld_2.fld"
     icepak_solved.post.export_field_file(
         quantity="Temp",
         solution=icepak_solved.nominal_sweep,
@@ -460,7 +460,7 @@ def test_icepak_export_fld(icepak_solved, file_tmp_root):
     )
     assert fld_file_2.exists()
     cs = icepak_solved.modeler.create_coordinate_system()
-    fld_file_3 = file_tmp_root / "test_fld_3.fld"
+    fld_file_3 = test_tmp_dir / "test_fld_3.fld"
     icepak_solved.post.export_field_file(
         quantity="Temp",
         solution=icepak_solved.nominal_sweep,
@@ -476,8 +476,8 @@ def test_icepak_export_fld(icepak_solved, file_tmp_root):
 
 
 @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
-def test_3dl_export_touchstone(hfss3dl_solved, file_tmp_root):
-    filename = Path(file_tmp_root) / "touchstone.s2p"
+def test_3dl_export_touchstone(hfss3dl_solved, test_tmp_dir):
+    filename = Path(test_tmp_dir) / "touchstone.s2p"
     solution_name = "Setup1"
     sweep_name = "Sweep1"
     assert hfss3dl_solved.export_touchstone(solution_name, sweep_name, filename)
@@ -571,8 +571,8 @@ def test_m3d_harmonic_forces(m3dtransient):
     assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
 
-def test_export_maxwell_fields(m3dtransient, file_tmp_root):
-    fld_file_3 = file_tmp_root / "test_fld_3.fld"
+def test_export_maxwell_fields(m3dtransient, test_tmp_dir):
+    fld_file_3 = test_tmp_dir / "test_fld_3.fld"
     assert m3dtransient.post.export_field_file(
         quantity="Mag_B",
         solution=m3dtransient.nominal_sweep,
@@ -583,7 +583,7 @@ def test_export_maxwell_fields(m3dtransient, file_tmp_root):
         intrinsics="10ms",
     )
     assert fld_file_3.exists()
-    fld_file_4 = file_tmp_root / "test_fld_4.fld"
+    fld_file_4 = test_tmp_dir / "test_fld_4.fld"
     m3dtransient.available_variations.independent = True
     assert not m3dtransient.post.export_field_file(
         quantity="Mag_B",
@@ -639,21 +639,21 @@ def test_compute_com_exported_touchstone(circuit_com):
     assert com
 
 
-def test_compute_com(file_tmp_root):
+def test_compute_com(test_tmp_dir):
     com_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "com_unit_test_sparam"
 
-    thru_s4p = shutil.copy2(com_example_file_folder / "SerDes_Demo_02_Thru.s4p", file_tmp_root / "thru.s4p")
+    thru_s4p = shutil.copy2(com_example_file_folder / "SerDes_Demo_02_Thru.s4p", test_tmp_dir / "thru.s4p")
     fext_s4p = shutil.copy2(
-        com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p", file_tmp_root / "fext_s4p.s4p"
+        com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p", test_tmp_dir / "fext_s4p.s4p"
     )
     next_s4p = shutil.copy2(
-        com_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", file_tmp_root / "next_s4p.s4p"
+        com_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", test_tmp_dir / "next_s4p.s4p"
     )
 
-    report_dir = Path(file_tmp_root) / "custom"
+    report_dir = Path(test_tmp_dir) / "custom"
     report_dir.mkdir(parents=True, exist_ok=True)
     spisim = SpiSim(thru_s4p)
-    spisim.working_directory = file_tmp_root
+    spisim.working_directory = test_tmp_dir
 
     com_0, com_1 = spisim.compute_com(
         standard=3,
@@ -665,9 +665,9 @@ def test_compute_com(file_tmp_root):
     assert com_0 and com_1
 
 
-def test_compute_com_parameter_ver_3p4(file_tmp_root):
+def test_compute_com_parameter_ver_3p4(test_tmp_dir):
     com_example_file_folder = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "com_unit_test_sparam"
-    thru_s4p = shutil.copy2(com_example_file_folder / "SerDes_Demo_02_Thru.s4p", file_tmp_root / "thru.s4p")
+    thru_s4p = shutil.copy2(com_example_file_folder / "SerDes_Demo_02_Thru.s4p", test_tmp_dir / "thru.s4p")
     spisim = SpiSim(thru_s4p)
 
     spisim.export_com_configure_file(Path(spisim.working_directory) / "custom.json")
@@ -678,17 +678,17 @@ def test_compute_com_parameter_ver_3p4(file_tmp_root):
     com_param.load(
         Path(spisim.working_directory) / "custom.json",
     )
-    com_param.export_spisim_cfg(str(file_tmp_root / "test.cfg"))
-    com_0, com_1 = spisim.compute_com(0, file_tmp_root / "test.cfg")
+    com_param.export_spisim_cfg(str(test_tmp_dir / "test.cfg"))
+    com_0, com_1 = spisim.compute_com(0, test_tmp_dir / "test.cfg")
     assert com_0 and com_1
 
 
-def test_export_to_maxwell(add_app_example, add_app, file_tmp_root):
+def test_export_to_maxwell(add_app_example, add_app, test_tmp_dir):
     app = add_app_example(project="assm_test", application=Rmxprt, subfolder="T00", solution_type="ASSM")
     app.analyze(cores=4)
     m2d = app.create_maxwell_design("Setup1")
     assert m2d.design_type == "Maxwell 2D"
-    config = app.export_configuration(file_tmp_root / "assm.json")
+    config = app.export_configuration(test_tmp_dir / "assm.json")
     app2 = add_app(project="assm_test2", application=Rmxprt, solution_type="ASSM")
     app2.import_configuration(config)
     assert app2.circuit
@@ -709,11 +709,11 @@ def test_output_variables_3dlayout(hfss3dl_solved):
         )
 
 
-def test_spisim_advanced_report_ucie(file_tmp_root):
+def test_spisim_advanced_report_ucie(test_tmp_dir):
     spisim_advanced_report_exmaple_folder = (
         Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "spisim_advanced_report"
     )
-    fpath_snp = shutil.copy2(spisim_advanced_report_exmaple_folder / "5_C50.s20p", file_tmp_root / "5_C50.s20p")
+    fpath_snp = shutil.copy2(spisim_advanced_report_exmaple_folder / "5_C50.s20p", test_tmp_dir / "5_C50.s20p")
     spisim = SpiSim(fpath_snp)
     assert spisim.compute_ucie([0, 2, 4, 6, 8, 10], [1, 3, 5, 7, 9, 11], [1, 3])
 

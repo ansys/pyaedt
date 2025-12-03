@@ -60,7 +60,7 @@ def circuit_test(add_app_example):
     app.close_project(save=False)
 
 
-def test_create_pdf(file_tmp_root):
+def test_create_pdf(test_tmp_dir):
     report = AnsysReport(design_name="Design1", project_name="Coaxial")
     report.aedt_version = DESKTOP_VERSION
     assert "AnsysTemplate" in report.template_name
@@ -87,8 +87,8 @@ def test_create_pdf(file_tmp_root):
     report.add_section()
     report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
     report.add_toc()
-    report.save_pdf(file_tmp_root, "my_firstpdf.pdf")
-    output = file_tmp_root / "my_firstpdf.pdf"
+    report.save_pdf(test_tmp_dir, "my_firstpdf.pdf")
+    output = test_tmp_dir / "my_firstpdf.pdf"
     assert output.exists()
 
 
@@ -98,33 +98,33 @@ def test_create_pdf_schematic(circuit_test):
     assert report.add_project_info(circuit_test)
 
 
-def test_virtual_compliance(aedt_app, file_tmp_root):
+def test_virtual_compliance(aedt_app, test_tmp_dir):
     example_template = (
         TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "general_compliance_template.json"
     )
-    template = shutil.copy2(example_template, file_tmp_root / "general_compliance_template.json")
+    template = shutil.copy2(example_template, test_tmp_dir / "general_compliance_template.json")
 
     template2 = TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "ContourEyeDiagram_Custom.json"
-    shutil.copy2(template2, file_tmp_root / "ContourEyeDiagram_Custom.json")
+    shutil.copy2(template2, test_tmp_dir / "ContourEyeDiagram_Custom.json")
 
     template3 = TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "spisim_erl.cfg"
-    shutil.copy2(template3, file_tmp_root / "spisim_erl.cfg")
+    shutil.copy2(template3, test_tmp_dir / "spisim_erl.cfg")
 
     template4 = TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "Sparameter_Custom.json"
-    shutil.copy2(template4, file_tmp_root / "Sparameter_Custom.json")
+    shutil.copy2(template4, test_tmp_dir / "Sparameter_Custom.json")
 
     template5 = (
         TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "Sparameter_Insertion_Custom.json"
     )
-    shutil.copy2(template5, file_tmp_root / "Sparameter_Insertion_Custom.json")
+    shutil.copy2(template5, test_tmp_dir / "Sparameter_Insertion_Custom.json")
 
     template6 = (
         TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "StatisticalEyeDiagram_Custom.json"
     )
-    shutil.copy2(template6, file_tmp_root / "StatisticalEyeDiagram_Custom.json")
+    shutil.copy2(template6, test_tmp_dir / "StatisticalEyeDiagram_Custom.json")
 
     template7 = TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "compliance" / "EyeDiagram_Custom.json"
-    shutil.copy2(template7, file_tmp_root / "EyeDiagram_Custom.json")
+    shutil.copy2(template7, test_tmp_dir / "EyeDiagram_Custom.json")
 
     with open(template, "r+") as f:
         data = json.load(f)
@@ -132,16 +132,16 @@ def test_virtual_compliance(aedt_app, file_tmp_root):
         f.seek(0)
         json.dump(data, f, indent=4)
         f.truncate()
-    compliance_folder = file_tmp_root / "vc"
+    compliance_folder = test_tmp_dir / "vc"
     compliance_folder.mkdir(parents=True, exist_ok=True)
     net_image_original = Path(TESTS_SOLVERS_PATH) / "example_models" / TEST_SUBFOLDER / "nets.jpg"
-    net_image = shutil.copy2(net_image_original, file_tmp_root / "nets.jpg")
+    net_image = shutil.copy2(net_image_original, test_tmp_dir / "nets.jpg")
 
     vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
     vc.dut_image = str(net_image)
     vc.project_file = aedt_app.project_file
     vc.add_report_from_folder(
-        input_folder=file_tmp_root,
+        input_folder=test_tmp_dir,
         design_name="Circuit1",
         group_plots=True,
         project=aedt_app.project_file,
@@ -183,11 +183,11 @@ def test_virtual_compliance(aedt_app, file_tmp_root):
     assert v.create_compliance_report(close_project=False)
 
 
-def test_spisim_raw_read(file_tmp_root):
+def test_spisim_raw_read(test_tmp_dir):
     from ansys.aedt.core.visualization.post.spisim import SpiSimRawRead
 
     example_raw_file = TESTS_SOLVERS_PATH / "example_models" / TEST_SUBFOLDER / "SerDes_Demo_02_Thru.s4p_ERL.raw"
-    raw_file = shutil.copy2(example_raw_file, file_tmp_root / "SerDes_Demo_02_Thru.s4p_ERL.raw")
+    raw_file = shutil.copy2(example_raw_file, test_tmp_dir / "SerDes_Demo_02_Thru.s4p_ERL.raw")
 
     raw_file = SpiSimRawRead(raw_file)
     assert raw_file.get_raw_property()

@@ -697,7 +697,7 @@ def test_validate(aedt_app):
     assert aedt_app.validate_full_design()
 
 
-def test_export_to_hfss(aedt_app, file_tmp_root):
+def test_export_to_hfss(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
         layer="Top",
         layer_type="signal",
@@ -729,9 +729,9 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
     setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup.update()
 
-    file_fullname = file_tmp_root / filename
-    file_fullname2 = file_tmp_root / filename2
-    file_fullname3 = file_tmp_root / filename3
+    file_fullname = test_tmp_dir / filename
+    file_fullname2 = test_tmp_dir / filename2
+    file_fullname3 = test_tmp_dir / filename3
 
     aedt_app.save_project()
     assert setup.export_to_hfss(output_file=str(file_fullname))
@@ -742,12 +742,12 @@ def test_export_to_hfss(aedt_app, file_tmp_root):
     assert (file_fullname3.with_suffix(".aedt")).is_file()
 
     filename = "export_to_q3d_test"
-    file_fullname4 = file_tmp_root / filename
+    file_fullname4 = test_tmp_dir / filename
     assert setup.export_to_q3d(str(file_fullname4))
     assert (file_fullname4.with_suffix(".aedt")).is_file()
 
     filename = "export_to_q3d_test2"
-    file_fullname5 = file_tmp_root / filename
+    file_fullname5 = test_tmp_dir / filename
     assert setup.export_to_q3d(str(file_fullname5), keep_net_name=True, unite=False)
     assert (file_fullname5.with_suffix(".aedt")).is_file()
 
@@ -900,16 +900,16 @@ def test_export_layout(aedt_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Failing on linux")
-def test_import_gerber(aedt_app, file_tmp_root):
+def test_import_gerber(aedt_app, test_tmp_dir):
     active_project = aedt_app.project_name
     gerber_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "Gerber" / "gerber1.zip"
-    shutil.copy(gerber_file, file_tmp_root / "gerber1.zip")
+    shutil.copy(gerber_file, test_tmp_dir / "gerber1.zip")
 
     control_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "Gerber" / "gerber1.xml"
-    control_file = shutil.copy2(control_file_original, file_tmp_root / "gerber1.xml")
+    control_file = shutil.copy2(control_file_original, test_tmp_dir / "gerber1.xml")
 
     output_name = "gerber_out.aedb"
-    aedb_file = available_file_name(file_tmp_root / output_name)
+    aedb_file = available_file_name(test_tmp_dir / output_name)
     assert aedt_app.import_gerber(
         str(gerber_file), output_dir=str(aedb_file), control_file=str(control_file), set_as_active=True
     )
@@ -919,15 +919,15 @@ def test_import_gerber(aedt_app, file_tmp_root):
 
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
-def test_import_gds(aedt_app, file_tmp_root):
+def test_import_gds(aedt_app, test_tmp_dir):
     active_project = aedt_app.project_name
     gds_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1.gds"
-    gds_file = shutil.copy2(gds_file_original, file_tmp_root / "gds1.gds")
+    gds_file = shutil.copy2(gds_file_original, test_tmp_dir / "gds1.gds")
 
     control_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1.tech"
-    control_file = shutil.copy2(control_file_original, file_tmp_root / "gds1.tech")
+    control_file = shutil.copy2(control_file_original, test_tmp_dir / "gds1.tech")
 
-    aedb_file = available_file_name(file_tmp_root / "gds_out.aedb")
+    aedb_file = available_file_name(test_tmp_dir / "gds_out.aedb")
 
     assert aedt_app.import_gds(str(gds_file), output_dir=str(aedb_file))
     aedt_app.close_project(save=False)
@@ -938,26 +938,26 @@ def test_import_gds(aedt_app, file_tmp_root):
 
 
 @pytest.mark.skipif(is_linux, reason="Fails in linux")
-def test_import_dxf(aedt_app, file_tmp_root):
+def test_import_dxf(aedt_app, test_tmp_dir):
     active_project = aedt_app.project_name
     dxf_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf1.dxf"
-    dxf_file = shutil.copy2(dxf_file_original, file_tmp_root / "dxf1.dxf")
+    dxf_file = shutil.copy2(dxf_file_original, test_tmp_dir / "dxf1.dxf")
 
     control_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf1.xml"
-    control_file = shutil.copy2(control_file_original, file_tmp_root / "dxf1.xml")
+    control_file = shutil.copy2(control_file_original, test_tmp_dir / "dxf1.xml")
 
-    aedb_file = file_tmp_root / "dxf_out.aedb"
+    aedb_file = test_tmp_dir / "dxf_out.aedb"
 
     assert aedt_app.import_gerber(str(dxf_file), output_dir=str(aedb_file), control_file=str(control_file))
     aedt_app.close_project(save=False)
     aedt_app.desktop_class.active_project(active_project)
 
 
-def test_import_ipc(aedt_app, file_tmp_root):
+def test_import_ipc(aedt_app, test_tmp_dir):
     active_project = aedt_app.project_name
     ipc_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "ipc" / "layout.xml"
-    ipc_file = shutil.copy2(ipc_file_original, file_tmp_root / "layout.xml")
-    aedb_file = file_tmp_root / "ipc_out.aedb"
+    ipc_file = shutil.copy2(ipc_file_original, test_tmp_dir / "layout.xml")
+    aedb_file = test_tmp_dir / "ipc_out.aedb"
 
     assert aedt_app.import_ipc2581(str(ipc_file), output_dir=str(aedb_file), control_file="")
     aedt_app.close_project(save=False)
@@ -1125,24 +1125,24 @@ def test_set_differential_pairs(aedt_app, hfss3dl):
 
 
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
-def test_load_and_save_diff_pair_file(hfss3dl, file_tmp_root):
+def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
     diff_def_file_original = (
         TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "differential_pairs_definition.txt"
     )
-    diff_def_file = shutil.copy2(diff_def_file_original, file_tmp_root / "differential_pairs_definition.txt")
+    diff_def_file = shutil.copy2(diff_def_file_original, test_tmp_dir / "differential_pairs_definition.txt")
 
     assert hfss3dl.load_diff_pairs_from_file(diff_def_file)
 
-    diff_file2 = file_tmp_root / "diff_file2.txt"
+    diff_file2 = test_tmp_dir / "diff_file2.txt"
     assert hfss3dl.save_diff_pairs_to_file(str(diff_file2))
     with open(diff_file2, "r") as fh:
         lines = fh.read().splitlines()
     assert len(lines) == 3
 
 
-def test_import_edb(aedt_app, file_tmp_root):
+def test_import_edb(aedt_app, test_tmp_dir):
     example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
-    target_path = file_tmp_root / "Package_test_92.aedb"
+    target_path = test_tmp_dir / "Package_test_92.aedb"
     shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))
     aedt_app.close_project(save=False)
@@ -1169,14 +1169,14 @@ def test_create_text(aedt_app):
     assert aedt_app.modeler.create_text("test", [0, 0], "SIwave Regions")
 
 
-def test_change_nets_visibility(aedt_app, file_tmp_root):
+def test_change_nets_visibility(aedt_app, test_tmp_dir):
     # Use POST_PROCESSING_PROJECT project which has the required nets (V3P3_S0, V3P3_S3, V3P3_S5)
     # hide all
     dxf_file_original = TESTS_GENERAL_PATH / "example_models" / "cad" / "ipc" / "layout.xml"
-    dxf_file = file_tmp_root / "layout.xml"
+    dxf_file = test_tmp_dir / "layout.xml"
     shutil.copy2(dxf_file_original, dxf_file)
 
-    aedb_file = file_tmp_root / "ipc_out.aedb"
+    aedb_file = test_tmp_dir / "ipc_out.aedb"
 
     aedt_app.import_ipc2581(str(dxf_file), output_dir=str(aedb_file), control_file="")
 
@@ -1213,9 +1213,9 @@ def test_geom_check(aedt_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-def test_export_on_completion(aedt_app, file_tmp_root):
+def test_export_on_completion(aedt_app, test_tmp_dir):
     assert aedt_app.export_touchstone_on_completion()
-    assert aedt_app.export_touchstone_on_completion(export=True, output_dir=file_tmp_root)
+    assert aedt_app.export_touchstone_on_completion(export=True, output_dir=test_tmp_dir)
 
 
 def test_create_coordinate_system(aedt_app):

@@ -1490,29 +1490,29 @@ def test_get_closest_edge_to_position(aedt_app):
 
 @pytest.mark.skipif(NON_GRAPHICAL or is_linux, reason="Not running in non-graphical mode or in Linux")
 @pytest.mark.skipif(ON_CI, reason="Needs Workbench to run.")
-def test_import_space_claim(aedt_app, file_tmp_root):
+def test_import_space_claim(aedt_app, test_tmp_dir):
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / SDOC_FILE
-    input_file = shutil.copy2(file_original, file_tmp_root / SDOC_FILE)
+    input_file = shutil.copy2(file_original, test_tmp_dir / SDOC_FILE)
 
     assert aedt_app.modeler.import_spaceclaim_document(str(input_file))
     assert len(aedt_app.modeler.objects) == 1
 
 
-def test_import_step(aedt_app, file_tmp_root):
+def test_import_step(aedt_app, test_tmp_dir):
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / STEP
-    input_file = shutil.copy2(file_original, file_tmp_root / STEP)
+    input_file = shutil.copy2(file_original, test_tmp_dir / STEP)
 
     assert aedt_app.modeler.import_3d_cad(input_file)
     assert len(aedt_app.modeler.object_names) == 1
 
 
-def test_create_3dcomponent(aedt_app, file_tmp_root):
+def test_create_3dcomponent(aedt_app, test_tmp_dir):
     box = create_copper_box(aedt_app)
     aedt_app.solution_type = "Modal"
     for i in list(aedt_app.modeler.objects.keys()):
         aedt_app.modeler.objects[i].material_name = "copper"
 
-    input_file = file_tmp_root / "new" / COMPONENT_3D_FILE
+    input_file = test_tmp_dir / "new" / COMPONENT_3D_FILE
 
     # Folder doesn't exist. Cannot create component.
     assert not aedt_app.modeler.create_3dcomponent(str(input_file), create_folder=False)
@@ -1531,7 +1531,7 @@ def test_create_3dcomponent(aedt_app, file_tmp_root):
     box2 = aedt_app.modeler.create_box([0, 0, 0], [10, 100, 30])
     aedt_app.mesh.assign_length_mesh([box1.name, box2.name])
 
-    input_file = file_tmp_root / "new2" / COMPONENT_3D_FILE
+    input_file = test_tmp_dir / "new2" / COMPONENT_3D_FILE
     assert aedt_app.modeler.create_3dcomponent(
         str(input_file),
         variables_to_include=["test_variable"],
@@ -1543,9 +1543,9 @@ def test_create_3dcomponent(aedt_app, file_tmp_root):
     assert input_file.is_file()
 
 
-def test_create_3d_component_encrypted(aedt_app, file_tmp_root):
+def test_create_3d_component_encrypted(aedt_app, test_tmp_dir):
     create_copper_box(aedt_app)
-    input_file = file_tmp_root / COMPONENT_3D_FILE
+    input_file = test_tmp_dir / COMPONENT_3D_FILE
     assert aedt_app.modeler.create_3dcomponent(
         str(input_file), coordinate_systems="Global", is_encrypted=True, password="password_test"
     )
@@ -1594,9 +1594,9 @@ def test_insert_3dcomponent(aedt_app):
 
 @pytest.mark.skipif(DESKTOP_VERSION > "2022.2", reason="Method failing in version higher than 2022.2")
 @pytest.mark.skipif(USE_GRPC and DESKTOP_VERSION < "2023.1", reason="Failing in grpc")
-def test_insert_encrypted_3dcomp(aedt_app, file_tmp_root):
+def test_insert_encrypted_3dcomp(aedt_app, test_tmp_dir):
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / ENCRYPTED_CYL
-    input_file = shutil.copy2(file_original, file_tmp_root / ENCRYPTED_CYL)
+    input_file = shutil.copy2(file_original, test_tmp_dir / ENCRYPTED_CYL)
 
     assert not aedt_app.modeler.insert_3d_component(str(input_file))
     # assert not aedt_app.modeler.insert_3d_component(encrypted_cylinder, password="dfgdg")
@@ -1802,39 +1802,39 @@ def test_create_choke(aedt_app, filename):
         assert isinstance(resolve1[i][1], list)
 
 
-def test_check_choke_values(aedt_app, file_tmp_root):
+def test_check_choke_values(aedt_app, test_tmp_dir):
     choke_file1_original = TESTS_GENERAL_PATH / "example_models" / "choke_json_file" / "choke_1winding_1Layer.json"
-    choke_file1 = shutil.copy2(choke_file1_original, file_tmp_root / "choke_1winding_1Layer.json")
+    choke_file1 = shutil.copy2(choke_file1_original, test_tmp_dir / "choke_1winding_1Layer.json")
 
     choke_file2_original = (
         TESTS_GENERAL_PATH / "example_models" / "choke_json_file" / "choke_2winding_1Layer_Common.json"
     )
-    choke_file2 = shutil.copy2(choke_file2_original, file_tmp_root / "choke_2winding_1Layer_Common.json")
+    choke_file2 = shutil.copy2(choke_file2_original, test_tmp_dir / "choke_2winding_1Layer_Common.json")
 
     choke_file3_original = (
         TESTS_GENERAL_PATH / "example_models" / "choke_json_file" / "choke_2winding_2Layer_Linked_Differential.json"
     )
-    choke_file3 = shutil.copy2(choke_file3_original, file_tmp_root / "choke_2winding_2Layer_Linked_Differential.json")
+    choke_file3 = shutil.copy2(choke_file3_original, test_tmp_dir / "choke_2winding_2Layer_Linked_Differential.json")
 
     choke_file4_original = (
         TESTS_GENERAL_PATH / "example_models" / "choke_json_file" / "choke_3winding_3Layer_Separate.json"
     )
-    choke_file4 = shutil.copy2(choke_file4_original, file_tmp_root / "choke_3winding_3Layer_Separate.json")
+    choke_file4 = shutil.copy2(choke_file4_original, test_tmp_dir / "choke_3winding_3Layer_Separate.json")
 
     choke_file5_original = (
         TESTS_GENERAL_PATH / "example_models" / "choke_json_file" / "choke_4winding_3Layer_Linked.json"
     )
-    choke_file5 = shutil.copy2(choke_file5_original, file_tmp_root / "choke_4winding_3Layer_Linked.json")
+    choke_file5 = shutil.copy2(choke_file5_original, test_tmp_dir / "choke_4winding_3Layer_Linked.json")
 
     choke_file6_original = (
         TESTS_GENERAL_PATH / "example_models" / "choke_json_file" / "choke_1winding_3Layer_Linked.json"
     )
-    choke_file6 = shutil.copy2(choke_file6_original, file_tmp_root / "choke_1winding_3Layer_Linked.json")
+    choke_file6 = shutil.copy2(choke_file6_original, test_tmp_dir / "choke_1winding_3Layer_Linked.json")
 
     choke_file7_original = (
         TESTS_GENERAL_PATH / "example_models" / "choke_json_file" / "choke_2winding_2Layer_Common.json"
     )
-    choke_file7 = shutil.copy2(choke_file7_original, file_tmp_root / "choke_2winding_2Layer_Common.json")
+    choke_file7 = shutil.copy2(choke_file7_original, test_tmp_dir / "choke_2winding_2Layer_Common.json")
 
     resolve1 = aedt_app.modeler.check_choke_values(str(choke_file1), create_another_file=False)
     resolve2 = aedt_app.modeler.check_choke_values(str(choke_file2), create_another_file=False)
@@ -2214,12 +2214,12 @@ def test_replace_3d_component(aedt_app):
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.1", reason="Method available in beta from 2023.1")
 @pytest.mark.skipif(is_linux, reason="EDB object is not loaded")
-def test_insert_layout_component(aedt_app, file_tmp_root):
+def test_insert_layout_component(aedt_app, test_tmp_dir):
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP
-    input_file = shutil.copy2(file_original, file_tmp_root / LAYOUT_COMP)
+    input_file = shutil.copy2(file_original, test_tmp_dir / LAYOUT_COMP)
 
     file_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
-    input_file2 = shutil.copy2(file_original2, file_tmp_root / LAYOUT_COMP_SI_VERSE_SFP)
+    input_file2 = shutil.copy2(file_original2, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
 
     aedt_app.solution_type = "Modal"
 
@@ -2255,12 +2255,12 @@ def test_insert_layout_component(aedt_app, file_tmp_root):
     assert comp.layout_component.close_edb_object()
 
 
-def test_insert_layout_component_2(aedt_app, file_tmp_root):
+def test_insert_layout_component_2(aedt_app, test_tmp_dir):
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP
-    input_file = shutil.copy2(file_original, file_tmp_root / LAYOUT_COMP)
+    input_file = shutil.copy2(file_original, test_tmp_dir / LAYOUT_COMP)
 
     file_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / LAYOUT_COMP_SI_VERSE_SFP
-    input_file2 = shutil.copy2(file_original2, file_tmp_root / LAYOUT_COMP_SI_VERSE_SFP)
+    input_file2 = shutil.copy2(file_original2, test_tmp_dir / LAYOUT_COMP_SI_VERSE_SFP)
 
     aedt_app.modeler.add_layout_component_definition(
         file_path=str(input_file),
@@ -2358,14 +2358,14 @@ def test_import_prism_primitives_csv(aedt_app):
         aedt_app.modeler.import_primitives_from_file(input_file=primitive_file)
 
 
-def test_primitives_builder(add_app, file_tmp_root):
+def test_primitives_builder(add_app, test_tmp_dir):
     from ansys.aedt.core.generic.file_utils import read_json
     from ansys.aedt.core.modeler.cad.primitives import PrimitivesBuilder
 
     ipk = add_app(application=Icepak)
 
     primitive_file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / PRIMITIVES_FILE
-    primitive_file = shutil.copy2(primitive_file_original, file_tmp_root / PRIMITIVES_FILE)
+    primitive_file = shutil.copy2(primitive_file_original, test_tmp_dir / PRIMITIVES_FILE)
     primitive_dict = read_json(primitive_file)
 
     with pytest.raises(TypeError):
@@ -2447,12 +2447,12 @@ def test_detach_faces(aedt_app):
 @pytest.mark.skipif(DESKTOP_VERSION < "2024.1", reason="Feature not available until 2024.1")
 @pytest.mark.skipif(DESKTOP_VERSION < "2027.1", reason="Very long test skipping it.")
 @pytest.mark.skipif(ON_CI, reason="Needs Workbench to run.")
-def test_import_discovery(aedt_app, file_tmp_root):
+def test_import_discovery(aedt_app, test_tmp_dir):
     assert not aedt_app.modeler.objects
     assert not aedt_app.modeler.solid_bodies
 
     file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / DISCOVERY_FILE
-    input_file = shutil.copy2(file_original, file_tmp_root / DISCOVERY_FILE)
+    input_file = shutil.copy2(file_original, test_tmp_dir / DISCOVERY_FILE)
 
     if is_linux:
         assert not aedt_app.modeler.import_discovery_model(str(input_file))
