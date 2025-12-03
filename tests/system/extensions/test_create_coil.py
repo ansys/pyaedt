@@ -40,7 +40,7 @@ def m3d_app(add_app):
 
 
 @pytest.fixture()
-def aedtapp(add_app):
+def aedt_app(add_app):
     app = add_app(application=Hfss)
     yield app
     app.close_project(app.project_name, save=False)
@@ -114,7 +114,7 @@ def test_exception_invalid_data(m3d_app):
         main(data)
 
 
-def test_invalid_solution_type(aedtapp):
+def test_invalid_solution_type(aedt_app):
     """Test that an exception is raised when the solution type is not Maxwell 3D."""
     data = CoilExtensionData(coil_type="flat")
     with pytest.raises(AEDTRuntimeError):
