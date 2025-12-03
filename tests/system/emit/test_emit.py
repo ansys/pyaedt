@@ -41,7 +41,7 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
-python_version = sys.version_info[:2]
+PYTHON_VERSION = sys.version_info[:2]
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
 # Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
@@ -49,17 +49,17 @@ python_version = sys.version_info[:2]
 pytestmark = [
     pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux."),
     pytest.mark.skipif(
-        (python_version < (3, 8) or python_version > (3, 11)) and DESKTOP_VERSION < "2025.1",
+        (PYTHON_VERSION < (3, 8) or PYTHON_VERSION > (3, 11)) and DESKTOP_VERSION < "2025.1",
         reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
     ),
     pytest.mark.skipif(
-        (python_version < (3, 10) or python_version > (3, 12)) and DESKTOP_VERSION > "2024.2",
+        (PYTHON_VERSION < (3, 10) or PYTHON_VERSION > (3, 12)) and DESKTOP_VERSION > "2024.2",
         reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
     ),
 ]
 
-if ((3, 8) <= python_version <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
-    (3, 10) <= python_version <= (3, 12) and DESKTOP_VERSION > "2024.2"
+if ((3, 8) <= PYTHON_VERSION <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
+    (3, 10) <= PYTHON_VERSION <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
