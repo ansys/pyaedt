@@ -40,7 +40,7 @@ from tests.conftest import DESKTOP_VERSION
 )
 @patch.object(ViaDesignExtension, "check_design_type", return_value=None)
 @patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, add_app):
+def test_via_design_create_design_from_example(mock_askopenfilename, file_dialog, add_app):
     """Test the creation of a design from examples in the via design extension."""
     app = add_app(application=Hfss3dLayout)
     extension = ViaDesignExtension(withdraw=True)
@@ -52,6 +52,7 @@ def test_via_design_create_design_from_example(mock_askopenfilename, add_app):
         with example.toml_file_path.open("r") as f:
             data = toml.load(f)
         assert data["title"] == extension.active_project_name
+        app.close_project(save=False)
 
     extension.root.destroy()
-    app.release_desktop()
+    app.close_project(save=False)
