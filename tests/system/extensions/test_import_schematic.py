@@ -68,5 +68,4 @@ def test_import_schematic_generate_button_with_circuit(add_app, test_tmp_dir):
     assert Path(data.file_extension) == path
     # Now run the main logic with the data and the Circuit instance
     assert main(data) is True
-    os.remove(path)
     app.close_project(app.project_name, save=False)

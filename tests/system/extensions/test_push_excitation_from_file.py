@@ -23,7 +23,8 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os
+
+import shutil
 
 import pytest
 
@@ -33,6 +34,7 @@ from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcita
 from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtensionData
 from ansys.aedt.core.extensions.hfss.push_excitation_from_file import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from tests import TESTS_GENERAL_PATH
 
 
 def test_push_excitation_generate_button(add_app, test_tmp_dir):
@@ -122,7 +124,7 @@ def test_push_excitation_exceptions(add_app, test_tmp_dir):
         aedt_app.close_project(save=False)
 
 
-def test_push_excitation_with_sinusoidal_input(add_app):
+def test_push_excitation_with_sinusoidal_input(add_app, test_tmp_dir):
     """Test HFSS push excitation with sinusoidal data from file."""
     aedt_app = add_app(application=Hfss, project="push_excitation", design="sinusoidal_test")
 
@@ -134,13 +136,11 @@ def test_push_excitation_with_sinusoidal_input(add_app):
     aedt_app.wave_port(face, integration_line=aedt_app.AxisDir.XPos, name="1")
 
     # Use the existing sinusoidal CSV file
-    file_path = os.path.join(os.path.dirname(__file__), "..", "general", "example_models", "T20", "Sinusoidal.csv")
-
-    # Ensure the file exists
-    assert os.path.exists(file_path), f"Test file not found: {file_path}"
+    file_path = TESTS_GENERAL_PATH / "example_models" / "T20" / "Sinusoidal.csv"
+    file = shutil.copy2(file_path, test_tmp_dir / "Sinusoidal.csv")
 
     # Test with no choice (empty choice)
-    data_no_choice = PushExcitationExtensionData(choice="", file_path=file_path)
+    data_no_choice = PushExcitationExtensionData(choice="", file_path=str(file))
 
     # This should raise an error due to empty choice
     with pytest.raises(AEDTRuntimeError, match="No excitation selected"):
