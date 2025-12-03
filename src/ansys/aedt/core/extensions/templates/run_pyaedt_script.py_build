@@ -52,7 +52,7 @@ def show_launcher_dialog(initial_dir):
     f = Form()
     f.Text = "Run PyAEDT Script"
     f.Width = 500
-    f.Height = 220
+    f.Height = 180
     f.FormBorderStyle = FormBorderStyle.FixedDialog
     f.MaximizeBox = False
     f.MinimizeBox = False
@@ -103,37 +103,6 @@ def show_launcher_dialog(initial_dir):
     txt_args.Width = 320
     f.Controls.Add(txt_args)
 
-    top += 30
-    # Configure file
-    lbl_cfg = Label()
-    lbl_cfg.Text = "--configure_file"
-    lbl_cfg.Left = 12
-    lbl_cfg.Top = top
-    lbl_cfg.AutoSize = True
-    f.Controls.Add(lbl_cfg)
-
-    txt_cfg_arg = TextBox()
-    txt_cfg_arg.Left = 110
-    txt_cfg_arg.Top = top
-    txt_cfg_arg.Width = 320
-    f.Controls.Add(txt_cfg_arg)
-
-    btn_browse_cfg = Button()
-    btn_browse_cfg.Text = "..."
-    btn_browse_cfg.Left = 440
-    btn_browse_cfg.Top = top - 3
-    btn_browse_cfg.Width = 30
-    btn_browse_cfg.Height = 23
-    f.Controls.Add(btn_browse_cfg)
-
-    def browse_cfg_click(sender, args):
-        dlg = OpenFileDialog()
-        dlg.InitialDirectory = initial_dir
-        dlg.Filter = "Config Files (*.toml;*.json)|*.toml;*.json"
-        if dlg.ShowDialog() == DialogResult.OK:
-            txt_cfg_arg.Text = dlg.FileName
-
-    btn_browse_cfg.Click += browse_cfg_click
 
     # Execution
     top += 40
@@ -159,8 +128,7 @@ def show_launcher_dialog(initial_dir):
 
     if result == DialogResult.OK:
         args = txt_args.Text
-        if txt_cfg_arg.Text:
-            args += " " + lbl_cfg.Text + " " + txt_cfg_arg.Text
+
         return txt_file.Text, args
     else:
         return None, None
