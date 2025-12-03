@@ -69,7 +69,7 @@ def test_push_excitation_generate_button(add_app, test_tmp_dir):
         # Set up the UI controls with test data before invoking button
         extension.port_combo.set(excitation_name)
         extension.file_entry.delete("1.0", "end")
-        extension.file_entry.insert("1.0", str(test_tmp_dir))
+        extension.file_entry.insert("1.0", str(signal))
 
         # Invoke the generate button
         extension.root.nametowidget("generate").invoke()

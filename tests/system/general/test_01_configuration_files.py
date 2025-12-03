@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# standard imports
 from pathlib import Path
 
 import pytest
@@ -33,77 +32,70 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.file_utils import available_file_name
 from tests import TESTS_GENERAL_PATH
-from tests.conftest import config
 
-test_project_name = "dm boundary test"
-test_field_name = "Potter_Horn"
-ipk_name = "Icepak_test"
-test_subfolder = "T42"
-if config["desktopVersion"] > "2022.2":
-    q3d_file = "via_gsg_t42_231"
-    test_project_name = "dm boundary test_231"
-else:
-    q3d_file = "via_gsg_t42"
-    test_project_name = "dm boundary test"
-diff_proj_name = "test_42"
-hfss3dl_existing_setup_proj_name = (
-    f"existing_hfss3dl_setup_v{config['desktopVersion'][-4:-2]}{config['desktopVersion'][-1:]}"
-)
-circuit_project_name = "differential_pairs.aedt"
+TEST_FIELD = "Potter_Horn"
+IPK_NAME = "Icepak_test"
+TEST_SUBFOLDER = "T42"
+Q3D_FILE = "via_gsg_t42_231"
+TEST_PROJECT_NAME = "dm boundary test_231"
+CIRCUIT_PROJECT_NAME = "differential_pairs"
 
 
 @pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(project_name=test_project_name, subfolder=test_subfolder)
-    yield app
-
-
-@pytest.fixture()
-def circuittest(add_app):
-    app = add_app(project_name=circuit_project_name, subfolder="T21", application=Circuit)
+def aedt_app(add_app_example):
+    app = add_app_example(project=TEST_PROJECT_NAME, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def q3dtest(add_app):
-    app = add_app(project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
+def circuit_app(add_app_example):
+    app = add_app_example(project=CIRCUIT_PROJECT_NAME, subfolder="T21", application=Circuit)
     yield app
+    app.close_project(save=False)
 
 
 @pytest.fixture()
-def q2dtest(add_app):
+def q3d_app(add_app_example):
+    app = add_app_example(project_name=Q3D_FILE, application=Q3d, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture()
+def q2d_app(add_app):
     app = add_app(application=Q2d)
     yield app
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def hfss3dl_a(add_app):
-    app = add_app(project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
+    app = add_app(application=Hfss3dLayout)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
 def hfss3dl_b(add_app):
-    app = add_app(project_name=hfss3dl_existing_setup_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
+    app = add_app(application=Hfss3dLayout)
     yield app
     app.close_project(save=False)
 
 
-def test_hfss_export(aedtapp, add_app, local_scratch):
-    aedtapp.mesh.assign_length_mesh("sub")
-    conf_file = aedtapp.configurations.export_config()
-    assert aedtapp.configurations.validate(conf_file)
-    filename = aedtapp.design_name
+def test_hfss_export(aedt_app, add_app, local_scratch):
+    aedt_app.mesh.assign_length_mesh("sub")
+    conf_file = aedt_app.configurations.export_config()
+    assert aedt_app.configurations.validate(conf_file)
+    filename = aedt_app.design_name
     output_file = filename + ".x_b"
-    file_path = Path(aedtapp.working_directory) / output_file
+    file_path = Path(aedt_app.working_directory) / output_file
 
-    aedtapp.export_3d_model(filename, aedtapp.working_directory, ".x_b", [], [])
-    aedtapp.close_project(save=False)
+    aedt_app.export_3d_model(filename, aedt_app.working_directory, ".x_b", [], [])
+    aedt_app.close_project(save=False)
 
     project_file = available_file_name(local_scratch.path / "new_proj.aedt")
-    app = add_app(project_name=project_file, solution_type=aedtapp.solution_type, just_open=True)
+    app = add_app(project_name=project_file, solution_type=aedt_app.solution_type, just_open=True)
 
     app.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
@@ -113,17 +105,17 @@ def test_hfss_export(aedtapp, add_app, local_scratch):
     app.close_project(save=False)
 
 
-def test_q3d_export(q3dtest, add_app, local_scratch):
-    q3dtest.modeler.create_coordinate_system()
-    q3dtest.setups[0].props["AdaptiveFreq"] = "100MHz"
-    conf_file = q3dtest.configurations.export_config()
-    assert q3dtest.configurations.validate(conf_file)
-    filename = q3dtest.design_name
+def test_q3d_export(q3d_app, add_app, local_scratch):
+    q3d_app.modeler.create_coordinate_system()
+    q3d_app.setups[0].props["AdaptiveFreq"] = "100MHz"
+    conf_file = q3d_app.configurations.export_config()
+    assert q3d_app.configurations.validate(conf_file)
+    filename = q3d_app.design_name
     output_file = filename + ".x_b"
-    file_path = Path(q3dtest.working_directory) / output_file
+    file_path = Path(q3d_app.working_directory) / output_file
 
-    q3dtest.export_3d_model(filename, q3dtest.working_directory, ".x_b", [], [])
-    q3dtest.close_project(save=False)
+    q3d_app.export_3d_model(filename, q3d_app.working_directory, ".x_b", [], [])
+    q3d_app.close_project(save=False)
 
     project_file = available_file_name(local_scratch.path / "new_proj_Q3d.aedt")
     app = add_app(application=Q3d, project_name=project_file, just_open=True)
@@ -135,19 +127,19 @@ def test_q3d_export(q3dtest, add_app, local_scratch):
     app.close_project(save=False)
 
 
-def test_q2d_export(q2dtest, add_app, local_scratch):
-    q2dtest.modeler.create_coordinate_system()
-    q2dtest.modeler.create_rectangle([15, 20, 0], [5, 5])
-    conf_file = q2dtest.configurations.export_config()
+def test_q2d_export(q2d_app, add_app, local_scratch):
+    q2d_app.modeler.create_coordinate_system()
+    q2d_app.modeler.create_rectangle([15, 20, 0], [5, 5])
+    conf_file = q2d_app.configurations.export_config()
 
-    assert q2dtest.configurations.validate(conf_file)
-    filename = q2dtest.design_name
+    assert q2d_app.configurations.validate(conf_file)
+    filename = q2d_app.design_name
 
     output_file = filename + ".x_t"
-    file_path = Path(q2dtest.working_directory) / output_file
+    file_path = Path(q2d_app.working_directory) / output_file
 
-    q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_t", [], [])
-    q2dtest.close_project(save=False)
+    q2d_app.export_3d_model(filename, q2d_app.working_directory, ".x_t", [], [])
+    q2d_app.close_project(save=False)
 
     project_file = available_file_name(local_scratch.path / "new_proj_Q2d.aedt")
     app = add_app(application=Q2d, project_name=project_file, just_open=True)
@@ -156,42 +148,42 @@ def test_q2d_export(q2dtest, add_app, local_scratch):
     assert isinstance(out, dict)
     assert app.configurations.validate(out)
     assert app.configurations.results.global_import_success
-    q2dtest.configurations.options.unset_all_export()
-    assert not q2dtest.configurations.options.export_materials
-    assert not q2dtest.configurations.options.export_setups
-    assert not q2dtest.configurations.options.export_variables
-    assert not q2dtest.configurations.options.export_boundaries
-    assert not q2dtest.configurations.options.export_optimizations
-    assert not q2dtest.configurations.options.export_mesh_operations
-    assert not q2dtest.configurations.options._export_object_properties
-    assert not q2dtest.configurations.options.export_parametrics
-    q2dtest.configurations.options.set_all_export()
-    assert q2dtest.configurations.options.export_materials
-    assert q2dtest.configurations.options.export_setups
-    assert q2dtest.configurations.options.export_variables
-    assert q2dtest.configurations.options.export_boundaries
-    assert q2dtest.configurations.options.export_optimizations
-    assert q2dtest.configurations.options.export_mesh_operations
-    assert q2dtest.configurations.options.export_object_properties
-    assert q2dtest.configurations.options.export_parametrics
-    q2dtest.configurations.options.unset_all_import()
-    assert not q2dtest.configurations.options.import_materials
-    assert not q2dtest.configurations.options.import_setups
-    assert not q2dtest.configurations.options.import_variables
-    assert not q2dtest.configurations.options.import_boundaries
-    assert not q2dtest.configurations.options.import_optimizations
-    assert not q2dtest.configurations.options.import_mesh_operations
-    assert not q2dtest.configurations.options.import_object_properties
-    assert not q2dtest.configurations.options.import_parametrics
-    q2dtest.configurations.options.set_all_import()
-    assert q2dtest.configurations.options.import_materials
-    assert q2dtest.configurations.options.import_setups
-    assert q2dtest.configurations.options.import_variables
-    assert q2dtest.configurations.options.import_boundaries
-    assert q2dtest.configurations.options.import_optimizations
-    assert q2dtest.configurations.options.import_mesh_operations
-    assert q2dtest.configurations.options.import_object_properties
-    assert q2dtest.configurations.options.import_parametrics
+    q2d_app.configurations.options.unset_all_export()
+    assert not q2d_app.configurations.options.export_materials
+    assert not q2d_app.configurations.options.export_setups
+    assert not q2d_app.configurations.options.export_variables
+    assert not q2d_app.configurations.options.export_boundaries
+    assert not q2d_app.configurations.options.export_optimizations
+    assert not q2d_app.configurations.options.export_mesh_operations
+    assert not q2d_app.configurations.options._export_object_properties
+    assert not q2d_app.configurations.options.export_parametrics
+    q2d_app.configurations.options.set_all_export()
+    assert q2d_app.configurations.options.export_materials
+    assert q2d_app.configurations.options.export_setups
+    assert q2d_app.configurations.options.export_variables
+    assert q2d_app.configurations.options.export_boundaries
+    assert q2d_app.configurations.options.export_optimizations
+    assert q2d_app.configurations.options.export_mesh_operations
+    assert q2d_app.configurations.options.export_object_properties
+    assert q2d_app.configurations.options.export_parametrics
+    q2d_app.configurations.options.unset_all_import()
+    assert not q2d_app.configurations.options.import_materials
+    assert not q2d_app.configurations.options.import_setups
+    assert not q2d_app.configurations.options.import_variables
+    assert not q2d_app.configurations.options.import_boundaries
+    assert not q2d_app.configurations.options.import_optimizations
+    assert not q2d_app.configurations.options.import_mesh_operations
+    assert not q2d_app.configurations.options.import_object_properties
+    assert not q2d_app.configurations.options.import_parametrics
+    q2d_app.configurations.options.set_all_import()
+    assert q2d_app.configurations.options.import_materials
+    assert q2d_app.configurations.options.import_setups
+    assert q2d_app.configurations.options.import_variables
+    assert q2d_app.configurations.options.import_boundaries
+    assert q2d_app.configurations.options.import_optimizations
+    assert q2d_app.configurations.options.import_mesh_operations
+    assert q2d_app.configurations.options.import_object_properties
+    assert q2d_app.configurations.options.import_parametrics
     app.close_project(save=False)
 
 
@@ -201,7 +193,7 @@ def test_hfss3dlayout_setup(hfss3dl_a, local_scratch):
     export_path = local_scratch.path / "export_setup_properties.json"  # Legacy.
     assert setup2.export_to_json(str(export_path))  # Export from setup directly.
     conf_file = hfss3dl_a.configurations.export_config()  # Design level export. Same as other apps.
-    json_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "hfss3dl_setup.json"
+    json_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "hfss3dl_setup.json"
     assert setup2.import_from_json(str(json_file))
     assert setup2.props["ViaNumSides"] == 12
     assert hfss3dl_a.configurations.validate(conf_file)
@@ -219,13 +211,13 @@ def test_hfss3dlayout_existing_setup(hfss3dl_a, hfss3dl_b, local_scratch):
     assert setup3.update()
 
 
-def test_circuit(circuittest, local_scratch):
-    path = circuittest.configurations.export_config()
+def test_circuit(circuit_app, local_scratch):
+    path = circuit_app.configurations.export_config()
     assert Path(path).is_file()
-    circuittest.insert_design("new_import")
-    circuittest.configurations.import_config(path)
+    circuit_app.insert_design("new_import")
+    circuit_app.configurations.import_config(path)
     export_json = local_scratch.path / "export_config.json"
-    assert circuittest.configurations.export_config(str(export_json))
+    assert circuit_app.configurations.export_config(str(export_json))
 
 
 def test_circuit_import_config(add_app, local_scratch):

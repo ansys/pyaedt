@@ -85,6 +85,13 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
             self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
 
 
+def show_error_message(message):
+    """Show error message."""
+    import tkinter.messagebox
+
+    tkinter.messagebox.showerror("Error", message)
+
+
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for parametrizing EDB layouts in AEDT."""
 
@@ -313,15 +320,9 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             self.root.destroy()
 
         except ValueError as e:
-            self.show_error_message(f"Invalid input: {str(e)}")
+            show_error_message(f"Invalid input: {str(e)}")
         except Exception as e:
-            self.show_error_message(f"Error: {str(e)}")
-
-    def show_error_message(self, message):
-        """Show error message."""
-        import tkinter.messagebox
-
-        tkinter.messagebox.showerror("Error", message)
+            show_error_message(f"Error: {str(e)}")
 
 
 def main(data: ParametrizeEdbExtensionData):
@@ -363,7 +364,7 @@ def main(data: ParametrizeEdbExtensionData):
         design_name = active_design.GetName().split(";")[1]
 
     # Open EDB
-    edb = Edb(str(aedb_path), design_name, edbversion=VERSION)
+    edb = Edb(edbpath=str(aedb_path), cellname=design_name, edbversion=VERSION)
 
     # Convert expansion values from mm to meters
     poly_expansion_m = data.expansion_polygon_mm * 0.001 if data.expansion_polygon_mm > 0 else None
@@ -392,7 +393,7 @@ def main(data: ParametrizeEdbExtensionData):
         expand_voids_size=voids_expansion_m,
     )
 
-    edb.close_edb()
+    edb.close()
 
     # Open the new parametric design in HFSS 3D Layout
     if "PYTEST_CURRENT_TEST" not in os.environ:
