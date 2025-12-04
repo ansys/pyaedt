@@ -27,15 +27,15 @@ import pytest
 from ansys.aedt.core import Hfss
 
 
-@pytest.fixture()
-def aedtapp(add_app):
+@pytest.fixture
+def aedt_app(add_app):
     app = add_app(application=Hfss, solution_type="Modal")
     yield app
     app.close_project(save=False)
 
 
-def test_create_stackup(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_create_stackup(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
     gnd = stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
     assert stckp3d.thickness.numeric_value == 1.035
@@ -57,8 +57,8 @@ def test_create_stackup(aedtapp):
     assert stckp3d.start_position.numeric_value == 0.0
 
 
-def test_line(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_line(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
     stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
     stckp3d.add_signal_layer("top")
@@ -89,8 +89,8 @@ def test_line(aedtapp):
     assert line2._permittivity
 
 
-def test_padstack_line(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_padstack_line(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
     p1 = stckp3d.add_padstack("new_padstack", material="aluminum")
     p1.plating_ratio = 0.7
     with pytest.raises(ValueError):
@@ -118,8 +118,8 @@ def test_padstack_line(aedtapp):
     assert len(stckp3d.padstacks) == 1
 
 
-def test_patch(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_patch(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
     gnd = stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
     top = stckp3d.add_signal_layer("top")
@@ -141,8 +141,8 @@ def test_patch(aedtapp):
     assert patch.create_lumped_port(gnd)
 
 
-def test_polygon(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_polygon(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
     stckp3d.add_signal_layer("top")
     stckp3d.add_ground_layer("gnd2", thickness=0)
 
@@ -160,8 +160,8 @@ def test_polygon(aedtapp):
     assert poly4
 
 
-def test_resize(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_resize(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
 
     stckp3d.add_ground_layer("gnd1")
     stckp3d.add_dielectric_layer("diel1", thickness=1)
@@ -191,16 +191,16 @@ def test_resize(aedtapp):
     assert stckp3d.dielectric_y_position.evaluated_value == "10.0mm"
 
 
-def test_hide_variables(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_hide_variables(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
     assert stckp3d.dielectric_x_position.hide_variable()
     assert stckp3d.dielectric_x_position.read_only_variable()
     assert stckp3d.dielectric_x_position.hide_variable(False)
     assert stckp3d.dielectric_x_position.read_only_variable(False)
 
 
-def test_duplicated_parametrized_material(aedtapp):
-    stckp3d = aedtapp.add_stackup_3d()
+def test_duplicated_parametrized_material(aedt_app):
+    stckp3d = aedt_app.add_stackup_3d()
     stckp3d.add_dielectric_layer("diel1", thickness=1)
     diel = stckp3d.stackup_layers["diel1"]
     assert diel.duplicated_material.permittivity

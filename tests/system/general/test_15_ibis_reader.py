@@ -31,19 +31,19 @@ from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic import ibis_reader
 from tests import TESTS_GENERAL_PATH
 
-test_subfolder = "T15"
+TEST_SUBFOLDER = "T15"
 
 
-@pytest.fixture()
-def aedtapp(add_app):
+@pytest.fixture
+def aedt_app(add_app):
     app = add_app(application=Circuit)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-def test_read_ibis(aedtapp):
+def test_read_ibis(aedt_app):
     reader = ibis_reader.IbisReader(
-        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "u26a_800_modified.ibs", aedtapp
+        Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "u26a_800_modified.ibs", aedt_app
     )
     reader.parse_ibis_file()
     ibis = reader.ibis_model
@@ -80,22 +80,22 @@ def test_read_ibis(aedtapp):
     assert buffer.name == "CompInst@RDQS#_u26a_800_modified"
 
 
-def test_read_ibis_from_circuit(aedtapp):
-    ibis_model = aedtapp.get_ibis_model_from_file(
-        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "u26a_800_modified.ibs"
+def test_read_ibis_from_circuit(aedt_app):
+    ibis_model = aedt_app.get_ibis_model_from_file(
+        Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "u26a_800_modified.ibs"
     )
     assert len(ibis_model.components) == 6
     assert len(ibis_model.models) == 17
 
 
-def test_read_ibis_ami(aedtapp, local_scratch):
+def test_read_ibis_ami(aedt_app, test_tmp_dir):
     # Copy AMI files to local_scratch to avoid modifying source files
-    source_dir = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder
+    source_dir = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER
     for file_path in source_dir.iterdir():
         if file_path.is_file():
-            shutil.copy(file_path, local_scratch.path)
+            shutil.copy(file_path, test_tmp_dir)
 
-    ibis_file = Path(local_scratch.path) / "ibis_ami_example_tx.ibs"
-    ibis_model = aedtapp.get_ibis_model_from_file(ibis_file, is_ami=True)
+    ibis_file = test_tmp_dir / "ibis_ami_example_tx.ibs"
+    ibis_model = aedt_app.get_ibis_model_from_file(ibis_file, is_ami=True)
     assert ibis_model.buffers["example_model_tx"].insert(0, 0)
     assert ibis_model.components["example_device_tx"].differential_pins["14"].insert(0, 0.0512)
