@@ -28,7 +28,7 @@ import pytest
 from ansys.aedt.core.visualization.advanced.misc import parse_rdat_file
 from tests import TESTS_GENERAL_PATH
 
-test_subfolder = "TReport"
+TEST_SUBFOLDER = "TReport"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -38,7 +38,7 @@ def desktop():
 
 
 def test_report_file_parser():
-    input_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_report.rdat"
+    input_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test_report.rdat"
     data = parse_rdat_file(str(input_file))
     assert data == {
         "Calculator Expressions Plot 1": {
@@ -2976,6 +2976,6 @@ def test_report_file_parser():
             },
         }
     }
-    input_file_2 = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_report_smith.rdat"
+    input_file_2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test_report_smith.rdat"
     data1 = parse_rdat_file(str(input_file_2))
     assert len(data1["S Parameter Chart 1"]["S(1,1)"]["curves"]) == 8

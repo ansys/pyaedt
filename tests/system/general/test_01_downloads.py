@@ -85,12 +85,12 @@ def test_download_leaf(test_tmp_dir):
 
 
 def test_download_custom_report(test_tmp_dir):
-    out = downloads.download_custom_reports(test_tmp_dir)
+    out = downloads.download_custom_reports(local_path=test_tmp_dir)
     assert Path(out).exists()
 
 
 def test_download_3dcomp(test_tmp_dir):
-    out = downloads.download_3dcomponent(test_tmp_dir)
+    out = downloads.download_3dcomponent(local_path=test_tmp_dir)
     assert Path(out).exists()
 
 
@@ -118,5 +118,5 @@ def test_download_icepak_3d_component(test_tmp_dir):
 
 
 def test_download_fss_file(test_tmp_dir):
-    example_folder = downloads.download_fss_3dcomponent(test_tmp_dir)
+    example_folder = downloads.download_fss_3dcomponent(local_path=test_tmp_dir)
     assert Path(example_folder).exists()
