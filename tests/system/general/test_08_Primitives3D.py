@@ -51,8 +51,6 @@ from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 from tests.conftest import USE_GRPC
 
-# test = sys.modules.keys()
-
 SDOC_FILE = "input.scdoc"
 DISCOVERY_FILE = "input.dsco"
 STEP = "input.stp"
@@ -69,8 +67,6 @@ PRISM_PRIMITIVE_FILE_MISSING_VALUES = "prism_geometry_creation_missing_values.cs
 PRISM_PRIMITIVE_FILE_WRONG_KEYS = "prism_geometry_creation_wrong_keys.csv"
 
 TEST_SUBFOLDER = "T08"
-# ASSEMBLY = "assembly_231"
-# assembly2 = "assembly2_231"
 POLYLINE_PROJECT = "polyline_231"
 
 ON_CI = os.getenv("ON_CI", "false").lower() == "true"
@@ -2366,6 +2362,7 @@ def test_primitives_builder(add_app, test_tmp_dir):
 
     primitive_file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / PRIMITIVES_FILE
     primitive_file = shutil.copy2(primitive_file_original, test_tmp_dir / PRIMITIVES_FILE)
+
     primitive_dict = read_json(primitive_file)
 
     with pytest.raises(TypeError):
@@ -2425,12 +2422,12 @@ def test_primitives_builder(add_app, test_tmp_dir):
     primitive_names = primitives_builder.create()
     assert len(primitive_names) == 9
 
-    q2d = add_app(application=Q2d)
+    q2d = add_app(application=Q2d, close_projects=False)
     primitive_dict = read_json(primitive_file)
     primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
     primitive_names = primitives_builder.create()
     assert all(element is None for element in primitive_names)
-    ipk.close_project(save=False)
+    q2d.close_project(save=False)
 
 
 def test_detach_faces(aedt_app):

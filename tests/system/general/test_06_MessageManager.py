@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import logging
-import os.path
 
 import pytest
 
@@ -31,19 +30,12 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
-from tests.conftest import config
+from tests.conftest import NON_GRAPHICAL
 
 LOGGER = logging.getLogger(__name__)
 
 
-@pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(application=Hfss)
-    yield app
-    app.close_project(app.project_name, save=False)
-
-
-@pytest.fixture()
+@pytest.fixture
 def icepak_app(add_app):
     app = add_app(application=Icepak)
     yield app
@@ -76,10 +68,11 @@ def test_global_messenger():
     msg.clear_messages(level=3)
 
 
-@pytest.mark.skipif(config["NonGraphical"], reason="Messages not functional in non-graphical mode")
-def test_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cover
+@pytest.mark.skipif(NON_GRAPHICAL, reason="Messages not functional in non-graphical mode")
+def test_get_messages(add_app, icepak_app, test_tmp_dir):  # pragma: no cover
+    app = add_app(application=Hfss, close_projects=False)
     settings.enable_desktop_logs = True
-    msg = aedtapp.logger
+    msg = app.logger
     msg.clear_messages(level=3)
     msg.add_info_message("Test Info design level")
     msg.add_info_message("Test Info project level", "Project")
@@ -89,16 +82,16 @@ def test_get_messages(aedtapp, icepak_app, local_scratch):  # pragma: no cover
     assert len(msg.messages.info_level) >= 1
     assert len(msg.aedt_messages.project_level) >= 1
     box = icepak_app.modeler.create_box([0, 0, 0], [1, 1, 1])
-    icepak_app.modeler.create_3dcomponent(os.path.join(local_scratch.path, "test_m.a3dcomp"))
+    icepak_app.modeler.create_3dcomponent(str(test_tmp_dir / "test_m.a3dcomp"))
     box.delete()
-    cmp = icepak_app.modeler.insert_3d_component(os.path.join(local_scratch.path, "test_m.a3dcomp"))
+    cmp = icepak_app.modeler.insert_3d_component(str(test_tmp_dir / "test_m.a3dcomp"))
     ipk_app_comp = cmp.edit_definition()
     msg_comp = ipk_app_comp.logger
     msg_comp.add_info_message("3dcomp, Test Info design level")
     # In 3DComponents, only Global and info level available.
     assert len(msg_comp.messages.info_level) >= 1
-    settings.enable_desktop_logs = False
     ipk_app_comp.close_project()
+    settings.enable_desktop_logs = False
 
 
 def test_messaging(icepak_app):  # pragma: no cover

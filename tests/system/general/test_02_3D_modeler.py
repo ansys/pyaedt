@@ -331,7 +331,7 @@ def test_clean_object_name(aedt_app):
     assert True
 
 
-def test_26_create_airbox(aedt_app):
+def test_create_airbox(aedt_app):
     o1 = aedt_app.modeler.create_airbox(10)
     o2 = aedt_app.modeler.create_airbox(50, "Relative", "Second_airbox")
     assert o1.id > 0

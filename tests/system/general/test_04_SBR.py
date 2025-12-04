@@ -76,7 +76,7 @@ def aedt_sbr(add_app):
 
 
 def test_open_source(aedt_app, add_app):
-    source = add_app(project=aedt_app.project_name, design="feeder", close_on_exit=False)
+    source = add_app(project=aedt_app.project_name, design="feeder", close_projects=False)
     assert aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
     assert len(aedt_app.native_components) == 1
     assert aedt_app.create_sbr_linked_antenna(
@@ -219,24 +219,28 @@ def test_add_radar(aedt_sbr, test_tmp_dir):
     assert aedt_sbr.create_sbr_radar_from_json(str(radar_dir), name="Example_1Tx_4Rx")
 
 
-def test_add_doppler_sweep(aedt_sbr):
-    env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / TUNNEL
-    aedt_app.modeler.add_environment(str(env_folder))
-    setup, sweep = aedt_app.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
+def test_add_doppler_sweep(aedt_sbr, test_tmp_dir):
+    env_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "environment_library" / TUNNEL
+    env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
+
+    aedt_sbr.modeler.add_environment(str(env_dir))
+    setup, sweep = aedt_sbr.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
     assert "PulseSetup" in setup.name
     assert "PulseSweep" in sweep.name
     assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
     assert sweep.props["Sim. Setups"] == [setup.name]
 
 
-def test_add_chirp_sweep(aedt_app):
+def test_add_chirp_sweep(aedt_sbr, test_tmp_dir):
     env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / TUNNEL
-    aedt_app.modeler.add_environment(str(env_folder))
-    setup, sweep = aedt_app.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
+    env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
+
+    aedt_sbr.modeler.add_environment(str(env_dir))
+    setup, sweep = aedt_sbr.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
     assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
     assert setup.props["ChannelConfiguration"] == "IChannelOnly"
     assert sweep.props["Sim. Setups"] == [setup.name]
-    setup, sweep = aedt_app.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10)
+    setup, sweep = aedt_sbr.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10)
     assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
     assert setup.props["ChannelConfiguration"] == "IQChannels"
     assert sweep.props["Sim. Setups"] == [setup.name]
@@ -253,21 +257,20 @@ def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal):
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported.")
-def test_import_map(aedt_app):
-    aedt_app.insert_design("city")
+def test_import_map(aedt_sbr):
     ansys_home = [40.273726, -80.168269]
-    parts_dict = aedt_app.modeler.import_from_openstreet_map(
+    parts_dict = aedt_sbr.modeler.import_from_openstreet_map(
         ansys_home, terrain_radius=200, road_step=3, plot_before_importing=False, import_in_aedt=True
     )
     for part in parts_dict["parts"]:
         assert Path(parts_dict["parts"][part]["file_name"]).exists()
 
 
-def test_create_custom_array(aedt_app):
-    output_file1 = aedt_app.create_sbr_custom_array_file()
+def test_create_custom_array(aedt_sbr):
+    output_file1 = aedt_sbr.create_sbr_custom_array_file()
     assert Path(output_file1).is_file()
 
-    output_file2 = aedt_app.create_sbr_custom_array_file(
+    output_file2 = aedt_sbr.create_sbr_custom_array_file(
         frequencies=[1.0, 2.0, 5.0],
         element_number=4,
         state_number=2,
@@ -287,63 +290,63 @@ def test_create_custom_array(aedt_app):
 
 
 @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
-def test_read_hdm(aedt_app, local_scratch):
-    aedt_app.insert_design("hdm")
-    hdm_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "freighter_rays.hdm"
-    stl_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "freighter_ship.stl"
-    aedt_app.modeler.model_units = "meter"
-    aedt_app.modeler.import_3d_cad(str(stl_path))
-    assert aedt_app.parse_hdm_file(str(hdm_path))
-    plotter = aedt_app.get_hdm_plotter(str(hdm_path))
+def test_read_hdm(aedt_sbr, test_tmp_dir):
+    hdm_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "freighter_rays.hdm"
+    hdm_local = shutil.copy2(hdm_path, test_tmp_dir / "freighter_rays.hdm")
+
+    stl_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "freighter_ship.stl"
+    stl_local = shutil.copy2(stl_path, test_tmp_dir / "freighter_ship.stl")
+
+    aedt_sbr.modeler.model_units = "meter"
+    aedt_sbr.modeler.import_3d_cad(str(stl_local))
+    assert aedt_sbr.parse_hdm_file(str(hdm_local))
+    plotter = aedt_sbr.get_hdm_plotter(str(hdm_path))
     assert plotter
-    bounce1_path = Path(local_scratch.path) / "bounce1.jpg"
+    bounce1_path = test_tmp_dir / "bounce1.jpg"
     plotter.plot_first_bounce_currents(str(bounce1_path))
     assert bounce1_path.exists()
     assert plotter
-    bounce2_path = Path(local_scratch.path) / "bounce2.jpg"
+    bounce2_path = test_tmp_dir / "bounce2.jpg"
     plotter.plot_rays(str(bounce2_path))
     assert bounce2_path.exists()
 
 
-def test_boundary_perfect_e(aedt_app):
-    aedt_app.insert_design("sbr_boundaries_perfect_e")
-    b = aedt_app.modeler.create_box([0, 0, 0], [10, 20, 30])
-    model_units = aedt_app.modeler.model_units
+def test_boundary_perfect_e(aedt_sbr):
+    b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
+    model_units = aedt_sbr.modeler.model_units
 
-    bound = aedt_app.assign_perfect_e(name="b1", assignment=[b, b.faces[0]], height_deviation=2, roughness=0.4)
+    bound = aedt_sbr.assign_perfect_e(name="b1", assignment=[b, b.faces[0]], height_deviation=2, roughness=0.4)
     assert bound.properties["SBR+ Rough Surface Height Standard Deviation"] == f"2{model_units}"
 
-    bound2 = aedt_app.assign_perfect_e(assignment=[b, b.faces[0]], height_deviation="3mm")
+    bound2 = aedt_sbr.assign_perfect_e(assignment=[b, b.faces[0]], height_deviation="3mm")
     assert bound2.properties["SBR+ Rough Surface Height Standard Deviation"] == "3mm"
 
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_perfect_e(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
+        aedt_sbr.assign_perfect_e(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
 
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_perfect_e(assignment="invented")
+        aedt_sbr.assign_perfect_e(assignment="invented")
 
 
-def test_boundary_perfect_h(aedt_app):
-    aedt_app.insert_design("sbr_boundaries_perfect_h")
-    b = aedt_app.modeler.create_box([0, 0, 0], [10, 20, 30])
-    model_units = aedt_app.modeler.model_units
+def test_boundary_perfect_h(aedt_sbr):
+    b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
+    model_units = aedt_sbr.modeler.model_units
 
-    bound = aedt_app.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation=2, roughness=0.4)
+    bound = aedt_sbr.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation=2, roughness=0.4)
     assert bound.properties["SBR+ Rough Surface Height Standard Deviation"] == f"2{model_units}"
 
-    bound2 = aedt_app.assign_perfect_h(assignment=[b, b.faces[0]], height_deviation="3mm")
+    bound2 = aedt_sbr.assign_perfect_h(assignment=[b, b.faces[0]], height_deviation="3mm")
     assert bound2.properties["SBR+ Rough Surface Height Standard Deviation"] == "3mm"
 
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
+        aedt_sbr.assign_perfect_h(name="b1", assignment=[b, b.faces[0]], height_deviation="3mm")
 
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_perfect_h(assignment="invented")
+        aedt_sbr.assign_perfect_h(assignment="invented")
 
 
-def test_boundaries_finite_conductivity(aedt_app):
-    aedt_app.insert_design("hfss_finite_conductivity")
-    b = aedt_app.modeler.create_box([0, 0, 0], [10, 20, 30])
+def test_boundaries_finite_conductivity(aedt_sbr):
+    b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
 
     args = {
         "material": "aluminum",
@@ -358,7 +361,7 @@ def test_boundaries_finite_conductivity(aedt_app):
         "roughness": 0.5,
     }
 
-    coat = aedt_app.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+    coat = aedt_sbr.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
     coat.name = "Coating1inner"
     assert coat.update()
     assert coat.properties
@@ -379,20 +382,19 @@ def test_boundaries_finite_conductivity(aedt_app):
         "name": "b2",
     }
 
-    coat2 = aedt_app.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
-    assert coat2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{aedt_app.modeler.model_units}"
+    coat2 = aedt_sbr.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+    assert coat2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{aedt_sbr.modeler.model_units}"
 
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
+        aedt_sbr.assign_finite_conductivity([b.id, b.name, b.faces[0]], **args)
 
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_finite_conductivity(["insulator2"])
+        aedt_sbr.assign_finite_conductivity(["insulator2"])
 
 
-def test_boundaries_layered_impedance(aedt_app):
-    aedt_app.insert_design("hfss_layered_impedance")
-    b = aedt_app.modeler.create_box([0, 0, 0], [10, 20, 30])
-    model_units = aedt_app.modeler.model_units
+def test_boundaries_layered_impedance(aedt_sbr):
+    b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
+    model_units = aedt_sbr.modeler.model_units
 
     # One side
     args = {
@@ -404,7 +406,7 @@ def test_boundaries_layered_impedance(aedt_app):
         "roughness": 0.5,
     }
 
-    coat = aedt_app.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+    coat = aedt_sbr.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
     coat.name = "Coating1inner"
     assert coat.update()
     assert coat.properties["Layer 2/Type"] == "PerfectE"
@@ -419,16 +421,16 @@ def test_boundaries_layered_impedance(aedt_app):
         "name": "b2",
     }
 
-    coat2 = aedt_app.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+    coat2 = aedt_sbr.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
     assert coat2.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{model_units}"
 
     # Repeat name
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+        aedt_sbr.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
 
     # Not existing assignment
     with pytest.raises(AEDTRuntimeError):
-        aedt_app.assign_layered_impedance(["insulator2"])
+        aedt_sbr.assign_layered_impedance(["insulator2"])
 
     args = {
         "material": "aluminum",
@@ -440,7 +442,7 @@ def test_boundaries_layered_impedance(aedt_app):
         "name": "b3",
     }
 
-    coat3 = aedt_app.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+    coat3 = aedt_sbr.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
     assert coat3.properties["SBR+ Rough Surface Height Standard Deviation"] == f"1{model_units}"
 
     args = {
@@ -453,7 +455,7 @@ def test_boundaries_layered_impedance(aedt_app):
         "name": "b3",
     }
     with pytest.raises(AttributeError):
-        aedt_app.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+        aedt_sbr.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
 
     # Two side
     args = {
@@ -464,5 +466,5 @@ def test_boundaries_layered_impedance(aedt_app):
         "name": "b4",
     }
 
-    coat4 = aedt_app.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
+    coat4 = aedt_sbr.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
     assert coat4.properties["Layer 2/Material"] == "vacuum"
