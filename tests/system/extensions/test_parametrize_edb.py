@@ -28,6 +28,7 @@ import shutil
 
 import pytest
 
+from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import ParametrizeEdbExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
 from ansys.aedt.core.generic.settings import is_linux
@@ -42,8 +43,10 @@ SI_VERSE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / EDB_
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_layout(desktop, test_tmp_dir):
+def test_parametrize_layout(add_app, test_tmp_dir):
     """Test parametrizing EDB layout with comprehensive settings."""
+    app = add_app(application=Hfss3dLayout)
+
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
     shutil.copytree(SI_VERSE_PATH, file_path, dirs_exist_ok=True)
@@ -63,10 +66,13 @@ def test_parametrize_layout(desktop, test_tmp_dir):
 
     result = main(data)
     assert result is True
+    app.close_project(save=False)
 
 
-def test_parametrize_edb_exceptions(desktop):
+def test_parametrize_edb_exceptions(add_app):
     """Test exceptions thrown by the Parametrize EDB extension."""
+    app = add_app(application=Hfss3dLayout)
+
     # Test with negative polygon expansion
     data = ParametrizeEdbExtensionData(
         expansion_polygon_mm=-0.5,
@@ -89,11 +95,14 @@ def test_parametrize_edb_exceptions(desktop):
     )
     with pytest.raises(AEDTRuntimeError):
         main(data)
+    app.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_custom_settings(desktop, test_tmp_dir):
+def test_parametrize_edb_custom_settings(add_app, test_tmp_dir):
     """Test Parametrize EDB extension with custom settings."""
+    app = add_app(application=Hfss3dLayout)
+
     file_path = test_tmp_dir / "ANSYS-HSD_V1_param.aedb"
 
     shutil.copytree(SI_VERSE_PATH, file_path)
@@ -114,11 +123,14 @@ def test_parametrize_edb_custom_settings(desktop, test_tmp_dir):
 
     result = main(data)
     assert result is True
+    app.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
-def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir):
+def test_parametrize_edb_zero_expansions(add_app, test_tmp_dir):
     """Test Parametrize EDB extension with zero expansions."""
+    app = add_app(application=Hfss3dLayout)
+
     file_path = test_tmp_dir / "ANSYS-HSD_V1_zero.aedb"
 
     shutil.copytree(SI_VERSE_PATH, file_path)
@@ -133,3 +145,4 @@ def test_parametrize_edb_zero_expansions(desktop, test_tmp_dir):
 
     result = main(data)
     assert result is True
+    app.close_project(save=False)

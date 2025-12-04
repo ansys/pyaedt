@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pathlib import Path
-import tempfile
 
 import pytest
 
@@ -38,108 +37,97 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
-from tests.conftest import config
 
-test_subfolder = "T01"
-if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
-else:
-    test_project_name = "Coax_HFSS"
+TEST_SUBFOLDER = "T01"
+COAXIAL_PROJECT = "Coax_HFSS_231"
 
 
-@pytest.fixture()
+@pytest.fixture
 def coaxial(add_app):
-    app = add_app(test_project_name, subfolder=test_subfolder)
+    app = add_app(COAXIAL_PROJECT, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def aedtapp(add_app):
+@pytest.fixture
+def aedt_app(add_app):
     app = add_app(application=Hfss)
     yield app
     app.close_project(save=False)
 
 
-def test_design_name(aedtapp):
+def test_design_name(aedt_app):
     design_names = ["myname", "design2"]
-    aedtapp.design_name = design_names[0]  # Change the design name.
-    assert aedtapp.design_name == design_names[0]
-    aedtapp.insert_design(design_names[1])  # Insert a new design
-    assert aedtapp.design_name == design_names[1]
-    aedtapp.design_name = design_names[0]  # Change current design back.
-    assert len(aedtapp.design_list) == 2  # Make sure there are still 2 designs.
-    assert aedtapp.design_list[0] in design_names  # Make sure the name is correct.
-    aedtapp.delete_design(design_names[1])  # Delete the 2nd design
-    assert len(aedtapp.design_list) == 1
+    aedt_app.design_name = design_names[0]  # Change the design name.
+    assert aedt_app.design_name == design_names[0]
+    aedt_app.insert_design(design_names[1])  # Insert a new design
+    assert aedt_app.design_name == design_names[1]
+    aedt_app.design_name = design_names[0]  # Change current design back.
+    assert len(aedt_app.design_list) == 2  # Make sure there are still 2 designs.
+    assert aedt_app.design_list[0] in design_names  # Make sure the name is correct.
+    aedt_app.delete_design(design_names[1])  # Delete the 2nd design
+    assert len(aedt_app.design_list) == 1
 
 
-def test_design_properties(aedtapp):
-    assert aedtapp.aedt_version_id
-    assert aedtapp.valid_design
-    assert aedtapp.clean_proj_folder()
-    assert aedtapp.desktop_class.install_path
-    assert Path(aedtapp.lock_file).is_file()
-    assert aedtapp.design_type == "HFSS"
-    mylist = aedtapp.design_list
+def test_design_properties(aedt_app):
+    assert aedt_app.aedt_version_id
+    assert aedt_app.valid_design
+    assert aedt_app.clean_proj_folder()
+    assert aedt_app.desktop_class.install_path
+    assert Path(aedt_app.lock_file).is_file()
+    assert aedt_app.design_type == "HFSS"
+    mylist = aedt_app.design_list
     assert len(mylist) == 1
-    assert Path(aedtapp.results_directory).exists()
+    assert Path(aedt_app.results_directory).exists()
 
-    assert aedtapp.oboundary
-    assert aedtapp.oanalysis
-    assert aedtapp.odesktop
-    assert aedtapp.logger
-    assert aedtapp.variable_manager
-    assert aedtapp.materials
-    assert aedtapp
-    assert aedtapp.info
-    assert aedtapp.odefinition_manager
-    assert aedtapp.omaterial_manager
-
-
-def test_desktop_class_path(aedtapp):
-    assert Path(aedtapp.desktop_class.project_path()).exists()
-    assert Path(aedtapp.desktop_class.project_path(aedtapp.project_name)).exists()
-
-    assert len(aedtapp.desktop_class.design_list(aedtapp.project_name)) == 1
-    assert aedtapp.desktop_class.design_type() == "HFSS"
-    assert aedtapp.desktop_class.design_type(aedtapp.project_name, aedtapp.design_name) == "HFSS"
-    assert aedtapp.desktop_class.src_dir.exists()
-    assert aedtapp.desktop_class.pyaedt_dir.exists()
+    assert aedt_app.oboundary
+    assert aedt_app.oanalysis
+    assert aedt_app.odesktop
+    assert aedt_app.logger
+    assert aedt_app.variable_manager
+    assert aedt_app.materials
+    assert aedt_app
+    assert aedt_app.info
+    assert aedt_app.odefinition_manager
+    assert aedt_app.omaterial_manager
 
 
-def test_copy_project(aedtapp, local_scratch):
+def test_desktop_class_path(aedt_app):
+    assert Path(aedt_app.desktop_class.project_path()).exists()
+    assert Path(aedt_app.desktop_class.project_path(aedt_app.project_name)).exists()
+
+    assert len(aedt_app.desktop_class.design_list(aedt_app.project_name)) == 1
+    assert aedt_app.desktop_class.design_type() == "HFSS"
+    assert aedt_app.desktop_class.design_type(aedt_app.project_name, aedt_app.design_name) == "HFSS"
+    assert aedt_app.desktop_class.src_dir.exists()
+    assert aedt_app.desktop_class.pyaedt_dir.exists()
+
+
+def test_copy_project(aedt_app, test_tmp_dir):
     new_name = "new_file"
-    assert aedtapp.copy_project(local_scratch.path, new_name)
-    new_proj_path = local_scratch.path / (new_name + ".aedt")
-    assert new_proj_path.exists()
-    assert aedtapp.copy_project(local_scratch.path, test_project_name)
+    assert aedt_app.copy_project(test_tmp_dir, new_name)
+    new_proj_path = test_tmp_dir / (new_name + ".aedt")
+    assert new_proj_path.is_file()
+    assert aedt_app.copy_project(test_tmp_dir, COAXIAL_PROJECT)
 
 
-def test_use_causal_material(aedtapp):
-    assert aedtapp.change_automatically_use_causal_materials(True)
-    assert aedtapp.change_automatically_use_causal_materials(False)
+def test_use_causal_material(aedt_app):
+    assert aedt_app.change_automatically_use_causal_materials(True)
+    assert aedt_app.change_automatically_use_causal_materials(False)
 
 
-def test_solution_type(aedtapp):
-    aedtapp.solution_type = "Terminal"
-    assert "Terminal" in aedtapp.solution_type
+def test_solution_type(aedt_app):
+    aedt_app.solution_type = "Terminal"
+    assert "Terminal" in aedt_app.solution_type
 
 
-def test_libs(aedtapp):
-    assert Path(aedtapp.personallib).exists()
-    assert Path(aedtapp.userlib).exists()
-    assert Path(aedtapp.syslib).exists()
-    assert Path(aedtapp.temp_directory).exists()
-    assert Path(aedtapp.toolkit_directory).exists()
-    assert Path(aedtapp.working_directory).exists()
-
-
-def test_set_temp_dir(aedtapp, local_scratch):
-    temp_dir = local_scratch.path / "temp_dir"
-    assert aedtapp.set_temporary_directory(temp_dir)
-    assert aedtapp.set_temporary_directory(local_scratch.path / "temp_dir")
-    aedtapp.set_temporary_directory(tempfile.gettempdir())
+def test_libs(aedt_app):
+    assert Path(aedt_app.personallib).exists()
+    assert Path(aedt_app.userlib).exists()
+    assert Path(aedt_app.syslib).exists()
+    assert Path(aedt_app.temp_directory).exists()
+    assert Path(aedt_app.toolkit_directory).exists()
+    assert Path(aedt_app.working_directory).exists()
 
 
 def test_set_objects_temperature_deformation(coaxial):
@@ -149,29 +137,29 @@ def test_set_objects_temperature_deformation(coaxial):
     assert coaxial.modeler.set_objects_temperature(objects, ambient_temperature=ambient_temp, create_project_var=True)
 
 
-def test_change_material_override(aedtapp):
-    assert aedtapp.change_material_override(True)
-    assert aedtapp.change_material_override(False)
+def test_change_material_override(aedt_app):
+    assert aedt_app.change_material_override(True)
+    assert aedt_app.change_material_override(False)
 
 
-def test_change_validation_settings(aedtapp):
-    assert aedtapp.change_validation_settings()
-    assert aedtapp.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
+def test_change_validation_settings(aedt_app):
+    assert aedt_app.change_validation_settings()
+    assert aedt_app.change_validation_settings(ignore_unclassified=True, skip_intersections=True)
 
 
-def test_variables(aedtapp):
-    aedtapp["test"] = "1mm"
-    val = aedtapp["test"]
+def test_variables(aedt_app):
+    aedt_app["test"] = "1mm"
+    val = aedt_app["test"]
     assert val == "1mm"
-    del aedtapp["test"]
-    assert "test" not in aedtapp.variable_manager.variables
+    del aedt_app["test"]
+    assert "test" not in aedt_app.variable_manager.variables
 
 
-def test_designs(aedtapp):
+def test_designs(aedt_app):
     with pytest.raises(ValueError):  # Make sure a ValueError ir raised.
-        aedtapp._insert_design(design_name="invalid", design_type="invalid")
-    assert aedtapp._insert_design(design_name="TestTransient", design_type="HFSS") == "TestTransient"
-    aedtapp.delete_design("TestTransient")
+        aedt_app._insert_design(design_name="invalid", design_type="invalid")
+    assert aedt_app._insert_design(design_name="TestTransient", design_type="HFSS") == "TestTransient"
+    aedt_app.delete_design("TestTransient")
 
 
 def test_get_nominal_variation(coaxial):
@@ -197,11 +185,11 @@ def test_duplicate_design(coaxial):
     assert len(coaxial.design_list) == 1
 
 
-def test_copy_design_from(coaxial, local_scratch):
+def test_copy_design_from(coaxial, test_tmp_dir):
     original_design_name = coaxial.design_name
     original_project_name = coaxial.project_name
-    origin = local_scratch.path / (original_project_name + ".aedt")
-    destin = local_scratch.path / "destin.aedt"
+    origin = test_tmp_dir / (original_project_name + ".aedt")
+    destin = test_tmp_dir / "destin.aedt"
     coaxial.duplicate_design("ditto")
     coaxial.save_project(file_name=destin)
     coaxial.save_project(file_name=origin, refresh_ids=True)
@@ -215,67 +203,67 @@ def test_copy_design_from(coaxial, local_scratch):
     assert len(coaxial.design_list) == 1
 
 
-def test_copy_example(aedtapp):
-    example_name = aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+def test_copy_example(aedt_app):
+    example_name = aedt_app.desktop_class.get_example("5G_SIW_Aperture_Antenna")
     from ansys.aedt.core.generic.file_utils import remove_project_lock
 
     remove_project_lock(example_name)
-    aedtapp.copy_design_from(example_name, "0_5G Aperture Element")
-    assert aedtapp.design_name == "0_5G Aperture Element"
-    assert not aedtapp.desktop_class.get_example("fake")
+    aedt_app.copy_design_from(example_name, "0_5G Aperture Element")
+    assert aedt_app.design_name == "0_5G Aperture Element"
+    assert not aedt_app.desktop_class.get_example("fake")
 
 
-def test_design_name_setter(aedtapp):
-    original_name = aedtapp.design_name
-    aedtapp.design_name = "dummy"
-    assert aedtapp.design_name == "dummy"
-    aedtapp.design_name = original_name
-    assert aedtapp.design_name == original_name
+def test_design_name_setter(aedt_app):
+    original_name = aedt_app.design_name
+    aedt_app.design_name = "dummy"
+    assert aedt_app.design_name == "dummy"
+    aedt_app.design_name = original_name
+    assert aedt_app.design_name == original_name
 
 
-def test_export_proj_var(aedtapp, local_scratch):
-    aedtapp.export_variables_to_csv(local_scratch.path / "my_variables.csv")
-    assert Path(local_scratch.path / "my_variables.csv").exists()
+def test_export_proj_var(aedt_app, test_tmp_dir):
+    aedt_app.export_variables_to_csv(test_tmp_dir / "my_variables.csv")
+    assert Path(test_tmp_dir / "my_variables.csv").exists()
 
 
-def test_create_design_dataset(aedtapp):
+def test_create_design_dataset(aedt_app):
     x = [1, 100]
     y = [1000, 980]
-    ds1 = aedtapp.create_dataset1d_design("Test_DataSet", x, y)
+    ds1 = aedt_app.create_dataset1d_design("Test_DataSet", x, y)
     assert ds1.name == "Test_DataSet"
     assert ds1.add_point(10, 999)
     assert ds1.add_point(12, 1500)
     assert ds1.remove_point_from_x(100)
-    assert aedtapp.dataset_exists("Test_DataSet", is_project_dataset=False)
-    assert not aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
+    assert aedt_app.dataset_exists("Test_DataSet", is_project_dataset=False)
+    assert not aedt_app.dataset_exists("Test_DataSet", is_project_dataset=True)
 
 
-def test_create_project_dataset(aedtapp):
+def test_create_project_dataset(aedt_app):
     x = [1, 100]
     y = [1000, 980]
-    ds2 = aedtapp.create_dataset1d_project("Test_DataSet", x, y)
+    ds2 = aedt_app.create_dataset1d_project("Test_DataSet", x, y)
     assert ds2.name == "$Test_DataSet"
-    assert aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
+    assert aedt_app.dataset_exists("Test_DataSet", is_project_dataset=True)
     assert ds2.delete()
-    assert not aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
-    ds3 = aedtapp.create_dataset1d_project("Test_DataSet2", x, y, sort=False)
+    assert not aedt_app.dataset_exists("Test_DataSet", is_project_dataset=True)
+    ds3 = aedt_app.create_dataset1d_project("Test_DataSet2", x, y, sort=False)
     assert ds3.name == "$Test_DataSet2"
 
 
-def test_create_3dproject_dataset(aedtapp):
+def test_create_3dproject_dataset(aedt_app):
     x = [1, 100]
     y = [1000, 980]
     z = [800, 200]
     v = [10, 20]
     vunits = "cel"
-    ds3 = aedtapp.create_dataset3d("Test_DataSet3D", x, y, z, v, v_unit=vunits)
+    ds3 = aedt_app.create_dataset3d("Test_DataSet3D", x, y, z, v, v_unit=vunits)
     assert ds3.name == "$Test_DataSet3D"
     ds3.sort = False
     ds3.v = [50, 200]
     assert ds3.update()
-    ds30 = aedtapp.create_dataset3d("Test_DataSet3D1", x, y, z, v, v_unit=vunits, is_project_dataset=False)
+    ds30 = aedt_app.create_dataset3d("Test_DataSet3D1", x, y, z, v, v_unit=vunits, is_project_dataset=False)
     assert ds30.name == "$Test_DataSet3D1"
-    ds31 = aedtapp.create_dataset3d("$Test_DataSet3D2", x, y, z, v, v_unit=vunits, is_project_dataset=False)
+    ds31 = aedt_app.create_dataset3d("$Test_DataSet3D2", x, y, z, v, v_unit=vunits, is_project_dataset=False)
     assert ds31.name == "$Test_DataSet3D2"
 
 
@@ -286,63 +274,63 @@ def test_edit_existing_dataset(coaxial):
     assert len(ds.x) == xl + 1
 
 
-def test_import_dataset1d(aedtapp):
-    filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "ds_1d.tab"
-    ds4 = aedtapp.import_dataset1d(filename)
+def test_import_dataset1d(aedt_app):
+    filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "ds_1d.tab"
+    ds4 = aedt_app.import_dataset1d(filename)
     assert ds4.name == "$ds_1d"
-    ds5 = aedtapp.import_dataset1d(filename, name="dataset_test", is_project_dataset=False)
+    ds5 = aedt_app.import_dataset1d(filename, name="dataset_test", is_project_dataset=False)
     assert ds5.name == "dataset_test"
-    ds6 = aedtapp.import_dataset1d(filename, name="$dataset_test2")
+    ds6 = aedt_app.import_dataset1d(filename, name="$dataset_test2")
     assert ds6.name == "$dataset_test2"
-    ds7 = aedtapp.import_dataset1d(filename)
+    ds7 = aedt_app.import_dataset1d(filename)
     assert not ds7
     assert ds4.delete()
-    assert aedtapp.import_dataset1d(filename)
+    assert aedt_app.import_dataset1d(filename)
     assert ds5.delete()
 
 
-def test_import_dataset3d(aedtapp):
-    filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.tab"
-    ds8 = aedtapp.import_dataset3d(filename)
+def test_import_dataset3d(aedt_app):
+    filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.tab"
+    ds8 = aedt_app.import_dataset3d(filename)
     assert ds8.name == "$Dataset_3D"
-    filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.csv"
-    ds8 = aedtapp.import_dataset3d(filename, name="dataset_csv")
+    filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
+    ds8 = aedt_app.import_dataset3d(filename, name="dataset_csv")
     assert ds8.name == "$dataset_csv"
     assert ds8.delete()
-    ds10 = aedtapp.import_dataset3d(filename, name="$dataset_test")
+    ds10 = aedt_app.import_dataset3d(filename, name="$dataset_test")
     assert ds10.zunit == "mm"
-    filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.csv"
-    ds8 = aedtapp.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
+    filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.csv"
+    ds8 = aedt_app.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
     assert ds8.name == "$dataset_csv"
 
 
-def test_import_dataset3d_xlsx(aedtapp):
-    filename = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Dataset_3D.xlsx"
-    ds9 = aedtapp.import_dataset3d(filename, name="myExcel")
+def test_import_dataset3d_xlsx(aedt_app):
+    filename = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Dataset_3D.xlsx"
+    ds9 = aedt_app.import_dataset3d(filename, name="myExcel")
     assert ds9.name == "$myExcel"
 
 
-def test_get_3dComponents_properties(aedtapp):
-    assert len(aedtapp.components3d) > 0
+def test_get_3dComponents_properties(aedt_app):
+    assert len(aedt_app.components3d) > 0
     # Deprecated
-    props = aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+    props = aedt_app.get_components3d_vars("Dipole_Antenna_DM")
     assert len(props) == 3
-    props = aedtapp.get_component_variables("Dipole_Antenna_DM")
+    props = aedt_app.get_component_variables("Dipole_Antenna_DM")
     assert len(props) == 3
 
 
 @pytest.mark.skipif(is_linux, reason="Not needed in Linux.")
-def test_generate_temp_project_directory(aedtapp):
-    proj_dir1 = aedtapp.generate_temp_project_directory("Example")
+def test_generate_temp_project_directory(aedt_app):
+    proj_dir1 = aedt_app.generate_temp_project_directory("Example")
     assert Path(proj_dir1).exists()
-    proj_dir2 = aedtapp.generate_temp_project_directory("")
+    proj_dir2 = aedt_app.generate_temp_project_directory("")
     assert Path(proj_dir2).exists()
-    proj_dir4 = aedtapp.generate_temp_project_directory(34)
+    proj_dir4 = aedt_app.generate_temp_project_directory(34)
     assert not proj_dir4
 
 
-def test_test_archive(add_app, local_scratch, coaxial):
-    aedtz_proj = local_scratch.path / "test.aedtz"
+def test_test_archive(add_app, test_tmp_dir, coaxial):
+    aedtz_proj = test_tmp_dir / "test.aedtz"
     assert coaxial.archive_project(aedtz_proj)
     assert aedtz_proj.exists()
     new_app = add_app(project_name=aedtz_proj, just_open=True)
@@ -355,22 +343,22 @@ def test_test_archive(add_app, local_scratch, coaxial):
     new_app2.close_project()
 
 
-def test_autosave(aedtapp):
-    assert aedtapp.autosave_enable()
-    assert aedtapp.autosave_disable()
+def test_autosave(aedt_app):
+    assert aedt_app.autosave_enable()
+    assert aedt_app.autosave_disable()
 
 
-def test_change_type(aedtapp):
-    assert aedtapp.set_license_type("Pack")
-    assert aedtapp.set_license_type("Pool")
+def test_change_type(aedt_app):
+    assert aedt_app.set_license_type("Pack")
+    assert aedt_app.set_license_type("Pool")
 
 
-def test_change_registry_from_file(aedtapp):
-    assert aedtapp.set_registry_from_file(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Test.acf")
+def test_change_registry_from_file(aedt_app):
+    assert aedt_app.set_registry_from_file(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Test.acf")
 
 
-def test_odesktop(aedtapp):
-    assert str(type(aedtapp.odesktop)) in [
+def test_odesktop(aedt_app):
+    assert str(type(aedt_app.odesktop)) in [
         "<class 'win32com.client.CDispatch'>",
         "<class 'PyDesktopPlugin.AedtObjWrapper'>",
         "<class 'ansys.aedt.core.internal.grpc_plugin.AedtObjWrapper'>",
@@ -378,8 +366,8 @@ def test_odesktop(aedtapp):
     ]
 
 
-def test_get_pyaedt_app(aedtapp):
-    app = get_pyaedt_app(aedtapp.project_name, aedtapp.design_name)
+def test_get_pyaedt_app(aedt_app):
+    app = get_pyaedt_app(aedt_app.project_name, aedt_app.design_name)
     assert app.design_type == "HFSS"
 
 
@@ -400,28 +388,28 @@ def test_object_oriented(coaxial):
     assert coaxial.get_oo_property_value(coaxial.oproject, "Variables\\$height", "Value") == "10mm"
 
 
-def test_make_hidden_variable(aedtapp):
-    aedtapp["my_hidden_variable"] = "15mm"
-    assert aedtapp.hidden_variable("my_hidden_variable")
-    aedtapp.hidden_variable("my_hidden_variable", False)
-    assert aedtapp.hidden_variable(["my_oo_variable", "$dim", "my_hidden_variable"])
-    aedtapp.hidden_variable(["my_oo_variable", "$dim"], False)
+def test_make_hidden_variable(aedt_app):
+    aedt_app["my_hidden_variable"] = "15mm"
+    assert aedt_app.hidden_variable("my_hidden_variable")
+    aedt_app.hidden_variable("my_hidden_variable", False)
+    assert aedt_app.hidden_variable(["my_oo_variable", "$dim", "my_hidden_variable"])
+    aedt_app.hidden_variable(["my_oo_variable", "$dim"], False)
 
 
-def test_make_read_only_variable(aedtapp):
-    aedtapp["my_read_only_variable"] = "15mm"
-    assert aedtapp.read_only_variable("my_read_only_variable")
+def test_make_read_only_variable(aedt_app):
+    aedt_app["my_read_only_variable"] = "15mm"
+    assert aedt_app.read_only_variable("my_read_only_variable")
 
 
-def test_aedt_object(aedtapp):
+def test_aedt_object(aedt_app):
     aedt_obj = AedtObjects()
     assert aedt_obj._odesign
     assert aedt_obj._oproject
-    aedt_obj = AedtObjects(aedtapp._desktop_class, aedtapp.oproject, aedtapp.odesign)
-    assert aedt_obj._odesign == aedtapp.odesign
+    aedt_obj = AedtObjects(aedt_app._desktop_class, aedt_app.oproject, aedt_app.odesign)
+    assert aedt_obj._odesign == aedt_app.odesign
 
 
-def test_force_project_path_disable(aedtapp):
+def test_force_project_path_disable(aedt_app):
     settings.force_error_on_missing_project = True
     assert settings.force_error_on_missing_project
     exception_raised = False
@@ -454,16 +442,16 @@ def test_get_app(desktop, add_app):
     app.close_project(project_name)
 
 
-def test_load(add_app, local_scratch):
-    file_name = local_scratch.path / "test_36.aedt"
+def test_load(add_app, test_tmp_dir):
+    file_name = test_tmp_dir / "test_36.aedt"
     hfss = add_app(project_name=str(file_name), just_open=True)
     assert hfss
     h3d = add_app(project_name=str(file_name), application=Hfss3dLayout, just_open=True)
     assert h3d
     h3d = add_app(project_name=str(file_name), application=Hfss3dLayout, just_open=True)
     assert h3d
-    file_name2 = local_scratch.path / "test_36_2.aedt"
-    file_name2_lock = local_scratch.path / "test_36_2.aedt.lock"
+    file_name2 = test_tmp_dir / "test_36_2.aedt"
+    file_name2_lock = test_tmp_dir / "test_36_2.aedt.lock"
     with open(file_name2, "w") as f:
         f.write(" ")
     with open(file_name2_lock, "w") as f:
@@ -473,8 +461,8 @@ def test_load(add_app, local_scratch):
     except Exception:
         assert True
     try:
-        (local_scratch.path / "test_36_2.aedb").mkdir(parents=True, exist_ok=True)
-        file_name3 = local_scratch.path / "test_36_2.aedb" / "edb.def"
+        (test_tmp_dir / "test_36_2.aedb").mkdir(parents=True, exist_ok=True)
+        file_name3 = test_tmp_dir / "test_36_2.aedb" / "edb.def"
         with open(file_name3, "w") as f:
             f.write(" ")
         _ = Hfss3dLayout(project=str(file_name3), version=DESKTOP_VERSION)
@@ -483,28 +471,28 @@ def test_load(add_app, local_scratch):
     hfss.close_project()
 
 
-def test_toolkit(aedtapp, desktop, local_scratch):
+def test_toolkit(aedt_app, desktop, test_tmp_dir):
     assert customize_automation_tab.available_toolkits()
-    file = local_scratch.path / "test.py"
+    file = test_tmp_dir / "test.py"
     with open(file, "w") as f:
         f.write("import ansys.aedt.core\n")
     assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=str(file))
-    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedtapp.desktop_class, name="test_toolkit")
+    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
     assert customize_automation_tab.add_script_to_menu(
         name="test_toolkit",
         script_file=str(file),
-        personal_lib=aedtapp.desktop_class.personallib,
-        aedt_version=aedtapp.desktop_class.aedt_version_id,
+        personal_lib=aedt_app.desktop_class.personallib,
+        aedt_version=aedt_app.desktop_class.aedt_version_id,
     )
-    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedtapp.desktop_class, name="test_toolkit")
+    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
 
 
-def test_load_project(aedtapp, desktop, local_scratch):
-    new_project = local_scratch.path / "new.aedt"
-    aedtapp.save_project(file_name=str(new_project))
-    aedtapp.close_project(name="new")
-    aedtapp = desktop.load_project(str(new_project))
-    assert aedtapp
+def test_load_project(aedt_app, desktop, test_tmp_dir):
+    new_project = test_tmp_dir / "new.aedt"
+    aedt_app.save_project(file_name=str(new_project))
+    aedt_app.close_project(name="new")
+    aedt_app = desktop.load_project(str(new_project))
+    assert aedt_app
 
 
 def test_get_design_settings(add_app):
@@ -530,16 +518,16 @@ def test_desktop_reference_counting(desktop):
     assert desktop._connected_app_instances == num_references
 
 
-def test_save_project_with_file_name(add_app, local_scratch):
+def test_save_project_with_file_name(add_app, test_tmp_dir):
     # Save into path with existing parent dir
     app = add_app(application=Hfss)
-    new_project = local_scratch.path / "new.aedt"
-    assert Path(local_scratch.path).exists()
+    new_project = test_tmp_dir / "new.aedt"
+    assert Path(test_tmp_dir).exists()
     app.save_project(file_name=str(new_project))
     assert Path(new_project).is_file()
 
     # Save into path with non-existing parent dir
-    new_parent_dir = local_scratch.path / "new_dir"
+    new_parent_dir = test_tmp_dir / "new_dir"
     new_project = new_parent_dir / "new_2.aedt"
     assert not Path(new_parent_dir).exists()
     app.save_project(file_name=str(new_project))
@@ -548,27 +536,27 @@ def test_save_project_with_file_name(add_app, local_scratch):
     app.close_project(app.project_name, save=False)
 
 
-def test_desktop_save_as(add_app, local_scratch):
+def test_desktop_save_as(add_app, test_tmp_dir):
     # Save as passing a string
     app = add_app(application=Hfss)
-    new_project = local_scratch.path / "new.aedt"
-    assert Path(local_scratch.path).exists()
+    new_project = test_tmp_dir / "new.aedt"
+    assert test_tmp_dir.exists()
     assert app.desktop_class.save_project(project_path=str(new_project))
     assert Path(new_project).is_file()
     assert app.project_name == "new"
 
     # Test using Path instead of string
-    new_project_path = Path(local_scratch.path) / "new_2.aedt"
+    new_project_path = test_tmp_dir / "new_2.aedt"
     assert app.desktop_class.save_project(project_path=new_project_path)
     assert new_project_path.exists()
     assert app.project_name == "new_2"
     # Test using Path with only dir
-    only_project_path = Path(local_scratch.path)
+    only_project_path = test_tmp_dir
     assert app.desktop_class.save_project(project_path=only_project_path)
     assert new_project_path.exists()
 
     # Test using Path and providing a project name
-    new_project_path = local_scratch.path / "new_3.aedt"
+    new_project_path = test_tmp_dir / "new_3.aedt"
     project_name = app.project_name
     assert app.desktop_class.save_project(project_name=project_name, project_path=new_project_path)
     assert new_project_path.exists()
@@ -583,16 +571,16 @@ def test_edit_notes(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_value_with_units(aedtapp):
-    aedtapp.modeler.model_units = "mm"
-    assert aedtapp.value_with_units("10mm") == "10mm"
-    assert aedtapp.value_with_units("10") == "10mm"
-    assert aedtapp.value_with_units("10", units_system="Angle") == "10deg"
-    assert aedtapp.value_with_units("10", units_system="invalid") == "10"
-    assert aedtapp.value_with_units("A + Bmm") == "A + Bmm"
+def test_value_with_units(aedt_app):
+    aedt_app.modeler.model_units = "mm"
+    assert aedt_app.value_with_units("10mm") == "10mm"
+    assert aedt_app.value_with_units("10") == "10mm"
+    assert aedt_app.value_with_units("10", units_system="Angle") == "10deg"
+    assert aedt_app.value_with_units("10", units_system="invalid") == "10"
+    assert aedt_app.value_with_units("A + Bmm") == "A + Bmm"
 
 
-def test_close_desktop(desktop, aedtapp, monkeypatch):
+def test_close_desktop(desktop, aedt_app, monkeypatch):
     called = {}
 
     # Use monkeypatch to replace desktop.close_desktop with a fake tracker
@@ -603,7 +591,7 @@ def test_close_desktop(desktop, aedtapp, monkeypatch):
     monkeypatch.setattr(desktop, "close_desktop", fake_close_desktop)
 
     # Call the method
-    result = aedtapp.close_desktop()
+    result = aedt_app.close_desktop()
 
     # Verify
     assert called.get("was_called", False)

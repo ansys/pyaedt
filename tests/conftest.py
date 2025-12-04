@@ -226,15 +226,20 @@ def add_app(test_tmp_dir, desktop):
         design: str | None = None,
         solution_type: str | None = None,
         application=None,
+        close_projects=True,
     ):
-        if desktop.project_list:
+        if close_projects and desktop.project_list:
             projects = desktop.project_list.copy()
             for project in projects:
                 desktop.odesktop.CloseProject(project)
+
         if project is None:
             project = "pyaedt_test"
 
-        project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
+        if close_projects:
+            project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
+        else:
+            project_file = test_tmp_dir / f"{project}.aedt"
 
         # Application selection
         application_cls = application or Hfss
@@ -269,8 +274,9 @@ def add_app_example(test_tmp_dir, desktop):
         solution_type: str | None = None,
         application=None,
         is_edb=False,
+        close_projects=True,
     ):
-        if desktop.project_list:
+        if close_projects and desktop.project_list:
             projects = desktop.project_list.copy()
             for project in projects:
                 desktop.odesktop.CloseProject(project)

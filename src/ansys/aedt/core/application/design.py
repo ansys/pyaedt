@@ -3359,7 +3359,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler(path="destination", dest="name")
-    def copy_project(self, destination, name):
+    def copy_project(self, destination: str, name: str):
         """Copy the project to another destination.
 
         .. note::
@@ -3369,7 +3369,7 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         destination : str
             Path to save a copy of the project to.
-        name :
+        name : str
             Name to give the project in the new destination.
 
         Returns

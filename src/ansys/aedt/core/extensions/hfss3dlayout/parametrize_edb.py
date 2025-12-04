@@ -164,7 +164,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             # Load EDB to get nets information
             edb = Edb(str(self.__aedb_path), self.__active_design_name, edbversion=VERSION)
             self.__available_nets = list(edb.nets.nets.keys())
-            edb.close_edb()
+            edb.close()
 
         except Exception as e:
             raise AEDTRuntimeError(f"Failed to load AEDT information: {str(e)}")

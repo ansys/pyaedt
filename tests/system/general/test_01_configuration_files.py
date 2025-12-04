@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from pathlib import Path
 
 import pytest
@@ -35,15 +34,15 @@ from tests import TESTS_GENERAL_PATH
 
 TEST_FIELD = "Potter_Horn"
 IPK_NAME = "Icepak_test"
-TEST_SUBFOLDER = "T42"
+
 Q3D_FILE = "via_gsg_t42_231"
 TEST_PROJECT_NAME = "dm boundary test_231"
-CIRCUIT_PROJECT_NAME = "differential_pairs"
+CIRCUIT_PROJECT_NAME = "differential_pairs_231"
 
 
 @pytest.fixture()
 def aedt_app(add_app_example):
-    app = add_app_example(project=TEST_PROJECT_NAME, subfolder=TEST_SUBFOLDER)
+    app = add_app_example(project=TEST_PROJECT_NAME, subfolder="T42")
     yield app
     app.close_project(save=False)
 
@@ -57,7 +56,7 @@ def circuit_app(add_app_example):
 
 @pytest.fixture()
 def q3d_app(add_app_example):
-    app = add_app_example(project_name=Q3D_FILE, application=Q3d, subfolder=TEST_SUBFOLDER)
+    app = add_app_example(project=Q3D_FILE, application=Q3d, subfolder="T42")
     yield app
     app.close_project(save=False)
 
@@ -71,19 +70,12 @@ def q2d_app(add_app):
 
 @pytest.fixture()
 def hfss3dl_a(add_app):
-    app = add_app(application=Hfss3dLayout)
+    app = add_app(application=Hfss3dLayout, project="conf_test", design="layout_design", close_projects=False)
     yield app
-    app.close_project(save=False)
+    app.close_project(name=app.project_name, save=False)
 
 
-@pytest.fixture()
-def hfss3dl_b(add_app):
-    app = add_app(application=Hfss3dLayout)
-    yield app
-    app.close_project(save=False)
-
-
-def test_hfss_export(aedt_app, add_app, local_scratch):
+def test_hfss_export(aedt_app, add_app, test_tmp_dir):
     aedt_app.mesh.assign_length_mesh("sub")
     conf_file = aedt_app.configurations.export_config()
     assert aedt_app.configurations.validate(conf_file)
@@ -94,8 +86,8 @@ def test_hfss_export(aedt_app, add_app, local_scratch):
     aedt_app.export_3d_model(filename, aedt_app.working_directory, ".x_b", [], [])
     aedt_app.close_project(save=False)
 
-    project_file = available_file_name(local_scratch.path / "new_proj.aedt")
-    app = add_app(project_name=project_file, solution_type=aedt_app.solution_type, just_open=True)
+    project_file = available_file_name(test_tmp_dir / "new_proj")
+    app = add_app(project=project_file)
 
     app.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
@@ -105,7 +97,7 @@ def test_hfss_export(aedt_app, add_app, local_scratch):
     app.close_project(save=False)
 
 
-def test_q3d_export(q3d_app, add_app, local_scratch):
+def test_q3d_export(q3d_app, add_app, test_tmp_dir):
     q3d_app.modeler.create_coordinate_system()
     q3d_app.setups[0].props["AdaptiveFreq"] = "100MHz"
     conf_file = q3d_app.configurations.export_config()
@@ -117,8 +109,8 @@ def test_q3d_export(q3d_app, add_app, local_scratch):
     q3d_app.export_3d_model(filename, q3d_app.working_directory, ".x_b", [], [])
     q3d_app.close_project(save=False)
 
-    project_file = available_file_name(local_scratch.path / "new_proj_Q3d.aedt")
-    app = add_app(application=Q3d, project_name=project_file, just_open=True)
+    project_file = available_file_name(test_tmp_dir / "new_proj_Q3d")
+    app = add_app(application=Q3d, project=project_file)
     app.modeler.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
     assert isinstance(out, dict)
@@ -127,7 +119,7 @@ def test_q3d_export(q3d_app, add_app, local_scratch):
     app.close_project(save=False)
 
 
-def test_q2d_export(q2d_app, add_app, local_scratch):
+def test_q2d_export(q2d_app, add_app, test_tmp_dir):
     q2d_app.modeler.create_coordinate_system()
     q2d_app.modeler.create_rectangle([15, 20, 0], [5, 5])
     conf_file = q2d_app.configurations.export_config()
@@ -141,8 +133,8 @@ def test_q2d_export(q2d_app, add_app, local_scratch):
     q2d_app.export_3d_model(filename, q2d_app.working_directory, ".x_t", [], [])
     q2d_app.close_project(save=False)
 
-    project_file = available_file_name(local_scratch.path / "new_proj_Q2d.aedt")
-    app = add_app(application=Q2d, project_name=project_file, just_open=True)
+    project_file = available_file_name(test_tmp_dir / "new_proj_Q2d")
+    app = add_app(application=Q2d, project=project_file)
     app.modeler.import_3d_cad(file_path)
     out = app.configurations.import_config(conf_file)
     assert isinstance(out, dict)
@@ -187,13 +179,13 @@ def test_q2d_export(q2d_app, add_app, local_scratch):
     app.close_project(save=False)
 
 
-def test_hfss3dlayout_setup(hfss3dl_a, local_scratch):
+def test_hfss3dlayout_setup(hfss3dl_a, test_tmp_dir):
     setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")  # Insert a setup.
     assert setup2.props["ViaNumSides"] == 6  # Check the default value.
-    export_path = local_scratch.path / "export_setup_properties.json"  # Legacy.
+    export_path = test_tmp_dir / "export_setup_properties.json"  # Legacy.
     assert setup2.export_to_json(str(export_path))  # Export from setup directly.
     conf_file = hfss3dl_a.configurations.export_config()  # Design level export. Same as other apps.
-    json_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "hfss3dl_setup.json"
+    json_file = TESTS_GENERAL_PATH / "example_models" / "T42" / "hfss3dl_setup.json"
     assert setup2.import_from_json(str(json_file))
     assert setup2.props["ViaNumSides"] == 12
     assert hfss3dl_a.configurations.validate(conf_file)
@@ -201,34 +193,34 @@ def test_hfss3dlayout_setup(hfss3dl_a, local_scratch):
     assert hfss3dl_a.setups[0].props["ViaNumSides"] == 6
 
 
-def test_hfss3dlayout_existing_setup(hfss3dl_a, hfss3dl_b, local_scratch):
+def test_hfss3dlayout_existing_setup(hfss3dl_a, add_app, test_tmp_dir):
     setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")
-    export_path = local_scratch.path / "export_setup_properties.json"
+    export_path = test_tmp_dir / "export_setup_properties.json"
     assert setup2.export_to_json(str(export_path), overwrite=True)
     assert not setup2.export_to_json(str(export_path))
-    setup3 = hfss3dl_b.create_setup("My_HFSS_Setup_3")
+    hfss3dl_a.save_project()
+
+    app = add_app(application=Hfss3dLayout, project="conf_test", design="design2", close_projects=False)
+    setup3 = app.create_setup("My_HFSS_Setup_3")
     assert setup3.import_from_json(str(export_path))
     assert setup3.update()
 
 
-def test_circuit(circuit_app, local_scratch):
+def test_circuit(circuit_app, test_tmp_dir):
     path = circuit_app.configurations.export_config()
     assert Path(path).is_file()
     circuit_app.insert_design("new_import")
     circuit_app.configurations.import_config(path)
-    export_json = local_scratch.path / "export_config.json"
+    export_json = test_tmp_dir / "export_config.json"
     assert circuit_app.configurations.export_config(str(export_json))
 
 
-def test_circuit_import_config(add_app, local_scratch):
-    example_project = TESTS_GENERAL_PATH / "example_models" / "T01" / "models"
-    dest_folder = local_scratch.path / "models"
-    local_scratch.copyfolder(example_project, dest_folder)
-    app = add_app(application=Circuit, project_name="AMI_Example", subfolder="T01")
+def test_circuit_import_config(add_app_example, test_tmp_dir):
+    app = add_app_example(application=Circuit, project="AMI_Example", subfolder="T01")
     path = app.configurations.export_config()
     assert Path(path).exists()
     app.insert_design("new_import")
     app.configurations.import_config(str(path))
-    export_json = local_scratch.path / "export_config.json"
+    export_json = test_tmp_dir / "export_config.json"
     assert app.configurations.export_config(str(export_json))
     app.close_project(save=False)
