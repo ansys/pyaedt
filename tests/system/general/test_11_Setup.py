@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-
 import pytest
 
 from ansys.aedt.core import Circuit
@@ -31,23 +29,20 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.constants import Setups
 from tests.conftest import DESKTOP_VERSION
 
-test_subfolder = "T11"
-if DESKTOP_VERSION > "2022.2":
-    test_project_name = "coax_setup_231"
-else:
-    test_project_name = "coax_setup"
+TEST_SUBFOLDER = "T11"
+TEST_COAXIAL = "coax_setup_231"
 
 
-@pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(application=Hfss, project_name=test_project_name, subfolder=test_subfolder)
+@pytest.fixture
+def aedtapp(add_app_example):
+    app = add_app_example(application=Hfss, project=TEST_COAXIAL, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def circuit_app(add_app):
-    app = add_app(application=Circuit, project_name="circuit_setup", subfolder=test_subfolder)
+    app = add_app(application=Circuit)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -192,7 +187,6 @@ def test_non_valid_setup(aedtapp):
 
 
 def test_delete_setup(aedtapp):
-    aedtapp.insert_design("delete_setups")
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
     assert len(aedtapp.setups) == 1
     assert setup1.delete()
@@ -201,7 +195,6 @@ def test_delete_setup(aedtapp):
 
 
 def test_sweep_auto(aedtapp):
-    aedtapp.insert_design("sweep")
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenAuto)
     assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
@@ -219,7 +212,6 @@ def test_delete_sweep(aedtapp):
 
 
 def test_sweep_sbr(aedtapp):
-    aedtapp.insert_design("sweepsbr")
     aedtapp.solution_type = "SBR+"
     aedtapp.insert_infinite_sphere()
     setup1 = aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSSBR)
@@ -227,7 +219,7 @@ def test_sweep_sbr(aedtapp):
     assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
 
-def test_create_parametrics(aedtapp, local_scratch):
+def test_create_parametrics(aedtapp, test_tmp_dir):
     aedtapp.set_active_design("HFSSDesign")
     aedtapp["w1"] = "10mm"
     aedtapp["w2"] = "2mm"
@@ -252,9 +244,9 @@ def test_create_parametrics(aedtapp, local_scratch):
     oo = aedtapp.get_oo_object(aedtapp.odesign, f"Optimetrics\\{setup1.name}")
     oo_calculation = oo.GetCalculationInfo()[0]
     assert "Modal Solution Data" in oo_calculation
-    assert setup1.export_to_csv(os.path.join(local_scratch.path, "test.csv"))
-    assert os.path.exists(os.path.join(local_scratch.path, "test.csv"))
-    assert aedtapp.parametrics.add_from_file(os.path.join(local_scratch.path, "test.csv"), "ParametricsfromFile")
+    assert setup1.export_to_csv(str(test_tmp_dir / "test.csv"))
+    assert (test_tmp_dir / "test.csv").is_file()
+    assert aedtapp.parametrics.add_from_file(str(test_tmp_dir / "test.csv"), "ParametricsfromFile")
     with pytest.raises(ValueError):
         aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")
     oo = aedtapp.get_oo_object(aedtapp.odesign, r"Optimetrics\ParametricsfromFile")

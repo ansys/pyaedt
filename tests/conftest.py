@@ -206,12 +206,12 @@ def file_tmp_root(tmp_path_factory, request):
 
 # ================================
 # COMMON FIXTURES
-# ================================
+# ================================ntain
 
 
 @pytest.fixture
 def test_tmp_dir(file_tmp_root, request):
-    d = file_tmp_root / request.node.name
+    d = file_tmp_root / request.node.name.split("[", 1)[0]
 
     if d.exists():
         shutil.rmtree(d, ignore_errors=True)
@@ -236,7 +236,9 @@ def add_app(test_tmp_dir, desktop):
         if project is None:
             project = "pyaedt_test"
 
-        if close_projects:
+        if project and Path(project).is_file():
+            project_file = Path(project)
+        elif close_projects:
             project_file = available_file_name(test_tmp_dir / f"{project}.aedt")
         else:
             project_file = test_tmp_dir / f"{project}.aedt"
