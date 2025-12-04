@@ -77,7 +77,6 @@ def main():
     pyaedt_utils.environment_variables(oDesktop)
 
     if is_linux:
-        pyaedt_utils.set_ansys_em_environment(oDesktop)
         if notebook_dir:
             command = [jupyter_exe, "lab", target,"--notebook-dir",notebook_dir]
         else:

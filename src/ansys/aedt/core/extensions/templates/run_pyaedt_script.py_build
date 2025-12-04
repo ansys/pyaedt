@@ -172,15 +172,8 @@ def main():
             python_exe,
             pyaedt_script,
             script_args,  # Pass args
-            "--process_id",
-            str(oDesktop.GetProcessID()),
-            "--version",
-            str(oDesktop.GetVersion()[:6]),
         ]
         command = command if is_linux else ' '.join(command)
-
-        if is_linux:
-            pyaedt_utils.set_ansys_em_environment(oDesktop)
 
         oDesktop.AddMessage("", "", 0, command)
 
