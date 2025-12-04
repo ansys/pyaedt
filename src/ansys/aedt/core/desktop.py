@@ -556,8 +556,8 @@ class Desktop(PyAedtBase):
         self.__aedt_version_id = version
         self.__aedt_install_dir = None
         self.__aedt_process_id = (
-            int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
-            if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None)
+            int(os.getenv("PYAEDT_PROCESS_ID"))
+            if os.getenv("PYAEDT_PROCESS_ID", None)
             else aedt_process_id
         )
         self.__launched_by_pyaedt = False
@@ -575,8 +575,8 @@ class Desktop(PyAedtBase):
             True if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t") else new_desktop
         )
         self.aedt_version_id = (
-            str(os.getenv("PYAEDT_SCRIPT_VERSION"))
-            if os.getenv("PYAEDT_SCRIPT_VERSION", None)
+            str(os.getenv("PYAEDT_ELECTRONICS_VERSION"))
+            if os.getenv("PYAEDT_ELECTRONICS_VERSION", None)
             else version
             if version
             else list(_desktop_sessions.values())[-1].aedt_version_id

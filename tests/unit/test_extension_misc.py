@@ -39,9 +39,9 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 
 DUMMY_ENV_VARS = {
-    "PYAEDT_SCRIPT_PROCESS_ID": "12345",
-    "PYAEDT_SCRIPT_PORT": "6789",
-    "PYAEDT_SCRIPT_VERSION": "3024.2",
+    "PYAEDT_PROCESS_ID": "12345",
+    "PYAEDT_ELECTRONICS_PORT": "6789",
+    "PYAEDT_ELECTRONICS_VERSION": "3024.2",
     "PYAEDT_STUDENT_VERSION": "True",
 }
 
