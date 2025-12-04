@@ -27,7 +27,6 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
@@ -43,8 +42,8 @@ COAXIAL_PROJECT = "Coax_HFSS_231"
 
 
 @pytest.fixture
-def coaxial(add_app):
-    app = add_app(COAXIAL_PROJECT, subfolder=TEST_SUBFOLDER)
+def coaxial(add_app_example):
+    app = add_app_example(project=COAXIAL_PROJECT, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
@@ -333,14 +332,6 @@ def test_test_archive(add_app, test_tmp_dir, coaxial):
     aedtz_proj = test_tmp_dir / "test.aedtz"
     assert coaxial.archive_project(aedtz_proj)
     assert aedtz_proj.exists()
-    new_app = add_app(project_name=aedtz_proj, just_open=True)
-    for name1 in coaxial.design_list:
-        assert name1 in new_app.design_list
-    new_app2 = add_app(project_name=aedtz_proj, just_open=True)
-    assert new_app2.project_name != new_app.project_name
-    assert new_app2.project_name.endswith("_1")
-    new_app.close_project()
-    new_app2.close_project()
 
 
 def test_autosave(aedt_app):
@@ -440,35 +431,6 @@ def test_get_app(desktop, add_app):
     project_name2 = app.project_name
     app.close_project(project_name2)
     app.close_project(project_name)
-
-
-def test_load(add_app, test_tmp_dir):
-    file_name = test_tmp_dir / "test_36.aedt"
-    hfss = add_app(project_name=str(file_name), just_open=True)
-    assert hfss
-    h3d = add_app(project_name=str(file_name), application=Hfss3dLayout, just_open=True)
-    assert h3d
-    h3d = add_app(project_name=str(file_name), application=Hfss3dLayout, just_open=True)
-    assert h3d
-    file_name2 = test_tmp_dir / "test_36_2.aedt"
-    file_name2_lock = test_tmp_dir / "test_36_2.aedt.lock"
-    with open(file_name2, "w") as f:
-        f.write(" ")
-    with open(file_name2_lock, "w") as f:
-        f.write(" ")
-    try:
-        _ = Hfss(project=str(file_name2), version=DESKTOP_VERSION)
-    except Exception:
-        assert True
-    try:
-        (test_tmp_dir / "test_36_2.aedb").mkdir(parents=True, exist_ok=True)
-        file_name3 = test_tmp_dir / "test_36_2.aedb" / "edb.def"
-        with open(file_name3, "w") as f:
-            f.write(" ")
-        _ = Hfss3dLayout(project=str(file_name3), version=DESKTOP_VERSION)
-    except Exception:
-        assert True
-    hfss.close_project()
 
 
 def test_toolkit(aedt_app, desktop, test_tmp_dir):

@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pathlib import Path
-import tempfile
 
 import pytest
 
@@ -38,37 +37,37 @@ def desktop():
     return
 
 
-def test_download_edb():
-    assert downloads.download_aedb()
+def test_download_edb(test_tmp_dir):
+    assert downloads.download_aedb(test_tmp_dir)
 
 
-def test_download_touchstone():
-    assert downloads.download_touchstone()
+def test_download_touchstone(test_tmp_dir):
+    assert downloads.download_touchstone(test_tmp_dir)
 
 
-def test_download_netlist():
-    assert downloads.download_netlist()
+def test_download_netlist(test_tmp_dir):
+    assert downloads.download_netlist(test_tmp_dir)
 
 
-def test_download_sbr():
-    assert downloads.download_sbr()
+def test_download_sbr(test_tmp_dir):
+    assert downloads.download_sbr(test_tmp_dir)
 
 
-def test_download_antenna_array():
-    assert downloads.download_antenna_array()
+def test_download_antenna_array(test_tmp_dir):
+    assert downloads.download_antenna_array(test_tmp_dir)
 
 
-def test_download_antenna_sherlock():
-    assert downloads.download_sherlock(destination=Path(tempfile.gettempdir()) / "sherlock")
+def test_download_antenna_sherlock(test_tmp_dir):
+    assert downloads.download_sherlock(test_tmp_dir / "sherlock")
 
 
 @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
-def test_download_multiparts():
-    assert downloads.download_multiparts(destination=Path(tempfile.gettempdir()) / "multi")
+def test_download_multiparts(test_tmp_dir):
+    assert downloads.download_multiparts(destination=test_tmp_dir / "multi")
 
 
-def test_download_leaf():
-    out = downloads.download_leaf()
+def test_download_leaf(test_tmp_dir):
+    out = downloads.download_leaf(test_tmp_dir)
 
     assert Path(out[0]).exists()
     assert Path(out[1]).exists()
@@ -85,37 +84,39 @@ def test_download_leaf():
     assert new_path.exists()
 
 
-def test_download_custom_report():
-    out = downloads.download_custom_reports()
+def test_download_custom_report(test_tmp_dir):
+    out = downloads.download_custom_reports(test_tmp_dir)
     assert Path(out).exists()
 
 
-def test_download_3dcomp():
-    out = downloads.download_3dcomponent()
+def test_download_3dcomp(test_tmp_dir):
+    out = downloads.download_3dcomponent(test_tmp_dir)
     assert Path(out).exists()
 
 
-def test_download_twin_builder_data():
-    example_folder = downloads.download_twin_builder_data("Ex1_Mechanical_DynamicRom.zip", True)
+def test_download_twin_builder_data(test_tmp_dir):
+    example_folder = downloads.download_twin_builder_data(
+        "Ex1_Mechanical_DynamicRom.zip", True, local_path=test_tmp_dir
+    )
     assert Path(example_folder).exists()
 
 
-def test_download_specific_file():
-    example_folder = downloads.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
+def test_download_specific_file(test_tmp_dir):
+    example_folder = downloads.download_file("motorcad", "IPM_Vweb_Hairpin.mot", test_tmp_dir)
     assert Path(example_folder).exists()
 
 
-def test_download_specific_folder():
-    example_folder = downloads.download_file(directory="nissan")
+def test_download_specific_folder(test_tmp_dir):
+    example_folder = downloads.download_file(directory="nissan", local_path=test_tmp_dir)
     assert Path(example_folder).exists()
-    example_folder = downloads.download_file(directory="wpf_edb_merge")
+    example_folder = downloads.download_file(directory="wpf_edb_merge", local_path=test_tmp_dir)
     assert Path(example_folder).exists()
 
 
-def test_download_icepak_3d_component():
-    assert downloads.download_icepak_3d_component()
+def test_download_icepak_3d_component(test_tmp_dir):
+    assert downloads.download_icepak_3d_component(test_tmp_dir)
 
 
-def test_download_fss_file():
-    example_folder = downloads.download_fss_3dcomponent()
+def test_download_fss_file(test_tmp_dir):
+    example_folder = downloads.download_fss_3dcomponent(test_tmp_dir)
     assert Path(example_folder).exists()

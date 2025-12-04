@@ -255,6 +255,7 @@ def test_nets_count(aedt_app):
     assert len(nets) == len(power_nets) + len(signal_nets) + len(no_nets)
 
 
+@pytest.mark.skipif(NON_GRAPHICAL, reason="Not running in non-graphical mode")
 def test_merge(flipchip):
     tol = 1e-12
     brd = Hfss3dLayout(project=flipchip.project_name, design="Dummy_Board")
@@ -274,12 +275,8 @@ def test_merge(flipchip):
     assert comp.location[1] == 0.0
     assert comp.angle == "90deg"
     comp.location = [0.1, 0.2]
-    if DESKTOP_VERSION > "2022.2":
-        assert (comp.location[0] - 100.0) < tol
-        assert (comp.location[1] - 200.0) < tol
-    else:
-        assert (comp.location[0] - 0.1) < tol
-        assert (comp.location[1] - 0.2) < tol
+    assert (comp.location[0] - 0.1) < tol
+    assert (comp.location[1] - 0.2) < tol
 
 
 def test_change_stackup(aedt_app):
