@@ -450,18 +450,26 @@ class VersionManager:
             if self.pyaedt_version > latest_pyaedt:
                 pip_args.append(f"pyaedt[all]=={latest_pyaedt}")
             else:
-                pip_args.extend(["-U", "pyaedt[all]"])
+                pip_args.extend(
+                    ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
+                )
         except Exception:
-            pip_args.extend(["-U", "pyaedt[all]"])
+            pip_args.extend(
+                ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
+            )
 
         # Decide pyedb install args (pin if current > latest, else upgrade)
         try:
             if self.pyedb_version > latest_pyedb:
                 pip_args.append(f"pyedb=={latest_pyedb}")
             else:
-                pip_args.extend(["pyedb"])
+                pip_args.extend(
+                    ["-U", "--upgrade-strategy", "eager", "pyedb"]
+                )
         except Exception:
-            pip_args.extend(["pyedb"])
+            pip_args.extend(
+                ["-U", "--upgrade-strategy", "eager", "pyedb"]
+            )
 
         self.update_and_reload(pip_args, loading_key="update_all")
 
