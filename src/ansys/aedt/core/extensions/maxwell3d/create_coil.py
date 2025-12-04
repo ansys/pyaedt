@@ -195,9 +195,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             name="create_coil",
             command=lambda: callback(self),
         )
-        create_coil.grid(
-            row=1, column=0, sticky="w", **DEFAULT_PADDING
-        )
+        create_coil.grid(row=1, column=0, sticky="w", **DEFAULT_PADDING)
 
 
 def main(data: CoilExtensionData):
