@@ -9164,7 +9164,7 @@ class PrimitivesBuilder(PyAedtBase):
     >>> aedtapp = Hfss()
     >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
-    >>> primitives_builder.create(),,
+    >>> primitives_builder.create(),
     >>> aedtapp.desktop_class.close_desktop()
     """
 
