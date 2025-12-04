@@ -49,6 +49,8 @@ VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 EXTENSION_TITLE = "Create coil"
+MIN_WIDTH = 400
+MIN_HEIGHT = 500
 
 
 def prettyfy(key: str) -> str:
@@ -87,8 +89,8 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=18,
-            toggle_column=2,
+            toggle_row=1,
+            toggle_column=0,
         )
         # Initialize the Coil class
         self.coil = Coil(self.aedt_application, is_vertical=True)
@@ -96,6 +98,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         self.__widget = {}
         # add custom content
         self.add_extension_content()
+        self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
 
     def on_checkbox_toggle(self):
         pass
@@ -142,7 +145,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         export_points_button = ttk.Button(
             tab, text="Parameters", command=self.show_pictures_popup, width=10, style="PyAEDT.TButton"
         )
-        export_points_button.grid(row=row, column=1, **DEFAULT_PADDING)
+        export_points_button.grid(row=row, column=0, sticky="w", **DEFAULT_PADDING)
 
     def create_parameter_inputs(self, tab, tab_name):
         """Create parameter input widgets for a category."""
@@ -192,7 +195,9 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             name="create_coil",
             command=lambda: callback(self),
         )
-        create_coil.grid(row=1, column=0, **DEFAULT_PADDING)
+        create_coil.grid(
+            row=1, column=0, sticky="w", **DEFAULT_PADDING
+        )
 
 
 def main(data: CoilExtensionData):
