@@ -556,9 +556,7 @@ class Desktop(PyAedtBase):
         self.__aedt_version_id = version
         self.__aedt_install_dir = None
         self.__aedt_process_id = (
-            int(os.getenv("PYAEDT_PROCESS_ID"))
-            if os.getenv("PYAEDT_PROCESS_ID", None)
-            else aedt_process_id
+            int(os.getenv("PYAEDT_PROCESS_ID")) if os.getenv("PYAEDT_PROCESS_ID", None) else aedt_process_id
         )
         self.__launched_by_pyaedt = False
         self.__non_graphical = (
