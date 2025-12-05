@@ -33,14 +33,15 @@ This file can also serve as a template to modify PyAEDT scripts to take advantag
 provided by the launcher
 """
 
+import os
 import atexit
 from pathlib import Path
 import sys
 from IPython import get_ipython
 import tempfile
 
-aedt_process_id = int(sys.argv[1])
-version = sys.argv[2]
+aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None))
+version = os.environ.get("PYAEDT_ELECTRONICS_VERSION", None)
 print("Loading the PyAEDT Console.")
 
 try:  # pragma: no cover
