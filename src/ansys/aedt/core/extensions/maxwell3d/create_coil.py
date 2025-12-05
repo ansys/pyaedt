@@ -101,9 +101,6 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         self.add_extension_content()
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
 
-    def on_checkbox_toggle(self):
-        pass
-
     def show_pictures_popup(self):
         popup = tk.Toplevel(self.root)
         popup.title("Coil Parameters")
@@ -122,7 +119,6 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             variable=is_vertical,
             style="PyAEDT.TCheckbutton",
             name="is_vertical",
-            command=self.on_checkbox_toggle(),
         )
         self.__widget["is_vertical"].var = is_vertical
         self.__widget["is_vertical"].grid(row=row, column=1, sticky="", padx=5)
@@ -220,6 +216,15 @@ def main(data: CoilExtensionData):
         raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
     coil = Coil(aedtapp, is_vertical=data.is_vertical)
+
+    for f in fields(data):
+        val = getattr(data, f.name)
+        if isinstance(f.type, str):
+            setattr(coil, f.name, val)
+        elif isinstance(f.type, int) and not isinstance(f.type, bool):
+            setattr(coil, f.name, int(val))
+        elif isinstance(f.type, float):
+            setattr(coil, f.name, float(val))
 
     # Create polyline shape for coil
     polyline = coil.create_vertical_path() if data.is_vertical else coil.create_flat_path()

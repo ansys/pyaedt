@@ -30,24 +30,24 @@ from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 COIL_PARAMETERS = {
     "Common": {
         "name": "",
-        "centre_x": 0,
-        "centre_y": 0,
+        "centre_x": 0.0,
+        "centre_y": 0.0,
         "turns": 5,
-        "inner_distance": 2,
-        "inner_width": 12,
-        "inner_length": 6,
-        "wire_radius": 1,
+        "inner_distance": 2.0,
+        "inner_width": 12.0,
+        "inner_length": 6.0,
+        "wire_radius": 1.0,
         "arc_segmentation": 4,
         "section_segmentation": 6,
     },
     "Vertical": {
-        "centre_z": 0,
-        "pitch": 3,
+        "centre_z": 0.0,
+        "pitch": 3.0,
         "direction": 1,
     },
     "Flat": {
         "looping_position": 0.5,
-        "distance_turns": 3,
+        "distance_turns": 3.0,
     },
 }
 
