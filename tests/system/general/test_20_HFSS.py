@@ -1660,6 +1660,11 @@ def test_nastran(aedt_app, test_tmp_dir):
     example_project2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test_cad_2.nas"
     file2 = shutil.copy2(example_project2, test_tmp_dir / "test_cad_2.nas")
 
+    key1 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "assembly1.key"
+    shutil.copy2(key1, test_tmp_dir / "assembly1.key")
+    key2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "assembly2.key"
+    shutil.copy2(key2, test_tmp_dir / "assembly2.key")
+
     cads, _ = aedt_app.modeler.import_nastran(str(file), lines_thickness=0.1)
     assert len(cads) > 0
     stl, _ = aedt_app.modeler.import_nastran(str(file), decimation=0.3, preview=True, save_only_stl=True)
