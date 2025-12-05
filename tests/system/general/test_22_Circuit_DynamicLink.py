@@ -23,6 +23,8 @@
 # SOFTWARE.
 
 
+import shutil
+
 import pytest
 
 from ansys.aedt.core import Circuit
@@ -43,6 +45,13 @@ LINKED_PROJECT_NAME = "Filter_Board_231"
 
 LAYOUT_DESIGN_NAME = "layout_cutout"
 Q2D_Q3D_NAME = "q2d_q3d"
+
+
+@pytest.fixture
+def aedt_app(add_app):
+    app = add_app(application=Circuit)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
@@ -74,7 +83,7 @@ def q2d_app(add_app_example):
 
 
 def test_pin_names(usb_app, add_app):
-    app = add_app(application=Circuit, close_on_exit=False)
+    app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
     pin_names = app.get_source_pin_names(SRC_USB, SRC_PROJECT_NAME, port_selector=2)
     assert len(pin_names) == 4
     assert "usb_P_pcb" in pin_names
@@ -88,15 +97,17 @@ def test_add_subcircuits_3dlayout(circuit_app):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
-def test_add_subcircuits_hfss_link(usb_app, circuit_app):
-    hfss_comp = circuit_app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name=SRC_USB)
+def test_add_subcircuits_hfss_link(circuit_app, add_app_example):
+    app = add_app_example(project=SRC_PROJECT_NAME, application=Hfss, subfolder=TEST_SUBFOLDER, close_projects=False)
+    hfss_comp = circuit_app.modeler.schematic.add_subcircuit_dynamic_link(app, comp_name=SRC_USB)
     assert hfss_comp.id == 86
     assert circuit_app.modeler.schematic.refresh_dynamic_link(SRC_USB)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
 def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app):
-    app = add_app(application=Circuit, close_on_exit=False)
+    app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
     hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name="uUSB")
     assert app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
     assert app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
@@ -105,7 +116,7 @@ def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app):
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
 def test_set_sim_solution_on_hfss_subcircuit(usb_app, add_app):
-    app = add_app(application=Circuit, close_projects=False)
+    app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
     hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name="uUSB")
     assert app.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
@@ -153,8 +164,8 @@ def test_q3d_link(q3d_app, add_app):
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
 def test_hfss_link(q3d_app, add_app):
-    app = add_app(application=Circuit, close_projects=False)
-    hfss_app = add_app(application=Hfss, close_projects=False)
+    app = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+    hfss_app = add_app(application=Hfss, project=q3d_app.project_name, close_projects=False)
     comp = app.modeler.schematic.add_subcircuit_dynamic_link(hfss_app, solution_name="Setup1 : Sweep")
     assert comp
     assert len(comp.pins) == 2
@@ -162,28 +173,25 @@ def test_hfss_link(q3d_app, add_app):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
-def test_siwave_link(add_app, local_scratch):
-    app = add_app(application=Circuit, close_projects=False)
-    model = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
-    model_results = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siwaveresults"
-    model_out = local_scratch.copyfile(model)
-    local_scratch.copyfolder(model_results, local_scratch.path / "siwave_syz.siwaveresults")
-    siw_comp = app.modeler.schematic.add_siwave_dynamic_link(model_out)
+def test_siwave_link(aedt_app, test_tmp_dir):
+    model_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
+    model = shutil.copy2(model_o, test_tmp_dir / "siwave_syz.siw")
+    model_results_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siwaveresults"
+    shutil.copytree(model_results_o, test_tmp_dir / "siwave_syz.siwaveresults")
+
+    siw_comp = aedt_app.modeler.schematic.add_siwave_dynamic_link(model)
     assert siw_comp
     assert len(siw_comp.pins) == 4
-    app.close_project(save=False)
 
 
 @pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
-def test_create_interface_port(add_app):
-    app = add_app(application=Circuit)
-    page_port = app.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
-    interface_port = app.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
-    second_page_port = app.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
-    second_interface_port = app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
-    assert not app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
+def test_create_interface_port(aedt_app):
+    page_port = aedt_app.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
+    interface_port = aedt_app.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
+    second_page_port = aedt_app.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
+    second_interface_port = aedt_app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
+    assert not aedt_app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
     assert page_port.composed_name != second_page_port.composed_name
     assert page_port.composed_name != interface_port.name
     assert page_port.composed_name != second_interface_port.name
     assert interface_port.name != second_interface_port.name
-    app.close_project(save=False)
