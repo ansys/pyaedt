@@ -31,16 +31,14 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_export_to_3d_extension_button(add_app, local_scratch):
+def test_export_to_3d_extension_button(add_app, test_tmp_dir):
     """Test the Export button in the Export to 3D extension."""
     data = ExportTo3DExtensionData(choice="Export to HFSS")
-    proj = str(local_scratch.path / "export_to_3d.aedt")
 
     # Create an HFSS 3D Layout application
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d",
     )
 
     # Create a simple stackup and net for the export to work
@@ -56,19 +54,17 @@ def test_export_to_3d_extension_button(add_app, local_scratch):
     extension.root.nametowidget("export").invoke()
     assert data.choice == extension.data.choice
     result = main(extension.data)
-    aedt_app.close_project("export_to_3d_HFSS", save=False)
+    aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
     assert result
 
 
-def test_export_to_3d_q3d_choice(add_app, local_scratch):
+def test_export_to_3d_q3d_choice(add_app):
     """Test the Export to Q3D functionality."""
     # Create an HFSS 3D Layout application
-    proj = str(local_scratch.path / "export_to_3d_q3d.aedt")
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d_q3d",
     )
 
     # Create a simple stackup for the export to work
@@ -81,12 +77,12 @@ def test_export_to_3d_q3d_choice(add_app, local_scratch):
 
     data = ExportTo3DExtensionData(choice="Export to Q3D")
     result = main(data)
-    aedt_app.close_project("export_to_3d_q3d_Q3D", save=False)
+    aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
     assert result is True
 
 
-def test_export_to_3d_exceptions(add_app, local_scratch):
+def test_export_to_3d_exceptions():
     """Test exceptions thrown by the Export to 3D extension."""
     # Test with no choice
     data = ExportTo3DExtensionData(choice=None)
@@ -98,17 +94,13 @@ def test_export_to_3d_exceptions(add_app, local_scratch):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    # Test with wrong application type (HFSS instead of 3D Layout)
 
-
-def test_export_to_3d_maxwell_choice(add_app, local_scratch):
+def test_export_to_3d_maxwell_choice(add_app):
     """Test the Export to Maxwell 3D functionality."""
     # Create an HFSS 3D Layout application
-    proj = str(local_scratch.path / "export_to_3d_maxwell.aedt")
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d_maxwell",
     )
 
     # Create a simple stackup for the export to work
@@ -120,19 +112,17 @@ def test_export_to_3d_maxwell_choice(add_app, local_scratch):
     )
     data = ExportTo3DExtensionData(choice="Export to Maxwell 3D")
     result = main(data)
-    aedt_app.close_project("export_to_3d_maxwell_M3D", save=False)
+    aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
     assert result is True
 
 
-def test_export_to_3d_icepak_choice(add_app, local_scratch):
+def test_export_to_3d_icepak_choice(add_app):
     """Test the Export to Icepak functionality."""
     # Create an HFSS 3D Layout application
-    proj = str(local_scratch.path / "export_to_3d_icepak.aedt")
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name=proj,
-        just_open=True,
+        project="export_to_3d_icepak",
     )
 
     # Create a simple stackup for the export to work
@@ -145,6 +135,6 @@ def test_export_to_3d_icepak_choice(add_app, local_scratch):
 
     data = ExportTo3DExtensionData(choice="Export to Icepak")
     result = main(data)
-    aedt_app.close_project("export_to_3d_maxwell_IPK", save=False)
+    aedt_app.close_project(save=False)
     aedt_app.close_project(save=False)
     assert result is True

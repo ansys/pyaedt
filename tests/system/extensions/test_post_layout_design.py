@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
 
 import pytest
 
@@ -33,7 +32,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_EXTENSIONS_PATH
 
 
-def test_post_layout_design_data_class(add_app):
+def test_post_layout_design_data_class():
     """Test the PostLayoutDesignExtensionData class."""
     # Test default values
     data = PostLayoutDesignExtensionData()
@@ -64,7 +63,7 @@ def test_post_layout_design_data_class(add_app):
     assert custom_data.angle == 45.0
 
 
-def test_post_layout_design_main_function_exceptions(add_app):
+def test_post_layout_design_main_function_exceptions():
     """Test exceptions in the main function."""
     # Test with no selections
     data = PostLayoutDesignExtensionData(action="antipad", selections=[])
@@ -72,20 +71,15 @@ def test_post_layout_design_main_function_exceptions(add_app):
         post_layout_design.main(data)
 
 
-def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
+def test_layout_design_toolkit_antipad_1(add_app_example):
     """Test antipad creation with racetrack enabled."""
-    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_antipad_1.aedb"
-
-    local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
-        file_path,
-    )
-
-    h3d = add_app(
-        file_path,
+    h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
-        just_open=True,
+        is_edb=True,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
+        project="ANSYS_SVP_V1_1_SFP",
     )
+
     h3d.save_project()
 
     # Create data object with antipad parameters
@@ -100,22 +94,16 @@ def test_layout_design_toolkit_antipad_1(add_app, local_scratch):
     result = post_layout_design.main(data)
     assert result is True
 
-    h3d.close_project()
+    h3d.close_project(save=False)
 
 
-def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
+def test_layout_design_toolkit_antipad_2(add_app_example):
     """Test antipad creation with racetrack disabled."""
-    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_antipad_2.aedb"
-
-    local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
-        file_path,
-    )
-
-    h3d = add_app(
-        file_path,
+    h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
-        just_open=True,
+        is_edb=True,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
+        project="ANSYS_SVP_V1_1_SFP",
     )
     h3d.save_project()
 
@@ -131,22 +119,16 @@ def test_layout_design_toolkit_antipad_2(add_app, local_scratch):
     result = post_layout_design.main(data)
     assert result is True
 
-    h3d.close_project()
+    h3d.close_project(save=False)
 
 
-def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
+def test_layout_design_toolkit_unknown_action(add_app_example):
     """Test main function with unknown action."""
-    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_unknown_action.aedb"
-
-    local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "ANSYS_SVP_V1_1_SFP.aedb",
-        file_path,
-    )
-
-    h3d = add_app(
-        file_path,
+    h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
-        just_open=True,
+        is_edb=True,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
+        project="ANSYS_SVP_V1_1_SFP",
     )
     h3d.save_project()
 
@@ -161,23 +143,17 @@ def test_layout_design_toolkit_unknown_action(add_app, local_scratch):
     with pytest.raises(AEDTRuntimeError, match="Unknown action"):
         post_layout_design.main(data)
 
-    h3d.close_project()
+    h3d.close_project(save=False)
 
 
 @pytest.mark.flaky_linux
-def test_layout_design_toolkit_microvia(add_app, local_scratch):
+def test_layout_design_toolkit_microvia(add_app_example):
     """Test microvia creation with conical shape."""
-    file_path = Path(local_scratch.path) / "ANSYS-HSD_V1_microvia.aedb"
-
-    local_scratch.copyfolder(
-        Path(TESTS_EXTENSIONS_PATH) / "example_models" / "post_layout_design" / "Diff_Via.aedb",
-        file_path,
-    )
-
-    h3d = add_app(
-        file_path,
+    h3d = add_app_example(
         application=ansys.aedt.core.Hfss3dLayout,
-        just_open=True,
+        is_edb=True,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / "post_layout_design",
+        project="Diff_Via",
     )
     h3d.save_project()
 
@@ -201,4 +177,7 @@ def test_layout_design_toolkit_microvia(add_app, local_scratch):
 
     # Call main function
     result = post_layout_design.main(data)
+
     assert result is True
+    h3d.close_project(save=False)
+    h3d.close_project(save=False)

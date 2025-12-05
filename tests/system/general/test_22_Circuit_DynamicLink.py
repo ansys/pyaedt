@@ -22,181 +22,177 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+
+import shutil
 
 import pytest
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
 from tests import TESTS_GENERAL_PATH
-from tests.conftest import config
+from tests.conftest import NON_GRAPHICAL
+from tests.conftest import SKIP_CIRCUITS
 
-test_subfloder = "T22"
-test_project_name = "Dynamic_Link"
-src_design_name = "uUSB"
-if config["desktopVersion"] > "2022.2":
-    src_project_name = "USB_Connector_231"
-    linked_project_name = "Filter_Board_231"
-else:
-    src_project_name = "USB_Connector"
-    linked_project_name = "Filter_Board"
+TEST_SUBFOLDER = "T22"
+TEST_PROJECT_NAME = "Dynamic_Link"
+SRC_USB = "uUSB"
+
+SRC_PROJECT_NAME = "USB_Connector_231"
+LINKED_PROJECT_NAME = "Filter_Board_231"
+
+LAYOUT_DESIGN_NAME = "layout_cutout"
+Q2D_Q3D_NAME = "q2d_q3d"
 
 
-@pytest.fixture(scope="class", autouse=True)
-def uusb(examples, add_app):
-    app = add_app(project_name=examples[0], design_name="uUSB", just_open=True)
+@pytest.fixture
+def aedt_app(add_app):
+    app = add_app(application=Circuit)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
-def aedtapp(add_app, local_scratch):
-    example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, test_project_name + ".aedt")
-    test_project = local_scratch.copyfile(example_project)
-    local_scratch.copyfolder(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, test_project_name + ".aedb"),
-        os.path.join(local_scratch.path, test_project_name + ".aedb"),
-    )
-
-    linked_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, linked_project_name + ".aedt")
-    test_lkd_project = local_scratch.copyfile(linked_project)
-    local_scratch.copyfolder(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, linked_project_name + ".aedb"),
-        os.path.join(local_scratch.path, linked_project_name + ".aedb"),
-    )
-
-    with open(example_project, "rb") as fh:
-        temp = fh.read().splitlines()
-
-    with open(test_project, "wb") as outf:
-        found = False
-        for line in temp:
-            if not found:
-                if "Filter_Board.aedt" in line.decode("utf-8"):
-                    line = f"\t\t\t\tfilename='{test_lkd_project.replace(chr(92), '/')}'\n".encode()
-                    found = True
-            outf.write(line + b"\n")
-
-    app = add_app(application=Circuit, project_name=test_project, just_open=True)
+@pytest.fixture
+def usb_app(add_app_example):
+    app = add_app_example(project=SRC_PROJECT_NAME, application=Hfss, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture(scope="class", autouse=True)
-def examples(local_scratch):
-    source_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, src_project_name + ".aedt")
-    src_project_file = local_scratch.copyfile(source_project)
-    q3d = local_scratch.copyfile(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, "q2d_q3d.aedt"))
-    return src_project_file, q3d
+@pytest.fixture
+def circuit_app(add_app_example):
+    app = add_app_example(project=TEST_PROJECT_NAME, application=Circuit, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
-class TestClass:
-    @pytest.fixture(autouse=True)
-    def init(self, local_scratch, examples):
-        self.local_scratch = local_scratch
-        self.src_project_file = examples[0]
-        self.q3d = examples[1]
+@pytest.fixture
+def q3d_app(add_app_example):
+    app = add_app_example(project=Q2D_Q3D_NAME, application=Q3d, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
 
-    def test_pin_names(self, aedtapp, local_scratch):
-        src_project_file = local_scratch.copyfile(self.src_project_file, self.src_project_file[:-5] + "_copy.aedt")
-        pin_names = aedtapp.get_source_pin_names(src_design_name, src_project_name, src_project_file, 2)
-        assert len(pin_names) == 4
-        assert "usb_P_pcb" in pin_names
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_02_add_subcircuits_3dlayout(self, aedtapp):
-        layout_design = "layout_cutout"
-        hfss3Dlayout_comp = aedtapp.modeler.schematic.add_subcircuit_3dlayout(layout_design)
-        assert hfss3Dlayout_comp.id == 86
-        assert hfss3Dlayout_comp
+@pytest.fixture
+def q2d_app(add_app_example):
+    app = add_app_example(project=Q2D_Q3D_NAME, application=Q2d, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
-    def test_03_add_subcircuits_hfss_link(self, uusb, aedtapp):
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
-        assert hfss_comp.id == 86
-        assert aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_05_set_sim_option_on_hfss_subcircuit(self, aedtapp, uusb):
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
-        assert aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
-        assert aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
-        assert not aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
+def test_pin_names(usb_app, add_app):
+    app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
+    pin_names = app.get_source_pin_names(SRC_USB, SRC_PROJECT_NAME, port_selector=2)
+    assert len(pin_names) == 4
+    assert "usb_P_pcb" in pin_names
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_06_set_sim_solution_on_hfss_subcircuit(self, aedtapp, uusb):
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
-        assert aedtapp.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_08_assign_excitations(self, aedtapp):
-        aedtapp.modeler.schematic.create_interface_port("Excitation_1", [0, 0])
-        aedtapp.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
-        filepath = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, "frequency_dependent_source.fds")
-        ports_list = ["Excitation_1", "Excitation_2"]
-        assert aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+@pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
+def test_add_subcircuits_3dlayout(circuit_app):
+    hfss3Dlayout_comp = circuit_app.modeler.schematic.add_subcircuit_3dlayout(LAYOUT_DESIGN_NAME)
+    assert hfss3Dlayout_comp.id == 86
+    assert hfss3Dlayout_comp
 
-        filepath = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, "frequency_dependent_source1.fds")
-        ports_list = ["Excitation_1", "Excitation_2"]
-        assert not aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
-        filepath = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, "frequency_dependent_source.fds")
-        ports_list = ["Excitation_1", "Excitation_3"]
-        assert not aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
+def test_add_subcircuits_hfss_link(circuit_app, add_app_example):
+    app = add_app_example(project=SRC_PROJECT_NAME, application=Hfss, subfolder=TEST_SUBFOLDER, close_projects=False)
+    hfss_comp = circuit_app.modeler.schematic.add_subcircuit_dynamic_link(app, comp_name=SRC_USB)
+    assert hfss_comp.id == 86
+    assert circuit_app.modeler.schematic.refresh_dynamic_link(SRC_USB)
+    app.close_project(app.project_name, save=False)
 
-        ports_list = ["Excitation_1"]
-        assert aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_10_q2d_link(self, add_app, aedtapp):
-        q2d = add_app(application=Q2d, project_name=self.q3d, just_open=True)
-        c1 = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
-        assert c1
-        assert len(c1.pins) == 6
-        assert c1.parameters["Length"] == "25mm"
-        assert c1.parameters["r1"] == "0.3mm"
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app):
+    app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
+    hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name="uUSB")
+    assert app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
+    assert app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
+    assert not app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_10_q3d_link(self, add_app, aedtapp):
-        q3d = add_app(application=Q3d, project_name=self.q3d, just_open=True)
 
-        q3d_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d, solution_name="Setup1 : LastAdaptive")
-        assert q3d_comp
-        assert len(q3d_comp.pins) == 4
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+def test_set_sim_solution_on_hfss_subcircuit(usb_app, add_app):
+    app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
+    hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name="uUSB")
+    assert app.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_10_hfss_link(self, add_app, aedtapp):
-        hfss = add_app(project_name=self.q3d, just_open=True)
 
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
-        assert hfss_comp
-        assert len(hfss_comp.pins) == 2
-        hfss2 = add_app(project_name=self.q3d, just_open=True)
-        assert aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
-            hfss2, solution_name="Setup2 : Sweep", tline_port="1"
-        )
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+def test_assign_excitations(add_app):
+    app = add_app(application=Circuit)
+    app.modeler.schematic.create_interface_port("Excitation_1", [0, 0])
+    app.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
+    filepath = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
+    ports_list = ["Excitation_1", "Excitation_2"]
+    assert app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
-    def test_11_siwave_link(self, aedtapp):
-        model = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, "siwave_syz.siw")
-        model_out = self.local_scratch.copyfile(model)
-        self.local_scratch.copyfolder(
-            model + "averesults", os.path.join(self.local_scratch.path, "siwave_syz.siwaveresults")
-        )
-        siw_comp = aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
-        assert siw_comp
-        assert len(siw_comp.pins) == 4
+    filepath = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source1.fds"
+    ports_list = ["Excitation_1", "Excitation_2"]
+    assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
-    def test_12_create_interface_port(self, aedtapp):
-        page_port = aedtapp.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
-        interface_port = aedtapp.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
-        second_page_port = aedtapp.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
-        second_interface_port = aedtapp.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
-        assert not aedtapp.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
-        assert page_port.composed_name != second_page_port.composed_name
-        assert page_port.composed_name != interface_port.name
-        assert page_port.composed_name != second_interface_port.name
-        assert interface_port.name != second_interface_port.name
+    filepath = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
+    ports_list = ["Excitation_1", "Excitation_3"]
+    assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
+
+    ports_list = ["Excitation_1"]
+    assert app.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
+    app.close_project(save=False)
+
+
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+def test_q2d_link(q2d_app, add_app):
+    cir = add_app(application=Circuit, close_projects=False)
+    c1 = cir.modeler.schematic.add_subcircuit_dynamic_link(q2d_app, extrusion_length=25)
+    assert c1
+    assert len(c1.pins) == 6
+    assert c1.parameters["Length"] == "25mm"
+    assert c1.parameters["r1"] == "0.3mm"
+    cir.close_project(save=False)
+
+
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+def test_q3d_link(q3d_app, add_app):
+    cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+
+    q3d_comp = cir.modeler.schematic.add_subcircuit_dynamic_link(q3d_app, solution_name="Setup1 : LastAdaptive")
+    assert q3d_comp
+    assert len(q3d_comp.pins) == 4
+
+
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+def test_hfss_link(q3d_app, add_app):
+    app = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
+    hfss_app = add_app(application=Hfss, project=q3d_app.project_name, close_projects=False)
+    comp = app.modeler.schematic.add_subcircuit_dynamic_link(hfss_app, solution_name="Setup1 : Sweep")
+    assert comp
+    assert len(comp.pins) == 2
+    assert app.modeler.schematic.add_subcircuit_dynamic_link(hfss_app, solution_name="Setup2 : Sweep", tline_port="1")
+
+
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+def test_siwave_link(aedt_app, test_tmp_dir):
+    model_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
+    model = shutil.copy2(model_o, test_tmp_dir / "siwave_syz.siw")
+    model_results_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siwaveresults"
+    shutil.copytree(model_results_o, test_tmp_dir / "siwave_syz.siwaveresults")
+
+    siw_comp = aedt_app.modeler.schematic.add_siwave_dynamic_link(model)
+    assert siw_comp
+    assert len(siw_comp.pins) == 4
+
+
+@pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
+def test_create_interface_port(aedt_app):
+    page_port = aedt_app.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
+    interface_port = aedt_app.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
+    second_page_port = aedt_app.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
+    second_interface_port = aedt_app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
+    assert not aedt_app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
+    assert page_port.composed_name != second_page_port.composed_name
+    assert page_port.composed_name != interface_port.name
+    assert page_port.composed_name != second_interface_port.name
+    assert interface_port.name != second_interface_port.name

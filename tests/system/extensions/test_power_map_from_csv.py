@@ -23,25 +23,28 @@
 # SOFTWARE.
 
 
-from pathlib import Path
+import shutil
 
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import main
 from ansys.aedt.core.icepak import Icepak
+from tests import TESTS_EXTENSIONS_PATH
 
 CSV_FILENAME = "icepak_classic_powermap.csv"
 TEST_SUBFOLDER = "T45"
-CSV_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / CSV_FILENAME
+CSV_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / CSV_FILENAME
 
 
-def test_power_map_success(add_app):
+def test_power_map_success(add_app, test_tmp_dir):
     """Test the successful execution of the power map creation in Icepak."""
-    DATA = PowerMapFromCSVExtensionData(file_path=CSV_FILE_PATH)
-    aedtapp = add_app("PowerMap", application=Icepak, subfolder=TEST_SUBFOLDER)
+    file = test_tmp_dir / CSV_FILENAME
+    shutil.copy2(CSV_FILE_PATH, file)
+    DATA = PowerMapFromCSVExtensionData(file_path=file)
+    aedtapp = add_app(application=Icepak)
 
     assert main(DATA)
     assert "power_map_0" in aedtapp.modeler.object_names
     assert "power_map_1" in aedtapp.modeler.object_names
     assert len([boundary.name for boundary in aedtapp.boundaries if boundary.name.startswith("Source_")]) == 2
 
-    aedtapp.close_project()
+    aedtapp.close_project(save=False)

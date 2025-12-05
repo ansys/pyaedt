@@ -24,6 +24,7 @@
 
 import base64
 import filecmp
+import shutil
 
 import pytest
 
@@ -31,18 +32,18 @@ from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from tests import TESTS_GENERAL_PATH
 
-test_subfolder = "T13"
-test_project_name = "Coax_HFSS_t13_231"
-cs_name = "Coordinate_System_231"
-cs1_name = "Coordinate_System1_231"
-cs2_name = "Coordinate_System2_231"
-cs3_name = "Coordinate_System3_231"
-image_f = "Coax_HFSS_v231.jpg"
+TEST_SUBFOLDER = "T13"
+TEST_PROJECT_NAME = "Coax_HFSS_t13"
+CS_NAME = "Coordinate_System_231"
+CS1_NAME = "Coordinate_System1_231"
+CS2_NAME = "Coordinate_System2_231"
+CS3_NAME = "Coordinate_System3_231"
+IMAGE_F = "Coax_HFSS.jpg"
 
 
 def _write_jpg(design_info, scratch):
     """Writes the jpg Image64 property of the design info to a temporary file and returns the filename."""
-    filename = scratch / (design_info["DesignName"] + ".jpg")
+    filename = scratch
     image_data_str = design_info["Image64"]
     with open(filename, "wb") as f:
         bs = base64.decodebytes(image_data_str.encode("ascii"))
@@ -50,48 +51,54 @@ def _write_jpg(design_info, scratch):
     return filename
 
 
-@pytest.fixture(params=[cs_name, cs1_name, cs2_name, cs3_name])
-def cs_app(add_app, request):
-    app = add_app(project_name=request.param, subfolder=test_subfolder)
+@pytest.fixture(params=[CS_NAME, CS1_NAME, CS2_NAME, CS3_NAME])
+def cs_app(add_app_example, request):
+    app = add_app_example(project=request.param, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name)
 
 
 @pytest.fixture
 def add_mat(add_app):
-    app = add_app(project_name="Add_material")
+    app = add_app()
     yield app
     app.close_project(app.project_name)
 
 
-def test_check_top_level_keys():
-    hfss_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / (test_project_name + ".aedt")
-    project_dict = load_entire_aedt_file(hfss_file)
+def test_check_top_level_keys(test_tmp_dir):
+    hfss_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / (TEST_PROJECT_NAME + ".aedt")
+    file = shutil.copy2(hfss_file, test_tmp_dir / (TEST_PROJECT_NAME + ".aedt"))
+
+    project_dict = load_entire_aedt_file(file)
     assert "AnsoftProject" in list(project_dict.keys())
     assert "AllReferencedFilesForProject" in list(project_dict.keys())
     assert "ProjectPreview" in list(project_dict.keys())
-    project_sub_key = load_keyword_in_aedt_file(hfss_file, "AnsoftProject")
+    project_sub_key = load_keyword_in_aedt_file(file, "AnsoftProject")
     assert ["AnsoftProject"] == list(project_sub_key.keys())
     assert project_dict["AnsoftProject"] == project_sub_key["AnsoftProject"]
 
 
-def test_check_design_info(local_scratch):
-    hfss_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / (test_project_name + ".aedt")
-    project_dict = load_entire_aedt_file(hfss_file)
+def test_check_design_info(test_tmp_dir):
+    hfss_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / (TEST_PROJECT_NAME + ".aedt")
+    file = shutil.copy2(hfss_file, test_tmp_dir / (TEST_PROJECT_NAME + ".aedt"))
+
+    project_dict = load_entire_aedt_file(file)
     # There is one design in this aedt file, so DesignInfo will be a dict
     design_info = project_dict["ProjectPreview"]["DesignInfo"]
     assert isinstance(design_info, dict)
     assert design_info["Factory"] == "HFSS"
     assert design_info["DesignName"] == "HFSSDesign"
     assert not design_info["IsSolved"]
-    jpg_file = _write_jpg(design_info, local_scratch.path)
-    assert filecmp.cmp(jpg_file, TESTS_GENERAL_PATH / "example_models" / test_subfolder / image_f)
+    jpg_file = _write_jpg(design_info, test_tmp_dir / IMAGE_F)
+    assert filecmp.cmp(jpg_file, TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / IMAGE_F)
 
 
-def test_check_design_type_names_jpg():
+def test_check_design_type_names_jpg(test_tmp_dir):
     # There are multiple designs in this aedt file, so DesignInfo will be a list
-    aedt_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "Cassegrain.aedt"
-    project_dict = load_entire_aedt_file(aedt_file)
+    aedt_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Cassegrain.aedt"
+    file = shutil.copy2(aedt_file, test_tmp_dir / (TEST_PROJECT_NAME + ".aedt"))
+
+    project_dict = load_entire_aedt_file(file)
     design_info = project_dict["ProjectPreview"]["DesignInfo"]
     assert isinstance(design_info, list)
     design_names = [design["DesignName"] for design in design_info]
@@ -103,9 +110,11 @@ def test_check_coordinate_system_retrival(cs_app):
     assert coordinate_systems
 
 
-def test_load_material_file():
-    mat_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "material_sample.amat"
-    project_dict = load_entire_aedt_file(mat_file)
+def test_load_material_file(test_tmp_dir):
+    mat_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "material_sample.amat"
+    file = shutil.copy2(mat_file, test_tmp_dir / "material_sample.amat")
+
+    project_dict = load_entire_aedt_file(file)
     assert project_dict["vacuum"]
     assert project_dict["vacuum"]["AttachedData"]["MatAppearanceData"]["Red"] == 230
     assert project_dict["pec"]
@@ -123,9 +132,11 @@ def test_load_material_file():
     assert project_dict["mat_example_2"]["specific_heat"] == "389"
 
 
-def test_add_material_from_amat(add_mat):
-    mat_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "material_sample.amat"
-    project_dict = load_entire_aedt_file(mat_file)
+def test_add_material_from_amat(add_mat, test_tmp_dir):
+    mat_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "material_sample.amat"
+    file = shutil.copy2(mat_file, test_tmp_dir / "material_sample.amat")
+
+    project_dict = load_entire_aedt_file(file)
     newmat = add_mat.materials.add_material("foe_mat", properties=project_dict["mat_example_1"])
     assert newmat.conductivity.value == "1100000"
     assert newmat.thermal_conductivity.value == "13.8"
@@ -136,9 +147,11 @@ def test_add_material_from_amat(add_mat):
     assert newmat.thermal_expansion_coefficient.value == "1.08e-05"
 
 
-def test_3dcomponents_array():
-    array_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "phased_array.aedt"
-    project_dict = load_entire_aedt_file(array_file)
+def test_3dcomponents_array(test_tmp_dir):
+    array_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "phased_array.aedt"
+    file = shutil.copy2(array_file, test_tmp_dir / "phased_array.aedt")
+
+    project_dict = load_entire_aedt_file(file)
     array = project_dict["AnsoftProject"]["HFSSModel"]["ArrayDefinition"]["ArrayObject"]
     cells = [
         [3, 4, 4, 4, 4, 4, 4, 3],

@@ -37,7 +37,7 @@ from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBa
 from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
 from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
 from ansys.aedt.core.generic.settings import is_linux
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
 
 default_center_freq = "1G"
 changed_freq = "500M"
@@ -49,7 +49,7 @@ changed_ripple = ".03"
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_multiple_designs(self, lumped_design):
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
@@ -112,7 +112,7 @@ class TestClass:
     def test_filter_multiple_bands_low_pass_frequency(self, lumped_design):
         lumped_design.attributes.filter_multiple_bands_enabled = True
         lumped_design.attributes.filter_class = FilterClass.BAND_HIGH
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.attributes.filter_multiple_bands_low_pass_frequency = changed_freq
             assert info.value.args[0] == "This filter does not have multiple bands low pass frequency"
@@ -124,7 +124,7 @@ class TestClass:
     def test_filter_multiple_bands_high_pass_frequency(self, lumped_design):
         lumped_design.attributes.filter_multiple_bands_enabled = True
         lumped_design.attributes.filter_class = FilterClass.BAND_BAND
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.attributes.filter_multiple_bands_high_pass_frequency = changed_freq
             assert info.value.args[0] == "This filter does not have multiple bands high pass frequency"
@@ -272,7 +272,7 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.LOW_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.lower_frequency = "905 M"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Low Pass filter does not have lower frequency"
         else:
             assert info.value.args[0] == "The Low Pass filter does not have pass band frequency"
@@ -294,7 +294,7 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.LOW_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.upper_frequency = "1.105 M"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Low Pass filter does not have upper frequency"
         else:
             assert info.value.args[0] == "The Low Pass filter does not have pass band frequency"
@@ -394,7 +394,7 @@ class TestClass:
     def test_stop_band_definition(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.stop_band_definition = StopbandDefinition.RATIO
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have stop band definition"
         else:
             assert info.value.args[0] == "The Butterworth filter does not have stop band ratio"
@@ -417,7 +417,7 @@ class TestClass:
     def test_stop_band_frequency(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.stop_band_frequency = "1.2 G"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have stop band frequency"
         else:
             assert info.value.args[0] == "The Butterworth and diplexer filters do not have stop band frequency"
@@ -425,7 +425,7 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.stop_band_frequency = "1.2 G"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Diplexer 1 filter does not have stop band frequency"
         else:
             assert info.value.args[0] == "The Diplexer 1 and diplexer filters do not have stop band frequency"
@@ -528,7 +528,7 @@ class TestClass:
     def test_bessel_normalized_delay_enabled(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.bessel_normalized_delay_enabled = True
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have Bessel normalized delay"
         else:
             assert info.value.args[0] == "The Butterworth filter does not have equiripple delay"
@@ -540,7 +540,7 @@ class TestClass:
     def test_bessel_normalized_delay_period(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.bessel_normalized_delay_period = "2"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have Bessel normalized delay period"
         else:
             assert info.value.args[0] == "The Butterworth filter does not have equiripple delay"
@@ -552,7 +552,7 @@ class TestClass:
         lumped_design.attributes.bessel_normalized_delay_enabled = False
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.bessel_normalized_delay_period = "1"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == (
                 "Equiripple delay option is disabled, it is not possible to define group delay ripple period "
                 "for this filter"
@@ -566,7 +566,7 @@ class TestClass:
     def test_bessel_normalized_delay_percentage(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.bessel_normalized_delay_percentage = BesselRipplePercentage.TEN
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have Bessel normalized delay percentage"
         else:
             assert info.value.args[0] == "The Butterworth filter has no ripple percentage parameter option"
@@ -616,7 +616,7 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_low_order = 5
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The asymmetric option is disabled"
         else:
             assert info.value.args[0] == "The Butterworth filter does not support asymmetric option"
@@ -639,7 +639,7 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_high_order = 5
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The asymmetric option is disabled"
         else:
             assert info.value.args[0] == "The Butterworth filter does not support asymmetric option"
@@ -662,14 +662,14 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_low_stop_band_ratio = "1.2"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have stop band ratio"
         else:
             assert info.value.args[0] == "The Butterworth filter does not support asymmetric option"
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_low_stop_band_ratio = "1.2"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The asymmetric option is disabled"
         else:
             assert info.value.args[0] == "The Elliptic filter does not support asymmetric option"
@@ -682,14 +682,14 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_high_stop_band_ratio = "1.2"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have stop band ratio"
         else:
             assert info.value.args[0] == "The Butterworth filter does not support asymmetric option"
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_high_stop_band_ratio = "1.2"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The asymmetric option is disabled"
         else:
             assert info.value.args[0] == "The Elliptic filter does not support asymmetric option"
@@ -702,14 +702,14 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_low_stop_band_attenuation_db = "40"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have stop band attenuation"
         else:
             assert info.value.args[0] == "The Butterworth filter does not support asymmetric option"
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_low_stop_band_attenuation_db = "40"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The asymmetric option is disabled"
         else:
             assert info.value.args[0] == "The Elliptic filter does not support asymmetric option"
@@ -722,14 +722,14 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_PASS
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_high_stop_band_attenuation_db = "40"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have stop band attenuation"
         else:
             assert info.value.args[0] == "The Butterworth filter does not support asymmetric option"
         lumped_design.attributes.filter_type = FilterType.ELLIPTIC
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.asymmetric_high_stop_band_attenuation_db = "40"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The asymmetric option is disabled"
         else:
             assert info.value.args[0] == "The Elliptic filter does not support asymmetric option"
@@ -741,7 +741,7 @@ class TestClass:
     def test_gaussian_transition(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.gaussian_transition = GaussianTransition.TRANSITION_3_DB
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have Gaussian transition"
         else:
             assert info.value.args[0] == "The Butterworth filter has no tranisiotn parameter option"
@@ -754,7 +754,7 @@ class TestClass:
     def test_gaussian_bessel_reflection(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.gaussian_bessel_reflection = GaussianBesselReflection.OPTION_1
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The Butterworth filter does not have Gaussian Bessel reflection"
         else:
             assert info.value.args[0] == "The Butterworth filter has no synthesis reflection option"
@@ -767,7 +767,7 @@ class TestClass:
     def test_even_order(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.even_order = True
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert (
                 info.value.args[0] == "The Butterworth, Low Pass, and odd filter does not have even order mode option"
             )
@@ -799,7 +799,7 @@ class TestClass:
         lumped_design.attributes.filter_order = 5
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.even_order_trn_zero = True
-            if config["desktopVersion"] > "2025.1":
+            if DESKTOP_VERSION > "2025.1":
                 assert info.value.args[0] == "The even order filter does not have transmission zeros"
             else:
                 assert info.value.args[0] == "The even order filter does not have transmission zeros"
@@ -807,7 +807,7 @@ class TestClass:
     def test_constrict_ripple(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.constrict_ripple = True
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "It is not possible to constrict ripple for Butterworth filter"
         else:
             assert info.value.args[0] == "It is not possible to constrict the ripple for this filter"
@@ -819,7 +819,7 @@ class TestClass:
     def test_single_point_ripple(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.single_point_ripple = True
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert (
                 info.value.args[0]
                 == "It is not possible to confine ripple to single frequency for Butterworth asymmetric filter"
@@ -837,7 +837,7 @@ class TestClass:
     def test_half_band_ripple(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.half_band_ripple = True
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert (
                 info.value.args[0]
                 == "It is not possible to use half of the zeros in the selected band for Butterworth asymmetric filter"
@@ -855,7 +855,7 @@ class TestClass:
     def test_constrict_ripple_percent(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.constrict_ripple_percent = "50%"
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "It is not possible to constrict ripple for Butterworth asymmetric filter"
         else:
             assert info.value.args[0] == "It is not possible to constrict the ripple for Butterworth asymmetric filters"
@@ -868,7 +868,7 @@ class TestClass:
     def test_ripple_constriction_band(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.ripple_constriction_band = RippleConstrictionBandSelect.PASS
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert (
                 info.value.args[0] == "The ripple constriction band is not available for Butterworth asymmetric filter"
             )
@@ -886,7 +886,7 @@ class TestClass:
     def test_single_point_ripple_inf_zeros(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.single_point_ripple_inf_zeros = SinglePointRippleInfZeros.RIPPLE_INF_ZEROS_1
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert (
                 info.value.args[0]
                 == "The single point ripple with infinite zeros are not available for Butterworth odd asymmetric filter"
@@ -930,7 +930,7 @@ class TestClass:
     def test_standard_delay_equ_pass_band_attenuation(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.standard_delay_equ_pass_band_attenuation = True
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The delay equalizer option is not set for this filter"
         else:
             assert (
@@ -945,7 +945,7 @@ class TestClass:
     def test_standard_delay_equ_pass_band_attenuation_value_db(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db = default_attenuation
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The delay equalizer option is not set for this filter"
         else:
             assert (
@@ -954,7 +954,7 @@ class TestClass:
         lumped_design.attributes.delay_equalizer = True
         with pytest.raises(RuntimeError) as info:
             lumped_design.attributes.standard_delay_equ_pass_band_attenuation_value_db = default_attenuation
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The standard delay equalizer pass band attenuation is enabled"
         else:
             assert info.value.args[0] == "The standard delay equalizer attenuation is enabled"

@@ -23,6 +23,7 @@
 # SOFTWARE.
 import json
 from pathlib import Path
+import shutil
 from unittest.mock import patch
 
 import pytest
@@ -39,14 +40,14 @@ MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"
 def hfss_app(add_app):
     app = add_app(application=Hfss)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_backend(mock_askopenfilename, hfss_app, local_scratch):
+def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir):
     """Test the examples provided in the via design extension."""
-    local_scratch.copyfolder(MODEL_FOLDER, local_scratch.path)
-    config_file = local_scratch.path / "config.json"
+    shutil.copytree(MODEL_FOLDER, test_tmp_dir, dirs_exist_ok=True)
+    config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
         json.dump(DATA, f, indent=4)
 
@@ -57,6 +58,11 @@ def test_backend(mock_askopenfilename, hfss_app, local_scratch):
     backend = MCADAssemblyBackend.load(data=extension.config_data)
     backend.run(hfss_app)
     assert hfss_app.modeler.layout_component_names == ["pcb1"]
-    assert set(hfss_app.modeler.user_defined_component_names) == set(
-        ["cable_1_2", "clamp_monitor", "case", "cable_2", "pcb1", "cable_1"]
-    )
+    assert set(hfss_app.modeler.user_defined_component_names) == {
+        "cable_1_2",
+        "clamp_monitor",
+        "case",
+        "cable_2",
+        "pcb1",
+        "cable_1",
+    }

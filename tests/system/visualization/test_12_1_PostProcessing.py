@@ -50,21 +50,21 @@ test_subfolder = "T12"
 def aedtapp(add_app):
     app = add_app(project_name=test_project_name, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def m2d_app(add_app):
     app = add_app(project_name=m2d_trace_export_table, subfolder=test_subfolder, application=ansys.aedt.core.Maxwell2d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
 def m2d_blank(add_app):
     app = add_app(application=ansys.aedt.core.Maxwell2d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 class TestClass:

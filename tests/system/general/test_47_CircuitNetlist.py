@@ -28,34 +28,31 @@ import pytest
 
 from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core.generic.general_methods import is_linux
-from tests.conftest import config
+from tests.conftest import NON_GRAPHICAL
 
-netlist = "netlist"
-test_subfolder = "T47"
-
-
-@pytest.fixture(scope="class")
-def netlist_test(add_app):
-    app = add_app(project_name=netlist, subfolder=test_subfolder, application=CircuitNetlist)
-    return app
+NETLIST = "netlist"
+TEST_SUBFOLDER = "T47"
 
 
-class TestClass:
-    @pytest.fixture(autouse=True)
-    def init(self, local_scratch):
-        self.local_scratch = local_scratch
+@pytest.fixture
+def netlist_test(add_app_example):
+    app = add_app_example(project=NETLIST, subfolder=TEST_SUBFOLDER, application=CircuitNetlist)
+    yield app
+    app.close_project(save_project=False)
 
-    def test_01_post(self, netlist_test):
-        if config["NonGraphical"]:
-            assert len(netlist_test.post.plots) == 0
-        else:
-            assert len(netlist_test.post.plots) == 1
 
-    def test_02_browse_log_file(self, netlist_test, local_scratch):
-        assert not netlist_test.browse_log_file()
-        netlist_test.analyze()
-        assert netlist_test.browse_log_file()
-        if not is_linux:
-            netlist_test.save_project()
-            assert not netlist_test.browse_log_file(Path(netlist_test.working_directory) / "logfiles")
-            assert netlist_test.browse_log_file(netlist_test.working_directory)
+def test_post(netlist_test):
+    if NON_GRAPHICAL:
+        assert len(netlist_test.post.plots) == 0
+    else:
+        assert len(netlist_test.post.plots) == 1
+
+
+def test_browse_log_file(netlist_test, test_tmp_dir):
+    assert not netlist_test.browse_log_file()
+    netlist_test.analyze()
+    assert netlist_test.browse_log_file(test_tmp_dir)
+    if not is_linux:
+        netlist_test.save_project()
+        assert not netlist_test.browse_log_file(Path(netlist_test.working_directory) / "logfiles")
+        assert netlist_test.browse_log_file(netlist_test.working_directory)

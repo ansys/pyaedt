@@ -31,18 +31,18 @@ import ansys.aedt.core.filtersolutions
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.settings import is_linux
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
 from tests.system.filter_solutions.test_filter import test_transmission_zeros
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_dll_path(self):
         assert os.path.exists(ansys.aedt.core.filtersolutions_core._dll_interface().dll_path)
 
     def test_version(self):
-        assert ansys.aedt.core.filtersolutions_core.api_version() == config["desktopVersion"]
+        assert ansys.aedt.core.filtersolutions_core.api_version() == DESKTOP_VERSION
 
     def test_string_to_enum(self):
         assert (

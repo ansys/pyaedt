@@ -39,22 +39,22 @@ def desktop():
     return
 
 
-def test_write_new_xml(local_scratch):
-    project_path = local_scratch.path / "Project"
+def test_write_new_xml(test_tmp_dir):
+    project_path = test_tmp_dir / "Project"
     project_path.mkdir(parents=True, exist_ok=True)
-    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    file_path = add_automation_tab(name="Test", lib_dir=test_tmp_dir)
     root = validate_file_exists_and_pyaedt_tabs_added(file_path)
     panels = root.findall("./panel")
     panel_names = [panel.attrib["label"] for panel in panels]
     assert len(panel_names) == 1
 
 
-def test_add_pyaedt_config_to_existing_existing_xml(local_scratch):
+def test_add_pyaedt_config_to_existing_existing_xml(test_tmp_dir):
     """
     First write a dummy XML with a different Panel and then add PyAEDT's tabs
     :return:
     """
-    project_path = local_scratch.path / "Project"
+    project_path = test_tmp_dir / "Project"
     project_path.mkdir(parents=True, exist_ok=True)
     file_path = project_path / "TabConfig.xml"
     with open(file_path, "w") as fid:
@@ -74,7 +74,7 @@ def test_add_pyaedt_config_to_existing_existing_xml(local_scratch):
 """
         )
 
-    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    file_path = add_automation_tab(name="Test", lib_dir=test_tmp_dir)
     root = validate_file_exists_and_pyaedt_tabs_added(file_path)
     panels = root.findall("./panel")
     panel_names = [panel.attrib["label"] for panel in panels]
@@ -82,8 +82,8 @@ def test_add_pyaedt_config_to_existing_existing_xml(local_scratch):
     assert "Panel_1" in panel_names
 
 
-def test_overwrite_existing_pyaedt_config(local_scratch):
-    project_path = local_scratch.path / "Project"
+def test_overwrite_existing_pyaedt_config(test_tmp_dir):
+    project_path = test_tmp_dir / "Project"
     project_path.mkdir(parents=True, exist_ok=True)
     file_path = project_path / "TabConfig.xml"
     with open(file_path, "w") as fid:
@@ -102,15 +102,15 @@ def test_overwrite_existing_pyaedt_config(local_scratch):
 </TabConfig>
 """
         )
-    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    file_path = add_automation_tab(name="Test", lib_dir=test_tmp_dir)
     root = validate_file_exists_and_pyaedt_tabs_added(file_path)
     panels = root.findall("./panel")
     panel_names = [panel.attrib["label"] for panel in panels]
     assert len(panel_names) == 2
 
 
-def test_write_to_existing_file_but_no_panels(local_scratch):
-    project_path = local_scratch.path / "Project"
+def test_write_to_existing_file_but_no_panels(test_tmp_dir):
+    project_path = test_tmp_dir / "Project"
     project_path.mkdir(parents=True, exist_ok=True)
     file_path = project_path / "TabConfig.xml"
     with open(file_path, "w") as fid:
@@ -121,7 +121,7 @@ def test_write_to_existing_file_but_no_panels(local_scratch):
 </TabConfig>
 """
         )
-    file_path = add_automation_tab(name="Test", lib_dir=local_scratch.path)
+    file_path = add_automation_tab(name="Test", lib_dir=test_tmp_dir)
     root = validate_file_exists_and_pyaedt_tabs_added(file_path)
     junks = root.findall("./junk")
     junk_names = [junk.attrib["label"] for junk in junks]
