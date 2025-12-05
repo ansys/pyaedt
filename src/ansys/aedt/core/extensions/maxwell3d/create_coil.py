@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from dataclasses import field
+from dataclasses import fields
 from dataclasses import make_dataclass
 import os
 from pathlib import Path
@@ -145,7 +146,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         export_points_button = ttk.Button(
             tab, text="Parameters", command=self.show_pictures_popup, width=10, style="PyAEDT.TButton"
         )
-        export_points_button.grid(row=row, column=0, sticky="w", **DEFAULT_PADDING)
+        export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
     def create_parameter_inputs(self, tab, tab_name):
         """Create parameter input widgets for a category."""
@@ -247,7 +248,22 @@ def main(data: CoilExtensionData):
             0,
         ]
     # Create coil profile
-    coil.create_sweep_profile(start_point, polyline)
+    coil_name = coil.create_sweep_profile(start_point, polyline)
+
+    # Create and replace 3D Component
+    comp_path = Path(aedtapp.working_directory, coil_name + ".a3dcomp")
+    params = [f.name for f in fields(data)] & aedtapp.variable_manager.design_variables.keys()
+    aedtapp.modeler.create_3dcomponent(
+        input_file=str(comp_path),
+        variables_to_include=list(params),
+        name=coil_name,
+        assignment=[coil_name],
+    )
+    aedtapp.modeler.replace_3dcomponent(
+        name=coil_name,
+        variables_to_include=list(params),
+        assignment=[coil_name],
+    )
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         aedtapp.release_desktop(False, False)
