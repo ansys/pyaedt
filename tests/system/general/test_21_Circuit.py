@@ -21,75 +21,74 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from pathlib import Path
+import shutil
 import time
 
 import pytest
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core import Edb
 from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
+from tests.conftest import NON_GRAPHICAL
 
-test_subfolder = "T21"
+TEST_SUBFOLDER = "T21"
 
-if config["desktopVersion"] > "2022.2":
-    diff_proj_name = "differential_pairs_231"
-else:
-    diff_proj_name = "differential_pairs"
-netlist1 = "netlist_small.cir"
-netlist2 = "Schematic1.qcv"
-touchstone = "SSN_1.5_ssn.s6p"
-touchstone_custom = "SSN_custom.s6p"
-touchstone2 = "V3P3S0.ts"
-ami_project = "AMI_Example"
-netlist_file2 = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / netlist2
-netlist_file1 = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / netlist1
-touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
-touchstone_file2 = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone2
-touchstone_file_custom = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
+DIFF_PROJECT = "differential_pairs_231"
+NETLIST1 = "netlist_small.cir"
+NETLIST2 = "Schematic1.qcv"
+TOUCHSTONE = "SSN_1.5_ssn.s6p"
+TOUCHSTONE_CUSTOM = "SSN_custom.s6p"
+TOUCHSTONE2 = "V3P3S0.ts"
+AMI_PROJECT = "AMI_Example"
+NETLIST_FILE2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / NETLIST2
+NETLIST_FILE1 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / NETLIST1
+TOUCHSTONE_FILE = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE
+TOUCHSTONE_FILE2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE2
+TOUCHSTONE_FILE_CUSTOM = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE_CUSTOM
 
 
-@pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(application=Circuit, subfolder=test_subfolder)
+@pytest.fixture
+def aedt_app(add_app):
+    app = add_app(application=Circuit)
     app.modeler.schematic_units = "mil"
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
-def circuitprj(add_app):
-    app = add_app(diff_proj_name, application=Circuit, subfolder=test_subfolder)
+@pytest.fixture
+def circuit_app(add_app_example):
+    app = add_app_example(project=DIFF_PROJECT, application=Circuit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
-def ami_model(add_app):
-    app = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
+@pytest.fixture
+def ami_model(add_app_example):
+    app = add_app_example(project=AMI_PROJECT, application=Circuit, subfolder="T01")
     yield app
     app.close_project(app.project_name, save=False)
 
 
-def test_create_inductor(aedtapp):
-    myind = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
+def test_create_inductor(aedt_app):
+    myind = aedt_app.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
     assert type(myind.id) is int
     assert myind.parameters["L"] == "1e-09"
 
 
-def test_create_resistor(aedtapp):
-    myres = aedtapp.modeler.schematic.create_resistor(value=50, location=[2000, 1000])
+def test_create_resistor(aedt_app):
+    myres = aedt_app.modeler.schematic.create_resistor(value=50, location=[2000, 1000])
     assert myres.refdes != ""
     assert type(myres.id) is int
     assert myres.parameters["R"] == "50"
 
 
-def test_create_capacitor(aedtapp):
-    mycap = aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
+def test_create_capacitor(aedt_app):
+    mycap = aedt_app.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
     assert type(mycap.id) is int
     assert mycap.parameters["C"] == "1e-12"
     tol = 1e-12
@@ -97,69 +96,69 @@ def test_create_capacitor(aedtapp):
     assert abs(mycap.pins[0].location[0] - 800) < tol
 
 
-def test_getpin_names(aedtapp):
-    mycap2 = aedtapp.modeler.schematic.create_capacitor(value=1e-12)
-    pinnames = aedtapp.modeler.schematic.get_pins(mycap2)
-    pinnames2 = aedtapp.modeler.schematic.get_pins(mycap2.id)
-    pinnames3 = aedtapp.modeler.schematic.get_pins(mycap2.composed_name)
+def test_getpin_names(aedt_app):
+    mycap2 = aedt_app.modeler.schematic.create_capacitor(value=1e-12)
+    pinnames = aedt_app.modeler.schematic.get_pins(mycap2)
+    pinnames2 = aedt_app.modeler.schematic.get_pins(mycap2.id)
+    pinnames3 = aedt_app.modeler.schematic.get_pins(mycap2.composed_name)
     assert pinnames2 == pinnames3
     assert type(pinnames) is list
     assert len(pinnames) == 2
 
 
-def test_getpin_location(aedtapp):
-    for el in aedtapp.modeler.schematic.components:
-        pinnames = aedtapp.modeler.schematic.get_pins(el)
+def test_getpin_location(aedt_app):
+    for el in aedt_app.modeler.schematic.components:
+        pinnames = aedt_app.modeler.schematic.get_pins(el)
         for pinname in pinnames:
-            pinlocation = aedtapp.modeler.schematic.get_pin_location(el, pinname)
+            pinlocation = aedt_app.modeler.schematic.get_pin_location(el, pinname)
             assert len(pinlocation) == 2
 
 
-def test_add_pin_iport(aedtapp):
-    mycap3 = aedtapp.modeler.schematic.create_capacitor(value=1e-12)
-    assert aedtapp.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
-    assert len(aedtapp.get_all_sparameter_list) == 3
-    assert len(aedtapp.get_all_return_loss_list()) == 2
-    assert len(aedtapp.get_all_return_loss_list(math_formula="abs")) == 2
-    assert len(aedtapp.get_all_insertion_loss_list()) == 1
-    assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 1
-    assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs", nets="ive")) == 1
-    assert len(aedtapp.get_next_xtalk_list()) == 1
-    assert len(aedtapp.get_next_xtalk_list(math_formula="abs")) == 1
-    assert len(aedtapp.get_fext_xtalk_list()) == 2
-    assert len(aedtapp.get_fext_xtalk_list(math_formula="abs")) == 2
+def test_add_pin_iport(aedt_app):
+    mycap3 = aedt_app.modeler.schematic.create_capacitor(value=1e-12)
+    assert aedt_app.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
+    assert len(aedt_app.get_all_sparameter_list) == 3
+    assert len(aedt_app.get_all_return_loss_list()) == 2
+    assert len(aedt_app.get_all_return_loss_list(math_formula="abs")) == 2
+    assert len(aedt_app.get_all_insertion_loss_list()) == 1
+    assert len(aedt_app.get_all_insertion_loss_list(math_formula="abs")) == 1
+    assert len(aedt_app.get_all_insertion_loss_list(math_formula="abs", nets="ive")) == 1
+    assert len(aedt_app.get_next_xtalk_list()) == 1
+    assert len(aedt_app.get_next_xtalk_list(math_formula="abs")) == 1
+    assert len(aedt_app.get_fext_xtalk_list()) == 2
+    assert len(aedt_app.get_fext_xtalk_list(math_formula="abs")) == 2
 
 
-def test_create_component(aedtapp):
-    assert aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
-    assert aedtapp.modeler.schematic.create_new_component_from_symbol(
+def test_create_component(aedt_app):
+    assert aedt_app.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
+    assert aedt_app.modeler.schematic.create_new_component_from_symbol(
         "Test1", [1, 2], parameters=["Author:=", "NumTerminals:="], values=["pyaedt", 2]
     )
 
 
-def test_create_setup(aedtapp):
+def test_create_setup(aedt_app):
     setup_name = "LNA"
-    LNA_setup = aedtapp.create_setup(setup_name)
+    LNA_setup = aedt_app.create_setup(setup_name)
     assert LNA_setup.name == "LNA"
 
 
-def test_import_mentor_netlist(aedtapp, local_scratch):
-    netlist_file = local_scratch.copyfile(netlist_file2)
-    assert aedtapp.create_schematic_from_mentor_netlist(netlist_file)
+def test_import_mentor_netlist(aedt_app, test_tmp_dir):
+    netlist_file = shutil.copy2(NETLIST_FILE2, test_tmp_dir / NETLIST2)
+    assert aedt_app.create_schematic_from_mentor_netlist(netlist_file)
 
 
-def test_import_netlist(aedtapp, local_scratch):
-    netlist_file = local_scratch.copyfile(netlist_file1)
-    aedtapp.modeler.schematic.limits_mils = 5000
-    assert aedtapp.create_schematic_from_netlist(netlist_file)
+def test_import_netlist(aedt_app, test_tmp_dir):
+    netlist_file = shutil.copy2(NETLIST_FILE1, test_tmp_dir / NETLIST1)
+    aedt_app.modeler.schematic.limits_mils = 5000
+    assert aedt_app.create_schematic_from_netlist(netlist_file)
 
 
-def test_import_touchstone(aedtapp, local_scratch):
-    touchstone_1 = local_scratch.copyfile(touchstone_file)
-    touchstone_2 = local_scratch.copyfile(touchstone_file2)
-    aedtapp.modeler.schematic_units = "mils"
-    ports = aedtapp.import_touchstone_solution(touchstone_1)
-    ports2 = aedtapp.import_touchstone_solution(touchstone_2)
+def test_import_touchstone(aedt_app, test_tmp_dir):
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
+    touchstone_2 = shutil.copy2(TOUCHSTONE_FILE2, test_tmp_dir / TOUCHSTONE2)
+    aedt_app.modeler.schematic_units = "mils"
+    ports = aedt_app.import_touchstone_solution(str(touchstone_1))
+    ports2 = aedt_app.import_touchstone_solution(str(touchstone_2))
     numports = len(ports)
     assert numports == 6
     numports2 = len(ports2)
@@ -167,33 +166,33 @@ def test_import_touchstone(aedtapp, local_scratch):
     tx = ports[: int(numports / 2)]
     rx = ports[int(numports / 2) :]
     insertions = [f"dB(S({i},{j}))" for i, j in zip(tx, rx)]
-    assert aedtapp.create_touchstone_report("Insertion Losses", insertions)
-    touchstone_data = aedtapp.get_touchstone_data()
+    assert aedt_app.create_touchstone_report("Insertion Losses", insertions)
+    touchstone_data = aedt_app.get_touchstone_data()
     assert touchstone_data
 
 
-def test_export_fullwave(aedtapp, local_scratch):
-    touchstone_1 = local_scratch.copyfile(touchstone_file)
-    output = aedtapp.export_fullwave_spice(touchstone_1, is_solution_file=True)
+def test_export_fullwave(aedt_app, test_tmp_dir):
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
+    output = aedt_app.export_fullwave_spice(filename=str(touchstone_1), is_solution_file=True)
     assert output
 
 
-def test_connect_components(aedtapp):
-    myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
-    myind2 = aedtapp.modeler.schematic.create_inductor("L1001", 1e-9)
-    myind3 = aedtapp.modeler.schematic.create_inductor("L1002", 1e-9)
-    myres = aedtapp.modeler.schematic.create_resistor("R100", 50)
-    mycap = aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
-    portname = aedtapp.modeler.schematic.create_interface_port("Port1")
-    assert len(aedtapp.excitation_names) > 0
+def test_connect_components(aedt_app):
+    myind = aedt_app.modeler.schematic.create_inductor("L100", 1e-9)
+    myind2 = aedt_app.modeler.schematic.create_inductor("L1001", 1e-9)
+    myind3 = aedt_app.modeler.schematic.create_inductor("L1002", 1e-9)
+    myres = aedt_app.modeler.schematic.create_resistor("R100", 50)
+    mycap = aedt_app.modeler.schematic.create_capacitor("C100", 1e-12)
+    portname = aedt_app.modeler.schematic.create_interface_port("Port1")
+    assert len(aedt_app.excitation_names) > 0
     assert "Port1" in portname.name
     assert myind.pins[0].connect_to_component(portname.pins[0])
     assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-    assert aedtapp.modeler.connect_schematic_components(myres.schematic_id, mycap.schematic_id, pin_starting=1)
-    assert aedtapp.modeler.connect_schematic_components(
+    assert aedt_app.modeler.connect_schematic_components(myres.schematic_id, mycap.schematic_id, pin_starting=1)
+    assert aedt_app.modeler.connect_schematic_components(
         myind2, myind3, pin_starting=["n1", "n2"], pin_ending=["n2", "n1"], use_wire=False
     )
-    gnd = aedtapp.modeler.schematic.create_gnd()
+    gnd = aedt_app.modeler.schematic.create_gnd()
     assert mycap.pins[1].connect_to_component(gnd.pins[0])
     # create_interface_port
     L1_pins = myind.pins
@@ -202,16 +201,16 @@ def test_connect_components(aedtapp):
         L1_pin2location[pin.name] = pin.location
 
 
-def test_connect_components_b(aedtapp):
-    myind = aedtapp.modeler.schematic.create_inductor("L101", 1e-9)
-    myres = aedtapp.modeler.schematic.create_resistor("R101", 50)
-    mycap = aedtapp.modeler.schematic.create_capacitor("C1", 1)
-    p2 = aedtapp.modeler.schematic.create_interface_port("Port2")
+def test_connect_components_b(aedt_app):
+    myind = aedt_app.modeler.schematic.create_inductor("L101", 1e-9)
+    myres = aedt_app.modeler.schematic.create_resistor("R101", 50)
+    mycap = aedt_app.modeler.schematic.create_capacitor("C1", 1)
+    p2 = aedt_app.modeler.schematic.create_interface_port("Port2")
     assert not p2.microwave_symbol
     p2.microwave_symbol = True
     assert p2.microwave_symbol
 
-    assert "Port2" in aedtapp.modeler.schematic.nets
+    assert "Port2" in aedt_app.modeler.schematic.nets
     assert myind.pins[1].connect_to_component(myres.pins[1], "port_name_test")
     assert mycap.pins[0].connect_to_component(myres.pins[0], "port_name_test2")
     p2.reference_node = myres.pins[1].net
@@ -220,48 +219,48 @@ def test_connect_components_b(aedtapp):
     assert p2.reference_node == mycap.pins[0].net
     p2.reference_node = "Ground"
     assert p2.reference_node == "Ground"
-    assert "port_name_test" in aedtapp.modeler.schematic.nets
+    assert "port_name_test" in aedt_app.modeler.schematic.nets
 
 
-def test_properties(aedtapp):
-    assert aedtapp.modeler.model_units
+def test_properties(aedt_app):
+    assert aedt_app.modeler.model_units
 
 
 # TODO: Remove test skip once https://github.com/ansys/pyaedt/issues/6333 is fixed
 @pytest.mark.skipif(is_linux, reason="Crashes on Linux in non-graphical when the component is connected.")
-def test_move(aedtapp):
-    aedtapp.modeler.schematic_units = "mil"
-    myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
-    aedtapp.modeler.schematic_units = "meter"
-    assert aedtapp.modeler.move("L14", [0, -0.00508])
+def test_move(aedt_app):
+    aedt_app.modeler.schematic_units = "mil"
+    myind = aedt_app.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
+    aedt_app.modeler.schematic_units = "meter"
+    assert aedt_app.modeler.move("L14", [0, -0.00508])
     assert myind.location == [0.01016, 0.00508]
-    aedtapp.modeler.schematic_units = "mil"
-    assert aedtapp.modeler.move("L14", [0, 200])
+    aedt_app.modeler.schematic_units = "mil"
+    assert aedt_app.modeler.move("L14", [0, 200])
     assert myind.location == [400.0, 400.0]
 
 
-def test_rotate(aedtapp):
-    myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
-    assert aedtapp.modeler.rotate(
+def test_rotate(aedt_app):
+    myind = aedt_app.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
+    assert aedt_app.modeler.rotate(
         myind,
     )
 
 
-def test_read_touchstone(local_scratch):
+def test_read_touchstone(test_tmp_dir):
     from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
 
-    touchstone_1 = local_scratch.copyfile(touchstone_file)
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE)
     data = read_touchstone(touchstone_1)
     assert len(data.port_names) > 0
 
 
-def test_export_touchstone(aedtapp, local_scratch):
-    myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
-    aedtapp.modeler.schematic.create_interface_port(name="Port1", location=myind.pins[0].location)
-    aedtapp.modeler.schematic.create_interface_port(name="Port2", location=myind.pins[1].location)
+def test_export_touchstone(aedt_app, test_tmp_dir):
+    myind = aedt_app.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
+    aedt_app.modeler.schematic.create_interface_port(name="Port1", location=myind.pins[0].location)
+    aedt_app.modeler.schematic.create_interface_port(name="Port2", location=myind.pins[1].location)
 
     setup_name = "Dom_LNA"
-    LNA_setup = aedtapp.create_setup(setup_name)
+    LNA_setup = aedt_app.create_setup(setup_name)
     LNA_setup.SweepDefinition = [
         ("Variable", "Freq"),
         ("Data", "LIN 1GHz 5GHz 1001"),
@@ -269,23 +268,23 @@ def test_export_touchstone(aedtapp, local_scratch):
         ("Synchronize", 0),
     ]
     assert LNA_setup.update()
-    assert aedtapp.analyze("Dom_LNA")
+    assert aedt_app.analyze("Dom_LNA")
     time.sleep(2)
     solution_name = "Dom_LNA"
     sweep_name = None
-    file_name = Path(local_scratch.path) / "new.s2p"
-    assert aedtapp.export_touchstone(solution_name, sweep_name, file_name)
+    file_name = test_tmp_dir / "new.s2p"
+    assert aedt_app.export_touchstone(solution_name, sweep_name, file_name)
     assert Path(file_name).exists()
-    assert aedtapp.existing_analysis_sweeps[0] == solution_name
-    assert aedtapp.setup_names[0] == solution_name
-    assert aedtapp.export_touchstone(solution_name, sweep_name)
-    exported_files = aedtapp.export_results()
+    assert aedt_app.existing_analysis_sweeps[0] == solution_name
+    assert aedt_app.setup_names[0] == solution_name
+    assert aedt_app.export_touchstone(solution_name, sweep_name)
+    exported_files = aedt_app.export_results()
     assert len(exported_files) > 0
 
 
-def test_create_sweeps(aedtapp):
+def test_create_sweeps(aedt_app):
     setup_name = "Sweep_LNA"
-    LNA_setup = aedtapp.create_setup(setup_name)
+    LNA_setup = aedt_app.create_setup(setup_name)
     LNA_setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
     assert LNA_setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
     LNA_setup.add_sweep_points("Freq", [11, 12, 13.4], "GHz", override_existing_sweep=False)
@@ -297,20 +296,20 @@ def test_create_sweeps(aedtapp):
     assert LNA_setup.props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
 
 
-def test_create_eye_setups(aedtapp):
+def test_create_eye_setups(aedt_app):
     setup_name = "Dom_Verify"
-    assert aedtapp.create_setup(setup_name, "NexximVerifEye")
+    assert aedt_app.create_setup(setup_name, "NexximVerifEye")
     setup_name = "Dom_Quick"
-    assert aedtapp.create_setup(setup_name, "NexximQuickEye")
+    assert aedt_app.create_setup(setup_name, "NexximQuickEye")
     setup_name = "Dom_AMI"
-    setup = aedtapp.create_setup(setup_name, "NexximAMI")
+    setup = aedt_app.create_setup(setup_name, "NexximAMI")
     assert setup
     setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
     assert setup.props["SweepDefinition"]["Data"] == "LIN 1GHz 2GHz 0.01GHz"
 
 
 @pytest.mark.skipif(
-    is_linux and config["desktopVersion"] == "2024.1",
+    is_linux and DESKTOP_VERSION == "2024.1",
     reason="Project with multiple circuit designs is not working.",
 )
 def test_create_ami_plots(ami_model):
@@ -350,77 +349,79 @@ def test_create_ami_plots(ami_model):
     )
 
 
-@pytest.mark.skipif(config["desktopVersion"] > "2021.2", reason="Skipped on versions higher than 2021.2")
-def test_create_ami_plots_b(aedtapp):
+@pytest.mark.skipif(DESKTOP_VERSION > "2021.2", reason="Skipped on versions higher than 2021.2")
+def test_create_ami_plots_b(aedt_app):
     assert (
-        aedtapp.post.create_statistical_eye_plot(
+        aedt_app.post.create_statistical_eye_plot(
             "Dom_Verify",
             "b_input_15.int_ami_rx.eye_probe",
-            aedtapp.available_variations.nominal,
+            aedt_app.available_variations.nominal,
             plot_name="MyReportV",
         )
         == "MyReportV"
     )
 
 
-def test_assign_voltage_sinusoidal_excitation_to_ports(aedtapp):
-    aedtapp.modeler.schematic.create_interface_port("Port1")
-    aedtapp.modeler.schematic.create_interface_port("Port2")
+def test_assign_voltage_sinusoidal_excitation_to_ports(aedt_app):
+    aedt_app.modeler.schematic.create_interface_port("Port1")
+    aedt_app.modeler.schematic.create_interface_port("Port2")
     ports_list = ["Port1", "Port2"]
-    assert aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
+    assert aedt_app.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
 
-def test_assign_current_sinusoidal_excitation_to_ports(aedtapp):
-    aedtapp.modeler.schematic.create_interface_port("Port1")
+def test_assign_current_sinusoidal_excitation_to_ports(aedt_app):
+    aedt_app.modeler.schematic.create_interface_port("Port1")
     ports_list = ["Port1"]
-    assert aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list)
+    assert aedt_app.assign_current_sinusoidal_excitation_to_ports(ports_list)
 
 
-def test_assign_power_sinusoidal_excitation_to_ports(aedtapp):
-    aedtapp.modeler.schematic.create_interface_port("Port2")
+def test_assign_power_sinusoidal_excitation_to_ports(aedt_app):
+    aedt_app.modeler.schematic.create_interface_port("Port2")
     ports_list = ["Port2"]
-    assert aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
+    assert aedt_app.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
 
-def test_new_connect_components(aedtapp):
-    myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
-    myres = aedtapp.modeler.components.create_resistor("R100", 50)
-    mycap = aedtapp.modeler.components.create_capacitor("C100", 1e-12)
-    myind2 = aedtapp.modeler.components.create_inductor("L101", 1e-9)
-    port = aedtapp.modeler.components.create_interface_port("Port1")
+def test_new_connect_components(aedt_app):
+    myind = aedt_app.modeler.schematic.create_inductor("L100", 1e-9)
+    myres = aedt_app.modeler.components.create_resistor("R100", 50)
+    mycap = aedt_app.modeler.components.create_capacitor("C100", 1e-12)
+    myind2 = aedt_app.modeler.components.create_inductor("L101", 1e-9)
+    port = aedt_app.modeler.components.create_interface_port("Port1")
     assert not myind2.model_name
     assert not myind2.model_data
-    assert aedtapp.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
-    assert aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
+    assert aedt_app.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
+    assert aedt_app.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
 
 
-def test_import_model(aedtapp):
-    touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
-    t1 = aedtapp.modeler.schematic.create_touchstone_component(touch)
+def test_import_model(aedt_app, test_tmp_dir):
+    touch_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / TOUCHSTONE
+    touch = shutil.copy2(touch_original, test_tmp_dir / TOUCHSTONE)
+    t1 = aedt_app.modeler.schematic.create_touchstone_component(touch)
     assert t1
     assert len(t1.pins) == 6
     assert t1.model_data
     t1.model_data.props["NexximCustomization"]["Passivity"] = 7
     assert t1.model_data.update()
-    t2 = aedtapp.modeler.schematic.create_touchstone_component(touch)
+    t2 = aedt_app.modeler.schematic.create_touchstone_component(touch)
     assert t2
     t2.model_data.props["NexximCustomization"]["Passivity"] = 0
     assert t2.model_data.update()
-    touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "y4bm_rdl_dq_byte0.s26p"
-    t1 = aedtapp.modeler.schematic.create_touchstone_component(touch)
+    touch_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "y4bm_rdl_dq_byte0.s26p"
+    touch2 = shutil.copy2(touch_original2, test_tmp_dir / "y4bm_rdl_dq_byte0.s26p")
+    t1 = aedt_app.modeler.schematic.create_touchstone_component(touch2)
     assert t1
     assert len(t1.pins) == 26
 
 
-def test_zoom_to_fit(aedtapp):
-    aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
-    aedtapp.modeler.components.create_resistor("R100", 50)
-    aedtapp.modeler.components.create_capacitor("C100", 1e-12)
-    aedtapp.modeler.zoom_to_fit()
+def test_zoom_to_fit(aedt_app):
+    aedt_app.modeler.schematic.create_inductor("L100", 1e-9)
+    aedt_app.modeler.components.create_resistor("R100", 50)
+    aedt_app.modeler.components.create_capacitor("C100", 1e-12)
+    aedt_app.modeler.zoom_to_fit()
 
 
-def test_component_catalog(aedtapp):
-    comp_catalog = aedtapp.modeler.components.components_catalog
+def test_component_catalog(aedt_app):
+    comp_catalog = aedt_app.modeler.components.components_catalog
     assert comp_catalog["Capacitors:Cap_"]
     assert comp_catalog["capacitors:cAp_"]
     assert isinstance(comp_catalog.find_components("cap"), list)
@@ -429,8 +430,8 @@ def test_component_catalog(aedtapp):
     assert comp_catalog["LISN:CISPR25_LISN"].props
 
 
-def test_set_differential_pairs(circuitprj):
-    assert circuitprj.set_differential_pair(
+def test_set_differential_pairs(circuit_app):
+    assert circuit_app.set_differential_pair(
         assignment="Port3",
         reference="Port4",
         common_mode=None,
@@ -438,42 +439,45 @@ def test_set_differential_pairs(circuitprj):
         common_reference=34,
         differential_reference=123,
     )
-    assert circuitprj.set_differential_pair(assignment="Port3", reference="Port5")
+    assert circuit_app.set_differential_pair(assignment="Port3", reference="Port5")
 
 
-def test_load_and_save_diff_pair_file(circuitprj, local_scratch):
-    diff_def_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "differential_pairs_definition.txt"
-    diff_file = local_scratch.copyfile(diff_def_file)
-    assert circuitprj.load_diff_pairs_from_file(diff_file)
-    diff_file2 = Path(local_scratch.path) / "diff_file2.txt"
-    assert circuitprj.save_diff_pairs_to_file(diff_file2)
+def test_load_and_save_diff_pair_file(circuit_app, test_tmp_dir):
+    diff_def_file = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "differential_pairs_definition.txt"
+    diff_file = shutil.copy2(diff_def_file, test_tmp_dir / "diff_def_file.txt")
+    assert circuit_app.load_diff_pairs_from_file(diff_file)
+    diff_file2 = test_tmp_dir / "diff_file2.txt"
+    assert circuit_app.save_diff_pairs_to_file(diff_file2)
     with open(diff_file2, "r") as fh:
         lines = fh.read().splitlines()
     assert len(lines) == 3
 
 
-def test_create_circuit_from_spice(aedtapp):
-    model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
-    assert aedtapp.modeler.schematic.create_component_from_spicemodel(model)
-    assert aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
-    assert not aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
+def test_create_circuit_from_spice(aedt_app, test_tmp_dir):
+    model_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test.lib"
+    model = shutil.copy2(model_o, test_tmp_dir / "test.lib")
+    assert aedt_app.modeler.schematic.create_component_from_spicemodel(model)
+    assert aedt_app.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
+    assert not aedt_app.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
 
-def test_create_circuit_from_spice_edit_symbol(aedtapp):
-    model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
-    assert aedtapp.modeler.schematic.create_component_from_spicemodel(
+def test_create_circuit_from_spice_edit_symbol(aedt_app, test_tmp_dir):
+    model_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test.lib"
+    model = shutil.copy2(model_o, test_tmp_dir / "test.lib")
+
+    assert aedt_app.modeler.schematic.create_component_from_spicemodel(
         input_file=model, model="GRM5678", symbol="nexx_cap"
     )
-    assert aedtapp.modeler.schematic.create_component_from_spicemodel(
+    assert aedt_app.modeler.schematic.create_component_from_spicemodel(
         input_file=model, model="GRM6789", symbol="nexx_inductor"
     )
-    assert aedtapp.modeler.schematic.create_component_from_spicemodel(
+    assert aedt_app.modeler.schematic.create_component_from_spicemodel(
         input_file=model, model="GRM9012", symbol="nexx_res"
     )
 
 
-def test_create_subcircuit(aedtapp):
-    subcircuit = aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
+def test_create_subcircuit(aedt_app):
+    subcircuit = aedt_app.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
     assert type(subcircuit.location) is list
     assert type(subcircuit.id) is int
     assert subcircuit.component_info
@@ -483,13 +487,13 @@ def test_create_subcircuit(aedtapp):
 
 
 @pytest.mark.skipif(
-    config["NonGraphical"] and config["desktopVersion"] < "2023.1",
+    NON_GRAPHICAL and DESKTOP_VERSION < "2023.1",
     reason="Duplicate doesn't work in non-graphical mode.",
 )
-def test_duplicate(aedtapp):  # pragma: no cover
-    subcircuit = aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
-    aedtapp.modeler.schematic_units = "meter"
-    new_subcircuit = aedtapp.modeler.schematic.duplicate(subcircuit.composed_name, location=[0.0508, 0.0], angle=0)
+def test_duplicate(aedt_app):  # pragma: no cover
+    subcircuit = aedt_app.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+    aedt_app.modeler.schematic_units = "meter"
+    new_subcircuit = aedt_app.modeler.schematic.duplicate(subcircuit.composed_name, location=[0.0508, 0.0], angle=0)
 
     assert type(new_subcircuit.location) is list
     assert type(new_subcircuit.id) is int
@@ -498,107 +502,108 @@ def test_duplicate(aedtapp):  # pragma: no cover
     assert new_subcircuit.angle == 0.0
 
 
-def test_push_down(aedtapp):
-    subcircuit_1 = aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
-    active_project = aedtapp.oproject.GetActiveDesign()
-    if is_linux and config["desktopVersion"] == "2024.1":
+def test_push_down(aedt_app):
+    subcircuit_1 = aedt_app.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+    active_project = aedt_app.oproject.GetActiveDesign()
+    if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedtapp.desktop_class.close_windows()
+        aedt_app.desktop_class.close_windows()
     active_project_name_1 = active_project.GetName()
-    aedtapp.pop_up()
-    subcircuit_2 = aedtapp.modeler.schematic.create_subcircuit(
+    aedt_app.pop_up()
+    subcircuit_2 = aedt_app.modeler.schematic.create_subcircuit(
         location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
     )
-    active_project = aedtapp.oproject.GetActiveDesign()
-    if is_linux and config["desktopVersion"] == "2024.1":
+    active_project = aedt_app.oproject.GetActiveDesign()
+    if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedtapp.desktop_class.close_windows()
+        aedt_app.desktop_class.close_windows()
     active_project_name_3 = active_project.GetName()
     assert active_project_name_1 == active_project_name_3
     assert subcircuit_2.component_info["RefDes"] == "U2"
-    assert aedtapp.push_down(subcircuit_1)
+    assert aedt_app.push_down(subcircuit_1)
 
 
-def test_pop_up(aedtapp):
-    assert aedtapp.pop_up()
-    active_project = aedtapp.oproject.GetActiveDesign()
-    if is_linux and config["desktopVersion"] == "2024.1":
+def test_pop_up(aedt_app):
+    assert aedt_app.pop_up()
+    active_project = aedt_app.oproject.GetActiveDesign()
+    if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedtapp.desktop_class.close_windows()
+        aedt_app.desktop_class.close_windows()
     active_project_name_1 = active_project.GetName()
-    aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
-    assert aedtapp.pop_up()
-    active_project = aedtapp.oproject.GetActiveDesign()
-    if is_linux and config["desktopVersion"] == "2024.1":
+    aedt_app.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+    assert aedt_app.pop_up()
+    active_project = aedt_app.oproject.GetActiveDesign()
+    if is_linux and DESKTOP_VERSION == "2024.1":
         time.sleep(1)
-        aedtapp.desktop_class.close_windows()
+        aedt_app.desktop_class.close_windows()
     active_project_name_2 = active_project.GetName()
     assert active_project_name_1 == active_project_name_2
 
 
-def test_activate_variables(aedtapp):
-    aedtapp["desvar"] = "1mm"
-    aedtapp["$prjvar"] = "2mm"
-    assert aedtapp["desvar"] == "1mm"
-    assert aedtapp["$prjvar"] == "2mm"
-    assert aedtapp.activate_variable_tuning("desvar")
-    assert aedtapp.activate_variable_tuning("$prjvar")
-    assert aedtapp.deactivate_variable_tuning("desvar")
-    assert aedtapp.deactivate_variable_tuning("$prjvar")
+def test_activate_variables(aedt_app):
+    aedt_app["desvar"] = "1mm"
+    aedt_app["$prjvar"] = "2mm"
+    assert aedt_app["desvar"] == "1mm"
+    assert aedt_app["$prjvar"] == "2mm"
+    assert aedt_app.activate_variable_tuning("desvar")
+    assert aedt_app.activate_variable_tuning("$prjvar")
+    assert aedt_app.deactivate_variable_tuning("desvar")
+    assert aedt_app.deactivate_variable_tuning("$prjvar")
     try:
-        aedtapp.activate_variable_tuning("Idontexist")
+        aedt_app.activate_variable_tuning("Idontexist")
         assert False
     except Exception:
         assert True
 
 
-def test_netlist_data_block(aedtapp, local_scratch):
-    with open(Path(local_scratch.path) / "lc.net", "w") as f:
+def test_netlist_data_block(aedt_app, test_tmp_dir):
+    with open(test_tmp_dir / "lc.net", "w") as f:
         for i in range(10):
             f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
             f.write(f"C{i} net_{i + 1} 0 5e-12\n")
-    assert aedtapp.add_netlist_datablock(Path(local_scratch.path) / "lc.net")
-    aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
-    aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
+    assert aedt_app.add_netlist_datablock(test_tmp_dir / "lc.net")
+    aedt_app.modeler.components.create_interface_port("net_0", (0, 0))
+    aedt_app.modeler.components.create_interface_port("net_10", (0.01, 0))
 
-    lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
+    lna = aedt_app.create_setup("mylna", Setups.NexximLNA)
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
-    assert aedtapp.analyze()
+    assert aedt_app.analyze()
 
 
-def test_create_voltage_probe(aedtapp):
-    myprobe = aedtapp.modeler.components.create_voltage_probe(name="voltage_probe")
+def test_create_voltage_probe(aedt_app):
+    myprobe = aedt_app.modeler.components.create_voltage_probe(name="voltage_probe")
     assert type(myprobe.id) is int
 
 
-def test_draw_graphical_primitives(aedtapp):
-    line = aedtapp.modeler.components.create_line([[0, 0], [1, 1]])
+def test_draw_graphical_primitives(aedt_app):
+    line = aedt_app.modeler.components.create_line([[0, 0], [1, 1]])
     assert line
 
 
-def test_browse_log_file(aedtapp, local_scratch):
-    with open(Path(local_scratch.path) / "lc.net", "w") as f:
+def test_browse_log_file(aedt_app, test_tmp_dir):
+    with open(test_tmp_dir / "lc.net", "w") as f:
         for i in range(10):
             f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
             f.write(f"C{i} net_{i + 1} 0 5e-12\n")
-    aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
-    aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
-    lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
+    aedt_app.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
+    aedt_app.modeler.components.create_interface_port("net_10", (0.01, 0))
+    lna = aedt_app.create_setup("mylna", Setups.NexximLNA)
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
-    assert not aedtapp.browse_log_file()
-    aedtapp.analyze()
+    assert not aedt_app.browse_log_file()
+    aedt_app.analyze()
     time.sleep(2)
-    assert aedtapp.browse_log_file()
+    assert aedt_app.browse_log_file()
     if not is_linux:
-        aedtapp.save_project()
-        assert aedtapp.browse_log_file()
-        assert not aedtapp.browse_log_file(Path(aedtapp.working_directory) / "logfiles")
-        assert aedtapp.browse_log_file(aedtapp.working_directory)
+        aedt_app.save_project()
+        assert aedt_app.browse_log_file()
+        assert not aedt_app.browse_log_file(Path(aedt_app.working_directory) / "logfiles")
+        assert aedt_app.browse_log_file(aedt_app.working_directory)
 
 
-def test_assign_sources(aedtapp):
-    c = aedtapp
-    filepath = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "frequency_dependent_source.fds"
+def test_assign_sources(aedt_app, test_tmp_dir):
+    c = aedt_app
+    filepath_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
+    filepath = shutil.copy2(filepath_o, test_tmp_dir / "frequency_dependent_source.fds")
     name = "PowerSinusoidal3"
     assert c.create_source(source_type="PowerSin", name=name)
     c.sources[name].ac_magnitude = "2V"
@@ -749,8 +754,8 @@ def test_assign_sources(aedtapp):
     assert len(c.source_objects) == 5
 
 
-def test_assign_excitations(aedtapp):
-    c = aedtapp
+def test_assign_excitations(aedt_app):
+    c = aedt_app
     port = c.modeler.schematic.create_interface_port(name="Port1")
 
     # Port angle not working in 2023.1
@@ -796,34 +801,34 @@ def test_assign_excitations(aedtapp):
     assert len(c.design_excitations) == 0
 
 
-def test_set_variable(aedtapp):
-    aedtapp.variable_manager.set_variable("var_test", expression="123")
-    aedtapp["var_test"] = "234"
-    assert "var_test" in aedtapp.variable_manager.design_variable_names
-    assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+def test_set_variable(aedt_app):
+    aedt_app.variable_manager.set_variable("var_test", expression="123")
+    aedt_app["var_test"] = "234"
+    assert "var_test" in aedt_app.variable_manager.design_variable_names
+    assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
 
 
-def test_create_wire(aedtapp):
-    myind = aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
-    myres = aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
-    aedtapp.modeler.components.get_component(myres.composed_name)
-    aedtapp.modeler.schematic.create_wire([myind.pins[0].location, myres.pins[1].location], name="wire_name_test")
+def test_create_wire(aedt_app):
+    myind = aedt_app.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
+    myres = aedt_app.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
+    aedt_app.modeler.components.get_component(myres.composed_name)
+    aedt_app.modeler.schematic.create_wire([myind.pins[0].location, myres.pins[1].location], name="wire_name_test")
     wire_names = []
-    for key in aedtapp.modeler.schematic.wires.keys():
-        wire_names.append(aedtapp.modeler.schematic.wires[key].name)
+    for key in aedt_app.modeler.schematic.wires.keys():
+        wire_names.append(aedt_app.modeler.schematic.wires[key].name)
     assert "wire_name_test" in wire_names
     with pytest.raises(ValueError):
-        assert aedtapp.modeler.schematic.create_wire([["100mil", "aa"], ["100mil", "100mil"]], name="wire_name_test1")
-    aedtapp["wl"] = "0mil"
-    assert aedtapp.modeler.schematic.create_wire([["100mil", "wl"], ["100mil", "100mil"]], name="wire_name_test1")
-    wire_keys = [key for key in aedtapp.modeler.schematic.wires]
+        assert aedt_app.modeler.schematic.create_wire([["100mil", "aa"], ["100mil", "100mil"]], name="wire_name_test1")
+    aedt_app["wl"] = "0mil"
+    assert aedt_app.modeler.schematic.create_wire([["100mil", "wl"], ["100mil", "100mil"]], name="wire_name_test1")
+    wire_keys = [key for key in aedt_app.modeler.schematic.wires]
     for key in wire_keys:
-        if aedtapp.modeler.schematic.wires[key].name == "wire_test1":
-            assert len(aedtapp.modeler.schematic.wires[key].points_in_segment) == 1
-            assert aedtapp.modeler.schematic.wires[key].id == key
-            for seg_key in list(aedtapp.modeler.schematic.wires[key].points_in_segment.keys()):
+        if aedt_app.modeler.schematic.wires[key].name == "wire_test1":
+            assert len(aedt_app.modeler.schematic.wires[key].points_in_segment) == 1
+            assert aedt_app.modeler.schematic.wires[key].id == key
+            for seg_key in list(aedt_app.modeler.schematic.wires[key].points_in_segment.keys()):
                 point_list = [
-                    round(x, 2) for y in aedtapp.modeler.schematic.wires[key].points_in_segment[seg_key] for x in y
+                    round(x, 2) for y in aedt_app.modeler.schematic.wires[key].points_in_segment[seg_key] for x in y
                 ]
                 assert point_list[0] == 0.02
                 assert point_list[1] == 0.02
@@ -831,31 +836,31 @@ def test_create_wire(aedtapp):
                 assert point_list[3] == 0.02
 
 
-def test_display_wire_properties(aedtapp):
-    wire = aedtapp.modeler.schematic.create_wire([["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1")
+def test_display_wire_properties(aedt_app):
+    wire = aedt_app.modeler.schematic.create_wire([["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1")
     assert wire.display_wire_properties(
         name="wire_name_test1", property_to_display="NetName", visibility="Value", location="Top"
     )
     assert isinstance(wire.get_net_name(), str)
     wire.set_net_name("test_net_1")
     assert wire.get_net_name() == "test_net_1"
-    assert not aedtapp.modeler.wire.display_wire_properties(
+    assert not aedt_app.modeler.wire.display_wire_properties(
         name="invalid", property_to_display="NetName", visibility="Value", location="Top"
     )
-    assert not aedtapp.modeler.wire.display_wire_properties(
+    assert not aedt_app.modeler.wire.display_wire_properties(
         name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
     )
 
 
-def test_auto_wire(aedtapp):
-    aedtapp.modeler.schematic_units = "mil"
-    p1 = aedtapp.modeler.schematic.create_interface_port(name="In", location=[200, 300])
-    r1 = aedtapp.modeler.schematic.create_resistor(value=50, location=[3700, "3mm"])
-    l1 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 3000], angle=90)
-    l3 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 2500], angle=90)
-    l4 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 500], angle=90)
-    l2 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
-    aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
+def test_auto_wire(aedt_app):
+    aedt_app.modeler.schematic_units = "mil"
+    p1 = aedt_app.modeler.schematic.create_interface_port(name="In", location=[200, 300])
+    r1 = aedt_app.modeler.schematic.create_resistor(value=50, location=[3700, "3mm"])
+    l1 = aedt_app.modeler.schematic.create_inductor(value=1e-9, location=[1400, 3000], angle=90)
+    l3 = aedt_app.modeler.schematic.create_inductor(value=1e-9, location=[1600, 2500], angle=90)
+    l4 = aedt_app.modeler.schematic.create_inductor(value=1e-9, location=[1600, 500], angle=90)
+    l2 = aedt_app.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
+    aedt_app.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
 
     assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True, offset=0.0512)
     assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
@@ -865,48 +870,55 @@ def test_auto_wire(aedtapp):
     assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
 
-@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="Bug introduced in 2025R2 and fixed in 2026R1")
-def test_create_and_change_prop_text(aedtapp):
-    aedtapp.modeler.schematic_units = "mil"
-    text = aedtapp.modeler.create_text("text test", 100, 300)
+@pytest.mark.skipif(DESKTOP_VERSION == "2025.2", reason="Bug introduced in 2025R2 and fixed in 2026R1")
+def test_create_and_change_prop_text(aedt_app):
+    aedt_app.modeler.schematic_units = "mil"
+    text = aedt_app.modeler.create_text("text test", 100, 300)
     assert isinstance(text, str)
-    assert text in aedtapp.oeditor.GetAllGraphics()
-    assert aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
+    assert text in aedt_app.oeditor.GetAllGraphics()
+    assert aedt_app.modeler.create_text("text test", "1000mil", "-2000mil")
 
 
-@pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
-@pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
-def test_change_text_property(aedtapp):
-    aedtapp.set_active_design("text")
-    text_id = aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
-    assert aedtapp.modeler.change_text_property(text_id, "Font", "Calibri")
-    assert aedtapp.modeler.change_text_property(text_id, "DisplayRectangle", True)
-    assert aedtapp.modeler.change_text_property(text_id, "Color", [255, 120, 0])
-    assert not aedtapp.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
-    assert aedtapp.modeler.change_text_property(text_id, "Location", ["-5000mil", "2000mil"])
-    assert aedtapp.modeler.change_text_property(text_id, "Location", [5000, 2000])
-    assert not aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
-    assert not aedtapp.modeler.change_text_property(text_id, "Invalid", {})
+@pytest.mark.skipif(NON_GRAPHICAL, reason="Change property doesn't work in non-graphical mode.")
+@pytest.mark.skipif(is_linux and DESKTOP_VERSION == "2024.1", reason="Schematic has to be closed.")
+def test_change_text_property(aedt_app):
+    aedt_app.set_active_design("text")
+    text_id = aedt_app.oeditor.GetAllGraphics()[0].split("@")[1]
+    assert aedt_app.modeler.change_text_property(text_id, "Font", "Calibri")
+    assert aedt_app.modeler.change_text_property(text_id, "DisplayRectangle", True)
+    assert aedt_app.modeler.change_text_property(text_id, "Color", [255, 120, 0])
+    assert not aedt_app.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
+    assert aedt_app.modeler.change_text_property(text_id, "Location", ["-5000mil", "2000mil"])
+    assert aedt_app.modeler.change_text_property(text_id, "Location", [5000, 2000])
+    assert not aedt_app.modeler.change_text_property(1, "Color", [255, 120, 0])
+    assert not aedt_app.modeler.change_text_property(text_id, "Invalid", {})
 
 
-@pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
-@pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
-def test_create_circuit_from_multizone_layout(add_edb):
-    edb = add_edb(project_name="multi_zone_project")
+@pytest.mark.skipif(NON_GRAPHICAL, reason="Change property doesn't work in non-graphical mode.")
+@pytest.mark.skipif(is_linux and DESKTOP_VERSION == "2024.1", reason="Schematic has to be closed.")
+def test_create_circuit_from_multizone_layout(add_app, test_tmp_dir):
+    source_path = TESTS_GENERAL_PATH / "example_models" / "multi_zone_project.aedb"
+    target_path = test_tmp_dir / "test_multi_zone" / "multi_zone_project.aedb"
+    shutil.copytree(source_path, target_path)
+
+    edb = Edb(edbpath=target_path, edbversion=DESKTOP_VERSION)
     common_reference_net = "gnd"
     edb_zones = edb.copy_zones()
     assert edb_zones
     defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
     edb.close_edb()
     assert project_connexions
-    aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
-    assert [mod for mod in list(aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
-    assert aedtapp.remove_all_unused_definitions()
+
+    app = add_app(application=Circuit)
+    app.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
+    assert [mod for mod in list(app.modeler.schematic.components.values()) if "PagePort" in mod.name]
+    assert app.remove_all_unused_definitions()
+    app.close_project(save_project=False)
 
 
-def test_create_vpwl(aedtapp):
+def test_create_vpwl(aedt_app):
     # default inputs
-    myres = aedtapp.modeler.schematic.create_voltage_pwl(name="V1")
+    myres = aedt_app.modeler.schematic.create_voltage_pwl(name="V1")
     assert myres.refdes != ""
     assert type(myres.id) is int
     assert myres.parameters["time1"] == "0s"
@@ -914,7 +926,7 @@ def test_create_vpwl(aedtapp):
     assert myres.parameters["val1"] == "0V"
     assert myres.parameters["val2"] == "0V"
     # time and voltage input list
-    myres = aedtapp.modeler.schematic.create_voltage_pwl(name="V2", time_list=[0, "1u"], voltage_list=[0, 1])
+    myres = aedt_app.modeler.schematic.create_voltage_pwl(name="V2", time_list=[0, "1u"], voltage_list=[0, 1])
     assert myres.refdes != ""
     assert type(myres.id) is int
     assert myres.parameters["time1"] == "0"
@@ -922,14 +934,14 @@ def test_create_vpwl(aedtapp):
     assert myres.parameters["val1"] == "0"
     assert myres.parameters["val2"] == "1"
     # time and voltage different length
-    myres = aedtapp.modeler.schematic.create_voltage_pwl(name="V3", time_list=[0], voltage_list=[0, 1])
+    myres = aedt_app.modeler.schematic.create_voltage_pwl(name="V3", time_list=[0], voltage_list=[0, 1])
     assert myres is False
 
 
-def test_automatic_lna(aedtapp, local_scratch):
-    touchstone_1 = local_scratch.copyfile(touchstone_file)
+def test_automatic_lna(aedt_app, test_tmp_dir):
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
 
-    status, _, _ = aedtapp.create_lna_schematic_from_snp(
+    status, _, _ = aedt_app.create_lna_schematic_from_snp(
         input_file=touchstone_1,
         start_frequency=0,
         stop_frequency=70,
@@ -941,12 +953,10 @@ def test_automatic_lna(aedtapp, local_scratch):
     assert status
 
 
-@pytest.mark.skipif(
-    config["NonGraphical"] and is_linux, reason="Method is not working in Linux and non-graphical mode."
-)
-def test_automatic_tdr(aedtapp, local_scratch):
-    touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
-    result, tdr_probe_name = aedtapp.create_tdr_schematic_from_snp(
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method is not working in Linux and non-graphical mode.")
+def test_automatic_tdr(aedt_app, test_tmp_dir):
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
+    result, tdr_probe_name = aedt_app.create_tdr_schematic_from_snp(
         input_file=touchstone_1,
         tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
         tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
@@ -958,7 +968,7 @@ def test_automatic_tdr(aedtapp, local_scratch):
         design_name="TDR",
     )
     assert result
-    result, tdr_probe_name = aedtapp.create_tdr_schematic_from_snp(
+    result, tdr_probe_name = aedt_app.create_tdr_schematic_from_snp(
         input_file=touchstone_1,
         tx_schematic_pins=[
             "A-MII-RXD1_30.SQFP28X28_208.P",
@@ -980,13 +990,19 @@ def test_automatic_tdr(aedtapp, local_scratch):
     assert result
 
 
-@pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
-def test_automatic_ami(aedtapp, local_scratch):
-    touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
-    ami_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "pcieg5_32gt.ibs"
-    result, _, _ = aedtapp.create_ami_schematic_from_snp(
-        input_file=touchstone_1,
-        ibis_tx_file=ami_file,
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
+def test_automatic_ami(aedt_app, test_tmp_dir):
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
+
+    ibis_file_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "pcieg5_32gt.ibs"
+    ibis_file = shutil.copy2(ibis_file_o, test_tmp_dir / "pcieg5_32gt.ibs")
+
+    ami_file_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "pcieg5_32gt.ami"
+    shutil.copy2(ami_file_o, test_tmp_dir / "pcieg5_32gt.ami")
+
+    result, _, _ = aedt_app.create_ami_schematic_from_snp(
+        input_file=str(touchstone_1),
+        ibis_tx_file=str(ibis_file),
         tx_buffer_name="1p",
         rx_buffer_name="2p",
         tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P", "A-MII-RXD1_65.SQFP20X20_144.N"],
@@ -1003,9 +1019,9 @@ def test_automatic_ami(aedtapp, local_scratch):
     )
     assert result
 
-    result, _, _ = aedtapp.create_ami_schematic_from_snp(
-        input_file=touchstone_1,
-        ibis_tx_file=ami_file,
+    result, _, _ = aedt_app.create_ami_schematic_from_snp(
+        input_file=str(touchstone_1),
+        ibis_tx_file=str(ibis_file),
         tx_buffer_name="1p",
         rx_buffer_name="2p",
         tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
@@ -1023,11 +1039,12 @@ def test_automatic_ami(aedtapp, local_scratch):
     assert result
 
 
-@pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
-def test_automatic_ibis(aedtapp, local_scratch):
-    touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
-    ibis_file = Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
-    result, _, _ = aedtapp.create_ibis_schematic_from_snp(
+@pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
+def test_automatic_ibis(aedt_app, test_tmp_dir):
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
+    ibis_file_o = TESTS_GENERAL_PATH / "example_models" / "T15" / "u26a_800_modified.ibs"
+    ibis_file = shutil.copy2(ibis_file_o, test_tmp_dir / "u26a_800_modified.ibs")
+    result, _, _ = aedt_app.create_ibis_schematic_from_snp(
         input_file=touchstone_1,
         ibis_tx_file=ibis_file,
         tx_buffer_name="DQ_FULL_800",
@@ -1046,10 +1063,10 @@ def test_automatic_ibis(aedtapp, local_scratch):
     assert result
 
 
-def test_enforce_touchstone_passive(aedtapp, local_scratch):
-    aedtapp.modeler.schematic_units = "mil"
-    touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
-    s_parameter_component = aedtapp.modeler.schematic.create_touchstone_component(touchstone_1)
+def test_enforce_touchstone_passive(aedt_app, test_tmp_dir):
+    aedt_app.modeler.schematic_units = "mil"
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
+    s_parameter_component = aedt_app.modeler.schematic.create_touchstone_component(touchstone_1)
     assert s_parameter_component.enforce_touchstone_model_passive()
     nexxim_customization = s_parameter_component.model_data.props["NexximCustomization"]
     assert -1 == nexxim_customization["DCOption"]
@@ -1062,10 +1079,10 @@ def test_enforce_touchstone_passive(aedtapp, local_scratch):
     assert 2 == nexxim_customization["DataType"]
 
 
-def test_change_symbol_pin_location(aedtapp, local_scratch):
-    aedtapp.modeler.schematic_units = "mil"
-    touchstone_1 = local_scratch.copyfile(touchstone_file_custom)
-    ts_component = aedtapp.modeler.schematic.create_touchstone_component(touchstone_1)
+def test_change_symbol_pin_location(aedt_app, test_tmp_dir):
+    aedt_app.modeler.schematic_units = "mil"
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
+    ts_component = aedt_app.modeler.schematic.create_touchstone_component(touchstone_1)
     pins = ts_component.pins
     pin_locations = {
         "left": [pins[0].name, pins[1].name, pins[2].name, pins[3].name, pins[4].name],
@@ -1076,80 +1093,84 @@ def test_change_symbol_pin_location(aedtapp, local_scratch):
     assert not ts_component.change_symbol_pin_locations(pin_locations)
 
 
-def test_import_asc(aedtapp):
-    asc_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "butter.asc"
-    assert aedtapp.create_schematic_from_asc_file(asc_file)
+def test_import_asc(aedt_app, test_tmp_dir):
+    asc_file_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "butter.asc"
+    asc_file = shutil.copy2(asc_file_original, test_tmp_dir / "butter.asc")
+    assert aedt_app.create_schematic_from_asc_file(asc_file)
 
 
-def test_create_current_probe(aedtapp):
-    iprobe = aedtapp.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
+def test_create_current_probe(aedt_app):
+    iprobe = aedt_app.modeler.schematic.create_current_probe(name="test_probe", location=[0.4, 0.2])
     assert type(iprobe.id) is int
     assert iprobe.InstanceName == "test_probe"
-    iprobe2 = aedtapp.modeler.schematic.create_current_probe(location=[0.8, 0.2])
+    iprobe2 = aedt_app.modeler.schematic.create_current_probe(location=[0.8, 0.2])
     assert type(iprobe2.id) is int
 
 
-def test_import_table(aedtapp):
-    file_header = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "table_header.csv"
+def test_import_table(aedt_app):
+    file_header = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
-    assert not aedtapp.import_table(file_header, column_separator="dummy")
-    assert not aedtapp.import_table(file_invented)
+    assert not aedt_app.import_table(file_header, column_separator="dummy")
+    assert not aedt_app.import_table(file_invented)
 
-    table = aedtapp.import_table(file_header)
-    assert table in aedtapp.existing_analysis_sweeps
+    table = aedt_app.import_table(file_header)
+    assert table in aedt_app.existing_analysis_sweeps
 
-    assert not aedtapp.delete_imported_data("invented")
+    assert not aedt_app.delete_imported_data("invented")
 
-    assert aedtapp.delete_imported_data(table)
-    assert table not in aedtapp.existing_analysis_sweeps
-
-
-def test_value_with_units(aedtapp):
-    assert aedtapp.value_with_units("10mm") == "10mm"
-    assert aedtapp.value_with_units("10") == "10mm"
+    assert aedt_app.delete_imported_data(table)
+    assert table not in aedt_app.existing_analysis_sweeps
 
 
-def test_get_component_path_and_import_sss_files(aedtapp, local_scratch):
-    model = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "test.lib"
-    model_copy = local_scratch.copyfile(model)
-    touchstone_1 = local_scratch.copyfile(touchstone_file)
-    assert aedtapp.modeler.schematic.create_component_from_spicemodel(model_copy)
-    assert len(aedtapp.modeler.schematic.components) == 1
-    assert list(aedtapp.modeler.components.components.values())[0].component_path
-    assert aedtapp.modeler.add_page("P2")
-    assert aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page=2)
-    assert aedtapp.modeler.rename_page(2, "P3")
-    cmp = aedtapp.modeler.components.create_component(component_library="", component_name="RES_", page=2)
+def test_value_with_units(aedt_app):
+    assert aedt_app.value_with_units("10mm") == "10mm"
+    assert aedt_app.value_with_units("10") == "10mm"
+
+
+def test_get_component_path_and_import_sss_files(aedt_app, test_tmp_dir):
+    model_original = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "test.lib"
+    model = shutil.copy2(model_original, test_tmp_dir / "test.lib")
+
+    model_copy = shutil.copy2(model, test_tmp_dir / "test.lib2")
+    touchstone_1 = shutil.copy2(TOUCHSTONE_FILE, test_tmp_dir / TOUCHSTONE)
+
+    assert aedt_app.modeler.schematic.create_component_from_spicemodel(model_copy)
+    assert len(aedt_app.modeler.schematic.components) == 1
+    assert list(aedt_app.modeler.components.components.values())[0].component_path
+    assert aedt_app.modeler.add_page("P2")
+    assert aedt_app.modeler.components.create_component(component_library="", component_name="RES_", page=2)
+    assert aedt_app.modeler.rename_page(2, "P3")
+    cmp = aedt_app.modeler.components.create_component(component_library="", component_name="RES_", page=2)
     assert cmp.page == 2
 
-    assert len(aedtapp.modeler.schematic.components) == 3
-    assert not list(aedtapp.modeler.components.components.values())[1].component_path
-    t1 = aedtapp.modeler.schematic.create_touchstone_component(touchstone_1)
-    assert len(aedtapp.modeler.schematic.components) == 4
+    assert len(aedt_app.modeler.schematic.components) == 3
+    assert not list(aedt_app.modeler.components.components.values())[1].component_path
+    t1 = aedt_app.modeler.schematic.create_touchstone_component(touchstone_1)
+    assert len(aedt_app.modeler.schematic.components) == 4
     assert t1.component_path
-    nexxim_state_space = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "neximspacefile.sss"
-    sss = aedtapp.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
-    assert len(aedtapp.modeler.schematic.components) == 5
+    nexxim_state_space = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "neximspacefile.sss"
+    sss = aedt_app.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
+    assert len(aedt_app.modeler.schematic.components) == 5
     assert sss.component_path
-    ibis_model = aedtapp.get_ibis_model_from_file(
-        Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
+    ibis_model = aedt_app.get_ibis_model_from_file(
+        TESTS_GENERAL_PATH / "example_models" / "T15" / "u26a_800_modified.ibs"
     )
     ibis_model.buffers["RDQS#"].add()
     buffer = ibis_model.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
-    assert len(aedtapp.modeler.schematic.components) == 6
+    assert len(aedt_app.modeler.schematic.components) == 6
     assert buffer.component_path
 
 
-def test_output_variables(circuitprj):
+def test_output_variables(circuit_app):
     with pytest.raises(AEDTRuntimeError):
-        circuitprj.create_output_variable(
+        circuit_app.create_output_variable(
             variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
         )
-    circuitprj.create_setup()
-    assert circuitprj.create_output_variable(variable="outputvar_terminal", expression="S(1, 1)")
-    assert len(circuitprj.output_variables) == 1
-    assert circuitprj.set_differential_pair(
+    circuit_app.create_setup()
+    assert circuit_app.create_output_variable(variable="outputvar_terminal", expression="S(1, 1)")
+    assert len(circuit_app.output_variables) == 1
+    assert circuit_app.set_differential_pair(
         assignment="Port3",
         reference="Port4",
         common_mode="Comm2",
@@ -1157,12 +1178,12 @@ def test_output_variables(circuitprj):
         common_reference=34,
         differential_reference=123,
     )
-    assert circuitprj.create_output_variable(
+    assert circuit_app.create_output_variable(
         variable="outputvar_diff", expression="S(Comm2,Diff2)", is_differential=True
     )
-    assert len(circuitprj.output_variables) == 2
+    assert len(circuit_app.output_variables) == 2
     with pytest.raises(AEDTRuntimeError):
-        circuitprj.create_output_variable(
+        circuit_app.create_output_variable(
             variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
         )
-    assert circuitprj.remove_all_unused_definitions()
+    assert circuit_app.remove_all_unused_definitions()

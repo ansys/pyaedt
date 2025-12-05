@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import fnmatch
 import inspect
 import json
 import os
@@ -187,6 +188,12 @@ def cleanup_all_tmp_at_end(tmp_path_factory):
         for entry in temp_dir.iterdir():
             if entry.is_dir() and entry.name.startswith("pkg-"):
                 shutil.rmtree(entry, ignore_errors=True)
+            elif entry.is_file():
+                if fnmatch.fnmatch(entry.name, "pyaedt_*.log") or fnmatch.fnmatch(entry.name, "pyedb_*.log"):
+                    try:
+                        entry.unlink()
+                    except Exception as e:
+                        pyaedt_logger.debug(f"Error {type(e)} occurred while deleting log file: {e}")
     except Exception:
         pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
 

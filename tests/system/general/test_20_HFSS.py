@@ -1115,7 +1115,7 @@ def test_get_property_value(aedt_app):
 def test_copy_solid_bodies(aedt_app, add_app):
     aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
     num_orig_bodies = len(aedt_app.modeler.solid_names)
-    app = add_app(application=Hfss, design_name="new_design_copy")
+    app = add_app(application=Hfss, design="new_design", close_projects=False)
     assert app.copy_solid_bodies_from(aedt_app, no_vacuum=False, no_pec=False)
     assert len(app.modeler.solid_bodies) == num_orig_bodies
 
@@ -1163,12 +1163,12 @@ def test_assign_current_source_to_sheet(aedt_app):
         aedt_app.assign_current_source_to_sheet(sheet.name, [sheet.bottom_edge_x.midpoint])
 
 
-def test_export_step(aedt_app):
+def test_export_step(aedt_app, test_tmp_dir):
     file_name = "test"
     aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
-    assert aedt_app.export_3d_model(file_name, aedt_app.working_directory, ".x_t", [], [])
+    assert aedt_app.export_3d_model(file_name, test_tmp_dir, ".x_t", [], [])
     output_file = file_name + ".x_t"
-    assert Path(aedt_app.working_directory, output_file).is_file()
+    assert (test_tmp_dir / output_file).is_file()
 
 
 def test_floquet_port(aedt_app):
@@ -1469,7 +1469,7 @@ def test_array(aedt_app, test_tmp_dir):
         name="Relative_CS1",
     )
     array_name = aedt_app.component_array_names[0]
-    assert aedt_app.COMPONENT_ARRAY[array_name].cells[2][2].rotation == 0
+    assert aedt_app.component_array[array_name].cells[2][2].rotation == 0
     assert aedt_app.component_array_names
     array_1.cells[2][2].rotation = 180
 
@@ -1780,10 +1780,10 @@ def test_import_dxf(dxf_file: str, object_count: int, self_stitch_tolerance: flo
     assert len(aedt_app.modeler.objects) == object_count
 
 
-def test_component_array(component_array_app):
-    assert len(component_array_app.COMPONENT_ARRAY) == 1
+def test_component_array(component_array_app, test_tmp_dir):
+    assert len(component_array_app.component_array) == 1
 
-    array = component_array_app.COMPONENT_ARRAY["A1"]
+    array = component_array_app.component_array["A1"]
     assert array.name == component_array_app.component_array_names[0]
 
     cell1 = array.get_cell(1, 1)
@@ -1825,12 +1825,12 @@ def test_component_array(component_array_app):
     assert array.cells[0][1].component == array.component_names[3]
 
     name = "Array_new"
-    component_array_app.COMPONENT_ARRAY["A1"].name = name
+    component_array_app.component_array["A1"].name = name
     assert component_array_app.component_array_names[0] == name
 
     if DESKTOP_VERSION < "2025.1":
         name = "A1"
-        component_array_app.COMPONENT_ARRAY["Array_new"].name = name
+        component_array_app.component_array["Array_new"].name = name
     omodel = component_array_app.get_oo_object(component_array_app.odesign, "Model")
     oarray = component_array_app.get_oo_object(omodel, name)
 
@@ -1888,7 +1888,7 @@ def test_component_array(component_array_app):
     array.coordinate_system = "Global"
 
     array_csv = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "array_info.csv"
-    file = shutil.copy2(array_csv, component_array_app.working_directory / "array_info.csv")
+    file = shutil.copy2(array_csv, test_tmp_dir / "array_info.csv")
     array_info = array.parse_array_info_from_csv(str(file))
     assert len(array_info) == 4
     assert array_info["component"][1] == "02_Patch1"
@@ -1904,7 +1904,7 @@ def test_component_array(component_array_app):
     assert len(array.post_processing_cells) == 3
 
     array.delete()
-    assert not component_array_app.COMPONENT_ARRAY
+    assert not component_array_app.component_array
 
 
 def test_assign_febi(aedt_app):
@@ -1922,9 +1922,9 @@ def test_transient_composite(aedt_app):
     assert aedt_app.solution_type == "Transient Composite"
 
 
-def test_import_gds_3d(aedt_app):
-    aedt_app.insert_design("gds_import_H3D")
-    gds_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1.gds"
+def test_import_gds_3d(aedt_app, test_tmp_dir):
+    gds_file_o = TESTS_GENERAL_PATH / "example_models" / "cad" / "GDS" / "gds1.gds"
+    gds_file = shutil.copy2(gds_file_o, test_tmp_dir / "gds1.gds")
     assert aedt_app.import_gds_3d(str(gds_file), {7: (100, 10), 9: (110, 5)})
     assert len(aedt_app.modeler.solid_names) == 3
     assert len(aedt_app.modeler.sheet_names) == 0
@@ -1985,7 +1985,7 @@ def test_plane_wave(aedt_app):
 
 def test_export_on_completion(aedt_app, test_tmp_dir):
     assert aedt_app.export_touchstone_on_completion()
-    assert aedt_app.export_touchstone_on_completion(export=True, output_dir=test_tmp_dir.path)
+    assert aedt_app.export_touchstone_on_completion(export=True, output_dir=test_tmp_dir)
     assert aedt_app.export_touchstone_on_completion()
 
 
@@ -2005,15 +2005,15 @@ def test_edit_source_excitation_from_file(aedt_app, test_tmp_dir):
     assert aedt_app.edit_source_from_file(input_file=str(file))
 
 
-def test_import_table(aedt_app):
+def test_import_table(aedt_app, test_tmp_dir):
     aedt_app.solution_type = "Terminal"
     file_header = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
-    file = shutil.copy2(file_header, aedt_app.working_directory / "table_header.csv")
+    file = shutil.copy2(file_header, test_tmp_dir / "table_header.csv")
     file_no_header = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "table_no_header.csv"
-    file2 = shutil.copy2(file_no_header, aedt_app.working_directory / "table_no_header.csv")
+    file2 = shutil.copy2(file_no_header, test_tmp_dir / "table_no_header.csv")
     file_invented = "invented.csv"
     file_format = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "sphere.stl"
-    file3 = shutil.copy2(file_format, aedt_app.working_directory / "sphere.stl")
+    file3 = shutil.copy2(file_format, test_tmp_dir / "sphere.stl")
 
     assert not aedt_app.table_names
     aedt_app.create_setup()
