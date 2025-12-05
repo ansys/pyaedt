@@ -283,8 +283,8 @@ if __name__ == "__main__":  # pragma: no cover
         extension: ExtensionCommon = CoilExtension(withdraw=False)
 
         tk.mainloop()
-
-        main(extension.data)
+        if extension.data is not None:
+            main(extension.data)
     else:
         data = CoilExtensionData()
         for key, value in args.items():
