@@ -175,11 +175,11 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         master.grid_columnconfigure(0, weight=1)
 
         # Notebook
-        notebook = ttk.Notebook(master, style="TNotebook")
+        notebook = ttk.Notebook(master, style="TNotebook", name="notebook")
         main_frame.add(notebook, weight=3)
 
         for tab_name in ["Common", "Vertical", "Flat"]:
-            tab = ttk.Frame(notebook, style="PyAEDT.TFrame")
+            tab = ttk.Frame(notebook, style="PyAEDT.TFrame", name=tab_name.lower())
             notebook.add(tab, text=tab_name)
             self.create_parameter_inputs(tab, tab_name)
 
