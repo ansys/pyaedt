@@ -32,12 +32,9 @@ import pytest
 
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
-from tests.conftest import config
 
 settings.enable_desktop_logs = True
 settings.enable_local_log_file = True
-
-desktop_version = config["desktopVersion"]
 
 
 @pytest.fixture
