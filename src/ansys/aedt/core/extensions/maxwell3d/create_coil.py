@@ -40,7 +40,6 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.advanced_cad.coil import COIL_PARAMETERS
 from ansys.aedt.core.modeler.advanced_cad.coil import Coil
@@ -219,34 +218,34 @@ def main(data: CoilExtensionData):
 
     for f in fields(data):
         val = getattr(data, f.name)
-        if isinstance(f.type, str):
+        if f.type is str:
             setattr(coil, f.name, val)
-        elif isinstance(f.type, int) and not isinstance(f.type, bool):
+        elif f.type is int and f.type is not bool:
             setattr(coil, f.name, int(val))
-        elif isinstance(f.type, float):
+        elif f.type is float:
             setattr(coil, f.name, float(val))
 
     # Create polyline shape for coil
     polyline = coil.create_vertical_path() if data.is_vertical else coil.create_flat_path()
 
     # Define start point based on coil orientation
-    centre_x = Quantity(data.centre_x).value
-    centre_y = Quantity(data.centre_y).value
-    inner_y = Quantity(data.inner_length).value
+    centre_x = coil.centre_x
+    centre_y = coil.centre_y
+    inner_y = coil.inner_length
 
     if data.is_vertical:
-        centre_z = Quantity(data.centre_z).value
-        inner_distance = Quantity(data.inner_distance).value
-        pitch = Quantity(data.pitch).value
-        turns = int(data.turns)
+        centre_z = coil.centre_z
+        inner_distance = coil.inner_distance
+        pitch = coil.pitch
+        turns = coil.turns
         start_point = [
             centre_x,
             centre_y - 0.5 * inner_y - inner_distance,
             centre_z + pitch * turns * 0.5,
         ]
     else:
-        inner_x = Quantity(data.inner_width).value
-        start_position = Quantity(data.looping_position).value
+        inner_x = coil.inner_width
+        start_position = coil.looping_position
         start_point = [
             centre_x + 0.25 * inner_x,
             centre_y - (start_position - 0.5) * inner_y,
