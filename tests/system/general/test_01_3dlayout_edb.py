@@ -37,21 +37,21 @@ TEST_SUBFOLDER = "T40"
 ORIGINAL_PROJECT = "ANSYS-HSD_V1"
 
 
-@pytest.fixture()
+@pytest.fixture
 def aedt_app(add_app_example):
     app = add_app_example(project=ORIGINAL_PROJECT, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER, is_edb=True)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def flipchip(add_app_example):
     app = add_app_example(project="Package", application=Hfss3dLayout, subfolder=TEST_SUBFOLDER, is_edb=True)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def ic_mode_design(add_app_example):
     app = add_app_example(project="ic_mode_design", application=Hfss3dLayout, subfolder=TEST_SUBFOLDER, is_edb=True)
     yield app

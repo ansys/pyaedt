@@ -213,7 +213,7 @@ def file_tmp_root(tmp_path_factory, request):
 
 # ================================
 # COMMON FIXTURES
-# ================================ntain
+# ================================
 
 
 @pytest.fixture
@@ -237,8 +237,8 @@ def add_app(test_tmp_dir, desktop):
     ):
         if close_projects and desktop.project_list:
             projects = desktop.project_list.copy()
-            for project in projects:
-                desktop.odesktop.CloseProject(project)
+            for project_name in projects:
+                desktop.odesktop.CloseProject(project_name)
 
         if project is None:
             project = "pyaedt_test"
@@ -287,8 +287,8 @@ def add_app_example(test_tmp_dir, desktop):
     ):
         if close_projects and desktop.project_list:
             projects = desktop.project_list.copy()
-            for project in projects:
-                desktop.odesktop.CloseProject(project)
+            for project_name in projects:
+                desktop.odesktop.CloseProject(project_name)
 
         if Path(subfolder).exists():
             base = Path(subfolder)
