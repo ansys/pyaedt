@@ -27,7 +27,15 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from ansys.aedt.core.generic.settings import Settings
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
+    return
 
 
 def test_settings_load_default_yaml(monkeypatch):
@@ -60,4 +68,4 @@ def test_settings_write_default_yaml(tmp_path):
     path = str("pyaedt_settings.yaml")
     default_settings.write_yaml_configuration(path)
 
-    assert os.path.exists(path)
+    assert Path(path).is_file()

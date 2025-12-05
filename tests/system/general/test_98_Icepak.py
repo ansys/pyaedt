@@ -44,115 +44,114 @@ from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
 
-test_subfolder = "T98"
-board_3dl = "FilterBoard_H3DL"
-board_ipk = "FilterBoard"
-usb_hfss = "USBConnector_HFSS"
-usb_ipk = "USBConnector"
-existing_setup = "ExistingSetup"
-transient_fs = "TransientFS"
-cold_plate = "ColdPlateExample"
-power_budget = "PB_test"
-comp_priority = "3DCompPriority"
-fan_op_point = "FanOpPoint"
-native_import = "one_native_component"
-network_test = "NetworkTest"
-max_temp = "maxT"
+TEST_SUBFOLDER = "T98"
+BOARD_3DL = "FilterBoard_H3DL"
+BOARD_IPK = "FilterBoard"
+USB_HFSS = "USBConnector_HFSS"
+USB_IPK = "USBConnector"
+EXISTING_SETUP = "ExistingSetup"
+TRANSIENT_FS = "TransientFS"
+COLD_PLATE = "ColdPlateExample"
+POWER_BUDGET = "PB_test"
+COMP_PRIORITY = "3DCompPriority"
+FAN_OP_POINT = "FanOpPoint"
+NATIVE_IMPORT = "one_native_component"
+NETWORK_TEST = "NetworkTest"
+MAX_TEMP = "maxT"
 
 # Filter board import
-proj_name = None
-design_name = "cutout3"
-solution_name = "HFSS Setup 1 : Last Adaptive"
-en_ForceSimulation = True
-en_PreserveResults = True
-link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_PreserveResults]
-solution_freq = "2.5GHz"
-resolution = 2
+PROJ_NAME = None
+DESIGN_NAME = "cutout3"
+SOLUTION_NAME = "HFSS Setup 1 : Last Adaptive"
+EN_FORCE_SIMULATION = True
+EN_PRESERVE_RESULTS = True
+LINK_DATA = [PROJ_NAME, DESIGN_NAME, SOLUTION_NAME, EN_FORCE_SIMULATION, EN_PRESERVE_RESULTS]
+SOLUTION_FREQ = "2.5GHz"
+RESOLUTION = 2
 
 on_ci = os.getenv("ON_CI", "false").lower() == "true"
 
 
-@pytest.fixture()
-def board_3dl_app(add_app):
-    app = add_app(project_name=board_3dl, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def board_3dl_app(add_app_example):
+    app = add_app_example(project=BOARD_3DL, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def board_ipk_app(add_app):
-    app = add_app(project_name=board_ipk, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def board_ipk_app(add_app_example):
+    app = add_app_example(project=BOARD_IPK, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def usb_ipk_app(add_app):
-    app = add_app(project_name=usb_ipk, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def usb_ipk_app(add_app_example):
+    app = add_app_example(project=USB_IPK, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def existing_setup_app(add_app):
-    app = add_app(project_name=existing_setup, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def existing_setup_app(add_app_example):
+    app = add_app_example(project=EXISTING_SETUP, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def cold_plate_app(add_app):
-    app = add_app(project_name=cold_plate, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def cold_plate_app(add_app_example):
+    app = add_app_example(project=COLD_PLATE, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def power_budget_app(add_app):
-    app = add_app(project_name=power_budget, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def power_budget_app(add_app_example):
+    app = add_app_example(project=POWER_BUDGET, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def fan_op_point_app(add_app):
-    app = add_app(project_name=fan_op_point, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def fan_op_point_app(add_app_example):
+    app = add_app_example(project=FAN_OP_POINT, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def comp_priority_app(add_app):
-    app = add_app(project_name=comp_priority, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def comp_priority_app(add_app_example):
+    app = add_app_example(project=COMP_PRIORITY, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def native_app(add_app):
-    app = add_app(project_name=native_import, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def native_app(add_app_example):
+    app = add_app_example(project=NATIVE_IMPORT, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def transient_app(add_app):
-    app = add_app(project_name=transient_fs, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def transient_app(add_app_example):
+    app = add_app_example(project=TRANSIENT_FS, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def max_temp_app(add_app):
-    app = add_app(project_name=max_temp, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def max_temp_app(add_app_example):
+    app = add_app_example(project=MAX_TEMP, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def ipk_app(add_app, local_scratch):
-    prj_name = available_file_name(local_scratch.path / "icepak_test.aedt")
-    app = add_app(project_name=prj_name, application=Icepak, just_open=True)
+@pytest.fixture
+def ipk_app(add_app):
+    app = add_app(application=Icepak)
     yield app
     app.close_project(save=False)
 
@@ -160,7 +159,7 @@ def ipk_app(add_app, local_scratch):
 def test_import_pcb(board_3dl_app):
     component_name = "RadioBoard1"
     pcb = board_3dl_app.create_ipk_3dcomponent_pcb(
-        component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
     )
     assert pcb
     assert len(board_3dl_app.native_components) == 1
@@ -284,7 +283,7 @@ def test_pcb_comp_import(board_ipk_app):
     initial_errors = len(board_ipk_app.logger.error_messages)
     component_name = "RadioBoard2"
     cmp = board_ipk_app.create_ipk_3dcomponent_pcb(
-        component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
     )
     assert cmp.included_parts is None
     cmp.included_parts = "Device"
@@ -407,15 +406,15 @@ def test_assign_pcb_region(ipk_app):
     assert pcb_mesh_region.delete()
 
 
-def test_em_loss(ipk_app, local_scratch):
-    project_name = usb_hfss + ".aedt"
+def test_em_loss(ipk_app, test_tmp_dir):
+    project_name = USB_HFSS + ".aedt"
     assert ipk_app.copyGroupFrom(
         "Group1",
         "uUSB",
-        usb_hfss,
+        USB_HFSS,
         str(TESTS_GENERAL_PATH / "example_models" / "T98" / project_name),
     )
-    hfss_spath = str(local_scratch.path / usb_hfss)
+    hfss_spath = str(test_tmp_dir / USB_HFSS)
     surface_list = [
         "USB_VCC",
         "USB_ID",
@@ -468,8 +467,8 @@ def test_em_loss(ipk_app, local_scratch):
     assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
 
 
-def test_export_step(ipk_app, local_scratch):
-    file_path = local_scratch.path
+def test_export_step(ipk_app, test_tmp_dir):
+    file_path = test_tmp_dir
     ipk_app.modeler.create_box([0, 0, 0], [1, 2, 3])
     assert ipk_app.export_3d_model("ExportedModel", file_path, ".x_t", ["Region"], [])
 
@@ -603,9 +602,9 @@ def test_create_network_blocks(ipk_app):
     assert network_block_result[1].props["Nodes"]["Internal"][0] == "3W"
 
 
-def test_copy_solid_bodies(board_ipk_app, add_app, local_scratch):
-    prj_name = available_file_name(local_scratch.path / "IcepakCopiedProject.aedt")
-    new_design = add_app(application=Icepak, project_name=prj_name, design_name="IcepakCopiedBodies", just_open=True)
+def test_copy_solid_bodies(board_ipk_app, add_app, test_tmp_dir):
+    prj_name = available_file_name(test_tmp_dir / "IcepakCopiedProject.aedt")
+    new_design = add_app(application=Icepak, project=prj_name, design="IcepakCopiedBodies", close_projects=False)
     assert new_design.copy_solid_bodies_from(board_ipk_app)
     assert sorted(new_design.modeler.solid_bodies) == [
         "Board_w_cmp_000_SMask_Bot_Outline",
@@ -619,7 +618,7 @@ def test_copy_solid_bodies(board_ipk_app, add_app, local_scratch):
         "Board_w_cmp_008_SMask_Top_Outline",
         "Region",
     ]
-    new_design.close_project("IcepakCopiedProject")
+    new_design.close_project(new_design.project_name, save=False)
 
 
 def test_get_all_conductors(board_ipk_app):
@@ -744,9 +743,9 @@ def test_create_source(ipk_app):
 
 
 def test_import_idf(ipk_app):
-    assert ipk_app.import_idf(str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "brd_board.emn"))
+    assert ipk_app.import_idf(str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emn"))
     assert ipk_app.import_idf(
-        str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "brd_board.emn"),
+        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emn"),
         filter_cap=True,
         filter_ind=True,
         filter_res=True,
@@ -759,7 +758,7 @@ def test_import_idf(ipk_app):
     )
 
 
-def test_create_fan(ipk_app, local_scratch):
+def test_create_fan(ipk_app, test_tmp_dir):
     ipk_app.mesh.global_mesh_region.global_region.padding_types = "Absolute Position"
     ipk_app.mesh.global_mesh_region.global_region.padding_values = "300mm"
     fan = ipk_app.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
@@ -771,7 +770,7 @@ def test_create_fan(ipk_app, local_scratch):
     assert fan.name in ipk_app.native_components
     assert "Fan1" not in ipk_app.native_components
     assert "Fan1" not in ipk_app.modeler.user_defined_components
-    temp_prj = str(local_scratch.path / "fan_test.aedt")
+    temp_prj = str(test_tmp_dir / "fan_test.aedt")
     ipk_app.save_project(temp_prj)
     ipk_app = Icepak(temp_prj)
     ipk_app.modeler.user_defined_components["Fan2"].native_properties["Swirl"] = "10"
@@ -855,9 +854,9 @@ def test_power_budget(power_budget_app):
     assert abs(total_power - 787.5221374239883) < 1
 
 
-def test_exporting_monitor_data(ipk_app, local_scratch):
+def test_exporting_monitor_data(ipk_app, test_tmp_dir):
     assert ipk_app.edit_design_settings()
-    assert ipk_app.edit_design_settings(export_monitor=True, export_directory=local_scratch.path)
+    assert ipk_app.edit_design_settings(export_monitor=True, export_directory=test_tmp_dir)
 
 
 def test_create_two_resistor_network_block(board_ipk_app):
@@ -869,7 +868,7 @@ def test_create_two_resistor_network_block(board_ipk_app):
     assert result1.props["Nodes"]["Internal"][0] == "5W"
     assert result2.props["Nodes"]["Internal"][0] == "10W"
     board_ipk_app.create_ipk_3dcomponent_pcb(
-        "RadioBoard1", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        "RadioBoard1", LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
     )
     board_ipk_app.modeler.create_box([42, 8, 2.03962], [10, 22, 3], "network_box3", "copper")
     result3 = board_ipk_app.create_two_resistor_network_block("network_box3", "RadioBoard1_1", "15W", 2.5, 5)
@@ -960,13 +959,13 @@ def test_delete_monitors(board_ipk_app):
 
 
 @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-def test_advanced3dcomp_import(board_ipk_app, local_scratch):
+def test_advanced3dcomp_import(board_ipk_app):
     cs2 = board_ipk_app.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
     cs2.props["OriginY"] = 20
     cs2.props["OriginZ"] = 20
     board_ipk_app.modeler.insert_3d_component(
-        input_file=Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Advanced3DComp",
+        input_file=Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "Advanced3DComp",
         coordinate_system="CS2",
         auxiliary_parameters=True,
     )
@@ -1129,12 +1128,12 @@ def test_mesh_priority(board_ipk_app):
     b = board_ipk_app.modeler.create_box([0, 0, 0], [20, 50, 80])
     board = board_ipk_app.create_ipk_3dcomponent_pcb(
         "Board",
-        link_data,
-        solution_freq,
-        resolution,
+        LINK_DATA,
+        SOLUTION_FREQ,
+        RESOLUTION,
         extent_type="Polygon",
-        custom_x_resolution=400,
-        custom_y_resolution=500,
+        custom_x_RESOLUTION=400,
+        custom_y_RESOLUTION=500,
     )
     assert board_ipk_app.mesh.add_priority(entity_type=1, assignment=board_ipk_app.modeler.object_names, priority=2)
     assert board_ipk_app.mesh.add_priority(
@@ -1245,7 +1244,7 @@ def test_assign_network_from_matrix(ipk_app):
     assert boundary
 
 
-def test_assign_network(ipk_app, add_app, local_scratch):
+def test_assign_network(ipk_app, add_app_example):
     box = ipk_app.modeler.create_box([0, 0, 0], [20, 20, 20])
     ids = [f.id for f in box.faces]
     net = ipk_app.create_network_object()
@@ -1313,8 +1312,8 @@ def test_assign_network(ipk_app, add_app, local_scratch):
     net.links["TestLink"].delete_link()
     net.add_links_from_dictionaries(link_dict)
     assert net.update()
-    net.name = "Network_Test"
-    assert net.name == "Network_Test"
+    net.name = "NETWORK_TEST"
+    assert net.name == "NETWORK_TEST"
     p = net.props
     net.delete()
     net = NetworkObject(ipk_app, "newNet", p, create=True)
@@ -1333,7 +1332,7 @@ def test_assign_network(ipk_app, add_app, local_scratch):
         except KeyError:
             pass
 
-    app = add_app(application=Icepak, project_name=network_test, subfolder=test_subfolder)
+    app = add_app_example(application=Icepak, project=NETWORK_TEST, subfolder=TEST_SUBFOLDER, close_projects=False)
     thermal_b = app.boundaries
     thermal_b[0].props["Nodes"]["Internal"]["Power"] = "10000mW"
     thermal_b[0].update()
@@ -1341,13 +1340,13 @@ def test_assign_network(ipk_app, add_app, local_scratch):
 
 
 def test_get_fans_operating_point(fan_op_point_app):
-    fan_op_point_app.set_active_design("get_fan_op_point")
+    fan_op_point_app.set_active_design("get_FAN_OP_POINT")
     csv_file, vol_flow_name, p_rise_name, op_dict = fan_op_point_app.get_fans_operating_point()
     assert Path(csv_file).is_file()
     assert vol_flow_name == "Volume Flow (m3_per_s)"
     assert p_rise_name == "Pressure Rise (n_per_meter_sq)"
     assert len(list(op_dict.keys())) == 2
-    fan_op_point_app.set_active_design("get_fan_op_point1")
+    fan_op_point_app.set_active_design("get_FAN_OP_POINT1")
     fan_op_point_app.get_fans_operating_point()
     csv_file, vol_flow_name, p_rise_name, op_dict = fan_op_point_app.get_fans_operating_point(time_step="0")
     assert Path(csv_file).is_file()
@@ -1432,8 +1431,8 @@ def test_assign_symmetry_wall(ipk_app):
         ipk_app.assign_symmetry_wall(geometry="surf01")
 
 
-def test_update_3d_component(ipk_app, local_scratch):
-    file_path = local_scratch.path
+def test_update_3d_component(ipk_app, test_tmp_dir):
+    file_path = test_tmp_dir
     file_name = "3DComp.a3dcomp"
     ipk_app.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
     component_file = Path(file_path) / file_name
@@ -1740,19 +1739,19 @@ def test_mesh_reuse(ipk_app):
     cylinder = ipk_app.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
     assert not ipk_app.mesh.assign_mesh_reuse(
         cylinder.name,
-        str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "nonexistent_cylinder_mesh.msh"),
+        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "nonexistent_cylinder_mesh.msh"),
     )
     assert ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name, str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "CylinderMesh.msh")
+        cylinder.name, str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh")
     )
     assert ipk_app.mesh.assign_mesh_reuse(
         cylinder.name,
-        str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "CylinderMesh.msh"),
+        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh"),
         "name_reuse",
     )
     assert ipk_app.mesh.assign_mesh_reuse(
         cylinder.name,
-        str(TESTS_GENERAL_PATH / "example_models" / test_subfolder / "CylinderMesh.msh"),
+        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh"),
         "name_reuse",
     )
 
@@ -1781,19 +1780,19 @@ def test_global_mesh_region(ipk_app):
     g_m_r.global_region.positive_z_padding = "5 mm"
     assert g_m_r.global_region.padding_types[-2] == "Absolute Offset"
     assert g_m_r.global_region.padding_values[-2] == "5mm"
-    g_m_r.settings["MeshRegionResolution"] = 3
+    g_m_r.settings["MeshRegionRESOLUTION"] = 3
     g_m_r.update()
-    assert g_m_r.settings["MeshRegionResolution"] == 3
+    assert g_m_r.settings["MeshRegionRESOLUTION"] == 3
     g_m_r.manual_settings = True
     with pytest.raises(KeyError):
-        g_m_r.settings["MeshRegionResolution"]
+        g_m_r.settings["MeshRegionRESOLUTION"]
     g_m_r.settings["MaxElementSizeX"] = "500um"
     g_m_r.update()
     g_m_r.global_region.object.material_name = "Carbon Monoxide"
     assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
 
 
-def test_transient_fs(transient_app):
+def test_TRANSIENT_FS(transient_app):
     fs = transient_app.post.create_field_summary()
     for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
         fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
@@ -1923,15 +1922,15 @@ def test_get_object_material_properties(ipk_app):
     assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
 
 
-def test_get_max_temp_location_transient(transient_app):
+def test_get_MAX_TEMP_location_transient(transient_app):
     with pytest.raises(ValueError):
         transient_app.post.get_temperature_extremum(assignment="Box3", max_min="Max", location="Surface")
-    max_temp = transient_app.post.get_temperature_extremum(
+    MAX_TEMP = transient_app.post.get_temperature_extremum(
         assignment="Box1", max_min="Max", location="Surface", time="1s"
     )
-    assert isinstance(max_temp, tuple)
-    assert len(max_temp[0]) == 3
-    assert isinstance(max_temp[1], float)
+    assert isinstance(MAX_TEMP, tuple)
+    assert len(MAX_TEMP[0]) == 3
+    assert isinstance(MAX_TEMP[1], float)
     min_temp = transient_app.post.get_temperature_extremum(
         assignment="Box1", max_min="Min", location="Volume", time="1s"
     )
@@ -1940,11 +1939,11 @@ def test_get_max_temp_location_transient(transient_app):
     assert isinstance(min_temp[1], float)
 
 
-def test_get_max_temp_location_steadystate(max_temp_app):
-    max_temp = max_temp_app.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface")
-    assert isinstance(max_temp, tuple)
-    assert len(max_temp[0]) == 3
-    assert isinstance(max_temp[1], float)
+def test_get_MAX_TEMP_location_steadystate(max_temp_app):
+    MAX_TEMP = max_temp_app.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface")
+    assert isinstance(MAX_TEMP, tuple)
+    assert len(MAX_TEMP[0]) == 3
+    assert isinstance(MAX_TEMP[1], float)
     min_temp = max_temp_app.post.get_temperature_extremum(assignment="Box2", max_min="Min", location="Volume")
     assert isinstance(min_temp, tuple)
     assert len(min_temp[0]) == 3

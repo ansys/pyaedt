@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
 import shutil
 
 import pytest
@@ -30,125 +29,119 @@ import pytest
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_GENERAL_PATH
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
 
-test_subfolder = "T34"
+TEST_SUBFOLDER = "T34"
 
 
-@pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(project_name="TwinBuilderProject", design_name="TwinBuilderDesign1", application=TwinBuilder)
+@pytest.fixture
+def aedt_app(add_app):
+    app = add_app(application=TwinBuilder)
     app.modeler.schematic_units = "mil"
-    return app
-
-
-@pytest.fixture()
-def examples(local_scratch):
-    examples_list = [
-        local_scratch.copyfile(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "netlist_small.cir"),
-        local_scratch.copyfile(
-            Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Q2D_ArmouredCableExample.aedt"
-        ),
-        local_scratch.copyfile(Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Q3D_DynamicLink.aedt"),
-        local_scratch.copyfile(
-            Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "TB_excitation_model.aedt"
-        ),
-    ]
-    return examples_list
+    yield app
+    app.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_resistor(aedtapp):
-    resistor = aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
+def test_create_resistor(aedt_app):
+    resistor = aedt_app.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
     assert resistor.parameters["R"] == "10"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_inductor(aedtapp):
-    inductor = aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
+def test_create_inductor(aedt_app):
+    inductor = aedt_app.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
     assert inductor.parameters["L"] == "1.5"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_capacitor(aedtapp):
-    capacitor = aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
+def test_create_capacitor(aedt_app):
+    capacitor = aedt_app.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
     assert capacitor.parameters["C"] == "7.5"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_diode(aedtapp):
-    diode = aedtapp.modeler.schematic.create_diode("Diode1")
+def test_create_diode(aedt_app):
+    diode = aedt_app.modeler.schematic.create_diode("Diode1")
     assert diode.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_npn(aedtapp):
-    name = aedtapp.modeler.schematic.create_npn("NPN")
+def test_create_npn(aedt_app):
+    name = aedt_app.modeler.schematic.create_npn("NPN")
     # Get component info by part name
     assert name.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_pnp(aedtapp):
-    pnp = aedtapp.modeler.schematic.create_pnp("PNP")
+def test_create_pnp(aedt_app):
+    pnp = aedt_app.modeler.schematic.create_pnp("PNP")
     assert pnp.parameters["VF"] == "0.8V"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_import_netlist(aedtapp, examples):
-    netlist_file1 = examples[0]
-    aedtapp.insert_design("SchematicImport")
-    assert aedtapp.create_schematic_from_netlist(netlist_file1)
+def test_import_netlist(aedt_app, test_tmp_dir):
+    file_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "netlist_small.cir"
+    netlist_file1 = shutil.copy2(file_o, test_tmp_dir / "netlist_small.cir")
+    assert aedt_app.create_schematic_from_netlist(str(netlist_file1))
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_hmax(aedtapp):
-    assert aedtapp.set_hmax("5ms")
+def test_set_hmax(aedt_app):
+    assert aedt_app.set_hmax("5ms")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_hmin(aedtapp):
-    assert aedtapp.set_hmin("0.2ms")
+def test_set_hmin(aedt_app):
+    assert aedt_app.set_hmin("0.2ms")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_hmin_alternate(aedtapp):
-    assert aedtapp.set_hmin("2s")
+def test_set_hmin_alternate(aedt_app):
+    assert aedt_app.set_hmin("2s")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_end_time(aedtapp):
-    assert aedtapp.set_end_time("5s")
+def test_set_end_time(aedt_app):
+    assert aedt_app.set_end_time("5s")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_catalog(aedtapp):
-    comp_catalog = aedtapp.modeler.components.components_catalog
+def test_catalog(aedt_app):
+    comp_catalog = aedt_app.modeler.components.components_catalog
     assert not comp_catalog["Capacitors"]
     assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].props
     assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].place("LP1")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_periodic_pulse_wave(aedtapp):
-    waveform = aedtapp.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [3000, 0])
+def test_create_periodic_pulse_wave(aedt_app):
+    waveform = aedt_app.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [3000, 0])
     assert waveform.parameters["AMPL"] == "200"
     assert waveform.parameters["FREQ"] == "20"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_set_variable(aedtapp):
-    aedtapp.variable_manager.set_variable("var_test", expression="123")
-    aedtapp["var_test"] = "234"
-    assert "var_test" in aedtapp.variable_manager.design_variable_names
-    assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+def test_set_variable(aedt_app):
+    aedt_app.variable_manager.set_variable("var_test", expression="123")
+    aedt_app["var_test"] = "234"
+    assert "var_test" in aedt_app.variable_manager.design_variable_names
+    assert aedt_app.variable_manager.design_variables["var_test"].expression == "234"
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_add_dynamic_link(aedtapp, examples, local_scratch, add_app):
-    dynamic_link = examples[1]
-    q3d_dynamic_link = examples[2]
-    tb = add_app(application=TwinBuilder, project_name=dynamic_link, design_name="CableSystem", just_open=True)
+def test_add_dynamic_link(add_app, test_tmp_dir):
+    file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Q2D_ArmouredCableExample.aedt"
+    dynamic_link = shutil.copy2(file1_o, test_tmp_dir / "Q2D_ArmouredCableExample.aedt")
+
+    file2_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Q3D_DynamicLink.aedt"
+    q3d_dynamic_link = shutil.copy2(file2_o, test_tmp_dir / "Q3D_DynamicLink.aedt")
+
+    tb = add_app(
+        application=TwinBuilder,
+        project=dynamic_link,
+        design="CableSystem",
+    )
     assert tb.add_q3d_dynamic_component(
         "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
     )
@@ -188,7 +181,7 @@ def test_add_dynamic_link(aedtapp, examples, local_scratch, add_app):
         tb.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "Setup1GHz", "sweep1", "Original")
     with pytest.raises(ValueError):
         tb.add_q3d_dynamic_component(dynamic_link, "Q3D_MSbend", "setup", "sweep1", "Original")
-    example_project_copy = Path(local_scratch.path) / f"{tb.project_name}_copy.aedt"
+    example_project_copy = test_tmp_dir / f"{tb.project_name}_copy.aedt"
     shutil.copyfile(dynamic_link, example_project_copy)
     assert tb.add_q3d_dynamic_component(
         str(example_project_copy),
@@ -198,7 +191,7 @@ def test_add_dynamic_link(aedtapp, examples, local_scratch, add_app):
         "Original",
         model_depth="100mm",
     )
-    assert tb.add_q3d_dynamic_component(q3d_dynamic_link, "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
+    assert tb.add_q3d_dynamic_component(str(q3d_dynamic_link), "Q3D_MSbend", "Setup1GHz", "MSbX_021GHz", "Original")
     with pytest.raises(ValueError):
         tb.add_q3d_dynamic_component("", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm")
     with pytest.raises(ValueError):
@@ -210,37 +203,36 @@ def test_add_dynamic_link(aedtapp, examples, local_scratch, add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_add_sml_component(aedtapp, local_scratch):
-    aedtapp.insert_design("SML")
-    input_file = local_scratch.copyfile(
-        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Thermal_ROM_SML.sml"
-    )
+def test_add_sml_component(aedt_app, test_tmp_dir):
+    file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Thermal_ROM_SML.sml"
+    input_file = shutil.copy2(file1_o, test_tmp_dir / "Thermal_ROM_SML.sml")
+
     pins_names = ["Input1_InternalHeatGeneration", "Input2_HeatFlow", "Output1_Temp1,Output2_Temp2"]
-    assert aedtapp.modeler.schematic.create_component_from_sml(
-        input_file=input_file, model="Thermal_ROM_SML", pins_names=pins_names
+    assert aedt_app.modeler.schematic.create_component_from_sml(
+        input_file=str(input_file), model="Thermal_ROM_SML", pins_names=pins_names
     )
-    rom1 = aedtapp.modeler.schematic.create_component("ROM1", "", "Thermal_ROM_SML")
+    rom1 = aedt_app.modeler.schematic.create_component("ROM1", "", "Thermal_ROM_SML")
 
-    assert aedtapp.modeler.schematic.update_quantity_value(rom1.composed_name, "Input2_HeatFlow", "1")
-
-
-@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-def test_create_subsheet(aedtapp, local_scratch):
-    aedtapp.insert_design("SML")
-    aedtapp.create_subsheet("subsheet", "parentsheet")
-    assert "parentsheet" in aedtapp.design_list
-    assert len(aedtapp.odesign.GetSubDesigns()) > 0
+    assert aedt_app.modeler.schematic.update_quantity_value(rom1.composed_name, "Input2_HeatFlow", "1")
 
 
 @pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Feature not available before 2025R1")
-def test_add_excitation_model(aedtapp, examples, local_scratch, add_app):
-    excitation_model = examples[3]
+def test_create_subsheet(aedt_app):
+    aedt_app.create_subsheet("subsheet", "parentsheet")
+    assert "parentsheet" in aedt_app.design_list
+    assert len(aedt_app.odesign.GetSubDesigns()) > 0
+
+
+@pytest.mark.skipif(is_linux, reason="Twinbuilder is only available in Windows OS.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Feature not available before 2025R1")
+def test_add_excitation_model(add_app, test_tmp_dir):
+    file1_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "TB_excitation_model.aedt"
+    excitation_model = shutil.copy2(file1_o, test_tmp_dir / "TB_excitation_model.aedt")
+
     tb = add_app(
         application=TwinBuilder,
-        project_name=excitation_model,
-        design_name="2 simplorer circuit",
-        just_open=True,
+        project=excitation_model,
+        design="2 simplorer circuit",
     )
     project_name = tb.project_name
     dkp = tb.desktop_class
@@ -280,7 +272,7 @@ def test_add_excitation_model(aedtapp, examples, local_scratch, add_app):
 
     assert tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
 
-    example_project_copy = Path(local_scratch.path) / f"{project_name}_copy.aedt"
+    example_project_copy = test_tmp_dir / f"{project_name}_copy.aedt"
     shutil.copyfile(excitation_model, example_project_copy)
     assert tb.add_excitation_model(
         project=str(example_project_copy), design="1 maxwell busbar", excitations=excitations
