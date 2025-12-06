@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.rcs_exporter
+
+.. autoproperty:: MonostaticRCSExporter.public_dir

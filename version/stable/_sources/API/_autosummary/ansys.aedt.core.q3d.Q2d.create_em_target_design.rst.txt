@@ -1,0 +1,6 @@
+create\_em\_target\_design
+==========================
+
+.. currentmodule:: ansys.aedt.core.q3d
+
+.. automethod:: Q2d.create_em_target_design

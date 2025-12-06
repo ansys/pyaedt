@@ -1,0 +1,6 @@
+aedt\_install\_dir
+==================
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.aedt_install_dir

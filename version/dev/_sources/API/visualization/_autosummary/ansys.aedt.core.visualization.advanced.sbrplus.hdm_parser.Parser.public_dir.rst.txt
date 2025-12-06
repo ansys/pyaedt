@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser
+
+.. autoproperty:: Parser.public_dir
