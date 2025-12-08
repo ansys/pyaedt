@@ -80,7 +80,7 @@ jobs:
     name: "Block dependabot (on dependabot PR)"
     runs-on: ubuntu-latest
     steps:
-      - name: Exit if dependabot triggered the workflow
+      - name: Exit if dependabot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if dependabot is the triggering action
         if: github.triggering_actor == 'dependabot[bot]'
         run: |
           echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
@@ -158,9 +158,9 @@ jobs:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
     permissions:
-      attestations: write
-      contents: read
-      id-token: write
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
     needs: [pr-title]
     strategy:
       fail-fast: false
