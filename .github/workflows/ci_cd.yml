@@ -24,7 +24,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions: {} # Disable default permissions
+# Disable all default permissions at workflow level for security (least privilege principle)
+# Individual jobs will explicitly request only the permissions they need
+permissions: {}
 
 jobs:
 
@@ -33,8 +35,8 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write        # Required to commit and push changelog updates to the repository
+      pull-requests: write   # Required to create pull requests with changelog updates
     steps:
       - uses: ansys/actions/doc-deploy-changelog@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
         with:
@@ -47,7 +49,7 @@ jobs:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read   # Required to read repository content for vulnerability scanning
     steps:
       - uses: ansys/actions/check-vulnerabilities@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
         with:
@@ -61,7 +63,7 @@ jobs:
     name: "Check actions security"
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read   # Required to read workflow files and check for security issues
     steps:
       - uses: ansys/actions/check-actions-security@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
         with:
@@ -105,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [block-pyansys-ci-bot]
     permissions:
-      pull-requests: read
+      pull-requests: read   # Required to read PR metadata
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
@@ -123,7 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [pr-title]
     permissions:
-      contents: read
+      contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
         uses: ansys/actions/doc-style@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
@@ -1321,9 +1323,9 @@ jobs:
             doc-build]
     runs-on: ubuntu-latest
     permissions:
-      attestations: write
-      contents: read
-      id-token: write
+      attestations: write   # Required to create and publish package attestations (SLSA provenance)
+      contents: read        # Required to read repository content for packaging
+      id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
         uses: ansys/actions/build-library@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
@@ -1341,8 +1343,8 @@ jobs:
     # Specifying a GitHub environment is optional, but strongly encouraged
     environment: release
     permissions:
-      id-token: write
-      contents: write
+      id-token: write   # Required for OIDC authentication to PyPI (trusted publisher)
+      contents: write   # Required to create GitHub releases and upload release assets
     steps:
       - name: Download the library artifacts from build-library step
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -1372,7 +1374,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [release]
     permissions:
-      contents: write
+      contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
         uses: ansys/actions/doc-deploy-stable@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
