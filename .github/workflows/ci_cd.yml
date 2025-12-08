@@ -80,7 +80,7 @@ jobs:
     name: "Block dependabot (on dependabot PR)"
     runs-on: ubuntu-latest
     steps:
-      - name: Exit if dependabot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if dependabot is the triggering action
+      - name: Exit if dependabot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if dependabot is triggering the action
         if: github.triggering_actor == 'dependabot[bot]'
         run: |
           echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
