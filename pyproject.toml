@@ -46,7 +46,7 @@ dependencies = [
 
 [project.optional-dependencies]
 unit-tests = [
-    "pytest>=7.4.0,<8.5",
+    "pytest>=7.4.0,<9.1",
     "pytest-cov>=4.0.0,<7.1",
     "mock>=5.1.0,<5.3",
     "fpdf2",
@@ -69,6 +69,7 @@ tests = [
     "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.9",
     "tables",
+    "cryptography",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -99,7 +100,7 @@ graphics = [
     "fpdf2",
 ]
 jupyter = [
-    "jupyterlab>=3.6.0,<4.5",
+    "jupyterlab>=3.6.0,<4.6",
     "ipython>=7.30.0,<9.1",
 ]
 all = [
@@ -128,7 +129,7 @@ examples = [
     "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.5",
+    "plotly>=6.0,<6.6",
     "scikit-rf>=0.30.0,<1.9",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",

@@ -27,9 +27,11 @@
 import copy
 import math
 import os
+from pathlib import Path
 import secrets
 import string
 import time
+from typing import Union
 import warnings
 
 import ansys.aedt.core
@@ -170,7 +172,7 @@ class Objects(dict):
         if self.__obj_type == "o":
             self.__parent._object_names_to_ids[value.name] = key
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> "Object3d":
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
         elif item in self.__obj_names:
@@ -1214,9 +1216,9 @@ class GeometryModeler(Modeler, PyAedtBase):
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if found_material == material.lower():
+                    if found_material.lower() == material.lower():
                         obj_lst.append(obj)
-                elif obj and (obj.material_name == material or obj.material_name == material.lower()):
+                elif obj and (obj.material_name.lower() == material.lower()):
                     obj_lst.append(obj)
         else:
             obj_lst = [
@@ -3570,7 +3572,7 @@ class GeometryModeler(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def imprint(self, blank_list, tool_list, keep_originals=True):
-        """Imprin an object list on another object list.
+        """Imprint an object list on another object list.
 
         Parameters
         ----------
@@ -4895,30 +4897,34 @@ class GeometryModeler(Modeler, PyAedtBase):
         self.oeditor.Export(arg)
         return True
 
-    @pyaedt_function_handler(filename="input_file")
+    @pyaedt_function_handler(
+        filename="input_file",
+        create_lightweigth_part="create_lightweight_part",
+        point_coicidence_tolerance="point_coincidence_tolerance",
+    )
     def import_3d_cad(
         self,
-        input_file,
-        healing=False,
-        refresh_all_ids=True,
-        import_materials=False,
-        create_lightweigth_part=False,
-        group_by_assembly=False,
-        create_group=True,
-        separate_disjoints_lumped_object=False,
-        import_free_surfaces=False,
-        point_coicidence_tolerance=1e-6,
-        reduce_stl=False,
-        reduce_percentage=0,
-        reduce_error=0,
-        merge_planar_faces=True,
-        merge_angle=0.02,
+        input_file: Union[str, Path],
+        healing: bool = False,
+        refresh_all_ids: bool = True,
+        import_materials: bool = False,
+        create_lightweight_part: bool = False,
+        group_by_assembly: bool = False,
+        create_group: bool = True,
+        separate_disjoints_lumped_object: bool = False,
+        import_free_surfaces: bool = False,
+        point_coincidence_tolerance: float = 1e-6,
+        reduce_stl: bool = False,
+        reduce_percentage: int = 0,
+        reduce_error: int = 0,
+        merge_planar_faces: bool = True,
+        merge_angle: float = 0.02,
     ):
         """Import a CAD model.
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path and name of the CAD file.
         healing : bool, optional
             Whether to perform healing. The default is ``False``, in which
@@ -4929,7 +4935,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             a big project.
         import_materials : bool optional
             Either to import material names from the file or not if presents.
-        create_lightweigth_part : bool ,optional
+        create_lightweight_part : bool ,optional
             Either to import lightweight or not.
         group_by_assembly : bool, optional
             Either import by sub-assembly or individual parts. The default is ``False``.
@@ -4939,7 +4945,7 @@ class GeometryModeler(Modeler, PyAedtBase):
             Either to automatically separate disjoint parts. The default is ``False``.
         import_free_surfaces : bool, optional
             Either to import free surfaces parts. The default is ``False``.
-        point_coicidence_tolerance : float, optional
+        point_coincidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
         reduce_stl : bool, optional
             Whether to reduce the stl file on import or not. Default is ``True``.
@@ -4961,6 +4967,8 @@ class GeometryModeler(Modeler, PyAedtBase):
         ----------
         >>> oEditor.Import
         """
+        input_file = Path(input_file)
+
         if str(healing) in ["0", "1"]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
@@ -4978,18 +4986,18 @@ class GeometryModeler(Modeler, PyAedtBase):
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         (
             vArg1.append("MergeFacesAngle:="),
-            vArg1.append(merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1),
+            vArg1.append(merge_angle if input_file.suffix.lower() == ".stl" and merge_planar_faces else -1),
         )
-        if input_file.endswith(".stl"):
+        if input_file.suffix.lower() == ".stl":
             vArg1.append("HealSTL:="), vArg1.append(True if int(healing) != 0 else False)
             vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
             vArg1.append("ReduceMaxError:="), vArg1.append(reduce_error)
             vArg1.append("ReducePercentage:="), vArg1.append(reduce_percentage)
-        vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coicidence_tolerance)
-        vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
+        vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coincidence_tolerance)
+        vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweight_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(separate_disjoints_lumped_object)
-        vArg1.append("SourceFile:="), vArg1.append(input_file)
+        vArg1.append("SourceFile:="), vArg1.append(str(input_file))
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.refresh_all_ids()

@@ -24,6 +24,8 @@
 
 from pathlib import Path
 import re
+from typing import Optional
+from typing import Union
 from warnings import warn
 
 from ansys.aedt.core.base import PyAedtBase
@@ -64,12 +66,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         self._model_units = None
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
-        self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
-        self.logger.info("Layers loaded.")
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
-        self.logger.info("Primitives loaded.")
         self.rigid_flex = None
 
     @property
@@ -167,6 +166,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
+                self.logger.info("EDB loaded.")
 
         return self._edb
 
@@ -840,15 +840,22 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             return True
 
     @pyaedt_function_handler(component_name="assignment", model_path="input_file")
-    def set_spice_model(self, assignment, input_file, model_name=None, subcircuit_name=None, pin_map=None):
+    def set_spice_model(
+        self,
+        assignment: str,
+        input_file: Union[str, Path],
+        model_name: Optional[str] = None,
+        subcircuit_name: Optional[str] = None,
+        pin_map: Optional[list] = None,
+    ) -> bool:
         """Assign a Spice model to a component.
 
         Parameters
         ----------
         assignment : str
             Name of the component.
-        input_file : str, optional
-            Full path to the model file. The default is ``None``.
+        input_file : str or :class:`pathlib.Path`
+            Full path to the model file.
         model_name : str, optional
             Name of the model. The default is ``None``, in which case the model name is the file name without an
             extension.
@@ -867,9 +874,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
-        >>> h3d.modeler.set_spice_model(assignment="A1",input_file=,subcircuit_name="SUBCK1")
+        >>> h3d.modeler.set_spice_model(assignment="A1", input_file="myfile", subcircuit_name="SUBCK1")
 
         """
+        input_file = Path(input_file)
         if not model_name:
             model_name = get_filename_without_extension(input_file)
         if model_name not in list(self.omodel_manager.GetNames()):
@@ -894,7 +902,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                 ["NAME:PortInfoBlk"],
                 ["NAME:PortOrderBlk"],
                 "filename:=",
-                input_file,
+                str(input_file),
                 "modelname:=",
                 model_name,
             ]
@@ -932,7 +940,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                 "RLCModelType:=",
                 4,
                 "SPICE_file_path:=",
-                input_file,
+                str(input_file),
                 "SPICE_model_name:=",
                 model_name,
                 "SPICE_subckt:=",

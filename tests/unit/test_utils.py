@@ -36,6 +36,7 @@ import pytest
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_GRPC_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LOG_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LSF_SETTINGS
 from ansys.aedt.core.generic.settings import Settings
@@ -226,7 +227,11 @@ def test_settings_check_allowed_properties():
     default_settings = Settings()
     # All allowed attributes
     allowed_properties_expected = (
-        ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS + ["aedt_environment_variables"]
+        ALLOWED_LOG_SETTINGS
+        + ALLOWED_GENERAL_SETTINGS
+        + ALLOWED_LSF_SETTINGS
+        + ALLOWED_GRPC_SETTINGS
+        + ["aedt_environment_variables"]
     )
     # Check attributes that are not related to Python objects (otherwise they are not 'allowed')
     properties_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick", "public_dir"]
