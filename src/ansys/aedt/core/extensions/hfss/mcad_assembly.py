@@ -388,8 +388,8 @@ class MCADAssemblyBackend(BaseModel):
         extra = "forbid"
 
     @classmethod
-    def load(cls, data, cur_dir=None):
-        cur_dir = Path(cur_dir) if cur_dir is not None else ""
+    def load(cls, data, cur_dir):
+        cur_dir = Path(cur_dir)
 
         for name, file_path in data.get("component_models", {}).items():
             if not Path(file_path).drive:
