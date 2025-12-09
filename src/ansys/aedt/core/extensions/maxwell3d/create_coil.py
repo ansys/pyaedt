@@ -216,14 +216,17 @@ def main(data: CoilExtensionData):
 
     coil = Coil(aedtapp, is_vertical=data.is_vertical)
 
-    for f in fields(data):
-        val = getattr(data, f.name)
-        if f.type is str:
-            setattr(coil, f.name, val)
-        elif f.type is int and f.type is not bool:
-            setattr(coil, f.name, int(val))
-        elif f.type is float:
-            setattr(coil, f.name, float(val))
+    try:
+        for f in fields(data):
+            val = getattr(data, f.name)
+            if f.type is str:
+                setattr(coil, f.name, val)
+            elif f.type is int and f.type is not bool:
+                setattr(coil, f.name, int(val))
+            elif f.type is float:
+                setattr(coil, f.name, float(val))
+    except ValueError as e:
+        raise e
 
     # Create polyline shape for coil
     polyline = coil.create_vertical_path() if data.is_vertical else coil.create_flat_path()
@@ -252,21 +255,21 @@ def main(data: CoilExtensionData):
             0,
         ]
     # Create coil profile
-    coil_name = coil.create_sweep_profile(start_point, polyline)
+    profile_name = coil.create_sweep_profile(start_point, polyline)
 
     # Create and replace 3D Component
-    comp_path = Path(aedtapp.working_directory, coil_name + ".a3dcomp")
+    comp_path = Path(aedtapp.working_directory, data.name + ".a3dcomp")
     params = [f.name for f in fields(data)] & aedtapp.variable_manager.design_variables.keys()
     aedtapp.modeler.create_3dcomponent(
         input_file=str(comp_path),
         variables_to_include=list(params),
-        name=coil_name,
-        assignment=[coil_name],
+        # name=data.name,
+        assignment=[profile_name],
     )
     aedtapp.modeler.replace_3dcomponent(
-        name=coil_name,
+        name=data.name,
         variables_to_include=list(params),
-        assignment=[coil_name],
+        assignment=[profile_name],
     )
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
