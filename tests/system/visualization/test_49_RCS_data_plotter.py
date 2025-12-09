@@ -45,7 +45,7 @@ except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
-test_subfolder = "T49"
+TEST_SUBFOLDER = "T49"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -54,11 +54,11 @@ def desktop():
     return
 
 
-@pytest.fixture(scope="class")
-def setup_test_data(request, local_scratch):
+@pytest.fixture
+def setup_test_data(request, test_tmp_dir):
     """Fixture to set up the test data directory and file before running the test class."""
-    dir_original = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder
-    data_dir = Path(local_scratch.path) / "rcs_files"
+    dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER
+    data_dir = test_tmp_dir / "rcs_files"
     shutil.copytree(dir_original, data_dir)
 
     metadata = {

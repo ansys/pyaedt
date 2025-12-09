@@ -43,11 +43,11 @@ def desktop():
     return
 
 
-@pytest.fixture(scope="class")
-def setup_test_data(request, local_scratch):
+@pytest.fixture
+def setup_test_data(request, test_tmp_dir):
     """Fixture to set up the test data directory and file before running the test class."""
-    dir_original = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder
-    input_dir = Path(local_scratch.path) / "frtm_files"
+    dir_original = TESTS_VISUALIZATION_PATH / "example_models" / test_subfolder
+    input_dir = test_tmp_dir / "frtm_files"
     shutil.copytree(dir_original, input_dir)
 
     request.cls.input_dir = input_dir

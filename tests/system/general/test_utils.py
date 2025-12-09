@@ -26,6 +26,7 @@
 
 import os
 from pathlib import Path
+import shutil
 
 import pytest
 
@@ -38,7 +39,7 @@ def desktop():
     return
 
 
-def test_settings_load_default_yaml(monkeypatch):
+def test_settings_load_default_yaml(monkeypatch, test_tmp_dir):
     """Test loading the default YAML file in docs/source/Resources."""
     # Set PYAEDT_LOCAL_SETTINGS_PATH to default value
     monkeypatch.setenv("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -48,7 +49,8 @@ def test_settings_load_default_yaml(monkeypatch):
     local_settings = Settings()
     project_root = Path(__file__).resolve().parents[3]
     pyaedt_settings_path = project_root / "doc" / "source" / "Resources" / "pyaedt_settings.yaml"
-    local_settings.load_yaml_configuration(str(pyaedt_settings_path))
+    local_file = shutil.copy2(pyaedt_settings_path, test_tmp_dir / "pyaedt_settings.yaml")
+    local_settings.load_yaml_configuration(str(local_file))
 
     # Compare except for keys where it does not make sense, e.g. log filename, time_tick
     default_settings_attributes = default_settings.__dict__
@@ -63,9 +65,10 @@ def test_settings_load_default_yaml(monkeypatch):
     assert default_settings_attributes == local_settings_attributes
 
 
-def test_settings_write_default_yaml(tmp_path):
+def test_settings_write_default_yaml(test_tmp_dir):
     default_settings = Settings()
-    path = str("pyaedt_settings.yaml")
-    default_settings.write_yaml_configuration(path)
+    path = test_tmp_dir / "pyaedt_settings.yaml"
 
-    assert Path(path).is_file()
+    default_settings.write_yaml_configuration(str(path))
+
+    assert path.is_file()
