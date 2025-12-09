@@ -211,7 +211,7 @@ def test_data_plot(h3d_potter_horn, test_tmp_dir):
         report_category="Far Fields",
         context="3D",
     )
-    assert data.plot(snapshot_path=str(test_tmp_dir, "reportC.jpg"), show=False)
+    assert data.plot(snapshot_path=str(test_tmp_dir / "reportC.jpg"), show=False)
 
 
 def test_data_plot_3d(h3d_potter_horn):
@@ -245,7 +245,7 @@ def test_create_3d_plot(h3d_potter_horn, test_tmp_dir):
     )
     assert h3d_potter_horn.post.create_3d_plot(
         data,
-        snapshot_path=str(test_tmp_dir, "reportC_3D_2.jpg"),
+        snapshot_path=str(test_tmp_dir / "reportC_3D_2.jpg"),
         show=False,
     )
 
