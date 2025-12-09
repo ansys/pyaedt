@@ -883,7 +883,7 @@ def test_create_and_change_prop_text(aedt_app):
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Change property doesn't work in non-graphical mode.")
 @pytest.mark.skipif(is_linux and DESKTOP_VERSION == "2024.1", reason="Schematic has to be closed.")
 def test_change_text_property(aedt_app):
-    aedt_app.set_active_design("text")
+    _ = aedt_app.modeler.create_text("text test")
     text_id = aedt_app.oeditor.GetAllGraphics()[0].split("@")[1]
     assert aedt_app.modeler.change_text_property(text_id, "Font", "Calibri")
     assert aedt_app.modeler.change_text_property(text_id, "DisplayRectangle", True)

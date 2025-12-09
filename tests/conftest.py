@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import fnmatch
 import inspect
 import json
 import os
@@ -30,6 +29,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+from typing import List
 from unittest.mock import MagicMock
 
 import pytest
@@ -111,6 +111,31 @@ if "PYAEDT_LOCAL_SETTINGS_PATH" not in os.environ:
     settings.release_on_exception = False
 
 
+def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
+    """Hook used to apply marker on tests."""
+    for item in items:
+        # Mark unit, integration and system tests
+        if item.nodeid.startswith(UNIT_TEST_PREFIX):
+            item.add_marker(pytest.mark.unit)
+        elif item.nodeid.startswith(INTEGRATION_TEST_PREFIX):
+            item.add_marker(pytest.mark.integration)
+        elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
+            item.add_marker(pytest.mark.system)
+        # Finer markers for system tests
+        if item.nodeid.startswith(SYSTEM_SOLVERS_TEST_PREFIX):
+            item.add_marker(pytest.mark.solvers)
+        elif item.nodeid.startswith(SYSTEM_GENERAL_TEST_PREFIX):
+            item.add_marker(pytest.mark.general)
+        elif item.nodeid.startswith(VISUALIZATION_GENERAL_TEST_PREFIX):
+            item.add_marker(pytest.mark.visualization)
+        elif item.nodeid.startswith(EXTENSIONS_GENERAL_TEST_PREFIX):
+            item.add_marker(pytest.mark.extensions)
+        elif item.nodeid.startswith(FILTER_SOLUTIONS_TEST_PREFIX):
+            item.add_marker(pytest.mark.filter_solutions)
+        elif item.nodeid.startswith(EMIT_TEST_PREFIX):
+            item.add_marker(pytest.mark.emit)
+
+
 # ================================
 # SESSION FIXTURES
 # ================================
@@ -165,37 +190,37 @@ def desktop(tmp_path_factory):
         raise Exception("Failed to close Desktop instance") from e
 
 
-@pytest.fixture(scope="session", autouse=True)
-def cleanup_all_tmp_at_end(tmp_path_factory):
-    """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
-    base = tmp_path_factory.getbasetemp()
-    temp_dir = Path(tempfile.gettempdir())
-
-    yield
-
-    # Now the session is over, try to remove everything inside `base`
-    try:
-        for p in sorted(base.rglob("*"), key=lambda x: x.is_dir()):
-            try:
-                p.unlink()
-            except (IsADirectoryError, PermissionError):
-                shutil.rmtree(p, ignore_errors=True)
-    except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup temporary directory {base}")
-
-    # Remove pkg- temp dirs from system temp
-    try:
-        for entry in temp_dir.iterdir():
-            if entry.is_dir() and entry.name.startswith("pkg-"):
-                shutil.rmtree(entry, ignore_errors=True)
-            elif entry.is_file():
-                if fnmatch.fnmatch(entry.name, "pyaedt_*.log") or fnmatch.fnmatch(entry.name, "pyedb_*.log"):
-                    try:
-                        entry.unlink()
-                    except Exception as e:
-                        pyaedt_logger.debug(f"Error {type(e)} occurred while deleting log file: {e}")
-    except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
+# @pytest.fixture(scope="session", autouse=True)
+# def cleanup_all_tmp_at_end(tmp_path_factory):
+#     """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
+#     base = tmp_path_factory.getbasetemp()
+#     temp_dir = Path(tempfile.gettempdir())
+#
+#     yield
+#
+#     # Now the session is over, try to remove everything inside `base`
+#     try:
+#         for p in sorted(base.rglob("*"), key=lambda x: x.is_dir()):
+#             try:
+#                 p.unlink()
+#             except (IsADirectoryError, PermissionError):
+#                 shutil.rmtree(p, ignore_errors=True)
+#     except Exception:
+#         pyaedt_logger.warning(f"Failed to cleanup temporary directory {base}")
+#
+#     # Remove pkg- temp dirs from system temp
+#     try:
+#         for entry in temp_dir.iterdir():
+#             if entry.is_dir() and entry.name.startswith("pkg-"):
+#                 shutil.rmtree(entry, ignore_errors=True)
+#             elif entry.is_file():
+#                 if fnmatch.fnmatch(entry.name, "pyaedt_*.log") or fnmatch.fnmatch(entry.name, "pyedb_*.log"):
+#                     try:
+#                         entry.unlink()
+#                     except Exception as e:
+#                         pyaedt_logger.debug(f"Error {type(e)} occurred while deleting log file: {e}")
+#     except Exception:
+#         pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
 
 
 # ================================
@@ -208,7 +233,11 @@ def file_tmp_root(tmp_path_factory, request):
     module_path = Path(request.fspath)
     name = module_path.stem
     root = tmp_path_factory.mktemp(f"{name}-")
-    return root
+    yield root
+    try:
+        shutil.rmtree(root, ignore_errors=True)
+    except Exception:
+        pyaedt_logger.warning(f"Failed to cleanup temporary directory {root}")
 
 
 # ================================
@@ -235,7 +264,7 @@ def add_app(test_tmp_dir, desktop):
         application=None,
         close_projects=True,
     ):
-        if close_projects and desktop.project_list:
+        if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)
@@ -285,7 +314,7 @@ def add_app_example(test_tmp_dir, desktop):
         is_edb=False,
         close_projects=True,
     ):
-        if close_projects and desktop.project_list:
+        if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
             for project_name in projects:
                 desktop.odesktop.CloseProject(project_name)

@@ -60,7 +60,7 @@ def hfss3dl(add_app_example):
     app.close_project(save=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def maxwell(add_app_example):
     app = add_app_example(
         application=Maxwell3d,
@@ -71,25 +71,14 @@ def maxwell(add_app_example):
     app.close_project(save=False)
 
 
-@pytest.fixture()
-def hfss(add_app_example):
-    app = add_app_example(
-        application=Hfss,
-        subfolder=TEST_SUBFOLDER,
-        project=POST_PROCESSING_PROJECT,
-    )
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture()
+@pytest.fixture
 def flex_app(add_app_example):
     app = add_app_example(project=RIGID_FLEX, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def hfss3dl_post_app(add_app_example):
     app = add_app_example(project=POST_LAYOUT_PROJECT, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER)
     yield app
@@ -991,7 +980,14 @@ def test_create_polygon(aedt_app):
 @pytest.mark.skipif(not USE_GRPC, reason="Not running in COM mode")
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
 @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
-def test_post_processing(maxwell, hfss):
+def test_post_processing(maxwell, add_app_example):
+    app = add_app_example(
+        application=Hfss,
+        subfolder=TEST_SUBFOLDER,
+        project=POST_PROCESSING_PROJECT,
+        close_projects=False,
+    )
+
     field_plot_layers = maxwell.post.create_fieldplot_layers(
         [],
         "Mag_H",
@@ -1032,23 +1028,24 @@ def test_post_processing(maxwell, hfss):
         intrinsics={"Time": "1ms"},
         plot_name="Test_Layers3",
     )
-    assert hfss.post.create_fieldplot_layers_nets(
+    assert app.post.create_fieldplot_layers_nets(
         [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
         "Mag_E",
         intrinsics={"Freq": "1GHz", "Phase": "0deg"},
         plot_name="Test_Layers4",
     )
-    assert hfss.post.create_fieldplot_layers(
+    assert app.post.create_fieldplot_layers(
         ["TOP"],
         "Mag_E",
         intrinsics={"Freq": "1GHz", "Phase": "0deg"},
     )
-    assert hfss.post.create_fieldplot_layers(
+    assert app.post.create_fieldplot_layers(
         ["TOP", "UNNAMED_004"],
         "Mag_E",
         intrinsics={"Freq": "1GHz", "Phase": "0deg"},
         nets=["GND", "V3P3_S5"],
     )
+    app.close_project(save=False)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION < "2023.2", reason="Working only from 2023 R2")
@@ -1109,9 +1106,12 @@ def test_post_processing_3d_layout(hfss3dl_post_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
-def test_set_differential_pairs(aedt_app, hfss3dl):
+def test_set_differential_pairs(aedt_app, add_app_example):
+    app = add_app_example(
+        project=DIFF_PROJECT, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER, close_projects=False
+    )
     assert not aedt_app.get_differential_pairs()
-    assert hfss3dl.set_differential_pair(
+    assert app.set_differential_pair(
         assignment="Port3",
         reference="Port4",
         common_mode=None,
@@ -1119,9 +1119,10 @@ def test_set_differential_pairs(aedt_app, hfss3dl):
         common_reference=34,
         differential_reference=123,
     )
-    assert hfss3dl.set_differential_pair(assignment="Port3", reference="Port5")
-    assert hfss3dl.get_differential_pairs()
-    assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
+    assert app.set_differential_pair(assignment="Port3", reference="Port5")
+    assert app.get_differential_pairs()
+    assert app.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
+    app.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Bug on linux")

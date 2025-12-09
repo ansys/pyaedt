@@ -24,6 +24,7 @@
 
 import logging
 from pathlib import Path
+import shutil
 from unittest.mock import MagicMock
 
 from mock import patch
@@ -37,86 +38,89 @@ from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touch
 from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 from tests import TESTS_VISUALIZATION_PATH
 
-test_subfolder = "T44"
-test_dir = TESTS_VISUALIZATION_PATH / "example_models" / test_subfolder
-sp8 = "port_order_1234.s8p"
-aedt_proj_name = "differential_microstrip"
+TEST_SUBFOLDER = "T44"
+TEST_DIR = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER
+SP8 = "port_order_1234.s8p"
+AEDT_PROJ_NAME = "differential_microstrip"
 
 
-@pytest.fixture()
-def hfss3dl(add_app):
-    app = add_app(project_name=aedt_proj_name, application=Hfss3dLayout, subfolder=test_subfolder)
+@pytest.fixture
+def hfss3dl(add_app_example):
+    app = add_app_example(project=AEDT_PROJ_NAME, application=Hfss3dLayout, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
 
-class TestClass:
-    @pytest.mark.skipif(is_linux, reason="Random fail in Linux.")
-    def test_get_touchstone_data(self, hfss3dl):
-        all_ts_data = hfss3dl.get_touchstone_data("Setup1")
-        assert isinstance(all_ts_data, list)
-        ts_data = all_ts_data[0]
-        assert ts_data.get_return_loss_index()
-        assert ts_data.get_insertion_loss_index_from_prefix("diff1", "diff2")
-        assert ts_data.get_next_xtalk_index()
-        assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
+@pytest.mark.skipif(is_linux, reason="Random fail in Linux.")
+def test_get_touchstone_data(hfss3dl):
+    all_ts_data = hfss3dl.get_touchstone_data("Setup1")
+    assert isinstance(all_ts_data, list)
+    ts_data = all_ts_data[0]
+    assert ts_data.get_return_loss_index()
+    assert ts_data.get_insertion_loss_index_from_prefix("diff1", "diff2")
+    assert ts_data.get_next_xtalk_index()
+    assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
-    def test_read_ts_file(self, local_scratch):
-        src = test_dir / sp8
-        touchstone_file_path = local_scratch.copyfile(src, dst_filename=sp8)
 
-        ts1 = TouchstoneData(touchstone_file=touchstone_file_path)
-        assert ts1.get_mixed_mode_touchstone_data()
-        ts2 = TouchstoneData(touchstone_file=touchstone_file_path)
-        assert ts2.get_mixed_mode_touchstone_data(port_ordering="1324")
+def test_read_ts_file(test_tmp_dir):
+    src = TEST_DIR / SP8
+    touchstone_file_path = shutil.copy2(src, test_tmp_dir / SP8)
 
-        assert ts1.plot_insertion_losses(plot=False)
-        assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
+    ts1 = TouchstoneData(touchstone_file=touchstone_file_path)
+    assert ts1.get_mixed_mode_touchstone_data()
+    ts2 = TouchstoneData(touchstone_file=touchstone_file_path)
+    assert ts2.get_mixed_mode_touchstone_data(port_ordering="1324")
 
-    def test_check_touchstone_file(self, local_scratch):
-        input_dir = local_scratch.path / "touchstone_files"
-        local_scratch.copyfolder(test_dir, input_dir)
+    assert ts1.plot_insertion_losses(plot=False)
+    assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
 
-        check = check_touchstone_files(input_dir=input_dir)
-        assert check
-        for k, v in check.items():
-            if v and v[0] == "passivity":
-                assert v[1]
-            elif v and v[0] == "causality":
-                assert not v[1]
 
-    def test_get_coupling_in_range(self, local_scratch):
-        touchstone_file_path = test_dir / "HSD_PCIE_UT_main_cutout.s16p"
-        output_file = local_scratch.path / "test_44_gcir.log"
-        aedb_path = test_dir / "HSD_PCIE_UT.aedb"
-        file_path = local_scratch.path / "HSD_PCIE_UT.aedb"
-        local_scratch.copyfolder(aedb_path, file_path)
+def test_check_touchstone_file(test_tmp_dir):
+    input_dir = shutil.copytree(TEST_DIR, test_tmp_dir / "touchstone_files")
+    check = check_touchstone_files(input_dir=input_dir)
+    assert check
+    for k, v in check.items():
+        if v and v[0] == "passivity":
+            assert v[1]
+        elif v and v[0] == "causality":
+            assert not v[1]
 
-        design_name = "main_cutout1"
-        ts = TouchstoneData(touchstone_file=touchstone_file_path)
-        res = ts.get_coupling_in_range(
-            start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=str(output_file)
-        )
-        assert isinstance(res, list)
-        res = ts.get_coupling_in_range(
-            start_frequency=1e9,
-            high_loss=-60,
-            low_loss=-40,
-            frequency_sample=5,
-            output_file=str(output_file),
-            aedb_path=str(file_path),
-        )
-        assert isinstance(res, list)
-        res = ts.get_coupling_in_range(
-            start_frequency=1e9,
-            high_loss=-60,
-            low_loss=-40,
-            frequency_sample=5,
-            output_file=str(output_file),
-            aedb_path=str(file_path),
-            design_name=design_name,
-        )
-        assert isinstance(res, list)
+
+def test_get_coupling_in_range(test_tmp_dir):
+    touchstone_file_path_o = TEST_DIR / "HSD_PCIE_UT_main_cutout.s16p"
+    touchstone_file_path = shutil.copy2(touchstone_file_path_o, test_tmp_dir / "HSD_PCIE_UT_main_cutout.s16p")
+
+    output_file = test_tmp_dir / "test_44_gcir.log"
+
+    aedb_path = TEST_DIR / "HSD_PCIE_UT.aedb"
+    file_path = test_tmp_dir / "HSD_PCIE_UT.aedb"
+    shutil.copytree(aedb_path, file_path)
+
+    design_name = "main_cutout1"
+    ts = TouchstoneData(touchstone_file=touchstone_file_path)
+    res = ts.get_coupling_in_range(
+        start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=str(output_file)
+    )
+    assert isinstance(res, list)
+    res = ts.get_coupling_in_range(
+        start_frequency=1e9,
+        high_loss=-60,
+        low_loss=-40,
+        frequency_sample=5,
+        output_file=str(output_file),
+        aedb_path=str(file_path),
+    )
+    assert isinstance(res, list)
+    res = ts.get_coupling_in_range(
+        start_frequency=1e9,
+        high_loss=-60,
+        low_loss=-40,
+        frequency_sample=5,
+        output_file=str(output_file),
+        aedb_path=str(file_path),
+        design_name=design_name,
+    )
+    assert isinstance(res, list)
 
 
 def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):

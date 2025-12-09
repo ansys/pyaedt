@@ -1780,19 +1780,19 @@ def test_global_mesh_region(ipk_app):
     g_m_r.global_region.positive_z_padding = "5 mm"
     assert g_m_r.global_region.padding_types[-2] == "Absolute Offset"
     assert g_m_r.global_region.padding_values[-2] == "5mm"
-    g_m_r.settings["MeshRegionRESOLUTION"] = 3
+    g_m_r.settings["MeshRegionResolution"] = 3
     g_m_r.update()
-    assert g_m_r.settings["MeshRegionRESOLUTION"] == 3
+    assert g_m_r.settings["MeshRegionResolution"] == 3
     g_m_r.manual_settings = True
     with pytest.raises(KeyError):
-        g_m_r.settings["MeshRegionRESOLUTION"]
+        _ = g_m_r.settings["MeshRegionResolution"]
     g_m_r.settings["MaxElementSizeX"] = "500um"
     g_m_r.update()
     g_m_r.global_region.object.material_name = "Carbon Monoxide"
     assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
 
 
-def test_TRANSIENT_FS(transient_app):
+def test_transient_fs(transient_app):
     fs = transient_app.post.create_field_summary()
     for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
         fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
@@ -1922,15 +1922,15 @@ def test_get_object_material_properties(ipk_app):
     assert obj_mat_prop["myBox"]["thermal_conductivity"] == "205"
 
 
-def test_get_MAX_TEMP_location_transient(transient_app):
+def test_get_max_temp_location_transient(transient_app):
     with pytest.raises(ValueError):
         transient_app.post.get_temperature_extremum(assignment="Box3", max_min="Max", location="Surface")
-    MAX_TEMP = transient_app.post.get_temperature_extremum(
+    max_temp = transient_app.post.get_temperature_extremum(
         assignment="Box1", max_min="Max", location="Surface", time="1s"
     )
-    assert isinstance(MAX_TEMP, tuple)
-    assert len(MAX_TEMP[0]) == 3
-    assert isinstance(MAX_TEMP[1], float)
+    assert isinstance(max_temp, tuple)
+    assert len(max_temp[0]) == 3
+    assert isinstance(max_temp[1], float)
     min_temp = transient_app.post.get_temperature_extremum(
         assignment="Box1", max_min="Min", location="Volume", time="1s"
     )
@@ -1939,11 +1939,11 @@ def test_get_MAX_TEMP_location_transient(transient_app):
     assert isinstance(min_temp[1], float)
 
 
-def test_get_MAX_TEMP_location_steadystate(max_temp_app):
-    MAX_TEMP = max_temp_app.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface")
-    assert isinstance(MAX_TEMP, tuple)
-    assert len(MAX_TEMP[0]) == 3
-    assert isinstance(MAX_TEMP[1], float)
+def test_get_max_temp_location_steadystate(max_temp_app):
+    max_temp = max_temp_app.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface")
+    assert isinstance(max_temp, tuple)
+    assert len(max_temp[0]) == 3
+    assert isinstance(max_temp[1], float)
     min_temp = max_temp_app.post.get_temperature_extremum(assignment="Box2", max_min="Min", location="Volume")
     assert isinstance(min_temp, tuple)
     assert len(min_temp[0]) == 3

@@ -30,13 +30,13 @@ from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticR
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
-spheres = "RCS"
-test_subfolder = "T48"
+SPHERES = "RCS"
+TEST_SUBFOLDER = "T48"
 
 
 @pytest.fixture(scope="class")
 def project_test(add_app):
-    app = add_app(project_name=spheres, subfolder=test_subfolder)
+    app = add_app(project_name=SPHERES, subfolder=TEST_SUBFOLDER)
     return app
 
 
