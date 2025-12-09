@@ -44,6 +44,7 @@ import PIL.ImageTk
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ToolTip, check_for_pyaedt_update, get_aedt_version, get_latest_version, get_port, get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.help import Help
 
 defusedxml.defuse_stdlib()
 
@@ -109,6 +110,9 @@ class VersionManager:
         # Configure style for ttk buttons
         self.style = ttk.Style()
         self.theme = ExtensionTheme()
+
+        # Help for opening links
+        self.help = Help()
 
         self.theme.apply_light_theme(self.style)
         self.theme_color = "light"
@@ -733,12 +737,7 @@ class VersionManager:
 
             def open_changelog():
                 try:
-                    url = ("https://aedt.docs.pyansys.com/version/stable/"
-                           "changelog.html")
-                    webbrowser.open(str(url))
-                    logging.getLogger("Global").info(
-                        "Opened PyAEDT changelog."
-                    )
+                    self.help.release_notes()
                 except Exception:
                     logging.getLogger("Global").debug(
                         "Failed to open changelog", exc_info=True
