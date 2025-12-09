@@ -55,7 +55,7 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir):
     mock_askopenfilename.return_value = str(config_file)
     extension.root.nametowidget(".notebook.main.load").invoke()
 
-    backend = MCADAssemblyBackend.load(data=extension.config_data)
+    backend = MCADAssemblyBackend.load(data=extension.config_data, cur_dir=config_file.parent)
     backend.run(hfss_app)
     assert hfss_app.modeler.layout_component_names == ["pcb1"]
     assert set(hfss_app.modeler.user_defined_component_names) == {
