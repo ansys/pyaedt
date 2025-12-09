@@ -42,118 +42,119 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 from tests import TESTS_VISUALIZATION_PATH
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
+from tests.conftest import NON_GRAPHICAL
 
-test_field_name = "Potter_Horn_242"
-q3d_file = "via_gsg_solved"
-test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
-sbr_file = "poc_scat_small_solved"
-eye_diagram = "channel_solved"
-ami = "ami"
-m2d_file = "m2d"
-m3d_file = "m3d"
-test_emi_name = "EMI_RCV_251"
-ipk_post_proj = "for_icepak_post_parasolid"
-ipk_markers_proj = "ipk_markers"
-tb_spectral = "TB_excitation_model"
+TEST_FIELD_NAME = "Potter_Horn_242"
+Q3D_FILE = "via_gsg_solved"
+TEST_CIRCUIT_NAME = "Switching_Speed_FET_And_Diode_Solved"
+SBR_FILE = "poc_scat_small_solved"
+EYE_DIAGRAM = "channel_solved"
+AMI = "ami"
+M2D_FILE = "m2d"
+M3D_FILE = "m3d"
+TEST_EMI_NAME = "EMI_RCV_251"
+IPK_POST_PROJ = "for_icepak_post_parasolid"
+IPK_MARKERS_PROJ = "ipk_markers"
+TB_SPECTRAL = "TB_excitation_model"
 
-test_subfolder = "T12"
+TEST_SUBFOLDER = "T12"
 
 
-@pytest.fixture()
-def markers_test(add_app):
-    app = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
+@pytest.fixture
+def markers_test(add_app_example):
+    app = add_app_example(project=IPK_MARKERS_PROJ, application=Icepak, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture
+def field_test(add_app_example):
+    app = add_app_example(project=TEST_FIELD_NAME, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def field_test(add_app):
-    app = add_app(project_name=test_field_name, subfolder=test_subfolder)
+def circuit_test(add_app_example):
+    app = add_app_example(project=TEST_CIRCUIT_NAME, design="Diode", application=Circuit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def circuit_test(add_app):
-    app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+def emi_receiver_test(add_app_example):
+    app = add_app_example(project=TEST_EMI_NAME, design="CE_band", application=Circuit, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture
+def diff_test(add_app_example):
+    app = add_app_example(project=TEST_CIRCUIT_NAME, design="diff", application=Circuit, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
+
+
+@pytest.fixture
+def sbr_test(add_app_example):
+    app = add_app_example(project=SBR_FILE, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def emi_receiver_test(add_app):
-    app = add_app(project_name=test_emi_name, design_name="CE_band", application=Circuit, subfolder=test_subfolder)
+def q3dtest(add_app_example):
+    app = add_app_example(project=Q3D_FILE, application=Q3d, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def diff_test(add_app):
-    app = add_app(project_name=test_circuit_name, design_name="diff", application=Circuit, subfolder=test_subfolder)
+def q2dtest(add_app_example):
+    app = add_app_example(project=Q3D_FILE, application=Q2d, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def sbr_test(add_app):
-    app = add_app(project_name=sbr_file, subfolder=test_subfolder)
+def eye_test(add_app_example):
+    app = add_app_example(project=EYE_DIAGRAM, application=Circuit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def q3dtest(add_app):
-    app = add_app(project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
+def icepak_post(add_app_example):
+    app = add_app_example(project=IPK_POST_PROJ, application=Icepak, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def q2dtest(add_app):
-    app = add_app(project_name=q3d_file, application=Q2d, subfolder=test_subfolder)
+def ami_test(add_app_example):
+    app = add_app_example(project=AMI, application=Circuit, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def eye_test(add_app):
-    app = add_app(project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+def m2dtest(add_app_example):
+    app = add_app_example(project=M2D_FILE, application=Maxwell2d, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def icepak_post(add_app):
-    app = add_app(project_name=ipk_post_proj, application=Icepak, subfolder=test_subfolder)
+def m3d_app(add_app_example):
+    app = add_app_example(project=M3D_FILE, application=Maxwell3d, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def ami_test(add_app):
-    app = add_app(project_name=ami, application=Circuit, subfolder=test_subfolder)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture()
-def m2dtest(add_app):
-    app = add_app(project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture()
-def m3d_app(add_app):
-    app = add_app(project_name=m3d_file, application=Maxwell3d, subfolder=test_subfolder)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture()
-def tb_app(add_app):
-    app = add_app(project_name=tb_spectral, application=TwinBuilder, subfolder=test_subfolder)
+def tb_app(add_app_example):
+    app = add_app_example(project=TB_SPECTRAL, application=TwinBuilder, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(save=False)
 
@@ -453,20 +454,20 @@ def test_q2dtest_no_report(q2dtest):
 
 def test_parse_vector_aedtplt(self):
     out = _parse_aedtplt(
-        os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
+        os.path.join(TESTS_VISUALIZATION_PATH, "example_models", TEST_SUBFOLDER, "test_vector.aedtplt")
     )
     assert isinstance(out[0], list)
     assert isinstance(out[1], list)
     assert isinstance(out[2], list)
     assert isinstance(out[3], bool)
     assert _parse_aedtplt(
-        os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+        os.path.join(TESTS_VISUALIZATION_PATH, "example_models", TEST_SUBFOLDER, "test_vector_no_solutions.aedtplt")
     )
 
 
 def test_parse_vector(self):
     out = _parse_streamline(
-        os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
+        os.path.join(TESTS_VISUALIZATION_PATH, "example_models", TEST_SUBFOLDER, "test_streamline.fldplt")
     )
     assert isinstance(out, list)
 
@@ -484,9 +485,7 @@ def test_eye_diagram(eye_test):
     assert rep.create()
 
 
-@pytest.mark.skipif(
-    config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
-)
+@pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
 def test_mask(eye_test):
     rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
     rep.time_start = "0ps"
@@ -503,9 +502,7 @@ def test_mask(eye_test):
     assert os.path.exists(rep.export_mask_violation())
 
 
-@pytest.mark.skipif(
-    config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
-)
+@pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
 def test_eye_measurements(eye_test):
     rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
     rep.time_start = "0ps"
@@ -531,9 +528,7 @@ def test_spectral_from_json_simple(circuit_test):
     )
 
 
-@pytest.mark.skipif(
-    config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
-)
+@pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
 def test_eye_from_json(eye_test):
     assert eye_test.post.create_report_from_configuration(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "EyeDiagram_Report.toml"),
@@ -541,9 +536,7 @@ def test_eye_from_json(eye_test):
     )
 
 
-@pytest.mark.skipif(
-    config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
-)
+@pytest.mark.skipif(DESKTOP_VERSION < "2022.2", reason="Not working in non graphical in version lower than 2022.2")
 def test_spectral_from_json(circuit_test):
     assert circuit_test.post.create_report_from_configuration(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report.json"),
@@ -674,7 +667,7 @@ def test_m2d_plot_field_line_traces(m2dtest):
     assert not plot.update()
 
 
-@pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
+@pytest.mark.skipif(DESKTOP_VERSION < "2024.1", reason="EMI receiver available from 2024R1.")
 def test_emi_receiver(emi_receiver_test):
     new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
     new_report.band = "2"
@@ -788,7 +781,7 @@ def test_ipk_get_scalar_field_value_5(icepak_post):
     )
 
 
-@pytest.mark.skipif(config["NonGraphical"], reason="Method does not work in non-graphical mode.")
+@pytest.mark.skipif(NON_GRAPHICAL, reason="Method does not work in non-graphical mode.")
 def test_markers(markers_test):
     f1 = markers_test.modeler["Region"].top_face_z
     p1 = markers_test.post.create_fieldplot_surface(f1.id, "Uz")
@@ -863,7 +856,7 @@ def test_twinbuilder_spectral(tb_app):
     assert new_report.create()
 
 
-@pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Method not available before 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method not available before 2026.1")
 def test_m2d_evaluate_inception_voltage(m2dtest):
     m2dtest.set_active_design("field_line_trace")
     with pytest.raises(AEDTRuntimeError):
@@ -876,7 +869,7 @@ def test_m2d_evaluate_inception_voltage(m2dtest):
         m2dtest.post.evaluate_inception_voltage("my_plot", [1, 2, 4])
 
 
-@pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Method not available before 2026.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method not available before 2026.1")
 def test_m2d_export_inception_voltage(m2dtest):
     m2dtest.set_active_design("field_line_trace")
     file_path = str(Path(m2dtest.working_directory, "my_file.txt"))
