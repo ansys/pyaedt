@@ -452,7 +452,7 @@ def test_q2dtest_no_report(q2dtest):
     assert not q2dtest.post.reports_by_category.eigenmode()
 
 
-def test_parse_vector_aedtplt(self):
+def test_parse_vector_aedtplt():
     out = _parse_aedtplt(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", TEST_SUBFOLDER, "test_vector.aedtplt")
     )
@@ -465,7 +465,7 @@ def test_parse_vector_aedtplt(self):
     )
 
 
-def test_parse_vector(self):
+def test_parse_vector():
     out = _parse_streamline(
         os.path.join(TESTS_VISUALIZATION_PATH, "example_models", TEST_SUBFOLDER, "test_streamline.fldplt")
     )
