@@ -551,6 +551,139 @@ class EmitNode:
             return False
         return True
 
+    def _check_column_table_data(self, data):
+        """Converts user inputted int or string table data to SI units.
+
+        Parameters
+        ----------
+        data : list of tuples
+            User inputted table data.
+
+        Returns
+        -------
+        list of tuples
+            Data converted to SI units.
+        """
+
+        exceptions = {
+        'TxHarmonicNode':
+            {'Absolute': [None, 'PowerUnit'], 
+             'Relative':[None, 'Power (dBc)']},
+        'TxNbEmissionNode': 
+            {'Absolute': ['FrequencyUnit', 'PowerUnit'], 
+             'RelativeBandwidth':['FrequencyUnit', 'Attenuation (dB)']},
+        'TxBbEmissionNode' : 
+            {'Absolute': ['FrequencyUnit', 'Amplitude (dBm/Hz)'], 
+             'RelativeBandwidth':['FrequencyUnit', 'Amplitude (dBm/Hz)'], 
+             'RelativeOffset':['FrequencyUnit', 'Amplitude (dBm/Hz)'],
+             'BroadbandEquation':['FrequencyUnit (MHz)', 'Amplitude (dBm/Hz)']},
+        'RxMixerProductNode' : 
+            {'Absolute': [None, None, 'PowerUnit'], 
+             'Relative':[None, None, 'Power (dBc)']},    
+        'RxSaturationNode'  : ['FrequencyUnit', 'PowerUnit'],
+        'RxSelectivityNode' : ['FrequencyUnit', 'Attenuation (dB)']}
+
+        node_type = self._node_type
+        if node_type in exceptions:
+            if node_type in ['TxHarmonicNode', 'TxNbEmissionNode', 'TxBbEmissionNode', 'RxMixerProductNode']:
+                behavior_key = ''
+                if node_type == 'TxHarmonicNode':
+                    behavior_key = 'Harmonic Table Units'
+                elif node_type == 'TxNbEmissionNode':
+                    behavior_key = 'Narrowband Behavior'
+                elif node_type == 'TxBbEmissionNode':
+                    behavior_key = 'Noise Behavior'
+                elif node_type == 'RxMixerProductNode':
+                    behavior_key = 'Mixer Product Table Units'
+                behavior = self._get_property(behavior_key)
+                unit_list = exceptions[node_type][behavior]
+            else:
+                unit_list = exceptions[node_type]
+        else:
+            raise Exception(f"No table exceptions defined for node type {node_type}.")
+
+        data_return = []
+        for row in data:
+            row_list = list(row)
+            for i, value in enumerate(row): 
+                valid_unit = False
+                if type(value) is str:
+                    val, unit = self._string_to_value_units(value)
+                    if "(" in unit_list[i]:
+                        unit_system = unit_list[i][unit_list[i].find("(")+1:unit_list[i].find(")")]
+                        if unit_system == 'MHz':
+                            row_list[i] = consts.unit_converter(val, 'Frequency', unit, unit_system)
+                        elif unit != unit_system:
+                            raise Exception(f"{unit} are not valid units for this property.")
+                        else:
+                            row_list[i] = val
+                    else:  
+                        for key, units in EMIT_VALID_UNITS.items():
+                            if unit in units:
+                                valid_unit = True
+                                unit_system = key
+                                break
+                        if valid_unit:
+                            row_list[i] = self._convert_to_internal_units(value, unit_system)
+                        else:
+                            raise Exception(f"{unit} are not valid units for this property.")
+                else:
+                    row_list[i] = value
+            data_return.append(tuple(row_list))
+        return data_return
+    
+    def _check_node_prop_table_data(self, data):
+        """Converts user inputted int or string table data to SI units.
+
+        Parameters
+        ----------
+        data : list of tuples
+            User inputted table data.
+
+        Returns
+        -------
+        list of tuples
+            Data converted to SI units.
+        """
+
+        units = self._get_property('TableUnitTypes', True)
+        cols = self._get_property('TableColumns', True)
+        
+        data_return = []
+        for row in data:
+            row_list = list(row)
+            if len(row) > len(units):
+                raise ValueError(f"Row {row} has more columns than expected ({len(units)}).")
+            for i, val in enumerate(row):
+                if "(" in cols[i]:
+                    col_unit = cols[i][cols[i].find("(")+1:cols[i].find(")")]
+                    
+                    if "hz" in col_unit.lower():
+                        units[i] = 'FrequencyUnit'
+                    elif col_unit.lower() in ['w', 'kw', 'mw', 'dbm', 'dbw', 'dbc']:
+                        units[i] = 'PowerUnit'
+                        
+                if "(" in cols[i] and type(val) is str:
+                    s = val.strip().replace(" ", "")
+                    unit_index = s.find(next(filter(str.isalpha, s)))
+                    value = float(s[:unit_index])
+                    input_unit = s[unit_index:]
+                    if input_unit =='dBc':
+                        row_list[i] = value
+                    else:
+                        row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
+                else:
+                    if type(val) is str:
+                        value, unit = self._string_to_value_units(val)
+                        if unit == "dBc":
+                            row_list[i] = value
+                        else:
+                            row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
+                    else:
+                        row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
+            data_return.append(tuple(row_list))
+        return data_return
+
     def _get_table_data(self):
         """Returns the node's table data.
 
@@ -603,12 +736,15 @@ class EmitNode:
                 # Column Data tables
                 # Data formatted using compact string serialization
                 # with '|' separating rows and ';' separating columns
+                if self._node_type in ['TxHarmonicNode', 'TxNbEmissionNode', 'TxBbEmissionNode', 'RxMixerProductNode', 'RxSaturationNode', 'RxSelectivityNode']:
+                    table = self._check_column_table_data(table)
                 data = "|".join(";".join(map(str, row)) for row in table)
                 self._oRevisionData.SetTableData(self._result_id, self._node_id, data)
             else:
                 # Node Prop tables
                 # Data formatted using compact string serialization
                 # with ';' separating rows and '|' separating columns
+                table = self._check_node_prop_table_data(table)
                 table_key = self._get_property("TableKey", True)
                 data = ";".join("|".join(map(str, row)) for row in table)
                 self._set_property(table_key, data, True)
