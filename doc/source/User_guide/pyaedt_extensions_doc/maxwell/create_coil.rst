@@ -45,7 +45,7 @@ The coil geometry is created and parametrized according to the defined parameter
 Now accessible from the design properties:
 
 .. image:: ../../../_static/extensions/coil_parametrization.png
-   :width: 300
+   :width: 450
    :alt: Coil parametrization
 
 You can also launch the extension user interface from the terminal. An example can be found here:
