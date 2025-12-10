@@ -68,11 +68,10 @@ def main():
         command = pyaedt_utils.get_linux_terminal_command()
         if not command:
             pyaedt_utils.show_error("No terminal found on system.", oDesktop)
-        pyaedt_utils.set_ansys_em_environment(oDesktop)
-        command.extend([python_exe, "-i", pyaedt_script, str(oDesktop.GetProcessID()), str(oDesktop.GetVersion()[:6])])
+        command.extend([python_exe, "-i", pyaedt_script])
         subprocess.Popen(command)
     else:
-        command = ['"{}"'.format(python_exe), "-i", '"{}"'.format(pyaedt_script), str(oDesktop.GetProcessID()), str(oDesktop.GetVersion()[:6])]
+        command = ['"{}"'.format(python_exe), "-i", '"{}"'.format(pyaedt_script)]
         subprocess.Popen(" ".join(command))
 
 

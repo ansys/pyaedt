@@ -65,7 +65,6 @@ def main():
         pyaedt_utils.environment_variables(oDesktop)
         # Open extension manager
         if is_linux:
-            pyaedt_utils.set_ansys_em_environment(oDesktop)
             command = [python_exe, extension_pyaedt_script]
             my_env = os.environ.copy()
             subprocess.Popen(command, env=my_env)
