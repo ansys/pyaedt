@@ -92,8 +92,6 @@ class CoilExtension(ExtensionMaxwell3DCommon):
             toggle_row=1,
             toggle_column=0,
         )
-        # Initialize the Coil class
-        self.coil = Coil(self.aedt_application, is_vertical=True)
         # Tkinter widgets
         self.__widget = {}
         # add custom content
