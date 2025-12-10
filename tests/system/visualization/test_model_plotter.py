@@ -30,7 +30,7 @@ import pytest
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from tests import TESTS_VISUALIZATION_PATH
 
-test_subfolder = "T50"
+TEST_SUBFOLDER = "T50"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -39,11 +39,11 @@ def desktop():
     return
 
 
-@pytest.fixture(scope="class")
-def setup_test_data(request, local_scratch):
+@pytest.fixture
+def setup_test_data(request, test_tmp_dir):
     # vector field files
-    vector_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "vector_field"
-    vector_dir = Path(local_scratch.path) / "vector_files"
+    vector_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER / "vector_field"
+    vector_dir = test_tmp_dir / "vector_files"
     shutil.copytree(vector_field_path, vector_dir)
 
     vector_file_fld = vector_dir / "SurfaceAcForceDensity.fld"
@@ -57,8 +57,8 @@ def setup_test_data(request, local_scratch):
     request.cls.field_case = str(vector_file_case)
 
     # scalar field files
-    scalar_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "scalar_field"
-    scalar_dir = Path(local_scratch.path) / "scalar_files"
+    scalar_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER / "scalar_field"
+    scalar_dir = test_tmp_dir / "scalar_files"
     shutil.copytree(scalar_field_path, scalar_dir)
 
     scalar_file_fld = scalar_dir / "Ohmic_Loss.fld"
@@ -72,8 +72,8 @@ def setup_test_data(request, local_scratch):
     request.cls.scalar_case = str(scalar_file_case)
 
     # cartesian field files
-    cartesian_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder
-    cartesian_dir = Path(local_scratch.path) / "cartesian_files"
+    cartesian_field_path = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER
+    cartesian_dir = test_tmp_dir / "cartesian_files"
     shutil.copytree(cartesian_field_path, cartesian_dir)
 
     cartesian_field_file = cartesian_dir / "E_xyz.fld"
@@ -157,12 +157,12 @@ class TestClass:
         assert model_pv_vector.vector_field_scale == 5
 
     @pytest.mark.avoid_ansys_load
-    def test_animate(self, local_scratch):
+    def test_animate(self, test_tmp_dir):
         model_pv_vector = ModelPlotter()
         model_pv_vector.add_frames_from_file([self.field_fld, self.field_fld])
         model_pv_vector.animate(show=False)
 
         model_pv_vector = ModelPlotter()
-        model_pv_vector.gif_file = Path(local_scratch.path, "field.gif")
+        model_pv_vector.gif_file = test_tmp_dir / "field.gif"
         model_pv_vector.add_frames_from_file([self.field_fld, self.field_aedtplt])
         model_pv_vector.animate(show=False)

@@ -31,143 +31,150 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 
 
-@pytest.fixture(scope="class")
-def aedtapp(add_app):
-    app = add_app(design_name="2D_Primitives_2", solution_type="TransientXY", application=Maxwell2d)
-    return app
+@pytest.fixture
+def aedt_app(add_app):
+    app = add_app(solution_type="TransientXY", application=Maxwell2d)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture(scope="class")
-def axisymmetrical(add_app):
-    app = add_app(design_name="2D_Primitives_3", solution_type="TransientZ", application=Maxwell2d)
-    return app
+@pytest.fixture
+def axisymmetrical_app(add_app):
+    app = add_app(solution_type="TransientZ", application=Maxwell2d)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def q2d_app(add_app):
-    app = add_app(design_name="2d_extr", application=Q2d)
-    return app
+    app = add_app(application=Q2d)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
-class TestClass:
-    @pytest.fixture(autouse=True)
-    def init(self, aedtapp, axisymmetrical, local_scratch):
-        self.aedtapp = aedtapp
-        self.axisymmetrical = axisymmetrical
-        self.local_scratch = local_scratch
+def create_rectangle(app, name=None):
+    if not name:
+        name = "MyRectangle"
+    if app.modeler[name]:
+        app.modeler.delete(name)
+    o = app.modeler.create_rectangle([5, 3, 0], [4, 5], name=name)
+    return o
 
-    def create_rectangle(self, name=None):
-        if not name:
-            name = "MyRectangle"
-        if self.aedtapp.modeler[name]:
-            self.aedtapp.modeler.delete(name)
-        o = self.aedtapp.modeler.create_rectangle([5, 3, 0], [4, 5], name=name)
-        return o
 
-    def test_02_create_primitive(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1", material="copper")
-        assert isinstance(o.id, int)
-        assert o.solve_inside
+def test_create_primitive(aedt_app):
+    udp = aedt_app.modeler.Position(0, 0, 0)
+    o = aedt_app.modeler.create_rectangle(udp, [5, 3], name="Rectangle1", material="copper")
+    assert isinstance(o.id, int)
+    assert o.solve_inside
 
-    def test_03_create_circle(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o1 = self.aedtapp.modeler.create_circle(udp, 3, 0, name="Circle1", material="copper")
-        assert isinstance(o1.id, int)
-        o2 = self.aedtapp.modeler.create_circle(udp, 3, 8, name="Circle2", material="copper")
-        assert isinstance(o2.id, int)
 
-    def test_04_create_ellipse(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.create_ellipse(udp, 3, 2, name="Ellipse1", material="copper")
-        assert isinstance(o.id, int)
+def test_create_circle(aedt_app):
+    udp = aedt_app.modeler.Position(0, 0, 0)
+    o1 = aedt_app.modeler.create_circle(udp, 3, 0, name="Circle1", material="copper")
+    assert isinstance(o1.id, int)
+    o2 = aedt_app.modeler.create_circle(udp, 3, 8, name="Circle2", material="copper")
+    assert isinstance(o2.id, int)
 
-    def test_05_create_poly(self):
-        udp = [self.aedtapp.modeler.Position(0, 0, 0), self.aedtapp.modeler.Position(10, 5, 0)]
-        o = self.aedtapp.modeler.create_polyline(udp, name="Ellipse1", material="copper")
-        assert isinstance(o, Polyline)
 
-    def test_chamfer_vertex(self):
-        o = self.create_rectangle("Rectangle1")
-        assert o.vertices[0].chamfer()
-        o2 = self.create_rectangle("Rectangle2")
-        assert o2.chamfer(o2.vertices)
-        assert not o2.chamfer(edges=o2.edges)
-        assert not o2.chamfer()
+def test_create_ellipse(aedt_app):
+    udp = aedt_app.modeler.Position(0, 0, 0)
+    o = aedt_app.modeler.create_ellipse(udp, 3, 2, name="Ellipse1", material="copper")
+    assert isinstance(o.id, int)
 
-    def test_fillet_vertex(self):
-        o = self.create_rectangle("Rectangle1")
-        o.vertices[0].fillet()
-        o2 = self.create_rectangle("Rectangle2")
-        assert o2.fillet(o2.vertices)
-        assert not o2.fillet(edges=o2.edges)
 
-    def test_06_create_region(self):
-        if self.aedtapp.modeler["Region"]:
-            self.aedtapp.modeler.delete(
-                "Region",
-            )
-        assert "Region" not in self.aedtapp.modeler.object_names
-        assert self.aedtapp.modeler.create_region([20, "50", "100mm", 20], "Absolute Offset")
-        self.aedtapp.modeler["Region"].delete()
-        region = self.aedtapp.modeler.create_region("100", "Percentage Offset")
-        region.delete()
-        # test backward compatibility
-        region = self.aedtapp.modeler.create_region(pad_percent=[100, 10, 5, 2], pad_type=True)
-        region.delete()
-        #
-        region = self.aedtapp.modeler.create_region([100, 100, 100, 100])
-        assert region.solve_inside
-        assert region.model
-        assert region.display_wireframe
-        assert region.object_type == "Sheet"
-        assert region.solve_inside
+def test_create_poly(aedt_app):
+    udp = [aedt_app.modeler.Position(0, 0, 0), aedt_app.modeler.Position(10, 5, 0)]
+    o = aedt_app.modeler.create_polyline(udp, name="Ellipse1", material="copper")
+    assert isinstance(o, Polyline)
 
-        region = self.aedtapp.modeler.create_region([100, 100, 100, 100, 100, 100])
-        assert not region
 
-    def test_06_a_create_region_Z(self):
-        if self.axisymmetrical.modeler["Region"]:
-            self.axisymmetrical.modeler.delete(
-                "Region",
-            )
-        assert "Region" not in self.axisymmetrical.modeler.object_names
-        assert not self.axisymmetrical.modeler.create_region(["100%", "50%", "20%"])
-        assert self.axisymmetrical.modeler.create_region([100, 50, 20])
-        self.axisymmetrical.modeler["Region"].delete()
-        assert self.axisymmetrical.modeler.create_region(100)
-        self.axisymmetrical.modeler["Region"].delete()
-        assert self.axisymmetrical.modeler.create_region("200")
-        self.axisymmetrical.modeler["Region"].delete()
-        assert self.axisymmetrical.modeler.create_region([100, "50mm", 20], False)
-        self.axisymmetrical.modeler["Region"].delete()
-        assert self.axisymmetrical.modeler.create_region([100, "50mm", "100"], False)
-        self.axisymmetrical.modeler["Region"].delete()
-        assert self.axisymmetrical.modeler.create_region(["50mm", "50mm", "50mm"], False)
-        self.axisymmetrical.modeler["Region"].delete()
-        assert self.axisymmetrical.modeler.create_region("10mm", False)
-        self.axisymmetrical.modeler["Region"].delete()
+def test_chamfer_vertex(aedt_app):
+    o = create_rectangle(aedt_app, "Rectangle1")
+    assert o.vertices[0].chamfer()
+    o2 = create_rectangle(aedt_app, "Rectangle2")
+    assert o2.chamfer(o2.vertices)
+    assert not o2.chamfer(edges=o2.edges)
+    assert not o2.chamfer()
 
-    def test_07_assign_material_ceramic(self, material="Ceramic_material"):
-        self.aedtapp.assign_material(["Rectangle1"], material)
-        assert self.aedtapp.modeler["Rectangle1"].material_name == material
 
-    def test_07_assign_material(self, material="steel_stainless"):
-        self.aedtapp.assign_material(["Rectangle1"], material)
-        assert self.aedtapp.modeler["Rectangle1"].material_name == material
+def test_fillet_vertex(aedt_app):
+    o = create_rectangle(aedt_app, "Rectangle1")
+    o.vertices[0].fillet()
+    o2 = create_rectangle(aedt_app, "Rectangle2")
+    assert o2.fillet(o2.vertices)
+    assert not o2.fillet(edges=o2.edges)
 
-    def test_08_region(self, q2d_app):
-        if q2d_app.modeler["Region"]:
-            q2d_app.modeler.delete(
-                "Region",
-            )
-        assert "Region" not in q2d_app.modeler.object_names
-        assert not q2d_app.modeler.create_region(["100%", "50%", "20%", "10%"])
-        assert q2d_app.modeler.create_region([100, 50, 20, 20])
-        q2d_app.modeler["Region"].delete()
-        assert q2d_app.modeler.create_region(100)
-        q2d_app.modeler["Region"].delete()
-        assert q2d_app.modeler.create_region("200")
-        q2d_app.modeler["Region"].delete()
-        assert q2d_app.modeler.create_region([100, "50mm", 20, 10], False)
-        q2d_app.modeler["Region"].delete()
+
+def test_create_region(aedt_app):
+    if aedt_app.modeler["Region"]:
+        aedt_app.modeler.delete("Region")
+    assert "Region" not in aedt_app.modeler.object_names
+    assert aedt_app.modeler.create_region([20, "50", "100mm", 20], "Absolute Offset")
+    aedt_app.modeler["Region"].delete()
+
+    region = aedt_app.modeler.create_region("100", "Percentage Offset")
+    region.delete()
+    # test backward compatibility
+    region = aedt_app.modeler.create_region(pad_percent=[100, 10, 5, 2], pad_type=True)
+    region.delete()
+    #
+    region = aedt_app.modeler.create_region([100, 100, 100, 100])
+    assert region.solve_inside
+    assert region.model
+    assert region.display_wireframe
+    assert region.object_type == "Sheet"
+    assert region.solve_inside
+
+    region = aedt_app.modeler.create_region([100, 100, 100, 100, 100, 100])
+    assert not region
+
+
+def test_create_region_Z(axisymmetrical_app):
+    if axisymmetrical_app.modeler["Region"]:
+        axisymmetrical_app.modeler.delete("Region")
+    assert "Region" not in axisymmetrical_app.modeler.object_names
+    assert not axisymmetrical_app.modeler.create_region(["100%", "50%", "20%"])
+    assert axisymmetrical_app.modeler.create_region([100, 50, 20])
+    axisymmetrical_app.modeler["Region"].delete()
+    assert axisymmetrical_app.modeler.create_region(100)
+    axisymmetrical_app.modeler["Region"].delete()
+    assert axisymmetrical_app.modeler.create_region("200")
+    axisymmetrical_app.modeler["Region"].delete()
+    assert axisymmetrical_app.modeler.create_region([100, "50mm", 20], False)
+    axisymmetrical_app.modeler["Region"].delete()
+    assert axisymmetrical_app.modeler.create_region([100, "50mm", "100"], False)
+    axisymmetrical_app.modeler["Region"].delete()
+    assert axisymmetrical_app.modeler.create_region(["50mm", "50mm", "50mm"], False)
+    axisymmetrical_app.modeler["Region"].delete()
+    assert axisymmetrical_app.modeler.create_region("10mm", False)
+    axisymmetrical_app.modeler["Region"].delete()
+
+
+def test_assign_material_ceramic(aedt_app):
+    material = "Ceramic_material"
+    o = create_rectangle(aedt_app, "Rectangle1")
+    aedt_app.assign_material([o.name], material)
+    assert aedt_app.modeler[o.name].material_name == material
+
+
+def test_assign_material(aedt_app, material="steel_stainless"):
+    o = create_rectangle(aedt_app, "Rectangle1")
+    aedt_app.assign_material([o.name], material)
+    assert aedt_app.modeler[o.name].material_name == material
+
+
+def test_region(q2d_app):
+    if q2d_app.modeler["Region"]:
+        q2d_app.modeler.delete(
+            "Region",
+        )
+    assert "Region" not in q2d_app.modeler.object_names
+    assert not q2d_app.modeler.create_region(["100%", "50%", "20%", "10%"])
+    assert q2d_app.modeler.create_region([100, 50, 20, 20])
+    q2d_app.modeler["Region"].delete()
+    assert q2d_app.modeler.create_region(100)
+    q2d_app.modeler["Region"].delete()
+    assert q2d_app.modeler.create_region("200")
+    q2d_app.modeler["Region"].delete()
+    assert q2d_app.modeler.create_region([100, "50mm", 20, 10], False)
+    q2d_app.modeler["Region"].delete()

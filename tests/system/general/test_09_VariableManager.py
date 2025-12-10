@@ -63,16 +63,16 @@ def app(request, add_app):
 
 @pytest.fixture
 def hfss_app(add_app):
-    app = add_app(application=pyaedt.Hfss)
-    yield app
-    app.close_project(app.project_name)
+    aedtapp = add_app(application=pyaedt.Hfss)
+    yield aedtapp
+    aedtapp.close_project(aedtapp.project_name)
 
 
 @pytest.fixture
 def maxwell_circuit_app(add_app):
-    app = add_app(application=pyaedt.MaxwellCircuit)
-    yield app
-    app.close_project(app.project_name)
+    aedtapp = add_app(application=pyaedt.MaxwellCircuit)
+    yield aedtapp
+    aedtapp.close_project(aedtapp.project_name)
 
 
 def test_set_project_variables(hfss_app):

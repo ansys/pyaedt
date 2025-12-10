@@ -166,9 +166,9 @@ def _exercise_profile_object(profile) -> None:
         (Maxwell3d, SYSTEM_SOLVERS_TEST_PREFIX + "/example_models/T00/Transient_StrandedWindings.aedtz"),
     ],
 )
-def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
+def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder):
     # Download one or more archives for this application class.
-    archives = _download_archives(folder=folder, dest=local_scratch.path / "downloads")
+    archives = _download_archives(folder=folder, dest=test_tmp_dir / "downloads")
     if not archives:
         pytest.skip(f"No archives found for {folder}; skipping.")
 
@@ -184,7 +184,7 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
             aedt_candidate = archive.with_suffix(".aedt")
             project_file = aedt_candidate if aedt_candidate.exists() else archive
 
-            app = add_app(project_name=str(project_file), application=app_cls, just_open=True)
+            app = add_app(project=project_file, application=app_cls)
 
             # Request all profiles available on the design.
             profiles = app.get_profile()
@@ -204,7 +204,7 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
             continue
         finally:
             if app:
-                app.close_project()
+                app.close_project(save=False)
 
     if not found_any_profile:
         if last_error:

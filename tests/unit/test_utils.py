@@ -134,12 +134,12 @@ def test_handler_deprecation_log_warning(caplog):
     assert len(caplog.records) == 1
 
 
-def test_settings_load_yaml(tmp_path):
+def test_settings_load_yaml(test_tmp_dir):
     """Test loading a configure file with correct input."""
     default_settings = Settings()
 
     # Create temporary YAML configuration file
-    yaml_path = tmp_path / "pyaedt_settings.yaml"
+    yaml_path = test_tmp_dir / "pyaedt_settings.yaml"
     yaml_path.write_text(
         """
     log:

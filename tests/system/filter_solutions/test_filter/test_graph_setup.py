@@ -25,11 +25,11 @@
 import pytest
 
 from ansys.aedt.core.generic.settings import is_linux
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_minimum_frequency(self, lumped_design):
         assert lumped_design.graph_setup.minimum_frequency == "200 MHz"

@@ -27,16 +27,16 @@ import pytest
 
 from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
 from ansys.aedt.core.generic.settings import is_linux
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
 from tests.system.filter_solutions.resources import resource_path
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     empty_paramter_update_err_msg = "It is not possible to update the table with empty values"
     empty_paramter_append_err_msg = "Unable to append a new row, one or more required parameters are missing"
-    if config["desktopVersion"] > "2025.1":
+    if DESKTOP_VERSION > "2025.1":
         row_excess_insert_err_msg = (
             "The Optimization Goals Table supports up to 50 rows, the input index must be less than 50"
         )
@@ -49,7 +49,7 @@ class TestClass:
         lumped_design.optimization_goals_table.restore_design_goals()
         assert lumped_design.optimization_goals_table.row_count == 2
         lumped_design.export_to_aedt.optimitrics_enabled = False
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 assert lumped_design.optimization_goals_table.row_count == 2
             assert info.value.args[0] == "The optimetric export to AEDT is not enabled"
@@ -101,7 +101,7 @@ class TestClass:
             "0.7",
             "Y",
         ]
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.optimization_goals_table.update_row(
                     0,
@@ -130,7 +130,7 @@ class TestClass:
             "0.3",
             "Y",
         ]
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.optimization_goals_table.append_row(
                     "100 MHz", "2 GHz", "", ">", "dB(S(Port2,Port2))", "0.3", "Y"
@@ -156,7 +156,7 @@ class TestClass:
                 51, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
             )
         assert info.value.args[0] == self.row_excess_insert_err_msg
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.optimization_goals_table.insert_row(
                     0, "100 MHz", "2 GHz", "", ">", "dB(S(Port2,Port2))", "0.3", "Y"
