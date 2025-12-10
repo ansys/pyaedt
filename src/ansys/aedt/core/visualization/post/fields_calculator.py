@@ -36,6 +36,8 @@ from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class FieldsCalculator(PyAedtBase):
@@ -851,6 +853,36 @@ class FieldsCalculator(PyAedtBase):
         if os.path.exists(output_file):
             return output_file
         return False
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def get_expressions(self, field_type: str = None) -> dict:
+        """Get dictionary of available Field Calculator expressions.
+
+        Parameters
+        ----------
+        field_type : str, optional
+            Field type. Options are ``"Fields"`` or ``"Time Averaged Fields"``.
+            The default is ``None``, in which case all expressions are returned.
+
+        Returns
+        -------
+        dict
+            Field Calculator expressions.
+            Where key is the named expression and value is the expression string.
+
+        References
+        ----------
+        >>> oModule.GetFieldsCalculatorExpressions
+        """
+        expressions = {}
+        field_type = field_type or ""
+        if field_type and field_type not in ["Fields", "Time Averaged Fields"]:
+            raise AEDTRuntimeError("Invalid field type.")
+        for expr in self.ofieldsreporter.GetFieldsCalculatorExpressions(field_type):
+            k, val = map(str.strip, expr.split("=", 1))
+            expressions[k] = val
+        return expressions
 
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
