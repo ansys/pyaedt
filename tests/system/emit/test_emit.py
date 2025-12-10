@@ -2066,9 +2066,9 @@ class TestClass:
 
         # Tx Spurious Emissions Table Data
         tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
-        spur_data = [('30 kHz', '50 MHz', '5000000 mW'), ('4000000 Hz', 5e6, 0.05), (70e6, 10e5, '2000 W')]
+        spur_data = [('30 kHz', '50 MHz', '100 kW'), ('4000000 Hz', 5e6, 0.05), (70e6, 10e5, '1000 W')]
         tx_spurious_emissions.table_data = spur_data
-        assert tx_spurious_emissions.table_data == [(30e3, 50e6, 5.0), (4e6, 5e6, 0.05), (70e6, 1e6, 2.0)]
+        assert tx_spurious_emissions.table_data == [(30e3, 50e6, 80), (4e6, 5e6, 0.05), (70e6, 1e6, 60)]
         tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.RELATIVE
         spur_data = [('20 MHz', '50 MHz', '5 dBc'), ('4000000 Hz', 5e6, '5 dBc'), (70e6, 10e5, '6 dBc')]
         tx_spurious_emissions.table_data = spur_data
@@ -2076,9 +2076,9 @@ class TestClass:
 
         # Rx Spurious Responses Table Data
         rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.ABSOLUTE
-        spur_data = [(10e6, 10e6, '5000000 mW'), (20e6, '1 MHz', 65), ('30 kHz', 30e6, 75)]
+        spur_data = [(10e6, 10e6, '100 kW'), (20e6, '1 MHz', 65), ('30 kHz', 30e6, 75)]
         rx_spurious_responses.table_data = spur_data
-        assert rx_spurious_responses.table_data == [(10e6, 10e6, 5.0), (20e6, 1e6, 65), (30e3, 30e6, 75)]
+        assert rx_spurious_responses.table_data == [(10e6, 10e6, 80), (20e6, 1e6, 65), (30e3, 30e6, 75)]
         rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.RELATIVE
         spur_data = [('5 kHz', 10e6, '5 dBc'), (20e6, '4000000 Hz', '15 dBc'), (30e6, 30e6, '25 dBc')]
         rx_spurious_responses.table_data = spur_data
@@ -2087,15 +2087,15 @@ class TestClass:
         # Test column data tables input conversions
         # Rx Mixer Products Table Data
         rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.ABSOLUTE
-        rx_mixer.table_data = [(1, 2, '450000 mW'), (2, 3, '6500 W'), (3, 4, 15)]
-        assert rx_mixer.table_data == [(1, 2, 0.45), (2, 3, 6.5), (3, 4, 15)]
+        rx_mixer.table_data = [(1, 2, '100 kW'), (2, 3, '1000 W'), (3, 4, 15)]
+        assert rx_mixer.table_data == [(1, 2, 80), (2, 3, 60), (3, 4, 15)]
         rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.RELATIVE
         rx_mixer.table_data = [(1, 2, '35 dBc'), (2, 3, 30), (3, 4, '45 dBc')]
         assert rx_mixer.table_data == [(1, 2, 35), (2, 3, 30), (3, 4, 45)]
 
         # Rx Saturation Table Data
-        rx_saturation.table_data = [('100 kHz', '40 kW'), (34e6, '50 dBm'), ('1 MHz', 76)]
-        assert rx_saturation.table_data == [(100000.0, 40.0), (34000000.0, 100.0), (1000000.0, 76.0)]
+        rx_saturation.table_data = [('100 kHz', '100 kW'), (34e6, '50 dBm'), ('1 MHz', 76)]
+        assert rx_saturation.table_data == [(100000.0, 80.0), (34000000.0, 50), (1000000.0, 76.0)]
 
         # Rx Selectivity Table Data
         rx_selectivity.table_data = [(0.05e6, '60 dB'), ('100 kHz', 120)]
@@ -2103,16 +2103,16 @@ class TestClass:
 
         # Tx Harmonics Table Data
         tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.ABSOLUTE
-        tx_harmonics.table_data = [(2, '60 kW'), (3, '75 kW'), (4, '800000000 W')]
-        assert tx_harmonics.table_data == [(2, 60.0), (3, 75.0), (4, 800000.0)]
+        tx_harmonics.table_data = [(2, '100 kW'), (3, '100 kW'), (4, '1000 W')]
+        assert tx_harmonics.table_data == [(2, 80.0), (3, 80.0), (4, 60.0)]
         tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.RELATIVE
         tx_harmonics.table_data = [(5, '40 dBc'), (6, '55 dBc'), (7, '70 dBc')]
         assert tx_harmonics.table_data == [(5, 40.0), (6, 55.0), (7, 70.0)]
 
         # Tx Narrowband Emissions Mask Table Data
         tx_narrowband_emissions_mask.narrowband_behavior = tx_narrowband_emissions_mask.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
-        tx_narrowband_emissions_mask.table_data = [('1 MHz', '5 kW'), (5000000, '5000 W'), (10e6, -80)]
-        assert tx_narrowband_emissions_mask.table_data == [(1000000.0, 5.0), (5000000.0, 5.0), (10000000.0, -80.0)]
+        tx_narrowband_emissions_mask.table_data = [('1 MHz', '100 kW'), (5000000, '1000 W'), (10e6, -80)]
+        assert tx_narrowband_emissions_mask.table_data == [(1000000.0, 80), (5000000.0, 60), (10000000.0, -80.0)]
         tx_narrowband_emissions_mask.narrowband_behavior = tx_narrowband_emissions_mask.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
         tx_narrowband_emissions_mask.table_data = [('1 MHz', '-40 dB'), (5000000, '50 dB'), (10e6, -80)]
         assert tx_narrowband_emissions_mask.table_data == [(1000000.0, -40.0), (5000000.0, 50.0), (10000000.0, -80.0)]
