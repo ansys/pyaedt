@@ -85,13 +85,6 @@ class ParametrizeEdbExtensionData(ExtensionCommonData):
             self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
 
 
-def show_error_message(message):
-    """Show error message."""
-    import tkinter.messagebox
-
-    tkinter.messagebox.showerror("Error", message)
-
-
 class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for parametrizing EDB layouts in AEDT."""
 
@@ -280,6 +273,12 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
 
+    def show_error_message(self, message):
+        """Show error message."""
+        import tkinter.messagebox
+
+        tkinter.messagebox.showerror("Error", message)
+
     def generate_callback(self):
         """Generate callback function."""
         try:
@@ -320,9 +319,9 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             self.root.destroy()
 
         except ValueError as e:
-            show_error_message(f"Invalid input: {str(e)}")
+            self.show_error_message(f"Invalid input: {str(e)}")
         except Exception as e:
-            show_error_message(f"Error: {str(e)}")
+            self.show_error_message(f"Error: {str(e)}")
 
 
 def main(data: ParametrizeEdbExtensionData):
