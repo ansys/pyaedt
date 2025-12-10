@@ -461,3 +461,121 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         else:
             self.ofieldsreporter.ExportInceptionVoltage(plot_name, output_file, field_line_number)
         return True
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def modify_inception_parameters(
+        self,
+        plot_name,
+        gas_type=0,
+        gas_pressure=1,
+        use_inception=False,
+        potential_u0=0,
+        potential_k=0,
+        potential_a=1,
+        critical_value=2.588,
+        streamer_constant=9.15,
+        ionization_check=False,
+        ionization_equation="x",
+        ionization_dataset=[0],
+    ):  # pragma: no cover
+        """Modify inception voltage evaluation parameters.
+
+        .. note::
+            This method required field line traces to computed beforehand to enable inception voltage evaluation.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
+        gas_type : int
+            ´´0´´ for Dry Air, ´´1´´ for SF6, ´´2´´ for User Defined.
+        gas_pressure: int, optional
+        Gas pressure in Bar, default: ´´1´´
+        use_inception: bool
+            True to use the inception parameters U0, K, A: default: True
+        potential_u0: float, optional
+        U0 parameter (constant voltage offset value): default: ´´0´´, if use_inception = True enable can be edited
+        potential_k: int, optional
+        Streamer constant (empirical value)
+        potential_a: int
+        A parameter
+        critical_value: float
+        Enabled if gas_type =2: critical electric field value at which the gas starts to ionize
+        streamer_constant: float
+        Enabled if gas_type =2: number related to the critical electron numbers of electrons in the streamer
+        ionization_check: bool
+        Enabled if gas_type=2 . If True Enables customized ionization equation of the form f(x), i.e. , 16.8*x –81.0;
+        if False, a dataset must be entered
+        ionization_equation: str
+        Enabled if gas_type=2 and ionization_check = True.Contains the polynomial customized ionization equation of
+        the form f(x), i.e. , 16.8*x –81.0
+        ionization_dataset: list
+        Enabled if gas_type=2 and ionization_check = False.Dataset: E/p [kV/mm-bar], ap [1/mm-bar]; i.e.,
+        2,0,0.15,0.2,0.4]
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.ModifyInceptionParameters
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(project_name)
+
+        Create a field line traces plot in the Region from seeding faces (insulator faces).
+        >>> plot = m2d.post.create_fieldplot_line_traces(
+        ...     seeding_faces = (["Region"],)
+        ...     in_volume_tracing_objs = (["Region"],)
+        ...     plot_name="LineTracesTest"
+        ... )
+
+        The inception voltage evaluation can be performed on all (or a subset) of the
+        created field line traces and inception voltage parameters can be edited
+        >>> m2d.modify_inception_parameters()
+
+        >>> m2d.desktop_class.release_desktop()
+        """
+        if self._app.solution_type != "Electrostatic":
+            raise AEDTRuntimeError("Field line traces is valid only for Electrostatic solution.")
+        if plot_name not in (self.field_plot_names):
+            raise AEDTRuntimeError("The field line tracing plot must be generated.")
+
+        arg_list = [
+            "NAME:InceptionEvaluationSettings",
+            "Gas Type:=",
+            gas_type,
+            "Gas Pressure:=",
+            gas_pressure,
+            "Use Inception:=",
+            use_inception,
+            "Potential U0:=",
+            potential_u0,
+            "Potential K:=",
+            potential_k,
+            "Potential A:=",
+            potential_a,
+        ]
+        index_gas_type_insert = arg_list.index(gas_pressure)
+
+        if gas_type == 2:
+            arg_list.insert(index_gas_type_insert + 1, "Critical Value:=")
+            arg_list.insert(index_gas_type_insert + 2, critical_value)
+            arg_list.insert(index_gas_type_insert + 3, "Streamer Constant:=")
+            arg_list.insert(index_gas_type_insert + 4, streamer_constant)
+            if ionization_check:
+                arg_list.insert(index_gas_type_insert + 5, "Ionization Equation Check:=")
+                arg_list.insert(index_gas_type_insert + 6, ionization_check)
+                arg_list.insert(index_gas_type_insert + 7, "Ionization Equation:=")
+                arg_list.insert(index_gas_type_insert + 8, ionization_equation)
+            if not ionization_check:
+                arg_list.insert(index_gas_type_insert + 5, "Ionization Coefficient Dataset:=")
+                arg_list.insert(index_gas_type_insert + 6, ionization_dataset)
+
+        self.ofieldsreporter.ModifyInceptionParameters(plot_name, arg_list)
+        return True
