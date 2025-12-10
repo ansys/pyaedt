@@ -44,6 +44,7 @@ import PIL.ImageTk
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ToolTip, check_for_pyaedt_update, get_aedt_version, get_latest_version, get_port, get_process_id
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.help import Help
 
 defusedxml.defuse_stdlib()
 
@@ -109,6 +110,9 @@ class VersionManager:
         # Configure style for ttk buttons
         self.style = ttk.Style()
         self.theme = ExtensionTheme()
+
+        # Help for opening links
+        self.help = Help()
 
         self.theme.apply_light_theme(self.style)
         self.theme_color = "light"
@@ -403,9 +407,20 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                pip_args = ["install", f"pyaedt[all]=={latest_version}"]
+                pip_args = [
+                    "install",
+                    "--upgrade-strategy",
+                    "eager",
+                    f"pyaedt[all]=={latest_version}",
+                ]
             else:
-                pip_args = ["install", "-U", "pyaedt[all]"]
+                pip_args = [
+                    "install",
+                    "-U",
+                    "--upgrade-strategy",
+                    "eager",
+                    "pyaedt[all]",
+                ]
 
             self.update_and_reload(pip_args, loading_key="pyaedt[all]")
 
@@ -422,9 +437,20 @@ class VersionManager:
                 return
 
             if self.pyedb_version > latest_version:
-                pip_args = ["install", f"pyedb=={latest_version}"]
+                pip_args = [
+                    "install",
+                    "--upgrade-strategy",
+                    "eager",
+                    f"pyedb=={latest_version}",
+                ]
             else:
-                pip_args = ["install", "-U", "pyedb"]
+                pip_args = [
+                    "install",
+                    "-U",
+                    "--upgrade-strategy",
+                    "eager",
+                    "pyedb",
+                ]
 
             self.update_and_reload(pip_args, loading_key="pyedb")
 
@@ -448,20 +474,36 @@ class VersionManager:
         # Decide pyaedt install args (pin if current > latest, else upgrade)
         try:
             if self.pyaedt_version > latest_pyaedt:
-                pip_args.append(f"pyaedt[all]=={latest_pyaedt}")
+                pip_args.extend(
+                    [
+                        "--upgrade-strategy",
+                        "eager",
+                        f"pyaedt[all]=={latest_pyaedt}",
+                    ]
+                )
             else:
-                pip_args.extend(["-U", "pyaedt[all]"])
+                pip_args.extend(
+                    ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
+                )
         except Exception:
-            pip_args.extend(["-U", "pyaedt[all]"])
+            pip_args.extend(
+                ["-U", "--upgrade-strategy", "eager", "pyaedt[all]"]
+            )
 
         # Decide pyedb install args (pin if current > latest, else upgrade)
         try:
             if self.pyedb_version > latest_pyedb:
-                pip_args.append(f"pyedb=={latest_pyedb}")
+                pip_args.extend(
+                    ["--upgrade-strategy", "eager", f"pyedb=={latest_pyedb}"]
+                )
             else:
-                pip_args.extend(["pyedb"])
+                pip_args.extend(
+                    ["-U", "--upgrade-strategy", "eager", "pyedb"]
+                )
         except Exception:
-            pip_args.extend(["pyedb"])
+            pip_args.extend(
+                ["-U", "--upgrade-strategy", "eager", "pyedb"]
+            )
 
         self.update_and_reload(pip_args, loading_key="update_all")
 
@@ -695,12 +737,7 @@ class VersionManager:
 
             def open_changelog():
                 try:
-                    url = ("https://aedt.docs.pyansys.com/version/stable/"
-                           "changelog.html")
-                    webbrowser.open(str(url))
-                    logging.getLogger("Global").info(
-                        "Opened PyAEDT changelog."
-                    )
+                    self.help.release_notes()
                 except Exception:
                     logging.getLogger("Global").debug(
                         "Failed to open changelog", exc_info=True
