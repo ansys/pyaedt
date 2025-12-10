@@ -149,7 +149,7 @@ def test_main_tab_export(
     mock_asksaveasfilename,
     mock_selected_edb,
     mock_export_config_from_edb,
-    local_scratch,
+    test_tmp_dir,
 ):
     mock_msg.return_value = None
     mock_selected_edb.return_value = "/path/edb.def"
@@ -159,7 +159,7 @@ def test_main_tab_export(
 
     extension = ConfigureLayoutExtension(withdraw=True)
     extension.var_active_design.set(False)
-    mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "config.json")
+    mock_asksaveasfilename.return_value = str(test_tmp_dir / "config.json")
     extension.root.nametowidget(".notebook.main.frame1.export_config").invoke()
     assert Path(mock_asksaveasfilename.return_value).exists()
     extension.root.destroy()
@@ -186,9 +186,9 @@ def test_main_tab_export_options():
 
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("tkinter.messagebox.showinfo")
-def test_export_template(mock_msg, mock_asksaveasfilename, local_scratch):
+def test_export_template(mock_msg, mock_asksaveasfilename, test_tmp_dir):
     mock_msg.return_value = None
-    mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "serdes_config.json")
+    mock_asksaveasfilename.return_value = str(test_tmp_dir / "serdes_config.json")
     from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import call_back_export_template
 
     call_back_export_template()
