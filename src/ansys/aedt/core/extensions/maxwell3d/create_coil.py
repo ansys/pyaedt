@@ -48,7 +48,7 @@ PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
-EXTENSION_TITLE = "Create coil"
+EXTENSION_TITLE = "Create coil design"
 MIN_WIDTH = 400
 MIN_HEIGHT = 500
 
