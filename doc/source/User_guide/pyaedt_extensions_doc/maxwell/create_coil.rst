@@ -16,15 +16,15 @@ Select the **Maxwell3D** tab and then click on the **Create Coil** icon:
 The following image shows the extension user interface:
 
 .. image:: ../../../_static/extensions/create_coil.png
-   :width: 400
+   :width: 300
    :alt: Create coil common parameters
 
 .. image:: ../../../_static/extensions/create_coil1.png
-   :width: 400
+   :width: 300
    :alt: Create coil vertical parameters
 
 .. image:: ../../../_static/extensions/create_coil2.png
-   :width: 400
+   :width: 300
    :alt: Create coil flat parameters
 
 The user can select the coil type by checking the **Vertical Coil** checkbox, define the coil parameters that are common
