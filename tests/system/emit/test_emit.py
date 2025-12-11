@@ -2125,6 +2125,41 @@ class TestClass:
         tx_narrowband_emissions_mask.table_data = narrowband_data
         assert tx_narrowband_emissions_mask.table_data == [(1000000.0, -40.0), (5000000.0, 50.0), (10000000.0, -80.0)]
 
+        if config["desktopVersion"] >= "2026.1":
+            # Test BB Emissions Node since it can be either a NodeProp or
+            # ColumnData Table
+            radio2 = emit_app.schematic.create_component("New Radio")
+            radio2 = cast(RadioNode, radio2)
+
+            children = radio2.children
+            tx_spec = None
+            for child in children:
+                if child.node_type == "Band":
+                    band_children = child.children
+                    for band_child in band_children:
+                        if band_child.node_type == "TxSpectralProfNode":
+                            tx_spec = cast(TxSpectralProfNode, band_child)
+
+            bb_noise = tx_spec.add_tx_broadband_noise_profile()
+            bb_noise = cast(TxBbEmissionNode, bb_noise)
+
+            # verify the table is empty by default
+            assert bb_noise.table_data is None
+
+            # Test Column Data and Node Prop table inputs
+            tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.ABSOLUTE
+            broadband_data = [(1e6, 12), ('10 MHz', '5 dBm/Hz'), (100e6, '30 dBm/Hz')]  
+            tx_broadband_noise_profile.table_data = broadband_data
+            assert tx_broadband_noise_profile.table_data == [(1e6, 12), (10e6, 5), (100e6, 30)]
+            tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.EQUATION
+            broadband_data = [('RF+10.0', 10), ('10 MHz', '5 dBm/Hz'), (100e6, '30 dBm/Hz')] 
+            tx_broadband_noise_profile.table_data = broadband_data
+            assert tx_broadband_noise_profile.table_data == [('RF+10.0', 10), (10e6, 5), (100e6, 30)]
+            tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.RELATIVE_BANDWIDTH
+            broadband_data = [(1e6, 10), ('10 MHz', '5 dBm/Hz'), (100e6, '30 dBm/Hz')]
+            tx_broadband_noise_profile.table_data = broadband_data
+            assert tx_broadband_noise_profile.table_data == [(1e6, 10), (10e6, 5), (100e6, 30)]
+
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_tables(self, emit_app):
         # Emit has 2 different types of tables: Node Prop Tables and ColumnData Tables

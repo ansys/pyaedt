@@ -664,11 +664,14 @@ class EmitNode:
                         units[i] = 'PowerUnit'
                         
                 if "(" in cols[i] and type(val) is str:
+                    if "rf" in val.lower():
+                        row_list[i] = val
+                        continue
                     s = val.strip().replace(" ", "")
                     unit_index = s.find(next(filter(str.isalpha, s)))
                     value = float(s[:unit_index])
                     input_unit = s[unit_index:]
-                    if input_unit =='dBc':
+                    if input_unit =='dBc' or input_unit == 'dBm/Hz':
                         row_list[i] = value
                     else:
                         row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
