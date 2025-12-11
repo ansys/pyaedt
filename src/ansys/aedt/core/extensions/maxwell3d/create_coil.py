@@ -277,8 +277,6 @@ def main(data: CoilExtensionData):
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(defaults, EXTENSION_TITLE)
-    default_args = False
-    parameters = {}
     # Open UI
     if not args["is_batch"]:
         extension: ExtensionCommon = CoilExtension(withdraw=False)
