@@ -2012,13 +2012,13 @@ class TestClass:
         # Testing table input conversions
         radio = emit_app.schematic.create_component("New Radio")
         radio = cast(RadioNode, radio)
-        
+
         children = radio.children
         sampling = None
         for child in children:
             if child.node_type == "SamplingNode":
                 sampling = cast(SamplingNode, child)
-                
+
         # Sampling node's use NodeProp tables
         # Verify the table is empty by default
         assert sampling.table_data is None
@@ -2026,13 +2026,13 @@ class TestClass:
         children = radio.children
         tx_spec = None
         for child in children:
-                if child.node_type == "Band":
-                    band_children = child.children
-                    for band_child in band_children:
-                        if band_child.node_type == "TxSpectralProfNode":
-                            tx_spectral_profile = cast(TxSpectralProfNode, band_child)
-                        if band_child.node_type == "RxSusceptibilityProfNode":
-                            rx_spectral_profile = cast(RxSusceptibilityProfNode, band_child)
+            if child.node_type == "Band":
+                band_children = child.children
+                for band_child in band_children:
+                    if band_child.node_type == "TxSpectralProfNode":
+                        tx_spectral_profile = cast(TxSpectralProfNode, band_child)
+                    if band_child.node_type == "RxSusceptibilityProfNode":
+                        rx_spectral_profile = cast(RxSusceptibilityProfNode, band_child)
 
         # Create all the sub-nodes to test casting
         tx_harmonics = tx_spectral_profile.add_custom_tx_harmonics()
@@ -2066,62 +2066,66 @@ class TestClass:
 
         # Tx Spurious Emissions Table Data
         tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
-        spur_data = [('30 kHz', '50 MHz', '100 kW'), ('4000000 Hz', 5e6, 0.05), (70e6, 10e5, '1000 W')]
+        spur_data = [("30 kHz", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 0.05), (70e6, 10e5, "1000 W")]
         tx_spurious_emissions.table_data = spur_data
         assert tx_spurious_emissions.table_data == [(30e3, 50e6, 80), (4e6, 5e6, 0.05), (70e6, 1e6, 60)]
         tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.RELATIVE
-        spur_data = [('20 MHz', '50 MHz', '5 dBc'), ('4000000 Hz', 5e6, '5 dBc'), (70e6, 10e5, '6 dBc')]
+        spur_data = [("20 MHz", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
         tx_spurious_emissions.table_data = spur_data
         assert tx_spurious_emissions.table_data == [(20e6, 50e6, 5), (4e6, 5e6, 5), (70e6, 1e6, 6)]
 
         # Rx Spurious Responses Table Data
         rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.ABSOLUTE
-        spur_data = [(10e6, 10e6, '100 kW'), (20e6, '1 MHz', 65), ('30 kHz', 30e6, 75)]
+        spur_data = [(10e6, 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
         rx_spurious_responses.table_data = spur_data
         assert rx_spurious_responses.table_data == [(10e6, 10e6, 80), (20e6, 1e6, 65), (30e3, 30e6, 75)]
         rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.RELATIVE
-        spur_data = [('5 kHz', 10e6, '5 dBc'), (20e6, '4000000 Hz', '15 dBc'), (30e6, 30e6, '25 dBc')]
+        spur_data = [("5 kHz", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
         rx_spurious_responses.table_data = spur_data
         assert rx_spurious_responses.table_data == [(5e3, 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
 
         # Test column data tables input conversions
         # Rx Mixer Products Table Data
         rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.ABSOLUTE
-        mixer_data = [(1, 2, '100 kW'), (2, 3, '1000 W'), (3, 4, 15)]
+        mixer_data = [(1, 2, "100 kW"), (2, 3, "1000 W"), (3, 4, 15)]
         rx_mixer.table_data = mixer_data
         assert rx_mixer.table_data == [(1, 2, 80), (2, 3, 60), (3, 4, 15)]
         rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.RELATIVE
-        mixer_data = [(1, 2, '35 dBc'), (2, 3, 30), (3, 4, '45 dBc')]
+        mixer_data = [(1, 2, "35 dBc"), (2, 3, 30), (3, 4, "45 dBc")]
         rx_mixer.table_data = mixer_data
         assert rx_mixer.table_data == [(1, 2, 35), (2, 3, 30), (3, 4, 45)]
 
         # Rx Saturation Table Data
-        saturation_data = [('100 kHz', '100 kW'), (34e6, '50 dBm'), ('1 MHz', 76)]
+        saturation_data = [("100 kHz", "100 kW"), (34e6, "50 dBm"), ("1 MHz", 76)]
         rx_saturation.table_data = saturation_data
         assert rx_saturation.table_data == [(100000.0, 80.0), (34000000.0, 50), (1000000.0, 76.0)]
 
         # Rx Selectivity Table Data
-        selectivity_data = [(0.05e6, '60 dB'), ('100 kHz', 120)]
+        selectivity_data = [(0.05e6, "60 dB"), ("100 kHz", 120)]
         rx_selectivity.table_data = selectivity_data
         assert rx_selectivity.table_data == [(50000.0, 60.0), (100000.0, 120.0)]
 
         # Tx Harmonics Table Data
         tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.ABSOLUTE
-        harmonic_data = [(2, '100 kW'), (3, '100 kW'), (4, '1000 W')]
+        harmonic_data = [(2, "100 kW"), (3, "100 kW"), (4, "1000 W")]
         tx_harmonics.table_data = harmonic_data
         assert tx_harmonics.table_data == [(2, 80.0), (3, 80.0), (4, 60.0)]
         tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.RELATIVE
-        harmonic_data = [(5, '40 dBc'), (6, '55 dBc'), (7, '70 dBc')]
+        harmonic_data = [(5, "40 dBc"), (6, "55 dBc"), (7, "70 dBc")]
         tx_harmonics.table_data = harmonic_data
         assert tx_harmonics.table_data == [(5, 40.0), (6, 55.0), (7, 70.0)]
 
         # Tx Narrowband Emissions Mask Table Data
-        tx_narrowband_emissions_mask.narrowband_behavior = tx_narrowband_emissions_mask.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
-        narrowband_data = [('1 MHz', '100 kW'), (5000000, '1000 W'), (10e6, 80)]
+        tx_narrowband_emissions_mask.narrowband_behavior = (
+            tx_narrowband_emissions_mask.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
+        )
+        narrowband_data = [("1 MHz", "100 kW"), (5000000, "1000 W"), (10e6, 80)]
         tx_narrowband_emissions_mask.table_data = narrowband_data
         assert tx_narrowband_emissions_mask.table_data == [(1000000.0, 80), (5000000.0, 60), (10000000.0, -80.0)]
-        tx_narrowband_emissions_mask.narrowband_behavior = tx_narrowband_emissions_mask.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
-        narrowband_data = [('1 MHz', '-40 dB'), (5000000, '50 dB'), (10e6, -80)]
+        tx_narrowband_emissions_mask.narrowband_behavior = (
+            tx_narrowband_emissions_mask.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
+        )
+        narrowband_data = [("1 MHz", "-40 dB"), (5000000, "50 dB"), (10e6, -80)]
         tx_narrowband_emissions_mask.table_data = narrowband_data
         assert tx_narrowband_emissions_mask.table_data == [(1000000.0, -40.0), (5000000.0, 50.0), (10000000.0, -80.0)]
 
@@ -2148,15 +2152,17 @@ class TestClass:
 
             # Test Column Data and Node Prop table inputs
             tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.ABSOLUTE
-            broadband_data = [(1e6, 12), ('10 MHz', '5 dBm/Hz'), (100e6, '30 dBm/Hz')]  
+            broadband_data = [(1e6, 12), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
             tx_broadband_noise_profile.table_data = broadband_data
             assert tx_broadband_noise_profile.table_data == [(1e6, 12), (10e6, 5), (100e6, 30)]
             tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.EQUATION
-            broadband_data = [('RF+10.0', 10), ('10 MHz', '5 dBm/Hz'), (100e6, '30 dBm/Hz')] 
+            broadband_data = [("RF+10.0", 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
             tx_broadband_noise_profile.table_data = broadband_data
-            assert tx_broadband_noise_profile.table_data == [('RF+10.0', 10), (10e6, 5), (100e6, 30)]
-            tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.RELATIVE_BANDWIDTH
-            broadband_data = [(1e6, 10), ('10 MHz', '5 dBm/Hz'), (100e6, '30 dBm/Hz')]
+            assert tx_broadband_noise_profile.table_data == [("RF+10.0", 10), (10e6, 5), (100e6, 30)]
+            tx_broadband_noise_profile.noise_behavior = (
+                tx_broadband_noise_profile.NoiseBehaviorOption.RELATIVE_BANDWIDTH
+            )
+            broadband_data = [(1e6, 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
             tx_broadband_noise_profile.table_data = broadband_data
             assert tx_broadband_noise_profile.table_data == [(1e6, 10), (10e6, 5), (100e6, 30)]
 
