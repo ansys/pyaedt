@@ -583,6 +583,7 @@ class EmitNode:
         'RxSaturationNode'  : ['FrequencyUnit', 'PowerUnit'],
         'RxSelectivityNode' : ['FrequencyUnit', 'Attenuation (dB)']}
 
+        # Grab table behavior and units based on dropdown selection
         node_type = self._node_type
         if node_type in exceptions:
             if node_type in ['TxHarmonicNode', 'TxNbEmissionNode', 'TxBbEmissionNode', 'RxMixerProductNode']:
@@ -596,38 +597,41 @@ class EmitNode:
                 elif node_type == 'RxMixerProductNode':
                     behavior_key = 'Mixer Product Table Units'
                 behavior = self._get_property(behavior_key)
-                unit_list = exceptions[node_type][behavior]
+                units = exceptions[node_type][behavior]
             else:
-                unit_list = exceptions[node_type]
+                units = exceptions[node_type]
         else:
-            raise Exception(f"No table exceptions defined for node type {node_type}.")
+            raise ValueError(f"No table exceptions defined for node type {node_type}.")
 
         data_return = []
         for row in data:
             row_list = list(row)
             for i, value in enumerate(row): 
                 valid_unit = False
-                if type(value) is str:
+                if isinstance(value, str):
                     val, unit = self._string_to_value_units(value)
-                    if "(" in unit_list[i]:
-                        unit_system = unit_list[i][unit_list[i].find("(")+1:unit_list[i].find(")")]
-                        if unit_system == 'MHz':
-                            row_list[i] = consts.unit_converter(val, 'Frequency', unit, unit_system)
-                        elif unit != unit_system:
-                            raise Exception(f"{unit} are not valid units for this property.")
+                    if units[i] is not None and "(" in units[i]:
+                        # Handle columns with specific units in header
+                        input_unit = units[i][units[i].find("(")+1:units[i].find(")")]
+                        if input_unit == 'MHz':
+                            row_list[i] = consts.unit_converter(val, 'Frequency', unit, input_unit)
+                        elif unit != input_unit:
+                            raise ValueError(f"{unit} are not valid units for this property.")
                         else:
                             row_list[i] = val
                     else:  
-                        for key, units in EMIT_VALID_UNITS.items():
-                            if unit in units:
+                        # Handle columns with SI units
+                        for unit_type, valid_units_list in EMIT_VALID_UNITS.items():
+                            if unit in valid_units_list:
                                 valid_unit = True
-                                unit_system = key
+                                unit_system = unit_type
                                 break
                         if valid_unit:
                             row_list[i] = self._convert_to_internal_units(value, unit_system)
                         else:
-                            raise Exception(f"{unit} are not valid units for this property.")
+                            raise ValueError(f"{unit} are not valid units for this property.")
                 else:
+                    # Handle numeric inputs
                     row_list[i] = value
             data_return.append(tuple(row_list))
         return data_return
@@ -655,33 +659,44 @@ class EmitNode:
             if len(row) > len(units):
                 raise ValueError(f"Row {row} has more columns than expected ({len(units)}).")
             for i, val in enumerate(row):
+                # Extract column unit if present in column header
+                col_unit = None
                 if "(" in cols[i]:
                     col_unit = cols[i][cols[i].find("(")+1:cols[i].find(")")]
                     
-                    if "hz" in col_unit.lower():
+                    # Update unit type based on column unit
+                    if col_unit in EMIT_VALID_UNITS['Frequency']:
                         units[i] = 'FrequencyUnit'
-                    elif col_unit.lower() in ['w', 'kw', 'mw', 'dbm', 'dbw', 'dbc']:
+                    elif col_unit in EMIT_VALID_UNITS['Power']:
                         units[i] = 'PowerUnit'
                         
                 if "(" in cols[i] and type(val) is str:
+                    # Check for function input strings
                     if "rf" in val.lower():
                         row_list[i] = val
                         continue
+
+                    # Process input values and units
                     s = val.strip().replace(" ", "")
                     unit_index = s.find(next(filter(str.isalpha, s)))
                     value = float(s[:unit_index])
                     input_unit = s[unit_index:]
+
+                    # Exception for dBc and dBm/Hz units
                     if input_unit =='dBc' or input_unit == 'dBm/Hz':
                         row_list[i] = value
                     else:
                         row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
                 else:
-                    if type(val) is str:
+                    # Process values that are stored in SI units
+                    if isinstance(val, str):
                         value, unit = self._string_to_value_units(val)
                         if unit == "dBc":
                             row_list[i] = value
                         else:
                             row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
+                    elif units[i] == 'none':
+                        row_list[i] = val
                     else:
                         row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
             data_return.append(tuple(row_list))
