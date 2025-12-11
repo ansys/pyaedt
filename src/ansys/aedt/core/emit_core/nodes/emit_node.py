@@ -667,7 +667,7 @@ class EmitNode:
                     elif col_unit in EMIT_VALID_UNITS["Power"]:
                         units[i] = "PowerUnit"
 
-                if "(" in cols[i] and type(val) is str:
+                if "(" in cols[i] and isinstance(val, str):
                     # Check for function input strings
                     if "rf" in val.lower():
                         row_list[i] = val
