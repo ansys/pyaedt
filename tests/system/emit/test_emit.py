@@ -2087,34 +2087,42 @@ class TestClass:
         # Test column data tables input conversions
         # Rx Mixer Products Table Data
         rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.ABSOLUTE
-        rx_mixer.table_data = [(1, 2, '100 kW'), (2, 3, '1000 W'), (3, 4, 15)]
+        mixer_data = [(1, 2, '100 kW'), (2, 3, '1000 W'), (3, 4, 15)]
+        rx_mixer.table_data = mixer_data
         assert rx_mixer.table_data == [(1, 2, 80), (2, 3, 60), (3, 4, 15)]
         rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.RELATIVE
-        rx_mixer.table_data = [(1, 2, '35 dBc'), (2, 3, 30), (3, 4, '45 dBc')]
+        mixer_data = [(1, 2, '35 dBc'), (2, 3, 30), (3, 4, '45 dBc')]
+        rx_mixer.table_data = mixer_data
         assert rx_mixer.table_data == [(1, 2, 35), (2, 3, 30), (3, 4, 45)]
 
         # Rx Saturation Table Data
-        rx_saturation.table_data = [('100 kHz', '100 kW'), (34e6, '50 dBm'), ('1 MHz', 76)]
+        saturation_data = [('100 kHz', '100 kW'), (34e6, '50 dBm'), ('1 MHz', 76)]
+        rx_saturation.table_data = saturation_data
         assert rx_saturation.table_data == [(100000.0, 80.0), (34000000.0, 50), (1000000.0, 76.0)]
 
         # Rx Selectivity Table Data
-        rx_selectivity.table_data = [(0.05e6, '60 dB'), ('100 kHz', 120)]
+        selectivity_data = [(0.05e6, '60 dB'), ('100 kHz', 120)]
+        rx_selectivity.table_data = selectivity_data
         assert rx_selectivity.table_data == [(50000.0, 60.0), (100000.0, 120.0)]
 
         # Tx Harmonics Table Data
         tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.ABSOLUTE
-        tx_harmonics.table_data = [(2, '100 kW'), (3, '100 kW'), (4, '1000 W')]
+        harmonic_data = [(2, '100 kW'), (3, '100 kW'), (4, '1000 W')]
+        tx_harmonics.table_data = harmonic_data
         assert tx_harmonics.table_data == [(2, 80.0), (3, 80.0), (4, 60.0)]
         tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.RELATIVE
-        tx_harmonics.table_data = [(5, '40 dBc'), (6, '55 dBc'), (7, '70 dBc')]
+        harmonic_data = [(5, '40 dBc'), (6, '55 dBc'), (7, '70 dBc')]
+        tx_harmonics.table_data = harmonic_data
         assert tx_harmonics.table_data == [(5, 40.0), (6, 55.0), (7, 70.0)]
 
         # Tx Narrowband Emissions Mask Table Data
         tx_narrowband_emissions_mask.narrowband_behavior = tx_narrowband_emissions_mask.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
-        tx_narrowband_emissions_mask.table_data = [('1 MHz', '100 kW'), (5000000, '1000 W'), (10e6, -80)]
+        narrowband_data = [('1 MHz', '100 kW'), (5000000, '1000 W'), (10e6, 80)]
+        tx_narrowband_emissions_mask.table_data = narrowband_data
         assert tx_narrowband_emissions_mask.table_data == [(1000000.0, 80), (5000000.0, 60), (10000000.0, -80.0)]
         tx_narrowband_emissions_mask.narrowband_behavior = tx_narrowband_emissions_mask.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
-        tx_narrowband_emissions_mask.table_data = [('1 MHz', '-40 dB'), (5000000, '50 dB'), (10e6, -80)]
+        narrowband_data = [('1 MHz', '-40 dB'), (5000000, '50 dB'), (10e6, -80)]
+        tx_narrowband_emissions_mask.table_data = narrowband_data
         assert tx_narrowband_emissions_mask.table_data == [(1000000.0, -40.0), (5000000.0, 50.0), (10000000.0, -80.0)]
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
