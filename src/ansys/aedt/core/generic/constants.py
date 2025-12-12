@@ -759,6 +759,45 @@ class DynamicMeta(type):
             return False
 
 
+class DesignType(metaclass=DynamicMeta):
+    """Design Type class"""
+
+    (
+        HFSS,
+        Q3D,
+        EXTRACTOR2D,
+        ICEPAK,
+        ICEPAKFEA,
+        CIRCUIT,
+        HFSS3DLAYOUT,
+        TWINBUILDER,
+        RMXPRT,
+        MAXWELL3D,
+        MAXWELL2D,
+        EMIT,
+        MODELCREATION,
+        MAXWELLCIRCUIT,
+        CIRCUITNETLIST,
+    ) = (
+        "HFSS",
+        "Q3D Extractor",
+        "2D Extractor",
+        "Icepak",
+        "IcepakFea",
+        "Circuit Design",
+        "HFSS 3D Layout Design",
+        "Twin Builder",
+        "RMxprtSolution",
+        "Maxwell 3D",
+        "Maxwell 2D",
+        "EMIT",
+        "ModelCreation",
+        "Maxwell Circuit",
+        "Circuit Netlist",
+    )
+    __versioned = {"2025.2": {"ICEPAKFEA": "Mechanical"}}
+
+
 class InfiniteSphereType(metaclass=DynamicMeta):
     """Infinite sphere type enum class."""
 

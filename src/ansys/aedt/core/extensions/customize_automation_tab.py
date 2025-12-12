@@ -40,6 +40,7 @@ from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
 import ansys.aedt.core.extensions.templates
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
 
@@ -53,7 +54,7 @@ AEDT_APPLICATIONS = {
     "icepak": "Icepak",
     "maxwell2d": "Maxwell2D",
     "maxwell3d": "Maxwell3D",
-    "mechanical": "Mechanical",
+    "mechanical": DesignType.ICEPAKFEA,
     "common": "Common",
     "q2d": "2DExtractor",
     "q3d": "Q3DExtractor",

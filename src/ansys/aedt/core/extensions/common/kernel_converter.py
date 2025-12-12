@@ -44,6 +44,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
@@ -249,7 +250,7 @@ def _check_missing(input_object, output_object, file_path):
         "2D Extractor",
         "Maxwell 3D",
         "Maxwell 2D",
-        "Mechanical",
+        DesignType.ICEPAKFEA,
     ]:
         return
 

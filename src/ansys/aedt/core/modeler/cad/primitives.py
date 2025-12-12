@@ -37,6 +37,7 @@ import warnings
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.constants import Plane as PlaneEnum
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.file_utils import _uname
@@ -69,14 +70,14 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.material_lib import Material
 
 default_materials = {
-    "Icepak": "air",
-    "HFSS": "vacuum",
-    "Maxwell 3D": "vacuum",
-    "Maxwell 2D": "vacuum",
-    "2D Extractor": "copper",
-    "Q3D Extractor": "copper",
-    "HFSS 3D Layout": "copper",
-    "Mechanical": "copper",
+    DesignType.ICEPAK: "air",
+    DesignType.HFSS: "vacuum",
+    DesignType.MAXWELL2D: "vacuum",
+    DesignType.MAXWELL2D: "vacuum",
+    DesignType.EXTRACTOR2D: "copper",
+    DesignType.Q3D: "copper",
+    DesignType.HFSS3DLAYOUT: "copper",
+    DesignType.ICEPAKFEA: "copper",
 }
 
 aedt_wait_time = 0.1

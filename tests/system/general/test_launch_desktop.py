@@ -35,6 +35,7 @@ from ansys.aedt.core import Mechanical
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
@@ -50,7 +51,7 @@ settings.wait_for_license = True
 class TestClass:
     def test_run_desktop_mechanical(self):
         aedtapp = Mechanical(solution_type=SolutionsMechanical.SteadyStateThermal)
-        assert aedtapp.design_type == "Mechanical"
+        assert aedtapp.design_type == DesignType.ICEPAKFEA
         assert aedtapp.solution_type == SolutionsMechanical.SteadyStateThermal
 
         aedtapp.solution_type = SolutionsMechanical.Modal

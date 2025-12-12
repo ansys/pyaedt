@@ -63,6 +63,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import available_file_name
@@ -2472,7 +2473,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         if self.design_type not in ["HFSS", "Maxwell 3D", "Q3D Extractor"]:
             raise AEDTRuntimeError("Source design type must be 'HFSS', 'Maxwell' or 'Mechanical'.")
-        if design not in ["Icepak", "Mechanical"]:
+        if design not in [DesignType.ICEPAK, DesignType.ICEPAKFEA]:
             raise AEDTRuntimeError("Design type must be 'Icepak' or 'Mechanical'.")
         design_setup_args = ["NAME:DesignSetup", "Sim Type:="]
         if design == "Icepak":
@@ -2480,6 +2481,8 @@ class Design(AedtObjects, PyAedtBase):
             if design_setup not in ["Forced", "Natural"]:
                 raise AEDTRuntimeError("Design setup must be 'Forced' or 'Natural'.")
             design_setup_args.append(design_setup)
+        else:
+            design = DesignType.ICEPAKFEA
         if not setup:
             setup = self.nominal_adaptive
         self.odesign.CreateEMLossTarget(design, setup, design_setup_args)

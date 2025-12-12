@@ -29,6 +29,7 @@ import shutil
 
 from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -48,7 +49,7 @@ meshers = {
     "Maxwell 2D": "MeshSetup",
     "Maxwell 3D": "MeshSetup",
     "Q3D Extractor": "MeshSetup",
-    "Mechanical": "MeshSetup",
+    DesignType.ICEPAKFEA: "MeshSetup",
     "2D Extractor": "MeshSetup",
 }
 

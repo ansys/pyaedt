@@ -26,28 +26,29 @@ import copy
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 solutions_defaults = {
-    "Maxwell 2D": "Magnetostatic",
-    "Maxwell 3D": "Magnetostatic",
-    "Twin Builder": "TR",
-    "Circuit Design": "NexximLNA",
-    "Circuit Netlist": "",
-    "Maxwell Circuit": "",
-    "2D Extractor": "Open",
-    "Q3D Extractor": "Q3D Extractor",
-    "HFSS": "HFSS Terminal Network",
-    "Icepak": "SteadyState",
-    "RMxprtSolution": "GRM",
-    "ModelCreation": "GRM",
-    "HFSS 3D Layout Design": "HFSS3DLayout",
-    "Mechanical": "Thermal",
-    "EMIT": "EMIT",
+    DesignType.MAXWELL2D: "Magnetostatic",
+    DesignType.MAXWELL3D: "Magnetostatic",
+    DesignType.TWINBUILDER: "TR",
+    DesignType.CIRCUITDESIGN: "NexximLNA",
+    DesignType.CIRCUITNETLIST: "",
+    DesignType.MAXWELLCIRCUIT: "",
+    DesignType.EXTRACTOR2D: "Open",
+    DesignType.Q3D: "Q3D Extractor",
+    DesignType.HFSS: "HFSS Terminal Network",
+    DesignType.ICEPAK: "SteadyState",
+    DesignType.RMXPRT: "GRM",
+    DesignType.MODELCREATION: "GRM",
+    DesignType.HFSS3DLAYOUT: "HFSS3DLayout",
+    DesignType.ICEPAKFEA: "Thermal",
+    DesignType.EMIT: "EMIT",
 }
 
 solutions_types = {
-    "Maxwell 2D": {
+    DesignType.MAXWELL2D: {
         "Magnetostatic": {
             "name": "Magnetostatic",
             "options": "XY",
@@ -117,7 +118,7 @@ solutions_types = {
             "intrinsics": ["Freq", "Phase"],
         },
     },
-    "Maxwell 3D": {
+    DesignType.MAXWELL3D: {
         "Magnetostatic": {
             "name": "Magnetostatic",
             "options": None,
@@ -249,7 +250,7 @@ solutions_types = {
             "intrinsics": ["Time"],
         },
     },
-    "Twin Builder": {
+    DesignType.TWINBUILDER: {
         "TR": {
             "name": None,
             "options": None,
@@ -274,7 +275,7 @@ solutions_types = {
             "default_adaptive": None,
         },
     },
-    "Circuit Design": {
+    DesignType.CIRCUIT: {
         "NexximLNA": {
             "name": None,
             "options": None,
@@ -395,7 +396,7 @@ solutions_types = {
             "intrinsics": ["Time"],
         },
     },
-    "2D Extractor": {
+    DesignType.EXTRACTOR2D: {
         "Open": {
             "name": "Open",
             "options": None,
@@ -413,7 +414,7 @@ solutions_types = {
             "intrinsics": ["Freq", "Phase"],
         },
     },
-    "Q3D Extractor": {
+    DesignType.Q3D: {
         "Q3D Extractor": {
             "name": None,
             "options": None,
@@ -423,7 +424,7 @@ solutions_types = {
             "intrinsics": ["Freq", "Phase"],
         }
     },
-    "HFSS": {
+    DesignType.HFSS: {
         "Modal": {
             "name": "HFSS Modal Network",
             "options": None,
@@ -511,7 +512,7 @@ solutions_types = {
             "intrinsics": ["Freq", "Phase"],
         },
     },
-    "Icepak": {
+    DesignType.ICEPAK: {
         "SteadyState": {
             "name": "SteadyState",
             "options": "TemperatureAndFlow",
@@ -527,7 +528,7 @@ solutions_types = {
             "default_adaptive": "Transient",
         },
     },
-    "RMxprtSolution": {
+    DesignType.RMXPRT: {
         "GRM": {"name": "GRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "IRIM": {"name": "IRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "ORIM": {"name": "ORIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
@@ -556,7 +557,7 @@ solutions_types = {
         "CPSM": {"name": "CPSM", "options": None, "report_type": None, "default_setup": 54, "default_adaptive": None},
         "NSSM": {"name": "NSSM", "options": None, "report_type": None, "default_setup": 55, "default_adaptive": None},
     },
-    "ModelCreation": {
+    DesignType.MODELCREATION: {
         "GRM": {"name": "GRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "IRIM": {"name": "IRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "ORIM": {"name": "ORIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
@@ -573,7 +574,7 @@ solutions_types = {
         "IBDM": {"name": "IBDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "ABDM": {"name": "ABDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
     },
-    "HFSS 3D Layout Design": {
+    DesignType.HFSS3DLAYOUT: {
         "HFSS3DLayout": {
             "name": None,
             "options": None,
@@ -606,7 +607,7 @@ solutions_types = {
             "intrinsics": ["Freq"],
         },
     },
-    "Mechanical": {
+    DesignType.ICEPAKFEA: {
         "Thermal": {
             "name": "Thermal",
             "options": None,
@@ -637,31 +638,31 @@ solutions_types = {
             "default_adaptive": "Solution",
         },
     },
-    "EMIT": {
+    DesignType.EMIT: {
         "EMIT": {"name": None, "options": None, "report_type": None, "default_setup": None, "default_adaptive": None}
     },
     # Maxwell Circuit has no solution type
-    "Maxwell Circuit": {},
-    "Circuit Netlist": {},
+    DesignType.MAXWELLCIRCUIT: {},
+    DesignType.CIRCUITNETLIST: {},
 }
 
 model_names = {
-    "Maxwell 2D": "Maxwell2DModel",
-    "Maxwell 3D": "Maxwell3DModel",
-    "Twin Builder": "SimplorerCircuit",
-    "Circuit Design": "NexximCircuit",
-    "Circuit Netlist": "NexximNetlist",
-    "Maxwell Circuit": "MaxCirCircuit",
-    "2D Extractor": "2DExtractorModel",
-    "Q3D Extractor": "Q3DModel",
-    "HFSS": "HFSSModel",
-    "Mechanical": "MechanicalModel",
-    "Icepak": "IcepakModel",
-    "RMxprtSolution": "RMxprtDesign",
-    "ModelCreation": "RMxprtDesign",
-    "HFSS 3D Layout Design": "PlanarEMCircuit",
+    DesignType.MAXWELL2D: "Maxwell2DModel",
+    DesignType.MAXWELL3D: "Maxwell3DModel",
+    DesignType.TWINBUILDER: "SimplorerCircuit",
+    DesignType.CIRCUITDESIGN: "NexximCircuit",
+    DesignType.CIRCUITNETLIST: "NexximNetlist",
+    DesignType.MAXWELLCIRCUIT: "MaxCirCircuit",
+    DesignType.EXTRACTOR2D: "2DExtractorModel",
+    DesignType.Q3D: "Q3DModel",
+    DesignType.HFSS: "HFSSModel",
+    DesignType.ICEPAKFEA: "MechanicalModel",
+    DesignType.ICEPAK: "IcepakModel",
+    DesignType.RMXPRT: "RMxprtDesign",
+    DesignType.MODELCREATION: "RMxprtDesign",
+    DesignType.HFSS3DLAYOUT: "PlanarEMCircuit",
     "EMIT Design": "EMIT Design",
-    "EMIT": "EMIT",
+    DesignType.EMIT: "EMIT",
 }
 
 
@@ -675,7 +676,7 @@ class DesignSolution(PyAedtBase):
         # deepcopy doesn't work on remote
         self._solution_options = copy.deepcopy(solutions_types[design_type])
         self._design_type = design_type
-        if design_type == "HFSS" and aedt_version >= "2021.2":
+        if design_type == DesignType.HFSS and aedt_version >= "2021.2":
             self._solution_options["Modal"]["name"] = "HFSS Modal Network"
             self._solution_options["Terminal"]["name"] = "HFSS Terminal Network"
         self._solution_type = None
@@ -683,7 +684,13 @@ class DesignSolution(PyAedtBase):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
+        if self._design_type in [
+            DesignType.CIRCUITDESIGN,
+            DesignType.TWINBUILDER,
+            DesignType.HFSS3DLAYOUT,
+            DesignType.EMIT,
+            DesignType.Q3D,
+        ]:
             if not self._solution_type:
                 self._solution_type = solutions_defaults[self._design_type]
         elif self._odesign:
@@ -699,11 +706,11 @@ class DesignSolution(PyAedtBase):
     def solution_type(self, value):
         if value is None:
             if self._design_type in [
-                "Circuit Design",
-                "Twin Builder",
-                "HFSS 3D Layout Design",
-                "EMIT",
-                "Q3D Extractor",
+                DesignType.CIRCUITDESIGN,
+                DesignType.TWINBUILDER,
+                DesignType.HFSS3DLAYOUT,
+                DesignType.EMIT,
+                DesignType.Q3D,
             ]:
                 self._solution_type = solutions_defaults[self._design_type]
             elif self._odesign:

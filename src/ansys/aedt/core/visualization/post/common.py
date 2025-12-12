@@ -35,6 +35,7 @@ from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -236,7 +237,7 @@ class PostProcessorCommon(PyAedtBase):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+        elif self._app.design_type in ["Maxwell 2D", DesignType.MAXWELL3D] and self._app.solution_type in [
             "EddyCurrent",
             "Electrostatic",
         ]:
@@ -433,7 +434,7 @@ class PostProcessorCommon(PyAedtBase):
                 ]
             else:
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+        elif self._app.design_type in [DesignType.MAXWELL2D, DesignType.MAXWELL3D] and self._app.solution_type in [
             "EddyCurrent",
             "AC Magnetic",
             "Electrostatic",
@@ -492,13 +493,13 @@ class PostProcessorCommon(PyAedtBase):
         """
         rep_quantities = {}
         if not context and self._app.design_type in [
-            "HFSS",
-            "Maxwell 3D",
-            "Maxwell 2D",
-            "Q3D Extractor",
-            "2D Extractor",
-            "Icepak",
-            "Mechanical",
+            DesignType.HFSS,
+            DesignType.MAXWELL3D,
+            DesignType.MAXWELL2D,
+            DesignType.Q3D,
+            DesignType.EXTRACTOR2D,
+            DesignType.ICEPAK,
+            DesignType.ICEPAKFEA,
         ]:
             if not context and "2D" in self._app.modeler.design_type:
                 if self._app.modeler.point_names:
@@ -1107,7 +1108,7 @@ class PostProcessorCommon(PyAedtBase):
                     ctxt[2].append(el)
         elif context == "Differential Pairs":
             ctxt = ["Diff:=", "Differential Pairs", "Domain:=", domain]
-        elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"]:
+        elif self.post_solution_type in [DesignType.Q3D, DesignType.EXTRACTOR2D]:
             if not context:
                 ctxt = ["Context:=", "Original"]
             else:
@@ -1166,13 +1167,13 @@ class PostProcessorCommon(PyAedtBase):
     def _check_category_context(self, expression, report_category, context):
         field_ctx = context
         if self._app.design_type in [
-            "HFSS",
-            "Maxwell 3D",
-            "Maxwell 2D",
-            "Q3D Extractor",
-            "2D Extractor",
-            "Icepak",
-            "Mechanical",
+            DesignType.HFSS,
+            DesignType.MAXWELL3D,
+            DesignType.MAXWELL2D,
+            DesignType.Q3D,
+            DesignType.EXTRACTOR2D,
+            DesignType.ICEPAK,
+            DesignType.ICEPAKFEA,
         ]:
             if not field_ctx and "2D" in self._app.modeler.design_type:
                 if self._app.modeler.point_names:
@@ -1323,10 +1324,10 @@ class PostProcessorCommon(PyAedtBase):
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
-        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
+        elif self._app.design_type in [DesignType.Q3D, DesignType.EXTRACTOR2D] and context:
             report.matrix = context
         elif (
-            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            self._app.design_type in [DesignType.MAXWELL2D, DesignType.MAXWELL3D]
             and context
             and self._app.solution_type in ["EddyCurrent", "Electrostatic", "AC Magnetic"]
         ):
@@ -2241,7 +2242,7 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "AC R/L Fields" in self._templates or "RL Fields" in self._templates:
-            if self._post_app._app.design_type == "Q3D Extractor":
+            if self._post_app._app.design_type == DesignType.Q3D:
                 rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "AC R/L Fields", setup)
             else:
                 rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "RL Fields", setup)
