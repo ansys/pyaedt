@@ -775,7 +775,7 @@ class ObjectMonitor(PyAedtBase):
         """
         return self._type
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
         """Get a list of values obtained from the monitor object.
 

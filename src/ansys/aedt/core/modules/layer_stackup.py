@@ -1318,7 +1318,7 @@ class Layers(PyAedtBase):
             layers[o.id] = o
         return layers
 
-    @pyaedt_function_handler(layername="layer", layertype="layer_type")
+    @pyaedt_function_handler()
     def add_layer(
         self, layer, layer_type="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
     ):

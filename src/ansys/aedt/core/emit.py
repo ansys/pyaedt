@@ -127,13 +127,7 @@ class Emit(Design, PyAedtBase):
     >>> print(f"Worst-case sensitivity for Rx '{domain.rx_radio_name}' is {val}dB.")
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,

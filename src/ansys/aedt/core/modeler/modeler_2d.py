@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import math
-from warnings import warn
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -77,24 +76,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         self._app = instance
         return self
 
-    @property
-    def primitives(self):
-        """Primitives.
-
-        .. deprecated:: 0.4.15
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.primitives_2d.Primitives2D`
-
-        """
-        mess = "`primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
-        warn(mess, DeprecationWarning)
-        return self._primitives
-
-    @pyaedt_function_handler(object_name="assignment")
+    @pyaedt_function_handler()
     def calculate_radius_2D(self, assignment, inner=False):
         """Calculate the extremity of an object in the radial direction.
 

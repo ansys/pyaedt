@@ -80,7 +80,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         self._modeler = modeler
         self._currentId = 0
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
@@ -131,7 +131,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         id.set_property("Name", name)
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
@@ -182,7 +182,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         id.set_property("Name", name)
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
@@ -232,7 +232,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         id.set_property("Name", name)
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_diode(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
@@ -280,7 +280,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         id.set_property("Name", name)
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_winding(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a winding linked to a Maxwell design.
 

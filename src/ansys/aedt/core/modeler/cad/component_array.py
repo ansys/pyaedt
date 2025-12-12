@@ -516,7 +516,7 @@ class ComponentArray(PyAedtBase):
         del self.__app.component_array[self.name]
         self.__app.component_array_names = list(self.__app.get_oo_name(self.__app.odesign, "Model"))
 
-    @pyaedt_function_handler(array_path="output_file")
+    @pyaedt_function_handler()
     @min_aedt_version("2024.1")
     def export_array_info(self, output_file=None):  # pragma: no cover
         """Export array information to a CSV file.
@@ -535,7 +535,7 @@ class ComponentArray(PyAedtBase):
         self.__app.omodelsetup.ExportArray(self.name, output_file)
         return output_file
 
-    @pyaedt_function_handler(csv_file="input_file")
+    @pyaedt_function_handler()
     def parse_array_info_from_csv(self, input_file):  # pragma: no cover
         """Parse component array information from the CSV file.
 

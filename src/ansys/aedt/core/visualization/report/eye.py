@@ -316,7 +316,7 @@ class AMIConturEyeDiagram(CommonReport):
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
-    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
+    @pyaedt_function_handler()
     def eye_mask(
         self,
         points,
@@ -402,7 +402,7 @@ class AMIConturEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler(value="enable")
+    @pyaedt_function_handler()
     def rectangular_plot(self, enable=True):
         """Enable or disable the rectangular plot on the chart.
 
@@ -451,7 +451,7 @@ class AMIConturEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler(out_file="output_file")
+    @pyaedt_function_handler()
     def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 
@@ -887,7 +887,7 @@ class AMIEyeDiagram(CommonReport):
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
-    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
+    @pyaedt_function_handler()
     def eye_mask(
         self,
         points,
@@ -967,7 +967,7 @@ class AMIEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler(value="enable")
+    @pyaedt_function_handler()
     def rectangular_plot(self, enable=True):
         """Enable or disable the rectangular plot on the chart.
 
@@ -1015,7 +1015,7 @@ class AMIEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler(out_file="output_file")
+    @pyaedt_function_handler()
     def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 

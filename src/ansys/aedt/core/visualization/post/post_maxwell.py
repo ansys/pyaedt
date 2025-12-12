@@ -58,7 +58,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         PostProcessor3D.__init__(self, app)
         self.post_3dlayout = PostProcessor3DLayout(app)
 
-    @pyaedt_function_handler(quantityName="quantity", setup_name="setup")
+    @pyaedt_function_handler()
     def _create_fieldplot_line_traces(
         self,
         seeding_faces_ids,
@@ -108,7 +108,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(IntrinsincDict="intrinsics", setup_name="setup")
+    @pyaedt_function_handler()
     def create_fieldplot_line_traces(
         self,
         seeding_faces,

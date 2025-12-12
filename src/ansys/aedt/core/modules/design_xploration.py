@@ -495,7 +495,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
 
-    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
+    @pyaedt_function_handler()
     def analyze(
         self,
         cores: int = 1,
@@ -806,7 +806,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         self._app.parametrics.setups.remove(self)
         return True
 
-    @pyaedt_function_handler(sweep_var="sweep_variable", unit="units")
+    @pyaedt_function_handler()
     def add_variation(
         self, sweep_variable, start_point, end_point=None, step=100, units=None, variation_type="LinearCount"
     ):
@@ -937,7 +937,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         self.auto_update = legacy_update
         return True
 
-    @pyaedt_function_handler(filename="output_file")
+    @pyaedt_function_handler()
     def export_to_csv(self, output_file):
         """Export the current Parametric Setup to csv.
 
@@ -1005,7 +1005,7 @@ class ParametricSetups(PyAedtBase):
         """
         return self._app.ooptimetrics
 
-    @pyaedt_function_handler(sweep_var="variable", parametricname="name")
+    @pyaedt_function_handler()
     def add(
         self,
         variable,
@@ -1073,7 +1073,7 @@ class ParametricSetups(PyAedtBase):
         self.setups.append(setup)
         return setup
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def delete(self, name):
         """Delete a defined Parametric Setup.
 
@@ -1093,7 +1093,7 @@ class ParametricSetups(PyAedtBase):
                 return True
         return False
 
-    @pyaedt_function_handler(filename="input_file", parametricname="name")
+    @pyaedt_function_handler()
     def add_from_file(self, input_file, name=None):
         """Add a Parametric setup from either a csv or txt file.
 
@@ -1207,7 +1207,7 @@ class OptimizationSetups(PyAedtBase):
         """
         return self._app.ooptimetrics
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def delete(self, name):
         """Delete a defined Optimetrics Setup.
 
@@ -1227,7 +1227,7 @@ class OptimizationSetups(PyAedtBase):
                 return True
         return False
 
-    @pyaedt_function_handler(optim_type="optimization_type", parametricname="name")
+    @pyaedt_function_handler()
     def add(
         self,
         calculation=None,

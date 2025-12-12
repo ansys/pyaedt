@@ -173,7 +173,7 @@ class CircuitPins(PyAedtBase):
             deltay = point[1]
         return deltax, deltay
 
-    @pyaedt_function_handler(component_pin="assignment")
+    @pyaedt_function_handler()
     def connect_to_component(
         self,
         assignment,
@@ -901,7 +901,7 @@ class CircuitComponent(PyAedtBase):
         vMaterial = ["NAME:Component Mirror", "Value:=", mirror_value]
         self.change_property(vMaterial)
 
-    @pyaedt_function_handler(symbol_color="color")
+    @pyaedt_function_handler()
     def set_use_symbol_color(self, color=None):
         """Set symbol color usage.
 
@@ -925,7 +925,7 @@ class CircuitComponent(PyAedtBase):
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler(R="red", G="green", B="blue")
+    @pyaedt_function_handler()
     def set_color(self, red=255, green=128, blue=0):
         """Set symbol color.
 
@@ -951,7 +951,7 @@ class CircuitComponent(PyAedtBase):
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler(property_name="name", property_value="value")
+    @pyaedt_function_handler()
     def set_property(self, name, value):
         """Set a part property.
 
@@ -1011,7 +1011,7 @@ class CircuitComponent(PyAedtBase):
         self.__dict__[property_name] = property_value
         return True
 
-    @pyaedt_function_handler(vPropChange="property", names_list="names")
+    @pyaedt_function_handler()
     def change_property(self, property_name, names=None):
         """Modify a property.
 
@@ -1301,7 +1301,7 @@ class Wire(PyAedtBase):
                 wire_names.append(wire)
         return wire_names
 
-    @pyaedt_function_handler(wire_name="name")
+    @pyaedt_function_handler()
     def display_wire_properties(self, name="", property_to_display="NetName", visibility="Name", location="Top"):
         """
         Display wire properties.

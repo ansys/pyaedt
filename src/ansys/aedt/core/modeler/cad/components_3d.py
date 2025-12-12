@@ -505,7 +505,7 @@ class UserDefinedComponent(PyAedtBase):
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 
-    @pyaedt_function_handler(position="origin")
+    @pyaedt_function_handler()
     def duplicate_and_mirror(self, origin, vector):
         """Duplicate and mirror a selection.
 
@@ -529,7 +529,7 @@ class UserDefinedComponent(PyAedtBase):
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
-    @pyaedt_function_handler(position="origin")
+    @pyaedt_function_handler()
     def mirror(self, origin, vector):
         """Mirror a selection.
 
@@ -560,7 +560,7 @@ class UserDefinedComponent(PyAedtBase):
             return self
         return False
 
-    @pyaedt_function_handler(cs_axis="axis", unit="units")
+    @pyaedt_function_handler()
     def rotate(self, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
@@ -622,7 +622,7 @@ class UserDefinedComponent(PyAedtBase):
 
         return False
 
-    @pyaedt_function_handler(cs_axis="axis", nclones="clones")
+    @pyaedt_function_handler()
     def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
         """Duplicate the component around the axis.
 
@@ -655,7 +655,7 @@ class UserDefinedComponent(PyAedtBase):
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
-    @pyaedt_function_handler(nclones="clones", attach_object="attach", attachObject="attach")
+    @pyaedt_function_handler()
     def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
         """Duplicate the object along a line.
 
@@ -816,7 +816,7 @@ class UserDefinedComponent(PyAedtBase):
             "3D Component File Path"
         )
 
-    @pyaedt_function_handler(new_filepath="output_file")
+    @pyaedt_function_handler()
     def update_definition(self, password=None, output_file="", local_update=False):
         """Update 3d component definition.
 
