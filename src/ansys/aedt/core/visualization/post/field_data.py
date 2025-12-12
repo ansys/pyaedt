@@ -956,18 +956,7 @@ class FieldPlot(PyAedtBase):
 
     """
 
-    @pyaedt_function_handler(
-        objlist="objects",
-        surfacelist="surfaces",
-        linelist="lines",
-        cutplanelist="cutplanes",
-        solutionName="solution",
-        quantityName="quantity",
-        IntrinsincList="intrinsics",
-        seedingFaces="seeding_faces",
-        layers_nets="layer_nets",
-        layers_plot_type="layer_plot_type",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         postprocessor,
@@ -1659,40 +1648,6 @@ class FieldPlot(PyAedtBase):
         """Delete the field plot."""
         self.oField.DeleteFieldPlot([self.name])
         self._postprocessor.field_plots.pop(self.name, None)
-
-    @pyaedt_function_handler()
-    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None):
-        """Change Field Plot Scale.
-
-        .. deprecated:: 0.10.1
-           Use :class:`FieldPlot.folder_settings` methods instead.
-
-        Parameters
-        ----------
-        minimum_value : str, float
-            Minimum value of the scale.
-        maximum_value : str, float
-            Maximum value of the scale.
-        is_log : bool, optional
-            Set to ``True`` if Log Scale is setup.
-        is_db : bool, optional
-            Set to ``True`` if dB Scale is setup.
-        scale_levels : int, optional
-            Set number of color levels. The default is ``None``, in which case the
-            setting is not changed.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.SetPlotFolderSettings
-        """
-        return self._postprocessor.change_field_plot_scale(
-            self.plot_folder, minimum_value, maximum_value, is_log, is_db, scale_levels
-        )
 
     @pyaedt_function_handler()
     def export_image(

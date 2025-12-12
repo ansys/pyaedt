@@ -957,7 +957,7 @@ class FacePrimitive(PyAedtBase):
         except Exception:
             return None
 
-    @pyaedt_function_handler(tol="tolerance")
+    @pyaedt_function_handler()
     def is_on_bounding(self, tolerance=1e-9):
         """Check if the face is on bounding box or Not.
 

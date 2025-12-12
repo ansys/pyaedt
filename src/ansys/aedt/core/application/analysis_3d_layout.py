@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pathlib import Path
-import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -173,28 +172,6 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self._mesh
 
     @property
-    def excitations(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.15.0
-           Use :func:`excitation_names` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-        >>> oModule.GetExcitations
-        """
-        mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.excitation_names
-
-    @property
     def excitation_names(self):
         """Get all excitation names.
 
@@ -230,7 +207,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         self.odesign.DesignOptions(arg)
         return True
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations", mesh_path="output_file")
+    @pyaedt_function_handler()
     def export_mesh_stats(self, setup, variations="", output_file=None):
         """Export mesh statistics to a file.
 
@@ -284,27 +261,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         """
         return self.oexcitation.GetAllPortsList()
 
-    @property
-    def existing_analysis_setups(self):
-        """Existing analysis setups.
-
-        .. deprecated:: 0.15.0
-            Use :func:`setup_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        References
-        ----------
-        >>> oModule.GetSetups
-        """
-        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
-        warnings.warn(msg, DeprecationWarning)
-        return self.setup_names
-
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    @pyaedt_function_handler()
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
@@ -357,7 +314,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         self._setups = tmp_setups + [setup]
         return setup
 
-    @pyaedt_function_handler(setupname="name")
+    @pyaedt_function_handler()
     def delete_setup(self, name):
         """Delete a setup.
 

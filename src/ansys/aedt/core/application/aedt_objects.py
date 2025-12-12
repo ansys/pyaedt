@@ -139,23 +139,6 @@ class AedtObjects(PyAedtBase):
         return
 
     @property
-    def o_symbol_manager(self):  # pragma: no cover
-        """AEDT symbol manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` property instead.
-
-        References
-        ----------
-        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
-        """
-        warnings.warn(
-            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.osymbol_manager
-
-    @property
     def opadstack_manager(self):
         """AEDT padstack manager.
 
@@ -166,23 +149,6 @@ class AedtObjects(PyAedtBase):
         if self._oproject and not self._opadstack_manager:
             self._opadstack_manager = self._oproject.GetDefinitionManager().GetManager("Padstack")
         return self._opadstack_manager
-
-    @property
-    def opadstackmanager(self):  # pragma: no cover
-        """AEDT oPadstackManager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`opadstack_manager` property instead.
-
-        References
-        ----------
-        >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
-        """
-        warnings.warn(
-            "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.opadstack_manager
 
     @property
     def design_type(self):
@@ -314,23 +280,6 @@ class AedtObjects(PyAedtBase):
         if not self._omaxwell_parameters:
             self._omaxwell_parameters = self.get_module("MaxwellParameterSetup")
         return self._omaxwell_parameters
-
-    @property
-    def o_maxwell_parameters(self):  # pragma: no cover
-        """AEDT Maxwell Parameter Setup Object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`omaxwell_parameters` property instead.
-
-        References
-        ----------
-        >>> oDesign.GetModule("MaxwellParameterSetup")
-        """
-        warnings.warn(
-            "`o_maxwell_parameters` is deprecated. Use `omaxwell_parameters` instead.",
-            DeprecationWarning,
-        )
-        return self.omaxwell_parameters
 
     @property
     def omonitor(self):
@@ -521,20 +470,6 @@ class AedtObjects(PyAedtBase):
         if not self._omodel_manager and self.odefinition_manager:
             self._omodel_manager = self.odefinition_manager.GetManager("Model")
         return self._omodel_manager
-
-    @property
-    def o_model_manager(self):  # pragma: no cover
-        """Model manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`omodel_manager` property instead.
-
-        """
-        warnings.warn(
-            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.omodel_manager
 
     @property
     def onetwork_data_explorer(self):

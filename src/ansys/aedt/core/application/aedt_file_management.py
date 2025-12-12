@@ -25,72 +25,14 @@
 import logging
 from pathlib import Path
 import re
-import shutil
 from typing import Union
 import warnings
 
-from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pyaedt_function_handler()
-def read_info_fromcsv(projdir, name):  # pragma: no cover
-    """Read information from a CSV file and return a list.
-
-    .. deprecated:: 0.15.1
-        This method is deprecated. Use the ``ansys.aedt.core.generic.file_utils.read_csv`` method instead.
-
-    Parameters
-    ----------
-    projdir : str
-        Full path to the file.
-    name : str
-        Name of the file.
-
-    Returns
-    -------
-    list
-
-    """
-    warnings.warn(
-        "`read_info_fromcsv` is deprecated. Use `ansys.aedt.core.generic.file_utils.read_csv` instead.",
-        DeprecationWarning,
-    )
-    # Construct the filename using pathlib.
-    filename = str(Path(projdir) / name)
-    return read_csv(filename)
-
-
-@pyaedt_function_handler(dir="input_dir")
-def clean_proj_folder(input_dir):  # pragma: no cover
-    """Delete all project name-related folders.
-
-    .. deprecated:: 0.15.1
-        This method is deprecated. Use the ``ansys.aedt.core.application.clean_proj_folder`` method instead.
-
-    Parameters
-    ----------
-    input_dir : str or :class:`pathlib.Path`
-        Full path to the project directory.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    warnings.warn(
-        "`clean_proj_folder` is deprecated. Use `ansys.aedt.core.application.clean_proj_folder` instead.",
-        DeprecationWarning,
-    )
-    input_dir_path = Path(input_dir)
-    if input_dir_path.exists():
-        shutil.rmtree(input_dir_path, True)
-    input_dir_path.mkdir()
-    return True
-
-
-@pyaedt_function_handler(ProjectDir="input_dir")
 def create_output_folder(input_dir: Union[str, Path]) -> tuple:
     """Create the output folders starting from the project directory.
 
@@ -123,7 +65,7 @@ def create_output_folder(input_dir: Union[str, Path]) -> tuple:
     return str(picture_path), str(results_path)
 
 
-@pyaedt_function_handler(origfile="input_file", solid_list="assignment")
+@pyaedt_function_handler()
 def change_objects_visibility(input_file: Union[str, Path], assignment: list) -> bool:
     """Edit the project file to make only the solids that are specified visible.
 
@@ -170,7 +112,7 @@ def change_objects_visibility(input_file: Union[str, Path], assignment: list) ->
         return False
 
 
-@pyaedt_function_handler(origfile="input_file")
+@pyaedt_function_handler()
 def change_model_orientation(input_file: Union[str, Path], bottom_dir: str) -> bool:
     """Edit the project file to change the model orientation.
 

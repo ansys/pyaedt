@@ -372,7 +372,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(trace_style="style")
+    @pyaedt_function_handler()
     def set_trace_properties(self, style=None, width=None, trace_type=None, color=None):
         """Set trace properties.
 
@@ -1391,7 +1391,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 sweep_list.append(["Nominal"])
         return sweep_list
 
-    @pyaedt_function_handler(plot_name="name")
+    @pyaedt_function_handler()
     def create(self, name=None):
         """Create a report.
 
@@ -1892,7 +1892,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             return True
         return False
 
-    @pyaedt_function_handler(val="value")
+    @pyaedt_function_handler()
     def add_cartesian_x_marker(self, value, name=None):  # pragma: no cover
         """Add a cartesian X marker.
 
@@ -1917,7 +1917,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             return name
         return ""
 
-    @pyaedt_function_handler(val="value")
+    @pyaedt_function_handler()
     def add_cartesian_y_marker(self, value, name=None, y_axis=1):  # pragma: no cover
         """Add a cartesian Y marker.
 
@@ -1946,7 +1946,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             return name
         return ""
 
-    @pyaedt_function_handler(tabname="tab_name")
+    @pyaedt_function_handler()
     def _change_property(self, tab_name, property_name, property_val):
         if not self._is_created:
             self._app.logger.error("Plot has not been created. Create it and then change the properties.")
@@ -2172,7 +2172,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         ]
         return self._change_property("legend", "legend", props)
 
-    @pyaedt_function_handler(font_height="font_size")
+    @pyaedt_function_handler()
     def hide_legend(self, solution_name=True, trace_name=True, variation_key=True, font_size=1):
         """Hide the Legend.
 
@@ -2204,7 +2204,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self._app.logger.error("Failed to hide legend.")
             return False
 
-    @pyaedt_function_handler(axis_name="name")
+    @pyaedt_function_handler()
     def edit_y_axis(
         self,
         name="Y1",
@@ -2289,7 +2289,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         props.append(["NAME:Display Units", "Value:=", display_units])
         return self._change_property("Axis", "Axis" + name, props)
 
-    @pyaedt_function_handler(axis_name="name")
+    @pyaedt_function_handler()
     def edit_y_axis_scaling(
         self,
         name="Y1",
@@ -2517,7 +2517,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         ]
         return self._change_property("Header", "Header", props)
 
-    @pyaedt_function_handler(file_path="input_file")
+    @pyaedt_function_handler()
     def import_traces(self, input_file, plot_name):
         """Import report data from a file into a specified report.
 
@@ -2717,7 +2717,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._post.oreportsetup.ApplyReportTemplate(self.plot_name, input_file, property_type)
         return True
 
-    @pyaedt_function_handler(trace_name="name")
+    @pyaedt_function_handler()
     def add_trace_characteristics(self, name, arguments=None, solution_range=None):
         """Add a trace characteristic to the plot.
 

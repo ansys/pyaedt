@@ -60,7 +60,7 @@ def desktop():
     return
 
 
-@pyaedt_function_handler(deprecated_arg="trigger_exception")
+@pyaedt_function_handler()
 def foo(trigger_exception=True):
     """Some dummy function used for testing."""
     if trigger_exception:

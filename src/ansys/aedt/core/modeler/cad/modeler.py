@@ -343,7 +343,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
         self._modeler.oeditor.ChangeProperty(arguments)
 
-    @pyaedt_function_handler(newname="name")
+    @pyaedt_function_handler()
     def rename(self, name):
         """Rename the coordinate system.
 
@@ -456,7 +456,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
         return coordinateSystemAttributes
 
-    @pyaedt_function_handler(face="assignment")
+    @pyaedt_function_handler()
     def create(
         self, assignment, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
@@ -1340,7 +1340,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
         return coordinateSystemAttributes
 
-    @pyaedt_function_handler(obj="assignment")
+    @pyaedt_function_handler()
     def create(
         self,
         assignment,
@@ -1757,7 +1757,7 @@ class Lists(PropsManager, PyAedtBase):
 
         return True
 
-    @pyaedt_function_handler(object_list="assignment", type="entity_type")
+    @pyaedt_function_handler()
     def create(
         self,
         assignment,
@@ -1822,7 +1822,7 @@ class Lists(PropsManager, PyAedtBase):
         self._modeler.user_lists.remove(self)
         return True
 
-    @pyaedt_function_handler(newname="name")
+    @pyaedt_function_handler()
     def rename(self, name):
         """Rename the List.
 

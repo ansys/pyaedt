@@ -408,7 +408,7 @@ class Analysis(Design, PyAedtBase):
             return self._setup
 
     @active_setup.setter
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def active_setup(self, name):
         setup_list = self.setup_names
         if setup_list:
@@ -536,26 +536,6 @@ class Analysis(Design, PyAedtBase):
             return self.nominal_adaptive
 
     @property
-    def existing_analysis_setups(self):
-        """Existing analysis setups.
-
-        .. deprecated:: 0.15.0
-            Use :func:`setup_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        References
-        ----------
-        >>> oModule.GetSetups
-        """
-        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
-        warnings.warn(msg, DeprecationWarning)
-        return self.setup_names
-
-    @property
     def setup_names(self):
         """Setup names.
 
@@ -608,28 +588,6 @@ class Analysis(Design, PyAedtBase):
             All solution type categorized by application.
         """
         return self.SOLUTIONS
-
-    @property
-    def excitations(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.15.0
-           Use :func:`excitation_names` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-        >>> oModule.GetExcitations
-        """
-        mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.excitation_names
 
     @property
     def excitation_names(self):
@@ -705,28 +663,6 @@ class Analysis(Design, PyAedtBase):
                 _dict_out[bound_type] = [bound]
         return _dict_out
 
-    @property
-    def excitation_objects(self):
-        """Get all excitation.
-
-        .. deprecated:: 0.15.0
-           Use :func:`design_excitations` property instead.
-
-        Returns
-        -------
-        dict
-            List of excitation boundaries. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-        >>> oModule.GetExcitations
-        """
-        mess = "The property `excitation_objects` is deprecated.\n"
-        mess += " Use `app.design_excitations` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.design_excitations
-
     @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
@@ -800,7 +736,7 @@ class Analysis(Design, PyAedtBase):
                             list_output.append(value)
         return list_output
 
-    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
+    @pyaedt_function_handler()
     def list_of_variations(self, setup=None, sweep=None):
         """Retrieve a list of active variations for input setup.
 
@@ -1104,7 +1040,7 @@ class Analysis(Design, PyAedtBase):
                     self.logger.warning("Setup is not solved. To export results please analyze setup first.")
         return exported_files
 
-    @pyaedt_function_handler(setup_name="setup", variation_string="variations", file_path="output_file")
+    @pyaedt_function_handler()
     def export_convergence(self, setup, variations="", output_file=None):
         """Export a solution convergence to a file.
 
@@ -1281,7 +1217,7 @@ class Analysis(Design, PyAedtBase):
         sweeps = self.oanalysis.GetSweeps(name)
         return list(sweeps)
 
-    @pyaedt_function_handler(sweepname="sweep", filename="output_file", exportunits="export_units")
+    @pyaedt_function_handler()
     def export_parametric_results(self, sweep, output_file, export_units=True):
         """Export a list of all parametric variations solved for a sweep to a CSV file.
 
@@ -1307,7 +1243,7 @@ class Analysis(Design, PyAedtBase):
         self.ooptimetrics.ExportParametricResults(sweep, output_file, export_units)
         return True
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def generate_unique_setup_name(self, name=None):
         """Generate a new setup with a unique name.
 
@@ -1330,7 +1266,7 @@ class Analysis(Design, PyAedtBase):
             index += 1
         return name
 
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    @pyaedt_function_handler()
     def _create_setup(self, name="MySetupAuto", setup_type=None, props=None):
         if props is None:
             props = {}
@@ -1424,7 +1360,7 @@ class Analysis(Design, PyAedtBase):
 
         return setup
 
-    @pyaedt_function_handler(setupname="name")
+    @pyaedt_function_handler()
     def delete_setup(self, name):
         """Delete a setup.
 
@@ -1460,35 +1396,6 @@ class Analysis(Design, PyAedtBase):
             return True
         return False
 
-    @pyaedt_function_handler(setupname="name", properties_dict="properties")
-    def edit_setup(self, name, properties):  # pragma: no cover
-        """Modify a setup.
-
-        .. deprecated:: 0.15.0
-            Use :func:`update` from setup object instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the setup.
-        properties : dict
-            Dictionary containing the property to update with the value.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.solve_setup.Setup`
-
-        References
-        ----------
-        >>> oModule.EditSetup
-        """
-        warnings.warn("`edit_setup` is deprecated. Use `update` method from setup object instead.", DeprecationWarning)
-        setuptype = self.design_solutions.default_setup
-        setup = Setup(self, setuptype, name)
-        setup.update(properties)
-        self.active_setup = name
-        return setup
-
     @pyaedt_function_handler()
     def _get_setup(self, name):
         setuptype = self.design_solutions.default_setup
@@ -1521,7 +1428,7 @@ class Analysis(Design, PyAedtBase):
         self.active_setup = name
         return setup
 
-    @pyaedt_function_handler(setupname="name")
+    @pyaedt_function_handler()
     def get_setup(self, name):
         """Get the setup from the current design.
 
@@ -1679,7 +1586,7 @@ class Analysis(Design, PyAedtBase):
         )
         return value
 
-    @pyaedt_function_handler(object_list="assignment")
+    @pyaedt_function_handler()
     def get_object_material_properties(self, assignment=None, prop_names=None):
         """Retrieve the material properties for a list of objects and return them in a dictionary.
 
@@ -1721,7 +1628,7 @@ class Analysis(Design, PyAedtBase):
                     dict[entry][prop_name] = mat_props._props[prop_name]
         return dict
 
-    @pyaedt_function_handler(setup_name="setup", num_cores="cores", num_tasks="tasks", num_gpu="gpus")
+    @pyaedt_function_handler()
     def analyze(
         self,
         setup=None,
@@ -1941,7 +1848,7 @@ class Analysis(Design, PyAedtBase):
             except Exception:  # pragma: no cover
                 raise AEDTRuntimeError(f"Failed to set registry from file {target_name}.")
 
-    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
+    @pyaedt_function_handler()
     def analyze_setup(
         self,
         name=None,
@@ -2106,7 +2013,7 @@ class Analysis(Design, PyAedtBase):
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
     # flake8: noqa: E501
-    @pyaedt_function_handler(filename="file_name", numcores="cores", num_tasks="tasks", setup_name="setup")
+    @pyaedt_function_handler()
     def solve_in_batch(
         self,
         file_name=None,
@@ -2246,7 +2153,7 @@ class Analysis(Design, PyAedtBase):
                 time.sleep(0.5)
         return True
 
-    @pyaedt_function_handler(clustername="cluster_name", numnodes="nodes", numcores="cores")
+    @pyaedt_function_handler()
     def submit_job(
         self, cluster_name, aedt_full_exe_path=None, nodes=1, cores=32, wait_for_license=True, setting_file=None
     ):  # pragma: no cover
@@ -2419,7 +2326,7 @@ class Analysis(Design, PyAedtBase):
         self.logger.info("Touchstone correctly exported to %s", filename)
         return OutFile
 
-    @pyaedt_function_handler(unit_system="units_system")
+    @pyaedt_function_handler()
     def value_with_units(
         self,
         value,
@@ -2548,29 +2455,6 @@ class Analysis(Design, PyAedtBase):
         self.logger.info(f"Property {property_name} changed correctly.")
         return True
 
-    @pyaedt_function_handler()
-    def number_with_units(self, value, units=None):  # pragma: no cover
-        """Convert a number to a string with units. If value is a string, it's returned as is.
-
-        .. deprecated:: 0.15.0
-            Use :func:`value_with_units` instead.
-
-        Parameters
-        ----------
-        value : float, int, str
-            Input  number or string.
-        units : optional
-            Units for formatting. The default is ``None`` which uses modeler units.
-
-        Returns
-        -------
-        str
-           String concatenating the value and unit.
-
-        """
-        warnings.warn("`number_with_units` is deprecated. Use `value_with_units` method instead.", DeprecationWarning)
-        return self.value_with_units(value, units)
-
 
 class AvailableVariations(PyAedtBase):
     def __init__(self, app):
@@ -2622,32 +2506,6 @@ class AvailableVariations(PyAedtBase):
         return {k: v.expression for k, v in list(available_variables.items())}
 
     @property
-    def nominal_w_values_dict(self):
-        """Nominal independent with values in a dictionary.
-
-        .. deprecated:: 0.15.0
-            Use :func:`nominal_values` from setup object instead.
-
-        Returns
-        -------
-        dict
-            Dictionary of nominal independent variations with values.
-
-        References
-        ----------
-        >>> oDesign.GetChildObject("Variables").GetChildNames
-        >>> oDesign.GetVariables
-        >>> oDesign.GetVariableValue
-        >>> oDesign.GetNominalVariation
-        """
-        warnings.warn("`nominal_w_values_dict` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
-        families = {}
-        for k, v in list(self._app.variable_manager.independent_variables.items()):
-            families[k] = v.expression
-
-        return families
-
-    @property
     def variables(self):
         """Variables.
 
@@ -2664,32 +2522,6 @@ class AvailableVariations(PyAedtBase):
             DeprecationWarning,
         )
         return self._app.variable_manager.independent_variable_names
-
-    @property
-    def nominal_w_values(self):
-        """Nominal independent with values in a list.
-
-        .. deprecated:: 0.15.0
-            Use :func:`nominal_values` from setup object instead.
-
-        Returns
-        -------
-        list
-            List of nominal independent variations with expressions.
-
-        References
-        ----------
-        >>> oDesign.GetChildObject("Variables").GetChildNames()
-        >>> oDesign.GetVariables
-        >>> oDesign.GetVariableValue
-        >>> oDesign.GetNominalVariation
-        """
-        warnings.warn("`nominal_w_values` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
-        families = []
-        for k, v in list(self._app.variable_manager.independent_variables.items()):
-            families.append(k + ":=")
-            families.append([v.expression])
-        return families
 
     @property
     def nominal_w_values_dict_w_dependent(self):

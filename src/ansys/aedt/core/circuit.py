@@ -148,13 +148,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -202,7 +196,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         except Exception:
             return from_rkm_to_aedt(value)
 
-    @pyaedt_function_handler(file_to_import="input_file")
+    @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice netlist.
 
@@ -450,7 +444,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self.logger.info("Netlist was correctly imported into %s", self.design_name)
         return True
 
-    @pyaedt_function_handler(path="input_file")
+    @pyaedt_function_handler()
     def get_ibis_model_from_file(self, input_file, is_ami=False):
         """Create an IBIS model based on the data contained in an IBIS file.
 
@@ -474,7 +468,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         reader.parse_ibis_file()
         return reader.ibis_model
 
-    @pyaedt_function_handler(file_to_import="input_file")
+    @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, input_file):
         """Create a circuit schematic from a Mentor netlist.
 
@@ -615,7 +609,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self.modeler.schematic_units = units
         return True
 
-    @pyaedt_function_handler(refid="reference_id")
+    @pyaedt_function_handler()
     def retrieve_mentor_comp(self, reference_id):
         """Retrieve the type of the Mentor netlist component for a given reference ID.
 
@@ -701,7 +695,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
-    @pyaedt_function_handler(filename="input_file", solution_name="solution")
+    @pyaedt_function_handler()
     def import_touchstone_solution(self, input_file, solution="Imported_Data"):
         """Import a Touchstone file as the solution.
 
@@ -836,7 +830,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self.logger.info("Touchstone file was correctly imported into %s", self.design_name)
         return portnames
 
-    @pyaedt_function_handler(designname="design", setupname="setup")
+    @pyaedt_function_handler()
     def export_fullwave_spice(
         self,
         design=None,
@@ -964,9 +958,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
         return filename
 
-    @pyaedt_function_handler(
-        plot_name="name", curvenames="curves", solution_name="solution", variation_dict="variations"
-    )
+    @pyaedt_function_handler()
     def create_touchstone_report(
         self,
         name,
@@ -1015,7 +1007,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             curves, solution, variations=variations_dict, context=dif, subdesign_id=subdesign_id, plot_name=name
         )
 
-    @pyaedt_function_handler(instance_name="instance", setup_name="setup")
+    @pyaedt_function_handler()
     def push_excitations(self, instance, thevenin_calculation=False, setup="LinearFrequency"):
         """Push excitations for a linear frequency setup.
 
@@ -1042,7 +1034,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self.modeler.oeditor.PushExcitations(instance, arg)
         return True
 
-    @pyaedt_function_handler(instance_name="instance", setup_name="setup")
+    @pyaedt_function_handler()
     def push_time_excitations(
         self,
         instance,
@@ -1242,7 +1234,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             self.design_excitations[port].update()
         return source_p
 
-    @pyaedt_function_handler(filepath="input_file")
+    @pyaedt_function_handler()
     def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, input_file):
         """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
@@ -1277,14 +1269,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             self.design_excitations[port].update()
         return source_freq
 
-    @pyaedt_function_handler(
-        positive_terminal="assignment",
-        negative_terminal="reference",
-        common_name="common_mode",
-        diff_name="differential_mode",
-        common_ref="common_reference",
-        diff_ref_z="differential_reference",
-    )
+    @pyaedt_function_handler()
     def set_differential_pair(
         self,
         assignment,
@@ -1394,7 +1379,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return False
         return True
 
-    @pyaedt_function_handler(filename="input_file")
+    @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, input_file):
         """Load differtential pairs definition from a file.
 
@@ -1432,7 +1417,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return False
         return True
 
-    @pyaedt_function_handler(filename="output_file")
+    @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, output_file):
         """Save differential pairs definition to a file.
 
@@ -1456,7 +1441,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
         return Path(output_file).is_file()
 
-    @pyaedt_function_handler(netlist_file="input_file", datablock_name="name")
+    @pyaedt_function_handler()
     def add_netlist_datablock(self, input_file, name=None):
         """Add a new netlist data block to the circuit schematic.
 
@@ -1484,7 +1469,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(filepath="input_file")
+    @pyaedt_function_handler()
     def browse_log_file(self, input_file=None):
         """Save the most recent log file in a new directory.
 
@@ -1615,7 +1600,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return True
         return False
 
-    @pyaedt_function_handler(edb_path="input_dir")
+    @pyaedt_function_handler()
     def import_edb_in_circuit(self, input_dir):
         """Import an EDB design inside a Circuit project.
 
@@ -1647,9 +1632,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         hfss.close_project(save=False)
         return hfss_3d_layout_model
 
-    @pyaedt_function_handler(
-        touchstone="input_file", probe_pins="tx_schematic_pins", probe_ref_pins="tx_schematic_differential_pins"
-    )
+    @pyaedt_function_handler()
     @deprecate_argument(
         arg_name="analyze",
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
@@ -1793,7 +1776,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 self.post.create_report(trace)
         return True, tdr_probe_names
 
-    @pyaedt_function_handler(touchstone="input_file")
+    @pyaedt_function_handler()
     @deprecate_argument(
         arg_name="analyze",
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
@@ -1904,14 +1887,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             self.analyze()
         return True, diff_pairs, comm_pairs
 
-    @pyaedt_function_handler(
-        touchstone="input_file",
-        ibis_ami="ibis_tx_file",
-        tx_pins="tx_schematic_pins",
-        rx_pins="rx_schematic_pins",
-        tx_refs="tx_schematic_differential_pins",
-        rx_refs="rx_schematic_differentialial_pins",
-    )
+    @pyaedt_function_handler()
     @deprecate_argument(
         arg_name="analyze",
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",

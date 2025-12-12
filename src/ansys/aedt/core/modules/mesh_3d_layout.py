@@ -191,7 +191,7 @@ class Mesh3d(PyAedtBase):
         """
         return self._app.omeshmodule
 
-    @pyaedt_function_handler(setup_name="setup", mesh_name="name")
+    @pyaedt_function_handler()
     def delete_mesh_operations(self, setup, name):
         """Remove mesh operations from a setup.
 
@@ -239,15 +239,7 @@ class Mesh3d(PyAedtBase):
             self.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
         return meshops
 
-    @pyaedt_function_handler(
-        setupname="setup",
-        layer_name="layer",
-        net_name="net",
-        isinside="is_inside",
-        maxlength="maximum_length",
-        maxel="maximum_elements",
-        meshop_name="name",
-    )
+    @pyaedt_function_handler()
     def assign_length_mesh(self, setup, layer, net, is_inside=True, maximum_length=1, maximum_elements=1000, name=None):
         """Assign mesh length.
 
@@ -332,15 +324,7 @@ class Mesh3d(PyAedtBase):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler(
-        setupname="setup",
-        layer_name="layer",
-        net_name="net",
-        skindepth="skin_depth",
-        maxelements="maximum_elements",
-        numlayers="layers_number",
-        meshop_name="name",
-    )
+    @pyaedt_function_handler()
     def assign_skin_depth(
         self,
         setup,

@@ -657,7 +657,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return worst_el, dict_means
 
 
-@pyaedt_function_handler(file_path="input_file")
+@pyaedt_function_handler()
 def read_touchstone(input_file):
     """Load the contents of a Touchstone file into an NPort.
 
@@ -676,7 +676,7 @@ def read_touchstone(input_file):
     return data
 
 
-@pyaedt_function_handler(folder="input_dir")
+@pyaedt_function_handler()
 def check_touchstone_files(input_dir="", passivity=True, causality=True):
     """Check passivity and causality for all Touchstone files included in the folder.
 

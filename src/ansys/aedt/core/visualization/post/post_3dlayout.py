@@ -461,7 +461,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
                 plot_type = "LayerNets"
             return self._create_fieldplot(new_layers, quantity, setup, intrinsics, plot_type, name)
 
-    @pyaedt_function_handler(quantity_name="quantity", setup_name="setup")
+    @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
         self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface=True, plot_name=None
     ):
