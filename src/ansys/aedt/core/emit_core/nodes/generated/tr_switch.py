@@ -23,44 +23,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class TR_Switch(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str):
+    def rename(self, new_name: str = ""):
         """Rename this node"""
         self._rename(new_name)
 
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
     def delete(self):
         """Delete this node"""
         self._delete()
-
-    @property
-    def filename(self) -> str:
-        """Name of file defining the outboard component.
-
-        Value should be a full file path.
-        """
-        val = self._get_property("Filename")
-        return val
-
-    @filename.setter
-    def filename(self, value: str):
-        self._set_property("Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:

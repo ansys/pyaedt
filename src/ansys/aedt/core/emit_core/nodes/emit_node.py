@@ -91,6 +91,31 @@ class EmitNode:
         """
         return self._get_property("Name", True)
 
+    @name.setter
+    def name(self, requested_name: str):
+        """Renames the node/component.
+
+        Parameters
+        ----------
+        requested_name : str
+            New name for the node/component.
+
+        Raises
+        ------
+        ValueError
+            If the node is read-only or cannot be renamed.
+        """
+        if self._result_id > 0:
+            raise ValueError("This node is read-only for kept results.")
+
+        if self.get_is_component():
+            try:
+                self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
+            except Exception:
+                raise ValueError(f"Failed to rename {self.name} to {requested_name}")
+        else:
+            _ = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+
     @property
     def _node_type(self) -> str:
         """Type of the node.
@@ -239,7 +264,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop, skipChecks=False, isTable=False) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks: bool = False, isTable: bool = False) -> Union[str, List[str]]:
         """Fetch the value of a given property.
 
         Parameters
@@ -257,7 +282,7 @@ class EmitNode:
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
             if len(selected_kv_pairs) < 1:
-                return ""
+                raise ValueError(f"Property {prop} not found or not available for {self._node_type} configuration.")
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]
@@ -273,12 +298,14 @@ class EmitNode:
                 return val.split("|")
             else:
                 return val
+        except ValueError:
+            raise
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
-    def _set_property(self, prop, value):
+    def _set_property(self, prop, value, skipChecks=False):
         try:
-            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], True)
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
         except Exception:
             error_text = None
             if len(self._emit_obj.logger.messages.error_level) > 0:
@@ -288,7 +315,7 @@ class EmitNode:
                     f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for '
                     f'{self.properties["Type"]} node "{self.name}"'
                 )
-            raise Exception(error_text)
+            raise ValueError(error_text)
 
     @staticmethod
     def _string_to_value_units(value) -> tuple[float, str]:
@@ -408,6 +435,9 @@ class EmitNode:
     def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
 
+        .. deprecated: 0.21.3
+            Use name property instead
+
         Parameters
         ----------
         requested_name : str
@@ -423,15 +453,10 @@ class EmitNode:
         ValueError
             If the node is read-only and cannot be renamed.
         """
-        if self.get_is_component():
-            if self._result_id > 0:
-                raise ValueError("This node is read-only for kept results.")
-            self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
-            new_name = requested_name
-        else:
-            new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+        warnings.warn("This property is deprecated in 0.21.3. Use the name property instead.", DeprecationWarning)
+        self.name = requested_name
 
-        return new_name
+        return self.name
 
     def _duplicate(self, new_name):
         raise NotImplementedError("This method is not implemented yet.")
@@ -446,8 +471,24 @@ class EmitNode:
         import_type : str
             Type of import. Options are: CsvFile, TxMeasurement, RxMeasurement,
             SpectralData, TouchstoneCoupling, CAD.
+
+        Returns
+        -------
+        node: EmitNode
+            The node.
         """
-        self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+        try:
+            node_id = self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
+        except Exception:
+            error_text = None
+            if len(self._emit_obj.logger.messages.error_level) > 0:
+                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
+            else:
+                error_text = (
+                    f'Exception in EmitNodeImport: Failed to import: "{file_path}" of node type: "{import_type}"'
+                )
+            raise Exception(error_text)
+        return self._get_node(node_id)
 
     def _export_model(self, file_path: str):
         """Exports an Emit node's model to a file.
@@ -499,9 +540,14 @@ class EmitNode:
                 return False
             return True
 
-        table_title = self._get_property("CDTableTitle", True)
-        if table_title == "":
-            # No ColumnData Table Title, so it's a NodePropTable
+        try:
+            table_title = self._get_property("CDTableTitle", True)
+            if table_title == "":
+                # No ColumnData Table Title, so it's a NodePropTable
+                return False
+        except ValueError:
+            # Exception returned since "CDTableTitle" doesn't exist
+            # so it's a NodePropTable
             return False
         return True
 
@@ -522,7 +568,6 @@ class EmitNode:
                 data = self._oRevisionData.GetTableData(self._result_id, self._node_id)
                 rows = data.split("|")
                 string_table = [tuple(row.split(";")) for row in rows if row]
-                table = [tuple(float(x) for x in t) for t in string_table]
             else:
                 # Node Prop tables
                 # Data formatted using compact string serialization
@@ -530,13 +575,16 @@ class EmitNode:
                 table_key = self._get_property("TableKey", True)
                 string_table = self._get_property(table_key, True, True)
 
-                def try_float(val):
-                    try:
-                        return float(val)
-                    except ValueError:
-                        return val  # keep as string for non-numeric (e.g. equations)
+            if len(string_table) == 0 or string_table == "":
+                return None
 
-                table = [tuple(try_float(x) for x in t) for t in string_table]
+            def try_float(val):
+                try:
+                    return float(val)
+                except ValueError:
+                    return val  # keep as string for non-numeric (e.g. equations)
+
+            table = [tuple(try_float(x) for x in t) for t in string_table]
         except Exception as e:
             print(f"Failed to get table data for node {self.name}. Error: {e}")
         return table
@@ -563,7 +611,7 @@ class EmitNode:
                 # with ';' separating rows and '|' separating columns
                 table_key = self._get_property("TableKey", True)
                 data = ";".join("|".join(map(str, row)) for row in table)
-                self._set_property(table_key, data)
+                self._set_property(table_key, data, True)
         except Exception as e:
             print(f"Failed to set table data for node {self.name}. Error: {e}")
 

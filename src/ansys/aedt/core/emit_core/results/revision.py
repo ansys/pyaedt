@@ -31,10 +31,14 @@ from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes import generated
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.emitter_node import EmitterNode
+from ansys.aedt.core.emit_core.nodes.generated import Band
+from ansys.aedt.core.emit_core.nodes.generated import BandFolder
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
+from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -290,6 +294,98 @@ class Revision:
         return engine.get_instance_count(domain)
 
     @pyaedt_function_handler()
+    def get_all_band_nodes(
+        self, radio: RadioNode, tx_rx_mode: TxRxMode = None, enabled_only: bool = False
+    ) -> list[Band]:
+        """
+        Returns all the Bands within a Radio
+
+        Parameters
+        ----------
+        radio: RadioNode
+            The radio to iterate through.
+
+        tx_rx_mode : :class:`emit_constants.TxRxMode`, optional
+            Specifies whether to get ``tx`` or ``rx`` band names. The default
+            is ``None``, in which case the names of all enabled bands are returned.
+
+        enabled_only : bool
+            If True, only returns Band nodes that are enabled, otherwise
+            it returns all Band nodes.
+
+        Returns
+        -------
+        bands: list[Band]
+            List of all Band (nodes) in a radio.
+        """
+        radio_children = radio.children
+        bands = []
+        for radio_child in radio_children:
+            if isinstance(radio_child, Band):
+                if enabled_only and not radio_child.enabled:
+                    # Skip disabled Bands if caller doesn't want all Bands
+                    continue
+                if tx_rx_mode == TxRxMode.RX:
+                    if "true" in radio_child._get_property("RxEnabled", True):
+                        bands.append(radio_child)
+                elif tx_rx_mode == TxRxMode.TX:
+                    if "true" in radio_child._get_property("TxEnabled", True):
+                        bands.append(radio_child)
+                else:
+                    bands.append(radio_child)
+            elif isinstance(radio_child, BandFolder):
+                folder_children = radio_child.children
+                for folder_child in folder_children:
+                    if enabled_only and not folder_child.enabled:
+                        # Skip disabled Bands if caller doesn't want all Bands
+                        continue
+                    if tx_rx_mode == TxRxMode.RX:
+                        if "true" in folder_child._get_property("RxEnabled", True):
+                            bands.append(folder_child)
+                    elif tx_rx_mode == TxRxMode.TX:
+                        if "true" in folder_child._get_property("TxEnabled", True):
+                            bands.append(folder_child)
+                    else:
+                        bands.append(folder_child)
+        return bands
+
+    @pyaedt_function_handler()
+    def _is_receiver(self, radio: RadioNode):
+        """
+        Check if a given radio is a receiver.
+
+        Parameters
+        ----------
+        radio: RadioNode
+            The radio to check.
+
+        Returns
+        -------
+        is_rx: bool
+            True if the Radio can receive, False otherwise.
+        """
+        bands = self.get_all_band_nodes(radio=radio, tx_rx_mode=TxRxMode.RX, enabled_only=True)
+        return len(bands) > 0
+
+    @pyaedt_function_handler()
+    def _is_transmitter(self, radio: RadioNode):
+        """
+        Check if a given radio is a transmitter.
+
+        Parameters
+        ----------
+        radio: RadioNode
+            The radio to check.
+
+        Returns
+        -------
+        is_tx: bool
+            True if the Radio can transmit, False otherwise.
+        """
+        bands = self.get_all_band_nodes(radio=radio, tx_rx_mode=TxRxMode.TX, enabled_only=True)
+        return len(bands) > 0
+
+    @pyaedt_function_handler()
     def get_receiver_names(self):
         """
         Get a list of all receivers in the project.
@@ -307,16 +403,20 @@ class Revision:
         --------
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
+        receivers = []
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS)
+            radios = self.get_all_radio_nodes()
+            for radio in radios:
+                radio: RadioNode
+                if self._is_receiver(radio):
+                    receivers.append(radio.name)
         else:
-            radios = None
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
-            return radios
-        if len(radios) == 0:
+            return None
+        if len(receivers) == 0:
             warnings.warn("No valid receivers in the project.")
-        return radios
+        return receivers
 
     @pyaedt_function_handler()
     def get_interferer_names(self, interferer_type=None):
@@ -343,35 +443,55 @@ class Revision:
         >>> emitters = aedtapp.results.current_revision.get_interferer_names(InterfererType.EMITTERS)
         >>> both = aedtapp.results.current_revision.get_interferer_names(InterfererType.TRANSMITTERS_AND_EMITTERS)
         """
+        transmitters = []
         if interferer_type is None:
             interferer_type = InterfererType.TRANSMITTERS_AND_EMITTERS
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(TxRxMode.TX, interferer_type)
+            radios = []
+            if interferer_type == InterfererType.TRANSMITTERS:
+                radios = self.get_all_radio_nodes(include_emitters=False)
+            elif interferer_type == InterfererType.EMITTERS:
+                radios = self.get_all_emitter_radios()
+            else:
+                radios = self.get_all_radio_nodes(include_emitters=True)
+            for radio in radios:
+                radio: RadioNode
+                if self._is_transmitter(radio):
+                    transmitters.append(radio.name)
         else:
-            radios = None
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
-            return radios
-        if len(radios) == 0:
+            return None
+        if len(transmitters) == 0:
             warnings.warn("No valid radios or emitters in the project.")
             return None
-        return radios
+        return transmitters
 
     @pyaedt_function_handler()
-    def get_band_names(self, radio_name, tx_rx_mode=None):
-        """Get a list of all ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
+    @deprecate_argument(
+        arg_name="radio_name",
+        message=(
+            "The ''radio_name'' argument will be removed in future versions. Use the ''radio_node'' argument instead."
+        ),
+    )
+    def get_band_names(
+        self, radio_node: RadioNode = None, radio_name: str = "", tx_rx_mode: TxRxMode = None
+    ) -> list[str]:
+        """Get a list of all enabled ``tx`` or ``rx`` bands (or waveforms) in a given radio/emitter.
 
         Parameters
         ----------
         radio_name : str
-            Name of the radio/emitter.
+            The name of the radio/emitter
+        radio_node : RadioNode
+            The radio/emitter.
         tx_rx_mode : :class:`emit_constants.TxRxMode`, optional
             Specifies whether to get ``tx`` or ``rx`` band names. The default
             is ``None``, in which case the names of all enabled bands are returned.
 
         Returns
         -------
-        bands:class:`list of str`
+        bands: list[str]
             List of ``tx`` or ``rx`` band/waveform names.
 
         Examples
@@ -379,17 +499,24 @@ class Revision:
         >>> bands = aedtapp.results.current_revision.get_band_names("Bluetooth", TxRxMode.RX)
         >>> waveforms = aedtapp.results.current_revision.get_band_names("USB_3.x", TxRxMode.TX)
         """
-        if tx_rx_mode is None:
-            tx_rx_mode = TxRxMode.BOTH
+        band_names = []
         if self.revision_loaded:
-            bands = self.emit_project._emit_api.get_band_names(radio_name, tx_rx_mode)
+            if radio_node is None:
+                if radio_name == "":
+                    raise ValueError("A radio_node or radio_name must be specified.")
+                radio_node = self.get_component_node(radio_name)
+            bands = self.get_all_band_nodes(radio=radio_node, enabled_only=True, tx_rx_mode=tx_rx_mode)
+            for band in bands:
+                band_names.append(band.name)
         else:
-            bands = None
             self.result_mode_error()
             err_msg = self.result_mode_error()
             warnings.warn(err_msg)
-            return bands
-        return bands
+            return None
+        if len(band_names) == 0:
+            warnings.warn("No valid radios or emitters in the project.")
+            return None
+        return band_names
 
     @pyaedt_function_handler()
     def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
@@ -480,7 +607,13 @@ class Revision:
             engine.n_to_1_limit = max_instances
 
     @pyaedt_function_handler()
-    def interference_type_classification(self, domain, use_filter=False, filter_list=None):  # pragma: no cover
+    def interference_type_classification(
+        self,
+        domain,
+        interferer_type: InterfererType = InterfererType.TRANSMITTERS,
+        use_filter: bool = False,
+        filter_list: list[str] = None,
+    ):  # pragma: no cover
         """Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
 
@@ -488,9 +621,11 @@ class Revision:
         ----------
             domain :
                 ``InteractionDomain`` object for constraining the analysis parameters.
+            interferer_type : TxRxMode, optional
+                Specifies whether to analyze all interferers, radios only, or emitters only.
             use_filter : bool, optional
                 Whether filtering is being used. The default is ``False``.
-            filter_list : list, optional
+            filter_list : list[str], optional
                 List of filter values selected by the user via the GUI if filtering is in use.
 
         Returns
@@ -498,7 +633,7 @@ class Revision:
             power_matrix : list
                 List of worst case interference power at Rx.
             all_colors : list
-                List of color classification of interference types.
+                Color classification of interference types.
 
         Examples
         --------
@@ -508,20 +643,27 @@ class Revision:
         all_colors = []
 
         # Get project results and radios
-        modeRx = TxRxMode.RX
-        modeTx = TxRxMode.TX
-        tx_interferer = InterfererType().TRANSMITTERS
-        rx_radios = self.get_receiver_names()
-        tx_radios = self.get_interferer_names(tx_interferer)
-        radios = self.emit_project.modeler.components.get_radios()
+        mode_rx = TxRxMode.RX
+        mode_tx = TxRxMode.TX
+        rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
+        if interferer_type == InterfererType.TRANSMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=True)
+        else:
+            tx_radios = self.get_all_emitter_radios()
+
+        if tx_radios is None:
+            raise ValueError("No interferers defined in the analysis.")
+        if rx_radios is None:
+            raise ValueError("No receivers defined in the analysis.")
 
         for tx_radio in tx_radios:
             rx_powers = []
             rx_colors = []
             for rx_radio in rx_radios:
+                rx_radio: RadioNode
                 # powerAtRx is the same for all Rx bands, so just use first one
-                rx_bands = self.get_band_names(rx_radio, modeRx)
-                rx_band_objects = radios[rx_radio].bands()
                 if tx_radio == rx_radio:
                     # skip self-interaction
                     rx_powers.append("N/A")
@@ -529,43 +671,48 @@ class Revision:
                     continue
 
                 max_power = -200
-                tx_bands = self.get_band_names(tx_radio, modeTx)
+                rx_band_nodes = self.get_all_band_nodes(radio=rx_radio, enabled_only=True, tx_rx_mode=mode_rx)
+                tx_band_nodes = self.get_all_band_nodes(radio=tx_radio, enabled_only=True, tx_rx_mode=mode_tx)
 
-                for i, rx_band in enumerate(rx_bands):
+                for rx_band in rx_band_nodes:
                     # Find the highest power level at the Rx input due to each Tx Radio.
                     # Can look at any Rx freq since susceptibility won't impact
                     # powerAtRx, but need to look at all tx channels since coupling
                     # can change over a transmitter's bandwidth
-                    rx_freq = self.get_active_frequencies(rx_radio, rx_band, modeRx)[0]
+                    rx_band: Band
+                    rx_freq = self.get_active_frequencies(rx_radio.name, rx_band.name, mode_rx)[0]
 
                     # The start and stop frequencies define the Band's extents,
                     # while the active frequencies are a subset of the Band's frequencies
                     # being used for this specific project as defined in the Radio's Sampling.
-                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i], "MHz")
-                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i], "MHz")
-                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i], "MHz")
+                    # Values are returned in default units, so convert to MHz
+                    hz_to_mhz = 1e-6
+                    rx_start_freq = rx_band.start_frequency * hz_to_mhz
+                    rx_stop_freq = rx_band.stop_frequency * hz_to_mhz
+                    rx_channel_bandwidth = rx_band.channel_bandwidth * hz_to_mhz
 
-                    for tx_band in tx_bands:
-                        domain.set_receiver(rx_radio, rx_band)
-                        domain.set_interferer(tx_radio, tx_band)
+                    for tx_band in tx_band_nodes:
+                        tx_band: Band
+                        domain.set_receiver(rx_radio.name, rx_band.name)
+                        domain.set_interferer(tx_radio.name, tx_band.name)
                         interaction = self.run(domain)
                         # check for valid interaction, this would catch any disabled radio pairs
                         if not interaction.is_valid():
                             continue
 
-                        domain.set_receiver(rx_radio, rx_band, rx_freq)
-                        tx_freqs = self.get_active_frequencies(tx_radio, tx_band, modeTx)
+                        domain.set_receiver(rx_radio.name, rx_band.name, rx_freq)
+                        tx_freqs = self.get_active_frequencies(tx_radio.name, tx_band.name, mode_tx)
                         for tx_freq in tx_freqs:
-                            domain.set_interferer(tx_radio, tx_band, tx_freq)
+                            domain.set_interferer(tx_radio.name, tx_band.name, tx_freq)
                             instance = interaction.get_instance(domain)
                             if not instance.has_valid_values():
                                 # check for saturation somewhere in the chain
-                                # set power so its flagged as strong interference
+                                # set power=200 to flag it as strong interference
                                 if instance.get_result_warning() == "An amplifier was saturated.":
                                     max_power = 200
                                 else:
                                     # other warnings (e.g. no path from Tx to Rx,
-                                    # no power received, error in configuration, etc)
+                                    # no power received, error in configuration, etc.)
                                     # should just be skipped
                                     continue
                             else:
@@ -618,11 +765,12 @@ class Revision:
     def protection_level_classification(
         self,
         domain,
-        global_protection_level=True,
-        global_levels=None,
-        protection_levels=None,
-        use_filter=False,
-        filter_list=None,
+        interferer_type: InterfererType = InterfererType.TRANSMITTERS,
+        global_protection_level: bool = True,
+        global_levels: list = None,
+        protection_levels: dict = None,
+        use_filter: bool = False,
+        filter_list: list[str] = None,
     ):  # pragma: no cover
         """
         Classify worst-case power at each Rx radio according to interference type.
@@ -634,6 +782,8 @@ class Revision:
         ----------
             domain :
                 ``InteractionDomain`` object for constraining the analysis parameters.
+            interferer_type : TxRxMode, optional
+                Specifies whether to analyze all interferers, radios only, or emitters only.
             global_protection_level : bool, optional
                 Whether to use the same protection levels for all radios. The default is ``True``.
             global_levels : list, optional
@@ -648,9 +798,9 @@ class Revision:
         Returns
         -------
             power_matrix : list
-                List of worst case interference according to power at each Rx radio.
+                Worst case interference according to power at each Rx radio.
             all_colors : list
-                List of color classification of protection level.
+                Color classification of protection level.
 
         Examples
         --------
@@ -660,12 +810,21 @@ class Revision:
         all_colors = []
 
         # Get project results and radios
-        modeRx = TxRxMode.RX
-        modeTx = TxRxMode.TX
+        mode_rx = TxRxMode.RX
+        mode_tx = TxRxMode.TX
         mode_power = ResultType.POWER_AT_RX
-        tx_interferer = InterfererType().TRANSMITTERS
-        rx_radios = self.get_receiver_names()
-        tx_radios = self.get_interferer_names(tx_interferer)
+        rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
+        if interferer_type == InterfererType.TRANSMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=True)
+        else:
+            tx_radios = self.get_all_emitter_radios()
+
+        if tx_radios is None:
+            raise ValueError("No interferers defined in the analysis.")
+        if rx_radios is None:
+            raise ValueError("No receivers defined in the analysis.")
 
         if global_protection_level and global_levels is None:
             damage_threshold = 30
@@ -682,12 +841,12 @@ class Revision:
             for rx_radio in rx_radios:
                 # powerAtRx is the same for all Rx bands, so just
                 # use the first one
-                if not (global_protection_level):
-                    damage_threshold = protection_levels[rx_radio][0]
-                    overload_threshold = protection_levels[rx_radio][1]
-                    intermod_threshold = protection_levels[rx_radio][2]
+                if not global_protection_level:
+                    damage_threshold = protection_levels[rx_radio.name][0]
+                    overload_threshold = protection_levels[rx_radio.name][1]
+                    intermod_threshold = protection_levels[rx_radio.name][2]
 
-                rx_band = self.get_band_names(rx_radio, modeRx)[0]
+                rx_band_name = self.get_band_names(radio_node=rx_radio, tx_rx_mode=mode_rx)[0]
                 if tx_radio == rx_radio:
                     # skip self-interaction
                     rx_powers.append("N/A")
@@ -695,36 +854,36 @@ class Revision:
                     continue
 
                 max_power = -200
-                tx_bands = self.get_band_names(tx_radio, modeTx)
+                tx_band_names = self.get_band_names(radio_node=tx_radio, tx_rx_mode=mode_tx)
 
-                for tx_band in tx_bands:
+                for tx_band_name in tx_band_names:
                     # Find the highest power level at the Rx input due to each Tx Radio.
                     # Can look at any Rx freq since susceptibility won't impact
                     # powerAtRx, but need to look at all tx channels since coupling
                     # can change over a transmitter's bandwidth
-                    rx_freq = self.get_active_frequencies(rx_radio, rx_band, modeRx)[0]
-                    domain.set_receiver(rx_radio, rx_band)
-                    domain.set_interferer(tx_radio, tx_band)
+                    rx_freq = self.get_active_frequencies(rx_radio.name, rx_band_name, mode_rx)[0]
+                    domain.set_receiver(rx_radio.name, rx_band_name)
+                    domain.set_interferer(tx_radio.name, tx_band_name)
                     interaction = self.run(domain)
                     # check for valid interaction, this would catch any disabled radio pairs
                     if not interaction.is_valid():
                         continue
-                    domain.set_receiver(rx_radio, rx_band, rx_freq)
-                    tx_freqs = self.get_active_frequencies(tx_radio, tx_band, modeTx)
+                    domain.set_receiver(rx_radio.name, rx_band_name, rx_freq)
+                    tx_freqs = self.get_active_frequencies(tx_radio.name, tx_band_name, mode_tx)
 
                     power_list = []
 
                     for tx_freq in tx_freqs:
-                        domain.set_interferer(tx_radio, tx_band, tx_freq)
+                        domain.set_interferer(tx_radio.name, tx_band_name, tx_freq)
                         instance = interaction.get_instance(domain)
                         if not instance.has_valid_values():
                             # check for saturation somewhere in the chain
-                            # set power so its flagged as "damage threshold"
+                            # set power=200 to flag it as "damage threshold"
                             if instance.get_result_warning() == "An amplifier was saturated.":
                                 max_power = 200
                             else:
                                 # other warnings (e.g. no path from Tx to Rx,
-                                # no power received, error in configuration, etc)
+                                # no power received, error in configuration, etc.)
                                 # should just be skipped
                                 continue
                         else:
@@ -920,6 +1079,72 @@ class Revision:
         component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
         component_nodes = [self._get_node(node_id) for node_id in component_node_ids]
         return component_nodes
+
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
+    def get_all_radio_nodes(self, tx_rx_mode: TxRxMode = None, include_emitters: bool = False) -> list[RadioNode]:
+        """Gets all Radio nodes from this revision.
+
+        Parameters
+        ----------
+        tx_rx_mode: TxRxMode
+            Specifies the type (Tx, Rx, or Both) of Radios to include.
+
+        include_emitters: bool
+            Includes Emitters if True.
+
+        Returns
+        -------
+        radio_nodes: list
+            List of radio nodes.
+
+        Examples
+        --------
+        >>> radios = revision.get_all_radio_nodes()
+        """
+        comp_nodes: EmitNode = self.get_all_component_nodes()
+        radio_nodes = []
+        for comp in comp_nodes:
+            if include_emitters and isinstance(comp, EmitterNode):
+                comp: EmitterNode
+                radio_nodes.append(comp.get_radio())
+            elif isinstance(comp, RadioNode):
+                if tx_rx_mode == TxRxMode.TX and self._is_transmitter(comp):
+                    radio_nodes.append(comp)
+                elif tx_rx_mode == TxRxMode.RX and self._is_receiver(comp):
+                    radio_nodes.append(comp)
+                elif tx_rx_mode == TxRxMode.BOTH or tx_rx_mode is None:
+                    radio_nodes.append(comp)
+
+        if len(radio_nodes) == 0:
+            warnings.warn("No valid radios in the project.")
+            return None
+        return radio_nodes
+
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
+    def get_all_emitter_radios(self) -> list[RadioNode]:
+        """Gets all Emitter Radio nodes from this revision.
+
+        Returns
+        -------
+        radio_nodes: list
+            List of radio nodes belonging to Emitters.
+
+        Examples
+        --------
+        >>> radios = revision.get_all_radio_nodes()
+        """
+        comp_nodes: EmitNode = self.get_all_component_nodes()
+        radio_nodes = []
+        for comp in comp_nodes:
+            if isinstance(comp, EmitterNode):
+                comp: EmitterNode
+                radio_nodes.append(comp.get_radio())
+        if len(radio_nodes) == 0:
+            warnings.warn("No valid emitters in the project.")
+            return None
+        return radio_nodes
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
