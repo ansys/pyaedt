@@ -554,6 +554,11 @@ class EmitNode:
     def _check_column_table_data(self, data):
         """Converts user inputted int or string table data to SI units.
 
+        The table nodes affected are: 
+        TxHarmonicNode, TxNbEmissionNode, 
+        TxBbEmissionNode (except equation table), RxMixerProductNode, 
+        RxSaturationNode, RxSelectivityNode. 
+
         Parameters
         ----------
         data : list of tuples
@@ -615,8 +620,10 @@ class EmitNode:
                             row_list[i] = consts.unit_converter(val, "Frequency", unit, input_unit)
                         elif unit != input_unit:
                             raise ValueError(f"{unit} are not valid units for this property.")
-                        else:
+                        elif isinstance(val, (float, int)):
                             row_list[i] = val
+                        else:
+                            raise ValueError(f"{value} is not valid for this property.")
                     else:
                         # Handle columns with SI units
                         for unit_type, valid_units_list in EMIT_VALID_UNITS.items():
@@ -627,7 +634,7 @@ class EmitNode:
                         if valid_unit:
                             row_list[i] = self._convert_to_internal_units(value, unit_system)
                         else:
-                            raise ValueError(f"{unit} are not valid units for this property.")
+                            raise ValueError(f"{unit} is not valid for this property.")
                 else:
                     # Handle numeric inputs
                     row_list[i] = value
@@ -636,6 +643,10 @@ class EmitNode:
 
     def _check_node_prop_table_data(self, data):
         """Converts user inputted int or string table data to SI units.
+
+        The table nodes affected are:
+        SamplingNode, TxSpurNode, 
+        RxSpurNode, TxBbEmissionNode (equation table only).
 
         Parameters
         ----------
@@ -668,7 +679,7 @@ class EmitNode:
                         units[i] = "PowerUnit"
 
                 if "(" in cols[i] and isinstance(val, str):
-                    # Check for function input strings
+                    # Check for function inputs (TxSpurNode, RxSpurNode, TxBbEmissionNode (equation table only))
                     if "rf" in val.lower():
                         row_list[i] = val
                         continue
@@ -682,6 +693,8 @@ class EmitNode:
                     # Handle dBc and dBm/Hz units
                     if input_unit == "dBc" or input_unit == "dBm/Hz":
                         row_list[i] = value
+                    elif input_unit not in EMIT_VALID_UNITS[units[i][:-4]]:
+                        raise ValueError(f"{input_unit} is not valid for this property.")
                     else:
                         row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
                 else:
@@ -690,12 +703,14 @@ class EmitNode:
                         value, unit = self._string_to_value_units(val)
                         if unit == "dBc":
                             row_list[i] = value
+                        elif unit not in EMIT_VALID_UNITS[units[i][:-4]]:
+                            raise ValueError(f"{unit} is not valid for this property.")
                         else:
                             row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
-                    elif units[i] == "none":
+                    elif isinstance(val, (float, int)):
                         row_list[i] = val
                     else:
-                        row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
+                        raise ValueError(f"{val} is not valid for this property.")
             data_return.append(tuple(row_list))
         return data_return
 
@@ -771,7 +786,7 @@ class EmitNode:
                 data = ";".join("|".join(map(str, row)) for row in table)
                 self._set_property(table_key, data, True)
         except Exception as e:
-            print(f"Failed to set table data for node {self.name}. Error: {e}")
+            raise ValueError(f"Failed to set table data for node {self.name}. Error: {e}")
 
     def _add_child_node(self, child_type, child_name=None):
         """Creates a child node of the given type and name.

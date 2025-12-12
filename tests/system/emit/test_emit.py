@@ -2008,6 +2008,7 @@ class TestClass:
         band_node.freq_deviation = 1e4
         assert band_node.freq_deviation == 1e4
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_table_inputs(self, emit_app):
         # Testing table input conversions
         radio = emit_app.schematic.create_component("New Radio")
@@ -2035,28 +2036,15 @@ class TestClass:
                         rx_spectral_profile = cast(RxSusceptibilityProfNode, band_child)
 
         # Create all the sub-nodes to test casting
-        tx_harmonics = tx_spectral_profile.add_custom_tx_harmonics()
-        tx_narrowband_emissions_mask = tx_spectral_profile.add_narrowband_emissions_mask()
-        tx_spurious_emissions = tx_spectral_profile.add_spurious_emissions()
-        tx_broadband_noise_profile = tx_spectral_profile.add_tx_broadband_noise_profile()
+        tx_harmonics : TxHarmonicNode = tx_spectral_profile.add_custom_tx_harmonics()
+        tx_narrowband_emissions_mask : TxNbEmissionNode = tx_spectral_profile.add_narrowband_emissions_mask()
+        tx_spurious_emissions : TxSpurNode = tx_spectral_profile.add_spurious_emissions()
+        tx_broadband_noise_profile : TxBbEmissionNode = tx_spectral_profile.add_tx_broadband_noise_profile()
 
-        rx_mixer = rx_spectral_profile.add_mixer_products()
-        rx_saturation = rx_spectral_profile.add_rx_saturation()
-        rx_selectivity = rx_spectral_profile.add_rx_selectivity()
-        rx_spurious_responses = rx_spectral_profile.add_spurious_responses()
-
-        tx_harmonics = cast(TxHarmonicNode, tx_harmonics)
-        tx_narrowband_emissions_mask = cast(TxNbEmissionNode, tx_narrowband_emissions_mask)
-        tx_spurious_emissions = cast(TxSpurNode, tx_spurious_emissions)
-        tx_broadband_noise_profile = cast(TxBbEmissionNode, tx_broadband_noise_profile)
-
-        rx_mixer = cast(RxMixerProductNode, rx_mixer)
-        rx_saturation = cast(RxSaturationNode, rx_saturation)
-        rx_selectivity = cast(RxSelectivityNode, rx_selectivity)
-        rx_spurious_responses = cast(RxSpurNode, rx_spurious_responses)
-
-        emit_app.set_units("Frequency", "kHz")
-        emit_app.set_units("Power", "kW")
+        rx_mixer : RxMixerProductNode = rx_spectral_profile.add_mixer_products()
+        rx_saturation : RxSaturationNode = rx_spectral_profile.add_rx_saturation()
+        rx_selectivity : RxSelectivityNode = rx_spectral_profile.add_rx_selectivity()
+        rx_spurious_responses : RxSpurNode = rx_spectral_profile.add_spurious_responses()
 
         # Test node prop tables input conversions
 
@@ -2068,21 +2056,35 @@ class TestClass:
         tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
         spur_data = [("30 kHz", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 0.05), (70e6, 10e5, "1000 W")]
         tx_spurious_emissions.table_data = spur_data
-        assert tx_spurious_emissions.table_data == [(30e3, 50e6, 80), (4e6, 5e6, 0.05), (70e6, 1e6, 60)]
+        assert tx_spurious_emissions.table_data == [(0.03, 50e6, 80), (4, 5e6, 0.05), (70e6, 1e6, 60)]
+        spur_data = [("RF+10.0", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 80), (4, 5e6, 20), (70e6, 1e6, 60)]
+
         tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.RELATIVE
         spur_data = [("20 MHz", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
         tx_spurious_emissions.table_data = spur_data
-        assert tx_spurious_emissions.table_data == [(20e6, 50e6, 5), (4e6, 5e6, 5), (70e6, 1e6, 6)]
+        assert tx_spurious_emissions.table_data == [(20, 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
+        spur_data = [("RF+10.0", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
 
         # Rx Spurious Responses Table Data
         rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.ABSOLUTE
         spur_data = [(10e6, 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
         rx_spurious_responses.table_data = spur_data
-        assert rx_spurious_responses.table_data == [(10e6, 10e6, 80), (20e6, 1e6, 65), (30e3, 30e6, 75)]
+        assert rx_spurious_responses.table_data == [(10e6, 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+        spur_data = [("RF+10.0", 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
+        rx_spurious_responses.table_data = spur_data
+        assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+
         rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.RELATIVE
         spur_data = [("5 kHz", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
         rx_spurious_responses.table_data = spur_data
-        assert rx_spurious_responses.table_data == [(5e3, 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+        assert rx_spurious_responses.table_data == [(0.005, 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+        spur_data = [("RF+10.0", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
+        rx_spurious_responses.table_data = spur_data
+        assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
 
         # Test column data tables input conversions
         # Rx Mixer Products Table Data
@@ -2121,7 +2123,7 @@ class TestClass:
         )
         narrowband_data = [("1 MHz", "100 kW"), (5000000, "1000 W"), (10e6, 80)]
         tx_narrowband_emissions_mask.table_data = narrowband_data
-        assert tx_narrowband_emissions_mask.table_data == [(1000000.0, 80), (5000000.0, 60), (10000000.0, -80.0)]
+        assert tx_narrowband_emissions_mask.table_data == [(1000000.0, 80), (5000000.0, 60), (10000000.0, 80.0)]
         tx_narrowband_emissions_mask.narrowband_behavior = (
             tx_narrowband_emissions_mask.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
         )
@@ -2239,6 +2241,63 @@ class TestClass:
 
             # Verify the NodeProp Table was set
             assert bb_noise.table_data == bb_data
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_table_inputs_invalid_units(self, emit_app):
+        """Test table inputs with invalid units to ensure proper error handling."""
+        radio = emit_app.schematic.create_component("New Radio")
+        radio = cast(RadioNode, radio)
+
+        children = radio.children
+        sampling = None
+        for child in children:
+            if child.node_type == "SamplingNode":
+                sampling = cast(SamplingNode, child)
+
+        # Test invalid units for SamplingNode (NodeProp table)
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            sampling.table_data = [("100 invalid_unit", 1.5e6)]
+
+        with pytest.raises(ValueError, match="could not convert string to float"):
+            sampling.table_data = [("not_a_number", "25 MHz")]
+
+        # Get Tx spectral profile nodes
+        children = radio.children
+        tx_spec = None
+        for child in children:
+            if child.node_type == "Band":
+                band_children = child.children
+                for band_child in band_children:
+                    if band_child.node_type == "TxSpectralProfNode":
+                        tx_spectral_profile = cast(TxSpectralProfNode, band_child)
+                    if band_child.node_type == "RxSusceptibilityProfNode":
+                        rx_spectral_profile = cast(RxSusceptibilityProfNode, band_child)
+
+        # Create sub-nodes for testing
+        tx_spurious_emissions: TxSpurNode = tx_spectral_profile.add_spurious_emissions()
+        rx_saturation: RxSaturationNode = rx_spectral_profile.add_rx_saturation()
+
+        # Test node prop table
+        tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            tx_spurious_emissions.table_data = [("30 invalid_freq", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            tx_spurious_emissions.table_data = [("30 kHz", "50 invalid_freq", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            tx_spurious_emissions.table_data = [("30 kHz", "50 MHz", "100 invalid_power")]
+
+        # Test column data table
+        with pytest.raises(ValueError, match="could not convert string to float"):
+            tx_spurious_emissions.table_data = [("not_a_number", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            rx_saturation.table_data = [("100 invalid_freq", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            rx_saturation.table_data = [("100 kHz", "100 invalid_power")]
+
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emitters_radios(self, emit_app):
