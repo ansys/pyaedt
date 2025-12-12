@@ -42,7 +42,6 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
-from tests.conftest import config
 
 settings.lazy_load = False
 settings.wait_for_license = True
@@ -103,7 +102,7 @@ class TestClass:
         assert aedtapp.design_type == "Q3D Extractor"
 
     def test_run_desktop_maxwell2d(self):
-        solutions_maxwell_2d = SolutionsMaxwell2D.versioned(config["desktopVersion"])
+        solutions_maxwell_2d = SolutionsMaxwell2D
 
         aedtapp = Maxwell2d(solution_type=solutions_maxwell_2d.MagnetostaticZ)
         assert aedtapp.design_type == "Maxwell 2D"
@@ -191,7 +190,7 @@ class TestClass:
         assert aedtapp.solution_type == SolutionsHfss.CharacteristicMode
 
     def test_run_desktop_maxwell3d(self):
-        solutions_maxwell_3d = SolutionsMaxwell3D.versioned(config["desktopVersion"])
+        solutions_maxwell_3d = SolutionsMaxwell3D
 
         aedtapp = Maxwell3d(solution_type=solutions_maxwell_3d.Magnetostatic)
         assert aedtapp.design_type == "Maxwell 3D"

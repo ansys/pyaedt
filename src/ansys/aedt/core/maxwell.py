@@ -275,7 +275,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> m3d.set_core_losses(assignment=["PQ_Core_Bottom", "PQ_Core_Top"], core_loss_on_field=True)
         >>> m3d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
@@ -360,7 +360,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
 
         if self.solution_type in (
             maxwell_solutions.ElectroStatic,
@@ -605,7 +605,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             raise AEDTRuntimeError("No conductors defined in active design.")
         assignment = self.modeler.convert_to_selections(assignment, True)
 
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
 
         EddyVector = ["NAME:EddyEffectVector"]
         if self.modeler._is3d:
@@ -772,7 +772,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             name = generate_unique_name("Current")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.is3d:
             if type(assignment[0]) is int:
                 props = dict(
@@ -1828,8 +1828,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> m2d.assign_current_density(assignment=[coil], current_density_2d="5", current_density_name="J")
         >>> m2d.desktop_class.close_desktop()
         """
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
 
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
@@ -1944,7 +1943,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> m3d.assign_radiation([box1, box2.faces[0]])
         >>> m3d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
             raise AEDTRuntimeError("Excitation applicable only to Eddy Current or AC Magnetic solution types.")
         if not radiation:
@@ -2100,7 +2099,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> odesign.EnableHarmonicForceCalculation
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in [
             maxwell_solutions.TransientAPhiFormulation,
             maxwell_solutions.TransientAPhi,
@@ -2268,7 +2267,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> cir = m2d.create_external_circuit(circuit_design="maxwell_circuit")
         >>> m2d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
@@ -2535,7 +2534,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> m2d.export_rl_matrix(matrix_name=matrix.name, output_file="C:\\Users\\RL_matrix.txt")
         >>> m2d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in [
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
@@ -2862,7 +2861,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> insulating_assignment = m3d.assign_insulating(assignment=insulated_box, insulation="InsulatingExample")
         >>> m3d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.Magnetostatic,
             maxwell_solutions.EddyCurrent,
@@ -2942,7 +2941,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> impedance_assignment = m3d.assign_impedance(assignment=shield_faces, impedance="ShieldImpedance")
         >>> m3d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.Transient,
             maxwell_solutions.EddyCurrent,
@@ -3006,7 +3005,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> m3d.assign_current_density_terminal(assignment=box.faces[0], current_density_name="J_terminal")
         >>> m3d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
@@ -3233,8 +3232,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0], "FluxExample")
         >>> m3d.desktop_class.close_desktop()
         """
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
 
         if self.solution_type not in [
             maxwell_solutions.TransientAPhiFormulation,
@@ -3402,8 +3400,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>>                              )
         >>> m3d.desktop_class.close_desktop()
         """
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
@@ -3473,8 +3470,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> m3d.assign_zero_tangential_h_field(box.top_face_z)
         >>> m3d.desktop_class.close_desktop()
         """
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
             raise AEDTRuntimeError(
                 "Tangential H Field is applicable only to EddyCurrent or AC Magnetic solution types."
@@ -3580,7 +3576,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> bound = m3d.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
         >>> m3d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
@@ -3690,7 +3686,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         ... ]
         >>> app.order_coil_terminals(winding_name=winding, list_of_terminals=updated_connection_order)
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in [maxwell_solutions.TransientAPhi, maxwell_solutions.TransientAPhiFormulation]:
             raise AEDTRuntimeError("Only available in Transient A-Phi Formulation solution type.")
 
@@ -4135,7 +4131,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> bound = m2d.assign_end_connection(assignment=[rect1, rect2])
         >>> m2d.desktop_class.close_desktop()
         """
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self.solution_type not in (
             maxwell_solutions.EddyCurrent,
             maxwell_solutions.ACMagnetic,
