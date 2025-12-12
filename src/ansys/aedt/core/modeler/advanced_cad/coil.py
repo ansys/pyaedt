@@ -67,16 +67,39 @@ class Coil(PyAedtBase):
 
     def __init__(self, app, is_vertical: bool = True):
         self._app = app
-        self.is_vertical = True
+        self._values = {}
+        self.is_vertical = is_vertical
+
         for key, value in COIL_PARAMETERS["Common"].items():
             if key in ["arc_segmentation", "section_segmentation", "wire_radius"]:
                 if key == "wire_radius":
                     value = Quantity(value, self._app.modeler.model_units)
                 self._app[key] = value
-            setattr(self, key, value)
+            self._values[key] = value
         mode = "Vertical" if is_vertical else "Flat"
         for key, value in COIL_PARAMETERS[mode].items():
-            setattr(self, key, value)
+            self._values[key] = value
+
+    def __getattr__(self, name):
+        if name in self._values:
+            return self._values[name]
+        raise AttributeError(name)
+
+    def __setattr__(self, name, value):
+        if name in {"_app", "_values", "is_vertical"}:
+            object.__setattr__(self, name, value)
+            return
+
+        if "_values" in self.__dict__ and name in self._values:
+            self._values[name] = value
+
+            if name in ["arc_segmentation", "section_segmentation", "wire_radius"]:
+                if name == "wire_radius":
+                    value = Quantity(value, self._app.modeler.model_units)
+                self._app[name] = value
+            return
+
+        object.__setattr__(self, name, value)
 
     @pyaedt_function_handler()
     def create_flat_path(self):

@@ -21,9 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from dataclasses import field
+from dataclasses import dataclass
 from dataclasses import fields
-from dataclasses import make_dataclass
 import os
 from pathlib import Path
 import tkinter as tk
@@ -41,42 +40,64 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.modeler.advanced_cad.coil import COIL_PARAMETERS
 from ansys.aedt.core.modeler.advanced_cad.coil import Coil
 
 PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
-EXTENSION_TITLE = "Create coil design"
 MIN_WIDTH = 400
 MIN_HEIGHT = 500
-
-
-def prettyfy(key: str) -> str:
-    """Convert a parameter key to a more readable format."""
-    return key.replace("_", " ").title()
-
-
-def generate_extension_defaults():
-    defaults = {"Is Vertical": True}
-
-    for category in ["Common", "Vertical", "Flat"]:
-        defaults[category] = {prettyfy(k): v for k, v in COIL_PARAMETERS[category].items()}
-    return defaults
-
-
-def build_coil_extension_data(defaults):
-    fields = [("is_vertical", bool, field(default=defaults["Is Vertical"]))]
-    for category in ["Common", "Vertical", "Flat"]:
-        for k, v in defaults[category].items():
-            fields.append((k.replace(" ", "_").lower(), type(v), field(default=v)))
-    return make_dataclass("CoilExtensionData", fields, bases=(ExtensionCommonData,))
-
-
-defaults = generate_extension_defaults()
-CoilExtensionData = build_coil_extension_data(defaults)
 DEFAULT_PADDING = {"padx": 5, "pady": 5}
+
+# Extension batch arguments
+EXTENSION_DEFAULT_ARGUMENTS = {
+    "is_vertical": True,
+    "Common": {
+        "name": "",
+        "centre_x": 0.0,
+        "centre_y": 0.0,
+        "turns": 5,
+        "inner_distance": 2.0,
+        "inner_width": 12.0,
+        "inner_length": 6.0,
+        "wire_radius": 1.0,
+        "arc_segmentation": 4,
+        "section_segmentation": 6,
+    },
+    "Vertical": {
+        "direction": 1,
+        "centre_z": 0.0,
+        "pitch": 3.0,
+    },
+    "Flat": {
+        "distance_turns": 3.0,
+        "looping_position": 0.5,
+    },
+}
+EXTENSION_TITLE = "Create coil design"
+
+
+@dataclass
+class CoilExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
+
+    is_vertical: bool = EXTENSION_DEFAULT_ARGUMENTS["is_vertical"]
+    name: str = EXTENSION_DEFAULT_ARGUMENTS["Common"]["name"]
+    centre_x: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_x"]
+    centre_y: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["centre_y"]
+    turns: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["turns"]
+    inner_distance: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_distance"]
+    inner_width: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_width"]
+    inner_length: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["inner_length"]
+    wire_radius: float = EXTENSION_DEFAULT_ARGUMENTS["Common"]["wire_radius"]
+    arc_segmentation: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["arc_segmentation"]
+    section_segmentation: int = EXTENSION_DEFAULT_ARGUMENTS["Common"]["section_segmentation"]
+    direction: int = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["direction"]
+    centre_z: float = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["centre_z"]
+    pitch: float = EXTENSION_DEFAULT_ARGUMENTS["Vertical"]["pitch"]
+    distance_turns: float = EXTENSION_DEFAULT_ARGUMENTS["Flat"]["distance_turns"]
+    looping_position: float = EXTENSION_DEFAULT_ARGUMENTS["Flat"]["looping_position"]
 
 
 class CoilExtension(ExtensionMaxwell3DCommon):
@@ -147,7 +168,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
         if tab_name == "Common":
             row = self._add_vertical_coil_checkbox(tab, row)
 
-        for parameter, default_value in defaults[tab_name].items():
+        for parameter, default_value in EXTENSION_DEFAULT_ARGUMENTS[tab_name].items():
             row = self._add_parameter_row(tab, parameter, default_value, row)
 
         if tab_name == "Common":
@@ -276,7 +297,7 @@ def main(data: CoilExtensionData):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(defaults, EXTENSION_TITLE)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
     # Open UI
     if not args["is_batch"]:
         extension: ExtensionCommon = CoilExtension(withdraw=False)
