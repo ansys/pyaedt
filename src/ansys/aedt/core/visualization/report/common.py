@@ -1178,7 +1178,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             Primary sweep.
         """
         if self._is_created:
-            return list(self.properties.values())[4].split(" ,")[0]
+            try:
+                return list(self.properties.values())[4].split(" ,")[0]
+            except Exception:
+                self._legacy_props["context"]["primary_sweep"]
         return self._legacy_props["context"]["primary_sweep"]
 
     @primary_sweep.setter

@@ -585,6 +585,7 @@ class PostProcessorCommon(PyAedtBase):
                 plots[-1]._legacy_props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
+                plots[-1]._initialize_tree_node()
         return plots
 
     @property
