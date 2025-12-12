@@ -243,7 +243,7 @@ They are small automated workflows with a simple GUI.
 
             Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
-   .. grid-item-card:: Vertical and flat coil geometries
+   .. grid-item-card:: Coil Design
             :link: pyaedt_extensions_doc/maxwell/create_coil
             :link-type: doc
             :margin: 2 2 0 0

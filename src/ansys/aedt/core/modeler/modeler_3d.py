@@ -192,8 +192,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
         ----------
         >>> oEditor.Create3DComponent
         """
+        # If design name has a white space (as it usually happens with Maxwell 2D/3D new designs),
+        # it has to be replaced with an underscore.
         if not name:
-            name = self._app.design_name
+            name = self._app.design_name.replace(" ", "_")
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
             self.logger.error("Password type must be 'UserSuppliedPassword' or 'InternalPassword'")
