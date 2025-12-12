@@ -565,7 +565,9 @@ class EmitNode:
             Data converted to SI units.
         """
         exceptions = {
-            "TxHarmonicNode": {"Absolute": [None, "PowerUnit"], "Relative": [None, "Power (dBc)"]},
+            "TxHarmonicNode": {
+                "Absolute": [None, "PowerUnit"], 
+                "Relative": [None, "Power (dBc)"]},
             "TxNbEmissionNode": {
                 "Absolute": ["FrequencyUnit", "PowerUnit"],
                 "RelativeBandwidth": ["FrequencyUnit", "Attenuation (dB)"],
@@ -576,7 +578,9 @@ class EmitNode:
                 "RelativeOffset": ["FrequencyUnit", "Amplitude (dBm/Hz)"],
                 "BroadbandEquation": ["FrequencyUnit (MHz)", "Amplitude (dBm/Hz)"],
             },
-            "RxMixerProductNode": {"Absolute": [None, None, "PowerUnit"], "Relative": [None, None, "Power (dBc)"]},
+            "RxMixerProductNode": {
+                "Absolute": [None, None, "PowerUnit"], 
+                "Relative": [None, None, "Power (dBc)"]},
             "RxSaturationNode": ["FrequencyUnit", "PowerUnit"],
             "RxSelectivityNode": ["FrequencyUnit", "Attenuation (dB)"],
         }
@@ -679,7 +683,7 @@ class EmitNode:
                     value = float(s[:unit_index])
                     input_unit = s[unit_index:]
 
-                    # Exception for dBc and dBm/Hz units
+                    # Handle dBc and dBm/Hz units
                     if input_unit == "dBc" or input_unit == "dBm/Hz":
                         row_list[i] = value
                     else:
