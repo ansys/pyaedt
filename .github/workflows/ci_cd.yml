@@ -38,7 +38,7 @@ jobs:
       contents: write        # Required to commit and push changelog updates to the repository
       pull-requests: write   # Required to create pull requests with changelog updates
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+      - uses: ansys/actions/doc-deploy-changelog@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -51,7 +51,7 @@ jobs:
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+      - uses: ansys/actions/check-vulnerabilities@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -65,7 +65,7 @@ jobs:
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+      - uses: ansys/actions/check-actions-security@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/check-pr-title@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -128,7 +128,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/doc-style@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -146,7 +146,7 @@ jobs:
           sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/doc-build@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -170,7 +170,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/build-wheelhouse@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -194,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           pytest-postargs: 'tests/unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -222,7 +222,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run integration tests
-        uses: ansys/actions/tests-pytest@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           pytest-postargs: 'tests/integration'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -1321,7 +1321,7 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/build-library@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -1354,7 +1354,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/release-github@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -1370,7 +1370,7 @@ jobs:
       contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/doc-deploy-stable@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
