@@ -1,0 +1,6 @@
+cpu\_time
+=========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autoproperty:: FrequencySweepProfile.cpu_time

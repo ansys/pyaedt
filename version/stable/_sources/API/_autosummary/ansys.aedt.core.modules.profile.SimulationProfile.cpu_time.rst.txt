@@ -1,0 +1,6 @@
+cpu\_time
+=========
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. automethod:: SimulationProfile.cpu_time

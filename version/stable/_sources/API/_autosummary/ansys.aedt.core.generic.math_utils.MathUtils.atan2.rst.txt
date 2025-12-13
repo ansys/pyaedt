@@ -1,0 +1,6 @@
+atan2
+=====
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. automethod:: MathUtils.atan2

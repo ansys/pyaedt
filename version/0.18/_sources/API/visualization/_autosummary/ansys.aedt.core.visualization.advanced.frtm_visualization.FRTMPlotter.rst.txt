@@ -1,0 +1,38 @@
+﻿FRTMPlotter
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoclass:: FRTMPlotter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree:
+   
+      
+      FRTMPlotter.plot_range_angle_map
+      
+      
+      FRTMPlotter.plot_range_doppler
+      
+      
+      FRTMPlotter.plot_range_profile
+      
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      FRTMPlotter.all_data
+      FRTMPlotter.frames
+   
+   

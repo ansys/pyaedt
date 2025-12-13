@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. autoproperty:: MathUtils.public_dir

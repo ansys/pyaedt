@@ -1,0 +1,6 @@
+add\_layout\_component\_definition
+==================================
+
+.. currentmodule:: ansys.aedt.core.modeler.modeler_3d
+
+.. automethod:: Modeler3D.add_layout_component_definition
