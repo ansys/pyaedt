@@ -80,7 +80,7 @@ dotnet = [
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.7",
     "jupyter",
-    "numpydoc>=1.5.0,<1.9",
+    "numpydoc>=1.5.0,<1.11",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
     "sphinx-autobuild==2024.10.3",
