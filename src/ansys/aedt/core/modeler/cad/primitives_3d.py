@@ -2007,7 +2007,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         arg_1 = [
             "NAME:InsertNativeComponentData",
             "TargetCS:=", coordinate_system,
-            "SubmodelDefinitionName:=", "LC",
+            "SubmodelDefinitionName:=", "LC_"+name,
             ["NAME:ComponentPriorityLists"],
             "NextUniqueID:=", 0,
             "MoveBackwards:=", False,
@@ -2015,7 +2015,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             ["NAME:DatasetDefinitions"],
             [
                 "NAME:BasicComponentInfo",
-                "ComponentName:=", "LC",
+                "ComponentName:=", name,
                 "Company:=", "",
                 "Company URL:=", "",
                 "Model Number:=", "",
@@ -2060,20 +2060,15 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             "EDBDefinition:=", aedt_component_name,
             sub_arg_1,
             "ReferenceCS:=", reference_coordinate_system,
-            "CSToImport:=",
         ]
-        if component_cs and not layout_coordinate_systems:  # pragma: no cover
-            sub_arg_3 = component_cs
-            sub_arg_3.append("Global")
-        elif component_cs and layout_coordinate_systems:  # pragma: no cover
+        if component_cs and layout_coordinate_systems:  # pragma: no cover
             sub_arg_3 = ["Global"]
             for cs in layout_coordinate_systems:
                 if cs in component_cs:
                     sub_arg_3.append(cs)
-        else:
-            sub_arg_3 = ["Global"]
+            sub_arg_2.append("CSToImport:=")
+            sub_arg_2.append(sub_arg_3)
 
-        sub_arg_2.append(sub_arg_3)
         arg_1.append(sub_arg_2)
 
         sub_arg_4 = ["NAME:InstanceParameters", "GeometryParameters:="]
