@@ -1129,8 +1129,9 @@ def test_create_fieldplot_line(aedt_app):
 
 
 def test_reload(aedt_app, add_app):
+    aedt_app.post.plot_field("Mag_E", "inner", show=False, keep_plot_after_generation=True)
     aedt_app.save_project()
-    app2 = add_app(project_name=aedt_app.project_name, just_open=True)
+    app2 = add_app(project=aedt_app.project_name, close_projects=False)
     assert len(app2.post.field_plots) == len(aedt_app.post.field_plots)
 
 
@@ -1142,14 +1143,14 @@ def test_reports_by_category_eigenmode(aedt_app):
     assert aedt_app.post.reports_by_category.eigenmode()
 
 
-def test_test_parse_vector(self):
-    input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER / "test_vector.aedtplt"
+def test_test_parse_vector():
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_vector.aedtplt"
     out = _parse_aedtplt(str(input_file))
     assert isinstance(out[0], list)
     assert isinstance(out[1], list)
     assert isinstance(out[2], list)
     assert isinstance(out[3], bool)
-    input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / TEST_SUBFOLDER / "test_vector_no_solutions.aedtplt"
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "test_vector_no_solutions.aedtplt"
     assert _parse_aedtplt(str(input_file))
 
 
@@ -1158,14 +1159,14 @@ def test_export_mesh(aedt_app):
 
 
 def test_sweep_from_json(aedt_app):
-    input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / "report_json" / "Modal_Report_Simple.json"
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / "report_json" / "Modal_Report_Simple.json"
     dict_vals = read_json(str(input_file))
     assert aedt_app.post.create_report_from_configuration(report_settings=dict_vals)
     assert aedt_app.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True, show=False)
 
 
 def test_sweep_from_json_1(aedt_app):
-    input_file = Path(TESTS_VISUALIZATION_PATH) / "example_models" / "report_json" / "Modal_Report.json"
+    input_file = TESTS_VISUALIZATION_PATH / "example_models" / "report_json" / "Modal_Report.json"
     assert aedt_app.post.create_report_from_configuration(str(input_file))
     assert aedt_app.post.create_report_from_configuration(
         str(input_file),
