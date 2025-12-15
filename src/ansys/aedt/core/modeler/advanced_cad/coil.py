@@ -57,12 +57,10 @@ class Coil(PyAedtBase):
 
     Parameters
     ----------
-    name : str, optional
-        Name of the coil. The default is ``"Coil"``.
-    coil_type : str, optional
-        Type of the coil. Options are ``"vertical"`` or ``"flat"``. The default is ``"vertical"``.
-    coil_parameters : dict, optional
-        Dictionary of coil parameters. The default is ``None``.
+    app:
+        An AEDT application object.
+    is_vertical : bool, optional
+        Whether the coil is vertical or flat. The default is ``True``.
     """
 
     def __init__(self, app, is_vertical: bool = True):
