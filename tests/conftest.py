@@ -145,14 +145,14 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
 def clean_old_pytest_temps(tmp_path_factory):
     """Delete previous pytest temp dirs before starting a new session."""
     # Clean pytest temp dirs
-    base = tmp_path_factory.getbasetemp().parent
-    current = tmp_path_factory.getbasetemp().name
-    for entry in base.iterdir():
-        if entry.is_dir() and entry.name.startswith("pytest-") and entry.name != current:
-            try:
-                shutil.rmtree(entry, ignore_errors=True)
-            except Exception as e:
-                pyaedt_logger.debug(f"Error {type(e)} occurred while deleting pytest directory: {e}")
+    # base = tmp_path_factory.getbasetemp().parent
+    # current = tmp_path_factory.getbasetemp().name
+    # for entry in base.iterdir():
+    #     if entry.is_dir() and entry.name.startswith("pytest-") and entry.name != current:
+    #         try:
+    #             shutil.rmtree(entry, ignore_errors=True)
+    #         except Exception as e:
+    #             pyaedt_logger.debug(f"Error {type(e)} occurred while deleting pytest directory: {e}")
 
     # Clean pkg- temp dirs from system temp
     temp_dir = Path(tempfile.gettempdir())
