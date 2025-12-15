@@ -1820,7 +1820,7 @@ class PostProcessorCommon(PyAedtBase):
             ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
                 del report._legacy_props["context"]["variations"]["Freq"]
             _update_props(props, report._legacy_props)
-            for el, k in self._app.available_variations.nominal_w_values_dict.items():
+            for el, k in self._app.available_variations.nominal_values.items():
                 if (
                     report._legacy_props.get("context", None)
                     and report._legacy_props["context"].get("variations", None)

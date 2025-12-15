@@ -622,7 +622,7 @@ class TestClass:
         assert isinstance(self.aedtapp.available_variations.all, dict)
 
         # Deprecated
-        assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)
+        assert isinstance(self.aedtapp.available_variations.nominal_values, dict)
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
     def test_26_duplicate(self):

@@ -92,11 +92,11 @@ class TestClass:
         assert setup.dc_resistance_only
         setup.dc_enabled = False
         setup.dc_enabled = True
-        sweep = aedtapp.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
+        sweep = setup.create_frequency_sweep(sweep="mysweep", start_frequency=1, units="GHz")
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 
-        assert not aedtapp.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
+        assert not setup.create_frequency_sweep(name="mysweep", start_frequency=1, units="GHz")
         assert setup.create_linear_step_sweep(
             name="StepFast",
             unit="GHz",
@@ -142,8 +142,8 @@ class TestClass:
         assert setup.create_frequency_sweep(
             unit="GHz",
             name="Sweep1",
-            freqstart=9.5,
-            freqstop="10.5GHz",
+            start_frequency=9.5,
+            stop_frequency="10.5GHz",
             sweep_type="Interpolating",
         )
         sweep2 = setup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
@@ -167,11 +167,11 @@ class TestClass:
         aedtapp.modeler.create_box([0, 0, 0], [1, 1, 20], material="brass")
         aedtapp.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
         assert aedtapp.auto_identify_nets()
-        assert len(aedtapp.nets) == 2
+        assert len(aedtapp.net_names) == 2
         assert aedtapp.delete_all_nets()
-        assert len(aedtapp.nets) == 0
+        assert len(aedtapp.net_names) == 0
         assert aedtapp.auto_identify_nets()
-        nets = aedtapp.nets
+        nets = aedtapp.net_names
         assert "SignalNet" in aedtapp.nets_by_type
         net1 = aedtapp.design_nets[nets[0]]
         net2 = aedtapp.design_nets[nets[1]]
@@ -193,7 +193,7 @@ class TestClass:
     def test_autoidentify_no_nets(self, aedtapp):
         aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
         assert aedtapp.auto_identify_nets()
-        assert not aedtapp.nets
+        assert not aedtapp.net_names
 
     def test_create_source_sinks(self, aedtapp):
         aedtapp.modeler.create_cylinder(Plane.XY, [0, 0, 0], 3, 30, 0, name="MyCylinder", material="brass")
@@ -233,15 +233,15 @@ class TestClass:
         sink.name = "My_new_name"
         assert sink.update()
         assert sink.name == "My_new_name"
-        assert len(aedtapp.nets) > 0
+        assert len(aedtapp.net_names) > 0
         assert len(aedtapp.net_sources("GND")) > 0
         assert len(aedtapp.net_sinks("GND")) > 0
         assert len(aedtapp.net_sources("PGND")) == 0
         assert len(aedtapp.net_sinks("PGND")) == 0
-        obj_list = aedtapp.objects_from_nets(aedtapp.nets[0])
-        assert len(obj_list[aedtapp.nets[0]]) > 0
-        obj_list = aedtapp.objects_from_nets(aedtapp.nets[0], "steel")
-        assert len(obj_list[aedtapp.nets[0]]) == 0
+        obj_list = aedtapp.objects_from_nets(aedtapp.net_names[0])
+        assert len(obj_list[aedtapp.net_names[0]]) > 0
+        obj_list = aedtapp.objects_from_nets(aedtapp.net_names[0], "steel")
+        assert len(obj_list[aedtapp.net_names[0]]) == 0
 
     def test_create_faceted_bondwire(self, bond):
         bondwire = bond.modeler.create_faceted_bondwire_from_true_surface(
@@ -488,7 +488,7 @@ class TestClass:
         aedtapp.source("MyCylinder", direction=0, name="Source1")
         aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         aedtapp.auto_identify_nets()
-        net = aedtapp.nets[0]
+        net = aedtapp.net_names[0]
         assert len(aedtapp.excitation_objects) == 3
         assert len(aedtapp.design_excitations) == 3
         assert "SignalNet" in aedtapp.nets_by_type
@@ -499,7 +499,7 @@ class TestClass:
         new_net = aedtapp.toggle_net(net, "Ground")
         assert new_net.type == "GroundNet"
         assert len(aedtapp.boundaries) == 1
-        assert len(aedtapp.nets) == 1
+        assert len(aedtapp.net_names) == 1
         new_sources = aedtapp.net_sources(net)
         new_sinks = aedtapp.net_sinks(net)
         assert len(sources) != len(new_sources)

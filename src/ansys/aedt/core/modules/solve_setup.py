@@ -986,7 +986,7 @@ class Setup(CommonSetup):
             nominal_values = self._app.available_variations.get_independent_nominal_values()
 
             if parameters is None:
-                parameters = self._app.available_variations.nominal_w_values_dict
+                parameters = self._app.available_variations.nominal_values
                 for el in parameters:
                     mesh_link["Params"][el] = el
             else:
@@ -1014,12 +1014,11 @@ class Setup(CommonSetup):
         nominal_values = self._app.available_variations.get_independent_nominal_values()
         if map_variables_by_name:
             parameters = nominal_values
-            parameters = self._app.available_variations.nominal_w_values_dict
+            parameters = self._app.available_variations.nominal_values
             for k, v in parameters.items():
                 params[k] = k
         elif parameters is None:
-            parameters = nominal_values
-            parameters = self._app.available_variations.nominal_w_values_dict
+            parameters = self._app.available_variations.nominal_values
             for k, v in parameters.items():
                 params[k] = v
         else:

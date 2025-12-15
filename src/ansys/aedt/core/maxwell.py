@@ -2466,11 +2466,11 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         analysis_setup = setup + " : " + default_adaptive
 
-        if not self.available_variations.nominal_w_values_dict:
+        if not self.available_variations.nominal_values:
             variations = ""
         else:
             variations = " ".join(
-                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_values.items()
             )
 
         if not is_format_default:
@@ -2578,11 +2578,11 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         analysis_setup = setup + " : " + default_adaptive
 
-        if not self.available_variations.nominal_w_values_dict:
+        if not self.available_variations.nominal_values:
             variations = ""
         else:
             variations = " ".join(
-                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_values.items()
             )
 
         self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, str(output_file))

@@ -2523,29 +2523,6 @@ class AvailableVariations(PyAedtBase):
         )
         return self._app.variable_manager.independent_variable_names
 
-    @property
-    def nominal_w_values_dict_w_dependent(self):
-        """Nominal independent and dependent with values in a dictionary.
-
-        Returns
-        -------
-        dict
-            Dictionary of nominal independent and dependent variations with values.
-
-        References
-        ----------
-        >>> oDesign.GetChildObject("Variables").GetChildNames
-        >>> oDesign.GetVariables
-        >>> oDesign.GetVariableValue
-        >>> oDesign.GetNominalVariation
-        """
-        warnings.warn("`nominal_w_values_dict_w_dependent` is deprecated.", DeprecationWarning)
-        families = {}
-        for k, v in list(self._app.variable_manager.variables.items()):
-            families[k] = v.expression
-
-        return families
-
     @pyaedt_function_handler()
     def variation_string(self, variation: dict) -> str:
         """Convert a variation dictionary to a string.
