@@ -79,7 +79,7 @@ def test_check_touchstone_file(test_tmp_dir):
     input_dir = shutil.copytree(TEST_DIR, test_tmp_dir / "touchstone_files")
     check = check_touchstone_files(input_dir=input_dir)
     assert check
-    for k, v in check.items():
+    for _, v in check.items():
         if v and v[0] == "passivity":
             assert v[1]
         elif v and v[0] == "causality":

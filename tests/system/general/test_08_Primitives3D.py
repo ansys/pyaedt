@@ -1182,7 +1182,7 @@ def test_modify_crossection(aedt_app):
 
 
 def test_remove_vertex_from_polyline(aedt_app):
-    _, p2, test_points = create_polylines(aedt_app, "Poly_remove_")
+    _, _, test_points = create_polylines(aedt_app, "Poly_remove_")
 
     P = aedt_app.modeler["Poly_remove_segmented"]
     P.remove_point(test_points[2])

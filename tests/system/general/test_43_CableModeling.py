@@ -509,7 +509,7 @@ def test_add_clock_source(aedt_app, test_tmp_dir):
     assert Cable(aedt_app, data).create_clock_source()
     data["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["Period"] = "40u"
     assert not Cable(aedt_app, data).create_clock_source()
-    data["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["LowPulseVal"] == "0.1voltage"
+    data["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["LowPulseVal"] = "0.1voltage"
     assert not Cable(aedt_app, data).create_clock_source()
     data["CableManager"]["TDSources"]["ClockSourceDef"]["ClockSignalParams"]["HighPulseVal"] = "2voltage"
     assert not Cable(aedt_app, data).create_clock_source()
