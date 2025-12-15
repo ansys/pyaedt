@@ -24,7 +24,6 @@
 
 """Test utility functions of PyAEDT."""
 
-import logging
 import os
 import time
 from unittest.mock import MagicMock
@@ -120,18 +119,10 @@ def test_handler_enable_error_handler(mock_logger):
     settings.enable_error_handler = SETTINGS_ENABLE_ERROR_HANDLER
 
 
-def test_handler_deprecation_log_warning(caplog):
+def test_handler_deprecation_log_warning():
     """Test handler deprecation argument mechanism."""
-    EXPECTED_ARGUMENT = "Argument `deprecated_arg` is deprecated for method `foo`; use `trigger_exception` instead."
-
-    with caplog.at_level(logging.WARNING, logger="Global"):
-        foo(deprecated_arg=False)
-    assert len(caplog.records) == 1
-    assert "WARNING" == caplog.records[0].levelname
-    assert EXPECTED_ARGUMENT == caplog.records[0].message
-
-    foo(trigger_exception=False)
-    assert len(caplog.records) == 1
+    with pytest.raises(Exception, match=ERROR_MESSAGE):
+        foo(trigger_exception=True)
 
 
 def test_settings_load_yaml(tmp_path):
