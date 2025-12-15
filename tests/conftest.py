@@ -290,13 +290,13 @@ def add_app(test_tmp_dir, desktop):
         )
 
         # Temp dir for this test (global Desktop temp)
-        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
-        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+        # desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
+        # desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
         app = application_cls(**args)
 
         # Temp dir specific to this project
-        app.odesktop.SetTempDirectory(str(app.project_path))
-        app.odesktop.SetProjectDirectory(str(app.project_path))
+        # app.odesktop.SetTempDirectory(str(app.project_path))
+        # app.odesktop.SetProjectDirectory(str(app.project_path))
 
         return app
 
@@ -357,14 +357,14 @@ def add_app_example(test_tmp_dir, desktop):
         )
 
         # Temp dir for this test (global Desktop temp)
-        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
-        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+        # desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
+        # desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
 
         app = application_cls(**args)
 
         # Temp dir specific to this project
-        app.odesktop.SetTempDirectory(str(app.project_path))
-        desktop.odesktop.SetProjectDirectory(str(app.project_path))
+        # app.odesktop.SetTempDirectory(str(app.project_path))
+        # desktop.odesktop.SetProjectDirectory(str(app.project_path))
 
         return app
 
