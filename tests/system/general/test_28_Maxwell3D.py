@@ -1062,3 +1062,13 @@ class TestClass:
         m3d_app.solution_type = "Transient"
         with pytest.raises(AEDTRuntimeError, match="Only available in Transient A-Phi Formulation solution type."):
             m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
+
+    def test_assign_sink(self, m3d_app, maxwell_versioned):
+        m3d_app.solution_type = maxwell_versioned.DCConduction
+        m3d_app.modeler.create_cylinder(
+            orientation="Z", origin=[0, 0, 0], radius=2, height=1, name="mycyl", material="copper"
+        )
+        face_sink = m3d_app.modeler.get_faceid_from_position(position=[0, 0, 1], assignment="mycyl")
+        bound = m3d_app.assign_sink(assignment=face_sink, name="my_sink")
+        assert bound
+        assert bound.props["Faces"][0] == face_sink.id
