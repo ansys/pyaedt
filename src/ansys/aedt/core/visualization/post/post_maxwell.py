@@ -538,7 +538,6 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         The inception voltage evaluation can be performed on all (or a subset) of the
         created field line traces and inception voltage parameters can be edited
         >>> m2d.modify_inception_parameters()
-
         >>> m2d.desktop_class.release_desktop()
         """
         if self._app.solution_type != "Electrostatic":
@@ -561,21 +560,28 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
             "Potential A:=",
             potential_a,
         ]
-        index_gas_type_insert = arg_list.index(gas_pressure)
 
+        index_gas_type_insert = arg_list.index(gas_pressure) + 1
+        extra_args = [
+            "Critical Value:=",
+            critical_value,
+            "Streamer Constant:=",
+            streamer_constant,
+        ]
         if gas_type == 2:
-            arg_list.insert(index_gas_type_insert + 1, "Critical Value:=")
-            arg_list.insert(index_gas_type_insert + 2, critical_value)
-            arg_list.insert(index_gas_type_insert + 3, "Streamer Constant:=")
-            arg_list.insert(index_gas_type_insert + 4, streamer_constant)
             if ionization_check:
-                arg_list.insert(index_gas_type_insert + 5, "Ionization Equation Check:=")
-                arg_list.insert(index_gas_type_insert + 6, ionization_check)
-                arg_list.insert(index_gas_type_insert + 7, "Ionization Equation:=")
-                arg_list.insert(index_gas_type_insert + 8, ionization_equation)
-            if not ionization_check:
-                arg_list.insert(index_gas_type_insert + 5, "Ionization Coefficient Dataset:=")
-                arg_list.insert(index_gas_type_insert + 6, ionization_dataset)
+                extra_args += [
+                    "Ionization Equation Check:=",
+                    ionization_check,
+                    "Ionization Equation:=",
+                    ionization_equation,
+                ]
+            else:
+                extra_args += [
+                    "Ionization Coefficient Dataset:=",
+                    ionization_dataset,
+                ]
+        arg_list[index_gas_type_insert:index_gas_type_insert] = extra_args
 
         self.ofieldsreporter.ModifyInceptionParameters(plot_name, arg_list)
         return True
