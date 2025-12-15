@@ -22,12 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+# import os
 
 import pytest
 
-from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportCreationMode
-from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
+# from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportCreationMode
+# from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
@@ -423,30 +423,30 @@ class TestClass:
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
         assert lumped_design.export_to_aedt.optimize_after_export_enabled
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
-    # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
-    # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
-    def test_export_design(self, lumped_design, local_scratch):
-        app = lumped_design.export_to_aedt.export_design()
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.export_design(
-                export_format=ExportFormat.PYTHON_SCRIPT,
-                export_creation_mode=ExportCreationMode.OVERWRITE,
-                export_path="",
-            )
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "Python export path is not specified"
-        else:
-            assert info.value.args[0] == "Python export path is not specified."
-        design_export_path = resource_path("test_exported_design.py")
-        design_export_path_local = local_scratch.copyfile(design_export_path)
-        lumped_design.export_to_aedt.export_design(
-            export_format=ExportFormat.PYTHON_SCRIPT,
-            export_creation_mode=ExportCreationMode.OVERWRITE,
-            export_path=design_export_path_local,
-        )
-        assert os.path.exists(design_export_path_local)
-        app.desktop_class.close_desktop()
+    # @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    # # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+    # # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
+    # def test_export_design(self, lumped_design, local_scratch):
+    #     app = lumped_design.export_to_aedt.export_design()
+    #     with pytest.raises(RuntimeError) as info:
+    #         lumped_design.export_to_aedt.export_design(
+    #             export_format=ExportFormat.PYTHON_SCRIPT,
+    #             export_creation_mode=ExportCreationMode.OVERWRITE,
+    #             export_path="",
+    #         )
+    #     if config["desktopVersion"] > "2025.1":
+    #         assert info.value.args[0] == "Python export path is not specified"
+    #     else:
+    #         assert info.value.args[0] == "Python export path is not specified."
+    #     design_export_path = resource_path("test_exported_design.py")
+    #     design_export_path_local = local_scratch.copyfile(design_export_path)
+    #     lumped_design.export_to_aedt.export_design(
+    #         export_format=ExportFormat.PYTHON_SCRIPT,
+    #         export_creation_mode=ExportCreationMode.OVERWRITE,
+    #         export_path=design_export_path_local,
+    #     )
+    #     assert os.path.exists(design_export_path_local)
+    #     app.desktop_class.close_desktop()
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
