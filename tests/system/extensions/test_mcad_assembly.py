@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from pathlib import Path
 import shutil
 from unittest.mock import patch
 
@@ -32,13 +31,14 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from tests import TESTS_EXTENSIONS_PATH
 
-MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"
+MODEL_FOLDER = TESTS_EXTENSIONS_PATH / "example_models" / "mcad_assembly"
 
 
 @pytest.fixture()
 def hfss_app(add_app):
-    app = add_app(application=Hfss)
+    app = add_app(application=Hfss, solution_type="Terminal")
     yield app
     app.close_project(app.project_name, save=False)
 

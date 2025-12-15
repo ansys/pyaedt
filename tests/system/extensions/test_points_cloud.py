@@ -30,7 +30,7 @@ from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionD
 from ansys.aedt.core.extensions.common.points_cloud import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-POINT_CLOUD_GENERATOR = "POINT_CLOUD_GENERATOR"
+POINT_CLOUD_GENERATOR = "point_cloud_generator"
 TEST_SUBFOLDER = "T45"
 
 
