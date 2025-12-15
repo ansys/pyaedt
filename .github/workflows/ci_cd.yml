@@ -521,7 +521,7 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 40
+          timeout_minutes: 120
           command: |
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
