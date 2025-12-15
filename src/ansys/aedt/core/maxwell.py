@@ -2466,12 +2466,11 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         analysis_setup = setup + " : " + default_adaptive
 
-        if not self.available_variations.nominal_values:
+        nominal_values = self.available_variations.get_independent_nominal_values()
+        if not nominal_values:
             variations = ""
         else:
-            variations = " ".join(
-                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_values.items()
-            )
+            variations = " ".join(f"{key}=\\'{value}\\'" for key, value in nominal_values.items())
 
         if not is_format_default:
             try:

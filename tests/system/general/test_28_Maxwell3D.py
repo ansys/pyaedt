@@ -748,9 +748,8 @@ class TestClass:
         assert meshlink_props["Soln"] == m3d_app.nominal_adaptive
         assert not m3d_app.setups[0].add_mesh_link(design="invalid")
         assert not m3d_app.setups[0].add_mesh_link(design=m3d_app.design_list[0], solution="invalid")
-        assert m3d_app.setups[0].add_mesh_link(
-            design=m3d_app.design_list[0], parameters=m3d_app.available_variations.nominal_values
-        )
+        nominal_values = m3d_app.available_variations.get_independent_nominal_values()
+        assert m3d_app.setups[0].add_mesh_link(design=m3d_app.design_list[0], parameters=nominal_values)
         example_project = os.path.join(local_scratch.path, "test.aedt")
         m3d_app.save_project(example_project)
         example_project_copy = os.path.join(local_scratch.path, "test_copy.aedt")
