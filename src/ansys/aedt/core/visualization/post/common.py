@@ -35,14 +35,13 @@ from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import DesignType
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
-from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
 import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
@@ -1993,7 +1992,7 @@ class Reports(PyAedtBase):
     def __init__(self, post_app, design_type):
         self._post_app = post_app
         self._design_type = design_type
-        self._templates = TEMPLATES_BY_DESIGN.get(self._design_type, None)
+        self._templates = self._post_app._app._design_type.report_templates
 
     @pyaedt_function_handler()
     def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):

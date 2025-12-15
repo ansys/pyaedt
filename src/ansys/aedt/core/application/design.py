@@ -55,15 +55,13 @@ from ansys.aedt.core.application.design_solutions import HFSSDesignSolution
 from ansys.aedt.core.application.design_solutions import IcepakDesignSolution
 from ansys.aedt.core.application.design_solutions import Maxwell2DDesignSolution
 from ansys.aedt.core.application.design_solutions import RmXprtDesignSolution
-from ansys.aedt.core.application.design_solutions import model_names
-from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import available_file_name
@@ -196,7 +194,6 @@ class Design(AedtObjects, PyAedtBase):
             self.__t.start()
         self._init_variables()
         self._ic_mode: Optional[bool] = ic_mode
-        self._design_type: str = design_type
         self.last_run_log: str = ""
         self.last_run_job: str = ""
         self._design_dictionary: Optional[Dict] = None
@@ -216,6 +213,9 @@ class Design(AedtObjects, PyAedtBase):
             port,
             aedt_process_id,
         )
+        from ansys.aedt.core.generic.aedt_constants import DesignType
+
+        self._design_type: str = getattr(DesignType, design_type)
         self._global_logger = self._desktop_class.logger
         self._logger = self._desktop_class.logger
 
@@ -229,16 +229,16 @@ class Design(AedtObjects, PyAedtBase):
         self._odesign: Optional[Any] = None
         self._oproject: Optional[Any] = None
 
-        if design_type == "HFSS":
-            self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "Icepak":
-            self.design_solutions = IcepakDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "Maxwell 2D":
-            self.design_solutions = Maxwell2DDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "RMxprtSolution" or design_type == "ModelCreation":
-            self.design_solutions = RmXprtDesignSolution(None, design_type, self._aedt_version)
+        if self._design_type == "HFSS":
+            self.design_solutions = HFSSDesignSolution(None, self._design_type, self._aedt_version)
+        elif self._design_type == "Icepak":
+            self.design_solutions = IcepakDesignSolution(None, self._design_type, self._aedt_version)
+        elif self._design_type == "Maxwell 2D":
+            self.design_solutions = Maxwell2DDesignSolution(None, self._design_type, self._aedt_version)
+        elif self._design_type in ["RMxprtSolution", "ModelCreation"]:
+            self.design_solutions = RmXprtDesignSolution(None, self._design_type, self._aedt_version)
         else:
-            self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
+            self.design_solutions = DesignSolution(None, self._design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
 
         self._temp_solution_type: Optional[str] = solution_type
@@ -676,8 +676,8 @@ class Design(AedtObjects, PyAedtBase):
 
         """
         try:
-            if model_names[self._design_type] in self.project_properties["AnsoftProject"]:
-                designs = self.project_properties["AnsoftProject"][model_names[self._design_type]]
+            if self._design_type.model_name in self.project_properties["AnsoftProject"]:
+                designs = self.project_properties["AnsoftProject"][self._design_type.model_name]
                 if isinstance(designs, list):
                     for design in designs:
                         if design["Name"] == self.design_name:
@@ -799,7 +799,7 @@ class Design(AedtObjects, PyAedtBase):
             Type of the design. See above for a list of possible return values.
 
         """
-        return self._design_type
+        return str(self._design_type)
 
     @property
     def project_name(self) -> Optional[str]:
@@ -1126,7 +1126,7 @@ class Design(AedtObjects, PyAedtBase):
            Default for the solution type.
 
         """
-        return solutions_defaults[self._design_type]
+        return self._design_type.solution_default
 
     @pyaedt_function_handler()
     def _find_design(self) -> Tuple[str, str]:
@@ -3609,13 +3609,14 @@ class Design(AedtObjects, PyAedtBase):
         )
 
     def _insert_design(self, design_type, design_name=None):
+        design_type = str(design_type)
         if design_type not in self.design_solutions.design_types:
             raise ValueError(f"Design type of insert '{design_type}' is invalid.")
 
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
 
-        if design_type == "RMxprtSolution":
+        if design_type == "RMxprt":
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
         elif design_type == "ModelCreation":
             new_design = self._oproject.InsertDesign(
@@ -3668,7 +3669,7 @@ class Design(AedtObjects, PyAedtBase):
         if not design_name:
             char_set = string.ascii_uppercase + string.digits
             name = "".join(secrets.choice(char_set) for _ in range(3))
-            design_name = self._design_type + "_" + name
+            design_name = str(self._design_type) + "_" + name
         while design_name in self.design_list:
             if design_index:
                 design_name = design_name[0 : -len(suffix)]

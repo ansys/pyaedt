@@ -52,7 +52,7 @@ from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.constants import DesignType
+from ansys.aedt.core.generic.aedt_constants import DesignType
 
 PORT = get_port()
 VERSION = get_aedt_version()

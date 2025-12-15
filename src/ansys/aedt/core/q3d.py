@@ -1322,7 +1322,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.is3d = True
         QExtractor.__init__(
             self,
-            "Q3D Extractor",
+            "Q3D",
             project,
             design,
             solution_type,
@@ -2722,7 +2722,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.is3d = False
         QExtractor.__init__(
             self,
-            "2D Extractor",
+            "EXTRACTOR2D",
             project,
             design,
             solution_type,

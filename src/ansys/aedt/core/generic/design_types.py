@@ -29,7 +29,6 @@ import time
 from ansys.aedt.core.circuit import Circuit
 from ansys.aedt.core.circuit_netlist import CircuitNetlist
 from ansys.aedt.core.desktop import Desktop
-from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
@@ -133,20 +132,21 @@ def launch_desktop(
 
 
 app_map = {
-    DesignType.MAXWELL2D: Maxwell2d,
-    DesignType.MAXWELL3D: Maxwell3d,
-    DesignType.MAXWELLCIRCUIT: MaxwellCircuit,
-    DesignType.TWINBUILDER: TwinBuilder,
-    DesignType.CIRCUIT: Circuit,
-    DesignType.CIRCUITNETLIST: CircuitNetlist,
-    DesignType.EXTRACTOR2D: Q2d,
-    DesignType.Q3D: Q3d,
-    DesignType.HFSS: Hfss,
-    DesignType.ICEPAKFEA: Mechanical,
-    DesignType.ICEPAK: Icepak,
-    DesignType.RMXPRT: Rmxprt,
-    DesignType.HFSS3DLAYOUT: Hfss3dLayout,
-    DesignType.EMIT: Emit,
+    "Maxwell 2D": Maxwell2d,
+    "Maxwell 3D": Maxwell3d,
+    "Maxwell Circuit": MaxwellCircuit,
+    "Twin Builder": TwinBuilder,
+    "Circuit Design": Circuit,
+    "Circuit Netlist": CircuitNetlist,
+    "2D Extractor": Q2d,
+    "Q3D Extractor": Q3d,
+    "HFSS": Hfss,
+    "Mechanical": Mechanical,
+    "IcepakFEA": Mechanical,
+    "Icepak": Icepak,
+    "Rmxprt": Rmxprt,
+    "HFSS 3D Layout Design": Hfss3dLayout,
+    "EMIT": Emit,
 }
 
 

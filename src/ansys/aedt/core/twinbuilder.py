@@ -146,7 +146,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
             self,
-            "Twin Builder",
+            "TWINBUILDER",
             project,
             design,
             solution_type,

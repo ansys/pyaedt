@@ -28,7 +28,6 @@ import warnings
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -440,18 +439,8 @@ class AedtObjects(PyAedtBase):
         ----------
         >>> oDesign.GetModule("MeshRegion")
         """
-        meshers = {
-            DesignType.HFSS: "MeshSetup",
-            DesignType.ICEPAK: "MeshRegion",
-            DesignType.HFSS3DLAYOUT: "SolveSetups",
-            DesignType.MAXWELL2D: "MeshSetup",
-            DesignType.MAXWELL3D: "MeshSetup",
-            DesignType.Q3D: "MeshSetup",
-            DesignType.ICEPAKFEA: "MeshSetup",
-            DesignType.EXTRACTOR2D: "MeshSetup",
-        }
-        if not self._omeshmodule and self.design_type in meshers:
-            self._omeshmodule = self.get_module(meshers[self.design_type])
+        if not self._omeshmodule and hasattr(self._design_type, "mesher"):
+            self._omeshmodule = self.get_module(self._design_type.mesher)
         return self._omeshmodule
 
     @property

@@ -21,48 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from ansys.aedt.core.generic.constants import DesignType
-
-TEMPLATES_BY_DESIGN = {
-    DesignType.HFSS: [
-        "Modal Solution Data",
-        "Terminal Solution Data",
-        "Eigenmode Parameters",
-        "Fields",
-        "Far Fields",
-        "Emissions",
-        "Near Fields",
-        "Antenna Parameters",
-    ],
-    DesignType.MAXWELL3D: [
-        "Transient",
-        "EddyCurrent",
-        "Magnetostatic",
-        "Electrostatic",
-        "DCConduction",
-        "ElectroDCConduction",
-        "ElectricTransient",
-        "Fields",
-        "Spectrum",
-    ],
-    DesignType.MAXWELL2D: [
-        "Transient",
-        "EddyCurrent",
-        "Magnetostatic",
-        "Electrostatic",
-        "ElectricTransient",
-        "ElectroDCConduction",
-        "Fields",
-        "Spectrum",
-    ],
-    DesignType.ICEPAK: ["Monitor", "Fields"],
-    DesignType.CIRCUIT: ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum", "EMIReceiver"],
-    DesignType.HFSS3DLAYOUT: ["Standard", "Fields", "Spectrum"],
-    DesignType.ICEPAKFEA: ["Standard", "Fields"],
-    DesignType.Q3D: ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
-    DesignType.EXTRACTOR2D: ["Matrix", "CG Fields", "RL Fields"],
-    DesignType.TWINBUILDER: ["Standard", "Spectrum"],
-}
 
 ORIENTATION_TO_VIEW = {
     "isometric": "iso",

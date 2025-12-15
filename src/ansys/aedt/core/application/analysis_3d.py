@@ -216,8 +216,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         # libs = [syslib, userlib]
 
         libs = [
-            Path(self.syslib) / "3DComponents" / self._design_type,
-            Path(self.userlib) / "3DComponents" / self._design_type,
+            Path(self.syslib) / "3DComponents" / self.design_type,
+            Path(self.userlib) / "3DComponents" / self.design_type,
         ]
 
         for lib in libs:
@@ -395,41 +395,32 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         ----------
         >>> oDesign.GetPropertyValue
         """
-        boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
-        mesh = {"HFSS": "MeshSetupTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
-        all = {
-            "HFSS": ["HfssTab", "MeshSetupTab"],
-            "Icepak": ["Icepak"],
-            "Q3D": ["Q3D", "General"],
-            "Maxwell3D": ["Maxwell3D", "General"],
-        }
-        if property_type == "Boundary":
-            propserv = boundary[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
-        elif property_type == "Setup":
-            propserv = setup[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
-
-        elif property_type == "Excitation":
-            propserv = excitation[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
-
-        elif property_type == "Mesh":
-            propserv = mesh[self._design_type]
-            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
-            return val
+        if property_type:
+            property_type = property_type.lower()
+            if property_type not in self._design_type.property_tabs:
+                return None
+            if isinstance(self._design_type.property_tabs[property_type], str):
+                propserv = self._design_type.property_tabs[property_type]
+                val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
+                return val
+            elif isinstance(self._design_type.property_tabs[property_type], list):
+                for propserv in self._design_type.property_tabs[property_type]:
+                    properties = list(self.odesign.GetProperties(propserv, assignment))
+                    if property_name in properties:
+                        val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
+                        return val
         else:
-            propservs = all[self._design_type]
-            for propserv in propservs:
-                properties = list(self.odesign.GetProperties(propserv, assignment))
-                if property_name in properties:
+            for prop_types in self._design_type.property_tabs.values():
+                if isinstance(prop_types, str):
+                    propserv = prop_types
                     val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
                     return val
+                elif isinstance(prop_types, list):
+                    for propserv in prop_types:
+                        properties = list(self.odesign.GetProperties(propserv, assignment))
+                        if property_name in properties:
+                            val = self.odesign.GetPropertyValue(propserv, assignment, property_name)
+                            return val
         return None
 
     @pyaedt_function_handler(object_list="assignment")

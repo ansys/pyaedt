@@ -26,7 +26,6 @@
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -149,7 +148,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
     ):
         FieldAnalysis3D.__init__(
             self,
-            DesignType.ICEPAKFEA,
+            "ICEPAKFEA",
             project,
             design,
             solution_type,

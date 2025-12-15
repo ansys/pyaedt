@@ -132,7 +132,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
-            "Maxwell Circuit",
+            "MAXWELLCIRCUIT",
             project,
             design,
             version,

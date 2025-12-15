@@ -720,6 +720,18 @@ def deprecate_enum(new_enum):
 
 
 class DynamicMeta(type):
+    def __getitem__(cls, key):
+        # Route __getitem__ through __getattribute__ for consistency
+        return cls.__getattribute__(key)
+
+    def __call__(cls, value, *args, **kwargs):
+        # Case-insensitive value resolution
+        if isinstance(value, str):
+            for member in cls:
+                if member.value.lower() == value.lower():
+                    return member
+        return super().__call__(value, *args, **kwargs)
+
     def __getattribute__(cls, name):
         var = settings.aedt_version if settings.aedt_version else ""
         clname = super().__getattribute__("__name__")
@@ -735,6 +747,8 @@ class DynamicMeta(type):
 
             if versioned and name in versioned:
                 return versioned[name]
+                # new_emum = Enum(cls.__name__, versioned, module=cls.__module__)
+                # return getattr(new_emum, name)
         except AttributeError:
             pass
         return super().__getattribute__(name)
@@ -758,44 +772,8 @@ class DynamicMeta(type):
         except AttributeError:
             return False
 
-
-class DesignType(metaclass=DynamicMeta):
-    """Design Type class"""
-
-    (
-        HFSS,
-        Q3D,
-        EXTRACTOR2D,
-        ICEPAK,
-        ICEPAKFEA,
-        CIRCUIT,
-        HFSS3DLAYOUT,
-        TWINBUILDER,
-        RMXPRT,
-        MAXWELL3D,
-        MAXWELL2D,
-        EMIT,
-        MODELCREATION,
-        MAXWELLCIRCUIT,
-        CIRCUITNETLIST,
-    ) = (
-        "HFSS",
-        "Q3D Extractor",
-        "2D Extractor",
-        "Icepak",
-        "IcepakFea",
-        "Circuit Design",
-        "HFSS 3D Layout Design",
-        "Twin Builder",
-        "RMxprtSolution",
-        "Maxwell 3D",
-        "Maxwell 2D",
-        "EMIT",
-        "ModelCreation",
-        "Maxwell Circuit",
-        "Circuit Netlist",
-    )
-    __versioned = {"2025.2": {"ICEPAKFEA": "Mechanical"}}
+    def __eq__(cls, other):
+        return True if str(cls) == other else False
 
 
 class InfiniteSphereType(metaclass=DynamicMeta):

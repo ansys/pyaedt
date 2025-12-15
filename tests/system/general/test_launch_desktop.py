@@ -35,7 +35,7 @@ from ansys.aedt.core import Mechanical
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
-from ansys.aedt.core.generic.constants import DesignType
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D

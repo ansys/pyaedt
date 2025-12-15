@@ -40,7 +40,7 @@ from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
 import ansys.aedt.core.extensions.templates
-from ansys.aedt.core.generic.constants import DesignType
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
 
@@ -307,7 +307,7 @@ def available_toolkits():
         toml_file = Path(__file__).parent / product_extension / "toolkits_catalog.toml"
         if toml_file.is_file():
             toolkits_catalog = read_toml(str(toml_file))
-            product_toolkits[product_name] = toolkits_catalog
+            product_toolkits[str(product_name)] = toolkits_catalog
     return product_toolkits
 
 

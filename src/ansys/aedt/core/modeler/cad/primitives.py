@@ -37,7 +37,6 @@ import warnings
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import DesignType
 from ansys.aedt.core.generic.constants import Plane as PlaneEnum
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.file_utils import _uname
@@ -68,17 +67,6 @@ from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.material_lib import Material
-
-default_materials = {
-    DesignType.ICEPAK: "air",
-    DesignType.HFSS: "vacuum",
-    DesignType.MAXWELL2D: "vacuum",
-    DesignType.MAXWELL2D: "vacuum",
-    DesignType.EXTRACTOR2D: "copper",
-    DesignType.Q3D: "copper",
-    DesignType.HFSS3DLAYOUT: "copper",
-    DesignType.ICEPAKFEA: "copper",
-}
 
 aedt_wait_time = 0.1
 
@@ -801,7 +789,7 @@ class GeometryModeler(Modeler, PyAedtBase):
     @property
     def defaultmaterial(self):
         """Default material."""
-        return default_materials[self._app._design_type]
+        return self._app._design_type.default_material
 
     @property
     def logger(self):
@@ -8727,7 +8715,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         # Note: Material.is_dielectric() does not work if the conductivity
         # value is an expression.
         if isinstance(material, Material):
-            if self._app._design_type == "HFSS":
+            if self._app.design_type == "HFSS":
                 return material.name, material.is_dielectric(threshold)
             else:
                 return material.name, True
@@ -8752,13 +8740,13 @@ class GeometryModeler(Modeler, PyAedtBase):
                 else:
                     self.logger.debug(f"Design variable {array[0]} does not exist.")
             if self._app.materials[material]:
-                if self._app._design_type == "HFSS":
+                if self._app.design_type == "HFSS":
                     return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
                 else:
                     return self._app.materials[material].name, True
             else:
                 self.logger.warning("Material %s does not exists. Assigning default material", material)
-        if self._app._design_type == "HFSS":
+        if self._app.design_type == "HFSS":
             return default_material, self._app.materials.material_keys[default_material].is_dielectric(threshold)
         else:
             return default_material, True

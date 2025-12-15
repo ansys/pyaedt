@@ -2808,7 +2808,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         self.is3d = True
         FieldAnalysis3D.__init__(
             self,
-            "Maxwell 3D",
+            "MAXWELL3D",
             project,
             design,
             solution_type,
@@ -3816,7 +3816,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         self.is3d = False
         FieldAnalysis3D.__init__(
             self,
-            "Maxwell 2D",
+            "MAXWELL2D",
             project,
             design,
             solution_type,
