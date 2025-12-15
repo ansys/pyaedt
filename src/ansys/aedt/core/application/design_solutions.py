@@ -33,7 +33,7 @@ solutions_defaults = {
     DesignType.MAXWELL2D: "Magnetostatic",
     DesignType.MAXWELL3D: "Magnetostatic",
     DesignType.TWINBUILDER: "TR",
-    DesignType.CIRCUITDESIGN: "NexximLNA",
+    DesignType.CIRCUIT: "NexximLNA",
     DesignType.CIRCUITNETLIST: "",
     DesignType.MAXWELLCIRCUIT: "",
     DesignType.EXTRACTOR2D: "Open",
@@ -650,7 +650,7 @@ model_names = {
     DesignType.MAXWELL2D: "Maxwell2DModel",
     DesignType.MAXWELL3D: "Maxwell3DModel",
     DesignType.TWINBUILDER: "SimplorerCircuit",
-    DesignType.CIRCUITDESIGN: "NexximCircuit",
+    DesignType.CIRCUIT: "NexximCircuit",
     DesignType.CIRCUITNETLIST: "NexximNetlist",
     DesignType.MAXWELLCIRCUIT: "MaxCirCircuit",
     DesignType.EXTRACTOR2D: "2DExtractorModel",
@@ -685,7 +685,7 @@ class DesignSolution(PyAedtBase):
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
         if self._design_type in [
-            DesignType.CIRCUITDESIGN,
+            DesignType.CIRCUIT,
             DesignType.TWINBUILDER,
             DesignType.HFSS3DLAYOUT,
             DesignType.EMIT,
@@ -706,7 +706,7 @@ class DesignSolution(PyAedtBase):
     def solution_type(self, value):
         if value is None:
             if self._design_type in [
-                DesignType.CIRCUITDESIGN,
+                DesignType.CIRCUIT,
                 DesignType.TWINBUILDER,
                 DesignType.HFSS3DLAYOUT,
                 DesignType.EMIT,
