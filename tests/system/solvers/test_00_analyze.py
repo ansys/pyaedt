@@ -82,13 +82,6 @@ def sbr_platform_solved(add_app_example):
 
 
 @pytest.fixture
-def array(add_app_example):
-    app = add_app_example(project=ARRAY_ANTENNA, subfolder=TEST_SUBFOLDER)
-    yield app
-    app.close_project(save=False)
-
-
-@pytest.fixture
 def sbr_app(add_app):
     app = add_app(project="SBR_test", solution_type="SBR+")
     yield app
@@ -195,10 +188,12 @@ def test_3dl_export_profile(hfss3dl_solved):
 
 
 @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
-def test_sbr_link_array(sbr_platform, array):
-    assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
+def test_sbr_link_array(sbr_platform, add_app_example):
+    app = add_app_example(project=ARRAY_ANTENNA, subfolder=TEST_SUBFOLDER, close_projects=False)
+    assert sbr_platform.create_sbr_linked_antenna(app, target_cs="antenna_CS", field_type="farfield")
     profile = sbr_platform.setups[0].get_profile()
     assert profile is None
+    app.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
