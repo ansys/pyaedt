@@ -158,7 +158,7 @@ class CoilExtension(ExtensionMaxwell3DCommon):
 
     def _add_export_button(self, tab, row):
         export_points_button = ttk.Button(
-            tab, text="Parameters", command=self.show_pictures_popup, width=10, style="PyAEDT.TButton"
+            tab, text="Parameters help", command=self.show_pictures_popup, width=10, style="PyAEDT.TButton"
         )
         export_points_button.grid(row=row, column=0, sticky="e", **DEFAULT_PADDING)
 
