@@ -2011,7 +2011,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         arg_1 = [
             "NAME:InsertNativeComponentData",
             "TargetCS:=", coordinate_system,
-            "SubmodelDefinitionName:=", name,
+            "SubmodelDefinitionName:=", "LC_"+name,
             ["NAME:ComponentPriorityLists"],
             "NextUniqueID:=", 0,
             "MoveBackwards:=", False,
