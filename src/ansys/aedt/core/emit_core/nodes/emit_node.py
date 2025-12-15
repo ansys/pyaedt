@@ -554,10 +554,10 @@ class EmitNode:
     def _check_column_table_data(self, data):
         """Converts user inputted int or string table data to SI units.
 
-        The table nodes affected are: 
-        TxHarmonicNode, TxNbEmissionNode, 
-        TxBbEmissionNode (except equation table), RxMixerProductNode, 
-        RxSaturationNode, RxSelectivityNode. 
+        The table nodes affected are:
+        TxHarmonicNode, TxNbEmissionNode,
+        TxBbEmissionNode (except equation table), RxMixerProductNode,
+        RxSaturationNode, RxSelectivityNode.
 
         Parameters
         ----------
@@ -645,7 +645,7 @@ class EmitNode:
         """Converts user inputted int or string table data to SI units.
 
         The table nodes affected are:
-        SamplingNode, TxSpurNode, 
+        SamplingNode, TxSpurNode,
         RxSpurNode, TxBbEmissionNode (equation table only).
 
         Parameters

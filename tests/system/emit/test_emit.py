@@ -2036,15 +2036,15 @@ class TestClass:
                         rx_spectral_profile = cast(RxSusceptibilityProfNode, band_child)
 
         # Create all the sub-nodes to test casting
-        tx_harmonics : TxHarmonicNode = tx_spectral_profile.add_custom_tx_harmonics()
-        tx_narrowband_emissions_mask : TxNbEmissionNode = tx_spectral_profile.add_narrowband_emissions_mask()
-        tx_spurious_emissions : TxSpurNode = tx_spectral_profile.add_spurious_emissions()
-        tx_broadband_noise_profile : TxBbEmissionNode = tx_spectral_profile.add_tx_broadband_noise_profile()
+        tx_harmonics: TxHarmonicNode = tx_spectral_profile.add_custom_tx_harmonics()
+        tx_narrowband_emissions_mask: TxNbEmissionNode = tx_spectral_profile.add_narrowband_emissions_mask()
+        tx_spurious_emissions: TxSpurNode = tx_spectral_profile.add_spurious_emissions()
+        tx_broadband_noise_profile: TxBbEmissionNode = tx_spectral_profile.add_tx_broadband_noise_profile()
 
-        rx_mixer : RxMixerProductNode = rx_spectral_profile.add_mixer_products()
-        rx_saturation : RxSaturationNode = rx_spectral_profile.add_rx_saturation()
-        rx_selectivity : RxSelectivityNode = rx_spectral_profile.add_rx_selectivity()
-        rx_spurious_responses : RxSpurNode = rx_spectral_profile.add_spurious_responses()
+        rx_mixer: RxMixerProductNode = rx_spectral_profile.add_mixer_products()
+        rx_saturation: RxSaturationNode = rx_spectral_profile.add_rx_saturation()
+        rx_selectivity: RxSelectivityNode = rx_spectral_profile.add_rx_selectivity()
+        rx_spurious_responses: RxSpurNode = rx_spectral_profile.add_spurious_responses()
 
         # Test node prop tables input conversions
 
@@ -2297,7 +2297,6 @@ class TestClass:
 
         with pytest.raises(ValueError, match="is not valid for this property"):
             rx_saturation.table_data = [("100 kHz", "100 invalid_power")]
-
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emitters_radios(self, emit_app):
