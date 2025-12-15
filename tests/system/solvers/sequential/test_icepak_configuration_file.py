@@ -34,15 +34,17 @@ from ansys.aedt.core.generic.file_utils import read_json
 @pytest.fixture
 def icepak_a(add_app):
     app = add_app(project="Icepak_test_a", application=Icepak)
+    project_name = app.project_name
     yield app
-    app.close_project(save=False)
+    app.close_project(save=False, name=project_name)
 
 
 @pytest.fixture
 def icepak_b(add_app):
     app = add_app(project="Icepak_test_b", application=Icepak)
+    project_name = app.project_name
     yield app
-    app.close_project(save=False)
+    app.close_project(save=False, name=project_name)
 
 
 def test_configuration_file_1(icepak_a, add_app):
@@ -98,7 +100,7 @@ def test_configuration_file_1(icepak_a, add_app):
     file_parasolid = filename + ".x_b"
     file_path = Path(icepak_a.working_directory) / file_parasolid
 
-    app = add_app(application=Icepak, project="new_proj_Ipk_a")
+    app = add_app(application=Icepak, project="new_proj_Ipk_a", close_projects=False)
     app.modeler.import_3d_cad(str(file_path))
     out = app.configurations.import_config(conf_file)
     assert isinstance(out, dict)
@@ -120,13 +122,14 @@ def test_configuration_file_1(icepak_a, add_app):
     old_conf_file = conf_file + ".old.json"
     with open(old_conf_file, "w") as f:
         json.dump(old_dict_format, f)
+    app.close_project(save=False, name=app.project_name)
 
-    app = add_app(application=Icepak, project="new_proj_Ipk_a_test2")
+    app = add_app(application=Icepak, project="new_proj_Ipk_a_test2", close_projects=False)
     app.modeler.import_3d_cad(str(file_path))
     out = app.configurations.import_config(old_conf_file)
     assert isinstance(out, dict)
     assert app.configurations.results.global_import_success
-    app.close_project(save=False)
+    app.close_project(save=False, name=app.project_name)
 
 
 def test_configuration_file_2(icepak_b, add_app):
@@ -179,10 +182,11 @@ def test_configuration_file_2(icepak_b, add_app):
     file_parasolid = filename + ".x_b"
 
     file_path = Path(icepak_b.working_directory) / file_parasolid
-    app = add_app(application=Icepak, project="new_proj_Ipk")
+    app = add_app(application=Icepak, project="new_proj_Ipk", close_projects=False)
+    project_name = app.project_name
     app.modeler.import_3d_cad(str(file_path))
     out = app.configurations.import_config(conf_file)
     assert isinstance(out, dict)
     assert app.configurations.validate(out)
     assert app.configurations.results.global_import_success
-    app.close_project(save=False)
+    app.close_project(save=False, name=project_name)
