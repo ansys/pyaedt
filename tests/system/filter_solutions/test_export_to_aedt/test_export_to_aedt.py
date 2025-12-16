@@ -477,10 +477,10 @@ class TestClass:
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_import_tuned_variables(self, lumped_design):
-        app = lumped_design.export_to_aedt.export_design()
         lumped_design.export_to_aedt.simulate_after_export_enabled = True
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
         lumped_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
+        app = lumped_design.export_to_aedt.export_design()
         assert lumped_design.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
             "imported_netlist.ckt", "Lumped"
         )
