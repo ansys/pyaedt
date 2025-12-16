@@ -267,7 +267,7 @@ class TestClass:
 
     def test009__assign_pcb_region(self, ipk):
         ipk.globalMeshSettings(2)
-        assert ipk.create_meshregion_component()
+        assert ipk.modeler.create_region()
         ipk.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
         old_pcb_mesh_region = MeshRegion(meshmodule=ipk.mesh.omeshmodule, dimension=[1, 1, 1], unit="mm", app=ipk)
         assert old_pcb_mesh_region.MaxElementSizeX == 1 / 20
