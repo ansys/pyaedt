@@ -1,4 +1,4 @@
-[Complex format] RI  % use RI for Real and Imaginary or MA for Magnitude and Angle 
+[Complex format] RI  % use RI for Real and Imaginary or MA for Magnitude and Angle
 [Number of frequencies] 101
 [Number of transfer functions] 1
 [Data]

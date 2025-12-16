@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import fnmatch
 import inspect
 import json
 import os
@@ -190,37 +191,37 @@ def desktop(tmp_path_factory):
         raise Exception("Failed to close Desktop instance") from e
 
 
-# @pytest.fixture(scope="session", autouse=True)
-# def cleanup_all_tmp_at_end(tmp_path_factory):
-#     """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
-#     base = tmp_path_factory.getbasetemp()
-#     temp_dir = Path(tempfile.gettempdir())
-#
-#     yield
-#
-#     # Now the session is over, try to remove everything inside `base`
-#     try:
-#         for p in sorted(base.rglob("*"), key=lambda x: x.is_dir()):
-#             try:
-#                 p.unlink()
-#             except (IsADirectoryError, PermissionError):
-#                 shutil.rmtree(p, ignore_errors=True)
-#     except Exception:
-#         pyaedt_logger.warning(f"Failed to cleanup temporary directory {base}")
-#
-#     # Remove pkg- temp dirs from system temp
-#     try:
-#         for entry in temp_dir.iterdir():
-#             if entry.is_dir() and entry.name.startswith("pkg-"):
-#                 shutil.rmtree(entry, ignore_errors=True)
-#             elif entry.is_file():
-#                 if fnmatch.fnmatch(entry.name, "pyaedt_*.log") or fnmatch.fnmatch(entry.name, "pyedb_*.log"):
-#                     try:
-#                         entry.unlink()
-#                     except Exception as e:
-#                         pyaedt_logger.debug(f"Error {type(e)} occurred while deleting log file: {e}")
-#     except Exception:
-#         pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_all_tmp_at_end(tmp_path_factory):
+    """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
+    base = tmp_path_factory.getbasetemp()
+    temp_dir = Path(tempfile.gettempdir())
+
+    yield
+
+    # Now the session is over, try to remove everything inside `base`
+    try:
+        for p in sorted(base.rglob("*"), key=lambda x: x.is_dir()):
+            try:
+                p.unlink()
+            except (IsADirectoryError, PermissionError):
+                shutil.rmtree(p, ignore_errors=True)
+    except Exception:
+        pyaedt_logger.warning(f"Failed to cleanup temporary directory {base}")
+
+    # Remove pkg- temp dirs from system temp
+    try:
+        for entry in temp_dir.iterdir():
+            if entry.is_dir() and entry.name.startswith("pkg-"):
+                shutil.rmtree(entry, ignore_errors=True)
+            elif entry.is_file():
+                if fnmatch.fnmatch(entry.name, "pyaedt_*.log") or fnmatch.fnmatch(entry.name, "pyedb_*.log"):
+                    try:
+                        entry.unlink()
+                    except Exception as e:
+                        pyaedt_logger.debug(f"Error {type(e)} occurred while deleting log file: {e}")
+    except Exception:
+        pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
 
 
 # ================================
@@ -290,13 +291,13 @@ def add_app(test_tmp_dir, desktop):
         )
 
         # Temp dir for this test (global Desktop temp)
-        # desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
-        # desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
+        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
         app = application_cls(**args)
 
         # Temp dir specific to this project
-        # app.odesktop.SetTempDirectory(str(app.project_path))
-        # app.odesktop.SetProjectDirectory(str(app.project_path))
+        app.odesktop.SetTempDirectory(str(app.project_path))
+        app.odesktop.SetProjectDirectory(str(app.project_path))
 
         return app
 
@@ -357,14 +358,14 @@ def add_app_example(test_tmp_dir, desktop):
         )
 
         # Temp dir for this test (global Desktop temp)
-        # desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
-        # desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
+        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
 
         app = application_cls(**args)
 
         # Temp dir specific to this project
-        # app.odesktop.SetTempDirectory(str(app.project_path))
-        # desktop.odesktop.SetProjectDirectory(str(app.project_path))
+        app.odesktop.SetTempDirectory(str(app.project_path))
+        desktop.odesktop.SetProjectDirectory(str(app.project_path))
 
         return app
 

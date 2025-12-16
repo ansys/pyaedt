@@ -32,11 +32,11 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
-from tests import TESTS_GENERAL_PATH
+from tests import TESTS_SEQUENTIAL_PATH
 from tests.conftest import NON_GRAPHICAL
 from tests.conftest import SKIP_CIRCUITS
 
-TEST_SUBFOLDER = "T22"
+TEST_SUBFOLDER = "circuit_dynamic_link"
 TEST_PROJECT_NAME = "Dynamic_Link"
 SRC_USB = "uUSB"
 
@@ -126,15 +126,15 @@ def test_assign_excitations(add_app):
     app = add_app(application=Circuit)
     app.modeler.schematic.create_interface_port("Excitation_1", [0, 0])
     app.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
-    filepath = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
+    filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
     ports_list = ["Excitation_1", "Excitation_2"]
     assert app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
 
-    filepath = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source1.fds"
+    filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source1.fds"
     ports_list = ["Excitation_1", "Excitation_2"]
     assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
 
-    filepath = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
+    filepath = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "frequency_dependent_source.fds"
     ports_list = ["Excitation_1", "Excitation_3"]
     assert not app.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, str(filepath))
 
@@ -175,9 +175,9 @@ def test_hfss_link(q3d_app, add_app):
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
 def test_siwave_link(aedt_app, test_tmp_dir):
-    model_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
+    model_o = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
     model = shutil.copy2(model_o, test_tmp_dir / "siwave_syz.siw")
-    model_results_o = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siwaveresults"
+    model_results_o = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siwaveresults"
     shutil.copytree(model_results_o, test_tmp_dir / "siwave_syz.siwaveresults")
 
     siw_comp = aedt_app.modeler.schematic.add_siwave_dynamic_link(model)

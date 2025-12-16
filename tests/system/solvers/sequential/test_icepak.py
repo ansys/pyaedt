@@ -25,6 +25,7 @@
 import os
 from pathlib import Path
 import re
+import shutil
 
 import pytest
 
@@ -42,9 +43,10 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
+from tests import TESTS_SEQUENTIAL_PATH
 from tests.conftest import config
 
-TEST_SUBFOLDER = "T98"
+TEST_SUBFOLDER = "icepak"
 BOARD_3DL = "FilterBoard_H3DL"
 BOARD_IPK = "FilterBoard"
 USB_HFSS = "USBConnector_HFSS"
@@ -408,12 +410,11 @@ def test_assign_pcb_region(ipk_app):
 
 def test_em_loss(ipk_app, test_tmp_dir):
     project_name = USB_HFSS + ".aedt"
-    assert ipk_app.copyGroupFrom(
-        "Group1",
-        "uUSB",
-        USB_HFSS,
-        str(TESTS_GENERAL_PATH / "example_models" / "T98" / project_name),
-    )
+
+    project = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / project_name
+    em_project = shutil.copy2(project, test_tmp_dir / project_name)
+
+    assert ipk_app.copyGroupFrom("Group1", "uUSB", USB_HFSS, str(em_project))
     hfss_spath = str(test_tmp_dir / USB_HFSS)
     surface_list = [
         "USB_VCC",
@@ -742,10 +743,18 @@ def test_create_source(ipk_app):
         )
 
 
-def test_import_idf(ipk_app):
-    assert ipk_app.import_idf(str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emn"))
+def test_import_idf(ipk_app, test_tmp_dir):
+    brd_board = shutil.copy2(
+        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emn",
+        test_tmp_dir / "brd_board.emn",
+    )
+    shutil.copy2(
+        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emp",
+        test_tmp_dir / "brd_board.emp",
+    )
+    assert ipk_app.import_idf(str(brd_board))
     assert ipk_app.import_idf(
-        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emn"),
+        str(brd_board),
         filter_cap=True,
         filter_ind=True,
         filter_res=True,
@@ -959,14 +968,25 @@ def test_delete_monitors(board_ipk_app):
 
 
 @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-def test_advanced3dcomp_import(board_ipk_app):
+def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir):
     cs2 = board_ipk_app.modeler.create_coordinate_system(name="CS2")
     cs2.props["OriginX"] = 20
     cs2.props["OriginY"] = 20
     cs2.props["OriginZ"] = 20
+
+    file = shutil.copy2(
+        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp",
+        test_tmp_dir / "Advanced3DComp.a3dcomp",
+    )
+
+    shutil.copy2(
+        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp.json",
+        test_tmp_dir / "Advanced3DComp.a3dcomp.json",
+    )
+
     board_ipk_app.modeler.insert_3d_component(
-        input_file=Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "Advanced3DComp",
-        coordinate_system="CS2",
+        input_file=str(file),
+        coordinate_system=cs2.name,
         auxiliary_parameters=True,
     )
     assert all(i in board_ipk_app.native_components.keys() for i in ["Fan1", "Fan2"])
@@ -985,7 +1005,7 @@ def test_advanced3dcomp_import(board_ipk_app):
     board_ipk_app.delete_design()
     board_ipk_app.insert_design("test_51_2")
     board_ipk_app.modeler.insert_3d_component(
-        input_file="Advanced3DComp.a3dcomp",
+        input_file=str(file),
         coordinate_system="Global",
         name="test",
         auxiliary_parameters=False,
@@ -1448,11 +1468,12 @@ def test_update_3d_component(ipk_app, test_tmp_dir):
     assert ipk_app.modeler.user_defined_components["test"].update_definition()
 
 
-def test_import_dxf(ipk_app):
+def test_import_dxf(ipk_app, test_tmp_dir):
     dxf_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf2.dxf"
-    dxf_layers = ipk_app.get_dxf_layers(dxf_file)
+    file = shutil.copy2(dxf_file, test_tmp_dir / "dxf2.dxf")
+    dxf_layers = ipk_app.get_dxf_layers(file)
     assert isinstance(dxf_layers, list)
-    assert ipk_app.import_dxf(dxf_file, dxf_layers)
+    assert ipk_app.import_dxf(file, dxf_layers)
 
 
 def test_mesh_priority_3d_comp(comp_priority_app):
@@ -1735,23 +1756,25 @@ def test_restart_solution(ipk_app):
     assert not s2.start_continue_from_previous_setup("test_78-12", f"{s1.name} : SteadyState")
 
 
-def test_mesh_reuse(ipk_app):
+def test_mesh_reuse(ipk_app, test_tmp_dir):
     cylinder = ipk_app.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
     assert not ipk_app.mesh.assign_mesh_reuse(
         cylinder.name,
-        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "nonexistent_cylinder_mesh.msh"),
+        str(test_tmp_dir / "nonexistent_cylinder_mesh.msh"),
     )
-    assert ipk_app.mesh.assign_mesh_reuse(
-        cylinder.name, str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh")
+    file_mesh = shutil.copy2(
+        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh",
+        test_tmp_dir / "CylinderMesh.msh",
     )
+    assert ipk_app.mesh.assign_mesh_reuse(cylinder.name, str(file_mesh))
     assert ipk_app.mesh.assign_mesh_reuse(
         cylinder.name,
-        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh"),
+        str(file_mesh),
         "name_reuse",
     )
     assert ipk_app.mesh.assign_mesh_reuse(
         cylinder.name,
-        str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh"),
+        str(file_mesh),
         "name_reuse",
     )
 
