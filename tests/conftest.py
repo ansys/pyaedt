@@ -88,7 +88,7 @@ if settings.use_local_example_data:
         settings.local_example_folder = local_example_folder
 
 logger = pyaedt_logger
-os.environ["PYAEDT_ELECTRONICS_VERSION"] = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
+os.environ["PYAEDT_DESKTOP_VERSION"] = config.get("desktopVersion", DEFAULT_CONFIG.get("desktopVersion"))
 
 # Add current path to sys.path for imports
 sys.path.append(str(local_path))

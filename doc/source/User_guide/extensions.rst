@@ -325,9 +325,9 @@ The Python script requires a common initial part to define the port and the vers
     import os
 
     # common part
-    if "PYAEDT_ELECTRONICS_PORT" in os.environ and "PYAEDT_ELECTRONICS_VERSION" in os.environ:
-        port = os.environ["PYAEDT_ELECTRONICS_PORT"]
-        version = os.environ["PYAEDT_ELECTRONICS_VERSION"]
+    if "PYAEDT_DESKTOP_PORT" in os.environ and "PYAEDT_DESKTOP_VERSION" in os.environ:
+        port = os.environ["PYAEDT_DESKTOP_PORT"]
+        version = os.environ["PYAEDT_DESKTOP_VERSION"]
     else:
         port = 0
         version = "2025.2"

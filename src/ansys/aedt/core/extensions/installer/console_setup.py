@@ -41,7 +41,7 @@ from IPython import get_ipython
 import tempfile
 
 aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None)) # pragma: no cover
-version = os.environ.get("PYAEDT_ELECTRONICS_VERSION", None) # pragma: no cover
+version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) # pragma: no cover
 print("Loading the PyAEDT Console.")
 
 try:  # pragma: no cover

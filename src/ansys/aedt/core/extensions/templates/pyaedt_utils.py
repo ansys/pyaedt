@@ -116,11 +116,11 @@ def environment_variables(oDesktop):
     """Set environment variables for the AEDT process."""
     os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
-    os.environ["PYAEDT_ELECTRONICS_VERSION"] = version
+    os.environ["PYAEDT_DESKTOP_VERSION"] = version
     if version > "2023.1":
-        os.environ["PYAEDT_ELECTRONICS_PORT"] = str(oDesktop.GetGrpcServerPort())
+        os.environ["PYAEDT_DESKTOP_PORT"] = str(oDesktop.GetGrpcServerPort())
     else:
-        os.environ["PYAEDT_ELECTRONICS_PORT"] = str(0)
+        os.environ["PYAEDT_DESKTOP_PORT"] = str(0)
     if "Ansys Student" in str(oDesktop.GetExeDir()):
         os.environ["PYAEDT_STUDENT_VERSION"] = "True"
     else:

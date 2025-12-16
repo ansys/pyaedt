@@ -38,8 +38,8 @@ test_subfolder = "T45"
 @pytest.fixture(autouse=True)
 def init(desktop):
     """Initialize environment variables for tests."""
-    os.environ["PYAEDT_ELECTRONICS_PORT"] = str(desktop.port)
-    os.environ["PYAEDT_ELECTRONICS_VERSION"] = desktop.aedt_version_id
+    os.environ["PYAEDT_DESKTOP_PORT"] = str(desktop.port)
+    os.environ["PYAEDT_DESKTOP_VERSION"] = desktop.aedt_version_id
 
 
 def test_fields_distribution_basic_export(add_app, local_scratch):

@@ -573,8 +573,8 @@ class Desktop(PyAedtBase):
             True if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t") else new_desktop
         )
         self.aedt_version_id = (
-            str(os.getenv("PYAEDT_ELECTRONICS_VERSION"))
-            if os.getenv("PYAEDT_ELECTRONICS_VERSION", None)
+            str(os.getenv("PYAEDT_DESKTOP_VERSION"))
+            if os.getenv("PYAEDT_DESKTOP_VERSION", None)
             else version
             if version
             else list(_desktop_sessions.values())[-1].aedt_version_id

@@ -75,13 +75,13 @@ def get_process_id():
 
 def get_port():
     """Get gRPC port from environment variable."""
-    res = int(os.getenv("PYAEDT_ELECTRONICS_PORT", 0))
+    res = int(os.getenv("PYAEDT_DESKTOP_PORT", 0))
     return res
 
 
 def get_aedt_version():
     """Get AEDT release from environment variable."""
-    res = os.getenv("PYAEDT_ELECTRONICS_VERSION", aedt_versions.current_version)
+    res = os.getenv("PYAEDT_DESKTOP_VERSION", aedt_versions.current_version)
     return res
 
 

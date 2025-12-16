@@ -35,8 +35,8 @@ The extension can be run from a Python script in the following way:
     hfss = ansys.aedt.core.Hfss()
 
     # Specify the AEDT session to connect
-    os.environ["PYAEDT_ELECTRONICS_PORT"] = str(hfss.desktop_class.port)
-    os.environ["PYAEDT_ELECTRONICS_VERSION"] = hfss.desktop_class.aedt_version_id
+    os.environ["PYAEDT_DESKTOP_PORT"] = str(hfss.desktop_class.port)
+    os.environ["PYAEDT_DESKTOP_VERSION"] = hfss.desktop_class.aedt_version_id
 
     main({"origin_x": 2, "radius": 6, "is_test": True})
 
