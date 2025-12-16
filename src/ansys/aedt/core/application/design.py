@@ -47,7 +47,6 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
-import warnings
 
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import DesignSolution
@@ -1636,134 +1635,6 @@ class Design(AedtObjects, PyAedtBase):
                 self.odesign.ExportProfile(setup, variation, output_file, True)
             self.logger.info(f"Exported Profile to file {output_file}")
         return str(output_file)
-
-    @pyaedt_function_handler()
-    def add_info_message(self, text, level=None):
-        """Add a type 0 "Info" message to either the global, active project, or active design
-        level of the message manager tree.
-
-        Also add an "Info" message to the logger if the handler is present.
-
-        Parameters
-        ----------
-        text : str
-            Text to display as the info message.
-        level : str, optional
-            Level to add the "Info" message to. Options are ``"Global"``,
-            ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the "Info" message gets added to the ``"Design"``
-            level.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.logger.info("Global info message")
-        >>> hfss.logger.project_logger.info("Project info message")
-        >>> hfss.logger.design_logger.info("Design info message")
-        """
-        warnings.warn(
-            "`add_info_message` is deprecated. Use `logger.design_logger.info` instead.",
-            DeprecationWarning,
-        )
-        if level.lower() == "project":
-            self.logger.project_logger.info(text)
-        elif level.lower() == "design":
-            self.logger.design_logger.info(text)
-        else:
-            self.logger.info(text)
-        return True
-
-    @pyaedt_function_handler()
-    def add_warning_message(self, text, level=None):
-        """Add a type 0 "Warning" message to either the global, active project, or active design
-        level of the message manager tree.
-
-        Also add an "Warning" message to the logger if the handler is present.
-
-        Parameters
-        ----------
-        text : str
-            Text to display as the "Warning" message.
-        level : str, optional
-            Level to add the "Warning" message to. Options are ``"Global"``,
-            ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the "Warning" message gets added to the ``"Design"``
-            level.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.logger.warning("Global warning message", "Global")
-        >>> hfss.logger.project_logger.warning("Project warning message", "Project")
-        >>> hfss.logger.design_logger.warning("Design warning message")
-        """
-        warnings.warn(
-            "`add_warning_message` is deprecated. Use `logger.design_logger.warning` instead.",
-            DeprecationWarning,
-        )
-
-        if level.lower() == "project":
-            self.logger.project_logger.warning(text)
-        elif level.lower() == "design":
-            self.logger.design_logger.warning(text)
-        else:
-            self.logger.warning(text)
-        return True
-
-    @pyaedt_function_handler()
-    def add_error_message(self, text, level=None):
-        """Add a type 0 "Error" message to either the global, active project, or active design
-        level of the message mmanager tree.
-
-        Also add an "Error" message to the logger if the handler is present.
-
-        Parameters
-        ----------
-        text : str
-            Text to display as the "Error" message.
-        level : str, optional
-            Level to add the "Error" message to. Options are ``"Global"``,
-            ``"Project"``, and ``"Design"``. The default is ``None``,
-            in which case the "Error" message gets added to the ``"Design"``
-            level.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.logger.error("Global error message", "Global")
-        >>> hfss.logger.project_logger.error("Project error message", "Project")
-        >>> hfss.logger.design_logger.error("Design error message")
-        """
-        warnings.warn(
-            "`add_error_message` is deprecated. Use `logger.design_logger.error` instead.",
-            DeprecationWarning,
-        )
-
-        if level.lower() == "project":
-            self.logger.project_logger.error(text)
-        elif level.lower() == "design":
-            self.logger.design_logger.error(text)
-        else:
-            self.logger.error(text)
-        return True
 
     @property
     def variable_manager(self):
@@ -4121,7 +3992,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         # Set the value of an internal reserved design variable to the specified string
         if expression in self._variable_manager.variables:
-            return self._variable_manager.variables[expression].value
+            return self._variable_manager.variables[expression].si_value
         elif "pwl" in str(expression):
             for ds in self.project_datasets:
                 if ds in expression:
@@ -4140,7 +4011,7 @@ class Design(AedtObjects, PyAedtBase):
             self._variable_manager.set_variable(
                 variable_name, expression=expression, read_only=True, hidden=True, description="Internal_Evaluator"
             )
-            eval_value = self._variable_manager.variables[variable_name].value
+            eval_value = self._variable_manager.variables[variable_name].si_value
             # Extract the numeric value of the expression (in SI units!)
             self.odesign.Undo()
             return eval_value

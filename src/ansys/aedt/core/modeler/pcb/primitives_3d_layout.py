@@ -26,7 +26,6 @@
 # import sys
 from pathlib import Path
 from typing import Union
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
@@ -1286,12 +1285,6 @@ class Primitives3DLayout(PyAedtBase):
         ----------
         >>> oEditor.CreateLine
         """
-        if "netname" in kwargs:
-            warnings.warn(
-                "`netname` is deprecated. Use `net_name` instead.",
-                DeprecationWarning,
-            )
-            net = kwargs["netname"]
         if not name:
             name = _uname()
         else:

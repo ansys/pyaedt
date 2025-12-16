@@ -136,7 +136,7 @@ def test_settings_load_yaml(tmp_path):
     log:
         global_log_file_name: 'dummy'
     lsf:
-        lsf_num_cores: 12
+        num_cores: 12
     general:
         desktop_launch_timeout: 12
     """
@@ -145,7 +145,7 @@ def test_settings_load_yaml(tmp_path):
     default_settings.load_yaml_configuration(str(yaml_path))
 
     assert default_settings.global_log_file_name == "dummy"
-    assert default_settings.lsf_num_cores == 12
+    assert default_settings.num_cores == 12
     assert default_settings.desktop_launch_timeout == 12
 
 

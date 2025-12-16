@@ -30,6 +30,7 @@ import pytest
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
@@ -1261,7 +1262,7 @@ class TestClass:
     # @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test064__import_dxf(self, ipk):
         dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
-        dxf_layers = ipk.get_dxf_layers(dxf_file)
+        dxf_layers = get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert ipk.import_dxf(dxf_file, dxf_layers)
 

@@ -26,12 +26,8 @@
 import copy
 import os
 from typing import TYPE_CHECKING
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import LineStyle
-from ansys.aedt.core.generic.constants import SymbolStyle
-from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -54,16 +50,6 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
         self._oreport_setup = post.oreportsetup
         self.line_name = trace_name
         self._initialize_tree_node()
-
-    @property
-    def LINESTYLE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.LineSyle`` instead."""
-        warnings.warn(
-            "Usage of LINESTYLE is deprecated. Use ansys.aedt.core.generic.constants.LineStyle instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return LineStyle
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
@@ -281,36 +267,6 @@ class Trace(BinaryTreeNode, PyAedtBase):
         self._available_props = []
         self._initialize_tree_node()
 
-    @property
-    def LINESTYLE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.LineSyle`` instead."""
-        warnings.warn(
-            "Usage of LINESTYLE is deprecated. Use ansys.aedt.core.generic.constants.LineStyle instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return LineStyle
-
-    @property
-    def TRACETYPE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.TraceType`` instead."""
-        warnings.warn(
-            "Usage of TRACETYPE is deprecated. Use ansys.aedt.core.generic.constants.TraceType instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return TraceType
-
-    @property
-    def SYMBOLSTYLE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.SymbolStyle`` instead."""
-        warnings.warn(
-            "Usage of SYMBOLSTYLE is deprecated. Use ansys.aedt.core.generic.constants.SymbolStyle instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return SymbolStyle
-
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         BinaryTreeNode.__init__(self, self.aedt_name, self._oo, False, app=self._app)
@@ -379,13 +335,13 @@ class Trace(BinaryTreeNode, PyAedtBase):
         Parameters
         ----------
         style : str, optional
-            Style for the trace line. The default is ``None``. You can also use
-            the ``LINESTYLE`` property.
+            Style for the trace line. The default is ``None``.
+            You can also use an instance of :func:`ansys.aedt.core.generic.constants.LineStyle`.
         width : int, optional
             Width of the trace line. The default is ``None``.
         trace_type : str
-            Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
-            property.
+            Type of the trace line. The default is ``None``.
+            You can also use an instance of :func:`ansys.aedt.core.generic.constants.TraceType`.
         color : tuple, list
             Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
             The default is ``None``.
@@ -415,8 +371,8 @@ class Trace(BinaryTreeNode, PyAedtBase):
         show : bool, optional
             Whether to show the symbol. The default is ``True``.
         style : str, optional
-           Style of the style. The default is ``None``. You can also use the ``SYMBOLSTYLE``
-           property.
+           Style of the style. The default is ``None``.
+           You can use an instance of :func:`ansys.aedt.core.generic.constants.SymbolStyle`.
         show_arrows : bool, optional
             Whether to show arrows. The default is ``None``.
         fill : bool, optional

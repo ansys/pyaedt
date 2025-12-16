@@ -30,7 +30,6 @@ import tempfile
 from typing import List
 from typing import Optional
 from typing import Union
-import warnings
 
 import numpy as np
 
@@ -1086,11 +1085,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Starting object for the integration line.
         reference :  str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
            Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
             Start direction for the boundary location. It should be one of the values for
-            ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
+            ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
-            is ``Application.AxisDir.XNeg``.
+            is ``Application.axis_directions.XNeg``.
         name : str, optional
             Perfect E name. The default is ``None``, in which
             case a name is automatically assigned.
@@ -1115,7 +1114,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         >>> box1 = hfss.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
         >>> box2 = hfss.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
-        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2", hfss.AxisDir.ZNeg, "PerfectE")
+        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2", hfss.axis_directions.ZNeg, "PerfectE")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_e)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -1152,10 +1151,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Starting object for the integration line.
         reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
+            Start direction for the boundary location. It should be one of the values for
+            ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.axis_directions.XNeg``.
         name : str, optional
             Perfect H name. The default is ``None``,
              in which case a name is automatically assigned.
@@ -1178,7 +1177,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         >>> box1 = hfss.modeler.create_box([0, 0, 20], [10, 10, 5], "perfect1", "Copper")
         >>> box2 = hfss.modeler.create_box([0, 0, 30], [10, 10, 5], "perfect2", "copper")
-        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2", hfss.AxisDir.ZNeg, "Perfect H")
+        >>> perfect_h = hfss.create_perfecth_from_objects(
+        ...     "perfect1", "perfect2", hfss.axis_directions.ZNeg, "Perfect H"
+        ... )
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_h)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -1321,23 +1322,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Starting object for the integration line.
         end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
+            Start direction for the boundary location.
+            It should be one of the values for ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``,
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``Application.AxisDir.XNeg``.
         source_name : str, optional
             Name of the impedance. The default is ``None``.
         resistance : float, optional
-            Resistance value in ohms. The default is ``50``. If ``None``,
-            this parameter is disabled.
-        reactance : optional
-            Reactance value in ohms. The default is ``0``. If ``None``,
-            this parameter is disabled.
+            Resistance value in ohms. The default is ``50``. If ``None``, this parameter is disabled.
+        reactance: float, optional
+            Reactance value in ohms. The default is ``0``. If ``None``, this parameter is disabled.
         is_infinite_ground : bool, optional
             Whether the impendance is an infinite ground. The default is ``False``.
         bound_on_plane : bool, optional
-            Whether to create the impedance on the plane orthogonal to ``AxisDir``.
-            The default is ``True``.
+            Whether to create the impedance on the plane orthogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
@@ -4297,28 +4295,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             ]
         )
         self.logger.info("Source Excitation updated with Dataset.")
-        return True
-
-    @pyaedt_function_handler()
-    def edit_sources_from_file(self, input_file):  # pragma: no cover
-        """Update all sources from a CSV file.
-
-        .. deprecated:: 0.11.2
-           Use :func:`edit_source_from_file` method instead.
-
-        Parameters
-        ----------
-        input_file : str
-            File name.
-
-        Returns
-        -------
-        bool
-        """
-        warnings.warn(
-            "`edit_source_from_file` is deprecated. Use `edit_source_from_file` method instead.", DeprecationWarning
-        )
-        self.edit_source_from_file(input_file=input_file)
         return True
 
     @pyaedt_function_handler()

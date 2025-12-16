@@ -32,7 +32,6 @@ import secrets
 import string
 import time
 from typing import Union
-import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
@@ -3525,7 +3524,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def subtract(self, blank_list, tool_list, keep_originals=True, **kwargs):
+    def subtract(self, blank_list, tool_list, keep_originals=True):
         """Subtract objects.
 
         Parameters
@@ -3548,9 +3547,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         ----------
         >>> oEditor.Subtract
         """
-        if "keepOriginals" in kwargs:
-            warnings.warn("keepOriginals has been deprecated. use keep_originals.", DeprecationWarning)
-            keep_originals = kwargs["keepOriginals"]
         szList = self.convert_to_selections(blank_list)
         szList1 = self.convert_to_selections(tool_list)
 
@@ -3867,7 +3863,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return new_objects
 
     @pyaedt_function_handler()
-    def intersect(self, assignment, keep_originals=False, **kwargs):
+    def intersect(self, assignment, keep_originals=False):
         """Intersect objects from a list.
 
         Parameters
@@ -3886,9 +3882,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         ----------
         >>> oEditor.Intersect
         """
-        if "keeporiginal" in kwargs:
-            warnings.warn("keeporiginal has been deprecated. use keep_originals.", DeprecationWarning)
-            keep_originals = kwargs["keeporiginal"]
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         selections = self.convert_to_selections(assignment)
 
@@ -4951,13 +4944,6 @@ class GeometryModeler(Modeler, PyAedtBase):
         >>> oEditor.Import
         """
         input_file = Path(input_file)
-
-        if str(healing) in ["0", "1"]:
-            warnings.warn(
-                "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
-                DeprecationWarning,
-            )
-
         vArg1 = ["NAME:NativeBodyParameters"]
         vArg1.append("HealOption:="), vArg1.append(int(healing))
         vArg1.append("Options:="), vArg1.append("-1")

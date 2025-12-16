@@ -24,7 +24,6 @@
 
 import sys
 import time
-import warnings
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
 from ansys.aedt.core.base import PyAedtBase
@@ -450,19 +449,6 @@ class AedtObjects(PyAedtBase):
         if not self._ocomponent_manager and self.odefinition_manager:
             self._ocomponent_manager = self.odefinition_manager.GetManager("Component")
         return self._ocomponent_manager
-
-    @property
-    def o_component_manager(self):  # pragma: no cover
-        """Component manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` property instead.
-        """
-        warnings.warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.ocomponent_manager
 
     @property
     def omodel_manager(self):

@@ -39,18 +39,13 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
-import warnings
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Gravity
-from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import Setups
-from ansys.aedt.core.generic.constants import View
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import deprecate_argument
@@ -178,73 +173,6 @@ class Analysis(Design, PyAedtBase):
             self._parametrics = self.parametrics
             self._optimizations = self.optimizations
             self._available_variations = self.available_variations
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def SOLUTIONS(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.Solutions`` instead."""
-        warnings.warn(
-            "Usage of SOLUTIONS is deprecated."
-            " Use the application-specific types for your application as defined in ansys.aedt.core.generic.constants.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return SOLUTIONS
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def SETUPS(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.Setups`` instead."""
-        warnings.warn(
-            "Usage of SETUPS is deprecated. Use ansys.aedt.core.generic.constants.Setups instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return Setups
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def AXIS(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.Axis`` instead."""
-        warnings.warn(
-            "Usage of AXIS is deprecated. Use ansys.aedt.core.generic.constants.Axis instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return Axis
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def PLANE(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.Plane`` instead."""
-        warnings.warn(
-            "Usage of PLANE is deprecated. Use ansys.aedt.core.generic.constants.Plane instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return Plane
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def VIEW(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.View`` instead."""
-        warnings.warn(
-            "Usage of VIEW is deprecated. Use ansys.aedt.core.generic.constants.View instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return View
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def GRAVITY(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.Gravity`` instead."""
-        warnings.warn(
-            "Usage of GRAVITY is deprecated. Use ansys.aedt.core.generic.constants.Gravity instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return Gravity
 
     @property
     def design_setups(self):
@@ -1136,20 +1064,6 @@ class Analysis(Design, PyAedtBase):
         except Exception:
             self.logger.debug("Failed to add native component object.")
         return boundaries
-
-    @property
-    def AxisDir(self):
-        """Contains constants for the axis directions.
-
-        .. deprecated:: 0.15.1
-            Use :func:`axis_dir` instead.
-        """
-        warnings.warn(
-            "Accessing AxisDir is deprecated and will be removed in future versions. "
-            "Use axis_directions method instead.",
-            DeprecationWarning,
-        )
-        return self.axis_directions
 
     @property
     def axis_directions(self):
@@ -2504,24 +2418,6 @@ class AvailableVariations(PyAedtBase):
         """
         available_variables = self.__available_variables()
         return {k: v.expression for k, v in list(available_variables.items())}
-
-    @property
-    def variables(self):
-        """Variables.
-
-        .. deprecated:: 0.15.0
-            Use :func:`variable_manager.independent_variable_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of names of independent variables.
-        """
-        warnings.warn(
-            "`variables` is deprecated. Use `variable_manager.independent_variable_names` method instead.",
-            DeprecationWarning,
-        )
-        return self._app.variable_manager.independent_variable_names
 
     @pyaedt_function_handler()
     def variation_string(self, variation: dict) -> str:

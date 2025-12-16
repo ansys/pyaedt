@@ -1844,7 +1844,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         for edb_name, val in parameter_mapping.items():
             if val in self._app.variable_manager.variables:
                 aedt_name = val
-                value = self._app.variable_manager.variables[val].value
+                value = self._app.variable_manager.variables[val].si_value
                 sub_arg_0 += ["VariableProp:=", [aedt_name, "D", "", value]]
         sub_arg_0.append(["NAME:VariableOrders"])
         arg_1.append(sub_arg_0)

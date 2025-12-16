@@ -92,7 +92,7 @@ class TestClass:
         assert setup.dc_resistance_only
         setup.dc_enabled = False
         setup.dc_enabled = True
-        sweep = setup.create_frequency_sweep(sweep="mysweep", start_frequency=1, units="GHz")
+        sweep = setup.create_frequency_sweep(name="mysweep", start_frequency=1, units="GHz")
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 

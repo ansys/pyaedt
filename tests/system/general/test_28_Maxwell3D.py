@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -839,7 +840,7 @@ class TestClass:
 
     def test_import_dxf(self, m3d_app):
         dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
-        dxf_layers = m3d_app.get_dxf_layers(dxf_file)
+        dxf_layers = get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert m3d_app.import_dxf(dxf_file, dxf_layers)
         assert m3d_app.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=0.2)
