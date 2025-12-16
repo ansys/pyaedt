@@ -23,7 +23,6 @@
 # SOFTWARE.
 from abc import abstractmethod
 import os.path
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -807,18 +806,6 @@ class MeshRegion(MeshRegionCommon):
             self._assignment = objects
         if self._assignment is not None:
             self.create()
-        # backward compatibility
-        if any(i in kwargs for i in ["dimension", "meshmodule", "unit"]):
-            warnings.warn(
-                "``MeshRegion`` initialization changed. ``meshmodule``, ``dimension``, ``unit`` "
-                "arguments are not supported anymore.",
-                DeprecationWarning,
-            )
-            if "dimension" in kwargs:
-                self.manual_settings = True
-                self.settings["MaxElementSizeX"] = float(kwargs["dimension"][0]) / 20
-                self.settings["MaxElementSizeY"] = float(kwargs["dimension"][1]) / 20
-                self.settings["MaxElementSizeZ"] = float(kwargs["dimension"][2]) / 20
 
     def _parse_assignment_value(self, assignment=None):
         if assignment is None:
@@ -992,76 +979,6 @@ class MeshRegion(MeshRegionCommon):
         if result:
             self._assignment = self.assignment
         return result
-
-    # backward compatibility
-    @property
-    def Enable(self):
-        """
-        Get whether the mesh region is enabled.
-
-        Returns
-        -------
-        book
-        """
-        warnings.warn(
-            "`Enable` is deprecated. Use `enable` instead.",
-            DeprecationWarning,
-        )
-        return self.enable
-
-    @Enable.setter
-    def Enable(self, val):
-        warnings.warn(
-            "`Enable` is deprecated. Use `enable` instead.",
-            DeprecationWarning,
-        )
-        self.enable = val
-
-    @property
-    def Objects(self):
-        """
-        List of objects included in mesh region.
-
-        Returns
-        -------
-        list
-        """
-        warnings.warn(
-            "`Objects` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        return self.assignment
-
-    @Objects.setter
-    def Objects(self, objects):
-        warnings.warn(
-            "`Objects` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        self.assignment = objects
-
-    @property
-    def Submodels(self):
-        """
-        List of objects included in mesh region.
-
-        Returns
-        -------
-        list
-        """
-        warnings.warn(
-            "`Submodels` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        return self.assignment
-
-    @Submodels.setter
-    def Submodels(self, objects):
-        warnings.warn(
-            "`Submodels` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        self.assignment = objects
 
 
 class IcepakMesh(PyAedtBase):
