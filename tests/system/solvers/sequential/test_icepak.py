@@ -154,8 +154,9 @@ def max_temp_app(add_app_example):
 @pytest.fixture
 def ipk_app(add_app):
     app = add_app(application=Icepak)
+    project_name = app.project_name
     yield app
-    app.close_project(save=False)
+    app.close_project(save=False, name=project_name)
 
 
 def test_import_pcb(board_3dl_app):
