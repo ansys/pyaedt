@@ -1,5 +1,5 @@
 rules:
   bot-conditions:
     ignore:
-      # ignore line 82 in ci_cd.yml
-      - ci_cd.yml:82
+      # ignore line 84 in ci_cd.yml
+      - ci_cd.yml:84
