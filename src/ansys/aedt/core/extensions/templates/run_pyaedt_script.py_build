@@ -166,7 +166,7 @@ def main():
 
         # --- Run Script with Arguments ---
         my_env = os.environ.copy()
-        
+
         # Build command based on platform
         if is_linux:
             pyaedt_utils.set_ansys_em_environment(oDesktop)
