@@ -107,7 +107,7 @@ def test_create_cables_bundle_check_definitions(aedt_app, test_tmp_dir):
     assert Cable(aedt_app, data).create_cable()
     cable = Cable(aedt_app)
     assert len(cable.cable_definitions["CableBundle"]) == 2
-    assert type(cable.cable_definitions["CableBundle"]) is list
+    assert isinstance(cable.cable_definitions["CableBundle"], list)
     assert cable.cable_definitions["CableBundle"][1]["BundleAttribs"]["Name"] == "Bundle_Cable_NoJacket"
     assert cable.cable_definitions["CableBundle"][1]["BundleParams"].get("VirtualJacketParams")
     assert cable.cable_definitions["CableBundle"][1]["BundleParams"]["VirtualJacketParams"]["JacketMaterial"] == "None"
@@ -142,7 +142,7 @@ def test_create_cables_bundle_check_definitions(aedt_app, test_tmp_dir):
     assert Cable(aedt_app, data).create_cable()
     cable = Cable(aedt_app)
     assert len(cable.cable_definitions["CableBundle"]) == 4
-    assert type(cable.cable_definitions["CableBundle"]) is list
+    assert isinstance(cable.cable_definitions["CableBundle"], list)
     assert cable.cable_definitions["CableBundle"][3]["BundleAttribs"]["Name"] == "Bundle_Cable_Shielding"
     assert cable.cable_definitions["CableBundle"][3]["BundleParams"].get("BraidShieldJacketParams")
     assert (

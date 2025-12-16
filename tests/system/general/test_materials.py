@@ -90,7 +90,7 @@ def test_create_material(aedt_app):
     mat1.permeability.value = MatProperties.get_defaultvalue(aedtname="permeability")
     assert mat1.permeability.value == MatProperties.get_defaultvalue(aedtname="permeability")
     mat1.permeability.value = [[0, 0], [30, 40], [50, 60]]
-    mat1.permeability.type == "nonlinear"
+    assert mat1.permeability.type == "nonlinear"
     mat1.permittivity.value = 5
     assert mat1.permittivity.value == 5
     mat1.dielectric_loss_tangent.value = 0.1
@@ -191,8 +191,8 @@ def test_create_modifiers(aedt_app):
     ds2 = aedt_app.import_dataset3d(str(filename))
     assert aedt_app.materials["new_copper"].permeability.add_spatial_modifier_dataset(ds2.name)
     mat1 = aedt_app.materials.add_material("new_mat")
-    mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
-    mat1.permittivity.value == MatProperties.get_defaultvalue(aedtname="permittivity")
+    assert mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
+    assert mat1.permittivity.value == MatProperties.get_defaultvalue(aedtname="permittivity")
     assert aedt_app.materials["new_mat"].mass_density.add_spatial_modifier_free_form(
         "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
     )

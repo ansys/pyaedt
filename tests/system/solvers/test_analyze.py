@@ -508,7 +508,7 @@ def test_circuit_add_3dlayout_component(circuit_app):
     setup = circuit_app.create_setup("test_06b_LNA")
     setup.add_sweep_step(start=0, stop=5, step_size=0.01)
     myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
-    assert type(myedb.id) is int
+    assert isinstance(myedb.id, int)
     ports = myedb.pins
     tx = ports
     rx = ports
@@ -540,7 +540,7 @@ def test_circuit_add_hfss_component(circuit_app):
     my_model, myname = circuit_app.modeler.schematic.create_field_model(
         "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
     )
-    assert type(my_model) is int
+    assert isinstance(my_model, int)
 
 
 def test_circuit_push_excitation(circuit_app):
