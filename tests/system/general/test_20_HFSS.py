@@ -573,7 +573,7 @@ def test_set_power(aedtapp):
         renormalize=True,
         deembed=5,
     )
-    assert aedtapp.edit_source("sheet1_Port" + ":1", "10W")
+
     assert aedtapp.edit_sources(
         {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "20deg")},
         include_port_post_processing=True,
