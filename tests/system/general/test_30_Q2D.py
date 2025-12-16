@@ -36,7 +36,7 @@ from tests.conftest import NON_GRAPHICAL
 TEST_SUBFOLDER = "T30"
 Q2D_Q3D = "q2d_q3d_231"
 Q2D_SOLVED_NAME = "q2d_solved"
-Q2D_SOLVED_SWEEP = "Q2D_SOLVED_SWEEP"
+Q2D_SOLVED_SWEEP = "q2d_solved_sweep"
 Q2D_SOLVED_NOMINAL = "q2d_solved_nominal"
 
 
