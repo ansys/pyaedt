@@ -120,6 +120,12 @@ class AMIConturEyeDiagram(CommonReport):
         int
             Quantity type.
         """
+        if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
+            self._legacy_props["quantity_type"] = 3
+        elif self.properties and any([i for i in self.properties.keys() if "AfterChannel" in i]):
+            self._legacy_props["quantity_type"] = 2
+        elif self.properties and any([i for i in self.properties.keys() if "AfterSource" in i]):
+            self._legacy_props["quantity_type"] = 1
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
@@ -539,6 +545,12 @@ class AMIEyeDiagram(CommonReport):
         int
             Quantity type.
         """
+        if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
+            self._legacy_props["quantity_type"] = 3
+        elif self.properties and any([i for i in self.properties.keys() if "AfterChannel" in i]):
+            self._legacy_props["quantity_type"] = 2
+        elif self.properties and any([i for i in self.properties.keys() if "AfterSource" in i]):
+            self._legacy_props["quantity_type"] = 1
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
