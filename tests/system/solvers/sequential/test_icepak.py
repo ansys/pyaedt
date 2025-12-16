@@ -162,7 +162,7 @@ def ipk_app(add_app):
 def test_import_pcb(board_3dl_app):
     component_name = "RadioBoard1"
     pcb = board_3dl_app.create_ipk_3dcomponent_pcb(
-        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
+        component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_resolution=400, custom_y_resolution=500
     )
     assert pcb
     assert len(board_3dl_app.native_components) == 1
