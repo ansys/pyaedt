@@ -4121,7 +4121,7 @@ class Design(AedtObjects, PyAedtBase):
         """
         # Set the value of an internal reserved design variable to the specified string
         if expression in self._variable_manager.variables:
-            return self._variable_manager.variables[expression].value
+            return self._variable_manager.variables[expression].si_value
         elif "pwl" in str(expression):
             for ds in self.project_datasets:
                 if ds in expression:
@@ -4140,7 +4140,7 @@ class Design(AedtObjects, PyAedtBase):
             self._variable_manager.set_variable(
                 variable_name, expression=expression, read_only=True, hidden=True, description="Internal_Evaluator"
             )
-            eval_value = self._variable_manager.variables[variable_name].value
+            eval_value = self._variable_manager.variables[variable_name].si_value
             # Extract the numeric value of the expression (in SI units!)
             self.odesign.Undo()
             return eval_value
