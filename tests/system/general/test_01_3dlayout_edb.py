@@ -99,6 +99,7 @@ def test_get_components(aedtapp):
     assert r5.model.ind == "0"
     assert not r5.model.is_parallel
 
+
 def test_edge_by_point_with_point_on_edge(aedtapp):
     """Test edge_by_point method with a point located on an edge.
 

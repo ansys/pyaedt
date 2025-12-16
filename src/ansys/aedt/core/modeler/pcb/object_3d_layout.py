@@ -1141,7 +1141,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         return edges
 
     @pyaedt_function_handler()
-    def edge_by_point(self, point: list[float|int]):
+    def edge_by_point(self, point: list[float | int]):
         """Return the index of the closest edge to the specified point.
 
         Parameters
@@ -1158,9 +1158,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         res = None
 
         for index, edge in enumerate(self.edges):
-            distance = GeometryOperators.v_norm(
-                GeometryOperators.distance_vector(point, edge[0], edge[1])
-            )
+            distance = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
             if distance < min_distance:
                 min_distance = distance
                 res = index
