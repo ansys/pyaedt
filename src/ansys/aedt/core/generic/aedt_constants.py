@@ -656,7 +656,15 @@ class MaxwellCircuitConstants(metaclass=DynamicMeta):
     NAME = "Maxwell Circuit"
     model_name = "MaxCirCircuit"
     solution_default = ""
-    solution_types = {}
+    solution_types = {
+        "Maxwell Circuit": {
+            "name": "Maxwell Circuit",
+            "options": None,
+            "report_type": None,
+            "default_setup": None,
+            "default_adaptive": None,
+        }
+    }
     report_templates = []
 
 
@@ -793,7 +801,127 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
 
     model_name = "NexximNetlist"
     solution_default = ""
-    solution_types = {}
+    solution_types = {
+        "NexximLNA": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 15,
+            "default_adaptive": None,
+            "intrinsics": ["Freq"],
+        },
+        "NexximDC": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 16,
+            "default_adaptive": None,
+        },
+        "NexximTransient": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 17,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
+        "NexximVerifEye": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 19,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
+        "NexximQuickEye": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 18,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
+        "NexximAMI": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 20,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
+        "NexximOscillatorRSF": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 21,
+            "default_adaptive": None,
+            "intrinsics": ["Freq"],
+        },
+        "NexximOscillator1T": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 22,
+            "default_adaptive": None,
+            "intrinsics": ["Freq"],
+        },
+        "NexximOscillatorNT": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 23,
+            "default_adaptive": None,
+            "intrinsics": ["Freq"],
+        },
+        "NexximHarmonicBalance1T": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 24,
+            "default_adaptive": None,
+            "intrinsics": ["Freq"],
+        },
+        "NexximHarmonicBalanceNT": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 25,
+            "default_adaptive": None,
+            "intrinsics": ["Freq"],
+        },
+        "NexximSystem": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 26,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
+        "NexximTVNoise": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 27,
+            "default_adaptive": None,
+            "intrinsics": ["Freq"],
+        },
+        "HSPICE": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 28,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
+        "TR": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 17,
+            "default_adaptive": None,
+            "intrinsics": ["Time"],
+        },
+    }
     report_templates = ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum", "EMIReceiver"]
 
 
