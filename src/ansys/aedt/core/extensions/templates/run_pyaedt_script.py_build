@@ -166,30 +166,28 @@ def main():
 
         # --- Run Script with Arguments ---
         my_env = os.environ.copy()
-        python_exe = python_exe if is_linux else '"{}"'.format(python_exe)
-        pyaedt_script = pyaedt_script if is_linux else '"{}"'.format(pyaedt_script)
-        command = [
-            python_exe,
-            pyaedt_script,
-            script_args,  # Pass args
-        ]
-        command = command if is_linux else ' '.join(command)
+        
+        # Build command based on platform
+        if is_linux:
+            pyaedt_utils.set_ansys_em_environment(oDesktop)
+            command = [
+                python_exe,
+                pyaedt_script,
+            ]
+            if script_args:
+                command.append(script_args)
+        else:
+            command = [
+                '"{}"'.format(python_exe),
+                '"{}"'.format(pyaedt_script),
+            ]
+            if script_args:
+                command.append(script_args)
+            command = ' '.join(command)
 
-        oDesktop.AddMessage("", "", 0, command)
+        oDesktop.AddMessage("", "", 0, str(command))
 
-        proc = subprocess.Popen(
-            command,
-            env=my_env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-
-        stdout, stderr = proc.communicate()
-        for row in  stdout.splitlines():
-            oDesktop.AddMessage("", "", 0, row)
-        if proc.returncode != 0:
-            for row in stderr.splitlines():
-                oDesktop.AddMessage("", "", 2, row)
+        subprocess.Popen(command, env=my_env)
 
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)
