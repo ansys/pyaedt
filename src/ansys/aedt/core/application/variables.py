@@ -1039,7 +1039,7 @@ class VariableManager(PyAedtBase):
             variable = str(expression)
         # Handle None, "" as Separator
         elif isinstance(expression, list):
-            variable = str(expression)
+            variable = str(expression).replace("'", '\"')
         elif not expression:
             prop_type = "SeparatorProp"
             variable = ""
