@@ -257,7 +257,7 @@ def test_tmp_dir(file_tmp_root, request):
 
 
 @pytest.fixture
-def add_app(test_tmp_dir, desktop):
+def add_app(test_tmp_dir, desktop, tmp_path_factory):
     def _method(
         project: str | None = None,
         design: str | None = None,
@@ -290,14 +290,13 @@ def add_app(test_tmp_dir, desktop):
             solution_type=solution_type,
         )
 
-        # Temp dir for this test (global Desktop temp)
-        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
-        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+        # Save temp data in the tmp_path_factory
+        desktop.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
+        desktop.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
         app = application_cls(**args)
 
-        # Temp dir specific to this project
-        app.odesktop.SetTempDirectory(str(app.project_path))
-        app.odesktop.SetProjectDirectory(str(app.project_path))
+        app.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
+        app.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
 
         return app
 
@@ -305,7 +304,7 @@ def add_app(test_tmp_dir, desktop):
 
 
 @pytest.fixture
-def add_app_example(test_tmp_dir, desktop):
+def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
     def _method(
         subfolder: str | Path,
         project: str | None = None,
@@ -357,15 +356,15 @@ def add_app_example(test_tmp_dir, desktop):
             solution_type=solution_type,
         )
 
-        # Temp dir for this test (global Desktop temp)
-        desktop.odesktop.SetTempDirectory(str(test_tmp_dir))
-        desktop.odesktop.SetProjectDirectory(str(test_tmp_dir))
+        # Save temp data in the tmp_path_factory
+        desktop.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
+        desktop.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
 
         app = application_cls(**args)
 
         # Temp dir specific to this project
-        app.odesktop.SetTempDirectory(str(app.project_path))
-        desktop.odesktop.SetProjectDirectory(str(app.project_path))
+        app.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
+        desktop.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
 
         return app
 
