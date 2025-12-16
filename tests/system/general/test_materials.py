@@ -201,13 +201,13 @@ def test_create_modifiers(aedt_app):
     )
     assert aedt_app.materials["new_mat"].permittivity.add_thermal_modifier_free_form("X^2")
     mat1 = aedt_app.materials.add_material("new_mat2")
-    mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
+    assert mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
     assert aedt_app.materials["new_mat2"].mass_density.add_spatial_modifier_free_form(
         "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
     )
     assert aedt_app.materials["new_mat2"].mass_density.add_thermal_modifier_closed_form()
     mat1 = aedt_app.materials.add_material("new_mat3")
-    mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
+    assert mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
     assert aedt_app.materials["new_mat3"].mass_density.add_thermal_modifier_closed_form()
 
 
