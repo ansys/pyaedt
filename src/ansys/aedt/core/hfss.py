@@ -1316,19 +1316,26 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     ):
         """Create an impedance taking the closest edges of two objects.
 
-        Parameters ---------- start_assignment : str or int or
-        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` Starting object for the integration line.
-        end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` Ending object for the
-        integration line. start_direction : int or
-        :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional Start direction for the
-        boundary location. It should be one of the values for ``Application.axis_directions``, which are: ``XNeg``,
-        ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``Application.AxisDir.XNeg``.
-        source_name : str, optional Name of the impedance. The default is ``None``. resistance : float,
-        optional Resistance value in ohms. The default is ``50``. If ``None``, this parameter is disabled. reactance
-        : optional Reactance value in ohms. The default is ``0``. If ``None``, this parameter is disabled.
-        is_infinite_ground : bool, optional Whether the impendance is an infinite ground. The default is ``False``.
-        bound_on_plane : bool, optional Whether to create the impedance on the plane orthogonal to ``AxisDir``. The
-        default is ``True``.
+        Parameters
+        ----------
+        start_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Starting object for the integration line.
+        end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+            Ending object for the integration line.
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
+            Start direction for the boundary location.
+            It should be one of the values for ``Application.axis_directions``, which are: ``XNeg``, ``YNeg``,
+            ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. The default is ``Application.AxisDir.XNeg``.
+        source_name : str, optional
+            Name of the impedance. The default is ``None``.
+        resistance : float, optional
+            Resistance value in ohms. The default is ``50``. If ``None``, this parameter is disabled.
+        reactance: float, optional
+            Reactance value in ohms. The default is ``0``. If ``None``, this parameter is disabled.
+        is_infinite_ground : bool, optional
+            Whether the impendance is an infinite ground. The default is ``False``.
+        bound_on_plane : bool, optional
+            Whether to create the impedance on the plane orthogonal to ``AxisDir``. The default is ``True``.
 
         Returns
         -------
