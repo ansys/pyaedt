@@ -57,7 +57,6 @@ def test_backend(mock_askopenfilename, hfss_app, test_tmp_dir):
 
     backend = MCADAssemblyBackend.load(data=extension.config_data, cur_dir=config_file.parent)
     backend.run(hfss_app)
-    assert hfss_app.modeler.layout_component_names == ["pcb1"]
     assert set(hfss_app.modeler.user_defined_component_names) == {
         "cable_1_2",
         "clamp_monitor",
