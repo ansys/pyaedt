@@ -569,7 +569,7 @@ class Mesh(PyAedtBase):
             # _project_dictionary = load_entire_aedt_file(temp_proj)
             _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
             try:
-                props = _project_dictionary["AnsoftProject"][self._app.design_type.model_name]["MeshSetup"][
+                props = _project_dictionary["AnsoftProject"][self._app._design_type.model_name]["MeshSetup"][
                     "MeshSettings"
                 ]
             except Exception:
