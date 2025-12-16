@@ -169,7 +169,6 @@ def main():
 
         # Build command based on platform
         if is_linux:
-            pyaedt_utils.set_ansys_em_environment(oDesktop)
             command = [
                 python_exe,
                 pyaedt_script,
