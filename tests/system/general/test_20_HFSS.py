@@ -31,6 +31,7 @@ import pytest
 
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
@@ -1760,7 +1761,7 @@ def test_import_dxf(dxf_file: str, object_count: int, self_stitch_tolerance: flo
 
     design_name = aedtapp.insert_design(generate_unique_name("test_import_dxf"))
     aedtapp.set_active_design(design_name)
-    dxf_layers = aedtapp.get_dxf_layers(dxf_file)
+    dxf_layers = get_dxf_layers(dxf_file)
     assert isinstance(dxf_layers, list)
     assert aedtapp.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=self_stitch_tolerance)
     assert len(aedtapp.modeler.objects) == object_count

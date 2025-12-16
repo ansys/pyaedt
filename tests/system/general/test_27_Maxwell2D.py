@@ -31,6 +31,7 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import config
@@ -454,7 +455,7 @@ class TestClass:
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_import_dxf(self, m2d_app):
         dxf_file = Path(TESTS_GENERAL_PATH) / "example_models" / "cad" / "DXF" / "dxf2.dxf"
-        dxf_layers = m2d_app.get_dxf_layers(dxf_file)
+        dxf_layers = get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert m2d_app.import_dxf(dxf_file, dxf_layers)
         dxf_layers = ["invalid", "invalid1"]
