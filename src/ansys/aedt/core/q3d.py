@@ -1451,7 +1451,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def delete_all_nets(self):
         """Delete all nets in the design."""
-        net_names = self.nets[::]
+        net_names = self.net_names[::]
         for i in self.boundaries[::]:
             if i.name in net_names:
                 i.delete()
@@ -1583,7 +1583,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.AutoIdentifyNets
         """
-        original_nets = [i for i in self.nets]
+        original_nets = [i for i in self.net_names]
         has_conductor = False
         for _, val in self.modeler.objects.items():
             if val.material_name and self.materials[val.material_name].is_conductor():
@@ -1593,7 +1593,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             self.logger.warning("Nets not identified because no conductor material was found.")
             return True
         self.oboundary.AutoIdentifyNets()
-        new_nets = [i for i in self.nets if i not in original_nets]
+        new_nets = [i for i in self.net_names if i not in original_nets]
         for net in new_nets:
             objects = self.modeler.convert_to_selections(
                 [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
@@ -1635,13 +1635,13 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         >>> q3d = Q3d()
         >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         >>> aedtapp.auto_identify_nets()
-        >>> net = aedtapp.nets[0]
+        >>> net = aedtapp.net_names[0]
         >>> new_net = aedtapp.toggle_net(net, "Floating")
         """
         if isinstance(net_name, BoundaryObject):
             net_name = net_name.name
 
-        if net_name not in self.nets:
+        if net_name not in self.net_names:
             raise ValueError(f"{net_name} is not a valid net name.")
 
         type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
@@ -1774,7 +1774,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             if isinstance(object_name, str) and object_name in self.modeler.solid_names:
                 sheets.append(self.modeler._get_faceid_on_axis(object_name, direction))
                 if not net_name:
-                    for net in self.nets:
+                    for net in self.net_names:
                         if object_name in self.objects_from_nets(net):
                             net_name = net
             elif isinstance(object_name, str):
@@ -1991,7 +1991,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         assignment = {}
 
-        for net in self.nets:
+        for net in self.net_names:
             source_name = "source_1"
             sources = self.net_sources(net)
             sinks = self.net_sinks(net)
