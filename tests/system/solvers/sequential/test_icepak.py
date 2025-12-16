@@ -409,7 +409,7 @@ def test_assign_pcb_region(ipk_app):
 
 
 def test_em_loss(ipk_app, test_tmp_dir):
-    project_name = USB_HFSS + ".aedt"
+    project_name = USB_HFSS + ".aedtz"
 
     project = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / project_name
     em_project = shutil.copy2(project, test_tmp_dir / project_name)

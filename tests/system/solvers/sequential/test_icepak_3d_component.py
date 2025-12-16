@@ -30,7 +30,7 @@ from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from tests.conftest import USE_GRPC
 
-TEST_SUBFOLDER = "icepak_board"
+TEST_SUBFOLDER = "icepak"
 FILTER_BOARD = "FilterBoard"
 
 
