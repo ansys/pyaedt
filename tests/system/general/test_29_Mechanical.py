@@ -104,7 +104,7 @@ def test_assign_thermal_loss(aedtapp, ipk):
     coax_dimension = 30
     ipk.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
     ipk.create_setup()
-    aedtapp.oproject.InsertDesign(DesignType.ICEPAKFEA, "MechanicalDesign1", "Structural", "")
+    aedtapp.oproject.InsertDesign(DesignType.ICEPAKFEA.NAME, "MechanicalDesign1", "Structural", "")
     aedtapp.set_active_design("MechanicalDesign1")
     aedtapp.create_setup()
     aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
@@ -114,13 +114,13 @@ def test_assign_thermal_loss(aedtapp, ipk):
 def test_assign_mechanical_boundaries(aedtapp):
     udp = aedtapp.modeler.Position(0, 0, 0)
     coax_dimension = 30
-    aedtapp.oproject.InsertDesign(DesignType.ICEPAKFEA, "MechanicalDesign2", "Modal", "")
+    aedtapp.oproject.InsertDesign(DesignType.ICEPAKFEA.NAME, "MechanicalDesign2", "Modal", "")
     aedtapp.set_active_design("MechanicalDesign2")
     aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
     aedtapp.create_setup()
     assert aedtapp.assign_fixed_support(aedtapp.modeler["MyCylinder"].faces[0].id)
     assert aedtapp.assign_frictionless_support(aedtapp.modeler["MyCylinder"].faces[1].id)
-    aedtapp.oproject.InsertDesign(DesignType.ICEPAKFEA, "MechanicalDesign3", "Thermal", "")
+    aedtapp.oproject.InsertDesign(DesignType.ICEPAKFEA.NAME, "MechanicalDesign3", "Thermal", "")
     aedtapp.set_active_design("MechanicalDesign3")
     aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
     with pytest.raises(AEDTRuntimeError, match="This method works only in a Mechanical Structural analysis."):
