@@ -326,6 +326,10 @@ def test_project_variable_operation(app):
     assert app.variable_manager["$my_proj_test3"].units == "mm"
     assert app.variable_manager["$my_proj_test3"].numeric_value == 2.0
 
+    # Variable array
+    app["$my_proj_test4"] = ["a", "ab"]
+    assert app.variable_manager["$my_proj_test4"].value == ["a", "ab"]
+
 
 def test_test_optimization_properties(app):
     var = "v1"
