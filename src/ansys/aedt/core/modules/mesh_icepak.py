@@ -445,7 +445,11 @@ class MeshSettings(PyAedtBase):
     to the type of settings chosen (manual or automatic).
     """
 
-    _automatic_mesh_settings = {"MeshRegionResolution": 3}  # min: 1, max: 5
+    _automatic_mesh_settings = {
+        "MeshRegionResolution": 3,
+        "FacetLevel": 3,
+        "GeometryBasedMeshing": True,
+    }  # min: 1, max: 5
     _common_mesh_settings = {
         "ProximitySizeFunction": True,
         "CurvatureSizeFunction": True,
@@ -455,6 +459,8 @@ class MeshSettings(PyAedtBase):
         "EnforceCutCellMeshing": False,
         "Enforce2dot5DCutCell": False,
         "StairStepMeshing": False,
+        "MeshMethod": "MesherHD",
+        "ComputeGap": True,
     }
     _manual_mesh_settings = {
         "MaxElementSizeX": "0.02mm",
