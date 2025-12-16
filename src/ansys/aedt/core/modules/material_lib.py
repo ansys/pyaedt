@@ -30,7 +30,6 @@ import math
 import os
 import re
 import sys
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -763,7 +762,7 @@ class Materials(PyAedtBase):
         return write_configuration_file(json_dict, output_file)
 
     @pyaedt_function_handler()
-    def import_materials_from_file(self, input_file=None, **kwargs):
+    def import_materials_from_file(self, input_file=None):
         """Import and create materials from a JSON or AMAT file.
 
         Parameters
@@ -775,13 +774,6 @@ class Materials(PyAedtBase):
         -------
         List of :class:`ansys.aedt.core.modules.material.Material`
         """
-        if "full_json_path" in kwargs and kwargs["full_json_path"] is not None:  # pragma: no cover
-            warnings.warn(
-                "``full_json_path`` was deprecated in 0.8.1. Use ``full_path`` instead.",
-                DeprecationWarning,
-            )
-            input_file = kwargs["full_json_path"]
-
         if input_file is None or not os.path.exists(input_file):
             self.logger.error("Incorrect path provided.")
             return False

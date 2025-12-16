@@ -1240,7 +1240,7 @@ class CircuitComponent(PyAedtBase):
             return model_data[model_data.index("sssfilename:=") + 1]
         elif "filename:=" in model_data and model_data[model_data.index("filename:=") + 1]:
             return model_data[model_data.index("filename:=") + 1]
-        component_data = self._circuit_components.o_component_manager.GetData(component_definition)
+        component_data = self._circuit_components.ocomponent_manager.GetData(component_definition)
         if not component_data:
             # self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
             return None

@@ -45,7 +45,7 @@ def test_push_excitation_generate_button(add_app):
 
     # Create a port
     face = aedt_app.modeler["substrate"].faces[0]
-    aedt_app.wave_port(face, integration_line=aedt_app.AxisDir.XPos, name="1")
+    aedt_app.wave_port(face, integration_line=aedt_app.axis_directions.XPos, name="1")
 
     # Create a test CSV file
     with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp_file:
@@ -140,7 +140,7 @@ def test_push_excitation_with_sinusoidal_input(add_app):
 
     # Create a port
     face = aedt_app.modeler["substrate"].faces[0]
-    aedt_app.wave_port(face, integration_line=aedt_app.AxisDir.XPos, name="1")
+    aedt_app.wave_port(face, integration_line=aedt_app.axis_directions.XPos, name="1")
 
     # Use the existing sinusoidal CSV file
     file_path = os.path.join(os.path.dirname(__file__), "..", "general", "example_models", "T20", "Sinusoidal.csv")

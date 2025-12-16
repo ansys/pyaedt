@@ -28,12 +28,9 @@ from pathlib import Path
 import re
 from typing import Optional
 from typing import Union
-import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
-from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -1325,18 +1322,6 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    # TODO: Remove for release 1.0.0
-    @property
-    def MATRIXOPERATIONS(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ3D`` instead."""
-        warnings.warn(
-            "Usage of MATRIXOPERATIONS is deprecated. "
-            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ3D instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return MatrixOperationsQ3D
-
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
@@ -2443,18 +2428,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    # TODO: Remove for release 1.0.0
-    @property
-    def MATRIXOPERATIONS(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ2D`` instead."""
-        warnings.warn(
-            "Usage of MATRIXOPERATIONS is deprecated. "
-            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ2D instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return MatrixOperationsQ2D
-
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
@@ -2485,36 +2458,6 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         >>> oEditor.CreateRectangle
         """
         return self.modeler.create_rectangle(origin=origin, sizes=sizes, name=name, material=material)
-
-    @pyaedt_function_handler()
-    def assign_single_signal_line(self, assignment, name="", solve_option="SolveInside", thickness=None, units="um"):
-        """Assign the conductor type to sheets.
-
-        Parameters
-        ----------
-        assignment : list
-            List of Object3D.
-        name : str, optional
-            Name of the conductor. The default is ``""``, in which case the default name is used.
-        solve_option : str, optional
-            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
-            The default is ``"SolveInside"``.
-        thickness : float, optional
-            Conductor thickness. The default is ``None``, in which case the conductor thickness
-            is obtained by dividing the conductor's area by its perimeter (A/p). If multiple
-            conductors are selected, the average conductor thickness is used.
-        units : str, optional
-            Thickness unit. The default is ``"um"``.
-
-        References
-        ----------
-        >>> oModule.AssignSingleSignalLine
-        >>> oModule.AssignSingleReferenceGround
-        """
-        warnings.warn(
-            "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.", DeprecationWarning
-        )
-        self.assign_single_conductor(assignment, name, "SignalLine", solve_option, thickness, units)
 
     @pyaedt_function_handler()
     def assign_single_conductor(

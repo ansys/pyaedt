@@ -26,43 +26,9 @@ import logging
 from pathlib import Path
 import re
 from typing import Union
-import warnings
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
-
-@pyaedt_function_handler()
-def create_output_folder(input_dir: Union[str, Path]) -> tuple:
-    """Create the output folders starting from the project directory.
-
-    Parameters
-    ----------
-    input_dir : str or :class:`pathlib.Path`
-        Name of the project directory.
-
-    Returns
-    -------
-    tuple
-        Picture path, Results path
-
-    """
-    warnings.warn(
-        "`create_output_folder` is deprecated.",
-        DeprecationWarning,
-    )
-    npath = Path(input_dir)
-    base = npath.name
-
-    # Set pathnames for the output folders.
-    output_path = npath / base
-    picture_path = output_path / "Pictures"
-    results_path = output_path / "Results"
-
-    # Create directories using a loop.
-    for directory in [output_path, picture_path, results_path]:
-        directory.mkdir(parents=True, exist_ok=True)
-    return str(picture_path), str(results_path)
 
 
 @pyaedt_function_handler()

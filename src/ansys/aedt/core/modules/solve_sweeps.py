@@ -742,7 +742,7 @@ class SweepMatrix(SweepCommon):
         return []
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False, **kwargs):
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -768,9 +768,6 @@ class SweepMatrix(SweepCommon):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if "type" in kwargs:
-            warnings.warn("'type' has been deprecated. Use 'range_type' instead.", DeprecationWarning)
-            range_type = kwargs["type"]
         if clear:
             self.props["RangeType"] = range_type
             self.props["RangeStart"] = str(start) + unit

@@ -281,7 +281,7 @@ def launch_aedt_in_lsf(non_graphical, port, host=None):  # pragma: no cover
         command = [
             "bsub",
             "-n",
-            str(settings.lsf_num_cores),
+            str(settings.num_cores),
             "-R",
             select_str,
             "-Is",
@@ -354,7 +354,7 @@ def _check_port(port):
 
 def _check_settings(settings: Settings):
     """Check settings."""
-    if not isinstance(settings.lsf_num_cores, int) or settings.lsf_num_cores <= 0:
+    if not isinstance(settings.num_cores, int) or settings.num_cores <= 0:
         raise ValueError("Invalid number of cores.")
     if not isinstance(settings.lsf_ram, int) or settings.lsf_ram <= 0:
         raise ValueError("Invalid memory value.")

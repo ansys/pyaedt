@@ -714,7 +714,7 @@ class TestClass:
     def test_41b_create_rect_sheet_to_groundplane(self):
         rect = self.create_rectangle()
         box = self.create_copper_box()
-        plane = self.aedtapp.modeler.create_sheet_to_ground(box.name, rect.name, self.aedtapp.AxisDir.ZNeg)
+        plane = self.aedtapp.modeler.create_sheet_to_ground(box.name, rect.name, self.aedtapp.axis_directions.ZNeg)
         assert isinstance(plane, Object3d)
 
     def test_41c_get_edges_for_circuit_port(self):
