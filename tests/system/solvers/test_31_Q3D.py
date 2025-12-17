@@ -92,11 +92,11 @@ class TestClass:
         assert setup.dc_resistance_only
         setup.dc_enabled = False
         setup.dc_enabled = True
-        sweep = setup.create_frequency_sweep(name="mysweep", start_frequency=1, units="GHz")
+        sweep = setup.create_frequency_sweep(name="mysweep", start_frequency=1, unit="GHz")
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 
-        assert not setup.create_frequency_sweep(name="mysweep", start_frequency=1, units="GHz")
+        assert not setup.create_frequency_sweep(name="mysweep", start_frequency=1, unit="GHz")
         assert setup.create_linear_step_sweep(
             name="StepFast",
             unit="GHz",
@@ -489,7 +489,6 @@ class TestClass:
         aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         aedtapp.auto_identify_nets()
         net = aedtapp.net_names[0]
-        assert len(aedtapp.excitation_objects) == 3
         assert len(aedtapp.design_excitations) == 3
         assert "SignalNet" in aedtapp.nets_by_type
         sources = aedtapp.net_sources(net)
