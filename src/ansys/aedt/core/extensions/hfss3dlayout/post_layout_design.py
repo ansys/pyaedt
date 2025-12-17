@@ -126,7 +126,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
     @property
     def pedb(self):
         if self._pedb is None:
-            self._pedb = self.aedt_application.modeler.edb
+            self._pedb = self.aedt_application.modeler.primitives.edb
         return self._pedb
 
     def __del__(self):
