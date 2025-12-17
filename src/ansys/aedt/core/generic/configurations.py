@@ -2429,7 +2429,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     component_type = value["component_type"]
                     new_comp = None
                     if component_type == "Nexxim Component":
-                        new_comp = self._app.modeler.components.create_component(
+                        new_comp = self._app.modeler.schematic.create_component(
                             name=i,
                             component_library="",
                             component_name=j["component"],
