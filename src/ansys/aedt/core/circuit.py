@@ -1747,13 +1747,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 loc = pin.location
                 loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
                 if loc[0] < center_x:
-                    p1 = self.modeler.schematic.create_interface_port(
-                        name=pin.name, location=[loc[0] - loc1, loc[1]]
-                    )
+                    p1 = self.modeler.schematic.create_interface_port(name=pin.name, location=[loc[0] - loc1, loc[1]])
                 else:
-                    p1 = self.modeler.schematic.create_interface_port(
-                        name=pin.name, location=[loc[0] + loc1, loc[1]]
-                    )
+                    p1 = self.modeler.schematic.create_interface_port(name=pin.name, location=[loc[0] + loc1, loc[1]])
                 p1.pins[0].connect_to_component(pin, use_wire=True)
                 p1.impedance = [f"{impedance}ohm", "0ohm"]
         setup = self.create_setup(name="Transient_TDR", setup_type=Setups.NexximTransient)
