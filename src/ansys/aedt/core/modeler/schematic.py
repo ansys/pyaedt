@@ -155,7 +155,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         if self._app.design_type == "Maxwell Circuit":
             components = self.schematic.components
         else:
-            components = self.components
+            components = self.schematic
         starting_component = self._get_components_selections(starting_component)
         ending_component = self._get_components_selections(ending_component)
         start = components[starting_component[0]]

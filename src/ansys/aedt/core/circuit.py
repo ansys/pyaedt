@@ -1595,7 +1595,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                             except StopIteration:
                                 model_pin = None
                             if model_pin:
-                                self.modeler.schematic.components.create_interface_port(port_name, model_pin.location)
+                                self.modeler.schematic.create_interface_port(port_name, model_pin.location)
             self.save_project()
             return True
         return False
@@ -1691,16 +1691,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         else:
             touchstone_path = str(input_file)
 
-        sub = self.modeler.schematic.components.create_touchstone_component(touchstone_path)
+        sub = self.modeler.schematic.create_touchstone_component(touchstone_path)
         center_x = sub.location[0]
         center_y = sub.location[1]
         left = 0
         delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_schematic_pins)
 
         if differential:
-            tdr_probe = self.modeler.schematic.components.components_catalog["TDR_Differential_Ended"]
+            tdr_probe = self.modeler.schematic.components_catalog["TDR_Differential_Ended"]
         else:
-            tdr_probe = self.modeler.schematic.components.components_catalog["TDR_Single_Ended"]
+            tdr_probe = self.modeler.schematic.components_catalog["TDR_Single_Ended"]
 
         tdr_probe_names = []
         n_pin = None
@@ -1747,11 +1747,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 loc = pin.location
                 loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
                 if loc[0] < center_x:
-                    p1 = self.modeler.schematic.components.create_interface_port(
+                    p1 = self.modeler.schematic.create_interface_port(
                         name=pin.name, location=[loc[0] - loc1, loc[1]]
                     )
                 else:
-                    p1 = self.modeler.schematic.components.create_interface_port(
+                    p1 = self.modeler.schematic.create_interface_port(
                         name=pin.name, location=[loc[0] + loc1, loc[1]]
                     )
                 p1.pins[0].connect_to_component(pin, use_wire=True)
@@ -1836,7 +1836,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         else:
             touchstone_path = str(input_file)
 
-        sub = self.modeler.schematic.components.create_touchstone_component(touchstone_path)
+        sub = self.modeler.schematic.create_touchstone_component(touchstone_path)
 
         ports = []
         center = sub.location[0]
@@ -1855,7 +1855,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 )
                 new_loc = [loc[0] + delta, loc[1]]
                 right += 1
-            port = self.modeler.schematic.components.create_interface_port(name=pin.name, location=new_loc)
+            port = self.modeler.schematic.create_interface_port(name=pin.name, location=new_loc)
             port.pins[0].connect_to_component(assignment=pin, use_wire=True)
             ports.append(port)
         diff_pairs = []
@@ -2091,7 +2091,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         else:
             touchstone_path = str(input_file)
 
-        sub = self.modeler.schematic.components.create_touchstone_component(touchstone_path)
+        sub = self.modeler.schematic.create_touchstone_component(touchstone_path)
         return self.create_ibis_schematic_from_pins(
             ibis_tx_file=str(ibis_tx_file),
             ibis_rx_file=ibis_rx_file,
@@ -2205,7 +2205,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             try:
                 tx_component_name = [
                     i
-                    for i, v in self.modeler.components.components.items()
+                    for i, v in self.modeler.schematic.components.items()
                     if "FileName" in v.parameters
                     or "ModelName" in v.parameters
                     and v.parameters["ModelName"] == "FieldSolver"
@@ -2215,16 +2215,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                 return False
         if rx_component_name is None:
             rx_component_name = tx_component_name
-        sub = self.modeler.components[tx_component_name]
+        sub = self.modeler.schematic[tx_component_name]
         center_x = sub.location[0]
         center_y = sub.location[1]
-        subx = self.modeler.components[rx_component_name]
+        subx = self.modeler.schematic[rx_component_name]
         center_x_rx = subx.location[0]
         center_y_rx = subx.location[1]
         left = 0
         delta_y = center_y - 0.0508 - 0.00127 * len(tx_schematic_pins)
         delta_y_rx = center_y_rx - 0.0508 - 0.00127 * len(tx_schematic_pins)
-        for el in self.modeler.components.components.values():
+        for el in self.modeler.schematic.components.values():
             delta_y = el.bounding_box[1] - 0.02032 if delta_y >= el.bounding_box[1] else delta_y
             delta_y_rx = el.bounding_box[1] - 0.02032 if delta_y_rx >= el.bounding_box[1] else delta_y_rx
 
