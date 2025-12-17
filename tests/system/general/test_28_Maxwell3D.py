@@ -529,7 +529,7 @@ class TestClass:
     def test_assign_voltage_drop(self, m3d_app, maxwell_versioned):
         m3d_app.solution_type = maxwell_versioned.Magnetostatic
 
-        circle = m3d_app.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
+        circle = m3d_app.modeler.create_circle(origin=[10, 10, 0], radius=5, orientation="XY")
         v_drop = m3d_app.assign_voltage_drop([circle.faces[0]])
         assert v_drop.props["Faces"][0] == circle.faces[0].id
         assert v_drop.props["Voltage Drop"] == "1mV"
@@ -685,8 +685,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=[0, "0mm", "0mm"],
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -696,8 +696,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
                 u_vector_pos_coordinates_master=[10, "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -707,8 +707,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=[10, "0mm", "0mm"],
@@ -718,8 +718,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -727,8 +727,8 @@ class TestClass:
             )
         with pytest.raises(ValueError, match="Please provide a list of coordinates for U vectors."):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master="0mm",
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -1017,15 +1017,15 @@ class TestClass:
     def test_order_coil_terminals(self, m3d_app):
         m3d_app.solution_type = "TransientAPhiFormulation"
         c1 = m3d_app.modeler.create_cylinder(
-            orientation=m3d_app.AXIS.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
+            orientation=Axis.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
         )
 
         c2 = m3d_app.modeler.create_cylinder(
-            orientation=m3d_app.AXIS.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
+            orientation=Axis.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
         )
 
         c3 = m3d_app.modeler.create_cylinder(
-            orientation=m3d_app.AXIS.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
+            orientation=Axis.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
         )
 
         m3d_app.assign_coil(assignment=[c1.top_face_z], name="CoilTerminal1")
