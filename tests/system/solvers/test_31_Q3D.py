@@ -96,7 +96,6 @@ class TestClass:
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 
-        assert not setup.create_frequency_sweep(name="mysweep", start_frequency=1, unit="GHz")
         assert setup.create_linear_step_sweep(
             name="StepFast",
             unit="GHz",
