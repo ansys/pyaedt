@@ -126,7 +126,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
     @property
     def pedb(self):
         if self._pedb is None:
-            self._pedb = self.aedt_application.modeler.primitives.edb
+            self._pedb = self.aedt_application.modeler.edb
         return self._pedb
 
     def __del__(self):
@@ -373,7 +373,7 @@ def main(data: PostLayoutDesignExtensionData):
         raise AEDTRuntimeError("Active design is not HFSS 3D Layout Design.")
 
     try:
-        pedb = h3d.modeler.primitives.edb
+        pedb = h3d.modeler.edb
 
         if data.action == "antipad":
             if len(data.selections) != 2:
