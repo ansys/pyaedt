@@ -629,14 +629,17 @@ class AedtLogger:
             return
         if len(message_text) > 250 and message_type < 3:
             message_text = message_text[:250] + "..."
-        if message_type == 0:
-            self._global.info(message_text, *args, **kwargs)
-        elif message_type == 1:
-            self._global.warning(message_text, *args, **kwargs)
-        elif message_type == 2:
-            self._global.error(message_text, *args, **kwargs)
-        elif message_type == 3:
-            self._global.debug(message_text, *args, **kwargs)
+        try:
+            if message_type == 0:
+                self._global.info(message_text, *args, **kwargs)
+            elif message_type == 1:
+                self._global.warning(message_text, *args, **kwargs)
+            elif message_type == 2:
+                self._global.error(message_text, *args, **kwargs)
+            elif message_type == 3:
+                self._global.debug(message_text, *args, **kwargs)
+        except Exception:
+            pass
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.

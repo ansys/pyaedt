@@ -1286,6 +1286,8 @@ class Design(AedtObjects, PyAedtBase):
                 if ".aedtz" in proj_name:
                     p = Path(proj_name)
                     save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    if str(p.stem) in self.desktop_class.project_list:
+                        save_to_file = available_file_name(p.parent / f"{generate_unique_name(str(p.stem))}.aedt")
                     self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
                     proj_name = save_to_file.stem
