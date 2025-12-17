@@ -491,28 +491,30 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         gas_type : int
             ´´0´´ for Dry Air, ´´1´´ for SF6, ´´2´´ for User Defined.
         gas_pressure: int, optional
-        Gas pressure in Bar, default: ´´1´´
+            Gas pressure in Bar, default value is ´´1´´.
         use_inception: bool
-            True to use the inception parameters U0, K, A: default: True
+            True to use the inception parameters U0, K, A: default value is ´´True´´.
         potential_u0: float, optional
-        U0 parameter (constant voltage offset value): default: ´´0´´, if use_inception = True enable can be edited
+            U0 parameter (constant voltage offset value):
+            default: ´´0´´, if ´´use_inception´´ is ´´True´´ enabled, can be edited
         potential_k: int, optional
-        Streamer constant (empirical value)
+            Streamer constant (empirical value)
         potential_a: int
-        A parameter
+            A parameter
         critical_value: float
-        Enabled if gas_type =2: critical electric field value at which the gas starts to ionize
+            Enabled if ´´gas_type´´ is ´´2´´: critical electric field value at which the gas starts to ionize.
         streamer_constant: float
-        Enabled if gas_type =2: number related to the critical electron numbers of electrons in the streamer
+            Enabled if ´´gas_type´´ is ´´2´´: number related to the critical electron numbers of electrons in the
+            streamer.
         ionization_check: bool
-        Enabled if gas_type=2 . If True Enables customized ionization equation of the form f(x), i.e. , 16.8*x –81.0;
-        if False, a dataset must be entered
+            Enabled if ´´gas_type´´ is ´´2´´ . If ´´True´´ enables customized ionization equation of the form f(x),
+            i.e. , 16.8*x –81.0; if ´´False´´, a dataset must be entered.
         ionization_equation: str
-        Enabled if gas_type=2 and ionization_check = True.Contains the polynomial customized ionization equation of
-        the form f(x), i.e. , 16.8*x –81.0
+            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´True´´.
+            Contains the polynomial customized ionization equation of the form f(x), i.e. , 16.8*x –81.0.
         ionization_dataset: list
-        Enabled if gas_type=2 and ionization_check = False.Dataset: E/p [kV/mm-bar], ap [1/mm-bar]; i.e.,
-        2,0,0.15,0.2,0.4]
+            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´False´´.
+            Dataset: E/p [kV/mm-bar], ap [1/mm-bar]; i.e., [2,0,0.15,0.2,0.4].
 
         Returns
         -------
