@@ -82,6 +82,7 @@ def test_icepak_model_reviewer_load_project(mock_icepak_app, patched_loader):
     assert boundary_table.tree is not None
     assert len(boundary_table.tree.get_children()) == 3
 
+
 def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     extension = IcepakModelReviewer(withdraw=True)
     extension.load_button.invoke()
@@ -96,8 +97,8 @@ def test_icepak_model_reviewer_table_values(mock_icepak_app, patched_loader):
     materials_table = extension.root.materials_tab.winfo_children()[0]
     assert len(materials_table.tree.get_children()) == 4
     row1, row2, row3, row4 = materials_table.tree.get_children()[:4]
-    assert materials_table.tree.item(row1)["values"][1] == 'Al-Extruded🔒'
-    assert materials_table.tree.item(row1)["values"][2] == 'Solid🔒'
+    assert materials_table.tree.item(row1)["values"][1] == "Al-Extruded🔒"
+    assert materials_table.tree.item(row1)["values"][2] == "Solid🔒"
     assert materials_table.tree.item(row1)["values"][3] == 152
     assert materials_table.tree.item(row1)["values"][4] == 2000
     assert materials_table.tree.item(row2)["values"][4] == "1.1614"
