@@ -285,7 +285,7 @@ def test_extension_manager_default_category(add_app):
     try:
         # Verify default category is set
         assert extension.current_category is not None
-        assert extension.current_category == "Common"
+        assert extension.current_category == "Project"
 
     finally:
         extension.root.destroy()
