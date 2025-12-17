@@ -2502,7 +2502,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         if nominal_value:
             solution_data.primary_sweep = primary_sweep
         return solution_data.plot_3d(
-            x_axis=primary_sweep, y_axis=secondary_sweep, snapshot_path=snapshot_path, show=show
+            primary_sweep=primary_sweep, secondary_sweep=secondary_sweep, snapshot_path=snapshot_path, show=show
         )
 
     @pyaedt_function_handler()
