@@ -111,8 +111,8 @@ if "PYAEDT_LOCAL_SETTINGS_PATH" not in os.environ:
     settings.enable_error_handler = False
     settings.release_on_exception = False
 else:
-    print("PYAEDT_LOCAL_SETTINGS_PATH not found")
-    settings.__update_settings()
+    print("PYAEDT_LOCAL_SETTINGS_PATH found")
+    settings._update_settings()
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
