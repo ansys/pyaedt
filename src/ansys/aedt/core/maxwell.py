@@ -2697,9 +2697,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             return bound
         raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
 
-    @pyaedt_function_handler(object_list="assignment")
+    @pyaedt_function_handler()
     def assign_sink(self, assignment, name=None):
-        """Assign sink excitation.Available only in 3D electric solvers but electrostatic
+        """Assign sink excitation. Available only in 3D electric solvers but electrostatic.
 
         Parameters
         ----------
