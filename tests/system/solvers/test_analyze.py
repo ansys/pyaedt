@@ -537,7 +537,7 @@ def test_circuit_add_3dlayout_component(circuit_app):
 
 
 def test_circuit_add_hfss_component(circuit_app):
-    my_model, myname = circuit_app.modeler.schematic.create_field_model(
+    my_model, _ = circuit_app.modeler.schematic.create_field_model(
         "uUSB", "Setup1 : Sweep", ["usb_N_conn", "usb_N_pcb", "usb_P_conn", "usb_P_pcb"]
     )
     assert isinstance(my_model, int)
