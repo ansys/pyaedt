@@ -54,7 +54,7 @@ AEDT_APPLICATIONS = {
     "maxwell2d": "Maxwell2D",
     "maxwell3d": "Maxwell3D",
     "mechanical": "Mechanical",
-    "common": "Common",
+    "common": "Project",
     "q2d": "2DExtractor",
     "q3d": "Q3DExtractor",
     "twinbuilder": "TwinBuilder",
@@ -296,6 +296,11 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
         b = [button for button in buttons if button.attrib["label"] == name][0]
         panel_element.remove(b)
 
+    # If panel is now empty, remove it
+    remaining_buttons = panel_element.findall("./button")
+    if not remaining_buttons:
+        root.remove(panel_element)
+
     create_xml_tab(root, str(tab_config_file_path))
     return True
 
@@ -373,7 +378,7 @@ def add_script_to_menu(
         aedt_version = d.aedt_version_id
 
     if script_file and not Path(script_file).exists():  # pragma: no cover
-        logger.error("Script does not exists.")
+        logger.error("Script does not exist.")
         return False
     toolkit_dir = Path(personal_lib) / "Toolkits"
     tool_map = tab_map(product)
@@ -468,6 +473,8 @@ def tab_map(product):  # pragma: no cover
         return "Q3DExtractor"
     elif product.lower() == "simplorer":
         return "TwinBuilder"
+    elif product.lower() == "common":
+        return "Project"
     else:
         return product
 
