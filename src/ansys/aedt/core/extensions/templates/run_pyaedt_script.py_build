@@ -186,21 +186,7 @@ def main():
 
         oDesktop.AddMessage("", "", 0, str(command))
 
-        # Use subprocess.Popen to capture stderr and wait for completion
-        if is_linux:
-            process = subprocess.Popen(command, env=my_env, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-            exit_code = process.wait()
-            stderr = process.stderr.read() if hasattr(process.stderr, 'read') else None
-            if exit_code != 0:
-                error_msg = "Script execution failed:\n{}".format(stderr if stderr else "Exit code: {}".format(exit_code))
-                pyaedt_utils.show_error(error_msg, oDesktop)
-        else:
-            # On Windows, capture stderr for detailed error messages
-            process = subprocess.Popen(command, env=my_env, stderr=subprocess.PIPE, shell=True)
-            _, stderr = process.communicate()
-            if process.returncode != 0:
-                error_msg = "Script execution failed:\n{}".format(stderr if stderr else "Unknown error")
-                pyaedt_utils.show_error(error_msg, oDesktop)
+        subprocess.Popen(command, env=my_env)
 
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)
