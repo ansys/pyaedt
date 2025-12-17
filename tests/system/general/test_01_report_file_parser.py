@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 
 import pytest
 
@@ -39,7 +38,8 @@ def desktop():
 
 
 def test_report_file_parser():
-    data = parse_rdat_file(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_report.rdat"))
+    input_file = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_report.rdat"
+    data = parse_rdat_file(str(input_file))
     assert data == {
         "Calculator Expressions Plot 1": {
             "Mag_H": {
@@ -2976,7 +2976,6 @@ def test_report_file_parser():
             },
         }
     }
-    data1 = parse_rdat_file(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "test_report_smith.rdat")
-    )
+    input_file_2 = TESTS_GENERAL_PATH / "example_models" / test_subfolder / "test_report_smith.rdat"
+    data1 = parse_rdat_file(str(input_file_2))
     assert len(data1["S Parameter Chart 1"]["S(1,1)"]["curves"]) == 8

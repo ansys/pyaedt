@@ -192,8 +192,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
         ----------
         >>> oEditor.Create3DComponent
         """
+        # If design name has a white space (as it usually happens with Maxwell 2D/3D new designs),
+        # it has to be replaced with an underscore.
         if not name:
-            name = self._app.design_name
+            name = self._app.design_name.replace(" ", "_")
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
             self.logger.error("Password type must be 'UserSuppliedPassword' or 'InternalPassword'")
@@ -1095,8 +1097,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
             for output_stl in output_stls:
                 self.import_3d_cad(
                     output_stl,
-                    create_lightweigth_part=import_as_light_weight,
                     healing=False,
+                    create_lightweight_part=import_as_light_weight,
                     merge_planar_faces=enable_stl_merge,
                     merge_angle=merge_angle,
                 )
@@ -1344,7 +1346,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                 if not os.path.exists(parts_dict[part]["file_name"]):
                     continue
                 obj_names = [i for i in self.object_names]
-                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweigth_part=create_lightweigth_part)
+                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweight_part=create_lightweigth_part)
                 added_objs = [i for i in self.object_names if i not in obj_names]
                 if part == "terrain":
                     transparency = 0.2

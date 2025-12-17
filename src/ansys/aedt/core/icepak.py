@@ -2933,8 +2933,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Path(sab_file_pointer).unlink()
         if Path(fl_uscript_file_pointer).exists():
             Path(fl_uscript_file_pointer).unlink()
-        if Path(mesh_file_pointer + ".trn").exists():
-            Path(mesh_file_pointer + ".trn").unlink()
+        if Path(str(mesh_file_pointer) + ".trn").exists():
+            Path(str(mesh_file_pointer) + ".trn").unlink()
 
         export_success = self.export_3d_model(file_name, self.working_directory, ".sab", object_lists)
         if not export_success:
@@ -2942,7 +2942,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         # Building Fluent journal script file *.jou
         fluent_script = open(fl_uscript_file_pointer, "w")
-        fluent_script.write("/file/start-transcript " + '"' + mesh_file_pointer + '.trn"\n')
+        fluent_script.write("/file/start-transcript " + '"' + str(mesh_file_pointer) + '.trn"\n')
         fluent_script.write(
             f'/file/set-tui-version "{self.aedt_version_id[-3:-1] + "." + self.aedt_version_id[-1:]}"\n'
         )
@@ -2950,7 +2950,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         fluent_script.write('(cx-gui-do cx-activate-tab-index "NavigationPane*Frame1(TreeTab)" 0)\n')
         fluent_script.write("(%py-exec \"workflow.InitializeWorkflow(WorkflowType=r'Watertight Geometry')\")\n")
         cmd = "(%py-exec \"workflow.TaskObject['Import Geometry']."
-        cmd += "Arguments.setState({r'FileName': r'" + sab_file_pointer + "',})\")\n"
+        cmd += "Arguments.setState({r'FileName': r'" + str(sab_file_pointer) + "',})\")\n"
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Import Geometry'].Execute()\")\n")
         fluent_script.write("(%py-exec \"workflow.TaskObject['Add Local Sizing'].AddChildToTask()\")\n")
@@ -2999,7 +2999,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         fluent_script.write(cmd)
         fluent_script.write("(%py-exec \"workflow.TaskObject['Generate the Volume Mesh'].Execute()\")\n")
         fluent_script.write("/file/hdf no\n")
-        fluent_script.write('/file/write-mesh "' + mesh_file_pointer + '"\n')
+        fluent_script.write('/file/write-mesh "' + str(mesh_file_pointer) + '"\n')
         fluent_script.write("/file/stop-transcript\n")
         fluent_script.write("/exit,\n")
         fluent_script.close()
@@ -3007,26 +3007,20 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         if is_linux:  # pragma: no cover
             cmd = str(Path(ansys_install_dir) / "fluent" / "bin" / "fluent")
         # Fluent command line parameters: -meshing -i <journal> -hidden -tm<x> (# processors for meshing) -wait
-        fl_ucommand = [
-            cmd,
-            "3d",
-            "-meshing",
-            "-hidden",
-            "-i",
-        ]
+        fl_ucommand = [cmd, "3d", "-meshing", "-hidden", "-i"]
         self.logger.info("Fluent is starting in Background with command line")
         if is_linux:
             fl_ucommand = ["bash"] + fl_ucommand + [fl_uscript_file_pointer]
         else:
-            fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
+            fl_ucommand = ["bash"] + fl_ucommand + ['"' + str(fl_uscript_file_pointer) + '"']
         self.logger.info(" ".join(fl_ucommand))
         try:
             subprocess.run(fl_ucommand, check=True)  # nosec
         except subprocess.CalledProcessError as e:
             raise AEDTRuntimeError("An error occurred while creating Fluent mesh") from e
 
-        if Path(mesh_file_pointer).exists():
-            self.logger.info("'" + mesh_file_pointer + "' has been created.")
+        if mesh_file_pointer.exists():
+            self.logger.info(f"'{mesh_file_pointer}' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
 
         raise AEDTRuntimeError("Failed to create Fluent mesh file")
@@ -4521,7 +4515,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         flow_type="Pressure",
         pressure="AmbientPressure",
         no_reverse_flow=False,
-        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+        velocity=None,
         mass_flow_rate="0kg_per_s",
         inflow=True,
         direction_vector=None,
@@ -4530,7 +4524,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        assignment : int or str or list
+        assignment : int, str, list, or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             Integer indicating a face ID or a string indicating an object name. A list of face
             IDs or object names is also accepted.
         boundary_name : str, optional
@@ -4596,7 +4590,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> icepak.assign_free_opening(f_id)
 
         """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
         # Sanitize input
+        if velocity is None:
+            velocity = ["0m_per_sec", "0m_per_sec", "0m_per_sec"]
         for i in range(len(velocity)):
             if not isinstance(velocity[i], str) and not isinstance(velocity[i], (dict, BoundaryDictionary)):
                 velocity[i] = str(velocity[i]) + "m_per_sec"
@@ -4610,10 +4608,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             radiation_temperature = str(radiation_temperature) + "cel"
         if not isinstance(pressure, str) and not isinstance(pressure, (dict, BoundaryDictionary)):
             pressure = str(pressure) + "pascal"
+
         # Dict creation
         props = {}
-        if not isinstance(assignment, list):
-            assignment = [assignment]
         if isinstance(assignment[0], int):
             props["Faces"] = assignment
         else:
@@ -4831,7 +4828,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         Parameters
         ----------
-        assignment : int or str or list
+        assignment : int, str, list, or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             Integer indicating a face ID or a string indicating an object name. A list of face
             IDs or object names is also accepted.
         boundary_name : str, optional
@@ -4885,6 +4882,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_mass_flow_free_opening(f_id)
         """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
         return self.assign_free_opening(
             assignment,
             boundary_name=boundary_name,

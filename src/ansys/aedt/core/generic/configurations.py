@@ -2444,10 +2444,21 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                             ami = False
                         ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if "diff_pin_name" in j["properties"]:
+                        if "diff_pin_name" in j["properties"] and comp in ibis.components:
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
+                                .insert(
+                                    j["position"][0],
+                                    j["position"][1],
+                                    j["angle"],
+                                    page=j.get("page", 1),
+                                )
+                            )
+                        elif comp in ibis.components and j["properties"].get("pin_name") in ibis.components[comp].pins:
+                            new_comp = (
+                                ibis.components[comp]
+                                .pins[j["properties"]["pin_name"]]
                                 .insert(
                                     j["position"][0],
                                     j["position"][1],
@@ -2463,16 +2474,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                 page=j.get("page", 1),
                             )
                         else:
-                            new_comp = (
-                                ibis.components[comp]
-                                .pins[j["properties"]["pin_name"]]
-                                .insert(
-                                    j["position"][0],
-                                    j["position"][1],
-                                    j["angle"],
-                                    page=j.get("page", 1),
-                                )
-                            )
+                            raise Exception("Component not found")
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
                             value["file_path"],
@@ -2528,7 +2530,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             if i == "gnd":
                 for gnd_pin in pins:
                     location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
-                    self._app.modeler.schematic.create_gnd(location)
+                    self._app.modeler.schematic.create_gnd(location, page=gnd_pin._circuit_comp.page)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 

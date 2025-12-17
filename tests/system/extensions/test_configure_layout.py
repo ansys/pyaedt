@@ -35,7 +35,6 @@ import ansys.aedt.core
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import GUIDE_LINK
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import INTRO_LINK
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
@@ -100,7 +99,6 @@ def test_get_active_db(extension_under_test, test_folder, add_app):
     app.close_project(app.project_name)
 
 
-@pytest.mark.flaky_linux
 @patch(
     "ansys.aedt.core.extensions.hfss3dlayout.configure_layout.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
@@ -108,8 +106,9 @@ def test_get_active_db(extension_under_test, test_folder, add_app):
 def test_apply_config_to_edb(mock_selected_edb, test_folder, extension_under_test):
     mock_selected_edb.return_value = test_folder.copy_si_verse()
     config_path = test_folder.path / "config.json"
+    data = {"general": {"anti_pads_always_on": True, "suppress_pads": True}}
     with open(config_path, "w", encoding="utf-8") as f:
-        json.dump(SERDES_CONFIG, f, ensure_ascii=False, indent=4)
+        json.dump(data, f, ensure_ascii=False, indent=4)
     assert extension_under_test.apply_config_to_edb(config_path)
 
 

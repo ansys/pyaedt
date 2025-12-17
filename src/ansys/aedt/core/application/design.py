@@ -159,6 +159,9 @@ class Design(AedtObjects, PyAedtBase):
         the existing project if needed and raise an exception.
     """
 
+    def __repr__(self):
+        return f"Project: {self.project_name}\nDesign: {self.design_name}\nPath: {self.project_path}"
+
     def __init__(
         self,
         design_type: str,
@@ -221,7 +224,7 @@ class Design(AedtObjects, PyAedtBase):
 
         self._mttime: Optional[float] = None
         self._desktop = self._desktop_class.odesktop
-        self._desktop_install_dir: Optional[str] = settings.aedt_install_dir
+        self._desktop_install_dir: Optional[str] = self._desktop_class.aedt_install_dir
         self._odesign: Optional[Any] = None
         self._oproject: Optional[Any] = None
 
@@ -810,9 +813,9 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.GetName
         """
-        if self._project_name:
+        if self._project_name and self._project_name in self.desktop_class.project_list:
             return self._project_name
-        if self.oproject:
+        elif self.oproject:
             try:
                 self._project_name = self.oproject.GetName()
                 self._project_path = None
@@ -2007,14 +2010,14 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def set_registry_from_file(self, registry_file, make_active=True):
+    def set_registry_from_file(self, registry_file: Union[str, Path], make_active: bool = True) -> bool:
         """Apply desktop registry settings from an ACT file.
 
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
 
         Parameters
         ----------
-        registry_file : str
+        registry_file : str or :class:`pathlib.Path`
             Full path to the ACF file.
         make_active : bool, optional
             Whether to set the imported configuration as active. The default is ``True``.
@@ -2028,8 +2031,9 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oDesktop.SetRegistryFromFile
         """
+        registry_file = Path(registry_file)
         try:
-            self.odesktop.SetRegistryFromFile(registry_file)
+            self.odesktop.SetRegistryFromFile(str(registry_file))
             if make_active:
                 with open_file(registry_file, "r") as f:
                     for line in f:
@@ -2644,9 +2648,7 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def close_desktop(self):
         """Close AEDT and release it.
-
-        .. deprecated:: 0.19.1
-            This method is deprecated. Use the ``ansys.aedt.core.desktop.close_desktop()`` method instead.
+        This is the same as calling, `design.desktop_class.close_desktop()`.
 
         Returns
         -------
@@ -2654,11 +2656,6 @@ class Design(AedtObjects, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
 
         """
-        warnings.warn(
-            "method `design.close_desktop` is deprecated. The method is accessible from desktop.\n "
-            "It can be accessed from design with `design.desktop_class.close_desktop()`.",
-            DeprecationWarning,
-        )
         self.desktop_class.close_desktop()
         return True
 
@@ -2947,12 +2944,18 @@ class Design(AedtObjects, PyAedtBase):
         )
 
     @pyaedt_function_handler(filename="input_file", dsname="name")
-    def import_dataset1d(self, input_file, name=None, is_project_dataset=True, sort=True):
+    def import_dataset1d(
+        self,
+        input_file: Union[str, Path],
+        name: Optional[str] = None,
+        is_project_dataset: bool = True,
+        sort: bool = True,
+    ):
         """Import a 1D dataset.
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path and name for the TAB file.
         name : str, optional
             Name of the dataset. The default is the file name.
@@ -2970,6 +2973,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
+        input_file = Path(input_file)
         with open_file(input_file, "r") as f:
             lines = f.read().splitlines()
         header = lines[0]
@@ -2991,7 +2995,7 @@ class Design(AedtObjects, PyAedtBase):
             ylist.append(float(item.split()[1]))
 
         if not name:
-            name = Path(input_file).stem
+            name = input_file.stem
 
         if name[0] == "$":
             name = name[1:]
@@ -3002,12 +3006,19 @@ class Design(AedtObjects, PyAedtBase):
         )
 
     @pyaedt_function_handler(filename="input_file", dsname="name")
-    def import_dataset3d(self, input_file, name=None, encoding="utf-8-sig", is_project_dataset=True, sort=True):
+    def import_dataset3d(
+        self,
+        input_file: Union[str, Path],
+        name: Optional[str] = None,
+        encoding: str = "utf-8-sig",
+        is_project_dataset: bool = True,
+        sort: bool = True,
+    ):
         """Import a 3D dataset.
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path and name for the tab/csv/xlsx file.
         name : str, optional
             Name of the dataset. The default is the file name.
@@ -3026,8 +3037,9 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.AddDataset
         """
-        index_of_dot = input_file.rfind(".")
-        file_extension = input_file[index_of_dot + 1 :]
+        path = Path(input_file)
+        file_extension = path.suffix.lstrip(".").lower()
+
         xlist = []
         ylist = []
         zlist = []
@@ -3035,7 +3047,7 @@ class Design(AedtObjects, PyAedtBase):
 
         if file_extension == "xlsx":
             self.logger.warning("You need pandas and openpyxl library installed for reading excel files")
-            lines = read_xlsx(input_file)
+            lines = read_xlsx(path)
             if list(lines):
                 header = str([lines.columns[i] for i in range(len(lines.columns))])
                 xlist = list((lines.iloc[:, 0]).array)
@@ -3047,7 +3059,7 @@ class Design(AedtObjects, PyAedtBase):
                 return False
 
         elif file_extension == "csv":
-            lines = read_csv(input_file, encoding)
+            lines = read_csv(path, encoding)
             header = " ".join(lines[0])
             for row in lines[1:]:
                 xlist.append(float(row[0]))
@@ -3056,13 +3068,14 @@ class Design(AedtObjects, PyAedtBase):
                 vlist.append(float(row[3]))
 
         elif file_extension == "tab":
-            lines = read_tab(input_file)
+            lines = read_tab(path)
             header = lines[0]
             for item in lines[1:]:
-                xlist.append(float(item.split()[0]))
-                ylist.append(float(item.split()[1]))
-                zlist.append(float(item.split()[2]))
-                vlist.append(float(item.split()[3]))
+                cols = item.split()
+                xlist.append(float(cols[0]))
+                ylist.append(float(cols[1]))
+                zlist.append(float(cols[2]))
+                vlist.append(float(cols[3]))
 
         header_list = header.split()
         units = ["", "", "", ""]
@@ -3074,12 +3087,14 @@ class Design(AedtObjects, PyAedtBase):
             cont += 1
 
         if not name:
-            name = Path(input_file).stem
+            name = path.stem
 
-        if name[0] == "$":
+        is_project_dataset = False
+        if name.startswith("$"):
             name = name[1:]
             is_project_dataset = True
-        if self.design_type != "Maxwell 3D" and self.design_type != "Icepak":
+
+        if self.design_type not in ["Maxwell 3D", "Icepak"]:
             is_project_dataset = True
 
         return self.create_dataset(
@@ -3708,7 +3723,7 @@ class Design(AedtObjects, PyAedtBase):
 
         Parameters
         ----------
-        project : str
+        project : pathlib.Path or str
             Full path and name for the project containing the design to copy.
             The active design is maintained.
         design : str
@@ -3840,12 +3855,17 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler(
         filename="output_file", export_project="export_project_variables", export_design="export_design_properties"
     )
-    def export_variables_to_csv(self, output_file, export_project_variables=True, export_design_properties=True):
+    def export_variables_to_csv(
+        self,
+        output_file: Union[str, Path],
+        export_project_variables: bool = True,
+        export_design_properties: bool = True,
+    ) -> bool:
         """Export design properties, project variables, or both to a CSV file.
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Full path and name for the CSV file.
         export_project_variables : bool, optional
             Whether to export project variables. The default is ``True``.
@@ -3865,6 +3885,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
         """
+        output_file = Path(output_file)
         varnames = []
         desnames = []
         if export_project_variables:
@@ -3880,7 +3901,7 @@ class Design(AedtObjects, PyAedtBase):
         for el in desnames:
             value = self.odesign.GetVariableValue(el)
             list_full.append([el, value])
-        return write_csv(output_file, list_full)
+        return write_csv(str(output_file), list_full)
 
     @pyaedt_function_handler()
     def read_design_data(self):
@@ -3913,7 +3934,7 @@ class Design(AedtObjects, PyAedtBase):
 
         Parameters
         ----------
-        file_name : str, optional
+        file_name : str or pathlib.Path, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
@@ -4104,8 +4125,12 @@ class Design(AedtObjects, PyAedtBase):
             if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design"]:
                 if name in self.get_oo_name(app, f"Instance:{self._odesign.GetName()}"):
                     var_obj = self.get_oo_object(app, f"Instance:{self._odesign.GetName()}/{name}")
+                elif name in self.get_oo_name(app, "Variables"):
+                    var_obj = self.get_oo_object(app, f"Variables/{name}")
                 elif name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
-                    val = self.get_oo_object(app, "DefinitionParameters").GetPropEvaluatedValue(name)
+                    val = self.get_oo_object(app, "DefinitionParameters").GetPropSIValue(name)
+            elif self.design_type in ["Maxwell Circuit"]:
+                return None
             else:
                 var_obj = self.get_oo_object(app, f"Variables/{name}")
         if var_obj:
@@ -4312,12 +4337,12 @@ class Design(AedtObjects, PyAedtBase):
         return False
 
     @pyaedt_function_handler(temp_dir_path="path")
-    def set_temporary_directory(self, path):
+    def set_temporary_directory(self, path: Union[str, Path]) -> bool:
         """Set temporary directory path.
 
         Parameters
         ----------
-        path : str
+        path : str or :class:`pathlib.Path`
             Temporary directory path.
 
         Returns
@@ -4329,7 +4354,8 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oDesktop.SetTempDirectory()
         """
-        self.odesktop.SetTempDirectory(path)
+        path = Path(path)
+        self.odesktop.SetTempDirectory(str(path))
         return True
 
     @pyaedt_function_handler()

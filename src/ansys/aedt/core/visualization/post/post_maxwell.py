@@ -33,6 +33,8 @@ import string
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
 from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
@@ -180,52 +182,41 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info(f"Plot {plot_name} exists. returning the object.")
             return self.field_plots[plot_name]
-        if not isinstance(seeding_faces, list):
-            seeding_faces = [seeding_faces]
-        seeding_faces_ids = []
-        for face in seeding_faces:
-            if self._app.modeler[face]:
-                seeding_faces_ids.append(self._app.modeler[face].id)
-            else:
-                self.logger.error(f"Object {face} doesn't exist in current design")
-                return False
-        in_volume_tracing_ids = []
-        if not in_volume_tracing_objs:
-            in_volume_tracing_ids.append(0)
-        elif not isinstance(in_volume_tracing_objs, list):
-            in_volume_tracing_objs = [in_volume_tracing_objs]
-            for obj in in_volume_tracing_objs:
-                if self._app.modeler[obj]:
-                    in_volume_tracing_ids.append(self._app.modeler[obj].id)
+
+        seeding_faces_ids = [0] if seeding_faces is None else []
+        if seeding_faces:
+            faces = seeding_faces if isinstance(seeding_faces, list) else [seeding_faces]
+            for face in faces:
+                if self._app.modeler[face]:
+                    seeding_faces_ids.append(self._app.modeler[face].id)
                 else:
-                    self.logger.error(f"Object {obj} doesn't exist in current design")
-                    return False
-        elif isinstance(in_volume_tracing_objs, list):
-            for obj in in_volume_tracing_objs:
-                if not self._app.modeler[obj]:
-                    self.logger.error(f"Object {obj} doesn't exist in current design")
-                    return False
-        surface_tracing_ids = []
-        if not surface_tracing_objs:
-            surface_tracing_ids.append(0)
-        elif not isinstance(surface_tracing_objs, list):
-            surface_tracing_objs = [surface_tracing_objs]
-            for obj in surface_tracing_objs:
-                if self._app.modeler[obj]:
-                    surface_tracing_ids.append(self._app.modeler[obj].id)
+                    raise AEDTRuntimeError(f"Object {face} doesn't exist in current design")
+
+        in_volume_tracing_ids = [0] if in_volume_tracing_objs is None else []
+        if in_volume_tracing_objs:
+            volumes = in_volume_tracing_objs if isinstance(in_volume_tracing_objs, list) else [in_volume_tracing_objs]
+            for volume in volumes:
+                if self._app.modeler[volume]:
+                    in_volume_tracing_ids.append(self._app.modeler[volume].id)
                 else:
-                    self.logger.error(f"Object {obj} doesn't exist in current design")
-                    return False
-        elif isinstance(surface_tracing_objs, list):
-            for obj in surface_tracing_objs:
-                if not self._app.modeler[obj]:
-                    self.logger.error(f"Object {obj} doesn't exist in current design")
-                    return False
-        seeding_faces_ids.insert(0, len(seeding_faces_ids))
+                    raise AEDTRuntimeError(f"Object {volume} doesn't exist in current design")
+
+        surface_tracing_ids = [0] if surface_tracing_objs is None else []
+        if surface_tracing_objs:
+            surfaces = surface_tracing_objs if isinstance(surface_tracing_objs, list) else [surface_tracing_objs]
+            for surface in surfaces:
+                if self._app.modeler[surface]:
+                    surface_tracing_ids.append(self._app.modeler[surface].id)
+                else:
+                    raise AEDTRuntimeError(f"Object {surface} doesn't exist in current design")
+
+        if seeding_faces_ids != [0]:
+            seeding_faces_ids.insert(0, len(seeding_faces_ids))
         if in_volume_tracing_ids != [0]:
             in_volume_tracing_ids.insert(0, len(in_volume_tracing_ids))
         if surface_tracing_ids != [0]:
             surface_tracing_ids.insert(0, len(surface_tracing_ids))
+
         return self._create_fieldplot_line_traces(
             seeding_faces_ids,
             in_volume_tracing_ids,
@@ -348,3 +339,125 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         return self.post_3dlayout.create_fieldplot_layers_nets(
             layers_nets, quantity, setup, intrinsics, plot_on_surface, plot_name
         )
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def evaluate_inception_voltage(self, plot_name, field_line_number=None):  # pragma: no cover
+        """Perform Inception voltage evaluation on selected field line traces.
+
+        .. note::
+            This method requires field line traces to be computed beforehand.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
+        field_line_number: list of int, optional
+            List of line objects on which the evaluation will be performed.
+            If the field line traces plot does not exist, this can be created with
+            ``app.post.create_fieldplot_line_traces``.
+            The default value is ``None``, in which case the inception voltage evaluation will be
+            carried out for all existing field line traces.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.EvaluateInceptionVoltage
+
+        Examples
+        --------
+        Create an instance of Maxwell and attach it to an existing session where project name is
+        ``project_name``.
+        If this project does not exist, create one with this name.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(project_name)
+
+        Create a field line traces plot in the Region from seeding faces (insulator faces).
+        >>> plot = m2d.post.create_fieldplot_line_traces(
+        ...     seeding_faces = (["Region"],)
+        ...     in_volume_tracing_objs = (["Region"],)
+        ...     plot_name="LineTracesTest"
+        ... )
+
+        Now the inception voltage evaluation can be performed on all (or a subset) of the
+        created field line traces.
+        >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
+        >>> m2d.desktop_class.release_desktop()
+        """
+        if self._app.solution_type != "Electrostatic":
+            raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
+        if plot_name not in (self.field_plot_names):
+            raise AEDTRuntimeError("The Field Line Tracing Plot needs to be generated.")
+        if not field_line_number:
+            self.ofieldsreporter.EvaluateInceptionVoltage(plot_name)
+        else:
+            self.ofieldsreporter.EvaluateInceptionVoltage(plot_name, field_line_number)
+        return True
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def export_inception_voltage(self, plot_name, output_file, field_line_number=None):  # pragma: no cover
+        """Export inception voltage evaluation results to a TXT file.
+
+        .. note::
+            This method requires field line traces and inception voltage evaluation to be performed beforehand.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
+        output_file: str
+            Path of the TXT file where inception voltage results are exported to.
+        field_line_number: list of int, optional
+            List of line objects on which the evaluation will be performed.
+            If the field line traces plot does not exist, this can be created with
+            ``app.post.create_fieldplot_line_traces``.
+            The default value is ``None``, in which case the inception voltage evaluation will be
+            performed for all existing field line traces.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.ExportInceptionVoltage
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(project_name)
+
+        Create a field line traces plot in the Region from seeding faces (insulator faces).
+        >>> plot = m2d.post.create_fieldplot_line_traces(
+        ...     seeding_faces = (["Region"],)
+        ...     in_volume_tracing_objs = (["Region"],)
+        ...     plot_name="LineTracesTest"
+        ... )
+
+        The inception voltage evaluation can be performed on all (or a subset) of the
+        created field line traces.
+        >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
+        The inception voltage evaluation results can be written to a TXT file.
+        >>> m2d.post.export_inception_voltage(
+        ...     plot_name=plot.name,
+        ...     output_file=str(Path(m2d.working_directory, "my_file.txt")),
+        ...     field_line_number=[1, 2, 4],
+        ... )
+        >>> m2d.desktop_class.release_desktop()
+        """
+        if self._app.solution_type != "Electrostatic":
+            raise AEDTRuntimeError("Field line traces is valid only for Electrostatic solution.")
+        if plot_name not in (self.field_plot_names):
+            raise AEDTRuntimeError("The field line tracing plot must be generated.")
+        if not field_line_number:
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name, output_file)
+        else:
+            self.ofieldsreporter.ExportInceptionVoltage(plot_name, output_file, field_line_number)
+        return True

@@ -305,10 +305,7 @@ def main(data: ImportNastranExtensionData):
 
         outfile = simplify_and_preview_stl(str(file_path), decimation=data.decimate)
         aedtapp.modeler.import_3d_cad(
-            outfile,
-            healing=False,
-            create_lightweigth_part=data.lightweight,
-            merge_planar_faces=data.planar,
+            outfile, healing=False, create_lightweight_part=data.lightweight, merge_planar_faces=data.planar
         )
 
     app.logger.info("Geometry imported correctly.")

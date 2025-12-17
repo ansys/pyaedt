@@ -430,7 +430,7 @@ class TestClass:
 
     def test_print_object(self):
         o = self.create_copper_box()
-        assert o.name in o.__str__()
+        assert o.name in o.__repr__()
         test_face = o.faces[0]
         assert isinstance(int(test_face.__str__()), int)
         assert isinstance(int(test_face.__repr__()), int)

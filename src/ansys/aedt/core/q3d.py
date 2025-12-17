@@ -730,7 +730,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     return False
             try:
                 self.odesign.ExportMatrixData(
-                    file_name,
+                    str(file_name),
                     problem_type,
                     variations,
                     analysis_setup,
@@ -755,7 +755,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         else:
             try:
                 self.odesign.ExportMatrixData(
-                    file_name,
+                    str(file_name),
                     problem_type,
                     variations,
                     analysis_setup,
@@ -1178,7 +1178,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
-                    output_file,
+                    str(output_file),
                     export_circuit_context,
                     model,
                     frequency,

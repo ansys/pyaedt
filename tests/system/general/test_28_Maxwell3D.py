@@ -1010,6 +1010,10 @@ class TestClass:
                 comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
             )
 
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2025.1",
+        reason="Not working in non-graphical in version lower than 2025.1",
+    )
     def test_order_coil_terminals(self, m3d_app):
         m3d_app.solution_type = "TransientAPhiFormulation"
         c1 = m3d_app.modeler.create_cylinder(

@@ -89,7 +89,6 @@ ALLOWED_LSF_SETTINGS = [
 ALLOWED_GENERAL_SETTINGS = [
     "lazy_load",
     "objects_lazy_load",
-    "aedt_install_dir",
     "aedt_version",
     "desktop_launch_timeout",
     "disable_bounding_box_sat",
@@ -115,7 +114,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "pyd_libraries_path",
     "pyd_libraries_user_path",
 ]
-
+ALLOWED_GRPC_SETTINGS = ["grpc_secure_mode", "grpc_local", "grpc_listen_all"]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
@@ -130,6 +129,10 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE",
     "ANS_NODEPCHECK",
 ]
+
+DEFAULT_GRPC_LOCAL = True
+DEFAULT_GRPC_SECURE_MODE = True
+DEFAULT_GRPC_LISTEN_ALL = False
 
 
 def generate_log_filename():
@@ -206,7 +209,6 @@ class Settings(PyAedtBase):
         self.__enable_error_handler: bool = True
         self.__release_on_exception: bool = True
         self.__aedt_version: Optional[str] = None
-        self.__aedt_install_dir: Optional[str] = None
         self.__use_multi_desktop: bool = False
         self.__use_grpc_api: Optional[bool] = None
         self.__disable_bounding_box_sat = False
@@ -233,6 +235,9 @@ class Settings(PyAedtBase):
         self.__use_local_example_data = False
         self.__pyd_libraries_path: Path = Path(pyaedt_path) / "syslib"
         self.__pyd_libraries_user_path: Optional[str] = None
+        self.__grpc_secure_mode = DEFAULT_GRPC_SECURE_MODE
+        self.__grpc_local = DEFAULT_GRPC_LOCAL
+        self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -242,6 +247,41 @@ class Settings(PyAedtBase):
             else:
                 pyaedt_settings_path = Path(os.environ["APPDATA"]) / "pyaedt_settings.yaml"
         self.load_yaml_configuration(pyaedt_settings_path)
+
+    # ########################## gRPC properties ##########################
+
+    @property
+    def grpc_secure_mode(self):
+        """Flag for whether to use secure mode for gRPC API.
+        The default is ``True``.
+        """
+        return self.__grpc_secure_mode
+
+    @grpc_secure_mode.setter
+    def grpc_secure_mode(self, val):
+        self.__grpc_secure_mode = val
+
+    @property
+    def grpc_local(self):
+        """Flag for whether to use local connection for gRPC API.
+        The default is ``True``.
+        """
+        return self.__grpc_local
+
+    @grpc_local.setter
+    def grpc_local(self, val):
+        self.__grpc_local = val
+
+    @property
+    def grpc_listen_all(self):
+        """Flag for whether to listen on all interfaces for gRPC API.
+        The default is ``False``.
+        """
+        return self.__grpc_listen_all
+
+    @grpc_listen_all.setter
+    def grpc_listen_all(self, val):
+        self.__grpc_listen_all = val
 
     # ########################## Logging properties ##########################
 
@@ -719,15 +759,6 @@ class Settings(PyAedtBase):
                 self.disable_bounding_box_sat = True
 
     @property
-    def aedt_install_dir(self):
-        """AEDT installation path."""
-        return self.__aedt_install_dir
-
-    @aedt_install_dir.setter
-    def aedt_install_dir(self, value):
-        self.__aedt_install_dir = value
-
-    @property
     def use_multi_desktop(self):
         """Flag indicating if multiple desktop sessions are enabled in the same Python script.
 
@@ -905,10 +936,10 @@ class Settings(PyAedtBase):
                 ("log", ALLOWED_LOG_SETTINGS),
                 ("lsf", ALLOWED_LSF_SETTINGS),
                 ("general", ALLOWED_GENERAL_SETTINGS),
+                ("grpc", ALLOWED_GRPC_SETTINGS),
             ]
             for setting_type, allowed_settings_key in pairs:
                 settings = local_settings.get(setting_type, {})
-                print(setting_type, allowed_settings_key)
                 if raise_on_wrong_key:
                     for key, value in filter_settings_with_raise(settings, allowed_settings_key):
                         setattr(self, key, value)
@@ -940,6 +971,9 @@ class Settings(PyAedtBase):
         data["general"] = {
             key: str(value) if isinstance(value := getattr(self, key), Path) else value
             for key in ALLOWED_GENERAL_SETTINGS
+        }
+        data["grpc"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_GRPC_SETTINGS
         }
 
         with open(configuration_file, "w") as file:

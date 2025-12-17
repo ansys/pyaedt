@@ -22,23 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from pathlib import Path
-import tempfile
 from unittest.mock import patch
-
-import pytest
 
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
-from ansys.aedt.core.internal.filesystem import Scratch
-
-
-@pytest.fixture(scope="module", autouse=True)
-def local_scratch():
-    temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-    scratch = Scratch(temp_dir)
-    yield scratch
-    scratch.remove()
 
 
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")

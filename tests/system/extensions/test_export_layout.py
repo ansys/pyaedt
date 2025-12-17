@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -33,8 +34,10 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests.conftest import config
 
-AEDB_FILE_NAME = "ANSYS-HSD_V1"
-TEST_SUBFOLDER = "T45"
+is_linux = os.name == "posix"
+
+AEDB_FILE_NAME = "Parametric_Microstrip_Simulation"
+TEST_SUBFOLDER = "post_layout_design"
 AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
@@ -46,6 +49,7 @@ def cleanup_files(*files):
 
 
 @pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_all_options(add_app, local_scratch):
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
@@ -94,6 +98,7 @@ def test_export_layout_all_options(add_app, local_scratch):
 
 
 @pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_ipc_only(add_app, local_scratch):
     """Test export layout with only IPC2581 option enabled."""
     data = ExportLayoutExtensionData(

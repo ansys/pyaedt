@@ -23,7 +23,6 @@
 # SOFTWARE.
 import json
 from pathlib import Path
-import tempfile
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
@@ -31,15 +30,6 @@ import pytest
 
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.master_ui import ConfigureLayoutExtension
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.template import SERDES_CONFIG
-from ansys.aedt.core.internal.filesystem import Scratch
-
-
-@pytest.fixture(scope="module", autouse=True)
-def local_scratch():
-    temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-    scratch = Scratch(temp_dir)
-    yield scratch
-    scratch.remove()
 
 
 @pytest.fixture(autouse=True)

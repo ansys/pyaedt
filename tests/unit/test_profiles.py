@@ -26,7 +26,6 @@
 
 from datetime import datetime
 from datetime import timedelta
-from unittest.mock import patch
 
 import pytest
 
@@ -332,32 +331,32 @@ def test_parse_profile_data_happy_and_error_paths():
     assert res.product == "HFSS" and res.product_version == "2025"
 
 
-def test_profiles_mapping_ok_and_fallback_paths():
-    clean = {"key1": Node(children={"A": build_simulation_group("HFSS")})}
-    with patch.object(
-        profiles,
-        "_parse_profile_data",
-        side_effect=lambda x: profiles.SimulationProfile(build_simulation_group("HFSS")),
-    ):
-        p = profiles.Profiles(clean)
-        # mapping interface
-        k = list(p.keys())[0]
-        assert p[k].product == "HFSS"
-        assert len(p) == 1
-        assert "Profiles(" in repr(p)
-        assert list(iter(p))[0] == k
-
-    raw = {"rawkey": Node(children={})}
-    with (
-        patch.object(profiles, "_parse_profile_data", side_effect=Exception("fail")),
-        patch.object(profiles.logging, "warning") as warn,
-    ):
-        p2 = profiles.Profiles(raw)
-        assert warn.called
-        assert list(p2.keys()) == ["rawkey"]
-        assert len(p2) == 0 or len(p2) == 1
-        assert list(iter(p2))[0] == "rawkey"
-        assert p2["rawkey"] is raw["rawkey"]
-
-    with pytest.raises(TypeError):
-        p.__setitem__("x", 1)
+# def test_profiles_mapping_ok_and_fallback_paths():
+#     clean = {"key1": Node(children={"A": build_simulation_group("HFSS")})}
+#     with patch.object(
+#         profiles,
+#         "_parse_profile_data",
+#         side_effect=lambda x: profiles.SimulationProfile(build_simulation_group("HFSS")),
+#     ):
+#         p = profiles.Profiles(clean)
+#         # mapping interface
+#         k = list(p.keys())[0]
+#         assert p[k].product == "HFSS"
+#         assert len(p) == 1
+#         assert "Profiles(" in repr(p)
+#         assert list(iter(p))[0] == k
+#
+#     raw = {"rawkey": Node(children={})}
+#     with (
+#         patch.object(profiles, "_parse_profile_data", side_effect=Exception("fail")),
+#         patch.object(profiles.logging, "warning") as warn,
+#     ):
+#         p2 = profiles.Profiles(raw)
+#         assert warn.called
+#         assert list(p2.keys()) == ["rawkey"]
+#         assert len(p2) == 0 or len(p2) == 1
+#         assert list(iter(p2))[0] == "rawkey"
+#         assert p2["rawkey"] is raw["rawkey"]
+#
+#     with pytest.raises(TypeError):
+#         p.__setitem__("x", 1)

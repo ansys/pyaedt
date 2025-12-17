@@ -286,10 +286,6 @@ class SolutionData(PyAedtBase):
         self._solutions_phase = self._init_solution_data_phase()
 
     @pyaedt_function_handler()
-    def __get_index(self, input_data):
-        return tuple([float(i) for i in input_data])
-
-    @pyaedt_function_handler()
     def _full_keys(self, comb, solution, variation):
         values = [np.array(val, dtype=float) for val in self.intrinsics_by_variation(variation).values()]
         grids = np.meshgrid(*values, indexing="ij")

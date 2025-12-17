@@ -677,6 +677,12 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     def __init__(self, modeler, props=None, name=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units

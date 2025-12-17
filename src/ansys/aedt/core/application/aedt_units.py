@@ -75,7 +75,7 @@ class AedtUnits(PyAedtBase):
     def _get_model_unit(self, unit_system):
         if self.__app:
             try:
-                return self.__app._odesktop.GetDefaultUnit(unit_system)
+                return self.__app.odesktop.GetDefaultUnit(unit_system)
             except Exception:
                 return
 

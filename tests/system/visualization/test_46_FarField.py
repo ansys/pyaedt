@@ -93,6 +93,7 @@ class TestClass:
         assert ffdata.touchstone_data is not None
         assert ffdata.incident_power == 0.04
 
+    @pytest.mark.avoid_ansys_load
     def test_04_far_field_data(self, local_scratch):
         from pyvista.plotting.plotter import Plotter
 
@@ -171,6 +172,7 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             title=f"Azimuth at {ffdata.frequency}Hz",
             quantity_format="dB10",
+            show=False,
         )
         matplot_lib.add_note(
             "Hello Pyaedt2",
@@ -184,7 +186,7 @@ class TestClass:
 
         matplot_lib.traces_by_index[0].trace_style = "--"
         matplot_lib.x_scale = "log"
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
         matplot_lib.add_note(
             "Hello Pyaedt",
             [0, -10],
@@ -196,10 +198,10 @@ class TestClass:
         matplot_lib.x_scale = "linear"
         matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
         matplot_lib.grid_enable_minor_x = True
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
         matplot_lib.traces["Phi=-180"].symbol_style = "v"
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
         matplot_lib.apply_style("dark_background")
         matplot_lib.add_limit_line(
@@ -209,7 +211,7 @@ class TestClass:
             },
             name="LimitLine1",
         )
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
         matplot_lib.traces_by_index[0].trace_color = (1, 0, 0)
         matplot_lib.grid_enable_minor_x = True
@@ -217,8 +219,9 @@ class TestClass:
         matplot_lib.grid_enable_minor_x = False
         matplot_lib.grid_enable_minor_y = False
 
-        _ = matplot_lib.plot_2d()
+        _ = matplot_lib.plot_2d(show=False)
 
+    @pytest.mark.avoid_ansys_load
     def test_05_antenna_plot(self, array_test):
         ffdata = array_test.get_antenna_data(sphere="3D")
         assert ffdata.setup_name == "Setup1 : LastAdaptive"

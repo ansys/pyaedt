@@ -131,3 +131,9 @@ refdes
 gnd
 uv
 venv
+[Cc][Ll][Ii]
+[Pp]ytest
+[Tt]yper
+subprocess
+PID
+[Pp]rocesses

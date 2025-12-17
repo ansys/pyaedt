@@ -700,6 +700,10 @@ class TestClass:
         assert setup.set_save_fields(enable=True)
         assert setup.set_save_fields(enable=False)
 
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2025.1",
+        reason="Not working in non-graphical in version lower than 2025.1",
+    )
     def test_eddy_current_sweep(self, m2d_setup):
         m2d_setup.set_active_design("setup_ec")
         setup = m2d_setup.setups[0]

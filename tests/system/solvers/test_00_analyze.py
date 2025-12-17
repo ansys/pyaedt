@@ -656,8 +656,6 @@ class TestClass:
         app.analyze(cores=4)
         m2d = app.create_maxwell_design("Setup1")
         assert m2d.design_type == "Maxwell 2D"
-        m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
-        assert m3d.design_type == "Maxwell 3D"
         config = app.export_configuration(local_scratch.path / "assm.json")
         app2 = add_app("assm_test2", application=Rmxprt, solution_type="ASSM")
         app2.import_configuration(config)

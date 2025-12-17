@@ -137,11 +137,6 @@ def run_pyinstaller_from_c_python(oDesktop):
         return
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
-        try:
-            os.unlink(stdout_file.name)
-            os.unlink(stderr_file.name)
-        except Exception as e:
-            oDesktop.AddMessage("", "", 1, "Error cleaning temp files: {}".format(str(e)))
 
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
@@ -172,24 +167,48 @@ def run_pyinstaller_from_c_python(oDesktop):
         if version <= "231":
             f.write("from pyaedt.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}", odesktop={})\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory(), oDesktop
+                'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
                 )
             )
         else:
             f.write("from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}", odesktop={})\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory(), oDesktop
+                'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
                 )
             )
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
-    ret_code = subprocess.call([python_exe, python_script])  # nosec
-    if ret_code != 0:
-        oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels.")
+    # Reopen the log files to append configuration output
+    stdout_file = open(stdout_file.name, 'a')
+    stderr_file = open(stderr_file.name, 'a')
+    try:
+        proc = subprocess.Popen(
+            [python_exe, python_script],
+            stdout=stdout_file,
+            stderr=stderr_file
+        )
+        proc.wait()
+    except Exception as e:
+        oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels: {}".format(str(e)))
         return
+    finally:
+        stdout_file.close()
+        stderr_file.close()
+    
+    if proc.returncode != 0:
+        message = "Configuration process failed, please check the log files content."
+        oDesktop.AddMessage("", "", 2, message)
+        return
+    else:
+        oDesktop.AddMessage("", "", 0, "PyAEDT panels configured successfully.")
+        try:
+            os.unlink(stdout_file.name)
+            os.unlink(stderr_file.name)
+        except Exception as e:
+            oDesktop.AddMessage("", "", 1, "Error cleaning temp files: {}".format(str(e)))
     # Refresh UI
     oDesktop.CloseAllWindows()
     if version >= "232":

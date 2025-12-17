@@ -25,6 +25,7 @@
 
 import copy
 import os
+from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -39,6 +40,9 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 
 class LimitLine(BinaryTreeNode, PyAedtBase):
@@ -248,6 +252,12 @@ class Note(BinaryTreeNode, PyAedtBase):
 class Trace(BinaryTreeNode, PyAedtBase):
     """Provides trace management."""
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     def __init__(
         self,
         post,
@@ -434,6 +444,12 @@ class Trace(BinaryTreeNode, PyAedtBase):
 
 class CommonReport(BinaryTreeNode, PyAedtBase):
     """Provides common reports."""
+
+    def __repr__(self):
+        return self.plot_name
+
+    def __str__(self):
+        return self.plot_name
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         self._variations = None
@@ -687,13 +703,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             try:
                 oo1 = oo.GetChildObject(el)
                 oo1_name = oo1.GetChildNames()
-                if not oo1_name:
+                trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
+                if trace_names:
+                    for aedt_name in trace_names:
+                        _traces.append(Trace(self._post, aedt_name, el, oo1))
+                elif not oo1_name:
                     aedt_name = f"{self.plot_name}:{el}"
                     _traces.append(Trace(self._post, aedt_name, el, oo1))
-                else:
-                    for i in oo1_name:
-                        aedt_name = f"{self.plot_name}:{el}:{i}"
-                        _traces.append(Trace(self._post, aedt_name, el, oo1))
             except Exception:
                 self._app.logger.debug(f"Something went wrong while processing element {el}.")
         return _traces
@@ -710,9 +726,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                     trace_color = self.__props_with_default(trace_val, "color")
 
                     if trace_style or trace_width or trace_type or trace_color:
-                        trace.set_trace_properties(
-                            style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
-                        )
+                        try:
+                            trace.set_trace_properties(
+                                style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
+                            )
+                        except Exception:
+                            self._app.logger.warning(
+                                f"Something went wrong while updating trace properties {trace_name}."
+                            )
         for trace in self.traces[::]:
             trace_name = trace.name
             for trace_val in self._legacy_props["expressions"]:
@@ -725,13 +746,19 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                     symbol_fill = self.__props_with_default(trace_val, "symbol_fill", False)
                     symbol_color = self.__props_with_default(trace_val, "symbol_color", None)
                     if symbol_style or symbol_color or symbol_fill or symbol_arrows:
-                        trace.set_symbol_properties(
-                            show=symbol_show,
-                            style=symbol_style,
-                            show_arrows=symbol_arrows,
-                            fill=symbol_fill,
-                            color=symbol_color,
-                        )
+                        try:
+                            trace.set_symbol_properties(
+                                show=symbol_show,
+                                style=symbol_style,
+                                show_arrows=symbol_arrows,
+                                fill=symbol_fill,
+                                color=symbol_color,
+                            )
+                        except Exception:
+                            self._app.logger.warning(
+                                f"Something went wrong while updating symbol properties {trace_name}."
+                            )
+
         for trace in self.traces[::]:
             trace_name = trace.name
             for trace_val in self._legacy_props["expressions"]:
@@ -1151,7 +1178,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             Primary sweep.
         """
         if self._is_created:
-            return list(self.properties.values())[4].split(" ,")[0]
+            try:
+                return list(self.properties.values())[4].split(" ,")[0]
+            except Exception:
+                self._legacy_props["context"]["primary_sweep"]
         return self._legacy_props["context"]["primary_sweep"]
 
     @primary_sweep.setter
@@ -1703,12 +1733,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return write_configuration_file(output_dict, output_file)
 
     @pyaedt_function_handler()
-    def get_solution_data(self):
+    def get_solution_data(self) -> "SolutionData":
         """Get the report solution data.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution data object.
         """
         if self._is_created:

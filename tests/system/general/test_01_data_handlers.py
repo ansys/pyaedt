@@ -34,38 +34,39 @@ def desktop():
     return
 
 
-class TestClass:
-    def test_str_to_bool(self):
-        test_list_1 = ["one", "two", "five"]
-        bool_values = list(map(dh.str_to_bool, test_list_1))
-        assert all(isinstance(b, str) for b in bool_values)  # All strings
-        test_list_1.append("True")
-        assert True in list(map(dh.str_to_bool, test_list_1))
-        test_list_2 = ["Stop", "go", "run", "crawl", "False"]
-        assert False in list(map(dh.str_to_bool, test_list_2))
+def test_str_to_bool():
+    test_list_1 = ["one", "two", "five"]
+    bool_values = list(map(dh.str_to_bool, test_list_1))
+    assert all(isinstance(b, str) for b in bool_values)  # All strings
+    test_list_1.append("True")
+    assert True in list(map(dh.str_to_bool, test_list_1))
+    test_list_2 = ["Stop", "go", "run", "crawl", "False"]
+    assert False in list(map(dh.str_to_bool, test_list_2))
 
-    def test_normalize_string_format(self):
-        dirty = "-Hello Wòrld - Test---Strïng  -  With -  Múltiple    Spaces ç & Unsupport€d Ch@rachter$ £ike * "  # codespell:ignore  # noqa: E501
-        clean = "Hello_World_Test_String_With_Multiple_Spaces_c_and_UnsupportEd_ChatrachterS_Like"  # codespell:ignore  # noqa: E501
-        assert dh.normalize_string_format(dirty) == clean
 
-    def test_numbers(self):
-        a = Quantity("1GHz")
-        assert a == 1
-        assert str(a) == "1GHz"
-        a.rescale = True
-        assert a.to("MHz") == 1e3
-        a.unit = "Hz"
-        assert a.unit == "Hz"
-        assert a.value == 1
-        a.rescale = False
-        a.unit = "MHz"
-        assert a.value == 1
-        a.unit = "GHz"
-        assert float(a + 1) == 2
-        assert float(a + "2GHz") == 3
-        b = Quantity("1GHz")
-        assert isinstance(b - a, Quantity)
-        assert b * 2
-        assert b / 2
-        assert b + "1GHz"
+def test_normalize_string_format():
+    dirty = "-Hello Wòrld - Test---Strïng  -  With -  Múltiple    Spaces ç & Unsupport€d Ch@rachter$ £ike * "  # codespell:ignore  # noqa: E501
+    clean = "Hello_World_Test_String_With_Multiple_Spaces_c_and_UnsupportEd_ChatrachterS_Like"  # codespell:ignore  # noqa: E501
+    assert dh.normalize_string_format(dirty) == clean
+
+
+def test_numbers():
+    a = Quantity("1GHz")
+    assert a == 1
+    assert str(a) == "1GHz"
+    a.rescale = True
+    assert a.to("MHz") == 1e3
+    a.unit = "Hz"
+    assert a.unit == "Hz"
+    assert a.value == 1
+    a.rescale = False
+    a.unit = "MHz"
+    assert a.value == 1
+    a.unit = "GHz"
+    assert float(a + 1) == 2
+    assert float(a + "2GHz") == 3
+    b = Quantity("1GHz")
+    assert isinstance(b - a, Quantity)
+    assert b * 2
+    assert b / 2
+    assert b + "1GHz"

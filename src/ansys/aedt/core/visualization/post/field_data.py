@@ -183,6 +183,10 @@ class ColorMapSettings(BaseFolderPlot):
         color_repr = self.color
         return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
 
+    def __str__(self):
+        color_repr = self.color
+        return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
+
     def to_dict(self):
         """Convert the color map settings to a dictionary.
 
@@ -245,6 +249,14 @@ class AutoScale(BaseFolderPlot):
             f"use_current_scale_for_animation={self.use_current_scale_for_animation})"
         )
 
+    def __str__(self):
+        return (
+            f"AutoScale(n_levels={self.n_levels}, "
+            f"limit_precision_digits={self.limit_precision_digits}, "
+            f"precision_digits={self.precision_digits}, "
+            f"use_current_scale_for_animation={self.use_current_scale_for_animation})"
+        )
+
     def to_dict(self):
         """Convert the auto-scale settings to a dictionary.
 
@@ -297,6 +309,9 @@ class MinMaxScale(BaseFolderPlot):
     def __repr__(self):
         return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
 
+    def __str__(self):
+        return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
+
     def to_dict(self):
         """Convert the min-max scale settings to a dictionary.
 
@@ -339,6 +354,9 @@ class SpecifiedScale(PyAedtBase):
         self.scale_values = scale_values
 
     def __repr__(self):
+        return f"SpecifiedScale(scale_values={self.scale_values})"
+
+    def __str__(self):
         return f"SpecifiedScale(scale_values={self.scale_values})"
 
     def to_dict(self):
@@ -407,6 +425,9 @@ class NumberFormat(BaseFolderPlot):
             raise ValueError(f"{v} is not valid. Accepted values are {', '.join(self._accepted)}.")
 
     def __repr__(self):
+        return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
+
+    def __str__(self):
         return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
 
     def to_dict(self):
@@ -563,6 +584,12 @@ class Scale3DSettings(BaseFolderPlot):
             f"log={self.log}, db={self.db})"
         )
 
+    def __str__(self):
+        return (
+            f"Scale3DSettings(scale_type='{self.scale_type}', scale_settings={self.scale_settings}, "
+            f"log={self.log}, db={self.db})"
+        )
+
     def to_dict(self):
         """Convert the scale settings to a dictionary.
 
@@ -652,6 +679,12 @@ class MarkerSettings(BaseFolderPlot):
             raise KeyError(f"{v} is not a valid marker type.")
 
     def __repr__(self):
+        return (
+            f"MarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
+            f"map_color={self.map_color}, marker_size={self.marker_size})"
+        )
+
+    def __str__(self):
         return (
             f"MarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
             f"map_color={self.map_color}, marker_size={self.marker_size})"
@@ -765,6 +798,15 @@ class ArrowSettings(BaseFolderPlot):
             raise ValueError(f"{v} is not valid. Accepted values are {','.join(self._allowed_arrow_types)}.")
 
     def __repr__(self):
+        return (
+            f"Arrow3DSettings(arrow_type='{self.arrow_type}', arrow_size={self.arrow_size}, "
+            f"map_size={self.map_size}, map_color={self.map_color}, "
+            f"show_arrow_tail={self.show_arrow_tail}, magnitude_filtering={self.magnitude_filtering}, "
+            f"magnitude_threshold={self.magnitude_threshold}, min_magnitude={self.min_magnitude}, "
+            f"max_magnitude={self.max_magnitude})"
+        )
+
+    def __str__(self):
         return (
             f"Arrow3DSettings(arrow_type='{self.arrow_type}', arrow_size={self.arrow_size}, "
             f"map_size={self.map_size}, map_color={self.map_color}, "

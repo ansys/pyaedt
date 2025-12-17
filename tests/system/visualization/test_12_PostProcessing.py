@@ -38,6 +38,7 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 from tests import TESTS_VISUALIZATION_PATH
@@ -323,6 +324,7 @@ class TestClass:
         solution_data2 = sbr_test.post.get_solution_data(expressions=["NearEX", "NearEY", "NearEZ"])
         assert solution_data2
 
+    @pytest.mark.avoid_ansys_load
     def test_sbr_plot_scene(self, sbr_test):
         solution_data = sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
@@ -595,12 +597,14 @@ class TestClass:
             ["Ground", "Electrode"], "Region", "Ground", plot_name="LineTracesTest5"
         )
         assert m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], plot_name="LineTracesTest6")
-        assert not m2dtest.post.create_fieldplot_line_traces(
-            ["Ground", "Electrode"], "Region", ["Invalid"], plot_name="LineTracesTest7"
-        )
-        assert not m2dtest.post.create_fieldplot_line_traces(
-            ["Ground", "Electrode"], ["Invalid"], plot_name="LineTracesTest8"
-        )
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.create_fieldplot_line_traces(
+                ["Ground", "Electrode"], "Region", ["Invalid"], plot_name="LineTracesTest7"
+            )
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.create_fieldplot_line_traces("Invalid", "Region", plot_name="LineTracesTest8")
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], ["Invalid"], plot_name="LineTracesTest9")
         plot.TraceStepLength = "0.002mm"
         plot.SeedingPointsNumber = 20
         plot.LineStyle = "Cylinder"
@@ -795,3 +799,31 @@ class TestClass:
         new_report.time_start = "0ns"
         new_report.time_stop = "40ms"
         assert new_report.create()
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Method not available before 2026.1")
+    def test_m2d_evaluate_inception_voltage(self, m2dtest):
+        m2dtest.set_active_design("field_line_trace")
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.evaluate_inception_voltage("my_plot", [1, 2, 4])
+        plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region")
+        assert m2dtest.post.evaluate_inception_voltage(plot.name)
+        assert m2dtest.post.evaluate_inception_voltage(plot.name, [1, 2, 4])
+        m2dtest.solution_type = "Magnetostatic"
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.evaluate_inception_voltage("my_plot", [1, 2, 4])
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Method not available before 2026.1")
+    def test_m2d_export_inception_voltage(self, m2dtest):
+        m2dtest.set_active_design("field_line_trace")
+        file_path = str(Path(m2dtest.working_directory, "my_file.txt"))
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.export_inception_voltage("my_plot", file_path, [1, 2, 4])
+        plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="my_plot")
+        m2dtest.post.evaluate_inception_voltage("my_plot", [1, 2, 4])
+        assert m2dtest.post.export_inception_voltage(plot.name, file_path)
+        assert m2dtest.post.export_inception_voltage(
+            plot.name, str(Path(m2dtest.working_directory, "my_file.txt")), [1, 2, 4]
+        )
+        m2dtest.solution_type = "Magnetostatic"
+        with pytest.raises(AEDTRuntimeError):
+            m2dtest.post.export_inception_voltage("my_plot", file_path, [1, 2, 4])

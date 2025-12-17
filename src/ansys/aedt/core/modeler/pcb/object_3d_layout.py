@@ -2369,6 +2369,12 @@ class Padstack(PyAedtBase):
 class CoordinateSystems3DLayout(PyAedtBase):
     """Coordinate systems in HFSS 3D Layout."""
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     def __init__(self, primitives):
         self._primitives = primitives
         self._oeditor = self._primitives.oeditor
