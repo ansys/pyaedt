@@ -136,9 +136,10 @@ def test_settings_load_yaml(tmp_path):
     log:
         global_log_file_name: 'dummy'
     lsf:
-        num_cores: 12
+        lsf_ram : 50
     general:
         desktop_launch_timeout: 12
+        num_cores: 12
     """
     )
 
@@ -147,6 +148,7 @@ def test_settings_load_yaml(tmp_path):
     assert default_settings.global_log_file_name == "dummy"
     assert default_settings.num_cores == 12
     assert default_settings.desktop_launch_timeout == 12
+    assert default_settings.lsf_ram == 50
 
 
 def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path):
@@ -233,7 +235,7 @@ def test_settings_check_allowed_properties():
     settings_properties = get_properties(default_settings)
     settings_properties = filter(lambda attr: attr not in properties_ignored, settings_properties)
 
-    assert sorted(allowed_properties_expected) == sorted(settings_properties)
+    assert sorted(set(allowed_properties_expected)) == sorted(settings_properties)
 
 
 def test_settings_check_allowed_env_variables():

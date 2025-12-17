@@ -77,7 +77,6 @@ ALLOWED_LOG_SETTINGS = [
 ALLOWED_LSF_SETTINGS = [
     "custom_lsf_command",
     "lsf_aedt_command",
-    "num_cores",
     "lsf_osrel",
     "lsf_queue",
     "lsf_ram",
