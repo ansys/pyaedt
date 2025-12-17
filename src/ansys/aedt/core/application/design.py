@@ -498,10 +498,10 @@ class Design(AedtObjects, PyAedtBase):
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
-        if hasattr(self, "excitations"):
+        if hasattr(self, "excitation_names"):
             check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitation_names[:]
-            if "nets" in dir(self):
-                check_boundaries += self.nets
+            if hasattr(self, "net_names"):
+                check_boundaries += self.net_names
             for k in list(self._boundaries.keys())[:]:
                 if k not in check_boundaries:
                     del self._boundaries[k]
