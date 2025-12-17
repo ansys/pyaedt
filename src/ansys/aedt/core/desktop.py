@@ -223,17 +223,17 @@ def launch_aedt(
     if is_windows:
         kwargs["creationflags"] = subprocess.DETACHED_PROCESS
 
-    settings.logger.info(f"Launching AEDT server with gRPC transport mode: {server_args.mode}")
-    settings.logger.debug(f"Launching AEDT server with command: {' '.join(command)}")
+    pyaedt_logger.info(f"Launching AEDT server with gRPC transport mode: {server_args.mode}")
+    pyaedt_logger.debug(f"Launching AEDT server with command: {' '.join(command)}")
     subprocess.Popen(command, **kwargs)  # nosec
 
     on_ci = os.getenv("ON_CI", "False")
     if not student_version and on_ci != "True" and not settings.skip_license_check:
         available_licenses = available_license_feature()
         if available_licenses > 0:
-            settings.logger.info("Electronics Desktop license available.")
+            pyaedt_logger.info("Electronics Desktop license available.")
         elif available_licenses == 0:  # pragma: no cover
-            settings.logger.warning("Electronics Desktop license not found on the default license server.")
+            pyaedt_logger.warning("Electronics Desktop license not found on the default license server.")
 
     timeout = settings.desktop_launch_timeout
     start = time.time()
@@ -245,11 +245,11 @@ def launch_aedt(
         time.sleep(1)
 
     if timeout == 0:
-        settings.logger.error(f"Failed to start on gRPC port: {port}.")
+        pyaedt_logger.error(f"Failed to start on gRPC port: {port}.")
         return False, 0
 
     end = round(time.time() - start, 1)
-    settings.logger.info(f"Electronics Desktop started on gRPC port {port} after {end} seconds.")
+    pyaedt_logger.info(f"Electronics Desktop started on gRPC port {port} after {end} seconds.")
     return True, port
 
 
@@ -1130,7 +1130,7 @@ class Desktop(PyAedtBase):
             time.sleep(1)
             self.close_windows()
         warning_msg = f"Active Design set to {active_design.GetName()}"
-        settings.logger.info(warning_msg)
+        pyaedt_logger.info(warning_msg)
         return active_design
 
     @pyaedt_function_handler()
@@ -2533,7 +2533,7 @@ class Desktop(PyAedtBase):
             # NOTE: When working locally, machine is updated to an empty string to work with UDS.
             # This is necessary when working with UDS and also works for WNUA.
             elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
-                settings.logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
+                pyaedt_logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
                 self.machine = ""
             # NOTE: Update command if PYAEDT_USE_PRE_GRPC_ARGS is set to allow working
             # with previous SP where grpc transport mode were not available
