@@ -59,12 +59,12 @@ def test_download_antenna_array():
 
 
 def test_download_antenna_sherlock():
-    assert downloads.download_sherlock(destination=Path(tempfile.gettempdir()) / "sherlock")
+    assert downloads.download_sherlock(local_path=Path(tempfile.gettempdir()) / "sherlock")
 
 
 @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
 def test_download_multiparts():
-    assert downloads.download_multiparts(destination=Path(tempfile.gettempdir()) / "multi")
+    assert downloads.download_multiparts(local_path=Path(tempfile.gettempdir()) / "multi")
 
 
 def test_download_leaf():

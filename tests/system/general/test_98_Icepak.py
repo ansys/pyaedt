@@ -801,7 +801,7 @@ class TestClass:
         dup = ipk.modeler.user_defined_components["board_assembly1"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
         ipk.modeler.refresh_all_ids()
         ipk.modeler.user_defined_components[dup[0]].delete()
-        dup = ipk.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], nclones=2)
+        dup = ipk.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], clones=2)
         ipk.modeler.refresh_all_ids()
         ipk.modeler.user_defined_components[dup[0]].delete()
         ipk.delete_design()

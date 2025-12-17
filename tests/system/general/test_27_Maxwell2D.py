@@ -196,7 +196,7 @@ class TestClass:
 
     def test_assign_current_source(self, m2d_app):
         coil = m2d_app.modeler.create_circle(
-            position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
+            origin=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
         )
         assert m2d_app.assign_current([coil])
         m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY

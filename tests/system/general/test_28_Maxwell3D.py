@@ -672,8 +672,8 @@ class TestClass:
     def test_assign_independent_dependent(self, m3d_app):
         box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
         independent, dependent = m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
+            independent=box.faces[1],
+            dependent=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
