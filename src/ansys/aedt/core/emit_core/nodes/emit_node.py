@@ -22,13 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ast
 from typing import List
 from typing import Union
 import warnings
 
+from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_FUNCS
+from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_OPS
+from ansys.aedt.core.emit_core.emit_constants import EMIT_FN_ALLOWED_VARS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
+from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
 
 
@@ -641,6 +646,28 @@ class EmitNode:
             data_return.append(tuple(row_list))
         return data_return
 
+    def _check_valid_function(self, expr: str) -> None:
+        """Validates a function expression for use in table data.
+
+        Parameters
+        ----------
+        expr : str
+            The function expression to validate.
+
+        Raises
+        ------
+        ValueError
+            If the function expression is invalid.
+        """
+        try:
+            tree = ast.parse(expr, mode="eval")
+            validator = FunctionValidator()
+            validator.visit(tree)
+        except ValueError as e:
+            raise ValueError(f"Invalid function expression: {e}")
+        except Exception as e:
+            raise ValueError(f"Error parsing function expression: {e}")
+
     def _check_node_prop_table_data(self, data):
         """Converts user inputted int or string table data to SI units.
 
@@ -680,9 +707,18 @@ class EmitNode:
 
                 if "(" in cols[i] and isinstance(val, str):
                     # Check for function inputs (TxSpurNode, RxSpurNode, TxBbEmissionNode (equation table only))
-                    if "rf" in val.lower():
-                        row_list[i] = val
-                        continue
+                    is_function = (
+                        any(op in val for op in EMIT_FN_ALLOWED_OPS)
+                        or any(fn in val for fn in EMIT_FN_ALLOWED_FUNCS)
+                        or any(var in val for var in EMIT_FN_ALLOWED_VARS)
+                    )
+                    if i == 0 and self._node_type in ["TxSpurNode", "RxSpurNode", "TxBbEmissionNode"] and is_function:
+                        try:
+                            self._check_valid_function(val)
+                            row_list[i] = val
+                            continue
+                        except Exception:
+                            raise ValueError(f"{val} is not a valid function expression.")
 
                     # Process input values and units
                     s = val.strip().replace(" ", "")

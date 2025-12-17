@@ -2025,7 +2025,7 @@ class TestClass:
         assert sampling.table_data is None
 
         children = radio.children
-        tx_spec = None
+
         for child in children:
             if child.node_type == "Band":
                 band_children = child.children
@@ -2060,6 +2060,13 @@ class TestClass:
         spur_data = [("RF+10.0", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
         tx_spurious_emissions.table_data = spur_data
         assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 80), (4, 5e6, 20), (70e6, 1e6, 60)]
+        spur_data = [("trunc(abs(RF)+10.0*2/3-1)", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [
+            ("trunc(abs(RF)+10.0*2/3-1)", 50e6, 80),
+            (4, 5e6, 20),
+            (70e6, 1e6, 60),
+        ]
 
         tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.RELATIVE
         spur_data = [("20 MHz", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
@@ -2263,7 +2270,7 @@ class TestClass:
 
         # Get Tx spectral profile nodes
         children = radio.children
-        tx_spec = None
+
         for child in children:
             if child.node_type == "Band":
                 band_children = child.children
@@ -2287,6 +2294,19 @@ class TestClass:
 
         with pytest.raises(ValueError, match="is not valid for this property"):
             tx_spurious_emissions.table_data = [("30 kHz", "50 MHz", "100 invalid_power")]
+
+        # Test function inputs
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("RF+10*", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("x+RF+10", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("RF**2", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("abs(RF", "50 MHz", "100 kW")]
 
         # Test column data table
         with pytest.raises(ValueError, match="could not convert string to float"):
