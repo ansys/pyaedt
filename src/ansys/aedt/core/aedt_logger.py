@@ -613,7 +613,7 @@ class AedtLogger:
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except Exception:  # pragma: no cover
-                self._global.info("Failed to add desktop message.")
+                self._log_on_handler(2, "Failed to add desktop message.")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         message_text = str(message_text)

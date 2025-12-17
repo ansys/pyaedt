@@ -238,7 +238,9 @@ class Settings(PyAedtBase):
         self.__grpc_secure_mode = DEFAULT_GRPC_SECURE_MODE
         self.__grpc_local = DEFAULT_GRPC_LOCAL
         self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
+        self.__update_settings()
 
+    def __update_settings(self):
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
         if not pyaedt_settings_path:
