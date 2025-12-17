@@ -1061,10 +1061,6 @@ def test_add_mesh_link(aedtapp):
     assert meshlink_props["Design"] == design_name
     assert meshlink_props["Soln"] == nominal_adaptive
 
-    # Deprecated
-    assert sorted(list(meshlink_props["Params"].keys())) == sorted(aedtapp.available_variations.variables)
-    assert sorted(list(meshlink_props["Params"].values())) == sorted(aedtapp.available_variations.variables)
-
     assert not aedtapp.setups[0].add_mesh_link(design="")
     assert aedtapp.setups[0].add_mesh_link(design=design_name, solution="MySetup : LastAdaptive")
     assert not aedtapp.setups[0].add_mesh_link(design=design_name, solution="Setup_Test : LastAdaptive")
@@ -1464,7 +1460,7 @@ def test_array(aedtapp):
     dict_in["cells"][(1, 1)] = {"name": "Patch"}
     dict_in["primarylattice"] = "Patch_LatticePair1"
     dict_in["secondarylattice"] = "Patch_LatticePair2"
-    array_1 = aedtapp.add_3d_component_array_from_json(dict_in)
+    array_1 = aedtapp.create_3d_component_array(dict_in)
     aedtapp.modeler.create_coordinate_system(
         origin=[2000, 5000, 5000],
         name="Relative_CS1",
@@ -1482,7 +1478,7 @@ def test_array(aedtapp):
         el["active"] = False
     dict_in["primarylattice"] = "Patch_2_LatticePair1"
     dict_in["secondarylattice"] = "Patch_2_LatticePair2"
-    cmp = aedtapp.add_3d_component_array_from_json(dict_in)
+    cmp = aedtapp.create_3d_component_array(dict_in)
     assert cmp
 
     dict_in["secondarylattice"] = None
@@ -1495,7 +1491,7 @@ def test_array(aedtapp):
     for el in dict_in["cells"].values():
         el["name"] = "invented"
     with pytest.raises(AEDTRuntimeError):
-        aedtapp.add_3d_component_array_from_json(dict_in)
+        aedtapp.create_3d_component_array(dict_in)
 
 
 def test_array_json(aedtapp):

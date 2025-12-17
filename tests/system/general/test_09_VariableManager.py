@@ -124,7 +124,7 @@ def test_set_var_simple(app):
     else:
         assert not var["Var1"].read_only
 
-    assert is_close(var["Var1"].value, 0.104719, relative_tolerance=1e-4)
+    assert is_close(var["Var1"].si_value, 0.104719, relative_tolerance=1e-4)
 
     assert var["Var1"].expression == "1rpm"
 

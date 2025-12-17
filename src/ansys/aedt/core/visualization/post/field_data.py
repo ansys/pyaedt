@@ -1780,7 +1780,7 @@ class FieldPlot(PyAedtBase):
             return self._postprocessor.plot_field_from_fieldplot(
                 self.name,
                 project_path=export_path,
-                meshplot=plot_mesh,
+                mesh_plot=plot_mesh,
                 imageformat="jpg",
                 view=view,
                 plot_label=self.quantity,
