@@ -101,10 +101,7 @@ def test_get_components(aedtapp):
 
 
 def test_edge_by_point_with_point_on_edge(aedtapp):
-    """Test edge_by_point method with a point located on an edge.
-
-    Associated to https://github.com/ansys/pyaedt/issues/7015
-    """
+    """Test edge_by_point method with a point located on an edge."""
     line = aedtapp.modeler.components.create_line([[0, 0], [2, 2], [4, 4], [6, 6]])
 
     edge_index = line.edge_by_point([1, 1])
