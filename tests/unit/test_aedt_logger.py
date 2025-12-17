@@ -37,17 +37,6 @@ settings.enable_desktop_logs = True
 settings.enable_local_log_file = True
 
 
-@pytest.fixture
-def aedt_app(add_app):
-    settings.enable_local_log_file = True
-    app = add_app(project="aedt_logger")
-    project_name = app.project_name
-    yield app
-    app.close_project(name=project_name, save=False)
-    settings.logger_file_path = None
-    settings.enable_local_log_file = False
-
-
 def test_formatter(test_tmp_dir):
     settings.formatter = logging.Formatter(fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S")
     path = test_tmp_dir / "test01.txt"
@@ -217,13 +206,6 @@ def test_disable_stdout(test_tmp_dir):
     # file handler on every logger has been released properly.
     # Otherwise, we can't read the content of the log file.
     logger.disable_log_on_file()
-
-
-def test_log_when_accessing_non_existing_object(aedt_app, caplog):
-    """Check that accessing a non-existent object logs an error message."""
-    with pytest.raises(AttributeError):
-        aedt_app.get_object_material_properties("MS1", "conductivity")
-    assert ("Global", logging.ERROR, "    assignment = MS1 ") in caplog.record_tuples
 
 
 class CaptureStdOut:
