@@ -192,7 +192,7 @@ class AedtObjects(PyAedtBase):
     def oboundary(self):
         """Boundary Object."""
         if not self._oboundary:
-            if self.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            if self.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
                 return
             if self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oboundary = self.get_module("Excitations")
@@ -352,7 +352,7 @@ class AedtObjects(PyAedtBase):
         if not self._osolution:
             if self.design_type in [
                 "RMxprt",
-                "RMxprtSolution",
+                "ModelCreation",
                 "Twin Builder",
                 "Circuit Design",
                 "Maxwell Circuit",
@@ -408,7 +408,7 @@ class AedtObjects(PyAedtBase):
             "Maxwell Circuit",
             "EMIT",
             "RMxprt",
-            "RMxprtSolution",
+            "ModelCreation",
         ]:
             return
         if not self._ofieldsreporter:
@@ -464,7 +464,7 @@ class AedtObjects(PyAedtBase):
                     self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self._odesign.GetEditor("Layout")
-            elif self.design_type in ["RMxprt", "RMxprtSolution"]:
+            elif self.design_type in ["RMxprt", "ModelCreation"]:
                 self._oeditor = self._odesign.SetActiveEditor("Machine")
             elif self.design_type in ["Circuit Netlist"]:
                 self._oeditor = None

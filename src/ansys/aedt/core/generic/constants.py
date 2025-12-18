@@ -23,6 +23,7 @@
 # SOFTWARE.
 from __future__ import absolute_import
 
+from enum import IntEnum
 from enum import auto
 import math
 import warnings
@@ -1334,7 +1335,15 @@ class SymbolStyle(metaclass=DynamicMeta):
     )
 
 
-class EnumUnits(metaclass=DynamicMeta):
+class IntEnumProps(IntEnum):
+    def __repr__(self):
+        return str(self.value)
+
+    def __str__(self):
+        return str(self.value)
+
+
+class EnumUnits(IntEnumProps):
     # Frequency
     hz = 0
     khz = auto()

@@ -235,7 +235,7 @@ class Design(AedtObjects, PyAedtBase):
             self.design_solutions = IcepakDesignSolution(None, self._design_type, self._aedt_version)
         elif self._design_type == "Maxwell 2D":
             self.design_solutions = Maxwell2DDesignSolution(None, self._design_type, self._aedt_version)
-        elif self._design_type in ["RMxprtSolution", "ModelCreation"]:
+        elif self._design_type in ["RMxprt", "ModelCreation"]:
             self.design_solutions = RmXprtDesignSolution(None, self._design_type, self._aedt_version)
         else:
             self.design_solutions = DesignSolution(None, self._design_type, self._aedt_version)
@@ -790,7 +790,7 @@ class Design(AedtObjects, PyAedtBase):
         Options are ``"Circuit Design"``, ``"Circuit Netlist"``, ``"Emit"``, ``"HFSS"``,
         ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``,
         ``"Maxwell 3D"``, ``"Maxwell Circuit"``, ``"Mechanical"``, ``"ModelCreation"``,
-        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``,
+        ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprt"``,
         and ``"Twin Builder"``.
 
         Returns
@@ -1144,7 +1144,7 @@ class Design(AedtObjects, PyAedtBase):
                     des_type == "RMxprt"
                     and self.design_type
                     in [
-                        "RMxprtSolution",
+                        "RMxprt",
                         "ModelCreation",
                     ]
                 ):
@@ -1154,7 +1154,7 @@ class Design(AedtObjects, PyAedtBase):
                         "HFSS 3D Layout Design",
                         "EMIT",
                         "Q3D Extractor",
-                        "RMxprtSolution",
+                        "RMxprt",
                         "ModelCreation",
                     ]:
                         valids.append(name)
@@ -4264,10 +4264,10 @@ class Design(AedtObjects, PyAedtBase):
         if des_name in self.design_list:
             self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
             dtype = self._odesign.GetDesignType()
-            if dtype != "RMxprt":
+            if dtype not in {"RMxprt", "ModelCreation"}:
                 if dtype != self._design_type:
                     raise ValueError(f"Specified design is not of type {self._design_type}.")
-            elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
+            elif self._design_type not in {"RMxprt", "ModelCreation"}:
                 raise ValueError(f"Specified design is not of type {self._design_type}.")
 
             return True

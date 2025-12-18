@@ -184,7 +184,7 @@ class Extractor2dConstants(metaclass=DynamicMeta):
 
 class IcepakConstants(metaclass=DynamicMeta):
     NAME = "Icepak"
-    model_name = "MechanicalModel"
+    model_name = "IcepakModel"
     solution_default = "SteadyState"
     solution_types = {
         "SteadyState": {
