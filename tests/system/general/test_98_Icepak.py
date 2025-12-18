@@ -457,6 +457,11 @@ class TestClass:
     def test020__insert_new_icepak(self, ipk):
         ipk.insert_design("Solve")
 
+    def test021__check_priorities(self, ipk):
+        ipk.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
+        ipk.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
+        ipk.assign_priority_on_intersections("box")
+
     @pytest.mark.parametrize("ipk", [board_ipk], indirect=True)
     def test022__post_processing(self, ipk):
         rep = ipk.post.reports_by_category.monitor(["S1.Temperature", "P1.Temperature"])
