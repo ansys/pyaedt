@@ -1643,16 +1643,21 @@ class CircuitComponents(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_nport_multi(self,
-                           component_name, num_ports_or_lines, array_name, array_id_name, files,
-                           x, y, page=1, angle=0.0, flip=False):
-        from ansys.aedt.core.arguments.component_manager import Files, Options
-        from ansys.aedt.core.arguments.editor import ComponentProps, Attributes
+    def create_nport_multi(
+        self, component_name, num_ports_or_lines, array_name, array_id_name, files, x, y, page=1, angle=0.0, flip=False
+    ):
+        from ansys.aedt.core.arguments.component_manager import Files
+        from ansys.aedt.core.arguments.component_manager import Options
+        from ansys.aedt.core.arguments.editor import Attributes
+        from ansys.aedt.core.arguments.editor import ComponentProps
 
         files_args = Files.create(files=files).to_aedt_args()
-        options_args = Options.create(num_ports_or_lines=num_ports_or_lines, array_name=array_name,
-                                      array_id_name=array_id_name,
-                                      comp_name=component_name).to_aedt_args()
+        options_args = Options.create(
+            num_ports_or_lines=num_ports_or_lines,
+            array_name=array_name,
+            array_id_name=array_id_name,
+            comp_name=component_name,
+        ).to_aedt_args()
         self.ocomponent_manager.ImportSandWComponent(files_args, options_args)
 
         props_args = ComponentProps.create(name=component_name).to_aedt_args()
