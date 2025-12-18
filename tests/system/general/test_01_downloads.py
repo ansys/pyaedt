@@ -106,9 +106,9 @@ def test_download_specific_file():
 
 
 def test_download_specific_folder():
-    example_folder = downloads.download_file(directory="nissan")
+    example_folder = downloads.download_file(source="nissan")
     assert Path(example_folder).exists()
-    example_folder = downloads.download_file(directory="wpf_edb_merge")
+    example_folder = downloads.download_file(source="wpf_edb_merge")
     assert Path(example_folder).exists()
 
 

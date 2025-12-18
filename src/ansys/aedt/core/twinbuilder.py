@@ -521,7 +521,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             is_3d = True
             design_type = "Q3D"
             is_depth_needed = False
-            for net in app.nets:
+            for net in app.net_names:
                 sources = app.net_sources(net)
                 sinks = app.net_sinks(net)
                 if sources:

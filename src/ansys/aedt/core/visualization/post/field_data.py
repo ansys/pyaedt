@@ -1781,7 +1781,7 @@ class FieldPlot(PyAedtBase):
                 self.name,
                 project_path=export_path,
                 mesh_plot=plot_mesh,
-                imageformat="jpg",
+                image_format="jpg",
                 view=view,
                 plot_label=self.quantity,
                 show=False,

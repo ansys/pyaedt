@@ -137,7 +137,7 @@ class NamedVariable(PyAedtBase):
     @property
     def value(self):
         """Value."""
-        return self._variable.value
+        return self._variable.si_value
 
     @property
     def numeric_value(self):
@@ -3181,11 +3181,11 @@ class Trace(CommonObject, PyAedtBase):
             if axisdir is None:
                 axisdir = self.application.axis_directions.ZPos
             port = self.application.lumped_port(
-                signal=port.name, name=port_name, integration_line=axisdir, create_port_sheet=False
+                assignment=port.name, name=port_name, integration_line=axisdir, create_port_sheet=False
             )
         elif self.application.solution_type == "Terminal":
             port = self.application.lumped_port(
-                signal=port.name,
+                assignment=port.name,
                 name=port_name,
                 integration_line=axisdir,
                 create_port_sheet=False,
