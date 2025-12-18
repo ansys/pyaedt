@@ -218,13 +218,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     >>> app = Rmxprt("myfile.aedt")
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -282,7 +276,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     def design_type(self, value):
         self.design_solutions.design_type = value
 
-    @pyaedt_function_handler(name="name", setuptype="setup_type")
+    @pyaedt_function_handler()
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for RmXport.
 

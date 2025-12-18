@@ -304,7 +304,7 @@ class Object3d(PyAedtBase):
             show=show,
         )
 
-    @pyaedt_function_handler(file_path="output_file")
+    @pyaedt_function_handler()
     @min_aedt_version("2021.2")
     def export_image(self, output_file=None):
         """Export the current object to a specified file path.
@@ -372,7 +372,7 @@ class Object3d(PyAedtBase):
                 list_names.extend(a)
         return list_names
 
-    @pyaedt_function_handler(object_name="assignment")
+    @pyaedt_function_handler()
     def get_touching_faces(self, assignment):
         """Get the objects that touch one of the face center of each face of the object.
 
@@ -1472,7 +1472,7 @@ class Object3d(PyAedtBase):
     def model(self, fModel):
         self.is_model = fModel
 
-    @pyaedt_function_handler(object_list="assignment")
+    @pyaedt_function_handler()
     def unite(self, assignment):
         """Unite a list of objects with this object.
 
@@ -1495,7 +1495,7 @@ class Object3d(PyAedtBase):
         self._primitives.unite(unite_list)
         return self
 
-    @pyaedt_function_handler(theList="assignment")
+    @pyaedt_function_handler()
     def intersect(self, assignment, keep_originals=False):
         """Intersect the active object with a given list.
 
@@ -1544,7 +1544,7 @@ class Object3d(PyAedtBase):
         """
         return self._primitives.split(self.name, plane, sides)
 
-    @pyaedt_function_handler(position="origin")
+    @pyaedt_function_handler()
     def mirror(self, origin, vector, duplicate=False):
         """Mirror a selection.
 
@@ -1574,7 +1574,7 @@ class Object3d(PyAedtBase):
             return self
         return False
 
-    @pyaedt_function_handler(cs_axis="axis", unit="units")
+    @pyaedt_function_handler()
     def rotate(self, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
@@ -1626,7 +1626,7 @@ class Object3d(PyAedtBase):
             return self
         return False
 
-    @pyaedt_function_handler(cs_axis="axis", nclones="clones")
+    @pyaedt_function_handler()
     def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
         """Duplicate the object around the axis.
 
@@ -1656,7 +1656,7 @@ class Object3d(PyAedtBase):
         )
         return added_objects
 
-    @pyaedt_function_handler(nclones="clones", attachObject="attach")
+    @pyaedt_function_handler()
     def duplicate_along_line(self, vector, clones=2, attach=False):
         """Duplicate the object along a line.
 
@@ -1744,7 +1744,7 @@ class Object3d(PyAedtBase):
         )
         return self
 
-    @pyaedt_function_handler(cs_axis="axis")
+    @pyaedt_function_handler()
     def sweep_around_axis(self, axis, sweep_angle=360, draft_angle=0):
         """Sweep around an axis.
 
@@ -2540,7 +2540,7 @@ class Object3d(PyAedtBase):
 
         return seg
 
-    @pyaedt_function_handler(abstol="tolerance")
+    @pyaedt_function_handler()
     def remove_point(self, position, tolerance=1e-9):
         """Remove a point from an existing polyline by position.
 
@@ -2626,7 +2626,7 @@ class Object3d(PyAedtBase):
 
         return True
 
-    @pyaedt_function_handler(segment_id="assignment")
+    @pyaedt_function_handler()
     def remove_segments(self, assignment):
         """Remove a segment from an existing polyline by segment id.
 
@@ -2687,7 +2687,7 @@ class Object3d(PyAedtBase):
                 del self._segment_types[sid]
         return True
 
-    @pyaedt_function_handler(type="section")
+    @pyaedt_function_handler()
     def set_crosssection_properties(
         self, section=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None
     ):
@@ -2858,7 +2858,7 @@ class Object3d(PyAedtBase):
                 return i
         return False
 
-    @pyaedt_function_handler(position_list="points")
+    @pyaedt_function_handler()
     def insert_segment(self, points, segment=None):
         """Add a segment to an existing polyline.
 

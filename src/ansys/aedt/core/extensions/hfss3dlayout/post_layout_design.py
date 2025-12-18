@@ -373,7 +373,7 @@ def main(data: PostLayoutDesignExtensionData):
         raise AEDTRuntimeError("Active design is not HFSS 3D Layout Design.")
 
     try:
-        pedb = h3d.modeler.primitives.edb
+        pedb = h3d.modeler.edb
 
         if data.action == "antipad":
             if len(data.selections) != 2:

@@ -210,7 +210,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         else:
             return f"{self.name} : {self._app.design_solutions.default_adaptive}"
 
-    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
+    @pyaedt_function_handler()
     def analyze(
         self,
         cores=1,
@@ -359,7 +359,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         """
         return self._app.get_profile(self.name)  # Native API getter.
 
-    @pyaedt_function_handler(sweep_name="sweep")
+    @pyaedt_function_handler()
     def get_solution_data(
         self,
         expressions=None,
@@ -482,7 +482,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
             )
         return None
 
-    @pyaedt_function_handler(sweep_name="sweep", plotname="name")
+    @pyaedt_function_handler()
     def create_report(
         self,
         expressions=None,
@@ -616,7 +616,7 @@ class Setup(CommonSetup):
         self.omodule.InsertSetup(soltype, arg)
         return self._initialize_tree_node()
 
-    @pyaedt_function_handler(update_dictionary="properties")
+    @pyaedt_function_handler()
     def update(self, properties=None):
         """Update the setup based on either the class argument or a dictionary.
 
@@ -838,7 +838,7 @@ class Setup(CommonSetup):
         self.omodule.EditSetup(self.name, arg)
         return True
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def enable(self):
         """Enable a setup.
 
@@ -880,9 +880,7 @@ class Setup(CommonSetup):
         self.props["Enabled"] = False
         return True
 
-    @pyaedt_function_handler(
-        design_name="design", solution_name="solution", parameters_dict="parameters", project_name="project"
-    )
+    @pyaedt_function_handler()
     def add_mesh_link(
         self,
         design,
@@ -988,7 +986,7 @@ class Setup(CommonSetup):
             nominal_values = self._app.available_variations.get_independent_nominal_values()
 
             if parameters is None:
-                parameters = self._app.available_variations.nominal_w_values_dict
+                parameters = nominal_values
                 for el in parameters:
                     mesh_link["Params"][el] = el
             else:
@@ -1016,12 +1014,10 @@ class Setup(CommonSetup):
         nominal_values = self._app.available_variations.get_independent_nominal_values()
         if map_variables_by_name:
             parameters = nominal_values
-            parameters = self._app.available_variations.nominal_w_values_dict
             for k, v in parameters.items():
                 params[k] = k
         elif parameters is None:
             parameters = nominal_values
-            parameters = self._app.available_variations.nominal_w_values_dict
             for k, v in parameters.items():
                 params[k] = v
         else:
@@ -1063,9 +1059,7 @@ class Setup(CommonSetup):
             raise ValueError("Provide a valid solution name.")
         return prev_solution
 
-    @pyaedt_function_handler(
-        design_name="design", solution_name="solution", parameters_dict="parameters", project_name="project"
-    )
+    @pyaedt_function_handler()
     def start_continue_from_previous_setup(
         self,
         design,
@@ -1253,7 +1247,7 @@ class SetupCircuit(CommonSetup):
                 raise NotImplementedError(f"Solution type '{soltype}' is not implemented yet")
         return True
 
-    @pyaedt_function_handler(update_dictionary="properties")
+    @pyaedt_function_handler()
     def update(self, properties=None):
         """Update the setup based on the class arguments or a dictionary.
 
@@ -1330,7 +1324,7 @@ class SetupCircuit(CommonSetup):
         lin_data = " ".join(sweeps)
         return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
 
-    @pyaedt_function_handler(start_point="start", end_point="stop")
+    @pyaedt_function_handler()
     def add_sweep_count(
         self,
         sweep_variable="Freq",
@@ -1388,7 +1382,7 @@ class SetupCircuit(CommonSetup):
         lin_data = f"{lin_in} {start} {stop} {count}"
         return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
 
-    @pyaedt_function_handler(start_point="start", end_point="stop")
+    @pyaedt_function_handler()
     def add_sweep_step(
         self,
         sweep_variable="Freq",
@@ -1630,7 +1624,7 @@ class SetupCircuit(CommonSetup):
         self.omodule.EditSetup(self.name, arg)
         return True
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def enable(self, name=None):
         """Enable a setup.
 
@@ -1653,7 +1647,7 @@ class SetupCircuit(CommonSetup):
         self._odesign.EnableSolutionSetup(name, True)
         return True
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def disable(self, name=None):
         """Disable a setup.
 
@@ -1968,7 +1962,7 @@ class Setup3DLayout(CommonSetup):
         self.omodule.Add(arg)
         return self._initialize_tree_node()
 
-    @pyaedt_function_handler(update_dictionary="properties")
+    @pyaedt_function_handler()
     def update(self, properties=None):
         """Update the setup based on the class arguments or a dictionary.
 
@@ -2037,7 +2031,7 @@ class Setup3DLayout(CommonSetup):
         self.update()
         return True
 
-    @pyaedt_function_handler(file_fullname="output_file")
+    @pyaedt_function_handler()
     def export_to_hfss(self, output_file, keep_net_name=False, unite=True):
         """Export the HFSS 3D Layout design to an HFSS 3D design.
 
@@ -2303,7 +2297,7 @@ class Setup3DLayout(CommonSetup):
             time.sleep(2)
         return succeeded
 
-    @pyaedt_function_handler(file_fullname="output_file")
+    @pyaedt_function_handler()
     def export_to_q3d(self, output_file, keep_net_name=False, unite=True):
         """Export the HFSS 3D Layout design to a Q3D design.
 
@@ -2343,7 +2337,7 @@ class Setup3DLayout(CommonSetup):
             self._get_net_names(Q3d, output_file, unite)
         return succeeded
 
-    @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
+    @pyaedt_function_handler()
     def add_sweep(self, name=None, sweep_type="Interpolating"):
         """Add a frequency sweep.
 
@@ -2374,7 +2368,7 @@ class Setup3DLayout(CommonSetup):
             return sweep_n
         return False
 
-    @pyaedt_function_handler(sweepname="name")
+    @pyaedt_function_handler()
     def get_sweep(self, name=None):
         """Return frequency sweep object of a given sweep.
 
@@ -2638,7 +2632,7 @@ class SetupHFSS(Setup, PyAedtBase):
             self._app.logger.error(f"Setup {self.name} is not solved. Solve it before tuning variables.")
             return False
 
-    @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
+    @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
         unit=None,
@@ -2741,7 +2735,7 @@ class SetupHFSS(Setup, PyAedtBase):
         self._app.logger.info(f"Linear count sweep {name} has been correctly created")
         return sweepdata
 
-    @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
+    @pyaedt_function_handler()
     def create_linear_step_sweep(
         self,
         unit="GHz",
@@ -2827,7 +2821,7 @@ class SetupHFSS(Setup, PyAedtBase):
         self._app.logger.info(f"Linear step sweep {name} has been correctly created")
         return sweepdata
 
-    @pyaedt_function_handler(sweepname="name")
+    @pyaedt_function_handler()
     def create_single_point_sweep(
         self,
         unit="GHz",
@@ -2919,7 +2913,7 @@ class SetupHFSS(Setup, PyAedtBase):
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
 
-    @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
+    @pyaedt_function_handler()
     def add_sweep(self, name=None, sweep_type="Interpolating", **props):
         """Add a sweep to the project.
 
@@ -2954,7 +2948,7 @@ class SetupHFSS(Setup, PyAedtBase):
                 break
         return sweep_n
 
-    @pyaedt_function_handler(sweepname="name")
+    @pyaedt_function_handler()
     def get_sweep(self, name=None):
         """Return frequency sweep object of a given sweep.
 
@@ -3007,7 +3001,7 @@ class SetupHFSS(Setup, PyAedtBase):
         """
         return self.omodule.GetSweeps(self.name)
 
-    @pyaedt_function_handler(sweepname="name")
+    @pyaedt_function_handler()
     def delete_sweep(self, name):
         """Delete a sweep.
 
@@ -3364,7 +3358,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
             self._app.logger.error(f"Setup {self.name} is not solved. Solve it before tuning variables.")
             return False
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
@@ -3422,7 +3416,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"].append(sweep_range)
         return self.update()
 
-    @pyaedt_function_handler(freq="frequency")
+    @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, frequency=None, max_passes=None, max_delta_s=None):
         """Enable HFSS single frequency setup.
 
@@ -3458,7 +3452,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         self.auto_update = True
         return self.update()
 
-    @pyaedt_function_handler(high_frquency="high_frequency")
+    @pyaedt_function_handler()
     def enable_adaptive_setup_broadband(self, low_frequency, high_frequency, max_passes=6, max_delta_s=0.02):
         """Enable HFSS broadband setup.
 
@@ -3560,7 +3554,7 @@ class SetupSBR(Setup, PyAedtBase):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
@@ -3639,7 +3633,7 @@ class SetupMaxwell(Setup, PyAedtBase):
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
-    @pyaedt_function_handler(range_type="sweep_type", start="start_frequency", end="stop_frequency", count="step_size")
+    @pyaedt_function_handler()
     def add_eddy_current_sweep(
         self,
         sweep_type="LinearStep",
@@ -4013,7 +4007,7 @@ class SetupQ3D(Setup, PyAedtBase):
         self._ac_rl_enbled = True
         self._capacitance_enabled = True
 
-    @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
+    @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
         unit=None,
@@ -4107,7 +4101,7 @@ class SetupQ3D(Setup, PyAedtBase):
         self._app.logger.info(f"Linear count sweep {name} has been correctly created")
         return sweepdata
 
-    @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
+    @pyaedt_function_handler()
     def create_linear_step_sweep(
         self,
         unit="GHz",
@@ -4190,7 +4184,7 @@ class SetupQ3D(Setup, PyAedtBase):
         self._app.logger.info(f"Linear step sweep {name} has been correctly created")
         return sweepdata
 
-    @pyaedt_function_handler(sweepname="name")
+    @pyaedt_function_handler()
     def create_single_point_sweep(
         self,
         unit="GHz",
@@ -4281,7 +4275,7 @@ class SetupQ3D(Setup, PyAedtBase):
         self._app.logger.info(f"Single point sweep {name} has been correctly created")
         return sweepdata
 
-    @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
+    @pyaedt_function_handler()
     def add_sweep(self, name=None, sweep_type="Interpolating", **props):
         """Add a sweep to the project.
 
@@ -4314,7 +4308,7 @@ class SetupQ3D(Setup, PyAedtBase):
                 break
         return sweep_n
 
-    @pyaedt_function_handler(sweepname="name")
+    @pyaedt_function_handler()
     def get_sweep(self, name=None):
         """Get the frequency sweep object of a given sweep.
 

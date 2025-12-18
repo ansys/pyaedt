@@ -623,7 +623,7 @@ def time_fn(fn, *args, **kwargs):
     return results
 
 
-@pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
+@pyaedt_function_handler()
 def filter_tuple(value, search_key_1, search_key_2):
     """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
@@ -647,7 +647,7 @@ def filter_tuple(value, search_key_1, search_key_2):
     return False
 
 
-@pyaedt_function_handler(search_key1="search_key_1")
+@pyaedt_function_handler()
 def filter_string(value, search_key_1):
     """Filter a string"""
     ignore_case = True
@@ -850,7 +850,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     return return_list
 
 
-@pyaedt_function_handler(function_str="function")
+@pyaedt_function_handler()
 def conversion_function(data, function=None):  # pragma: no cover
     """Convert input data based on a specified function string.
 

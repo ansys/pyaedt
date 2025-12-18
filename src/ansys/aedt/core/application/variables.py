@@ -46,7 +46,6 @@ import types
 from typing import Any
 from typing import Optional
 from typing import Union
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -425,7 +424,7 @@ class VariableManager(PyAedtBase):
         """
         return self._variable_dict([self._odesign, self._oproject])
 
-    @pyaedt_function_handler(variable_value="variable")
+    @pyaedt_function_handler()
     def decompose(self, variable):
         """Decompose a variable string to a floating with its unit.
 
@@ -860,7 +859,7 @@ class VariableManager(PyAedtBase):
                 vars_to_output[k] = v
         return vars_to_output
 
-    @pyaedt_function_handler(variable_name="name")
+    @pyaedt_function_handler()
     def get_expression(self, name):  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
 
@@ -883,7 +882,7 @@ class VariableManager(PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(variable="name")
+    @pyaedt_function_handler()
     def aedt_object(self, name):
         """Retrieve an AEDT object.
 
@@ -898,7 +897,7 @@ class VariableManager(PyAedtBase):
         else:
             return self._odesign
 
-    @pyaedt_function_handler(variable_name="name", readonly="read_only", postprocessing="is_post_processing")
+    @pyaedt_function_handler()
     def set_variable(
         self,
         name,
@@ -1148,7 +1147,7 @@ class VariableManager(PyAedtBase):
 
         return True
 
-    @pyaedt_function_handler(separator_name="name")
+    @pyaedt_function_handler()
     def delete_separator(self, name):
         """Delete a separator from either the active project or design.
 
@@ -1188,7 +1187,7 @@ class VariableManager(PyAedtBase):
                 self._logger.debug("Failed to change desktop object property.")
         return False
 
-    @pyaedt_function_handler(var_name="name")
+    @pyaedt_function_handler()
     def delete_variable(self, name):
         """Delete a variable.
 
@@ -1248,7 +1247,7 @@ class VariableManager(PyAedtBase):
                 return True
         return False
 
-    @pyaedt_function_handler(var_name="name")
+    @pyaedt_function_handler()
     def is_used(self, name):
         """Find if a variable is used.
 
@@ -1278,27 +1277,6 @@ class VariableManager(PyAedtBase):
                     self._logger.warning(f"{name} used in the material: {mat.name}.")
                     return used
         return used
-
-    @pyaedt_function_handler(var_name="name")
-    def is_used_variable(self, name):
-        """Find if a variable is used.
-
-        .. deprecated:: 0.7.4
-           Use :func:`is_used` method instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the variable.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        warnings.warn("`is_used_variable` is deprecated. Use `is_used` method instead.", DeprecationWarning)
-        return self.is_used(name)
 
     def _find_used_variable_history(self, history, var_name):
         """Find if a variable is used.
@@ -1855,20 +1833,6 @@ class Variable(PyAedtBase):
         return False
 
     @property
-    def circuit_parameter(self) -> bool:  # pragma: no cover
-        """Whether this variable is a circuit parameter (for supported design types).
-
-        .. deprecated:: 0.23.0
-            Use :func:`is_circuit_parameter` property instead.
-
-        """
-        warnings.warn(
-            "`circuit_parameter` is deprecated. Use `is_circuit_parameter` instead.",
-            DeprecationWarning,
-        )
-        return self.is_circuit_parameter
-
-    @property
     def expression(self) -> str:
         """Raw AEDT expression."""
         expression = self._expression
@@ -1926,20 +1890,6 @@ class Variable(PyAedtBase):
         except Exception:
             self._units = self._units_fallback()
         return self._units
-
-    @property
-    def value(self) -> float:
-        """Current value in SI units (float).
-
-        .. deprecated:: 0.23.0
-        Use :func:`ocomponent_manager` property instead.
-
-        This getter keeps the cached SI value in sync with the AEDT backend.
-        It queries the evaluated variable value from AEDT, converts it to SI
-        units using the current unit system and unit string.
-        """
-        warnings.warn("`value` is deprecated. Use `si_value` instead.", DeprecationWarning)
-        return self.si_value
 
     @property
     def si_value(self) -> float:
@@ -2482,7 +2432,7 @@ class DataSet(PyAedtBase):
             del self._app.design_datasets[self.name]
         return True
 
-    @pyaedt_function_handler(dataset_path="output_dir")
+    @pyaedt_function_handler()
     def export(self, output_dir=None):
         """Export the dataset.
 

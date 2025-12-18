@@ -883,7 +883,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self._composite = val
         self.solution_type = self.solution_type
 
-    @pyaedt_function_handler(boundary_type="opening_type")
+    @pyaedt_function_handler()
     def set_auto_open(self, enable=True, opening_type="Radiation"):
         """Set HFSS auto open type.
 

@@ -24,10 +24,8 @@
 
 from typing import Optional
 from typing import Union
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -55,18 +53,6 @@ class Matrix(PyAedtBase):
                 self._operations = operations
             else:
                 self._operations = [operations]
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def CATEGORIES(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants`` instead."""
-        warnings.warn(
-            "Usage of CATEGORIES is deprecated. "
-            "Use a plot category defined in ansys.aedt.core.generic.constants instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return CATEGORIESQ3D
 
     @pyaedt_function_handler()
     def sources(self, is_gc_sources: bool = True) -> list:
