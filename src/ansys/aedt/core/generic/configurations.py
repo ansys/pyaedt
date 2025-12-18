@@ -2544,7 +2544,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in value:
+                            if pin.name == value:
                                 location = [
                                     pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
                                     pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),
