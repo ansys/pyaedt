@@ -64,7 +64,7 @@ def m3d_app(add_app):
 
 @pytest.fixture
 def maxwell_versioned():
-    return SolutionsMaxwell3D.versioned(DESKTOP_VERSION)
+    return SolutionsMaxwell3D
 
 
 @pytest.fixture

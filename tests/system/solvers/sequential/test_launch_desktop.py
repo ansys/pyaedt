@@ -35,6 +35,7 @@ from ansys.aedt.core import Mechanical
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
@@ -42,7 +43,6 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
-from tests.conftest import DESKTOP_VERSION
 
 settings.lazy_load = False
 settings.wait_for_license = True
@@ -50,7 +50,7 @@ settings.wait_for_license = True
 
 def test_run_desktop_mechanical(desktop):
     aedtapp = Mechanical(solution_type=SolutionsMechanical.SteadyStateThermal)
-    assert aedtapp.design_type == "Mechanical"
+    assert aedtapp.design_type == DesignType.ICEPAKFEA
     assert aedtapp.solution_type == SolutionsMechanical.SteadyStateThermal
 
     aedtapp.solution_type = SolutionsMechanical.Modal
@@ -116,7 +116,7 @@ def test_run_desktop_q3d(desktop):
 
 
 def test_run_desktop_maxwell2d(desktop):
-    solutions_maxwell_2d = SolutionsMaxwell2D.versioned(DESKTOP_VERSION)
+    solutions_maxwell_2d = SolutionsMaxwell2D
 
     aedtapp = Maxwell2d(solution_type=solutions_maxwell_2d.MagnetostaticZ)
     assert aedtapp.design_type == "Maxwell 2D"
@@ -208,7 +208,7 @@ def test_run_desktop_hfss(desktop):
 
 
 def test_run_desktop_maxwell3d(desktop):
-    solutions_maxwell_3d = SolutionsMaxwell3D.versioned(DESKTOP_VERSION)
+    solutions_maxwell_3d = SolutionsMaxwell3D
 
     aedtapp = Maxwell3d(solution_type=solutions_maxwell_3d.Magnetostatic)
     assert aedtapp.design_type == "Maxwell 3D"

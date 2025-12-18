@@ -30,6 +30,7 @@ import pytest
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -94,7 +95,7 @@ def test_assign_thermal_loss(aedt_app, add_app):
     coax_dimension = 30
     ipk.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
     ipk.create_setup()
-    aedt_app.oproject.InsertDesign("Mechanical", "MechanicalDesign1", "Structural", "")
+    aedt_app.oproject.InsertDesign(DesignType.ICEPAKFEA.NAME, "MechanicalDesign1", "Structural", "")
     aedt_app.set_active_design("MechanicalDesign1")
     aedt_app.create_setup()
     aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
@@ -104,13 +105,13 @@ def test_assign_thermal_loss(aedt_app, add_app):
 def test_assign_mechanical_boundaries(aedt_app):
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_dimension = 30
-    aedt_app.oproject.InsertDesign("Mechanical", "MechanicalDesign2", "Modal", "")
+    aedt_app.oproject.InsertDesign(DesignType.ICEPAKFEA.NAME, "MechanicalDesign2", "Modal", "")
     aedt_app.set_active_design("MechanicalDesign2")
     aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
     aedt_app.create_setup()
     assert aedt_app.assign_fixed_support(aedt_app.modeler["MyCylinder"].faces[0].id)
     assert aedt_app.assign_frictionless_support(aedt_app.modeler["MyCylinder"].faces[1].id)
-    aedt_app.oproject.InsertDesign("Mechanical", "MechanicalDesign3", "Thermal", "")
+    aedt_app.oproject.InsertDesign(DesignType.ICEPAKFEA.NAME, "MechanicalDesign3", "Thermal", "")
     aedt_app.set_active_design("MechanicalDesign3")
     aedt_app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
     with pytest.raises(AEDTRuntimeError, match="This method works only in a Mechanical Structural analysis."):
