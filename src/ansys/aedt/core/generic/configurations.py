@@ -1707,7 +1707,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 if mesh.name in ["Settings", "Global"]:
                     args = ["NAME:Settings"]
                 else:
-                    args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
+                    args = ["NAME:" + mesh.name, "Enable:=", mesh.enable]
                 args += mesh.settings.parse_settings_as_args()
                 if mesh.name not in ["Settings", "Global"]:
                     args += getattr(mesh, "_parse_assignment_value")()
@@ -2429,7 +2429,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     component_type = value["component_type"]
                     new_comp = None
                     if component_type == "Nexxim Component":
-                        new_comp = self._app.modeler.components.create_component(
+                        new_comp = self._app.modeler.schematic.create_component(
                             name=i,
                             component_library="",
                             component_name=j["component"],
