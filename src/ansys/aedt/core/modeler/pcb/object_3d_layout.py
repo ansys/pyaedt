@@ -1141,29 +1141,28 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         return edges
 
     @pyaedt_function_handler()
-    def edge_by_point(self, point):
-        """Return the closest edge to specified point.
+    def edge_by_point(self, point: list[float | int]):
+        """Return the index of the closest edge to the specified point.
 
         Parameters
         ----------
-        point : list
-            List of [x,y] values.
+        point : list of float or int
+            Coordinates of the point as [x, y].
 
         Returns
         -------
         int
-            Edge id.
+            Index of the closest edge in `self.edges`.
         """
-        index_i = 0
-        v_dist = None
-        edge_id = None
-        for edge in self.edges:
-            v = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
-            if not v_dist or v < v_dist:
-                v_dist = v
-                edge_id = index_i
-            index_i += 1
-        return edge_id
+        min_distance = float("inf")
+        res = None
+
+        for index, edge in enumerate(self.edges):
+            distance = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
+            if distance < min_distance:
+                min_distance = distance
+                res = index
+        return res
 
     @property
     def bottom_edge_x(self):
