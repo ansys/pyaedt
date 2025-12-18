@@ -328,7 +328,7 @@ def test_project_variable_operation(app):
 
     # Variable array
     app["$my_proj_test4"] = ["a", "ab"]
-    assert app.variable_manager["$my_proj_test4"].value == ["a", "ab"]
+    assert app.variable_manager["$my_proj_test4"].si_value == ["a", "ab"]
 
 
 def test_test_optimization_properties(app):
