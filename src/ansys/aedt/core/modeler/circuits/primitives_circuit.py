@@ -1642,6 +1642,27 @@ class CircuitComponents(PyAedtBase):
         except Exception:
             return False
 
+    @pyaedt_function_handler()
+    def create_nport_multi(self,
+                           component_name, num_ports_or_lines, array_name, array_id_name, files,
+                           x, y, page=1, angle=0.0, flip=False):
+        from ansys.aedt.core.arguments.component_manager import Files, Options
+        from ansys.aedt.core.arguments.editor import ComponentProps, Attributes
+
+        files_args = Files.create(files=files).to_aedt_args()
+        options_args = Options.create(num_ports_or_lines=num_ports_or_lines, array_name=array_name,
+                                      array_id_name=array_id_name,
+                                      comp_name=component_name).to_aedt_args()
+        self.ocomponent_manager.ImportSandWComponent(files_args, options_args)
+
+        props_args = ComponentProps.create(name=component_name).to_aedt_args()
+        attributes_args = Attributes.create(x=x, y=y, page=page, flip=flip, angle=angle).to_aedt_args()
+
+        comp_name = self.oeditor.CreateComponent(props_args, attributes_args)
+        comp_id = int(comp_name.split(";")[-1])
+        self.add_id_to_component(comp_id, comp_name)
+        return self.components[comp_id]
+
 
 class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
