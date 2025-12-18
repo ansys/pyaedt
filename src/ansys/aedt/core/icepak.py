@@ -600,6 +600,52 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         self.logger.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
+
+    @pyaedt_function_handler()
+    def assign_priority_on_intersections(self, component_prefix="COMP_"):
+        """Validate an Icepak design.
+
+        If there are intersections, priorities are automatically applied to overcome simulation issues.
+
+        Parameters
+        ----------
+        component_prefix : str, optional
+            Component prefix to search for. The default is ``"COMP_"``.
+
+        Returns
+        -------
+        bool
+             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.UpdatePriorityList
+        """
+        temp_log = str(Path(self.working_directory) / "validation.log")
+        validate = self.odesign.ValidateDesign(temp_log)
+        self.save_project()
+        i = 2
+        if validate == 0:
+            priority_list = []
+            with open_file(temp_log, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "[error]" in line and component_prefix in line and "intersect" in line:
+                        id1 = line.find(component_prefix)
+                        if self.aedt_version_id > "2023.2":
+                            id2 = line[id1:].find(" ")
+                        else:
+                            id2 = line[id1:].find('"')
+                        name = line[id1 : id1 + id2]
+                        if name not in priority_list:
+                            priority_list.append(name)
+            self.logger.info(f"{len(priority_list)} Intersections have been found. Applying Priorities")
+            for objname in priority_list:
+                self.mesh.add_priority(1, [objname], priority=i)
+                i += 1
+        return True
+
+
     @pyaedt_function_handler()
     def find_top(self, gravity_dir):
         """Find the top location of the layout given a gravity.
