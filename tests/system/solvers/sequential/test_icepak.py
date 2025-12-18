@@ -30,9 +30,9 @@ import shutil
 import pytest
 
 from ansys.aedt.core import Icepak
-from ansys.aedt.core.generic.constants import Gravity
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import available_file_name
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
@@ -344,29 +344,12 @@ def test_find_top(ipk_app):
 
 def test_assign_pcb_region(ipk_app):
     ipk_app.globalMeshSettings(2)
-    assert ipk_app.create_meshregion_component()
+
     ipk_app.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
-    old_pcb_mesh_region = MeshRegion(meshmodule=ipk_app.mesh.omeshmodule, dimension=[1, 1, 1], unit="mm", app=ipk_app)
-    assert old_pcb_mesh_region.MaxElementSizeX == 1 / 20
-    assert old_pcb_mesh_region.MaxElementSizeY == 1 / 20
-    assert old_pcb_mesh_region.MaxElementSizeZ == 1 / 20
+
     pcb_mesh_region = MeshRegion(ipk_app, "PCB")
     pcb_mesh_region.name = "PCB_Region"
-    # backward compatibility check
-    pcb_mesh_region.UserSpecifiedSettings = True
-    pcb_mesh_region.MaxElementSizeX = 2
-    pcb_mesh_region.MaxElementSizeY = 2
-    pcb_mesh_region.MaxElementSizeZ = 0.5
-    pcb_mesh_region.MinElementsInGap = 3
-    pcb_mesh_region.MinElementsOnEdge = 2
-    pcb_mesh_region.MaxSizeRatio = 2
-    pcb_mesh_region.NoOGrids = False
-    pcb_mesh_region.EnableMLM = True
-    pcb_mesh_region.MaxLevels = 2
-    pcb_mesh_region.MinGapX = 1
-    pcb_mesh_region.MinGapY = 1
-    pcb_mesh_region.MinGapZ = 1
-    assert pcb_mesh_region.update()
+
     if settings.aedt_version > "2023.2":
         assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
         assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
@@ -498,13 +481,6 @@ def test_existing_sweeps(existing_setup_app):
     assert len(existing_setup_app.existing_analysis_sweeps) == 2
 
 
-def test_deprecated_design_settings(ipk_app):
-    assert ipk_app.apply_icepak_settings()
-    assert ipk_app.apply_icepak_settings(ambienttemp=23.5)
-    ipk_app["amb"] = "25deg"
-    assert ipk_app.apply_icepak_settings(ambienttemp="amb", perform_minimal_val=False)
-
-
 def test_mesh_level(usb_ipk_app):
     assert usb_ipk_app.mesh.assign_mesh_level({"USB_Shiels": 2})
 
@@ -565,12 +541,6 @@ def test_edit_design_settings(ipk_app):
     assert ipk_app.edit_design_settings(ambient_temperature=bc)
 
 
-def test_check_priorities(ipk_app):
-    ipk_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
-    ipk_app.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
-    ipk_app.assign_priority_on_intersections("box")
-
-
 def test_post_processing(board_ipk_app):
     rep = board_ipk_app.post.reports_by_category.monitor(["S1.Temperature", "P1.Temperature"])
     assert rep.create()
@@ -583,25 +553,6 @@ def test_create_source_blocks_from_list(ipk_app):
     result = ipk_app.create_source_blocks_from_list([["box2", 2], ["box3", 3]])
     assert result[1].properties["Total Power"] == "2W"
     assert result[3].properties["Total Power"] == "3W"
-
-
-def test_create_network_blocks(ipk_app):
-    ipk_app.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
-    ipk_app.modeler.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
-    result = ipk_app.create_network_blocks(
-        [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], Gravity.ZNeg, 1.05918, False
-    )
-    assert len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3  # two face nodes plus one internal
-
-    ipk_app.modeler.create_box([14, 15, 16], [10, 10, 10], "network_box3", "Steel-Chrome")
-    ipk_app.modeler.create_box([17, 18, 19], [10, 10, 10], "network_box4", "Steel-Chrome")
-    network_block_result = ipk_app.create_network_blocks(
-        [["network_box3", 20, 10, 3], ["network_box4", 4, 10, 3]], 5, 1.05918, True
-    )
-    assert (
-        len(network_block_result[0].props["Nodes"]) == 3 and len(network_block_result[1].props["Nodes"]) == 3
-    )  # two face nodes plus one internal
-    assert network_block_result[1].props["Nodes"]["Internal"][0] == "3W"
 
 
 def test_copy_solid_bodies(board_ipk_app, add_app, test_tmp_dir):
@@ -662,24 +613,9 @@ def test_create_region(ipk_app):
     assert isinstance(ipk_app.modeler.create_region([100, 100, 100, 100, 100, 100]).id, int)
 
 
-def test_automatic_mesh_pcb(board_ipk_app):
-    assert board_ipk_app.mesh.automatic_mesh_pcb()
-
-
-def test_automatic_mesh_3d(board_ipk_app):
-    assert board_ipk_app.mesh.automatic_mesh_3D(accuracy=1)
-
-
 def test_create_source(ipk_app):
     ipk_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
-    assert ipk_app.create_source_power(ipk_app.modeler["boxSource"].top_face_z.id, input_power="2W")
-    assert ipk_app.create_source_power(
-        ipk_app.modeler["boxSource"].bottom_face_z.id,
-        input_power="0W",
-        thermal_condtion="Fixed Temperature",
-        temperature="28cel",
-    )
-    assert ipk_app.create_source_power(ipk_app.modeler["boxSource"].name, input_power="20W")
+
     ipk_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource2")
     x = [1, 2, 3]
     y = [3, 4, 5]
@@ -734,14 +670,6 @@ def test_create_source(ipk_app):
         voltage_current_choice="Current",
         voltage_current_value={"Type": "Transient", "Function": "Sinusoidal", "Values": ["0A", 1, 1, "1s"]},
     )
-    source_name = "s01"
-    assert ipk_app.create_source_power(
-        ipk_app.modeler["boxSource"].top_face_z.id, input_power="2W", source_name=source_name
-    )
-    with pytest.raises(AEDTRuntimeError, match=f"Failed to create boundary SourceIcepak {source_name}"):
-        ipk_app.create_source_power(
-            ipk_app.modeler["boxSource"].top_face_z.id, input_power="2W", source_name=source_name
-        )
 
 
 def test_import_idf(ipk_app, test_tmp_dir):
@@ -791,18 +719,6 @@ def test_create_fan(ipk_app, test_tmp_dir):
 
 
 def test_create_heat_sink(ipk_app):
-    # Deprecated many versions ago
-    # assert ipk_app.create_parametric_fin_heat_sink(
-    #     draftangle=1.5,
-    #     patternangle=8,
-    #     numcolumn_perside=3,
-    #     vertical_separation=5.5,
-    #     material="Copper",
-    #     center=[10, 0, 0],
-    #     plane_enum=Plane.XY,
-    #     rotation=45,
-    #     tolerance=0.005,
-    # )
     box = ipk_app.modeler.create_box([0, 0, 0], [20, 20, 3])
     top_face = box.top_face_z
     hs, _ = ipk_app.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
@@ -852,7 +768,7 @@ def test_export_fluent_mesh(cold_plate_app):
 def test_update_assignment(ipk_app):
     ipk_app.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
     box2 = ipk_app.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
-    bound = ipk_app.create_source_block("box", "1W", False)
+    bound = ipk_app.assign_solid_block("box", "1W")
     bound.props["Objects"].append(box2)
     assert bound.update_assignment()
     bound.props["Objects"].remove(box2)
@@ -1000,7 +916,7 @@ def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir):
     dup = board_ipk_app.modeler.user_defined_components["board_assembly1"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
     board_ipk_app.modeler.refresh_all_ids()
     board_ipk_app.modeler.user_defined_components[dup[0]].delete()
-    dup = board_ipk_app.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], nclones=2)
+    dup = board_ipk_app.modeler.user_defined_components["board_assembly1"].duplicate_along_line([1, 2, 0], clones=2)
     board_ipk_app.modeler.refresh_all_ids()
     board_ipk_app.modeler.user_defined_components[dup[0]].delete()
     board_ipk_app.delete_design()
@@ -1018,33 +934,37 @@ def test_create_conduting_plate(ipk_app):
     ipk_app.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
     ipk_app.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [10, 20], name="surf2")
     box_fc_ids = ipk_app.modeler.get_object_faces(box.name)
-    assert ipk_app.create_conduting_plate(
+    assert ipk_app.assign_conducting_plate(
         ipk_app.modeler.get_object_from_name(box.name).faces[0].id,
         thermal_specification="Thickness",
-        input_power="1W",
+        total_power="1W",
         thickness="1mm",
     )
-    with pytest.raises(AEDTRuntimeError, match=r"Failed to create boundary Conducting Plate Source_[A-Za-z0-9]*$"):
-        ipk_app.create_conduting_plate(
-            None, thermal_specification="Thickness", input_power="1W", thickness="1mm", radiate_low=True
+    with pytest.raises(AttributeError, match="Invalid ``obj_plate`` argument."):
+        ipk_app.assign_conducting_plate(
+            None,
+            thermal_specification="Thickness",
+            total_power="1W",
+            thickness="1mm",
+            low_side_rad_material="Steel-oxidised-surface",
         )
-    assert ipk_app.create_conduting_plate(
+    assert ipk_app.assign_conducting_plate(
         box_fc_ids,
         thermal_specification="Thickness",
-        input_power="1W",
+        total_power="1W",
         thickness="1mm",
-        bc_name="cond_plate_test",
+        boundary_name="cond_plate_test",
     )
-    assert ipk_app.create_conduting_plate(
+    assert ipk_app.assign_conducting_plate(
         "surf1",
         thermal_specification="Thermal Impedance",
-        input_power="1W",
+        total_power="1W",
         thermal_impedance="1.5celm2_per_w",
     )
-    assert ipk_app.create_conduting_plate(
+    assert ipk_app.assign_conducting_plate(
         ["surf1", "surf2"],
         thermal_specification="Thermal Resistance",
-        input_power="1W",
+        total_power="1W",
         thermal_resistance="2.5Kel_per_W",
     )
 
@@ -1155,10 +1075,6 @@ def test_mesh_priority(board_ipk_app):
         extent_type="Polygon",
         custom_x_RESOLUTION=400,
         custom_y_RESOLUTION=500,
-    )
-    assert board_ipk_app.mesh.add_priority(entity_type=1, assignment=board_ipk_app.modeler.object_names, priority=2)
-    assert board_ipk_app.mesh.add_priority(
-        entity_type=2, component=board_ipk_app.modeler.user_defined_component_names[0], priority=1
     )
     fan = board_ipk_app.create_fan(name="TestFan", is_2d=True)
     rect = board_ipk_app.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
@@ -1472,15 +1388,13 @@ def test_update_3d_component(ipk_app, test_tmp_dir):
 def test_import_dxf(ipk_app, test_tmp_dir):
     dxf_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf2.dxf"
     file = shutil.copy2(dxf_file, test_tmp_dir / "dxf2.dxf")
-    dxf_layers = ipk_app.get_dxf_layers(file)
+    dxf_layers = get_dxf_layers(file)
     assert isinstance(dxf_layers, list)
     assert ipk_app.import_dxf(file, dxf_layers)
 
 
 def test_mesh_priority_3d_comp(comp_priority_app):
-    assert comp_priority_app.mesh.add_priority(entity_type=2, component="IcepakDesign1_1", priority=3)
-    assert comp_priority_app.mesh.add_priority(entity_type=2, component="all_2d_objects1", priority=2)
-    assert comp_priority_app.mesh.add_priority(entity_type=2, component="all_3d_objects1", priority=2)
+    assert comp_priority_app.mesh.assign_priorities([["all_2d_objects1"], ["IcepakDesign1_1"]])
 
 
 def test_recirculation_boundary(ipk_app):

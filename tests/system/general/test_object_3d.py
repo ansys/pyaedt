@@ -434,7 +434,7 @@ def test_duplicate_around_axis_and_unite(aedt_app):
 
 def test_duplicate_along_line(aedt_app):
     turn = create_example_coil(aedt_app, "single_turn")
-    added_objects = turn.duplicate_along_line([0, 0, 15], nclones=3, attachObject=False)
+    added_objects = turn.duplicate_along_line([0, 0, 15], clones=3, attach=False)
     assert len(added_objects) == 2
     assert "single_turn" in aedt_app.modeler.line_names
 
@@ -459,7 +459,7 @@ def test_rotate(aedt_app):
 
 def test_mirror(aedt_app):
     box = create_copper_box(aedt_app)
-    assert box.mirror(position=[-10, 0, 0], vector=[0, 1, 0])
+    assert box.mirror(origin=[-10, 0, 0], vector=[0, 1, 0])
 
 
 def test_groups(aedt_app):

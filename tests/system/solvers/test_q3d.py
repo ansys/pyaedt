@@ -90,11 +90,10 @@ def test_create_discrete_sweep(aedt_app):
     assert setup.dc_resistance_only
     setup.dc_enabled = False
     setup.dc_enabled = True
-    sweep = aedt_app.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
+    sweep = setup.create_frequency_sweep(name="mysweep", start_frequency=1, unit="GHz")
     assert sweep
     assert sweep.props["RangeStart"] == "1GHz"
 
-    assert not aedt_app.create_discrete_sweep(setup.name, sweepname="mysweep", freqstart=1, units="GHz")
     assert setup.create_linear_step_sweep(
         name="StepFast",
         unit="GHz",
@@ -140,8 +139,8 @@ def test_create_frequency_sweep(aedt_app):
     assert setup.create_frequency_sweep(
         unit="GHz",
         name="Sweep1",
-        freqstart=9.5,
-        freqstop="10.5GHz",
+        start_frequency=9.5,
+        stop_frequency="10.5GHz",
         sweep_type="Interpolating",
     )
     sweep2 = setup.create_frequency_sweep(name="mysweep2", unit="GHz", start_frequency=1, stop_frequency=4)
@@ -163,11 +162,11 @@ def test_auto_identify_nets(aedt_app):
     aedt_app.modeler.create_box([0, 0, 0], [1, 1, 20], material="brass")
     aedt_app.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
     assert aedt_app.auto_identify_nets()
-    assert len(aedt_app.nets) == 2
+    assert len(aedt_app.net_names) == 2
     assert aedt_app.delete_all_nets()
-    assert len(aedt_app.nets) == 0
+    assert len(aedt_app.net_names) == 0
     assert aedt_app.auto_identify_nets()
-    nets = aedt_app.nets
+    nets = aedt_app.net_names
     assert "SignalNet" in aedt_app.nets_by_type
     net1 = aedt_app.design_nets[nets[0]]
     net2 = aedt_app.design_nets[nets[1]]
@@ -190,7 +189,7 @@ def test_auto_identify_nets(aedt_app):
 def test_autoidentify_no_nets(aedt_app):
     aedt_app.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
     assert aedt_app.auto_identify_nets()
-    assert not aedt_app.nets
+    assert not aedt_app.net_names
 
 
 def test_create_source_sinks(aedt_app):
@@ -232,15 +231,15 @@ def test_objects_from_nets(aedt_app):
     sink.name = "My_new_name"
     assert sink.update()
     assert sink.name == "My_new_name"
-    assert len(aedt_app.nets) > 0
+    assert len(aedt_app.net_names) > 0
     assert len(aedt_app.net_sources("GND")) > 0
     assert len(aedt_app.net_sinks("GND")) > 0
     assert len(aedt_app.net_sources("PGND")) == 0
     assert len(aedt_app.net_sinks("PGND")) == 0
-    obj_list = aedt_app.objects_from_nets(aedt_app.nets[0])
-    assert len(obj_list[aedt_app.nets[0]]) > 0
-    obj_list = aedt_app.objects_from_nets(aedt_app.nets[0], "steel")
-    assert len(obj_list[aedt_app.nets[0]]) == 0
+    obj_list = aedt_app.objects_from_nets(aedt_app.net_names[0])
+    assert len(obj_list[aedt_app.net_names[0]]) > 0
+    obj_list = aedt_app.objects_from_nets(aedt_app.net_names[0], "steel")
+    assert len(obj_list[aedt_app.net_names[0]]) == 0
 
 
 def test_create_faceted_bondwire(bond):
@@ -498,7 +497,7 @@ def test_toggle_net_with_sources(aedt_app):
     aedt_app.source("MyCylinder", direction=0, name="Source1")
     aedt_app.sink("MyCylinder", direction=3, name="Sink1")
     aedt_app.auto_identify_nets()
-    net = aedt_app.nets[0]
+    net = aedt_app.net_names[0]
     assert len(aedt_app.excitation_objects) == 3
     assert len(aedt_app.design_excitations) == 3
     assert "SignalNet" in aedt_app.nets_by_type
@@ -509,7 +508,7 @@ def test_toggle_net_with_sources(aedt_app):
     new_net = aedt_app.toggle_net(net, "Ground")
     assert new_net.type == "GroundNet"
     assert len(aedt_app.boundaries) == 1
-    assert len(aedt_app.nets) == 1
+    assert len(aedt_app.net_names) == 1
     new_sources = aedt_app.net_sources(net)
     new_sinks = aedt_app.net_sinks(net)
     assert len(sources) != len(new_sources)

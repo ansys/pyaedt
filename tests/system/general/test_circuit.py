@@ -384,10 +384,10 @@ def test_assign_power_sinusoidal_excitation_to_ports(aedt_app):
 
 def test_new_connect_components(aedt_app):
     myind = aedt_app.modeler.schematic.create_inductor("L100", 1e-9)
-    myres = aedt_app.modeler.components.create_resistor("R100", 50)
-    mycap = aedt_app.modeler.components.create_capacitor("C100", 1e-12)
-    myind2 = aedt_app.modeler.components.create_inductor("L101", 1e-9)
-    port = aedt_app.modeler.components.create_interface_port("Port1")
+    myres = aedt_app.modeler.schematic.create_resistor("R100", 50)
+    mycap = aedt_app.modeler.schematic.create_capacitor("C100", 1e-12)
+    myind2 = aedt_app.modeler.schematic.create_inductor("L101", 1e-9)
+    port = aedt_app.modeler.schematic.create_interface_port("Port1")
     assert not myind2.model_name
     assert not myind2.model_data
     assert aedt_app.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
@@ -416,13 +416,13 @@ def test_import_model(aedt_app, test_tmp_dir):
 
 def test_zoom_to_fit(aedt_app):
     aedt_app.modeler.schematic.create_inductor("L100", 1e-9)
-    aedt_app.modeler.components.create_resistor("R100", 50)
-    aedt_app.modeler.components.create_capacitor("C100", 1e-12)
+    aedt_app.modeler.schematic.create_resistor("R100", 50)
+    aedt_app.modeler.schematic.create_capacitor("C100", 1e-12)
     aedt_app.modeler.zoom_to_fit()
 
 
 def test_component_catalog(aedt_app):
-    comp_catalog = aedt_app.modeler.components.components_catalog
+    comp_catalog = aedt_app.modeler.schematic.components_catalog
     assert comp_catalog["Capacitors:Cap_"]
     assert comp_catalog["capacitors:cAp_"]
     assert isinstance(comp_catalog.find_components("cap"), list)
@@ -563,8 +563,8 @@ def test_netlist_data_block(aedt_app, test_tmp_dir):
             f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
             f.write(f"C{i} net_{i + 1} 0 5e-12\n")
     assert aedt_app.add_netlist_datablock(test_tmp_dir / "lc.net")
-    aedt_app.modeler.components.create_interface_port("net_0", (0, 0))
-    aedt_app.modeler.components.create_interface_port("net_10", (0.01, 0))
+    aedt_app.modeler.schematic.create_interface_port("net_0", (0, 0))
+    aedt_app.modeler.schematic.create_interface_port("net_10", (0.01, 0))
 
     lna = aedt_app.create_setup("mylna", Setups.NexximLNA)
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
@@ -572,12 +572,12 @@ def test_netlist_data_block(aedt_app, test_tmp_dir):
 
 
 def test_create_voltage_probe(aedt_app):
-    myprobe = aedt_app.modeler.components.create_voltage_probe(name="voltage_probe")
+    myprobe = aedt_app.modeler.schematic.create_voltage_probe(name="voltage_probe")
     assert type(myprobe.id) is int
 
 
 def test_draw_graphical_primitives(aedt_app):
-    line = aedt_app.modeler.components.create_line([[0, 0], [1, 1]])
+    line = aedt_app.modeler.schematic.create_line([[0, 0], [1, 1]])
     assert line
 
 
@@ -586,8 +586,8 @@ def test_browse_log_file(aedt_app, test_tmp_dir):
         for i in range(10):
             f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
             f.write(f"C{i} net_{i + 1} 0 5e-12\n")
-    aedt_app.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
-    aedt_app.modeler.components.create_interface_port("net_10", (0.01, 0))
+    aedt_app.modeler.schematic.create_interface_port("net_0", (0, 0), angle=90)
+    aedt_app.modeler.schematic.create_interface_port("net_10", (0.01, 0))
     lna = aedt_app.create_setup("mylna", Setups.NexximLNA)
     lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
     assert not aedt_app.browse_log_file()
@@ -812,7 +812,7 @@ def test_set_variable(aedt_app):
 def test_create_wire(aedt_app):
     myind = aedt_app.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
     myres = aedt_app.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
-    aedt_app.modeler.components.get_component(myres.composed_name)
+    aedt_app.modeler.schematic.get_component(myres.composed_name)
     aedt_app.modeler.schematic.create_wire([myind.pins[0].location, myres.pins[1].location], name="wire_name_test")
     wire_names = []
     for key in aedt_app.modeler.schematic.wires.keys():
@@ -1145,15 +1145,15 @@ def test_get_component_path_and_import_sss_files(aedt_app, test_tmp_dir):
 
     assert aedt_app.modeler.schematic.create_component_from_spicemodel(model_copy)
     assert len(aedt_app.modeler.schematic.components) == 1
-    assert list(aedt_app.modeler.components.components.values())[0].component_path
+    assert list(aedt_app.modeler.schematic.components.values())[0].component_path
     assert aedt_app.modeler.add_page("P2")
-    assert aedt_app.modeler.components.create_component(component_library="", component_name="RES_", page=2)
+    assert aedt_app.modeler.schematic.create_component(component_library="", component_name="RES_", page=2)
     assert aedt_app.modeler.rename_page(2, "P3")
-    cmp = aedt_app.modeler.components.create_component(component_library="", component_name="RES_", page=2)
+    cmp = aedt_app.modeler.schematic.create_component(component_library="", component_name="RES_", page=2)
     assert cmp.page == 2
 
     assert len(aedt_app.modeler.schematic.components) == 3
-    assert not list(aedt_app.modeler.components.components.values())[1].component_path
+    assert not list(aedt_app.modeler.schematic.components.values())[1].component_path
     t1 = aedt_app.modeler.schematic.create_touchstone_component(touchstone_1)
     assert len(aedt_app.modeler.schematic.components) == 4
     assert t1.component_path

@@ -31,6 +31,7 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -204,7 +205,7 @@ def test_assign_force(aedt_app):
 
 def test_assign_current_source(m2d_app):
     coil = m2d_app.modeler.create_circle(
-        position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
+        origin=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
     )
     assert m2d_app.assign_current([coil])
     m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
@@ -476,7 +477,7 @@ def test_control_program(m2d_ctrl_prg):
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Test fails on build machine")
 def test_import_dxf(m2d_app):
     dxf_file = Path(TESTS_GENERAL_PATH) / "example_models" / "cad" / "DXF" / "dxf2.dxf"
-    dxf_layers = m2d_app.get_dxf_layers(dxf_file)
+    dxf_layers = get_dxf_layers(dxf_file)
     assert isinstance(dxf_layers, list)
     assert m2d_app.import_dxf(dxf_file, dxf_layers)
     dxf_layers = ["invalid", "invalid1"]

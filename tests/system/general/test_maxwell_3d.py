@@ -40,6 +40,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -551,7 +552,7 @@ def test_initial_mesh_settings(m3d_app):
 def test_assign_voltage_drop(m3d_app, maxwell_versioned):
     m3d_app.solution_type = maxwell_versioned.Magnetostatic
 
-    circle = m3d_app.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
+    circle = m3d_app.modeler.create_circle(origin=[10, 10, 0], radius=5, orientation="XY")
     v_drop = m3d_app.assign_voltage_drop([circle.faces[0]])
     assert v_drop.props["Faces"][0] == circle.faces[0].id
     assert v_drop.props["Voltage Drop"] == "1mV"
@@ -702,8 +703,8 @@ def test_conduction_paths(m3d_app):
 def test_assign_independent_dependent(m3d_app):
     box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
     independent, dependent = m3d_app.assign_master_slave(
-        master_entity=box.faces[1],
-        slave_entity=box.faces[5],
+        independent=box.faces[1],
+        dependent=box.faces[5],
         u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
         u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
         u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -715,8 +716,8 @@ def test_assign_independent_dependent(m3d_app):
         ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
     ):
         m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
+            independent=box.faces[1],
+            dependent=box.faces[5],
             u_vector_origin_coordinates_master=[0, "0mm", "0mm"],
             u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -726,8 +727,8 @@ def test_assign_independent_dependent(m3d_app):
         ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
     ):
         m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
+            independent=box.faces[1],
+            dependent=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_master=[10, "0mm", "0mm"],
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -737,8 +738,8 @@ def test_assign_independent_dependent(m3d_app):
         ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
     ):
         m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
+            independent=box.faces[1],
+            dependent=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
             u_vector_origin_coordinates_slave=[10, "0mm", "0mm"],
@@ -748,8 +749,8 @@ def test_assign_independent_dependent(m3d_app):
         ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
     ):
         m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
+            independent=box.faces[1],
+            dependent=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -757,8 +758,8 @@ def test_assign_independent_dependent(m3d_app):
         )
     with pytest.raises(ValueError, match="Please provide a list of coordinates for U vectors."):
         m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
+            independent=box.faces[1],
+            dependent=box.faces[5],
             u_vector_origin_coordinates_master="0mm",
             u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -780,9 +781,8 @@ def test_add_mesh_link(m3d_app, test_tmp_dir, maxwell_versioned):
     assert meshlink_props["Soln"] == m3d_app.nominal_adaptive
     assert not m3d_app.setups[0].add_mesh_link(design="invalid")
     assert not m3d_app.setups[0].add_mesh_link(design=m3d_app.design_list[0], solution="invalid")
-    assert m3d_app.setups[0].add_mesh_link(
-        design=m3d_app.design_list[0], parameters=m3d_app.available_variations.nominal_w_values_dict
-    )
+    nominal_values = m3d_app.available_variations.get_independent_nominal_values()
+    assert m3d_app.setups[0].add_mesh_link(design=m3d_app.design_list[0], parameters=nominal_values)
     example_project = test_tmp_dir / "test.aedt"
     m3d_app.save_project(str(example_project))
     example_project_copy = test_tmp_dir / "test_copy.aedt"
@@ -874,7 +874,7 @@ def test_objects_segmentation(m3d_app):
 
 def test_import_dxf(m3d_app):
     dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
-    dxf_layers = m3d_app.get_dxf_layers(dxf_file)
+    dxf_layers = get_dxf_layers(dxf_file)
     assert isinstance(dxf_layers, list)
     assert m3d_app.import_dxf(dxf_file, dxf_layers)
     assert m3d_app.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=0.2)
@@ -1056,15 +1056,15 @@ def test_enable_harmonic_force_layout(layout_comp):
 def test_order_coil_terminals(m3d_app):
     m3d_app.solution_type = "TransientAPhiFormulation"
     c1 = m3d_app.modeler.create_cylinder(
-        orientation=m3d_app.AXIS.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
+        orientation=Axis.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
     )
 
     c2 = m3d_app.modeler.create_cylinder(
-        orientation=m3d_app.AXIS.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
+        orientation=Axis.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
     )
 
     c3 = m3d_app.modeler.create_cylinder(
-        orientation=m3d_app.AXIS.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
+        orientation=Axis.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
     )
 
     m3d_app.assign_coil(assignment=[c1.top_face_z], name="CoilTerminal1")

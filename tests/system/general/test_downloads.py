@@ -63,7 +63,7 @@ def test_download_antenna_sherlock(test_tmp_dir):
 
 @pytest.mark.skipif(is_linux, reason="Crashes on Linux")
 def test_download_multiparts(test_tmp_dir):
-    assert downloads.download_multiparts(destination=test_tmp_dir / "multi")
+    assert downloads.download_multiparts(local_path=test_tmp_dir / "multi")
 
 
 def test_download_leaf(test_tmp_dir):
@@ -107,9 +107,9 @@ def test_download_specific_file(test_tmp_dir):
 
 
 def test_download_specific_folder(test_tmp_dir):
-    example_folder = downloads.download_file(directory="nissan", local_path=test_tmp_dir)
+    example_folder = downloads.download_file(source="nissan", local_path=test_tmp_dir)
     assert Path(example_folder).exists()
-    example_folder = downloads.download_file(directory="wpf_edb_merge", local_path=test_tmp_dir)
+    example_folder = downloads.download_file(source="wpf_edb_merge", local_path=test_tmp_dir)
     assert Path(example_folder).exists()
 
 

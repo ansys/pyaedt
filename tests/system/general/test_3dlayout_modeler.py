@@ -746,10 +746,6 @@ def test_variables(aedt_app):
     assert isinstance(aedt_app.available_variations.nominal, dict)
     assert isinstance(aedt_app.available_variations.all, dict)
 
-    # Deprecated
-    assert isinstance(aedt_app.available_variations.nominal_w_values_dict, dict)
-    assert isinstance(aedt_app.available_variations.nominal_w_values, list)
-
 
 def test_duplicate(aedt_app):
     aedt_app.modeler.layers.add_layer(

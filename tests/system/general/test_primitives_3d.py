@@ -947,7 +947,7 @@ def test_create_rect_sheet_to_ground_with_multiple_arguments(aedt_app):
     rect = create_rectangle(aedt_app)
     box = create_copper_box(aedt_app)
 
-    ground_plane = aedt_app.modeler.create_sheet_to_ground(box.name, rect.name, aedt_app.AxisDir.ZNeg)
+    ground_plane = aedt_app.modeler.create_sheet_to_ground(box.name, rect.name, aedt_app.axis_directions.ZNeg)
 
     assert isinstance(ground_plane, Object3d)
     assert ground_plane.id > 0
@@ -2192,7 +2192,7 @@ def test_operations_3dcomponent(aedt_app):
 
 
 def test_cover_face(aedt_app):
-    o1 = aedt_app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
+    o1 = aedt_app.modeler.create_circle(orientation=0, origin=[0, 0, 0], radius=10)
     assert aedt_app.modeler.cover_faces(o1)
 
 
@@ -2522,7 +2522,7 @@ def test_sweep_around_axis(aedt_app):
 
 
 def test_uncover_faces(aedt_app):
-    o1 = aedt_app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
+    o1 = aedt_app.modeler.create_circle(orientation=0, origin=[0, 0, 0], radius=10)
     assert aedt_app.modeler.uncover_faces([o1.faces[0]])
     c1 = aedt_app.modeler.create_circle(orientation=Axis.X, origin=[0, 10, 20], radius="3", name="Circle1")
     b1 = aedt_app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")

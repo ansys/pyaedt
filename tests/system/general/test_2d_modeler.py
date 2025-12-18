@@ -128,9 +128,8 @@ def test_create_circle(aedt_app):
     aedt_app.solution_type = "MagnetostaticXY"
     circle1 = aedt_app.modeler.create_circle([0, -2, 0], 3)
 
-    # TODO: deprecate "matname" as named argument, replace it with the Object3D property "material_name"
     circle2 = aedt_app.modeler.create_circle(
-        position=[0, -2, -2],
+        origin=[0, -2, -2],
         radius=3,
         num_sides=6,
         name="MyCircle",
@@ -147,7 +146,7 @@ def test_create_circle(aedt_app):
     assert circle2.material_name == "copper"
     assert is_close(circle1.faces[0].area, math.pi * 3.0 * 3.0)
     circle3 = aedt_app.modeler.create_circle(
-        position=[0, 4, -2],
+        origin=[0, 4, -2],
         radius=2,
         num_sides=8,
         name="Circle3",
@@ -155,7 +154,7 @@ def test_create_circle(aedt_app):
     )
     assert circle3.material_name == "copper"
     circle4 = aedt_app.modeler.create_circle(
-        position=[0, -4, -2],
+        origin=[0, -4, -2],
         radius=2.2,
         num_sides=6,
         name="NonModelCirc",
@@ -184,7 +183,7 @@ def test_create_ellipse(aedt_app):
     aedt_app.solution_type = "MagnetostaticXY"
     ellipse1 = aedt_app.modeler.create_ellipse([0, -2, 0], 4.0, 3)
     ellipse2 = aedt_app.modeler.create_ellipse(
-        position=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", material="Copper"
+        origin=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", material="Copper"
     )
     assert ellipse1.solve_inside
     assert ellipse1.model
@@ -201,7 +200,7 @@ def test_create_regular_polygon(aedt_app):
     aedt_app.solution_type = "MagnetostaticXY"
     pg1 = aedt_app.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
     pg2 = aedt_app.modeler.create_regular_polygon(
-        position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", material="Copper"
+        origin=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", material="Copper"
     )
     assert pg1.solve_inside
     assert pg1.model
@@ -221,7 +220,7 @@ def test_plot(aedt_app, test_tmp_dir):
     aedt_app.solution_type = "MagnetostaticZ"
     aedt_app.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
     aedt_app.modeler.create_regular_polygon(
-        position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", material="Copper"
+        origin=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", material="Copper"
     )
     output_file = test_tmp_dir / "image.jpg"
     obj = aedt_app.plot(

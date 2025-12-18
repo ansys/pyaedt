@@ -99,7 +99,7 @@ def test_add_subcircuits_3dlayout(circuit_app):
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
 def test_add_subcircuits_hfss_link(circuit_app, add_app_example):
     app = add_app_example(project=SRC_PROJECT_NAME, application=Hfss, subfolder=TEST_SUBFOLDER, close_projects=False)
-    hfss_comp = circuit_app.modeler.schematic.add_subcircuit_dynamic_link(app, comp_name=SRC_USB)
+    hfss_comp = circuit_app.modeler.schematic.add_subcircuit_dynamic_link(app, name=SRC_USB)
     assert hfss_comp.id == 86
     assert circuit_app.modeler.schematic.refresh_dynamic_link(SRC_USB)
     app.close_project(app.project_name, save=False)
@@ -108,7 +108,7 @@ def test_add_subcircuits_hfss_link(circuit_app, add_app_example):
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
 def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app):
     app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
-    hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name="uUSB")
+    hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, name="uUSB")
     assert app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
     assert app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
     assert not app.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
@@ -117,7 +117,7 @@ def test_set_sim_option_on_hfss_subcircuit(usb_app, add_app):
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
 def test_set_sim_solution_on_hfss_subcircuit(usb_app, add_app):
     app = add_app(application=Circuit, project=usb_app.project_name, close_projects=False)
-    hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, comp_name="uUSB")
+    hfss_comp = app.modeler.schematic.add_subcircuit_dynamic_link(usb_app, name="uUSB")
     assert app.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
 

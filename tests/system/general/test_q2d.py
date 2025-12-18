@@ -29,6 +29,7 @@ import pytest
 import ansys.aedt.core
 from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import NON_GRAPHICAL
@@ -299,7 +300,7 @@ def test_export_results(q2d_solved):
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Test fails on build machine")
 def test_import_dxf(aedt_app):
     dxf_file = TESTS_GENERAL_PATH / "example_models" / "cad" / "DXF" / "dxf1.dxf"
-    dxf_layers = aedt_app.get_dxf_layers(dxf_file)
+    dxf_layers = get_dxf_layers(dxf_file)
     assert isinstance(dxf_layers, list)
     assert aedt_app.import_dxf(dxf_file, dxf_layers)
 

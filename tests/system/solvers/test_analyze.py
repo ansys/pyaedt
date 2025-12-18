@@ -338,10 +338,10 @@ def test_icepak_analyze_and_export_summary(icepak_solved):
     assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
     icepak_solved.save_project()
     assert icepak_solved.export_summary(
-        icepak_solved.working_directory, geometryType="Surface", variationlist=[], filename="A"
+        icepak_solved.working_directory, geometry_type="Surface", variation=[], filename="A"
     )  # check usage of deprecated arguments
     assert icepak_solved.export_summary(
-        icepak_solved.working_directory, geometry_type="Surface", variation_list=[], filename="B"
+        icepak_solved.working_directory, geometry_type="Surface", variation=[], filename="B"
     )
     assert icepak_solved.export_summary(
         icepak_solved.working_directory, geometry_type="Volume", type="Boundary", filename="C"
