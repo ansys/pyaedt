@@ -720,6 +720,9 @@ def deprecate_enum(new_enum):
 
 
 class DynamicMeta(type):
+    def __hash__(cls):
+        return hash(cls.__hash__())
+
     def __getitem__(cls, key):
         # Route __getitem__ through __getattribute__ for consistency
         return cls.__getattribute__(key)
