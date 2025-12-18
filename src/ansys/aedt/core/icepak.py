@@ -600,7 +600,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         self.logger.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
-
     @pyaedt_function_handler()
     def assign_priority_on_intersections(self, component_prefix="COMP_"):
         """Validate an Icepak design.
@@ -644,7 +643,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                 self.mesh.add_priority(1, [objname], priority=i)
                 i += 1
         return True
-
 
     @pyaedt_function_handler()
     def find_top(self, gravity_dir):
