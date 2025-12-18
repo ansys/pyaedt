@@ -238,7 +238,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     ):
         FieldAnalysisRMxprt.__init__(
             self,
-            "RMxprtSolution",
+            "RMXPRT",
             project,
             design,
             solution_type,
@@ -270,11 +270,11 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     @property
     def design_type(self):
         """Machine design type."""
-        return self.design_solutions.design_type
+        return str(self.design_solutions._design_type)
 
     @design_type.setter
     def design_type(self, value):
-        self.design_solutions.design_type = value
+        self.design_solutions._design_type = value
 
     @pyaedt_function_handler()
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):

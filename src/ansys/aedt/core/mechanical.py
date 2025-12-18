@@ -142,7 +142,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
     ):
         FieldAnalysis3D.__init__(
             self,
-            "Mechanical",
+            "ICEPAKFEA",
             project,
             design,
             solution_type,

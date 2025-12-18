@@ -178,7 +178,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     ):
         FieldAnalysisIcepak.__init__(
             self,
-            "Icepak",
+            "ICEPAK",
             project,
             design,
             solution_type,

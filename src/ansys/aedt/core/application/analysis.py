@@ -1819,7 +1819,7 @@ class Analysis(Design, PyAedtBase):
         result = True
         if acf_file:  # pragma: no cover
             set_custom_dso = self.set_hpc_from_file(acf_file)
-        elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
+        elif self.design_type not in ["RMxprt", "ModelCreation"] and (gpus or tasks or cores):
             set_custom_dso = self.set_custom_hpc_options(
                 cores=cores,
                 gpus=gpus,
@@ -1831,7 +1831,7 @@ class Analysis(Design, PyAedtBase):
         if name is None:
             try:
                 if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
-                    "RMxprtSolution",
+                    "RMxprt",
                     "ModelCreation",
                 ]:
                     self.odesign.AnalyzeAll(blocking)
@@ -1850,7 +1850,7 @@ class Analysis(Design, PyAedtBase):
             try:
                 self.logger.info("Solving design setup %s", name)
                 if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
-                    "RMxprtSolution",
+                    "RMxprt",
                     "ModelCreation",
                 ]:
                     self.odesign.Analyze(name, blocking)

@@ -35,7 +35,6 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
-from ansys.aedt.core.modules.mesh import meshers
 
 
 class CommonRegion(PyAedtBase):
@@ -1000,7 +999,7 @@ class IcepakMesh(PyAedtBase):
 
         self._odesign = self._app._odesign
         design_type = self._odesign.GetDesignType()
-        if design_type not in meshers:
+        if not hasattr(self._app._design_type, "mesher"):
             raise RuntimeError(f"Invalid design type {design_type}")  # pragma: no cover
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
