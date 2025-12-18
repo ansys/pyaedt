@@ -182,7 +182,7 @@ def test_layout_design_toolkit_microvia(add_app, local_scratch):
     h3d.save_project()
 
     # Get valid padstack definition from the design
-    pedb = h3d.modeler.primitives.edb
+    pedb = h3d.modeler.edb
     available_padstacks = ["pad1"]
     pedb.close()
 

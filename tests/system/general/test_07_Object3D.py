@@ -471,7 +471,7 @@ class TestClass:
 
     def test_16_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")
-        added_objects = turn.duplicate_along_line([0, 0, 15], nclones=3, attachObject=False)
+        added_objects = turn.duplicate_along_line([0, 0, 15], clones=3, attach=False)
         assert len(added_objects) == 2
         assert "single_turn" in self.aedtapp.modeler.line_names
 
@@ -491,7 +491,7 @@ class TestClass:
 
     def test_20_mirror(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "MirrorBox", "Copper")
-        assert o.mirror(position=[-10, 0, 0], vector=[0, 1, 0])
+        assert o.mirror(origin=[-10, 0, 0], vector=[0, 1, 0])
 
     def test_21_groups(self):
         o1 = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "GroupB1", "Copper")

@@ -26,7 +26,6 @@
 # import sys
 from pathlib import Path
 from typing import Union
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
@@ -130,23 +129,6 @@ class Primitives3DLayout(PyAedtBase):
         return self._app.opadstack_manager
 
     @property
-    def opadstackmanager(self):  # pragma: no cover
-        """AEDT oPadstackManager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`opadstack_manager` property instead.
-
-        References
-        ----------
-        >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
-        """
-        warnings.warn(
-            "`opadstackmanager` is deprecated. Use `opadstack_manager` instead.",
-            DeprecationWarning,
-        )
-        return self._app.opadstack_manager
-
-    @property
     def components(self):
         """Components.
 
@@ -237,7 +219,7 @@ class Primitives3DLayout(PyAedtBase):
             geom[k] = v
         return geom
 
-    @pyaedt_function_handler(layer_name="layer", object_filter="filter")
+    @pyaedt_function_handler()
     def objects_by_layer(self, layer, object_filter=None, include_voids=False):
         """Retrieve the list of objects that belongs to a specific layer.
 
@@ -274,7 +256,7 @@ class Primitives3DLayout(PyAedtBase):
             objs = self.modeler.oeditor.FindObjects("Layer", layer)
         return objs
 
-    @pyaedt_function_handler(net_name="net")
+    @pyaedt_function_handler()
     def objects_by_net(self, net, object_filter=None, include_voids=False):
         """Retrieve the list of objects that belongs to a specific net.
 
@@ -870,7 +852,7 @@ class Primitives3DLayout(PyAedtBase):
 
         return self._padstacks
 
-    @pyaedt_function_handler(netlist="assignment")
+    @pyaedt_function_handler()
     def change_net_visibility(self, assignment=None, visible=False):
         """Change the visibility of one or more nets.
 
@@ -932,7 +914,7 @@ class Primitives3DLayout(PyAedtBase):
             self.logger.error("Couldn't change nets visibility.")
             return False
 
-    @pyaedt_function_handler(netname="net")
+    @pyaedt_function_handler()
     def create_via(
         self,
         padstack="PlanarEMVia",
@@ -1031,7 +1013,7 @@ class Primitives3DLayout(PyAedtBase):
             self.logger.error(str(e))
             return False
 
-    @pyaedt_function_handler(layername="layer", netname="net", net_name="net")
+    @pyaedt_function_handler()
     def create_circle(self, layer, x, y, radius, name=None, net=None, **kwargs):
         """Create a circle on a layer.
 
@@ -1086,7 +1068,7 @@ class Primitives3DLayout(PyAedtBase):
 
         return primitive
 
-    @pyaedt_function_handler(layername="layer", dimensions="sizes", net_name="net", netname="net")
+    @pyaedt_function_handler()
     def create_rectangle(self, layer, origin, sizes, corner_radius=0, angle=0, name=None, net=None, **kwargs):
         """Create a rectangle on a layer.
 
@@ -1152,7 +1134,7 @@ class Primitives3DLayout(PyAedtBase):
 
         return primitive
 
-    @pyaedt_function_handler(layername="layer", net_name="net")
+    @pyaedt_function_handler()
     def create_polygon(self, layer, point_list, units=None, name=None, net=None):
         """Create a polygon on a specified layer.
 
@@ -1207,7 +1189,7 @@ class Primitives3DLayout(PyAedtBase):
 
         return primitive
 
-    @pyaedt_function_handler(layername="layer", point_list="points", object_owner="assignment")
+    @pyaedt_function_handler()
     def create_polygon_void(self, layer, points, assignment, units=None, name=None):
         """Create a polygon void on a specified layer.
 
@@ -1261,9 +1243,7 @@ class Primitives3DLayout(PyAedtBase):
 
         return primitive
 
-    @pyaedt_function_handler(
-        layername="layer", center_line_list="center_line_coordinates", net_name="net", netname="net"
-    )
+    @pyaedt_function_handler()
     def create_line(
         self, layer, center_line_coordinates, lw=1, start_style=0, end_style=0, name=None, net=None, **kwargs
     ):
@@ -1305,12 +1285,6 @@ class Primitives3DLayout(PyAedtBase):
         ----------
         >>> oEditor.CreateLine
         """
-        if "netname" in kwargs:
-            warnings.warn(
-                "`netname` is deprecated. Use `net_name` instead.",
-                DeprecationWarning,
-            )
-            net = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -1347,30 +1321,6 @@ class Primitives3DLayout(PyAedtBase):
         if net:
             primitive.change_property(value=["NAME:Net", "Value:=", net])
         return primitive
-
-    @pyaedt_function_handler()
-    def number_with_units(self, value, units=None):
-        """Convert a number to a string with units.
-
-        .. deprecated:: 0.14.0
-            Use :func:`value_with_units` in Analysis class instead.
-
-        If value is a string, it's returned as is.
-
-        Parameters
-        ----------
-        value : float, int, str
-            Input  number or string.
-        units : optional
-            Units for formatting. The default is ``None``, which uses ``"meter"``.
-
-        Returns
-        -------
-        str
-           String concatenating the value and unit.
-
-        """
-        return self._app.value_with_units(value, units)
 
     @pyaedt_function_handler()
     def place_3d_component(
@@ -1571,7 +1521,7 @@ class Primitives3DLayout(PyAedtBase):
         comp = Components3DLayout(self, comp_name.split(";")[-1])
         return comp
 
-    @pyaedt_function_handler(placement_layer="layer")
+    @pyaedt_function_handler()
     def create_text(self, text, position, layer="PostProcessing", angle=0, font_size=12):
         """Create a text primitive object.
 

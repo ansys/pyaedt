@@ -297,7 +297,7 @@ class AnsysReport(FPDF, PyAedtBase):
             if os.path.exists(image_path):
                 self.add_image(image_path, "Model Image")
         elif design.design_type in ["Circuit Design"]:
-            msg = f"The schematic has {len(design.modeler.components.components)} components."
+            msg = f"The schematic has {len(design.modeler.schematic.components)} components."
             self.add_text(msg)
 
         if design.setups:
