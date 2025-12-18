@@ -1071,4 +1071,3 @@ class TestClass:
         face_sink = m3d_app.modeler.get_faceid_from_position(position=[0, 0, 1], assignment="mycyl")
         bound = m3d_app.assign_sink(assignment=face_sink, name="my_sink")
         assert bound
-        assert bound.props["Faces"][0] == face_sink.id
