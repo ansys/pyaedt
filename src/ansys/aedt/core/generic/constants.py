@@ -2479,7 +2479,7 @@ class EnumUnits(IntEnumProps):
     Nppermi = auto()
 
 
-class AllowedMarkers(metaclass=DynamicMeta):
+class AllowedMarkers(IntEnumProps):
     Octahedron = 12
     Tetrahedron = 11
     Sphere = 9
