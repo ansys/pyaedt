@@ -721,7 +721,7 @@ def deprecate_enum(new_enum):
 
 class DynamicMeta(type):
     def __hash__(cls):
-        return hash(cls.__hash__())
+        return hash((cls.__module__, cls.__qualname__))
 
     def __getitem__(cls, key):
         # Route __getitem__ through __getattribute__ for consistency
