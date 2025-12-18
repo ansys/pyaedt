@@ -1316,7 +1316,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.boundaries:
             dict_out["boundaries"] = {}
@@ -1331,7 +1331,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_coordinate_systems(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.modeler.coordinate_systems:
             dict_out["coordinatesystems"] = {}
@@ -1354,7 +1354,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
@@ -1374,7 +1374,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
@@ -1406,7 +1406,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_monitors = []
         native_parts = [
@@ -1447,7 +1447,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_materials(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         output_dict = {}
         for el, val in self._app.materials.material_keys.items():

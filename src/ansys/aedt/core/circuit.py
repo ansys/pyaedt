@@ -167,7 +167,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     ):
         FieldAnalysisCircuit.__init__(
             self,
-            "Circuit Design",
+            "CIRCUIT",
             project,
             design,
             solution_type,

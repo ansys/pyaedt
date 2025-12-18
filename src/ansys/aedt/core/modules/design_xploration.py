@@ -38,7 +38,6 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
@@ -420,8 +419,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
             maxwell_solutions.Magnetostatic,
             maxwell_solutions.ElectroStatic,
