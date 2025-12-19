@@ -1019,9 +1019,7 @@ jobs:
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
-        env:
-          UV_PYTHON_VERSION: ${{ env.TESTS_VERSION }}
-        run: uv venv .venv --python $UV_PYTHON_VERSION
+        run: uv venv .venv
 
       - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
@@ -1136,9 +1134,7 @@ jobs:
 
       - name: Create virtual environment
         if: steps.changes.outputs.run_tests == 'true'
-        env:
-          UV_PYTHON_VERSION: ${{ env.TESTS_VERSION }}
-        run: uv venv .venv --python $UV_PYTHON_VERSION
+        run: uv venv .venv
 
       - name: Upgrade wheel and setuptools
         if: steps.changes.outputs.run_tests == 'true'
