@@ -74,3 +74,31 @@ class TestClass:
         assert aedtapp.post.plots
         assert reports == aedtapp.post.plots
         assert reports[0].expressions == ["Voltage_Line"]
+
+    def test_delete_expression(self, aedtapp):
+        poly = aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        expressions = aedtapp.post.fields_calculator.get_expressions()
+        assert "Voltage_Line" not in list(expressions.keys())
+        expr_name = aedtapp.post.fields_calculator.add_expression("voltage_line", poly.name)
+        expressions = aedtapp.post.fields_calculator.get_expressions()
+        assert "Voltage_Line" in list(expressions.keys())
+        aedtapp.post.fields_calculator.delete_expression(expr_name)
+        expressions = aedtapp.post.fields_calculator.get_expressions()
+        assert "Voltage_Line" not in list(expressions.keys())
+
+    def test_is_expression_defined(self, aedtapp):
+        aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        aedtapp.create_setup()
+        assert not aedtapp.post.fields_calculator.is_expression_defined("Voltage_Line")
+        expr_name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        assert aedtapp.post.fields_calculator.is_expression_defined(expr_name)
+
+    def test_is_general_expression(self, aedtapp):
+        aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        aedtapp.create_setup()
+        assert not aedtapp.post.fields_calculator.is_general_expression("invalid")
+        assert not aedtapp.post.fields_calculator.is_general_expression("voltage_line")
+        assert aedtapp.post.fields_calculator.is_general_expression("voltage_drop")
+
+    def test_validate_expression(self, aedtapp):
+        assert not aedtapp.post.fields_calculator.validate_expression("invalid")
