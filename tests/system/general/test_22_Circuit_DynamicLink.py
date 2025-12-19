@@ -114,20 +114,20 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_03_add_subcircuits_hfss_link(self, uusb, aedtapp):
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
+        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, name="uUSB")
         assert hfss_comp.id == 86
         assert aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_05_set_sim_option_on_hfss_subcircuit(self, aedtapp, uusb):
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
+        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, name="uUSB")
         assert aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
         assert aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
         assert not aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_06_set_sim_solution_on_hfss_subcircuit(self, aedtapp, uusb):
-        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
+        hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, name="uUSB")
         assert aedtapp.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
@@ -191,11 +191,11 @@ class TestClass:
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_12_create_interface_port(self, aedtapp):
-        page_port = aedtapp.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
-        interface_port = aedtapp.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
-        second_page_port = aedtapp.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
-        second_interface_port = aedtapp.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
-        assert not aedtapp.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
+        page_port = aedtapp.modeler.schematic.create_page_port(name="Port12", location=[0, -0.50])
+        interface_port = aedtapp.modeler.schematic.create_interface_port(name="Port12", location=[0.3, -0.50])
+        second_page_port = aedtapp.modeler.schematic.create_page_port(name="Port12", location=[0.45, -0.5])
+        second_interface_port = aedtapp.modeler.schematic.create_interface_port(name="Port122", location=[0.6, -0.50])
+        assert not aedtapp.modeler.schematic.create_interface_port(name="Port122", location=[0.6, -0.50])
         assert page_port.composed_name != second_page_port.composed_name
         assert page_port.composed_name != interface_port.name
         assert page_port.composed_name != second_interface_port.name
