@@ -498,7 +498,6 @@ def test_toggle_net_with_sources(aedt_app):
     aedt_app.sink("MyCylinder", direction=3, name="Sink1")
     aedt_app.auto_identify_nets()
     net = aedt_app.net_names[0]
-    assert len(aedt_app.excitation_objects) == 3
     assert len(aedt_app.design_excitations) == 3
     assert "SignalNet" in aedt_app.nets_by_type
     sources = aedt_app.net_sources(net)

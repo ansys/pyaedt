@@ -187,11 +187,11 @@ def test_siwave_link(aedt_app, test_tmp_dir):
 
 @pytest.mark.skipif(SKIP_CIRCUITS, reason="Skipped because Desktop is crashing")
 def test_create_interface_port(aedt_app):
-    page_port = aedt_app.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
-    interface_port = aedt_app.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
-    second_page_port = aedt_app.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
-    second_interface_port = aedt_app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
-    assert not aedt_app.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
+    page_port = aedt_app.modeler.schematic.create_page_port(name="Port12", location=[0, -0.50])
+    interface_port = aedt_app.modeler.schematic.create_interface_port(name="Port12", location=[0.3, -0.50])
+    second_page_port = aedt_app.modeler.schematic.create_page_port(name="Port12", location=[0.45, -0.5])
+    second_interface_port = aedt_app.modeler.schematic.create_interface_port(name="Port122", location=[0.6, -0.50])
+    assert not aedt_app.modeler.schematic.create_interface_port(name="Port122", location=[0.6, -0.50])
     assert page_port.composed_name != second_page_port.composed_name
     assert page_port.composed_name != interface_port.name
     assert page_port.composed_name != second_interface_port.name
