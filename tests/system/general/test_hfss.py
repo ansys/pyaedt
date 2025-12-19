@@ -1066,9 +1066,8 @@ def test_add_mesh_link(aedt_app):
     assert not aedt_app.setups[0].add_mesh_link(design="")
     assert aedt_app.setups[0].add_mesh_link(design=design_name, solution="MySetup : LastAdaptive")
     assert not aedt_app.setups[0].add_mesh_link(design=design_name, solution="Setup_Test : LastAdaptive")
-    assert aedt_app.setups[0].add_mesh_link(
-        design=design_name, parameters=aedt_app.available_variations.nominal_w_values_dict
-    )
+    nominal_values = aedt_app.available_variations.get_independent_nominal_values()
+    assert aedt_app.setups[0].add_mesh_link(design=design_name, parameters=nominal_values)
 
 
 def test_create_microstrip_port(aedt_app):

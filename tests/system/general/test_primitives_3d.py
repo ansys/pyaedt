@@ -1448,8 +1448,8 @@ def test_get_edges_on_bounding_box(aedt_app):
     # Edges on bounding box for Rect2 are on x=13 and y=8.
     # Total edges on bounding box: 4.
     # Colinear edges: None.
-    rect1 = aedt_app.modeler.create_rectangle(Plane.XY, position=[0, 0, 0], dimension_list=[10, 5], name="Rect1")
-    rect2 = aedt_app.modeler.create_rectangle(Plane.XY, position=[5, 5, 0], dimension_list=[8, 3], name="Rect2")
+    rect1 = aedt_app.modeler.create_rectangle(Plane.XY, origin=[0, 0, 0], sizes=[10, 5], name="Rect1")
+    rect2 = aedt_app.modeler.create_rectangle(Plane.XY, origin=[5, 5, 0], sizes=[8, 3], name="Rect2")
 
     # Test with return_colinear=False
     edges = aedt_app.modeler.get_edges_on_bounding_box([rect1, rect2], return_colinear=False)
@@ -1464,7 +1464,7 @@ def test_get_edges_on_bounding_box(aedt_app):
     # The new bounding box will be [0, 0, 0, 13, 8, 0].
     # Rect3 has an edge from (0,5,0) to (0,8,0) which is on the bounding box (x=0).
     # This edge is colinear with the edge from Rect1 on x=0.
-    rect3 = aedt_app.modeler.create_rectangle(Plane.XY, position=[0, 5, 0], dimension_list=[5, 3], name="Rect3")
+    rect3 = aedt_app.modeler.create_rectangle(Plane.XY, origin=[0, 5, 0], sizes=[5, 3], name="Rect3")
     edges = aedt_app.modeler.get_edges_on_bounding_box([rect1, rect2, rect3], return_colinear=True)
     assert len(edges) == 4
 
@@ -1474,7 +1474,7 @@ def test_get_edges_on_bounding_box(aedt_app):
 
     # Test with objects that have no edges on the bounding box
     aedt_app.modeler.create_box(origin=[20, 20, 20], sizes=[5, 5, 5])
-    rect4 = aedt_app.modeler.create_rectangle(Plane.XY, position=[1, 1, 0], dimension_list=[1, 1], name="Rect4")
+    rect4 = aedt_app.modeler.create_rectangle(Plane.XY, origin=[1, 1, 0], sizes=[1, 1], name="Rect4")
     edges = aedt_app.modeler.get_edges_on_bounding_box(rect4, return_colinear=False)
     assert len(edges) == 0
 
