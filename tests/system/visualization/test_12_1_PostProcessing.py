@@ -117,7 +117,13 @@ class TestClass:
         plot1.IsoVal = "Tone"
         plot1.update_field_plot_settings()
         plot1.update()
-        assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
+        aedtapp.save_project()
+        plot1.folder_settings.scale_settings.scale_type = "MinMax"
+        plot1.folder_settings.update()
+        plot1.folder_settings.scale_settings.scale_settings.max_value = 30000
+        plot1.folder_settings.scale_settings.scale_settings.min_value = min_value
+        plot1.folder_settings.scale_settings.scale_settings.n_levels = 50
+        plot1.folder_settings.update()
 
     def test_create_fieldplot_volume_invalid(self, aedtapp):
         frequency = Quantity("5GHz")

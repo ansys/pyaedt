@@ -160,22 +160,6 @@ class EmitNode:
         return props
 
     @property
-    def node_warnings(self) -> str:
-        """Warnings for the node, if any.
-
-        .. deprecated: 0.21.3
-            Use warnings property instead
-
-        Returns
-        -------
-        str
-            Warning message(s).
-        """
-        warnings.warn("This property is deprecated in 0.21.3. Use the warnings property instead.", DeprecationWarning)
-
-        return self.warnings
-
-    @property
     def warnings(self) -> str:
         """Warnings for the node, if any.
 

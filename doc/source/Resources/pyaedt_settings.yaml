@@ -51,7 +51,7 @@ lsf:
   # Command to launch the task in the LSF Scheduler
   lsf_aedt_command: 'ansysedt'
   # Number of LSF cores
-  lsf_num_cores: 4
+  num_cores: 4
   # Operating system string
   lsf_osrel: null
   # LSF queue name

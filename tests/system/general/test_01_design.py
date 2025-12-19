@@ -324,9 +324,6 @@ def test_import_dataset3d_xlsx(aedtapp):
 
 def test_get_3dComponents_properties(aedtapp):
     assert len(aedtapp.components3d) > 0
-    # Deprecated
-    props = aedtapp.get_components3d_vars("Dipole_Antenna_DM")
-    assert len(props) == 3
     props = aedtapp.get_component_variables("Dipole_Antenna_DM")
     assert len(props) == 3
 
