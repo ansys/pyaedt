@@ -173,7 +173,7 @@ def test_hfss_link(q3d_app, add_app):
     assert app.modeler.schematic.add_subcircuit_dynamic_link(hfss_app, solution_name="Setup2 : Sweep", tline_port="1")
 
 
-@pytest.mark.skipif(is_linux, reason="Method not working in Linux and Non graphical")
+@pytest.mark.skipif(is_linux, reason="Method not working in Linux")
 def test_siwave_link(aedt_app, test_tmp_dir):
     model_o = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "siwave_syz.siw"
     model = shutil.copy2(model_o, test_tmp_dir / "siwave_syz.siw")
