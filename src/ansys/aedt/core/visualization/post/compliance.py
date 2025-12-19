@@ -1656,7 +1656,7 @@ class VirtualCompliance(PyAedtBase):
                         if os.path.exists(image):
                             report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
                 components = [["Reference Designator", "Parameters"]]
-                for element in _design.modeler.components.components.values():
+                for element in _design.modeler.schematic.components.values():
                     if "refdes" in dir(element):
                         pars = []
                         for el, val in element.parameters.items():

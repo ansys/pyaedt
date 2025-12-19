@@ -27,3 +27,8 @@ name = "Version Manager"
 script = "version_manager.py"
 icon = "version_manager.png"
 template = "run_pyaedt_toolkit_script"
+
+[GenerateReport] # All
+name = "GenerateReport"
+script = "create_report.py"
+template = "run_pyaedt_toolkit_script"

@@ -281,7 +281,7 @@ def launch_aedt_in_lsf(non_graphical, port, host=None):  # pragma: no cover
         command = [
             "bsub",
             "-n",
-            str(settings.lsf_num_cores),
+            str(settings.num_cores),
             "-R",
             select_str,
             "-Is",
@@ -354,7 +354,7 @@ def _check_port(port):
 
 def _check_settings(settings: Settings):
     """Check settings."""
-    if not isinstance(settings.lsf_num_cores, int) or settings.lsf_num_cores <= 0:
+    if not isinstance(settings.num_cores, int) or settings.num_cores <= 0:
         raise ValueError("Invalid number of cores.")
     if not isinstance(settings.lsf_ram, int) or settings.lsf_ram <= 0:
         raise ValueError("Invalid memory value.")
@@ -530,10 +530,7 @@ class Desktop(PyAedtBase):
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
 
-    @pyaedt_function_handler(
-        specified_version="version",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         version=None,
@@ -1269,51 +1266,6 @@ class Desktop(PyAedtBase):
         else:
             oproject.Save()
         return True
-
-    @pyaedt_function_handler()
-    def copy_design(self, project_name=None, design_name=None, target_project=None):  # pragma: no cover
-        """Copy a design and paste it in an existing project or new project.
-
-        .. deprecated:: 0.6.31
-           Use :func:`copy_design_from` instead.
-
-        Parameters
-        ----------
-        project_name : str, optional
-            Project name. The default is ``None``, in which case the active project
-            is used.
-        design_name : str, optional
-            Design name. The default is ``None``.
-        target_project : str, optional
-            Target project. The default is ``None``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not project_name:
-            oproject = self.active_project()
-        else:
-            oproject = self.active_project(project_name)
-        if oproject:
-            if not design_name:
-                odesign = self.active_design(oproject)
-            else:
-                odesign = self.active_design(oproject, design_name)
-            if odesign:
-                oproject.CopyDesign(design_name)
-                if not target_project:
-                    oproject.Paste()
-                    return True
-                else:
-                    oproject_target = self.active_project(target_project)
-                    if not oproject_target:
-                        oproject_target = self.odesktop.NewProject(target_project)
-                        oproject_target.Paste()
-                        return True
-        else:
-            return False
 
     @pyaedt_function_handler()
     def project_path(self, project_name=None):

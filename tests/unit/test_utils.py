@@ -24,7 +24,6 @@
 
 """Test utility functions of PyAEDT."""
 
-import logging
 import os
 import time
 from unittest.mock import MagicMock
@@ -60,7 +59,7 @@ def desktop():
     return
 
 
-@pyaedt_function_handler(deprecated_arg="trigger_exception")
+@pyaedt_function_handler()
 def foo(trigger_exception=True):
     """Some dummy function used for testing."""
     if trigger_exception:
@@ -120,18 +119,10 @@ def test_handler_enable_error_handler(mock_logger):
     settings.enable_error_handler = SETTINGS_ENABLE_ERROR_HANDLER
 
 
-def test_handler_deprecation_log_warning(caplog):
+def test_handler_deprecation_log_warning():
     """Test handler deprecation argument mechanism."""
-    EXPECTED_ARGUMENT = "Argument `deprecated_arg` is deprecated for method `foo`; use `trigger_exception` instead."
-
-    with caplog.at_level(logging.WARNING, logger="Global"):
-        foo(deprecated_arg=False)
-    assert len(caplog.records) == 1
-    assert "WARNING" == caplog.records[0].levelname
-    assert EXPECTED_ARGUMENT == caplog.records[0].message
-
-    foo(trigger_exception=False)
-    assert len(caplog.records) == 1
+    with pytest.raises(Exception, match=ERROR_MESSAGE):
+        foo(trigger_exception=True)
 
 
 def test_settings_load_yaml(tmp_path):
@@ -145,17 +136,19 @@ def test_settings_load_yaml(tmp_path):
     log:
         global_log_file_name: 'dummy'
     lsf:
-        lsf_num_cores: 12
+        lsf_ram : 50
     general:
         desktop_launch_timeout: 12
+        num_cores: 12
     """
     )
 
     default_settings.load_yaml_configuration(str(yaml_path))
 
     assert default_settings.global_log_file_name == "dummy"
-    assert default_settings.lsf_num_cores == 12
+    assert default_settings.num_cores == 12
     assert default_settings.desktop_launch_timeout == 12
+    assert default_settings.lsf_ram == 50
 
 
 def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path):
@@ -242,7 +235,7 @@ def test_settings_check_allowed_properties():
     settings_properties = get_properties(default_settings)
     settings_properties = filter(lambda attr: attr not in properties_ignored, settings_properties)
 
-    assert sorted(allowed_properties_expected) == sorted(settings_properties)
+    assert sorted(set(allowed_properties_expected)) == sorted(settings_properties)
 
 
 def test_settings_check_allowed_env_variables():
