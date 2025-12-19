@@ -128,7 +128,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.design_type = "RMxprtSolution"
+        self.design_type = "RMxprt"
         self.solution_type = solution_type
         return True
 

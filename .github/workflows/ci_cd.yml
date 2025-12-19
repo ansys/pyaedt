@@ -46,32 +46,6 @@ jobs:
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           use-upper-case: true
 
-  vulnerabilities:
-    name: "Vulnerabilities"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read   # Required to read repository content for vulnerability scanning
-    steps:
-      - uses: ansys/actions/check-vulnerabilities@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          python-package-name: ${{ env.PACKAGE_NAME }}
-          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
-          dev-mode: ${{ github.ref != 'refs/heads/main' }}
-          extra-targets: 'all'
-
-  actions-security:
-    name: "Check actions security"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read   # Required to read workflow files and check for security issues
-    steps:
-      - uses: ansys/actions/check-actions-security@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          generate-summary: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          auditing-level: 'high'
-
   # NOTE: We do not allow dependabot to trigger the CI/CD pipeline automatically.
   # This is to mitigate supply chain attacks, where a malicious dependency update
   # could execute arbitrary code in our build environment.
@@ -102,6 +76,34 @@ jobs:
         run: |
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
+
+  vulnerabilities:
+    name: "Vulnerabilities"
+    runs-on: ubuntu-latest
+    needs: [block-pyansys-ci-bot]
+    permissions:
+      contents: read   # Required to read repository content for vulnerability scanning
+    steps:
+      - uses: ansys/actions/check-vulnerabilities@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-package-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          dev-mode: ${{ github.ref != 'refs/heads/main' }}
+          extra-targets: 'all'
+
+  actions-security:
+    name: "Check actions security"
+    runs-on: ubuntu-latest
+    needs: [block-pyansys-ci-bot]
+    permissions:
+      contents: read   # Required to read workflow files and check for security issues
+    steps:
+      - uses: ansys/actions/check-actions-security@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          generate-summary: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          auditing-level: 'high'
 
   pr-title:
     name: Check the title of the PR (if needed)

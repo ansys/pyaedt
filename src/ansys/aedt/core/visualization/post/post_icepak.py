@@ -77,7 +77,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         """
         return FieldSummary(self._app)
 
-    @pyaedt_function_handler(timestep="time_step", design_variation="variation")
+    @pyaedt_function_handler()
     def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, variation=None):
         """Get the operating point of the fans in the design.
 
@@ -174,7 +174,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
             return {i: content[i][0] for i in ["Total", "Unit"]}
         return {i: content[i][0] for i in ["Min", "Max", "Mean", "Stdev", "Unit"]}
 
-    @pyaedt_function_handler(faces_list="faces", quantity_name="quantity", design_variation="variation")
+    @pyaedt_function_handler()
     def evaluate_faces_quantity(
         self, faces, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
     ):
@@ -224,7 +224,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         self._app.oeditor.Delete(["NAME:Selections", "Selections:=", facelist_name])
         return out
 
-    @pyaedt_function_handler(boundary_name="boundary", quantity_name="quantity", design_variation="variations")
+    @pyaedt_function_handler()
     def evaluate_boundary_quantity(
         self,
         boundary,
@@ -287,7 +287,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
-    @pyaedt_function_handler(monitor_name="monitor", quantity_name="quantity", design_variation="variations")
+    @pyaedt_function_handler()
     @min_aedt_version("2024.1")
     def evaluate_monitor_quantity(
         self, monitor, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
@@ -340,7 +340,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
-    @pyaedt_function_handler(design_variation="variations")
+    @pyaedt_function_handler()
     def evaluate_object_quantity(
         self,
         object_name,

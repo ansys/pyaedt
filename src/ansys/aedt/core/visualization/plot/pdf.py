@@ -32,6 +32,7 @@ from fpdf import FontFace
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.internal.checks import graphics_required
@@ -270,7 +271,7 @@ class AnsysReport(FPDF, PyAedtBase):
             "Maxwell 3D",
             "HFSS",
             "Icepak",
-            "Mechanical",
+            DesignType.ICEPAKFEA,
             "Maxwell 2D",
             "2D Extractor",
         ]:
@@ -297,7 +298,7 @@ class AnsysReport(FPDF, PyAedtBase):
             if os.path.exists(image_path):
                 self.add_image(image_path, "Model Image")
         elif design.design_type in ["Circuit Design"]:
-            msg = f"The schematic has {len(design.modeler.components.components)} components."
+            msg = f"The schematic has {len(design.modeler.schematic.components)} components."
             self.add_text(msg)
 
         if design.setups:

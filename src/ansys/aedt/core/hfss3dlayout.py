@@ -143,13 +143,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -169,7 +163,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     ):
         FieldAnalysis3DLayout.__init__(
             self,
-            "HFSS 3D Layout Design",
+            "HFSS3DLAYOUT",
             project,
             design,
             solution_type,
@@ -204,14 +198,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     def ic_mode(self, value):
         self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", value)
 
-    @pyaedt_function_handler(
-        primivitivename="assignment",
-        edgenumber="edge_number",
-        iscircuit="is_circuit_port",
-        iswave="is_wave_port",
-        ref_primitive_name="reference_primitive",
-        ref_edge_number="reference_edge_number",
-    )
+    @pyaedt_function_handler()
     def create_edge_port(
         self,
         assignment,
@@ -324,7 +311,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(primitive_name="assignment")
+    @pyaedt_function_handler()
     def create_wave_port(
         self,
         assignment,
@@ -374,7 +361,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(primivitivenames="assignment", edgenumbers="edge_numbers")
+    @pyaedt_function_handler()
     def create_wave_port_from_two_conductors(self, assignment=None, edge_numbers=None):
         """Create a wave port.
 
@@ -432,7 +419,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(component_name="component")
+    @pyaedt_function_handler()
     def dissolve_component(self, component):
         """Dissolve a component and remove it from 3D Layout.
 
@@ -484,7 +471,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         return ports
 
-    @pyaedt_function_handler(component_name="component")
+    @pyaedt_function_handler()
     def create_ports_on_component_by_nets(
         self,
         component,
@@ -527,7 +514,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                     ports.append(bound)
         return ports
 
-    @pyaedt_function_handler(component_name="component")
+    @pyaedt_function_handler()
     def create_pec_on_component_by_nets(
         self,
         component,
@@ -560,7 +547,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component], net_array, "PEC", "0", "0", "0")
         return True
 
-    @pyaedt_function_handler(port_name="name")
+    @pyaedt_function_handler()
     def create_differential_port(self, via_signal, via_reference, name, deembed=True):
         """Create a differential port.
 
@@ -608,7 +595,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(vianame="via")
+    @pyaedt_function_handler()
     def create_coax_port(self, via, radial_extent=0.1, layer=None, alignment="lower"):
         """Create a coax port.
 
@@ -654,7 +641,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(xpos="x", ypos="y", bot_layer="bottom_layer")
+    @pyaedt_function_handler()
     def create_pin_port(self, name, x=0, y=0, rotation=0, top_layer=None, bottom_layer=None):
         """Create a pin port.
 
@@ -719,7 +706,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(portname="name")
+    @pyaedt_function_handler()
     def delete_port(self, name, remove_geometry=True):
         """Delete a port.
 
@@ -750,7 +737,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 self.boundaries.remove(bound)
         return True
 
-    @pyaedt_function_handler(edb_full_path="input_folder")
+    @pyaedt_function_handler()
     def import_edb(self, input_folder):
         """Import EDB.
 
@@ -777,7 +764,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self.__init__(project=project_name, design=design_name)
         return True
 
-    @pyaedt_function_handler(outputdir="output_dir")
+    @pyaedt_function_handler()
     def validate_full_design(self, name=None, output_dir=None, ports=None):
         """Validate the design based on the expected value and save the information in the log file.
 
@@ -877,7 +864,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         validation.close()
         return val_list, validation_ok  # return all the info in a list for use later
 
-    @pyaedt_function_handler(plot_name="plot")
+    @pyaedt_function_handler()
     def create_scattering(
         self, plot="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
@@ -1082,9 +1069,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self.odesign.DesignOptions(settings, 0)
         return True
 
-    @pyaedt_function_handler(
-        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
-    )
+    @pyaedt_function_handler()
     def create_linear_count_sweep(
         self,
         setup,
@@ -1189,14 +1174,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 return sweep
         return False
 
-    @pyaedt_function_handler(
-        setup_name="setup",
-        setupname="setup",
-        freqstart="start_frequency",
-        freqstop="stop_frequency",
-        sweepname="name",
-        sweep_name="name",
-    )
+    @pyaedt_function_handler()
     def create_linear_step_sweep(
         self,
         setup,
@@ -1301,7 +1279,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
                 return sweep
         return False
 
-    @pyaedt_function_handler(setupname="setup", sweepname="name")
+    @pyaedt_function_handler()
     def create_single_point_sweep(
         self,
         setup,
@@ -1423,7 +1401,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             self.odesktop.CloseProject(active_project)
         return True
 
-    @pyaedt_function_handler(gds_path="input_file", aedb_path="output_dir")
+    @pyaedt_function_handler()
     def import_gds(
         self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):
@@ -1457,7 +1435,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         return self._import_cad(input_file, "gds", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler(dxf_path="input_file", aedb_path="output_dir")
+    @pyaedt_function_handler()
     def import_dxf(
         self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):
@@ -1491,7 +1469,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         return self._import_cad(input_file, "dxf", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler(gerber_path="input_file", aedb_path="output_dir")
+    @pyaedt_function_handler()
     def import_gerber(
         self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):
@@ -1523,7 +1501,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         return self._import_cad(input_file, "gerber", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler(aedb_path="output_dir")
+    @pyaedt_function_handler()
     def import_brd(
         self, input_file, output_dir=None, set_as_active=True, close_active_project=False, control_file=None
     ):  # pragma: no cover
@@ -1555,7 +1533,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         return self._import_cad(input_file, "brd", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler(aedb_path="output_dir")
+    @pyaedt_function_handler()
     def import_awr(
         self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):  # pragma: no cover
@@ -1587,7 +1565,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         return self._import_cad(input_file, "awr", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler(aedb_path="output_dir")
+    @pyaedt_function_handler()
     def import_ipc2581(
         self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):
@@ -1619,7 +1597,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         return self._import_cad(input_file, "ipc2581", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler(aedb_path="output_dir")
+    @pyaedt_function_handler()
     def import_odb(
         self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):
@@ -1760,14 +1738,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self.odesign.EditCoSimulationOptions(arg)
         return True
 
-    @pyaedt_function_handler(
-        positive_terminal="assignment",
-        negative_terminal="reference",
-        common_name="common_mode",
-        diff_name="differential_mode",
-        common_ref="common_reference",
-        diff_ref_z="differential_reference",
-    )
+    @pyaedt_function_handler()
     def set_differential_pair(
         self,
         assignment,
@@ -1913,7 +1884,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         return list_output
 
-    @pyaedt_function_handler(filename="input_file")
+    @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, input_file):
         # type: (str) -> bool
         """Load differential pairs definition from a file.
@@ -1953,7 +1924,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
         return True
 
-    @pyaedt_function_handler(filename="output_file")
+    @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, output_file):
         # type: (str) -> bool
         """Save differtential pairs definition to a file.
@@ -1978,7 +1949,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         return Path(output_file).is_file()
 
-    @pyaedt_function_handler(file_name="output_file")
+    @pyaedt_function_handler()
     def export_3d_model(self, output_file=None):
         """Export the Ecad model to a 3D file.
 
@@ -2140,7 +2111,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return out_files[0]
         return ""
 
-    @pyaedt_function_handler(source_name="source", file_name="input_file")
+    @pyaedt_function_handler()
     def edit_source_from_file(
         self,
         source,
@@ -2288,7 +2259,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self.logger.error("Port not found.")
         return False
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
 
@@ -2323,7 +2294,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def get_dcir_element_data_loop_resistance(self, setup):
         """Get dcir element data loop resistance.
 
@@ -2363,7 +2334,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         df.index = terms
         return df
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def get_dcir_element_data_current_source(self, setup):
         """Get dcir element data current source.
 
@@ -2397,7 +2368,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         df.index = terms
         return df
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def get_dcir_element_data_via(self, setup):
         """Get dcir element data via.
 
