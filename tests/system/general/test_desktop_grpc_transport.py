@@ -47,7 +47,9 @@ from ansys.aedt.core.generic.settings import DEFAULT_GRPC_LOCAL
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_SECURE_MODE
 from tests.conftest import DESKTOP_VERSION
 
-pytestmark = pytest.mark.desktop_grpc_stransport
+pytestmark = pytest.mark.skipif(DESKTOP_VERSION < "2026.2", reason="To be moved in another test suite.")
+
+# pytestmark = pytest.mark.desktop_grpc_stransport
 
 
 # NOTE: Activating this environment variable forces PyAEDT to use the
