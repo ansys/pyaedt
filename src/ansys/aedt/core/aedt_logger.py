@@ -638,8 +638,8 @@ class AedtLogger:
                 self._global.error(message_text, *args, **kwargs)
             elif message_type == 3:
                 self._global.debug(message_text, *args, **kwargs)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Logging error: {e}", file=sys.stderr)
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
