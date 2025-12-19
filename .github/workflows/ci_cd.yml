@@ -17,8 +17,16 @@ env:
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
-  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
+  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon'
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+  TESTMON_DATAFILE: '.testmondata'
+  TESTMON_CACHE_KEY_UNIT: 'testmondata-unit'
+  TESTMON_CACHE_KEY_INTEGRATION: 'testmondata-integration'
+  TESTMON_CACHE_KEY_SOLVERS: 'testmondata-solvers'
+  TESTMON_CACHE_KEY_GENERAL: 'testmondata-general'
+  TESTMON_CACHE_KEY_VISUALIZATION: 'testmondata-visualization'
+  TESTMON_CACHE_KEY_EXTENSIONS: 'testmondata-extensions'
+  TESTMON_CACHE_KEY_FILTER: 'testmondata-filter'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -195,6 +203,15 @@ jobs:
     needs: [smoke-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT }}
+
       - name: Run unit tests
         uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
@@ -203,6 +220,17 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           optional-dependencies-name: unit-tests
           requires-xvfb: true
+
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_UNIT }}-main-${{ github.sha }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -223,6 +251,15 @@ jobs:
     needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION }}
+
       - name: Run integration tests
         uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
@@ -230,6 +267,17 @@ jobs:
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           optional-dependencies-name: integration-tests
+
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION }}-main-${{ github.sha }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -259,6 +307,12 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS }}
 
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
@@ -302,7 +356,19 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_SOLVERS }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -332,6 +398,12 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS }}
 
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
@@ -373,7 +445,18 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_SOLVERS }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -400,6 +483,12 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL }}
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
@@ -450,7 +539,19 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_GENERAL }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -480,6 +581,12 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL }}
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
@@ -528,7 +635,18 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_GENERAL }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
@@ -558,6 +676,12 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION }}
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
@@ -608,7 +732,19 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m visualization -x
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -639,6 +775,12 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION }}
 
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
@@ -699,7 +841,18 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -727,6 +880,12 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}
 
       - name: Check for changes in extensions folder
         id: changes
@@ -817,7 +976,19 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-extensions-tests-windows
@@ -849,6 +1020,12 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}
 
       - name: Check for changes in extensions folder
         id: changes
@@ -938,7 +1115,19 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-extensions-tests-linux
@@ -967,6 +1156,12 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER }}
 
       - name: Check for changes in filter solutions
         id: changes
@@ -1053,7 +1248,19 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_FILTER }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-filter-tests-windows
@@ -1082,6 +1289,12 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}
 
       - name: Check for changes in EMIT
         id: changes
@@ -1168,7 +1381,19 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-emit-tests-windows
@@ -1200,6 +1425,13 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/restore-testmon
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}
+
       - name: Check for changes in flaky test areas
         id: changes
         env:
@@ -1288,7 +1520,19 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
 
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+      - name: Consolidate testmondata file
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save testmondata cache (on main branch)
+        if: steps.changes.outputs.run_tests == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS }}-main-${{ github.sha }}
+
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-flaky-tests-linux
