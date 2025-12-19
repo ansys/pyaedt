@@ -153,7 +153,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
     def _init_from_design(self, *args, **kwargs):  # pragma: no cover
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler(filepath="input_file")
+    @pyaedt_function_handler()
     def browse_log_file(self, input_file=None):  # pragma: no cover
         """Save the most recent log file in a new directory.
 

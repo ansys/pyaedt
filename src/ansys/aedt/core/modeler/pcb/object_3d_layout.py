@@ -65,7 +65,7 @@ class Object3DLayout(PyAedtBase):
         """
         return self._primitives.model_units
 
-    @pyaedt_function_handler(property_val="value", names_list="names")
+    @pyaedt_function_handler()
     def change_property(self, value, names=None):
         """Modify a property.
 
@@ -98,7 +98,7 @@ class Object3DLayout(PyAedtBase):
         self._oeditor.ChangeProperty(vOut)
         return True
 
-    @pyaedt_function_handler(property_name="name", property_value="value")
+    @pyaedt_function_handler()
     def set_property_value(self, name, value):
         """Set a property value.
 
@@ -1141,29 +1141,28 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         return edges
 
     @pyaedt_function_handler()
-    def edge_by_point(self, point):
-        """Return the closest edge to specified point.
+    def edge_by_point(self, point: list[float | int]):
+        """Return the index of the closest edge to the specified point.
 
         Parameters
         ----------
-        point : list
-            List of [x,y] values.
+        point : list of float or int
+            Coordinates of the point as [x, y].
 
         Returns
         -------
         int
-            Edge id.
+            Index of the closest edge in `self.edges`.
         """
-        index_i = 0
-        v_dist = None
-        edge_id = None
-        for edge in self.edges:
-            v = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
-            if not v_dist or v < v_dist:
-                v_dist = v
-                edge_id = index_i
-            index_i += 1
-        return edge_id
+        min_distance = float("inf")
+        res = None
+
+        for index, edge in enumerate(self.edges):
+            distance = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
+            if distance < min_distance:
+                min_distance = distance
+                res = index
+        return res
 
     @property
     def bottom_edge_x(self):
@@ -1213,7 +1212,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         result = [(edge[0][1] + edge[1][1]) for edge in self.edges]
         return result.index(max(result))
 
-    @pyaedt_function_handler(propertyname="name")
+    @pyaedt_function_handler()
     def get_property_value(self, name):
         """Retrieve a property value.
 
@@ -1798,7 +1797,7 @@ class Points3dLayout(PyAedtBase):
         else:
             return [self.point.GetX(), self.point.GetY()]
 
-    @pyaedt_function_handler(new_position="location")
+    @pyaedt_function_handler()
     def move(self, location):
         """Move actual point to new location.
 
@@ -2212,7 +2211,7 @@ class Padstack(PyAedtBase):
         arg.append([])
         return arg
 
-    @pyaedt_function_handler(layername="layer")
+    @pyaedt_function_handler()
     def add_layer(
         self,
         layer="Start",
@@ -2267,7 +2266,7 @@ class Padstack(PyAedtBase):
             self.layers[layer] = new_layer
             return True
 
-    @pyaedt_function_handler(holetype="hole_type", xpos="x", ypos="y", rot="rotation")
+    @pyaedt_function_handler()
     def add_hole(self, hole_type="Cir", sizes=None, x=0, y=0, rotation=0):
         """Add a hole.
 

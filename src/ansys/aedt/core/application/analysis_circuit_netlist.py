@@ -85,7 +85,7 @@ class AnalysisCircuitNetlist(Analysis, PyAedtBase):
     ):
         Analysis.__init__(
             self,
-            "Circuit Netlist",
+            "CIRCUITNETLIST",
             project,
             design,
             None,
