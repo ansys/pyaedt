@@ -38,7 +38,7 @@ TEST_SUBFOLDER = "T47"
 def netlist_test(add_app_example):
     app = add_app_example(project=NETLIST, subfolder=TEST_SUBFOLDER, application=CircuitNetlist)
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 def test_post(netlist_test):
