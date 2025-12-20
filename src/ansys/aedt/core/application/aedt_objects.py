@@ -157,7 +157,7 @@ class AedtObjects(PyAedtBase):
     def oboundary(self):
         """Boundary Object."""
         if not self._oboundary:
-            if self.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            if self.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
                 return
             if self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oboundary = self.get_module("Excitations")
@@ -300,7 +300,7 @@ class AedtObjects(PyAedtBase):
         if not self._osolution:
             if self.design_type in [
                 "RMxprt",
-                "RMxprtSolution",
+                "ModelCreation",
                 "Twin Builder",
                 "Circuit Design",
                 "Maxwell Circuit",
@@ -356,7 +356,7 @@ class AedtObjects(PyAedtBase):
             "Maxwell Circuit",
             "EMIT",
             "RMxprt",
-            "RMxprtSolution",
+            "ModelCreation",
         ]:
             return
         if not self._ofieldsreporter:
@@ -387,19 +387,8 @@ class AedtObjects(PyAedtBase):
         ----------
         >>> oDesign.GetModule("MeshRegion")
         """
-        meshers = {
-            "HFSS": "MeshSetup",
-            "Icepak": "MeshRegion",
-            "HFSS 3D Layout Design": "SolveSetups",
-            "HFSS3DLayout": "SolveSetups",
-            "Maxwell 2D": "MeshSetup",
-            "Maxwell 3D": "MeshSetup",
-            "Q3D Extractor": "MeshSetup",
-            "Mechanical": "MeshSetup",
-            "2D Extractor": "MeshSetup",
-        }
-        if not self._omeshmodule and self.design_type in meshers:
-            self._omeshmodule = self.get_module(meshers[self.design_type])
+        if not self._omeshmodule and hasattr(self._design_type, "mesher"):
+            self._omeshmodule = self.get_module(self._design_type.mesher)
         return self._omeshmodule
 
     @property
@@ -423,7 +412,7 @@ class AedtObjects(PyAedtBase):
                     self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self._odesign.GetEditor("Layout")
-            elif self.design_type in ["RMxprt", "RMxprtSolution"]:
+            elif self.design_type in ["RMxprt", "ModelCreation"]:
                 self._oeditor = self._odesign.SetActiveEditor("Machine")
             elif self.design_type in ["Circuit Netlist"]:
                 self._oeditor = None

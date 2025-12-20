@@ -27,7 +27,6 @@
 import os
 import shutil
 
-from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -40,17 +39,6 @@ from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
-
-meshers = {
-    "HFSS": "MeshSetup",
-    "Icepak": "MeshRegion",
-    "HFSS3DLayout": "MeshSetup",
-    "Maxwell 2D": "MeshSetup",
-    "Maxwell 3D": "MeshSetup",
-    "Q3D Extractor": "MeshSetup",
-    "Mechanical": "MeshSetup",
-    "2D Extractor": "MeshSetup",
-}
 
 mesh_props = {
     "CurvedSurfaceApproxChoice": "Curved Mesh Approximation Type",
@@ -581,7 +569,7 @@ class Mesh(PyAedtBase):
             # _project_dictionary = load_entire_aedt_file(temp_proj)
             _project_dictionary = load_keyword_in_aedt_file(temp_proj, "AnsoftProject")
             try:
-                props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
+                props = _project_dictionary["AnsoftProject"][self._app._design_type.model_name]["MeshSetup"][
                     "MeshSettings"
                 ]
             except Exception:

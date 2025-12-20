@@ -163,7 +163,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     ):
         FieldAnalysis3DLayout.__init__(
             self,
-            "HFSS 3D Layout Design",
+            "HFSS3DLAYOUT",
             project,
             design,
             solution_type,

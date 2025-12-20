@@ -38,6 +38,7 @@ from typing import TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -950,8 +951,10 @@ class Setup(CommonSetup):
             self.auto_update = False
             mesh_link = self.props["MeshLink"]
             # design type
-            if self._app.design_type in ["Mechanical", "Maxwell 2D", "Maxwell 3D"]:
-                design_type = "ElectronicsDesktop" if self._app.design_type == "Mechanical" else self._app.design_type
+            if self._app.design_type in [DesignType.ICEPAKFEA, DesignType.MAXWELL3D, DesignType.MAXWELL2D]:
+                design_type = (
+                    "ElectronicsDesktop" if self._app.design_type == DesignType.ICEPAKFEA else self._app.design_type
+                )
             else:
                 design_type = self._app.design_type
             mesh_link["Product"] = design_type

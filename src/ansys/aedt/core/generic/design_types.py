@@ -142,6 +142,7 @@ app_map = {
     "Q3D Extractor": Q3d,
     "HFSS": Hfss,
     "Mechanical": Mechanical,
+    "IcepakFEA": Mechanical,
     "Icepak": Icepak,
     "Rmxprt": Rmxprt,
     "HFSS 3D Layout Design": Hfss3dLayout,

@@ -32,6 +32,7 @@ from fpdf import FontFace
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.internal.checks import graphics_required
@@ -270,7 +271,7 @@ class AnsysReport(FPDF, PyAedtBase):
             "Maxwell 3D",
             "HFSS",
             "Icepak",
-            "Mechanical",
+            DesignType.ICEPAKFEA,
             "Maxwell 2D",
             "2D Extractor",
         ]:

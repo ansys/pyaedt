@@ -31,7 +31,6 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.primitives import default_materials
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Circle3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
@@ -718,7 +717,7 @@ class Primitives3DLayout(PyAedtBase):
             List of default materials.
 
         """
-        return default_materials[self._app._design_type]
+        return self._app._design_type.default_material
 
     @property
     def logger(self):
