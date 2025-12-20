@@ -3627,7 +3627,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             name = generate_unique_name("Sink")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
-        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if not self.is3d or self.solution_type not in (
             maxwell_solutions.DCConduction,
             maxwell_solutions.ElectroDCConduction,
