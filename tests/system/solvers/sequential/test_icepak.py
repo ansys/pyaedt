@@ -201,6 +201,7 @@ def test_pcb_devices(board_ipk_app):
         assert not cmp2.included_parts.override_definition("a", "b")
 
 
+@pytest.mark.flaky_linux
 def test_pcb_packages(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.included_parts = "Package"
@@ -220,6 +221,7 @@ def test_pcb_packages(board_ipk_app):
     )  # material does not exist
 
 
+@pytest.mark.flaky_linux
 def test_pcb_board_extents_and_resolution(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     assert cmp2.set_board_extents("Bounding Box")
@@ -232,6 +234,7 @@ def test_pcb_board_extents_and_resolution(board_ipk_app):
     assert cmp2.set_custom_resolution(row=100, col=200)
 
 
+@pytest.mark.flaky_linux
 def test_pcb_filters_error_messages(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.included_parts = "Device"
@@ -258,6 +261,7 @@ def test_pcb_filters_error_messages(board_ipk_app):
     assert cmp2.power == "10W"
 
 
+@pytest.mark.flaky_linux
 def test_pcb_comp_properties(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.set_high_side_radiation(
@@ -284,6 +288,7 @@ def test_pcb_comp_properties(board_ipk_app):
     assert cmp2.board_cutout_material == "copper"
 
 
+@pytest.mark.flaky_linux
 def test_pcb_comp_import(board_ipk_app):
     initial_errors = len(board_ipk_app.logger.error_messages)
     component_name = "RadioBoard2"
