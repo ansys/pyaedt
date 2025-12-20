@@ -410,7 +410,7 @@ def test_force_project_path_disable(aedt_app):
     settings.force_error_on_missing_project = False
 
 
-@pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Crashing in Linux.")
 def test_get_app(desktop, add_app):
     app = add_app(application=Icepak)
     project_name = app.project_name
