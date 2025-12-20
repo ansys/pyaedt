@@ -1243,6 +1243,6 @@ def test_create_coordinate_system(aedt_app):
     assert not cs2.delete()
 
 
-def test_create_scattering(hfss3dl):
-    hfss3dl.create_setup()
-    assert hfss3dl.create_scattering()
+def test_create_scattering(aedt_app):
+    aedt_app.create_setup()
+    assert aedt_app.create_scattering()
