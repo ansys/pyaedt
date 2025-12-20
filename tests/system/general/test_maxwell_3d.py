@@ -241,9 +241,9 @@ def test_assign_curvilinear_elements(m3d_app):
 
 
 def test_assign_edge_cut(m3d_app):
+    m3d_app.modeler.model_units = "mm"
     box = m3d_app.modeler.create_box([30, 0, 0], [40, 10, 5])
     assert m3d_app.mesh.assign_edge_cut(box)
-    assert m3d_app.mesh.assign_edge_cut(box, name="edge_cute")
     assert m3d_app.mesh.assign_edge_cut(box, name="edge_cute")
 
 

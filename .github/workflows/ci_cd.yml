@@ -371,7 +371,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers -m solvers
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers -m "solvers and not flaky_linux"
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -526,7 +526,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 tests/system/general -m general
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 tests/system/general -m "general and not flaky_linux"
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1286,7 +1286,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/extensions -m flaky_linux
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: steps.changes.outputs.run_tests == 'true'

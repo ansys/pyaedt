@@ -686,6 +686,7 @@ def test_validate(aedt_app):
     assert aedt_app.validate_full_design()
 
 
+@pytest.mark.flaky_linux
 def test_export_to_hfss(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
         layer="Top",

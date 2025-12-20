@@ -33,7 +33,6 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
-from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
@@ -160,7 +159,7 @@ def ipk_app(add_app):
     app.close_project(save=False, name=project_name)
 
 
-@pytest.mark.skipif(is_linux, reason="Method not working in Linux, if the test runs alone, it works")
+@pytest.mark.flaky_linux
 def test_import_pcb(board_3dl_app):
     component_name = "RadioBoard1"
     pcb = board_3dl_app.create_ipk_3dcomponent_pcb(
@@ -172,6 +171,7 @@ def test_import_pcb(board_3dl_app):
     assert board_3dl_app.modeler.get_object_from_name("RadioBoard1_001_TOP_BBox")
 
 
+@pytest.mark.flaky_linux
 def test_pcb_devices(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.included_parts = 1
