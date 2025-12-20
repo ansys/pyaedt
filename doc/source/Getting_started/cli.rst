@@ -27,6 +27,7 @@ The PyAEDT CLI provides these main commands:
 * ``start`` - Start a new AEDT session
 * ``stop`` - Stop running AEDT processes
 * ``config`` - Manage test configuration settings
+* ``panels`` - Install PyAEDT panels in AEDT
 * ``doc`` - Quick access to PyAEDT documentation
 
 
@@ -179,6 +180,71 @@ For a complete description of all configuration parameters and their usage, see 
 :ref:`Local testing parameters <contributing_aedt>` section in the Contributing guide.
 
 
+Panels management
+-----------------
+
+The ``panels`` command helps you install PyAEDT panels into your AEDT installation.
+These panels provide graphical interfaces for common PyAEDT operations directly within AEDT.
+
+**Add Panels to AEDT**
+
+Install PyAEDT panels into AEDT:
+
+.. code-block:: bash
+
+    pyaedt panels add
+
+This command launches an interactive setup that:
+
+1. Detects installed AEDT versions on your system
+2. Prompts you to select the AEDT version
+3. Asks for the path to your PersonalLib folder
+4. Installs the PyAEDT panels
+
+You can also provide all parameters directly:
+
+.. code-block:: bash
+
+    pyaedt panels add --version 2025.2 --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    pyaedt panels add -v 2025.2 -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+
+**Skip Version Manager**
+
+By default, the Version Manager panel is installed. To skip it:
+
+.. code-block:: bash
+
+    pyaedt panels add --skip-version-manager
+
+**Installed Panels**
+
+The following panels are installed:
+
+* **Console** - Interactive Python console within AEDT
+* **Jupyter** - Launch Jupyter notebooks connected to AEDT
+* **Run Script** - Execute Python scripts from AEDT
+* **Extension Manager** - Manage PyAEDT extensions
+* **Version Manager** - Switch between AEDT versions (optional)
+
+After installation, restart AEDT to see the new panels on the Automation tab.
+
+**Common PersonalLib Locations**
+
+If you're not sure where your PersonalLib folder is located:
+
+*Windows:*
+
+.. code-block:: bash
+
+    C:\\Users\\<username>\\AppData\\Roaming\\Ansoft\\PersonalLib
+
+*Linux:*
+
+.. code-block:: bash
+
+    /home/<username>/Ansoft/PersonalLib
+
+
 Documentation access
 --------------------
 
@@ -262,6 +328,16 @@ Here are some common workflows using the CLI:
     # Or set values directly
     pyaedt config test desktop-version 2025.2
 
+**Install PyAEDT Panels**
+
+.. code-block:: bash
+
+    # Interactive mode
+    pyaedt panels add
+
+    # Or provide all parameters
+    pyaedt panels add -v 2025.2 -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+
 **Quick Documentation Access**
 
 .. code-block:: bash
@@ -332,6 +408,7 @@ For detailed help on any command:
     pyaedt start --help
     pyaedt stop --help
     pyaedt config test --help
+    pyaedt panels add --help
     pyaedt doc --help
 
 For more information, visit the PyAEDT documentation or GitHub repository.

@@ -100,6 +100,19 @@ def test_get_components(aedtapp):
     assert not r5.model.is_parallel
 
 
+def test_edge_by_point_with_point_on_edge(aedtapp):
+    """Test edge_by_point method with a point located on an edge."""
+    aedtapp.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="iron"
+    )
+
+    line = aedtapp.modeler.create_line(aedtapp.modeler.layers.all_layers[0], [[0, 0], [2, 2], [4, 4], [6, 6]])
+
+    edge_index = line.edge_by_point([1, 1])
+
+    assert edge_index == 1
+
+
 def test_get_geometries(aedtapp):
     line = aedtapp.modeler.geometries["line_209"]
     assert line.edges

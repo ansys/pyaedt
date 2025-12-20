@@ -40,6 +40,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -88,11 +89,11 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
             "HFSS",
             "Icepak",
             "HFSS 3D",
-            "Maxwell 3D",
-            "Q3D",
-            "Maxwell 2D",
-            "Q2D",
-            "Mechanical",
+            DesignType.MAXWELL3D,
+            DesignType.Q3D,
+            DesignType.MAXWELL2D,
+            DesignType.EXTRACTOR2D,
+            DesignType.ICEPAKFEA,
         ]:
             self.release_desktop()
             raise AEDTRuntimeError(
