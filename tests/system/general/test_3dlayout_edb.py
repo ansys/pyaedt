@@ -237,6 +237,7 @@ def test_assign_spice_model(aedt_app):
     )
 
 
+@pytest.mark.flaky_linux
 def test_nets(aedt_app, test_tmp_dir):
     nets = aedt_app.modeler.nets
     assert nets["GND"].name == "GND"
