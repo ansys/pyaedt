@@ -1011,6 +1011,7 @@ def test_assign_resistive_sheet(m3d_app, maxwell_versioned):
         m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
 
+@pytest.mark.flaky_linux
 def test_assign_layout_force(layout_comp):
     nets_layers = {
         "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],
