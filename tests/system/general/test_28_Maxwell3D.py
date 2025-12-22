@@ -1071,3 +1071,7 @@ class TestClass:
         face_sink = m3d_app.modeler.get_faceid_from_position(position=[0, 0, 1], assignment="mycyl")
         bound = m3d_app.assign_sink(assignment=face_sink, name="my_sink")
         assert bound
+        assert bound.name == "my_sink"
+        m3d_app.solution_type = maxwell_versioned.Magnetostatic
+        with pytest.raises(AEDTRuntimeError):
+            m3d_app.assign_sink(assignment=face_sink, name="my_sink")

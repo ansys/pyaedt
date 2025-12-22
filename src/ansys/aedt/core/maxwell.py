@@ -3621,7 +3621,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
         >>> cylinder = m3d.modeler.create_cylinder("X", [0, 0, 0], 10, 100, 250)
         >>> current = m3d.assign_sink(cylinder.top_face_x.id)
-        >>> m3d.desktop_class.close_desktop()
+        >>> m3d.desktop_class.release_desktop()
         """
         if not name:
             name = generate_unique_name("Sink")
@@ -3634,7 +3634,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
             maxwell_solutions.ACConduction,
             maxwell_solutions.ElectricTransient,
         ):
-            raise ValueError(
+            raise AEDTRuntimeError(
                 "Option available only in 3D DCConduction, 3D ElectroDCConduction, "
                 "3D ACConduction and Electric Transient."
             )
