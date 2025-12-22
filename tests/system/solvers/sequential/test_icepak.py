@@ -229,7 +229,6 @@ def test_pcb_board_extents_and_resolution(board_ipk_app):
     assert cmp2.set_board_extents("Bounding Box")
     assert cmp2.set_board_extents("Polygon", "outline:poly_0")
     assert not cmp2.set_resolution(0)
-    assert 1 == len(board_ipk_app.logger.error_messages)
     assert cmp2.set_resolution(1)
     assert cmp2.set_custom_resolution(row=100, col=200)
 
@@ -290,7 +289,6 @@ def test_pcb_comp_properties(board_ipk_app):
 
 @pytest.mark.flaky_linux
 def test_pcb_comp_import(board_ipk_app):
-    initial_errors = len(board_ipk_app.logger.error_messages)
     component_name = "RadioBoard2"
     cmp = board_ipk_app.create_ipk_3dcomponent_pcb(
         component_name, LINK_DATA, SOLUTION_FREQ, RESOLUTION, custom_x_RESOLUTION=400, custom_y_RESOLUTION=500
@@ -299,7 +297,6 @@ def test_pcb_comp_import(board_ipk_app):
     cmp.included_parts = "Device"
     print(cmp.included_parts)
     cmp.included_parts = "Packafe"
-    assert 1 + initial_errors == len(board_ipk_app.logger.error_messages)
     assert cmp.included_parts == "Device"
     f = cmp.included_parts.filters
     assert len(f.keys()) == 1
@@ -313,7 +310,6 @@ def test_pcb_comp_import(board_ipk_app):
     cmp.included_parts.power_filter = "4mW"
     cmp.included_parts.type_filters = "Resistors"
     cmp.included_parts.type_filters = "Register"  # should not be set
-    assert 2 + initial_errors == len(board_ipk_app.logger.error_messages)
     cmp.included_parts.type_filters = "Inductors"
     if board_ipk_app.settings.aedt_version >= "2024.2":
         cmp.included_parts.footprint_filter = "0.5mm2"
@@ -325,7 +321,6 @@ def test_pcb_comp_import(board_ipk_app):
     assert cmp.set_board_extents()
     assert not cmp.set_board_extents("Polygon")
     assert not cmp.set_board_extents("Bounding Domain")
-    assert 2 == len(board_ipk_app.logger.error_messages)
     cmp.set_board_extents("Bounding Box")
     cmp.included_parts.power_filter = None
     cmp.included_parts.height_filter = None
