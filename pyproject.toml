@@ -67,7 +67,7 @@ tests = [
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.9",
     "pyvista[io]>=0.38.0,<0.47",
-    "scikit-rf>=0.30.0,<1.9",
+    "scikit-rf>=0.30.0,<1.10",
     "tables",
     "cryptography",
 ]
@@ -80,12 +80,12 @@ dotnet = [
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.7",
     "jupyter",
-    "numpydoc>=1.5.0,<1.9",
+    "numpydoc==1.10.0",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
     "sphinx-autobuild==2024.10.3",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.20",
+    "sphinx-gallery>=0.14.0,<0.21",
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
@@ -100,7 +100,7 @@ graphics = [
     "fpdf2",
 ]
 jupyter = [
-    "jupyterlab>=3.6.0,<4.5",
+    "jupyterlab>=3.6.0,<4.6",
     "ipython>=7.30.0,<9.1",
 ]
 all = [
@@ -112,7 +112,7 @@ all = [
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.9",
+    "scikit-rf>=0.30.0,<1.10",
     "pyaedt[jupyter]",
     "requests",
     "typer>=0.20.0",
@@ -129,8 +129,8 @@ examples = [
     "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.5",
-    "scikit-rf>=0.30.0,<1.9",
+    "plotly>=6.0,<6.6",
+    "scikit-rf>=0.30.0,<1.10",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]

@@ -22,7 +22,7 @@ testing:
     - "tests/system/general/conftest.py"
 
 extensions:
-- changed-fles:
+- changed-files:
   - any-glob-to-any-file:
     - "src/ansys/aedt/core/extensions/**/*"
     - "doc/source/Resources/pyaedt_installer_from_aedt.py"

@@ -45,7 +45,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 import uuid
-import warnings
 
 from ansys.aedt.core import pyaedt_path
 from ansys.aedt.core.base import PyAedtBase
@@ -78,7 +77,6 @@ ALLOWED_LOG_SETTINGS = [
 ALLOWED_LSF_SETTINGS = [
     "custom_lsf_command",
     "lsf_aedt_command",
-    "lsf_num_cores",
     "lsf_osrel",
     "lsf_queue",
     "lsf_ram",
@@ -533,20 +531,6 @@ class Settings(PyAedtBase):
         self.__lsf_aedt_command = value
 
     @property
-    def lsf_num_cores(self):
-        """Number of LSF cores.
-
-        This attribute is valid only on Linux systems running LSF Scheduler.
-        """
-        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
-        return self.__num_cores
-
-    @lsf_num_cores.setter
-    def lsf_num_cores(self, value):
-        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
-        self.__num_cores = int(value)
-
-    @property
     def num_cores(self):
         """Number cores to use with the scheduler."""
         return self.__num_cores
@@ -940,7 +924,6 @@ class Settings(PyAedtBase):
             ]
             for setting_type, allowed_settings_key in pairs:
                 settings = local_settings.get(setting_type, {})
-                print(setting_type, allowed_settings_key)
                 if raise_on_wrong_key:
                     for key, value in filter_settings_with_raise(settings, allowed_settings_key):
                         setattr(self, key, value)

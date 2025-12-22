@@ -26,12 +26,8 @@
 import copy
 import os
 from typing import TYPE_CHECKING
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import LineStyle
-from ansys.aedt.core.generic.constants import SymbolStyle
-from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -54,16 +50,6 @@ class LimitLine(BinaryTreeNode, PyAedtBase):
         self._oreport_setup = post.oreportsetup
         self.line_name = trace_name
         self._initialize_tree_node()
-
-    @property
-    def LINESTYLE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.LineSyle`` instead."""
-        warnings.warn(
-            "Usage of LINESTYLE is deprecated. Use ansys.aedt.core.generic.constants.LineStyle instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return LineStyle
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
@@ -281,36 +267,6 @@ class Trace(BinaryTreeNode, PyAedtBase):
         self._available_props = []
         self._initialize_tree_node()
 
-    @property
-    def LINESTYLE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.LineSyle`` instead."""
-        warnings.warn(
-            "Usage of LINESTYLE is deprecated. Use ansys.aedt.core.generic.constants.LineStyle instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return LineStyle
-
-    @property
-    def TRACETYPE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.TraceType`` instead."""
-        warnings.warn(
-            "Usage of TRACETYPE is deprecated. Use ansys.aedt.core.generic.constants.TraceType instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return TraceType
-
-    @property
-    def SYMBOLSTYLE(self):
-        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.SymbolStyle`` instead."""
-        warnings.warn(
-            "Usage of SYMBOLSTYLE is deprecated. Use ansys.aedt.core.generic.constants.SymbolStyle instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return SymbolStyle
-
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
         BinaryTreeNode.__init__(self, self.aedt_name, self._oo, False, app=self._app)
@@ -372,20 +328,20 @@ class Trace(BinaryTreeNode, PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(trace_style="style")
+    @pyaedt_function_handler()
     def set_trace_properties(self, style=None, width=None, trace_type=None, color=None):
         """Set trace properties.
 
         Parameters
         ----------
         style : str, optional
-            Style for the trace line. The default is ``None``. You can also use
-            the ``LINESTYLE`` property.
+            Style for the trace line. The default is ``None``.
+            You can also use an instance of :func:`ansys.aedt.core.generic.constants.LineStyle`.
         width : int, optional
             Width of the trace line. The default is ``None``.
         trace_type : str
-            Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
-            property.
+            Type of the trace line. The default is ``None``.
+            You can also use an instance of :func:`ansys.aedt.core.generic.constants.TraceType`.
         color : tuple, list
             Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
             The default is ``None``.
@@ -415,8 +371,8 @@ class Trace(BinaryTreeNode, PyAedtBase):
         show : bool, optional
             Whether to show the symbol. The default is ``True``.
         style : str, optional
-           Style of the style. The default is ``None``. You can also use the ``SYMBOLSTYLE``
-           property.
+           Style of the style. The default is ``None``.
+           You can use an instance of :func:`ansys.aedt.core.generic.constants.SymbolStyle`.
         show_arrows : bool, optional
             Whether to show arrows. The default is ``None``.
         fill : bool, optional
@@ -703,13 +659,13 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             try:
                 oo1 = oo.GetChildObject(el)
                 oo1_name = oo1.GetChildNames()
-                if not oo1_name:
+                trace_names = self._app.oreportsetup.GetCurvePropServerName(self.plot_name, el)
+                if trace_names:
+                    for aedt_name in trace_names:
+                        _traces.append(Trace(self._post, aedt_name, el, oo1))
+                elif not oo1_name:
                     aedt_name = f"{self.plot_name}:{el}"
                     _traces.append(Trace(self._post, aedt_name, el, oo1))
-                else:
-                    for i in oo1_name:
-                        aedt_name = f"{self.plot_name}:{el}:{i}"
-                        _traces.append(Trace(self._post, aedt_name, el, oo1))
             except Exception:
                 self._app.logger.debug(f"Something went wrong while processing element {el}.")
         return _traces
@@ -726,9 +682,14 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                     trace_color = self.__props_with_default(trace_val, "color")
 
                     if trace_style or trace_width or trace_type or trace_color:
-                        trace.set_trace_properties(
-                            style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
-                        )
+                        try:
+                            trace.set_trace_properties(
+                                style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
+                            )
+                        except Exception:
+                            self._app.logger.warning(
+                                f"Something went wrong while updating trace properties {trace_name}."
+                            )
         for trace in self.traces[::]:
             trace_name = trace.name
             for trace_val in self._legacy_props["expressions"]:
@@ -741,13 +702,19 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                     symbol_fill = self.__props_with_default(trace_val, "symbol_fill", False)
                     symbol_color = self.__props_with_default(trace_val, "symbol_color", None)
                     if symbol_style or symbol_color or symbol_fill or symbol_arrows:
-                        trace.set_symbol_properties(
-                            show=symbol_show,
-                            style=symbol_style,
-                            show_arrows=symbol_arrows,
-                            fill=symbol_fill,
-                            color=symbol_color,
-                        )
+                        try:
+                            trace.set_symbol_properties(
+                                show=symbol_show,
+                                style=symbol_style,
+                                show_arrows=symbol_arrows,
+                                fill=symbol_fill,
+                                color=symbol_color,
+                            )
+                        except Exception:
+                            self._app.logger.warning(
+                                f"Something went wrong while updating symbol properties {trace_name}."
+                            )
+
         for trace in self.traces[::]:
             trace_name = trace.name
             for trace_val in self._legacy_props["expressions"]:
@@ -1167,7 +1134,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             Primary sweep.
         """
         if self._is_created:
-            return list(self.properties.values())[4].split(" ,")[0]
+            try:
+                return list(self.properties.values())[4].split(" ,")[0]
+            except Exception:
+                self._legacy_props["context"]["primary_sweep"]
         return self._legacy_props["context"]["primary_sweep"]
 
     @primary_sweep.setter
@@ -1380,7 +1350,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 sweep_list.append(["Nominal"])
         return sweep_list
 
-    @pyaedt_function_handler(plot_name="name")
+    @pyaedt_function_handler()
     def create(self, name=None):
         """Create a report.
 
@@ -1881,7 +1851,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             return True
         return False
 
-    @pyaedt_function_handler(val="value")
+    @pyaedt_function_handler()
     def add_cartesian_x_marker(self, value, name=None):  # pragma: no cover
         """Add a cartesian X marker.
 
@@ -1906,7 +1876,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             return name
         return ""
 
-    @pyaedt_function_handler(val="value")
+    @pyaedt_function_handler()
     def add_cartesian_y_marker(self, value, name=None, y_axis=1):  # pragma: no cover
         """Add a cartesian Y marker.
 
@@ -1935,7 +1905,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             return name
         return ""
 
-    @pyaedt_function_handler(tabname="tab_name")
+    @pyaedt_function_handler()
     def _change_property(self, tab_name, property_name, property_val):
         if not self._is_created:
             self._app.logger.error("Plot has not been created. Create it and then change the properties.")
@@ -2161,7 +2131,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         ]
         return self._change_property("legend", "legend", props)
 
-    @pyaedt_function_handler(font_height="font_size")
+    @pyaedt_function_handler()
     def hide_legend(self, solution_name=True, trace_name=True, variation_key=True, font_size=1):
         """Hide the Legend.
 
@@ -2193,7 +2163,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self._app.logger.error("Failed to hide legend.")
             return False
 
-    @pyaedt_function_handler(axis_name="name")
+    @pyaedt_function_handler()
     def edit_y_axis(
         self,
         name="Y1",
@@ -2278,7 +2248,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         props.append(["NAME:Display Units", "Value:=", display_units])
         return self._change_property("Axis", "Axis" + name, props)
 
-    @pyaedt_function_handler(axis_name="name")
+    @pyaedt_function_handler()
     def edit_y_axis_scaling(
         self,
         name="Y1",
@@ -2506,7 +2476,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         ]
         return self._change_property("Header", "Header", props)
 
-    @pyaedt_function_handler(file_path="input_file")
+    @pyaedt_function_handler()
     def import_traces(self, input_file, plot_name):
         """Import report data from a file into a specified report.
 
@@ -2706,7 +2676,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._post.oreportsetup.ApplyReportTemplate(self.plot_name, input_file, property_type)
         return True
 
-    @pyaedt_function_handler(trace_name="name")
+    @pyaedt_function_handler()
     def add_trace_characteristics(self, name, arguments=None, solution_range=None):
         """Add a trace characteristic to the plot.
 

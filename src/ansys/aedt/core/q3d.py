@@ -28,12 +28,9 @@ from pathlib import Path
 import re
 from typing import Optional
 from typing import Union
-import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
-from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
-from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -124,7 +121,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         """
         return self.matrices[matrix_index].sources(is_gc_sources=is_gc_sources)
 
-    @pyaedt_function_handler(source_names="assignment", rm_name="reduced_matrix")
+    @pyaedt_function_handler()
     def insert_reduced_matrix(
         self,
         operation_name,
@@ -235,7 +232,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             category=category,
         )
 
-    @pyaedt_function_handler(setup_name="setup", mesh_path="output_file")
+    @pyaedt_function_handler()
     def export_mesh_stats(self, setup, variations="", output_file=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
@@ -440,7 +437,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             self.osolution.EditSources(settings_cg, settings_ac)
         return True
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def export_matrix_data(
         self,
         file_name,
@@ -777,14 +774,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
-    @pyaedt_function_handler(
-        file_name="output_file",
-        setup_name="setup",
-        matrix_name="matrix",
-        num_cells="cells",
-        freq="frequency",
-        model_name="model",
-    )
+    @pyaedt_function_handler()
     def export_equivalent_circuit(
         self,
         output_file,
@@ -1296,13 +1286,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -1322,7 +1306,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.is3d = True
         QExtractor.__init__(
             self,
-            "Q3D Extractor",
+            "Q3D",
             project,
             design,
             solution_type,
@@ -1337,18 +1321,6 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-
-    # TODO: Remove for release 1.0.0
-    @property
-    def MATRIXOPERATIONS(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ3D`` instead."""
-        warnings.warn(
-            "Usage of MATRIXOPERATIONS is deprecated. "
-            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ3D instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return MatrixOperationsQ3D
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -1373,23 +1345,6 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             self.logger.info(f"Field setup {boundary_type} {name} has been created.")
             return bound
         raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
-
-    @property
-    def nets(self):
-        """Nets in a Q3D project.
-
-        .. deprecated:: 0.17.1
-           Use :func:`net_names` property instead.
-
-        Returns
-        -------
-        List of nets in a Q3D project.
-
-        """
-        mess = "The property `nets` is deprecated.\n"
-        mess += "Use `app.net_names` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.net_names
 
     @property
     def net_names(self):
@@ -1481,13 +1436,13 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def delete_all_nets(self):
         """Delete all nets in the design."""
-        net_names = self.nets[::]
+        net_names = self.net_names[::]
         for i in self.boundaries[::]:
             if i.name in net_names:
                 i.delete()
         return True
 
-    @pyaedt_function_handler(nets="assignment")
+    @pyaedt_function_handler()
     def objects_from_nets(self, assignment, materials=None):
         """Find the objects that belong to one or more nets. You can filter by materials.
 
@@ -1613,7 +1568,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.AutoIdentifyNets
         """
-        original_nets = [i for i in self.nets]
+        original_nets = [i for i in self.net_names]
         has_conductor = False
         for _, val in self.modeler.objects.items():
             if val.material_name and self.materials[val.material_name].is_conductor():
@@ -1623,7 +1578,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             self.logger.warning("Nets not identified because no conductor material was found.")
             return True
         self.oboundary.AutoIdentifyNets()
-        new_nets = [i for i in self.nets if i not in original_nets]
+        new_nets = [i for i in self.net_names if i not in original_nets]
         for net in new_nets:
             objects = self.modeler.convert_to_selections(
                 [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
@@ -1665,13 +1620,13 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         >>> q3d = Q3d()
         >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         >>> aedtapp.auto_identify_nets()
-        >>> net = aedtapp.nets[0]
+        >>> net = aedtapp.net_names[0]
         >>> new_net = aedtapp.toggle_net(net, "Floating")
         """
         if isinstance(net_name, BoundaryObject):
             net_name = net_name.name
 
-        if net_name not in self.nets:
+        if net_name not in self.net_names:
             raise ValueError(f"{net_name} is not a valid net name.")
 
         type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
@@ -1688,7 +1643,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         return self._boundaries[net_name]
 
-    @pyaedt_function_handler(objects="assignment")
+    @pyaedt_function_handler()
     def assign_net(self, assignment, net_name=None, net_type="Signal"):
         """Assign a net to a list of objects.
 
@@ -1731,7 +1686,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         return self._create_boundary(net_name, props, type_bound)
 
-    @pyaedt_function_handler(objects="assignment", axisdir="direction")
+    @pyaedt_function_handler()
     def source(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
         """Generate a source on a face of an object or a group of faces or face ids.
 
@@ -1762,7 +1717,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Source")
 
-    @pyaedt_function_handler(objects="assignment", axisdir="direction")
+    @pyaedt_function_handler()
     def sink(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
         """Generate a sink on a face of an object or a group of faces or face ids.
 
@@ -1793,7 +1748,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Sink")
 
-    @pyaedt_function_handler(objects="assignment", axisdir="direction")
+    @pyaedt_function_handler()
     def _assign_source_or_sink(self, assignment, direction, name, net_name, terminal_type, exc_type):
         if not name:
             name = generate_unique_name(exc_type)
@@ -1804,7 +1759,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             if isinstance(object_name, str) and object_name in self.modeler.solid_names:
                 sheets.append(self.modeler._get_faceid_on_axis(object_name, direction))
                 if not net_name:
-                    for net in self.nets:
+                    for net in self.net_names:
                         if object_name in self.objects_from_nets(net):
                             net_name = net
             elif isinstance(object_name, str):
@@ -1827,265 +1782,6 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         if net_name:
             props["Net"] = net_name
         return self._create_boundary(name, props, exc_type)
-
-    @pyaedt_function_handler(
-        object_name="assignment",
-        axisdir="direction",
-        sink_name="name",
-    )
-    def assign_sink_to_objectface(self, assignment, direction=0, name=None, net_name=None):
-        """Generate a sink on a face of an object.
-
-        .. deprecated:: 0.8.9
-            This method is deprecated. Use the ``sink()`` method instead.
-
-        The face ID is selected based on the axis direction. It is the face that has
-        the maximum or minimum in this axis direction.
-
-        Parameters
-        ----------
-        assignment : str, int
-            Name of the object or face ID.
-        direction : int, optional
-            Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
-        name : str, optional
-            Name of the sink. The default is ``None``.
-        net_name : str, optional
-            Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Sink object.
-
-        References
-        ----------
-        >>> oModule.AssignSink
-        """
-        warnings.warn(
-            "This method is deprecated in 0.8.9. Use the ``sink()`` method.",
-            DeprecationWarning,
-        )
-
-        assignment = self.modeler.convert_to_selections(assignment, True)[0]
-        if isinstance(assignment, int):
-            a = assignment
-            assignment = self.modeler.oeditor.GetObjectNameByFaceID(a)
-        else:
-            a = self.modeler._get_faceid_on_axis(assignment, direction)
-        if not name:
-            name = generate_unique_name("Sink")
-        if not net_name:
-            net_name = assignment
-        if a:
-            props = dict({"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name})
-            return self._create_boundary(name, props, "Sink")
-        return False
-
-    @pyaedt_function_handler(sheetname="assignment", objectname="object_name", netname="net_name", sinkname="sink_name")
-    def assign_sink_to_sheet(
-        self, assignment, object_name=None, net_name=None, sink_name=None, terminal_type="voltage"
-    ):
-        """Generate a sink on a sheet.
-
-        .. deprecated:: 0.8.9
-            This method is deprecated. Use the ``sink()`` method instead.
-
-        Parameters
-        ----------
-        assignment :
-            Name of the sheet to create the sink on.
-        object_name : str, optional
-            Name of the parent object. The default is ``None``.
-        net_name : str, optional
-            Name of the net. The default is ``None``.
-        sink_name : str, optional
-            Name of the sink. The default is ``None``.
-        terminal_type : str
-            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Source object.
-
-        References
-        ----------
-        >>> oModule.AssignSink
-        """
-        warnings.warn(
-            "This method is deprecated in 0.8.9. Use the ``sink()`` method.",
-            DeprecationWarning,
-        )
-
-        if not sink_name:
-            sink_name = generate_unique_name("Sink")
-        assignment = self.modeler.convert_to_selections(assignment, True)[0]
-        if isinstance(assignment, int):
-            props = dict({"Faces": [assignment]})
-        else:
-            props = dict({"Objects": [assignment]})
-        if object_name:
-            props["ParentBndID"] = object_name
-
-        if terminal_type == "current":
-            terminal_str = "UniformCurrent"
-        else:
-            terminal_str = "ConstantVoltage"
-
-        props["TerminalType"] = terminal_str
-
-        if net_name:
-            props["Net"] = net_name
-
-        return self._create_boundary(sink_name, props, "Sink")
-
-    @pyaedt_function_handler()
-    def create_frequency_sweep(self, setupname, units=None, freqstart=0, freqstop=1, freqstep=None, sweepname=None):
-        """Create a frequency sweep.
-
-        .. deprecated:: 0.7.12
-            This method is deprecated. To create a frequency sweep use ``create_frequency_sweep()``
-            from setup object.
-            Example
-            -------
-            >>> from ansys.aedt.core import Q3d
-            >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(name="Setup1")
-            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1")
-            >>> q3d.desktop_class.close_desktop()
-
-        Parameters
-        ----------
-        setupname : str
-            Name of the setup that is attached to the sweep.
-        units : str, optional
-            Units of the frequency. For example, ``"MHz"`` or
-            ``"GHz"``. The default is ``None`` which takes the Default Desktop units.
-        freqstart : float, str, optional
-            Starting frequency of the sweep. The default is ``0``.
-             If a unit is passed with the number, such as ``"1MHz"``, the unit is ignored.
-        freqstop : float, str, optional
-            Stopping frequency of the sweep. The default is ``1``.
-            If a unit is passed with the number, such as``"1MHz"``, the unit is ignored.
-        freqstep : optional
-            Frequency step point.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``, in which case the
-            default name is used.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
-            Sweep object when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.InsertSweep
-        """
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
-
-        if setupname not in self.setup_names:
-            return False
-        for i in self.setups:
-            if i.name == setupname:
-                setupdata = i
-                for sw in setupdata.sweeps:
-                    if sweepname == sw.name:
-                        self.logger.warning("Sweep %s is already present. Rename and retry.", sweepname)
-                        return False
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = self.value_with_units(freqstart, units, "Frequency")
-                sweepdata.props["RangeEnd"] = self.value_with_units(freqstop, units, "Frequency")
-                sweepdata.props["RangeStep"] = self.value_with_units(freqstep, units, "Frequency")
-
-                sweepdata.props["SaveFields"] = False
-                sweepdata.props["SaveRadFields"] = False
-                sweepdata.props["Type"] = "Interpolating"
-                sweepdata.props["RangeType"] = "LinearStep"
-                sweepdata.update()
-                return sweepdata
-        return False
-
-    @pyaedt_function_handler()
-    def create_discrete_sweep(
-        self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
-    ):
-        """Create a discrete sweep with a single frequency value.
-
-        .. deprecated:: 0.7.12
-            This method is deprecated. To create a discrete frequency sweep use ``create_frequency_sweep()``
-            from setup object.
-            Example
-            -------
-            >>> from ansys.aedt.core import Q3d
-            >>> q3d = Q3d()
-            >>> setup1 = q3d.create_setup(name="Setup1")
-            >>> sweep1 = setup1.create_frequency_sweep(
-            ...     unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1", sweep_type="Discrete"
-            ... )
-            >>> q3d.desktop_class.close_desktop()
-
-        Parameters
-        ----------
-        setupname : str
-            Name of the setup that the sweeps belongs to.
-        freqstart : float
-            Starting point for the discrete frequency.
-        freqstop : float, optional
-            Stopping point for the discrete frequency. If ``None``,
-            a single-point sweep is performed.
-        freqstep : float, optional
-            Step point for the discrete frequency. If ``None``,
-            11 points are created.
-        units : str, optional
-            Units of the discrete frequency. For example, ``"MHz"`` or
-            ``"GHz"``. The default is ``"GHz"``.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``, in which case
-            the default name is used.
-        savefields : bool, optional
-            Whether to save fields. The default is ``False``.
-
-        Returns
-        -------
-        SweepMatrix
-            Sweep option.
-
-        References
-        ----------
-        >>> oModule.InsertSweep
-        """
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
-
-        if setupname not in self.setup_names:
-            return False
-        for i in self.setups:
-            if i.name == setupname:
-                setupdata = i
-                for sw in setupdata.sweeps:
-                    if sweepname == sw.name:
-                        self.logger.warning("Sweep %s already present. Rename and retry.", sweepname)
-                        return False
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
-                sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
-                if not freqstop:
-                    freqstop = freqstart
-                if not freqstep:
-                    freqstep = (freqstop - freqstart) / 11
-                    if freqstep == 0:
-                        freqstep = freqstart
-                sweepdata.props["RangeEnd"] = str(freqstop) + "GHz"
-                sweepdata.props["RangeStep"] = str(freqstep) + "GHz"
-                sweepdata.props["SaveFields"] = savefields
-                sweepdata.props["SaveRadFields"] = False
-                sweepdata.props["Type"] = "Discrete"
-                sweepdata.props["RangeType"] = "LinearStep"
-                sweepdata.update()
-                return sweepdata
-        return False
 
     @pyaedt_function_handler()
     def set_material_thresholds(
@@ -2136,7 +1832,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         except Exception:
             return False
 
-    @pyaedt_function_handler(setupname="name")
+    @pyaedt_function_handler()
     def create_setup(self, name="MySetupAuto", **kwargs):
         """Create an analysis setup for Q3D Extractor.
 
@@ -2280,7 +1976,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         assignment = {}
 
-        for net in self.nets:
+        for net in self.net_names:
             source_name = "source_1"
             sources = self.net_sources(net)
             sinks = self.net_sinks(net)
@@ -2696,13 +2392,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """Dimension."""
         return self.modeler.dimension
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -2722,7 +2412,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.is3d = False
         QExtractor.__init__(
             self,
-            "2D Extractor",
+            "EXTRACTOR2D",
             project,
             design,
             solution_type,
@@ -2738,22 +2428,10 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    # TODO: Remove for release 1.0.0
-    @property
-    def MATRIXOPERATIONS(self):
-        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ2D`` instead."""
-        warnings.warn(
-            "Usage of MATRIXOPERATIONS is deprecated. "
-            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ2D instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return MatrixOperationsQ2D
-
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler(position="origin", dimension_list="sizes", matname="material")
+    @pyaedt_function_handler()
     def create_rectangle(self, origin, sizes, name="", material=""):
         """Create a rectangle.
 
@@ -2781,37 +2459,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         """
         return self.modeler.create_rectangle(origin=origin, sizes=sizes, name=name, material=material)
 
-    @pyaedt_function_handler(target_objects="assignment", unit="units")
-    def assign_single_signal_line(self, assignment, name="", solve_option="SolveInside", thickness=None, units="um"):
-        """Assign the conductor type to sheets.
-
-        Parameters
-        ----------
-        assignment : list
-            List of Object3D.
-        name : str, optional
-            Name of the conductor. The default is ``""``, in which case the default name is used.
-        solve_option : str, optional
-            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
-            The default is ``"SolveInside"``.
-        thickness : float, optional
-            Conductor thickness. The default is ``None``, in which case the conductor thickness
-            is obtained by dividing the conductor's area by its perimeter (A/p). If multiple
-            conductors are selected, the average conductor thickness is used.
-        units : str, optional
-            Thickness unit. The default is ``"um"``.
-
-        References
-        ----------
-        >>> oModule.AssignSingleSignalLine
-        >>> oModule.AssignSingleReferenceGround
-        """
-        warnings.warn(
-            "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.", DeprecationWarning
-        )
-        self.assign_single_conductor(assignment, name, "SignalLine", solve_option, thickness, units)
-
-    @pyaedt_function_handler(target_objects="assignment", unit="units")
+    @pyaedt_function_handler()
     def assign_single_conductor(
         self,
         assignment,
@@ -2876,7 +2524,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         return self._create_boundary(name, props, conductor_type)
 
-    @pyaedt_function_handler(edges="assignment", unit="units")
+    @pyaedt_function_handler()
     def assign_huray_finitecond_to_edges(self, assignment, radius, ratio, units="um", name=""):
         """
         Assign the Huray surface roughness model to edges.
@@ -3066,7 +2714,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
                             self.logger.warning("Export W-element failed")
         return exported_files
 
-    @pyaedt_function_handler(conductor_name="assignment")
+    @pyaedt_function_handler()
     def toggle_conductor_type(self, assignment, new_type):
         """Change the conductor type.
 
@@ -3093,7 +2741,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             self.logger.error("Error in updating conductor type")
             return False
 
-    @pyaedt_function_handler(setup_name="name", setuptype="setup_type")
+    @pyaedt_function_handler()
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for 2D Extractor.
 
