@@ -24,6 +24,7 @@
 
 import copy
 import os
+from pathlib import Path
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -622,16 +623,16 @@ class FieldsCalculator(PyAedtBase):
         float
             Value computed.
         """
-        out_file = os.path.join(self.__app.working_directory, generate_unique_name("expression") + ".fld")
-        self.write(expression, setup=setup, intrinsics=intrinsics, output_file=out_file)
+        out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
+        self.write(expression, setup=setup, intrinsics=intrinsics, output_file=str(out_file))
         value = None
-        if os.path.exists(out_file):
+        if out_file.exists():
             with open_file(out_file, "r") as f:
                 lines = f.readlines()
                 lines = [line.strip() for line in lines]
                 value = lines[-1]
             try:
-                os.remove(out_file)
+                out_file.unlink()
             except OSError:
                 pass
         return value
@@ -806,8 +807,11 @@ class FieldsCalculator(PyAedtBase):
             )
             return False
 
-        if os.path.exists(output_file):
-            return output_file
+        if output_file:
+            output_file = Path(output_file)
+
+        if output_file.exists():
+            return str(output_file)
         return False
 
     @pyaedt_function_handler()
