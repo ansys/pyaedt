@@ -75,6 +75,7 @@ def aedt_sbr(add_app):
     app.close_project(app.project_name, save=False)
 
 
+@pytest.mark.flaky_linux
 def test_open_source(aedt_app, add_app):
     source = add_app(project=aedt_app.project_name, design="feeder", close_projects=False)
     assert aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
