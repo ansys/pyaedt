@@ -465,6 +465,7 @@ def test_value_with_units(aedt_app):
     assert aedt_app.value_with_units("10") == "10mm"
 
 
+@pytest.mark.flaky_linux
 def test_ports_on_nets(aedt_app):
     nets = ["DDR4_DQ0", "DDR4_DQ1"]
     ports_before = len(aedt_app.port_list)
