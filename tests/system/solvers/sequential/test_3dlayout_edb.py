@@ -237,7 +237,6 @@ def test_assign_spice_model(aedt_app):
     )
 
 
-@pytest.mark.flaky_linux
 def test_nets(aedt_app, test_tmp_dir):
     nets = aedt_app.modeler.nets
     assert nets["GND"].name == "GND"
@@ -443,7 +442,6 @@ def test_set_port_properties_on_rlc_component(aedt_app):
     assert component.port_properties is None
 
 
-@pytest.mark.flaky_linux
 def test_import_table(aedt_app):
     file_header = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
@@ -460,7 +458,6 @@ def test_import_table(aedt_app):
     assert table not in aedt_app.existing_analysis_sweeps
 
 
-@pytest.mark.flaky_linux
 def test_ports_on_nets(aedt_app):
     nets = ["DDR4_DQ0", "DDR4_DQ1"]
     ports_before = len(aedt_app.port_list)
