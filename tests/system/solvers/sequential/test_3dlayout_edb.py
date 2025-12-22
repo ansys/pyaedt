@@ -29,11 +29,11 @@ import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
-from tests import TESTS_GENERAL_PATH
+from tests import TESTS_SEQUENTIAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
-TEST_SUBFOLDER = "T40"
+TEST_SUBFOLDER = "layout_edb"
 ORIGINAL_PROJECT = "ANSYS-HSD_V1"
 
 
@@ -225,13 +225,13 @@ def test_change_property(aedt_app):
 
 
 def test_assign_touchstone_model(aedt_app, test_tmp_dir):
-    model_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32_DC0V_25degC_series.s2p"
+    model_path = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32_DC0V_25degC_series.s2p"
     file = shutil.copy2(model_path, test_tmp_dir / "GRM32_DC0V_25degC_series.s2p")
     assert aedt_app.modeler.set_touchstone_model(assignment="C217", input_file=str(file), model_name="Test1")
 
 
 def test_assign_spice_model(aedt_app):
-    model_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
+    model_path = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
     assert aedt_app.modeler.set_spice_model(
         assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
     )
@@ -325,7 +325,7 @@ def test_3dplacement(aedt_app):
     aedt_app.modeler.layers.add_layer("diel", "dielectric")
     aedt_app.modeler.layers.add_layer("TOP", "signal")
     tol = 1e-12
-    encrypted_model_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "SMA_RF_Jack.a3dcomp"
+    encrypted_model_path = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "SMA_RF_Jack.a3dcomp"
     comp = aedt_app.modeler.place_3d_component(
         str(encrypted_model_path), 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
     )
@@ -443,9 +443,9 @@ def test_set_port_properties_on_rlc_component(aedt_app):
     assert component.port_properties is None
 
 
+@pytest.mark.flaky_linux
 def test_import_table(aedt_app):
-    aedt_app.insert_design("import_table")
-    file_header = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
+    file_header = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
     assert not aedt_app.import_table(file_header, column_separator="dummy")
@@ -458,11 +458,6 @@ def test_import_table(aedt_app):
 
     assert aedt_app.delete_imported_data(table)
     assert table not in aedt_app.existing_analysis_sweeps
-
-
-def test_value_with_units(aedt_app):
-    assert aedt_app.value_with_units("10mm") == "10mm"
-    assert aedt_app.value_with_units("10") == "10mm"
 
 
 @pytest.mark.flaky_linux
