@@ -91,7 +91,7 @@ def _download_file(
     if strip_prefix:
         relative_path = relative_path.relative_to(Path(strip_prefix))
 
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH / relative_path
     else:
         local_path = Path(local_path) / relative_path
@@ -151,7 +151,7 @@ def _download_folder(
     if strip_prefix:
         relative_path = relative_path.relative_to(Path(strip_prefix))
 
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     else:
         local_path = Path(local_path)
@@ -247,7 +247,7 @@ def download_edb_merge_utility(force_download: bool = False, local_path: Optiona
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/wpf_edb_merge/merge_wizard.py'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -608,7 +608,7 @@ def download_custom_reports(force_download: bool = False, local_path: Optional[U
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/custom_reports'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -649,7 +649,7 @@ def download_3dcomponent(force_download=False, local_path: Optional[Union[str, P
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/array_3d_component'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -690,7 +690,7 @@ def download_fss_3dcomponent(force_download=False, local_path: Optional[Union[st
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/fss_3d_component'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -730,7 +730,7 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/multiparts/library'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 
@@ -774,7 +774,7 @@ def download_twin_builder_data(
     >>> path
     'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/twin_builder'
     """
-    if not local_path:
+    if not local_path:  # pragma: no cover
         local_path = EXAMPLES_PATH
     local_path = Path(local_path)
 

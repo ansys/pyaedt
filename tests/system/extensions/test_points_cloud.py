@@ -30,26 +30,21 @@ from ansys.aedt.core.extensions.common.points_cloud import PointsCloudExtensionD
 from ansys.aedt.core.extensions.common.points_cloud import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-point_cloud_generator = "point_cloud_generator"
-test_subfolder = "T45"
+POINT_CLOUD_GENERATOR = "point_cloud_generator"
+TEST_SUBFOLDER = "T45"
 
 
-@pytest.fixture
-def aedt_app(add_app):
-    """Fixture to create a dedicated AEDT application."""
-    aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
-    return aedtapp
-
-
-def test_point_cloud_extension_logic(aedt_app, local_scratch):
+def test_point_cloud_extension_logic(add_app_example, test_tmp_dir):
     # Define point cloud extension data to use for call to main
-    data = PointsCloudExtensionData(choice="Torus1", points=1000, output_file=local_scratch.path)
+    app = add_app_example(subfolder=TEST_SUBFOLDER, project=POINT_CLOUD_GENERATOR)
+    data = PointsCloudExtensionData(choice="Torus1", points=1000, output_file=test_tmp_dir)
+    assert Path(main(data)) == test_tmp_dir / "Torus1.pts"
+    app.close_project(app.project_name, save=False)
 
-    assert Path(main(data)) == Path(local_scratch.path) / "Torus1.pts"
 
-
-def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
+def test_point_cloud_exceptions(add_app_example, add_app, test_tmp_dir):
     """Test exceptions thrown by the point cloud extension."""
+    app = add_app_example(subfolder=TEST_SUBFOLDER, project=POINT_CLOUD_GENERATOR)
     data = PointsCloudExtensionData(choice=[""])
     with pytest.raises(AEDTRuntimeError):
         main(data)
@@ -62,11 +57,12 @@ def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    data = PointsCloudExtensionData(output_file=str(local_scratch.path)[1:])
+    data = PointsCloudExtensionData(output_file=test_tmp_dir)
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    aedt_app.close_project(aedt_app.project_name)
-    add_app()
+    app.close_project(app.project_name, save=False)
+    app = add_app()
     with pytest.raises(AEDTRuntimeError):
         main(data)
+    app.close_project(app.project_name, save=False)
