@@ -690,7 +690,7 @@ class NetworkObject(BoundaryObject):
         except KeyError:
             self.props[type_dict] = {new_node.name: new_node.props}
 
-    @pyaedt_function_handler(face_id="assignment")
+    @pyaedt_function_handler()
     def add_face_node(
         self, assignment, name=None, thermal_resistance="NoResistance", material=None, thickness=None, resistance=None
     ):
@@ -776,7 +776,7 @@ class NetworkObject(BoundaryObject):
         self._add_to_props(new_node)
         return new_node
 
-    @pyaedt_function_handler(nodes_dict="nodes")
+    @pyaedt_function_handler()
     def add_nodes_from_dictionaries(self, nodes):
         """
         Add nodes to the network from dictionary.

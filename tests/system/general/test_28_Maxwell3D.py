@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -63,7 +64,7 @@ def m3d_app(add_app):
 
 @pytest.fixture()
 def maxwell_versioned():
-    return SolutionsMaxwell3D.versioned(config["desktopVersion"])
+    return SolutionsMaxwell3D
 
 
 @pytest.fixture()
@@ -528,7 +529,7 @@ class TestClass:
     def test_assign_voltage_drop(self, m3d_app, maxwell_versioned):
         m3d_app.solution_type = maxwell_versioned.Magnetostatic
 
-        circle = m3d_app.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
+        circle = m3d_app.modeler.create_circle(origin=[10, 10, 0], radius=5, orientation="XY")
         v_drop = m3d_app.assign_voltage_drop([circle.faces[0]])
         assert v_drop.props["Faces"][0] == circle.faces[0].id
         assert v_drop.props["Voltage Drop"] == "1mV"
@@ -671,8 +672,8 @@ class TestClass:
     def test_assign_independent_dependent(self, m3d_app):
         box = m3d_app.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
         independent, dependent = m3d_app.assign_master_slave(
-            master_entity=box.faces[1],
-            slave_entity=box.faces[5],
+            independent=box.faces[1],
+            dependent=box.faces[5],
             u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
             u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
             u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -684,8 +685,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=[0, "0mm", "0mm"],
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -695,8 +696,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
                 u_vector_pos_coordinates_master=[10, "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -706,8 +707,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=[10, "0mm", "0mm"],
@@ -717,8 +718,8 @@ class TestClass:
             ValueError, match=re.escape("Elements of coordinates system must be strings in the form of ``value+unit``.")
         ):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -726,8 +727,8 @@ class TestClass:
             )
         with pytest.raises(ValueError, match="Please provide a list of coordinates for U vectors."):
             m3d_app.assign_master_slave(
-                master_entity=box.faces[1],
-                slave_entity=box.faces[5],
+                independent=box.faces[1],
+                dependent=box.faces[5],
                 u_vector_origin_coordinates_master="0mm",
                 u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
                 u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
@@ -748,9 +749,8 @@ class TestClass:
         assert meshlink_props["Soln"] == m3d_app.nominal_adaptive
         assert not m3d_app.setups[0].add_mesh_link(design="invalid")
         assert not m3d_app.setups[0].add_mesh_link(design=m3d_app.design_list[0], solution="invalid")
-        assert m3d_app.setups[0].add_mesh_link(
-            design=m3d_app.design_list[0], parameters=m3d_app.available_variations.nominal_w_values_dict
-        )
+        nominal_values = m3d_app.available_variations.get_independent_nominal_values()
+        assert m3d_app.setups[0].add_mesh_link(design=m3d_app.design_list[0], parameters=nominal_values)
         example_project = os.path.join(local_scratch.path, "test.aedt")
         m3d_app.save_project(example_project)
         example_project_copy = os.path.join(local_scratch.path, "test_copy.aedt")
@@ -840,7 +840,7 @@ class TestClass:
 
     def test_import_dxf(self, m3d_app):
         dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
-        dxf_layers = m3d_app.get_dxf_layers(dxf_file)
+        dxf_layers = get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert m3d_app.import_dxf(dxf_file, dxf_layers)
         assert m3d_app.import_dxf(dxf_file, dxf_layers, self_stitch_tolerance=0.2)
@@ -1017,15 +1017,15 @@ class TestClass:
     def test_order_coil_terminals(self, m3d_app):
         m3d_app.solution_type = "TransientAPhiFormulation"
         c1 = m3d_app.modeler.create_cylinder(
-            orientation=m3d_app.AXIS.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
+            orientation=Axis.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
         )
 
         c2 = m3d_app.modeler.create_cylinder(
-            orientation=m3d_app.AXIS.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
+            orientation=Axis.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
         )
 
         c3 = m3d_app.modeler.create_cylinder(
-            orientation=m3d_app.AXIS.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
+            orientation=Axis.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
         )
 
         m3d_app.assign_coil(assignment=[c1.top_face_z], name="CoilTerminal1")
@@ -1062,3 +1062,16 @@ class TestClass:
         m3d_app.solution_type = "Transient"
         with pytest.raises(AEDTRuntimeError, match="Only available in Transient A-Phi Formulation solution type."):
             m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
+
+    def test_assign_sink(self, m3d_app, maxwell_versioned):
+        m3d_app.solution_type = maxwell_versioned.DCConduction
+        m3d_app.modeler.create_cylinder(
+            orientation="Z", origin=[0, 0, 0], radius=2, height=1, name="mycyl", material="copper"
+        )
+        face_sink = m3d_app.modeler.get_faceid_from_position(position=[0, 0, 1], assignment="mycyl")
+        bound = m3d_app.assign_sink(assignment=face_sink, name="my_sink")
+        assert bound
+        assert bound.name == "my_sink"
+        m3d_app.solution_type = maxwell_versioned.Magnetostatic
+        with pytest.raises(AEDTRuntimeError):
+            m3d_app.assign_sink(assignment=face_sink, name="my_sink")

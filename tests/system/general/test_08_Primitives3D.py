@@ -714,7 +714,7 @@ class TestClass:
     def test_41b_create_rect_sheet_to_groundplane(self):
         rect = self.create_rectangle()
         box = self.create_copper_box()
-        plane = self.aedtapp.modeler.create_sheet_to_ground(box.name, rect.name, self.aedtapp.AxisDir.ZNeg)
+        plane = self.aedtapp.modeler.create_sheet_to_ground(box.name, rect.name, self.aedtapp.axis_directions.ZNeg)
         assert isinstance(plane, Object3d)
 
     def test_41c_get_edges_for_circuit_port(self):
@@ -1860,7 +1860,7 @@ class TestClass:
         )
 
     def test_83_cover_face(self):
-        o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
+        o1 = self.aedtapp.modeler.create_circle(orientation=0, origin=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.cover_faces(o1)
 
     def test_84_replace_3d_component(self):
@@ -2176,7 +2176,7 @@ class TestClass:
         assert circle3.name in self.aedtapp.modeler.solid_names
 
     def test_97_uncover_faces(self):
-        o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
+        o1 = self.aedtapp.modeler.create_circle(orientation=0, origin=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.uncover_faces([o1.faces[0]])
         c1 = self.aedtapp.modeler.create_circle(orientation=Axis.X, origin=[0, 10, 20], radius="3", name="Circle1")
         b1 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")

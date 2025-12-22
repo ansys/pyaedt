@@ -239,7 +239,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
                 return self.components[el]
         return False
 
-    @pyaedt_function_handler(component="assignment")
+    @pyaedt_function_handler()
     def duplicate(self, assignment, location=None, angle=0, flip=False):  # pragma: no cover
         """Add a new subcircuit to the design.
 
@@ -279,7 +279,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             return self.components[new_ids[0]]
         return False
 
-    @pyaedt_function_handler(components_to_connect="assignment")
+    @pyaedt_function_handler()
     def connect_components_in_series(self, assignment, use_wire=True):
         """Connect schematic components in series.
 
@@ -323,7 +323,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             i += 1
         return True
 
-    @pyaedt_function_handler(components_to_connect="assignment")
+    @pyaedt_function_handler()
     def connect_components_in_parallel(self, assignment):
         """Connect schematic components in parallel.
 
@@ -362,7 +362,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             terminal_to_connect[0].pins[1].connect_to_component([i.pins[1] for i in terminal_to_connect[1:]])
         return True
 
-    @pyaedt_function_handler(sourcename="name")
+    @pyaedt_function_handler()
     def add_subcircuit_3dlayout(self, name):
         """Add a subcircuit from a HFSS 3DLayout.
 
@@ -643,7 +643,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
                 return el, self.components[el].composed_name
         return False
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a resistor.
 
@@ -685,7 +685,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         cmpid.set_property("R", value)
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create an inductor.
 
@@ -730,7 +730,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a capacitor.
 
@@ -775,7 +775,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         cmpid.set_property("C", value)
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_voltage_dc(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a voltage DC source.
 
@@ -821,7 +821,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         cmpid.set_property("DC", value)
         return cmpid
 
-    @pyaedt_function_handler(probe_name="name")
+    @pyaedt_function_handler()
     def create_voltage_probe(self, name=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a voltage probe.
 
@@ -937,7 +937,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             cmpid.set_property("InstanceName", name)
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_current_pulse(
         self, name=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False, page=1
     ):
@@ -999,7 +999,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_voltage_pulse(
         self, name=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False, page=1
     ):
@@ -1061,7 +1061,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_voltage_pwl(
         self,
         name=None,
@@ -1125,7 +1125,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_current_dc(self, name=None, value=1, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a current DC source.
 
@@ -1227,7 +1227,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         cmpid.set_property("CouplingFactor", value)
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_diode(
         self, name=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False, page=1
     ):
@@ -1273,7 +1273,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         cmpid.set_property("MOD", model_name)
         return cmpid
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_npn(self, name=None, value=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create an NPN transistor.
 
@@ -1317,7 +1317,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             id.set_property("MOD", value)
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_pnp(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a PNP transistor.
 
@@ -1362,9 +1362,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
         return id
 
-    @pyaedt_function_handler(
-        symbol_name="name", pin_lists="pins", parameter_list="parameters", parameter_value="values"
-    )
+    @pyaedt_function_handler()
     def create_new_component_from_symbol(
         self,
         name,
@@ -1528,7 +1526,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         self.ocomponent_manager.Add(arg)
         return True
 
-    @pyaedt_function_handler(toolNum="tool_index")
+    @pyaedt_function_handler()
     def _get_comp_custom_settings(
         self, tool_index, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
     ):
@@ -1591,7 +1589,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
 
         return res
 
-    @pyaedt_function_handler(comp_name="name")
+    @pyaedt_function_handler()
     def add_subcircuit_dynamic_link(
         self,
         pyaedt_app=None,
@@ -2045,7 +2043,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         self._app._oproject.ChangeProperty(arg)
         return True
 
-    @pyaedt_function_handler(component_name="name")
+    @pyaedt_function_handler()
     def refresh_dynamic_link(self, name):
         """Refresh a dynamic link component.
 
@@ -2079,7 +2077,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
                     models.append(pinNames[1])
         return models
 
-    @pyaedt_function_handler(model_path="input_file", model_name="model", symbol_name="symbol")
+    @pyaedt_function_handler()
     def create_component_from_spicemodel(
         self,
         input_file,
@@ -2152,7 +2150,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
             )
         return True
 
-    @pyaedt_function_handler(model_path="input_file", solution_name="solution")
+    @pyaedt_function_handler()
     def add_siwave_dynamic_link(self, input_file, solution=None, simulate_solutions=False):
         """Add a siwave dinamyc link object.
 
