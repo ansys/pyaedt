@@ -3594,6 +3594,59 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         self.oboundary.OrderCoilTerminals(["Name:" + winding_name, *list_of_terminals])
         return True
 
+    @pyaedt_function_handler()
+    def assign_sink(self, assignment, name=None):
+        """Assign sink excitation. Available only in 3D electric solvers but electrostatic.
+
+        Parameters
+        ----------
+        assignment : list, str
+            List of objects to assign the current excitation to.
+        name : str, optional
+            Name of the current excitation.
+            The default is ``None`` in which case a generic name will be given.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignSink
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
+        >>> cylinder = m3d.modeler.create_cylinder("X", [0, 0, 0], 10, 100, 250)
+        >>> current = m3d.assign_sink(cylinder.top_face_x.id)
+        >>> m3d.desktop_class.release_desktop()
+        """
+        if not name:
+            name = generate_unique_name("Sink")
+
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        maxwell_solutions = SolutionsMaxwell3D
+        if not self.is3d or self.solution_type not in (
+            maxwell_solutions.DCConduction,
+            maxwell_solutions.ElectroDCConduction,
+            maxwell_solutions.ACConduction,
+            maxwell_solutions.ElectricTransient,
+        ):
+            raise AEDTRuntimeError(
+                "Option available only in 3D DCConduction, 3D ElectroDCConduction, "
+                "3D ACConduction and Electric Transient."
+            )
+
+        props = dict(
+            {
+                "Faces": assignment,
+            }
+        )
+
+        return self._create_boundary(name, props, "Sink")
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
     """Provides the Maxwell 2D app interface.

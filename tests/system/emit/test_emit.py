@@ -25,19 +25,23 @@
 from enum import Enum
 import inspect
 import os
+import random
 import sys
 import tempfile
 import types
 
 # Import required modules
 from typing import cast
+from typing import get_args
 from unittest.mock import MagicMock
+import warnings
 
 import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.internal.errors import GrpcApiError
 from tests import TESTS_EMIT_PATH
 from tests.conftest import config
 
@@ -57,6 +61,8 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
+    from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
+    from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
     from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
@@ -66,6 +72,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes.generated import RxSusceptibilityProfNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes.generated import Terminator
+    from ansys.aedt.core.emit_core.nodes.generated import TouchstoneCouplingNode
     from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
     from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
@@ -243,9 +250,13 @@ class TestClass:
         new_radio, new_antenna = emit_app.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
         assert isinstance(new_radio, EmitNode)
         assert isinstance(new_antenna, EmitNode)
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(Exception) as e:
             emit_app.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
-        assert "Failed to create radio of type 'WrongComponent'" in str(e.value)
+        assert str(e.value) == (
+            "Failed to create radio of type 'WrongComponent' or antenna: "
+            "Failed to create component of type 'WrongComponent': "
+            "No component found for type 'WrongComponent'."
+        )
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_30_connect_components(self, emit_app):
@@ -277,14 +288,14 @@ class TestClass:
         exception_raised = False
         try:
             radio.set_band_power_level(100)
-        except Exception:
+        except AttributeError:
             exception_raised = True
         assert exception_raised
         # Try getting band power from the radio
         exception_raised = False
         try:
             radio.get_band_power_level()
-        except Exception:
+        except AttributeError:
             exception_raised = True
         assert exception_raised
         # full units support added with 2023.2
@@ -519,7 +530,7 @@ class TestClass:
         assert receivers is None
         transmitters = rev2.get_interferer_names()
         assert transmitters is None
-        bands = rev2.get_band_names(rad5)
+        bands = rev2.get_band_names(radio_name=rad5)
         assert bands is None
         freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
         assert freqs is None
@@ -610,7 +621,7 @@ class TestClass:
         radios_rx = rev.get_receiver_names()
         assert radios_rx[0] == "Bluetooth"
         assert radios_rx[1] == "Bluetooth 2"
-        bands_rx = rev.get_band_names(radios_rx[0], mode_rx)
+        bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=mode_rx)
         assert bands_rx[0] == "Rx - Base Data Rate"
         assert bands_rx[1] == "Rx - Enhanced Data Rate"
         rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "MHz")
@@ -627,7 +638,7 @@ class TestClass:
         assert rx_frequencies[1] == 2403000000.0
 
         # Test set_sampling
-        bands_rx = rev.get_band_names(radios_rx[1], mode_rx)
+        bands_rx = rev.get_band_names(radio_name=radios_rx[1], tx_rx_mode=mode_rx)
         rx_frequencies = rev.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 20
 
@@ -686,7 +697,7 @@ class TestClass:
         assert ants[0].name == "Antenna 2"
 
         # Set up the results
-        rev = self.aedtapp.results.analyze()
+        rev = emit_app.results.analyze()
 
         def enable_all_bands(revision, radio_name):
             mod = revision._emit_com
@@ -723,7 +734,7 @@ class TestClass:
         assert radios == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6"]
 
         # Get the Bands
-        bands = rev.get_band_names(radios[0], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[0], tx_rx_mode=TxRxMode.RX)
         assert bands == ["Band"]
 
         # Get the Freqs
@@ -733,41 +744,41 @@ class TestClass:
         # Test error for trying to get BOTH tx and rx freqs
         exception_raised = False
         try:
-            freqs = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
-        except Exception:
+            _ = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
+        except ValueError:
             exception_raised = True
         assert exception_raised
 
         # Get WiFi 2012 Rx Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.RX)
         assert len(bands) == 16
 
         # Get WiFi 2012 Tx Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.TX)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.TX)
         assert len(bands) == 16
 
         # Get WiFi 2012 All Bands
-        bands = rev.get_band_names(radios[2], TxRxMode.BOTH)
+        bands = rev.get_band_names(radio_name=radios[2], tx_rx_mode=TxRxMode.BOTH)
         assert len(bands) == 32
 
         # Get WiFi 2012 All Bands (default args)
-        bands = rev.get_band_names(radios[2])
+        bands = rev.get_band_names(radio_name=radios[2])
         assert len(bands) == 32
 
         # Get WiFi 6 All Bands (default args)
-        bands = rev.get_band_names(radios[3])
+        bands = rev.get_band_names(radio_name=radios[3])
         assert len(bands) == 192
 
         # Get WiFi 6 Rx Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.RX)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.RX)
         assert len(bands) == 192
 
         # Get WiFi 6 Tx Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.TX)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.TX)
         assert len(bands) == 192
 
         # Get WiFi 6 All Bands
-        bands = rev.get_band_names(radios[3], TxRxMode.BOTH)
+        bands = rev.get_band_names(radio_name=radios[3], tx_rx_mode=TxRxMode.BOTH)
         assert len(bands) == 192
 
         # Add an emitter
@@ -800,7 +811,7 @@ class TestClass:
         exception_raised = False
         try:
             rad.set_channel_sampling()
-        except Exception:
+        except AttributeError:
             exception_raised = True
         assert exception_raised
 
@@ -986,11 +997,11 @@ class TestClass:
         assert len(emit_app.results.revisions) == 0
         rev = emit_app.results.analyze()
         assert len(emit_app.results.revisions) == 1
-        radiosRX = rev.get_receiver_names()
-        bandsRX = rev.get_band_names(radiosRX[0], TxRxMode.RX)
-        radiosTX = rev.get_interferer_names()
+        radios_rx = rev.get_receiver_names()
+        bands_rx = rev.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+        radios_tx = rev.get_interferer_names()
         domain = emit_app.results.interaction_domain()
-        domain.set_receiver(radiosRX[0], bandsRX[0])
+        domain.set_receiver(radios_rx[0], bands_rx[0])
 
         # check n_to_1_limit can be set to different values
         emit_app.results.revisions[-1].n_to_1_limit = 1
@@ -1014,7 +1025,7 @@ class TestClass:
         assert len(domain2.interferer_names) == 2
         assert instance.get_value(ResultType.EMI) == 82.04
         # rerun with 1-1 only (forced by domain)
-        domain.set_interferer(radiosTX[0])
+        domain.set_interferer(radios_tx[0])
         assert emit_app.results.revisions[-1].get_instance_count(domain) == 19829
         interaction = emit_app.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
@@ -1025,6 +1036,13 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_availability_1_to_1(self, emit_app):
+        # Make sure there are no components in the schematic
+        # (possibly left from previous test if run sequentially?)
+        rev = emit_app.results.analyze()
+        comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            emit_app.schematic.delete_component(comp.name)
+
         # place components and generate the appropriate number of revisions
         rad1 = emit_app.modeler.components.create_component("MD400C")
         ant1 = emit_app.modeler.components.create_component("Antenna")
@@ -1032,10 +1050,6 @@ class TestClass:
         rad2 = emit_app.modeler.components.create_component("MD400C")
         ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-
-        assert len(emit_app.results.revisions) == 0
-        rev = emit_app.results.analyze()
-        assert len(emit_app.results.revisions) == 1
 
         rad3 = emit_app.modeler.components.create_component("Mini UAS Video RT Airborne")
         ant3 = emit_app.modeler.components.create_component("Antenna")
@@ -1046,21 +1060,19 @@ class TestClass:
         ant4.move_and_connect_to(rad4)
 
         rev2 = emit_app.results.analyze()
-        assert len(emit_app.results.revisions) == 2
         domain = emit_app.results.interaction_domain()
-        radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
-        domain.set_receiver(radiosRX[0], bandsRX[0])
-        radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
-        domain.set_interferer(radiosTX[0], bandsTX[0])
-        assert len(emit_app.results.revisions) == 2
-        radiosRX = rev2.get_receiver_names()
-        bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
-        domain.set_receiver(radiosRX[0], bandsRX[0])
-        radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
-        bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
-        domain.set_interferer(radiosTX[0], bandsTX[0])
+        radios_rx = rev2.get_receiver_names()
+        bands_rx = rev2.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+        domain.set_receiver(radios_rx[0], bands_rx[0])
+        radios_tx = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
+        bands_tx = rev2.get_band_names(radio_name=radios_tx[0], tx_rx_mode=TxRxMode.TX)
+        domain.set_interferer(radios_tx[0], bands_tx[0])
+        radios_rx = rev2.get_receiver_names()
+        bands_rx = rev2.get_band_names(radio_name=radios_rx[0], tx_rx_mode=TxRxMode.RX)
+        domain.set_receiver(radios_rx[0], bands_rx[0])
+        radios_tx = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
+        bands_tx = rev2.get_band_names(radio_name=radios_tx[0], tx_rx_mode=TxRxMode.TX)
+        domain.set_interferer(radios_tx[0], bands_tx[0])
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
         assert domain.receiver_channel_frequency == -1.0
@@ -1078,18 +1090,10 @@ class TestClass:
         assert valid_availability
 
         rev3 = emit_app.results.analyze()
-        assert len(emit_app.results.revisions) == 2
-        radiosTX = rev3.get_interferer_names(InterfererType.TRANSMITTERS)
-        radiosRX = rev3.get_receiver_names()
-        assert len(radiosTX) == 3
-        assert len(radiosRX) == 4
-
-        rev4 = emit_app.results.get_revision(rev.name)
-        assert len(emit_app.results.revisions) == 2
-        radiosTX = rev4.get_interferer_names(InterfererType.TRANSMITTERS)
-        radiosRX = rev4.get_receiver_names()
-        assert len(radiosTX) == 2
-        assert len(radiosRX) == 2
+        radios_tx = rev3.get_interferer_names(InterfererType.TRANSMITTERS)
+        radios_rx = rev3.get_receiver_names()
+        assert len(radios_tx) == 3
+        assert len(radios_rx) == 4
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
@@ -1100,25 +1104,38 @@ class TestClass:
         rev = interference.results.analyze()
 
         # Test with no filtering
-        expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
+        expected_interference_colors = [["white", "green", "red"], ["red", "green", "white"]]
         expected_interference_power = [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]]
         expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
         domain = interference.results.interaction_domain()
-        interference_colors = []
-        interference_power_matrix = []
-        protection_colors = []
-        protection_power_matrix = []
-        interference_colors, interference_power_matrix = rev.interference_type_classification(domain)
-        protection_colors, protection_power_matrix = rev.protection_level_classification(
-            domain, global_protection_level=True, global_levels=[30, -4, -30, -104]
+        with pytest.raises(ValueError) as e:
+            _, _ = rev.interference_type_classification(domain, InterfererType.EMITTERS)
+        assert str(e.value) == "No interferers defined in the analysis."
+        with pytest.raises(ValueError) as e:
+            _, _ = rev.protection_level_classification(
+                domain,
+                interferer_type=InterfererType.EMITTERS,
+                global_protection_level=True,
+                global_levels=[30, -4, -30, -104],
+            )
+        assert str(e.value) == "No interferers defined in the analysis."
+
+        int_colors, int_power_matrix = rev.interference_type_classification(
+            domain, interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS
+        )
+        pro_colors, pro_power_matrix = rev.protection_level_classification(
+            domain,
+            interferer_type=InterfererType.TRANSMITTERS,
+            global_protection_level=True,
+            global_levels=[30, -4, -30, -104],
         )
 
-        assert interference_colors == expected_interference_colors
-        assert interference_power_matrix == expected_interference_power
-        assert protection_colors == expected_protection_colors
-        assert protection_power_matrix == expected_protection_power
+        assert int_colors == expected_interference_colors
+        assert int_power_matrix == expected_interference_power
+        assert pro_colors == expected_protection_colors
+        assert pro_power_matrix == expected_protection_power
 
     def test_radio_protection_levels(self, interference):
         # Generate a revision
@@ -1135,10 +1152,11 @@ class TestClass:
             "WiFi": [-22.0, -25.0, -30.0, -104.0],
         }
 
-        protection_colors = []
-        protection_power_matrix = []
         protection_colors, protection_power_matrix = rev.protection_level_classification(
-            domain, global_protection_level=False, protection_levels=protection_levels
+            domain,
+            interferer_type=InterfererType.TRANSMITTERS,
+            global_protection_level=False,
+            protection_levels=protection_levels,
         )
 
         assert protection_colors == expected_protection_colors
@@ -1154,18 +1172,16 @@ class TestClass:
 
         # Test with active filtering
         domain = interference.results.interaction_domain()
-        interference_colors = []
-        interference_power_matrix = []
         all_interference_colors = [
-            [["white", "green", "yellow"], ["orange", "green", "white"]],
-            [["white", "green", "yellow"], ["red", "green", "white"]],
-            [["white", "green", "green"], ["red", "green", "white"]],
-            [["white", "white", "yellow"], ["red", "white", "white"]],
+            [["white", "green", "orange"], ["orange", "green", "white"]],
+            [["white", "green", "red"], ["red", "green", "white"]],
+            [["white", "green", "red"], ["red", "green", "white"]],
+            [["white", "white", "red"], ["red", "white", "white"]],
         ]
         all_interference_power = [
-            [["N/A", 16.64, 56.0], [-3.96, 16.64, "N/A"]],
+            [["N/A", 16.64, 2.45], [-3.96, 16.64, "N/A"]],
             [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
-            [["N/A", 16.64, 2.45], [60.0, 16.64, "N/A"]],
+            [["N/A", 16.64, 56.0], [60.0, 16.64, "N/A"]],
             [["N/A", "<= -200", 56.0], [60.0, "<= -200", "N/A"]],
         ]
         interference_filters = [
@@ -1181,7 +1197,7 @@ class TestClass:
             interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
 
             interference_colors, interference_power_matrix = rev.interference_type_classification(
-                domain, use_filter=True, filter_list=interference_filter
+                domain, interferer_type=InterfererType.TRANSMITTERS, use_filter=True, filter_list=interference_filter
             )
 
             assert interference_colors == expected_interference_colors
@@ -1193,8 +1209,6 @@ class TestClass:
 
         # Test with active filtering
         domain = interference.results.interaction_domain()
-        protection_colors = []
-        protection_power_matrix = []
         all_protection_colors = [
             [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
             [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]],
@@ -1216,6 +1230,7 @@ class TestClass:
 
             protection_colors, protection_power_matrix = rev.protection_level_classification(
                 domain,
+                interferer_type=InterfererType.TRANSMITTERS_AND_EMITTERS,
                 global_protection_level=True,
                 global_levels=[30, -4, -30, -104],
                 use_filter=True,
@@ -1233,9 +1248,8 @@ class TestClass:
     """
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_couplings(self, add_app):
-        cell_phone_app = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+        cell_phone_app = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
 
         links = cell_phone_app.couplings.linkable_design_names
         assert len(links) == 0
@@ -1326,7 +1340,6 @@ class TestClass:
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_license_session(self, interference):
         # Generate a revision
         results = interference.results
@@ -1365,21 +1378,21 @@ class TestClass:
 
         assert license_file_path != ""
 
-        def count_license_actions(license_file_path):
+        def count_license_actions(license_path):
             # Count checkout/checkins in most recent license connection
-            checkouts = 0
-            checkins = 0
-            with open(license_file_path, "r") as license_file:
+            num_checkouts = 0
+            num_checkins = 0
+            with open(license_path, "r") as license_file:
                 lines = license_file.read().strip().split("\n")
                 for line in lines:
                     if "NEW_CONNECTION" in line:
-                        checkouts = 0
-                        checkins = 0
+                        num_checkouts = 0
+                        num_checkins = 0
                     elif "CHECKOUT" in line or "SPLIT_CHECKOUT" in line:
-                        checkouts += 1
+                        num_checkouts += 1
                     elif "CHECKIN" in line:
-                        checkins += 1
-            return (checkouts, checkins)
+                        num_checkins += 1
+            return num_checkouts, num_checkins
 
         # Figure out how many checkouts and checkins per run we expect
         # This could change depending on the user's EMIT HPC settings
@@ -1442,9 +1455,17 @@ class TestClass:
 
         assert scene_node == scene_node
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
-    def test_all_generated_emit_node_properties(self, interference):
+    # @profile
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2025 R2.")
+    def test_all_generated_emit_node_properties(self, emit_app):
+        # change this to limit the number of iterations for each node
+        # if None, each node will iterate over all bool and enum combos
+        # to verify that every property can be set
+        max_inner_loop_iterations = 2
+
+        # used to give nodes a unique name on rename commands
+        self.next_int = 0
+
         # Define enum for result types
         class Result(Enum):
             SKIPPED = 0
@@ -1452,49 +1473,70 @@ class TestClass:
             EXCEPTION = 2
             NEEDS_PARAMETERS = 3
 
-        def get_value_for_parameter(arg_type, docstring):
-            value = None
+        def parse_docstring(docstring, is_int):
+            if "Value should be between" in docstring:
+                range_part = docstring.split("Value should be between")[1]
+                min_val = float(range_part.split("and")[0].strip())
+                max_val = float(range_part.split("and")[1].split(".")[0].strip())
+                if is_int:
+                    return round(random.randint(int(min_val), int(max_val)), 3)  # nosec
+                return round(random.uniform(min_val, max_val), 3)  # nosec
+            elif "Value should be less than" in docstring:
+                max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
+                if is_int:
+                    return round(max_val, 3)
+                return max_val
+            elif "Value should be greater than" in docstring:
+                min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
+                if is_int:
+                    return round(min_val, 3)
+                return min_val
+            if is_int:
+                return 0
+            return 0.0
 
-            if arg_type in (int, float):
-                value = 0
+        def get_value_for_parameter(parameter, docstring):
+            param_value = None
+
+            # if arg_type in (int, float):
+            if isinstance(parameter, int) or isinstance(parameter, float):
+                param_value = 0
 
                 # If there's a min or max in the docstring, use it.
                 if docstring:
-                    if "Value should be between" in docstring:
-                        range_part = docstring.split("Value should be between")[1]
-                        min_val = float(range_part.split("and")[0].strip())
-                        max_val = float(range_part.split("and")[1].split(".")[0].strip())
-                        value = min_val
-                    elif "Value should be less than" in docstring:
-                        max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
-                        value = max_val
-                    elif "Value should be greater than" in docstring:
-                        min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
-                        value = min_val
-            elif isinstance(arg_type, str):
-                value = "TestString"
-            elif isinstance(arg_type, bool):
-                value = True
-            elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                    param_value = parse_docstring(docstring, isinstance(parameter, int))
+            elif isinstance(parameter, str):
+                param_value = f"TestString{self.next_int}"
+                self.next_int = self.next_int + 1
+            elif isinstance(parameter, bool):
+                param_value = True
+            elif isinstance(parameter, type) and issubclass(parameter, Enum):
                 # Type is an Enum
+                arg_type = type(parameter)
                 first_enum_value = list(arg_type.__members__.values())[0]
-                value = first_enum_value
-            elif isinstance(arg_type, types.UnionType):
+                param_value = first_enum_value
+            elif isinstance(parameter, types.UnionType):
                 # Type is a Union
-                possible_arg_types = arg_type.__args__
+                possible_arg_types = get_args(parameter)
                 if int in possible_arg_types or float in possible_arg_types:
-                    value = 0
+                    param_value = 0
+                    # If there's a min or max in the docstring, use it.
+                    if docstring:
+                        param_value = parse_docstring(docstring, int in possible_arg_types)
 
-            return value
+            return param_value
 
-        def test_all_members(node, results, results_of_get_props):
+        def test_all_members(node, max_iterations=None):
             # Dynamically get list of properties and methods
             members = dir(node)
+            mem_results = {}
+            node_enums = {}
+            node_bools = {}
 
             # Initialize property map
             property_value_map = {}
             for member in members:
-                key = f"{type(node).__name__}.{member}"
+                mem_key = f"{type(node).__name__}.{member}"
 
                 if member.startswith("_"):
                     continue
@@ -1503,6 +1545,12 @@ class TestClass:
                     continue
 
                 if member.startswith("rename"):
+                    continue
+
+                if member.startswith("props_to_dict"):
+                    continue
+
+                if member.startswith("properties"):
                     continue
 
                 class_attr = getattr(node.__class__, member)
@@ -1518,143 +1566,236 @@ class TestClass:
 
                         value_index = 0
                         value_count = 1
-                        if isinstance(arg_type, bool):
-                            value_count = 2
+                        if isinstance(arg_type, type) and issubclass(arg_type, bool):
+                            node_bools[member] = [True, False]
+                            continue
                         elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
-                            value_count = len(list(arg_type.__members__.values()))
+                            node_enums[member] = list(arg_type.__members__.values())
+                            continue
 
-                        value = {
+                        mem_value = {
                             "value_index": value_index,
                             "value_count": value_count,
                             "arg_type": arg_type,
                         }
 
-                        property_value_map[key] = value
+                        property_value_map[mem_key] = mem_value
 
-            anything_was_set = True
-            while anything_was_set:
-                anything_was_set = False
-                for member in members:
-                    key = f"{type(node).__name__}.{member}"
-
+            # We want to iterate over each parameter for each enum type
+            # We can skip the parameter, if it's already been set successfully
+            # during a previous iteration. This allows us to check that each
+            # property is set, since only properties visible can be set. For
+            # example, you can only set the PSK type (4PSK, 16PSK, etc) if the
+            # modulation_type = PSK.
+            node_iterations = 0
+            for enum_key in node_enums or {None: None}:
+                if enum_key is None:
+                    enum_vals = []
+                else:
+                    enum_vals = node_enums[enum_key]
+                for enum_val in enum_vals or [None]:
                     try:
-                        if member.startswith("_"):
-                            results[key] = (Result.SKIPPED, "Skipping private member")
-                            continue
-
-                        if member.startswith("delete"):
-                            results[key] = (Result.SKIPPED, "Skipping delete method")
-                            continue
-
-                        if member.startswith("rename"):
-                            results[key] = (Result.SKIPPED, "Skipping rename method")
-                            continue
-
-                        class_attr = getattr(node.__class__, member)
-                        if isinstance(class_attr, property):
-                            # Member is a property
-
-                            has_fget = class_attr.fget is not None
-                            has_fset = class_attr.fset is not None
-
-                            if has_fget and has_fset:
-                                property_value_map_record = property_value_map[key]
-
-                                arg_type = property_value_map_record["arg_type"]
-                                docstring = class_attr.fget.__doc__
-
-                                value = None
-                                value_index = property_value_map_record["value_index"]
-                                value_count = property_value_map_record["value_count"]
-                                if isinstance(arg_type, bool):
-                                    if value_index == 0:
-                                        value = False
-                                    elif value_index == 1:
-                                        value = True
-                                    else:
-                                        # We've already used both bool values, skip.
-                                        continue
-                                elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
-                                    if value_index < value_count:
-                                        value = list(arg_type.__members__.values())[
-                                            property_value_map_record["value_index"]
-                                        ]
-                                    else:
-                                        # We've already used all enum values, skip.
-                                        continue
-                                else:
-                                    if value_index == 0:
-                                        value = get_value_for_parameter(arg_type, docstring)
-                                    else:
-                                        # We've already used a value, skip.
-                                        continue
-
-                                exception = None
-
-                                # If value is None here, we failed to find a suitable value to call the setter with.
-                                # Just call the getter, and put that in the results.
-                                try:
-                                    if value is not None:
-                                        class_attr.fset(node, value)
-                                except Exception as e:
-                                    exception = e
-
-                                try:
-                                    result = class_attr.fget(node)
-                                except Exception as e:
-                                    exception = e
-
-                                if exception:
-                                    raise exception
-
-                                if value:
-                                    assert value == result
-
-                                # We successfully set the current value. Next iteration, try the next value
-                                property_value_map_record["value_index"] += 1
-                                anything_was_set = True
-
-                                results[key] = (Result.VALUE, result)
-                                results_of_get_props[class_attr] = result
-                            elif has_fget:
-                                result = class_attr.fget(node)
-                                results[key] = (Result.VALUE, result)
-                                results_of_get_props[class_attr] = result
+                        if enum_val is not None:
+                            class_attr = getattr(node.__class__, enum_key)
+                            class_attr.fset(node, enum_val)
+                    except (AttributeError, GrpcApiError, ValueError):
+                        pass
+                    for bool_key in node_bools or {None: None}:
+                        if bool_key is None:
+                            bool_vals = []
                         else:
-                            attr = getattr(node, member)
+                            bool_vals = node_bools[bool_key]
+                        for bool_val in bool_vals or [None]:
+                            node_iterations = node_iterations + 1
+                            try:
+                                if bool_val is not None:
+                                    class_attr = getattr(node.__class__, bool_key)
+                                    class_attr.fset(node, bool_val)
+                            except (AttributeError, GrpcApiError, ValueError):
+                                pass
+                            if max_iterations is not None and node_iterations > max_iterations:
+                                break
 
-                            if inspect.ismethod(attr) or inspect.isfunction(attr):
-                                # Member is a function
-                                signature = inspect.signature(attr)
+                            for member in members:
+                                # skip type since it's set by the enum above
+                                if member == "type":
+                                    continue
 
-                                values = []
-                                bad_param = None
-                                for parameter in signature.parameters:
-                                    arg_type = type(parameter)
-                                    docstring = attr.__doc__
+                                # skip if member is an enum or bool (handled by loops)
+                                if member in node_bools or member in node_enums:
+                                    continue
 
-                                    value = get_value_for_parameter(arg_type, docstring)
-                                    if value is not None:
-                                        values.append(value)
+                                mem_key = f"{type(node).__name__}.{member}"
+
+                                # skip if property successfully set
+                                if mem_key in mem_results:
+                                    current_val = mem_results[mem_key]
+                                    if current_val[0] == Result.SKIPPED or current_val[0] == Result.VALUE:
+                                        continue
+
+                                try:
+                                    if member.startswith("__"):
+                                        # ignore python built-ins to avoid cluttering results
+                                        continue
+
+                                    if member.startswith("_"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping private member")
+                                        continue
+
+                                    if member.startswith("props_to_dict"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping global member")
+                                        continue
+
+                                    if member.startswith("properties"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping global member")
+                                        continue
+
+                                    if member.startswith("delete"):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping delete method")
+                                        continue
+
+                                    if member.startswith("rename") or member.startswith("name"):
+                                        if "RadioNode" in f"{type(node).__name__}":
+                                            # skip Radio rename since it's children are already cached
+                                            continue
+                                        with warnings.catch_warnings(record=True) as w:
+                                            warnings.simplefilter("always")
+
+                                            attr = getattr(node, member)
+                                            values = [f"TestString{self.next_int}"]
+                                            self.next_int = self.next_int + 1
+                                            result = attr(*values)
+                                            if w:
+                                                mem_results[mem_key] = (Result.VALUE, node.name)
+                                                assert (
+                                                    str(w[0].message) == "This property is deprecated in 0.21.3. "
+                                                    "Use the name property instead."
+                                                )
+                                        continue
+
+                                    if member.startswith("duplicate"):
+                                        with pytest.raises(NotImplementedError) as e:
+                                            attr = getattr(node, member)
+                                            values = [f"TestString{self.next_int}"]
+                                            self.next_int = self.next_int + 1
+                                            result = attr(*values)
+                                        mem_results[mem_key] = (Result.VALUE, str(e.value))
+                                        continue
+
+                                    # TODO: Skip Pyramidal Horn params due to warning popup that freezes the test
+                                    if (
+                                        member.startswith("mouth_width")
+                                        or member.startswith("mouth_height")
+                                        or member.startswith("waveguide_width")
+                                        or member.startswith("width_flare_half_angle")
+                                        or member.startswith("height_flare_half_angle")
+                                    ):
+                                        mem_results[mem_key] = (Result.SKIPPED, "Skipping pyramidal horn params")
+                                        continue
+
+                                    class_attr = getattr(node.__class__, member)
+                                    if isinstance(class_attr, property):
+                                        # Member is a property
+                                        has_fget = class_attr.fget is not None
+                                        has_fset = class_attr.fset is not None
+
+                                        if has_fget and has_fset:
+                                            property_value_map_record = property_value_map[mem_key]
+
+                                            arg_type = property_value_map_record["arg_type"]
+                                            docstring = class_attr.fget.__doc__
+
+                                            value_index = property_value_map_record["value_index"]
+                                            if isinstance(arg_type, type) and issubclass(arg_type, bool):
+                                                if value_index == 0:
+                                                    mem_value = False
+                                                elif value_index == 1:
+                                                    mem_value = True
+                                                else:
+                                                    # We've already used both bool values, skip.
+                                                    continue
+                                            else:
+                                                if value_index == 0:
+                                                    mem_value = get_value_for_parameter(arg_type, docstring)
+                                                else:
+                                                    # We've already used a value, skip.
+                                                    continue
+
+                                            exception = None
+
+                                            # If value is None here, we failed to find a suitable value to
+                                            # call the setter with. Just call the getter, and put that in the results.
+                                            try:
+                                                if mem_value is not None:
+                                                    class_attr.fset(node, mem_value)
+                                            except Exception as e:
+                                                exception = e
+
+                                            result = None
+                                            try:
+                                                result = class_attr.fget(node)
+                                            except Exception as e:
+                                                exception = e
+
+                                            if exception:
+                                                raise exception
+
+                                            if mem_value:
+                                                assert mem_value == result
+
+                                            # We successfully set the current value. Next iteration, try the next value
+                                            property_value_map_record["value_index"] += 1
+                                            mem_results[mem_key] = (Result.VALUE, result)
+                                        elif has_fget:
+                                            result = class_attr.fget(node)
+                                            mem_results[mem_key] = (Result.VALUE, result)
                                     else:
-                                        bad_param = parameter
-                                        break
+                                        attr = getattr(node, member)
 
-                                if len(values) == len(signature.parameters):
-                                    result = attr(*values)
-                                    results[key] = (Result.VALUE, result)
-                                else:
-                                    results[key] = (
-                                        Result.NEEDS_PARAMETERS,
-                                        f'Could not find valid value for parameter "{bad_param}".',
-                                    )
-                            else:
-                                results[key] = (Result.VALUE, attr)
-                    except Exception as e:
-                        results[key] = (Result.EXCEPTION, f"{e}")
+                                        if inspect.ismethod(attr) or inspect.isfunction(attr):
+                                            # Member is a function
+                                            signature = inspect.signature(attr)
 
-        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props, add_untested_children=True):
+                                            values = []
+                                            bad_param = None
+                                            for parameter in signature.parameters:
+                                                docstring = attr.__doc__
+
+                                                mem_value = get_value_for_parameter(parameter, docstring)
+                                                if mem_value is not None:
+                                                    values.append(mem_value)
+                                                else:
+                                                    bad_param = parameter
+                                                    break
+
+                                            if len(values) == len(signature.parameters):
+                                                result = attr(*values)
+                                                mem_results[mem_key] = (Result.VALUE, result)
+                                            else:
+                                                mem_results[mem_key] = (
+                                                    Result.NEEDS_PARAMETERS,
+                                                    f'Could not find valid value for parameter "{bad_param}".',
+                                                )
+                                        else:
+                                            mem_results[mem_key] = (Result.VALUE, attr)
+                                except Exception as e:
+                                    mem_results[mem_key] = (Result.EXCEPTION, f"{e}")
+            return mem_results
+
+        def test_nodes_from_top_level(nodes, add_untested_children=True, max_node_iterations=None):
             # Test every method on every node, but add node children to list while iterating
+            nodes_tested = []
+            node_types = []
+            for node in nodes:
+                if type(node).__name__ not in node_types:
+                    node_types.append(type(node).__name__)
+
+            results_dict = {}
+
+            # skip some nodes unless Developer env var set
+            # these nodes take the bulk of the run time
+            dev_only = os.getenv("EMIT_PYAEDT_LONG")
+            nodes_to_skip = ["Waveform", "Band", "ResultPlotNode", "EmiPlotMarketNode"]
             child_node_add_exceptions = {}
             for node in nodes:
                 node_type = type(node).__name__
@@ -1678,49 +1819,57 @@ class TestClass:
 
                         # Add this node's children to the list of nodes to test
                         try:
-                            nodes.extend(node.children)
+                            node_children = node.children
+                            for node_child in node_children:
+                                child_node_type = type(node_child).__name__
+                                if child_node_type not in node_types:
+                                    node_types.append(child_node_type)
+                                    nodes.append(node_child)
                         except Exception as e:
                             exception = e
 
                         if exception:
                             child_node_add_exceptions[node_type] = exception
 
-                    test_all_members(node, results, results_of_get_props)
+                    if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
+                        continue
+                    node_results = test_all_members(node, max_node_iterations)
+                    results_dict.update(node_results)
+            return nodes_tested, results_dict
 
         # Add some components
-        interference.modeler.components.create_component("Antenna", "TestAntenna")
-        interference.modeler.components.create_component("New Emitter", "TestEmitter")
-        interference.modeler.components.create_component("Amplifier", "TestAmplifier")
-        interference.modeler.components.create_component("Cable", "TestCable")
-        interference.modeler.components.create_component("Circulator", "TestCirculator")
-        interference.modeler.components.create_component("Divider", "TestDivider")
-        interference.modeler.components.create_component("Band Pass", "TestBPF")
-        interference.modeler.components.create_component("Band Stop", "TestBSF")
-        interference.modeler.components.create_component("File-based", "TestFilterByFile")
-        interference.modeler.components.create_component("High Pass", "TestHPF")
-        interference.modeler.components.create_component("Low Pass", "TestLPF")
-        interference.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
-        interference.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
-        interference.modeler.components.create_component("Isolator", "TestIsolator")
-        interference.modeler.components.create_component("TR Switch", "TestSwitch")
-        interference.modeler.components.create_component("Terminator", "TestTerminator")
-        interference.modeler.components.create_component("3 Port", "Test3port")
+        emit_app.schematic.create_radio_antenna(
+            radio_type="New Radio", radio_name="TestRadio", antenna_name="TestAntenna"
+        )
+        emit_app.schematic.create_component("New Emitter", "TestEmitter")
+        emit_app.schematic.create_component("Amplifier", "TestAmplifier")
+        emit_app.schematic.create_component("Cable", "TestCable")
+        emit_app.schematic.create_component("Circulator", "TestCirculator")
+        emit_app.schematic.create_component("Divider", "TestDivider")
+        emit_app.schematic.create_component("Band Pass", "TestBPF")
+        emit_app.schematic.create_component("Isolator", "TestIsolator")
+        emit_app.schematic.create_component("TR Switch", "TestSwitch")
+        emit_app.schematic.create_component("Terminator", "TestTerminator")
+        emit_app.schematic.create_component("3 Port", "Test3port")
 
         # Generate and run a revision
-        results = interference.results
-        revision = interference.results.analyze()
+        results = emit_app.results
+        revision = emit_app.results.analyze()
 
         domain = results.interaction_domain()
         revision.run(domain)
 
-        results_dict = {}
-        results_of_get_props = {}
-        nodes_tested = []
-
         # Test all nodes of the current revision
         current_revision_all_nodes = revision.get_all_nodes()
 
-        test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
+        # profiler = cProfile.Profile()
+        # all_nodes_tested, member_results, prop_results = profiler.runcall(test_nodes_from_top_level,
+        #                                                                   current_revision_all_nodes)
+        # profiler.print_stats()
+        # profiler.dump_stats("profile.prof")
+        all_nodes_tested, member_results = test_nodes_from_top_level(
+            current_revision_all_nodes, True, max_inner_loop_iterations
+        )
 
         # Keep the current revision, then test all nodes of the kept result
         # kept_result_name = interference.odesign.KeepResult()
@@ -1734,14 +1883,21 @@ class TestClass:
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
 
-        for key, value in results_dict.items():
+        for key, value in member_results.items():
             results_by_type[value[0]][key] = value[1]
 
         # Verify we tested most of the generated nodes
         all_nodes = [node for node in generated.__all__ if ("ReadOnly" not in node)]
-        nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
+        nodes_untested = [node for node in all_nodes if (node not in all_nodes_tested)]
 
-        assert len(nodes_tested) > len(nodes_untested)
+        if os.getenv("EMIT_PYAEDT_LONG"):
+            with open("results_by_type.txt", "w") as f:
+                for k, v in results_by_type.items():
+                    for kk, vv in v.items():
+                        f.write(f"{k}={kk}={vv}\n")
+                f.write(f"Nodes tested {len(all_nodes_tested)}: {all_nodes_tested}")
+
+        assert len(all_nodes_tested) > len(nodes_untested)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_bp_bs_filters(self, emit_app):
@@ -1782,6 +1938,44 @@ class TestClass:
         assert bs_filter_comp.bs_higher_stop_band == 105e6
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_imports(self, emit_app):
+        rev = emit_app.results.analyze()
+
+        scene_node: EmitSceneNode = rev.get_scene_node()
+        scene_children = scene_node.children
+        cad_file = os.path.join(TEST_SUBFOLDER, "Ansys_777_200_ER.glb")
+        cad_node = scene_node.import_cad(cad_file)
+        assert cad_node
+        assert len(scene_node.children) == len(scene_children) + 1
+
+        couplings_node: CouplingsNode = rev.get_coupling_data_node()
+        couplings_children = couplings_node.children
+        touchstone_file = os.path.join(TEST_SUBFOLDER, "5-antenna car model.s5p")
+        touchstone_node: TouchstoneCouplingNode = couplings_node.import_touchstone(touchstone_file)
+        assert touchstone_node
+        ports = touchstone_node.port_antenna_assignment
+        for port in ports:
+            assert port == "(undefined)"
+        assert len(couplings_node.children) == len(couplings_children) + 1
+
+        # add some antennas and connect them
+        antenna_list = []
+        for i in range(len(ports)):
+            ant = emit_app.schematic.create_component("Antenna")
+            antenna_list.append(ant.name)
+        # TODO: the next 2 lines are only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        couplings_node: CouplingsNode = rev.get_coupling_data_node()
+        touchstone_node = couplings_node.children[-1]
+        touchstone_node.port_antenna_assignment = "|".join(antenna_list)
+        assert touchstone_node.port_antenna_assignment == antenna_list
+
+        # TODO: the next line is only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        scene_node: EmitSceneNode = rev.get_scene_node()
+        assert len(scene_node.children) == len(scene_children) + 6
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_fm_fsk_freq_deviation(self, emit_app):
         # create a radio
         radio_name = "Test"
@@ -1796,7 +1990,7 @@ class TestClass:
         band_node = None
         radio_children = radio_comp.children
         for child in radio_children:
-            if child.node_type == "Band":
+            if child._node_type == "Band":
                 band_node = child
                 break
 
@@ -1815,6 +2009,173 @@ class TestClass:
         assert band_node.freq_deviation == 1e4
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_table_inputs(self, emit_app):
+        # Testing table input conversions
+        radio = emit_app.schematic.create_component("New Radio")
+        radio = cast(RadioNode, radio)
+
+        children = radio.children
+        sampling = None
+        for child in children:
+            if child.node_type == "SamplingNode":
+                sampling = cast(SamplingNode, child)
+
+        # Sampling node's use NodeProp tables
+        # Verify the table is empty by default
+        assert sampling.table_data is None
+
+        children = radio.children
+
+        for child in children:
+            if child.node_type == "Band":
+                band_children = child.children
+                for band_child in band_children:
+                    if band_child.node_type == "TxSpectralProfNode":
+                        tx_spectral_profile = cast(TxSpectralProfNode, band_child)
+                    if band_child.node_type == "RxSusceptibilityProfNode":
+                        rx_spectral_profile = cast(RxSusceptibilityProfNode, band_child)
+
+        # Create all the sub-nodes to test casting
+        tx_harmonics: TxHarmonicNode = tx_spectral_profile.add_custom_tx_harmonics()
+        tx_narrowband_emissions_mask: TxNbEmissionNode = tx_spectral_profile.add_narrowband_emissions_mask()
+        tx_spurious_emissions: TxSpurNode = tx_spectral_profile.add_spurious_emissions()
+        tx_broadband_noise_profile: TxBbEmissionNode = tx_spectral_profile.add_tx_broadband_noise_profile()
+
+        rx_mixer: RxMixerProductNode = rx_spectral_profile.add_mixer_products()
+        rx_saturation: RxSaturationNode = rx_spectral_profile.add_rx_saturation()
+        rx_selectivity: RxSelectivityNode = rx_spectral_profile.add_rx_selectivity()
+        rx_spurious_responses: RxSpurNode = rx_spectral_profile.add_spurious_responses()
+
+        # Test node prop tables input conversions
+
+        sampling_data = [("100 kHz", 1.5e6), (2000000, "25 MHz")]
+        sampling.table_data = sampling_data
+        assert sampling.table_data == [(100e3, 1.5e6), (2e6, 25e6)]
+
+        # Tx Spurious Emissions Table Data
+        tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
+        spur_data = [("30 kHz", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 0.05), (70e6, 10e5, "1000 W")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [(0.03, 50e6, 80), (4, 5e6, 0.05), (70e6, 1e6, 60)]
+        spur_data = [("RF+10.0", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 80), (4, 5e6, 20), (70e6, 1e6, 60)]
+        spur_data = [("trunc(abs(RF)+10.0*2/3-1)", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [
+            ("trunc(abs(RF)+10.0*2/3-1)", 50e6, 80),
+            (4, 5e6, 20),
+            (70e6, 1e6, 60),
+        ]
+
+        tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.RELATIVE
+        spur_data = [("20 MHz", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [(20, 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
+        spur_data = [("RF+10.0", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
+        tx_spurious_emissions.table_data = spur_data
+        assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
+
+        # Rx Spurious Responses Table Data
+        rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.ABSOLUTE
+        spur_data = [(10e6, 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
+        rx_spurious_responses.table_data = spur_data
+        assert rx_spurious_responses.table_data == [(10e6, 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+        spur_data = [("RF+10.0", 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
+        rx_spurious_responses.table_data = spur_data
+        assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+
+        rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.RELATIVE
+        spur_data = [("5 kHz", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
+        rx_spurious_responses.table_data = spur_data
+        assert rx_spurious_responses.table_data == [(0.005, 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+        spur_data = [("RF+10.0", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
+        rx_spurious_responses.table_data = spur_data
+        assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+
+        # Test column data tables input conversions
+        # Rx Mixer Products Table Data
+        rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.ABSOLUTE
+        mixer_data = [(1, 2, "100 kW"), (2, 3, "1000 W"), (3, 4, 15)]
+        rx_mixer.table_data = mixer_data
+        assert rx_mixer.table_data == [(1, 2, 80), (2, 3, 60), (3, 4, 15)]
+        rx_mixer.mixer_product_table_units = rx_mixer.MixerProductTableUnitsOption.RELATIVE
+        mixer_data = [(1, 2, "35 dBc"), (2, 3, 30), (3, 4, "45 dBc")]
+        rx_mixer.table_data = mixer_data
+        assert rx_mixer.table_data == [(1, 2, 35), (2, 3, 30), (3, 4, 45)]
+
+        # Rx Saturation Table Data
+        saturation_data = [("100 kHz", "100 kW"), (34e6, "50 dBm"), ("1 MHz", 76)]
+        rx_saturation.table_data = saturation_data
+        assert rx_saturation.table_data == [(100000.0, 80.0), (34000000.0, 50), (1000000.0, 76.0)]
+
+        # Rx Selectivity Table Data
+        selectivity_data = [(0.05e6, "60 dB"), ("100 kHz", 120)]
+        rx_selectivity.table_data = selectivity_data
+        assert rx_selectivity.table_data == [(50000.0, 60.0), (100000.0, 120.0)]
+
+        # Tx Harmonics Table Data
+        tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.ABSOLUTE
+        harmonic_data = [(2, "100 kW"), (3, "100 kW"), (4, "1000 W")]
+        tx_harmonics.table_data = harmonic_data
+        assert tx_harmonics.table_data == [(2, 80.0), (3, 80.0), (4, 60.0)]
+        tx_harmonics.harmonic_table_units = tx_harmonics.HarmonicTableUnitsOption.RELATIVE
+        harmonic_data = [(5, "40 dBc"), (6, "55 dBc"), (7, "70 dBc")]
+        tx_harmonics.table_data = harmonic_data
+        assert tx_harmonics.table_data == [(5, 40.0), (6, 55.0), (7, 70.0)]
+
+        # Tx Narrowband Emissions Mask Table Data
+        tx_narrowband_emissions_mask.narrowband_behavior = (
+            tx_narrowband_emissions_mask.NarrowbandBehaviorOption.ABSOLUTE_FREQS_AND_POWER
+        )
+        narrowband_data = [("1 MHz", "100 kW"), (5000000, "1000 W"), (10e6, 80)]
+        tx_narrowband_emissions_mask.table_data = narrowband_data
+        assert tx_narrowband_emissions_mask.table_data == [(1000000.0, 80), (5000000.0, 60), (10000000.0, 80.0)]
+        tx_narrowband_emissions_mask.narrowband_behavior = (
+            tx_narrowband_emissions_mask.NarrowbandBehaviorOption.RELATIVE_FREQS_AND_ATTENUATION
+        )
+        narrowband_data = [("1 MHz", "-40 dB"), (5000000, "50 dB"), (10e6, -80)]
+        tx_narrowband_emissions_mask.table_data = narrowband_data
+        assert tx_narrowband_emissions_mask.table_data == [(1000000.0, -40.0), (5000000.0, 50.0), (10000000.0, -80.0)]
+
+        if config["desktopVersion"] >= "2026.1":
+            # Test BB Emissions Node since it can be either a NodeProp or
+            # ColumnData Table
+            radio2 = emit_app.schematic.create_component("New Radio")
+            radio2 = cast(RadioNode, radio2)
+
+            children = radio2.children
+            tx_spec = None
+            for child in children:
+                if child.node_type == "Band":
+                    band_children = child.children
+                    for band_child in band_children:
+                        if band_child.node_type == "TxSpectralProfNode":
+                            tx_spec = cast(TxSpectralProfNode, band_child)
+
+            bb_noise = tx_spec.add_tx_broadband_noise_profile()
+            bb_noise = cast(TxBbEmissionNode, bb_noise)
+
+            # verify the table is empty by default
+            assert bb_noise.table_data is None
+
+            # Test Column Data and Node Prop table inputs
+            tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.ABSOLUTE
+            broadband_data = [(1e6, 12), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
+            tx_broadband_noise_profile.table_data = broadband_data
+            assert tx_broadband_noise_profile.table_data == [(1e6, 12), (10e6, 5), (100e6, 30)]
+            tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.EQUATION
+            broadband_data = [("RF+10.0", 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
+            tx_broadband_noise_profile.table_data = broadband_data
+            assert tx_broadband_noise_profile.table_data == [("RF+10.0", 10), (10e6, 5), (100e6, 30)]
+            tx_broadband_noise_profile.noise_behavior = (
+                tx_broadband_noise_profile.NoiseBehaviorOption.RELATIVE_BANDWIDTH
+            )
+            broadband_data = [(1e6, 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
+            tx_broadband_noise_profile.table_data = broadband_data
+            assert tx_broadband_noise_profile.table_data == [(1e6, 10), (10e6, 5), (100e6, 30)]
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_tables(self, emit_app):
         # Emit has 2 different types of tables: Node Prop Tables and ColumnData Tables
         # this test confirms that the table_data properties work for both
@@ -1822,13 +2183,14 @@ class TestClass:
         radio = cast(RadioNode, radio)
 
         children = radio.children
+        sampling = None
         for child in children:
             if child.node_type == "SamplingNode":
                 sampling = cast(SamplingNode, child)
 
         # Sampling node's use NodeProp tables
         # Verify the table is empty by default
-        assert sampling.table_data == []
+        assert sampling.table_data is None
 
         # Set the sampling table
         sampling_data = [(100000000.0, 100000000.0), (200000000.0, 200000000.0)]
@@ -1842,7 +2204,7 @@ class TestClass:
         amp = cast(Amplifier, amp)
 
         # Verify the table is empty by default
-        assert amp.table_data == []
+        assert amp.table_data is None
 
         # Set the amplifier table
         amp_data = [(2, -50.0), (3, -60.0)]
@@ -1870,7 +2232,7 @@ class TestClass:
             bb_noise = cast(TxBbEmissionNode, bb_noise)
 
             # verify the table is empty by default
-            assert bb_noise.table_data == []
+            assert bb_noise.table_data is None
 
             # Set the ColumnData Table
             bb_data = [(100000.0, -170.0), (100000000.0, -160.0), (200000000.0, -170.0)]
@@ -1888,7 +2250,86 @@ class TestClass:
             assert bb_noise.table_data == bb_data
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_table_inputs_invalid_units(self, emit_app):
+        """Test table inputs with invalid units to ensure proper error handling."""
+        radio = emit_app.schematic.create_component("New Radio")
+        radio = cast(RadioNode, radio)
+
+        children = radio.children
+        sampling = None
+        for child in children:
+            if child.node_type == "SamplingNode":
+                sampling = cast(SamplingNode, child)
+
+        # Test invalid units for SamplingNode (NodeProp table)
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            sampling.table_data = [("100 invalid_unit", 1.5e6)]
+
+        with pytest.raises(ValueError, match="could not convert string to float"):
+            sampling.table_data = [("not_a_number", "25 MHz")]
+
+        # Get Tx spectral profile nodes
+        children = radio.children
+
+        for child in children:
+            if child.node_type == "Band":
+                band_children = child.children
+                for band_child in band_children:
+                    if band_child.node_type == "TxSpectralProfNode":
+                        tx_spectral_profile = cast(TxSpectralProfNode, band_child)
+                    if band_child.node_type == "RxSusceptibilityProfNode":
+                        rx_spectral_profile = cast(RxSusceptibilityProfNode, band_child)
+
+        # Create sub-nodes for testing
+        tx_spurious_emissions: TxSpurNode = tx_spectral_profile.add_spurious_emissions()
+        rx_saturation: RxSaturationNode = rx_spectral_profile.add_rx_saturation()
+
+        # Test node prop table
+        tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            tx_spurious_emissions.table_data = [("30 invalid_freq", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            tx_spurious_emissions.table_data = [("30 kHz", "50 invalid_freq", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            tx_spurious_emissions.table_data = [("30 kHz", "50 MHz", "100 invalid_power")]
+
+        # Test function inputs
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("RF+10*", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("x+RF+10", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("RF**2", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not a valid function expression"):
+            tx_spurious_emissions.table_data = [("abs(RF", "50 MHz", "100 kW")]
+
+        # Test column data table
+        with pytest.raises(ValueError, match="could not convert string to float"):
+            tx_spurious_emissions.table_data = [("not_a_number", "50 MHz", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            rx_saturation.table_data = [("100 invalid_freq", "100 kW")]
+
+        with pytest.raises(ValueError, match="is not valid for this property"):
+            rx_saturation.table_data = [("100 kHz", "100 invalid_power")]
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emitters_radios(self, emit_app):
+        # Make sure there are no components in the schematic
+        # (possibly left from previous test if run sequentially?)
+        rev = emit_app.results.analyze()
+        comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            emit_app.schematic.delete_component(comp.name)
+
+        emitter_radio_nodes = rev.get_all_emitter_radios()
+        assert emitter_radio_nodes is None
+
         emitter_name = "Test Emitter"
         emitter_node: EmitterNode = emit_app.schematic.create_component(
             name=emitter_name, component_type="New Emitter", library="Emitters"
@@ -1898,13 +2339,16 @@ class TestClass:
         emitter_radio: RadioNode = emitter_node.get_radio()
         assert isinstance(emitter_radio, RadioNode)
 
+        emitter_radio_nodes = rev.get_all_emitter_radios()
+        assert emitter_radio_nodes[0] == emitter_radio
+
         emitter_ant: AntennaNode = emitter_node.get_antenna()
         assert isinstance(emitter_ant, AntennaNode)
 
         emitter_band: Waveform = emitter_node.get_waveforms()[0]
         assert emitter_band.warnings == ""
 
-        assert emitter_node.children() == emitter_node.get_waveforms()
+        assert emitter_node.children == emitter_node.get_waveforms()
 
         emitter_band.waveform = Waveform.WaveformOption.PRBS
         assert emitter_band.waveform == Waveform.WaveformOption.PRBS
@@ -1914,8 +2358,47 @@ class TestClass:
 
         radio_node: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
 
+        # test deprecated rename
+        radio_node.rename("Ansys")
+        assert radio_node.name == "Ansys"
+
+        # rename the radio
+        radio_node.name = "Synopsys"
+        assert radio_node.name == "Synopsys"
+
+        # try renaming the Emitter to an invalid value
+        # TODO: the next line is only needed for 25.2, which had
+        # some instability in maintaining the node_ids
+        emitter_node = rev.get_component_node(emitter_name)
+        current_name = emitter_node.name
+        new_name = "Synopsys"
+        with pytest.raises(ValueError) as exc_info:
+            emitter_node.name = new_name
+        assert f"Failed to rename {current_name} to {new_name}" in str(exc_info.value)
+
+        # get the radio's band
         band: Band = radio_node.children[0]
         assert isinstance(band, Band)
+
+        # rename a node
+        band.name = "Test"
+        assert band.name == "Test"
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            band.rename("Test 2")
+            if w:
+                assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
+        assert band.name == "Test 2"
+
+        # Add a Band
+        radio_node.add_band()
+        bands: list[Band] = radio_node.children
+        assert len(bands) == 3  # 2 Bands + 1 SamplingNode
+        bands[1].delete()
+        bands = radio_node.children
+        assert len(bands) == 2  # 1 Band + 1 SamplingNode
 
         radio_tx_spec: TxSpectralProfNode = band.children[0]
         assert isinstance(radio_tx_spec, TxSpectralProfNode)
@@ -1926,40 +2409,40 @@ class TestClass:
         # test the Tx Spectral Profile child nodes
         radio_harmonics: TxHarmonicNode = radio_tx_spec.add_custom_tx_harmonics()
         assert isinstance(radio_harmonics, TxHarmonicNode)
-        assert len(radio_harmonics.table_data) == 0
+        assert radio_harmonics.table_data is None
 
         radio_bb_noise: TxBbEmissionNode = radio_tx_spec.add_tx_broadband_noise_profile()
         assert isinstance(radio_bb_noise, TxBbEmissionNode)
-        assert len(radio_bb_noise.table_data) == 0
+        assert radio_bb_noise.table_data is None
 
         radio_nb_emissions: TxNbEmissionNode = radio_tx_spec.add_narrowband_emissions_mask()
         assert isinstance(radio_nb_emissions, TxNbEmissionNode)
-        assert len(radio_nb_emissions.table_data) == 0
+        assert radio_nb_emissions.table_data is None
 
         radio_tx_spur: TxSpurNode = radio_tx_spec.add_spurious_emissions()
         assert isinstance(radio_tx_spur, TxSpurNode)
-        assert len(radio_tx_spur.table_data) == 0
+        assert radio_tx_spur.table_data is None
 
         # test the Rx Spectral Profile child nodes
         radio_saturation: RxSaturationNode = radio_rx_spec.add_rx_saturation()
         assert isinstance(radio_saturation, RxSaturationNode)
-        assert len(radio_saturation.table_data) == 0
+        assert radio_saturation.table_data is None
 
         radio_selectivity: RxSelectivityNode = radio_rx_spec.add_rx_selectivity()
         assert isinstance(radio_selectivity, RxSelectivityNode)
-        assert len(radio_selectivity.table_data) == 0
+        assert radio_selectivity.table_data is None
 
         radio_mixer_products: RxMixerProductNode = radio_rx_spec.add_mixer_products()
         assert isinstance(radio_mixer_products, RxMixerProductNode)
-        assert len(radio_mixer_products.table_data) == 0
+        assert radio_mixer_products.table_data is None
 
         radio_rx_spurs: RxSpurNode = radio_rx_spec.add_spurious_responses()
         assert isinstance(radio_rx_spurs, RxSpurNode)
-        assert len(radio_rx_spurs.table_data) == 0
+        assert radio_rx_spurs.table_data is None
 
         # Test deleting components
         emit_app.schematic.delete_component(radio_node.name)
-        # the next two lines are only needed for 25.2, which had
+        # TODO: the next two lines are only needed for 25.2, which had
         # some instability in maintaining the node_ids
         rev = emit_app.results.analyze()
         emitter_node = rev.get_component_node(emitter_name)
@@ -1971,7 +2454,7 @@ class TestClass:
             print("Invalid component can't be deleted.")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    def test_exceptions(self, emit_app):
+    def test_exceptions_bad_values(self, emit_app):
         radio: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
 
         try:
@@ -1984,10 +2467,9 @@ class TestClass:
         except Exception as e:
             print(f"Error: {e}")
 
-        try:
-            radio._get_property("Bad Prop")
-        except Exception as e:
-            print(f"Error: {e}")
+        with pytest.raises(ValueError) as e:
+            _ = radio._get_property("Bad Prop")
+        assert str(e.value) == "Property Bad Prop not found or not available for RadioNode configuration."
 
         band: Band = radio.children[0]
         try:
@@ -2048,7 +2530,7 @@ class TestClass:
         cable.length = "0.0031 mile"
         assert round(cable.length, 4) == 4.9890
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
     def test_27_components_catalog(self, emit_app):
         comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
@@ -2082,7 +2564,6 @@ class TestClass:
                     emit_app.schematic.connect_components(comp_added.name, default_antenna.name)
 
                 # Delete the component
-                print(comp_added.name)
                 emit_app.schematic.delete_component(comp_added.name)
 
             except Exception as e:
@@ -2090,4 +2571,6 @@ class TestClass:
 
         rev = emit_app.results.analyze()
         comps_in_schematic = rev.get_all_component_nodes()
+        for comp in comps_in_schematic:
+            print(comp.name)
         assert len(comps_in_schematic) == 2  # default antenna/radio should remain
