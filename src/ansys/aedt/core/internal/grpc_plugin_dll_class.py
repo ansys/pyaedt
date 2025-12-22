@@ -33,12 +33,11 @@ from pathlib import Path
 import re
 import types
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
-
-logger = settings.logger
 
 
 class AedtBlockObj(list):
@@ -110,7 +109,7 @@ class AedtObjWrapper:
 
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
-            settings.logger.debug(f" {funcName}{argv}")
+            pyaedt_logger.debug(f" {funcName}{argv}")
         try:
             if (settings.use_multi_desktop and funcName not in exclude_list) or funcName in inclusion_list:
                 self.dllapi.recreate_application(True)
@@ -125,8 +124,8 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
-            settings.logger.debug("Failed to execute gRPC AEDT command:")
-            settings.logger.debug(f"{funcName}({argv})")
+            pyaedt_logger.debug("Failed to execute gRPC AEDT command:")
+            pyaedt_logger.debug(f"{funcName}({argv})")
             raise GrpcApiError(f"Failed to execute gRPC AEDT command: {funcName}")
 
     def __dir__(self):
@@ -237,7 +236,7 @@ class AedtPropServer(AedtObjWrapper):
                 self.SetPropValue(propMap[attr], val)
                 return
         except Exception:
-            settings.logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
+            pyaedt_logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
         super().__setattr__(attr, val)
 
     def GetName(self):
@@ -336,17 +335,17 @@ class AEDT:
 
     def CreateAedtApplication(self, machine, port=0, NGmode=False, alwaysNew=True):
         try:
-            settings.logger.debug(f"Starting client with machine {machine} and port {port}")
+            pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
             if machine.endswith("InsecureMode"):
                 target = machine.split(":")[0]
-                settings.logger.warning(
+                pyaedt_logger.warning(
                     f"Starting gRPC client without TLS on {target}. This is INSECURE. "
                     "Consider using a secure connection."
                 )
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
-            settings.logger.info("Client application successfully started.")
+            pyaedt_logger.info("Client application successfully started.")
         except Exception:
-            settings.logger.warning("Failed to create AedtApplication.")
+            pyaedt_logger.warning("Failed to create AedtApplication.")
             self.aedt = None
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")

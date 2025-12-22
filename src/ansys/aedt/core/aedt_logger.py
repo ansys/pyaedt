@@ -613,7 +613,7 @@ class AedtLogger:
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except Exception:  # pragma: no cover
-                self._global.info("Failed to add desktop message.")
+                self._log_on_handler(2, "Failed to add desktop message.")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         message_text = str(message_text)
@@ -629,14 +629,17 @@ class AedtLogger:
             return
         if len(message_text) > 250 and message_type < 3:
             message_text = message_text[:250] + "..."
-        if message_type == 0:
-            self._global.info(message_text, *args, **kwargs)
-        elif message_type == 1:
-            self._global.warning(message_text, *args, **kwargs)
-        elif message_type == 2:
-            self._global.error(message_text, *args, **kwargs)
-        elif message_type == 3:
-            self._global.debug(message_text, *args, **kwargs)
+        try:
+            if message_type == 0:
+                self._global.info(message_text, *args, **kwargs)
+            elif message_type == 1:
+                self._global.warning(message_text, *args, **kwargs)
+            elif message_type == 2:
+                self._global.error(message_text, *args, **kwargs)
+            elif message_type == 3:
+                self._global.debug(message_text, *args, **kwargs)
+        except Exception as e:
+            print(f"Logging error: {e}", file=sys.stderr)
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
@@ -825,30 +828,24 @@ class AedtLogger:
 
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
-        from logging import FileHandler
-
         self._log_on_file = False
-        for _file_handler in self._global.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
-                self._global.removeHandler(_file_handler)
-        for _file_handler in self.design_logger.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
-                self.design_logger.removeHandler(_file_handler)
-        for _file_handler in self.project_logger.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
-                self.project_logger.removeHandler(_file_handler)
+
+        for logger in (self._global, self.design_logger, self.project_logger):
+            for handler in list(logger.handlers):
+                if isinstance(handler, logging.FileHandler):
+                    handler.close()
+                    logger.removeHandler(handler)
+
         self.info("Log on file is disabled.")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
         self._log_on_file = True
-        for _file_handler in self._files_handlers:
-            self._global.addHandler(_file_handler)
-            if "baseFilename" in dir(_file_handler):
-                self.info(f"Log on file {_file_handler.baseFilename} is enabled.")
+
+        for handler in self._files_handlers:
+            self._global.addHandler(handler)
+            if hasattr(handler, "baseFilename"):
+                self.info(f"Log on file {handler.baseFilename} is enabled.")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""

@@ -1093,7 +1093,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
                         ):  # pragma: no cover
                             return False
-            app.close_project()
+            app.close_project(save=False)
 
         if not self.design_type == "Icepak":
             self.mesh._refresh_mesh_operations()

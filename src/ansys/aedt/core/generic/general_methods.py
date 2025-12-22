@@ -69,6 +69,8 @@ inclusion_list = [
 
 
 def _write_mes(mes_text):
+    if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
+        return
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
@@ -403,6 +405,7 @@ def _log_method(func, new_args, new_kwargs):
         for k, v in args_dict.items():
             if k != "self":
                 message.append(f"    {k} = {v}")
+
     for m in message:
         settings.logger.debug(m)
 
