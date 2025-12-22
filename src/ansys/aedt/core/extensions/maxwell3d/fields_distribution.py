@@ -128,10 +128,13 @@ class FieldsDistributionExtension(ExtensionCommon):
     def __load_aedt_info(self):
         """Load Maxwell design info."""
         # Get named expressions for field quantities
-        point = self.aedt_application.modeler.create_point([0, 0, 0])
-        self.__named_expressions = self.aedt_application.post.available_report_quantities(
-            report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
-        )
+        if self.aedt_application.aedt_version_id < "2026.1":
+            point = self.aedt_application.modeler.create_point([0, 0, 0])
+            self.__named_expressions = self.aedt_application.post.available_report_quantities(
+                report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
+            )
+        else:
+            self.__named_expressions = self.aedt_application.post.fields_calculator.get_expressions()
 
         # Load vector fields from JSON
         json_path = Path(__file__).resolve().parent / "vector_fields.json"
