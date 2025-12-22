@@ -28,8 +28,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class BandFolder(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -45,11 +45,11 @@ class BandFolder(EmitNode):
         """Create a New Band"""
         return self._add_child_node("Band")
 
-    def rename(self, new_name: str):
+    def rename(self, new_name: str = ""):
         """Rename this node"""
         self._rename(new_name)
 
-    def duplicate(self, new_name: str):
+    def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
