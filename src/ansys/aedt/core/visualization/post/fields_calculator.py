@@ -484,11 +484,9 @@ class FieldsCalculator(PyAedtBase):
 
         new_expression_catalog = read_configuration_file(input_file)
 
-        if new_expression_catalog:
-            for _, new_expression_props in new_expression_catalog.items():
-                new_expression = self.validate_expression(new_expression_props)
-                if new_expression:
-                    self.expression_catalog.update(new_expression)
+        for new_expression_key, new_expression_props in new_expression_catalog.items():
+            if self.validate_expression(new_expression_props):
+                self.expression_catalog[new_expression_key] = new_expression_props
 
         return self.expression_catalog
 
