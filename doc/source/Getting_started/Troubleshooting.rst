@@ -66,12 +66,18 @@ This is typically caused by insufficient write permissions to your PersonalLib d
   :width: 800
   :alt: PyAEDT toolkit manager 3
 
-If the virtual environment was successfully created, you can first activate it, and then you manually register the toolkit panels using the following command:
+If the virtual environment was successfully created, you can manually register the toolkit panels using the CLI command after activating it:
 
-.. code::
+.. code:: bash
+
+    pyaedt panels add --version your_aedt_version --personal-lib "path_to_personalib"
+
+Alternatively, you can use the Python API directly:
+
+.. code:: python
 
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
+     add_pyaedt_to_aedt("your_aedt_version", r"path_to_personalib")
 
 If the issue persists, try installing all required dependencies, including the optional components, by running the following command:
 

@@ -144,6 +144,12 @@ EMIT_TO_AEDT_UNITS = {
     "Gbps": "Gbps",
 }
 
+EMIT_FN_ALLOWED_VARS = {"RF", "IF", "LO"}
+
+EMIT_FN_ALLOWED_FUNCS = {"abs", "trunc"}
+
+EMIT_FN_ALLOWED_OPS = {"+", "-", "*", "/"}
+
 
 def data_rate_conv(value: float, units: str, to_internal: bool = True):
     """Converts the data rate to (from) the internal units from the
