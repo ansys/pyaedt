@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import copy
-import os
 from pathlib import Path
 
 from jsonschema import exceptions
@@ -94,22 +93,18 @@ class FieldsCalculator(PyAedtBase):
 
     def __init__(self, app):
         self.expression_catalog = read_configuration_file(
-            os.path.join(
-                ansys.aedt.core.__path__[0],
-                "visualization",
-                "post",
-                "fields_calculator_files",
-                "expression_catalog.toml",
-            )
+            Path(ansys.aedt.core.__path__[0])
+            / "visualization"
+            / "post"
+            / "fields_calculator_files"
+            / "expression_catalog.toml"
         )
         self.expression_schema = read_configuration_file(
-            os.path.join(
-                ansys.aedt.core.__path__[0],
-                "visualization",
-                "post",
-                "fields_calculator_files",
-                "fields_calculator.schema.json",
-            )
+            Path(ansys.aedt.core.__path__[0])
+            / "visualization"
+            / "post"
+            / "fields_calculator_files"
+            / "fields_calculator.schema.json"
         )
         self.__app = app
         self.design_type = app.design_type
@@ -256,7 +251,7 @@ class FieldsCalculator(PyAedtBase):
 
         # Import clc
         self.ofieldsreporter.LoadNamedExpressions(
-            os.path.abspath(file_name), expression_info["fields_type"][design_type_index], [name]
+            str(Path(file_name).resolve()), expression_info["fields_type"][design_type_index], [name]
         )
 
         return expression_info["name"]
@@ -292,7 +287,7 @@ class FieldsCalculator(PyAedtBase):
                 file.write("$end 'Named_Expression'\n")
         except Exception:  # pragma: no cover
             return False
-        return os.path.abspath(file_name)
+        return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
     def expression_plot(self, calculation, assignment, names, setup=None):
@@ -479,11 +474,11 @@ class FieldsCalculator(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> my_toml = os.path.join("my_path_to_toml", "my_toml.toml")
+        >>> my_toml = str(Path("my_path_to_toml") / "my_toml.toml")
         >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
         >>> hfss.desktop_class.release_desktop(False, False)
         """
-        if not os.path.isfile(input_file):
+        if not Path(input_file).is_file():
             self.__app.logger.error("File does not exist.")
             return False
 
@@ -564,14 +559,14 @@ class FieldsCalculator(PyAedtBase):
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        >>> file_path = os.path.join(hfss.working_directory, "my_expr.fld")
+        >>> file_path = Path(hfss.working_directory) / "my_expr.fld"
         >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.desktop_class.release_desktop(False, False)
         """
         if not self.is_expression_defined(expression):
             self.__app.logger.error("Expression does not exist in current stack.")
             return False
-        if os.path.splitext(output_file)[1] not in [".fld", ".reg"]:
+        if Path(output_file).suffix not in [".fld", ".reg"]:
             self.__app.logger.error("Invalid file extension. Accepted extensions are '.fld' and '.reg'.")
             return False
         if not setup:
