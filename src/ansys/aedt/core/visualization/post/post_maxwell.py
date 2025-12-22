@@ -482,39 +482,51 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         """Modify inception voltage evaluation parameters.
 
         .. note::
-            This method required field line traces to computed beforehand to enable inception voltage evaluation.
+            This method requires field line traces to be computed beforehand to enable inception voltage evaluation.
 
         Parameters
         ----------
         plot_name : str
             Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
-        gas_type : int
+        gas_type : int, optional
             ´´0´´ for Dry Air, ´´1´´ for SF6, ´´2´´ for User Defined.
+            The default value is ´´0´´.
         gas_pressure: int, optional
-            Gas pressure in Bar, default value is ´´1´´.
-        use_inception: bool
-            True to use the inception parameters U0, K, A: default value is ´´True´´.
+            Gas pressure in Bar.
+            The default value is ´´1´´.
+        use_inception: bool, optional
+            ´´True´´ to use the inception parameters U0, K, A.
+            The default value is ´´True´´.
         potential_u0: float, optional
-            U0 parameter (constant voltage offset value):
-            default: ´´0´´, if ´´use_inception´´ is ´´True´´ enabled, can be edited
+            U0 parameter (constant voltage offset value).
+            Enabled if ´´use_inception´´ is ´´True´´.
+            The default value is ´´0´´.
         potential_k: int, optional
-            Streamer constant (empirical value)
-        potential_a: int
-            A parameter
-        critical_value: float
-            Enabled if ´´gas_type´´ is ´´2´´: critical electric field value at which the gas starts to ionize.
-        streamer_constant: float
-            Enabled if ´´gas_type´´ is ´´2´´: number related to the critical electron numbers of electrons in the
-            streamer.
-        ionization_check: bool
-            Enabled if ´´gas_type´´ is ´´2´´ . If ´´True´´ enables customized ionization equation of the form f(x),
+            Streamer constant (empirical value).
+            Enabled if ´´use_inception´´ is ´´True´´.
+            The default value is ´´0´´.
+        potential_a: int, optional
+            A parameter.
+            Enabled if ´´use_inception´´ is ´´True´´.
+            The default value is ´´1´´.
+        critical_value: float, optional
+            Critical electric field value at which the gas starts to ionize.
+            Enabled if ´´gas_type´´ is ´´2´´.
+            The default value is ´´2.588´´.
+        streamer_constant: float, optional
+            Number related to the critical electron numbers of electrons in the streamer.
+            Enabled if ´´gas_type´´ is ´´2´´.
+            The default value is ´´9.15´´.
+        ionization_check: bool, optional
+            If ´´True´´ enables customized ionization equation of the form f(x),
             i.e. , 16.8*x –81.0; if ´´False´´, a dataset must be entered.
-        ionization_equation: str
-            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´True´´.
+            Enabled if ´´gas_type´´ is ´´2´´ .
+        ionization_equation: str, optional
             Contains the polynomial customized ionization equation of the form f(x), i.e. , 16.8*x –81.0.
-        ionization_dataset: list
-            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´False´´.
+            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´True´´.
+        ionization_dataset: list, optional
             Dataset: E/p [kV/mm-bar], ap [1/mm-bar]; i.e., [2,0,0.15,0.2,0.4].
+            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´False´´.
 
         Returns
         -------
@@ -528,13 +540,13 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(project_name)
+        >>> m2d = Maxwell2d()
 
         Create a field line traces plot in the Region from seeding faces (insulator faces).
         >>> plot = m2d.post.create_fieldplot_line_traces(
+        ...     plot_name="LineTracesTest"
         ...     seeding_faces = (["Region"],)
         ...     in_volume_tracing_objs = (["Region"],)
-        ...     plot_name="LineTracesTest"
         ... )
 
         The inception voltage evaluation can be performed on all (or a subset) of the
@@ -584,6 +596,5 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
                     ionization_dataset,
                 ]
         arg_list[index_gas_type_insert:index_gas_type_insert] = extra_args
-
         self.ofieldsreporter.ModifyInceptionParameters(plot_name, arg_list)
         return True
