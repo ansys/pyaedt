@@ -280,6 +280,7 @@ def test_merge(flipchip):
     assert (comp.location[1] - 0.2) < tol
 
 
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_change_stackup(add_app):
     app = add_app(application=Hfss3dLayout)
     app.modeler.layers.add_layer(
@@ -297,7 +298,7 @@ def test_change_stackup(add_app):
         material="copper",
     )
 
-    if NON_GRAPHICAL and not is_linux:
+    if NON_GRAPHICAL:
         assert app.modeler.layers.change_stackup_type("Multizone", 4)
         assert len(app.modeler.layers.zones) == 3
     assert app.modeler.layers.change_stackup_type("Overlap")

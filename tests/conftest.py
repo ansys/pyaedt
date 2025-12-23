@@ -221,8 +221,8 @@ def file_tmp_root(tmp_path_factory, request):
 @pytest.fixture(scope="module")
 def desktop(tmp_path_factory):
     """
-    Creates a Desktop instance and a root directory for each test worker (xdist).
-    Session scope ensures only one Desktop per worker is created.
+    Creates a Desktop instance for each test worker (xdist) or module.
+    Module scope ensures only one Desktop is used by test file.
     """
     # New temp directory for the test session
     base = tmp_path_factory.getbasetemp()
