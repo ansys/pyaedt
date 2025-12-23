@@ -745,7 +745,8 @@ jobs:
           } else {
             echo "No changes in extensions folder"
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+          $run_tests_str = if ($run_tests) { "true" } else { "false" }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "run_tests=$run_tests_str"
 
       - name: Skip extensions tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -871,6 +872,7 @@ jobs:
           fi
           echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
 
+
       - name: Skip extensions tests
         if: steps.changes.outputs.run_tests == 'false'
         run: echo "Skipped - No changes in src/ansys/aedt/core/extensions"
@@ -985,7 +987,8 @@ jobs:
           } else {
             echo "No changes in filter solutions folder"
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+          $run_tests_str = if ($run_tests) { "true" } else { "false" }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "run_tests=$run_tests_str"
 
       - name: Skip filter solutions tests
         if: steps.changes.outputs.run_tests == 'false'
@@ -1100,7 +1103,8 @@ jobs:
           } else {
             echo "No changes in EMIT folder"
           }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+          $run_tests_str = if ($run_tests) { "true" } else { "false" }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "run_tests=$run_tests_str"
 
       - name: Skip EMIT tests
         if: steps.changes.outputs.run_tests == 'false'
