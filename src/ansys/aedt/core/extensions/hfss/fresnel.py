@@ -613,8 +613,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         simulation_setup = self._widgets["setup_combo"].get()
 
         if simulation_setup == "No Setup":
-            self.aedt_application.logger.error("No setup selected.")
-            return
+            self.aedt_application.logger.add_error_message("No setup selected.")
+            return False
 
         # Create sweep
         self.active_setup = self.aedt_application.design_setups[simulation_setup]
@@ -625,9 +625,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.frequency_units = self._widgets["frequency_units_combo"].get()
 
         if self.start_frequency > self.stop_frequency:
-            self.aedt_application.logger.error("Start frequency must be less than stop frequency.")
+            self.aedt_application.logger.add_error_message("Start frequency must be less than stop frequency.")
             self._widgets["frequency_points_label"].config(text="❌")
-            return
+            return False
 
         for _, available_sweep in self.active_setup.children.items():
             available_sweep.properties["Enabled"] = False
@@ -652,7 +652,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
         if self.floquet_ports is None:
             self._widgets["floquet_ports_label"]["text"] = "❌"
-            return
+            return False
         self._widgets["floquet_ports_label"]["text"] = f"{len(self.floquet_ports)} Floquet port defined" + " ✅"
 
         # Show frequency points
@@ -689,7 +689,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Check if lattice pair
         bounds = self.aedt_application.boundaries_by_type
         if "Lattice Pair" not in bounds:
-            self.aedt_application.logger.error("No lattice pair found.")
+            self.aedt_application.logger.add_error_message("No lattice pair found.")
             self._widgets["design_validation_label"].config(text="Failed ❌")
             return
 
@@ -741,13 +741,13 @@ class FresnelExtension(ExtensionHFSSCommon):
         else:
             simulation_setup = active_setup
 
-        if simulation_setup == "No setup":
-            self.aedt_application.logger.error("No setup selected.")
-            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-            return
-
         setup_name = simulation_setup.split(" : ")[0]
         sweep_name = simulation_setup.split(" : ")[1]
+
+        if setup_name.lower() == "no setup":
+            self.aedt_application.logger.add_error_message("No setup selected.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            return False
 
         self.active_setup = self.setups[setup_name]
 
@@ -763,17 +763,19 @@ class FresnelExtension(ExtensionHFSSCommon):
                     break
 
             if active_sweep is None:
-                self.aedt_application.logger.error(f"{sweep_name} not found.")
+                self.aedt_application.logger.add_error_message(f"{sweep_name} not found.")
                 self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-                return
+                return False
 
             # Frequency sweep has linearly frequency samples
             sweep_type = active_sweep.props.get("RangeType", None)
 
             if sweep_type not in ["LinearStep", "LinearCount", "SinglePoints"]:
-                self.aedt_application.logger.error(f"{active_sweep.name} does not have linearly frequency samples.")
+                self.aedt_application.logger.add_error_message(
+                    f"{active_sweep.name} does not have linearly frequency samples."
+                )
                 self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-                return
+                return False
 
         # We can not get the frequency points with the AEDT API
 
@@ -783,7 +785,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
         if self.floquet_ports is None:
             self._widgets["floquet_ports_label_extraction"]["text"] = "❌"
-            return
+            return False
         self._widgets["floquet_ports_label_extraction"]["text"] = (
             f"{len(self.floquet_ports)} Floquet port defined" + " ✅"
         )
@@ -792,9 +794,9 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         bounds = self.aedt_application.boundaries_by_type
         if "Lattice Pair" not in bounds:
-            self.aedt_application.logger.error("No lattice pair found.")
+            self.aedt_application.logger.add_error_message("No lattice pair found.")
             self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-            return
+            return False
 
         lattice_pair = bounds["Lattice Pair"]
 
@@ -818,9 +820,9 @@ class FresnelExtension(ExtensionHFSSCommon):
         if is_isotropic:
             if parametric_data["has_phi"]:
                 if parametric_data["phi"][0] != 0.0:
-                    self.aedt_application.logger.error("Phi sweep must contain 0.0deg.")
+                    self.aedt_application.logger.add_error_message("Phi sweep must contain 0.0deg.")
                     self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-                    return
+                    return False
                 phi_0 = parametric_data["phi"][0]
                 theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
                 phi_resolution = 1.0
@@ -833,9 +835,9 @@ class FresnelExtension(ExtensionHFSSCommon):
                 theta_max = parametric_data["theta"][-1]
         else:
             if not parametric_data["has_phi"]:
-                self.aedt_application.logger.error("Scan phi is not defined.")
+                self.aedt_application.logger.add_error_message("Scan phi is not defined.")
                 self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-                return
+                return False
             phi_0 = parametric_data["phi"][0]
             theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
             theta_max = parametric_data["theta_by_phi"][phi_0][-1]
@@ -857,7 +859,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["design_validation_label_extraction"]["text"] = "Passed ✅"
         else:
             self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
-            return
+            return False
 
         self._widgets["start_button_extraction"].grid()
 

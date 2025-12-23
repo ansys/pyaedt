@@ -52,9 +52,11 @@ from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+settings.enable_desktop_logs = True
 NO_ACTIVE_PROJECT = "No active project"
 NO_ACTIVE_DESIGN = "No active design"
 MOON = "\u2600"
