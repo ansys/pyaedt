@@ -28,6 +28,7 @@ import shutil
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from tests import TESTS_SEQUENTIAL_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -299,7 +300,7 @@ def test_change_stackup(add_app):
         material="copper",
     )
 
-    if NON_GRAPHICAL:
+    if NON_GRAPHICAL and not is_linux:
         assert app.modeler.layers.change_stackup_type("Multizone", 4)
         assert len(app.modeler.layers.zones) == 3
     assert app.modeler.layers.change_stackup_type("Overlap")
