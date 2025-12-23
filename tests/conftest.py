@@ -224,10 +224,11 @@ def desktop(tmp_path_factory, request):
     Creates a Desktop instance for each test worker (xdist) or module.
     Module scope ensures only one Desktop is used by test file.
     """
-    # Create module-specific temp directory (like file_tmp_root does)
-    module_path = Path(request.fspath)
-    name = module_path.stem
-    base = tmp_path_factory.mktemp(f"{name}-desktop-")
+    # New temp directory for the test session
+    base = tmp_path_factory.getbasetemp()
+
+    if "popen-gw" in str(base):
+        base = base.parent
 
     desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
 
