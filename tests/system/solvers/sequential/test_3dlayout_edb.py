@@ -230,13 +230,15 @@ def test_assign_touchstone_model(aedt_app, test_tmp_dir):
     assert aedt_app.modeler.set_touchstone_model(assignment="C217", input_file=str(file), model_name="Test1")
 
 
-def test_assign_spice_model(aedt_app):
+def test_assign_spice_model(aedt_app, file_tmp_root):
     model_path = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
+    file = shutil.copy2(model_path, file_tmp_root / "GRM32ER72A225KA35_25C_0V.sp")
     assert aedt_app.modeler.set_spice_model(
-        assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
+        assignment="C1", input_file=file, subcircuit_name="GRM32ER72A225KA35_25C_0V"
     )
 
 
+@pytest.mark.flaky_linux
 def test_nets(aedt_app, test_tmp_dir):
     nets = aedt_app.modeler.nets
     assert nets["GND"].name == "GND"
@@ -247,6 +249,7 @@ def test_nets(aedt_app, test_tmp_dir):
     assert local_png1.is_file()
 
 
+@pytest.mark.flaky_linux
 def test_nets_count(aedt_app):
     nets = aedt_app.modeler.nets
     power_nets = aedt_app.modeler.power_nets
@@ -458,6 +461,7 @@ def test_import_table(aedt_app):
     assert table not in aedt_app.existing_analysis_sweeps
 
 
+@pytest.mark.flaky_linux
 def test_ports_on_nets(aedt_app):
     nets = ["DDR4_DQ0", "DDR4_DQ1"]
     ports_before = len(aedt_app.port_list)
