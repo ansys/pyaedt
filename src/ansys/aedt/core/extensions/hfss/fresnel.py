@@ -881,12 +881,11 @@ class FresnelExtension(ExtensionHFSSCommon):
             self.get_coefficients()
 
     def get_coefficients(self):
-        self.aedt_application.get_fresnel_coefficients(
+        _ = self.aedt_application.get_fresnel_coefficients(
             setup_sweep=self.active_setup_sweep,
             theta_name="scan_T",
             phi_name="scan_P",
         )
-
         self.release_desktop()
 
         self.root.destroy()
