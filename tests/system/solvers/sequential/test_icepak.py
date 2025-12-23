@@ -401,7 +401,6 @@ def test_em_loss(ipk_app, test_tmp_dir):
     em_project = shutil.copy2(project, test_tmp_dir / project_name)
 
     assert ipk_app.copyGroupFrom("Group1", "uUSB", USB_HFSS, str(em_project))
-    ipk_app.save_project()
 
     hfss_spath = str(test_tmp_dir / USB_HFSS)
     surface_list = [
