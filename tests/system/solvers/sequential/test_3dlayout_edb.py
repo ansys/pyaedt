@@ -282,13 +282,30 @@ def test_merge(flipchip):
     assert (comp.location[1] - 0.2) < tol
 
 
-def test_change_stackup(aedt_app):
+def test_change_stackup(add_app):
+    app = add_app(application=Hfss3dLayout)
+    app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness="0.035mm",
+        elevation="1.035mm",
+        material="copper",
+    )
+    app.modeler.layers.add_layer(
+        layer="Bottom",
+        layer_type="signal",
+        thickness="0.035mm",
+        elevation="0mm",
+        material="copper",
+    )
+
     if NON_GRAPHICAL:
-        assert aedt_app.modeler.layers.change_stackup_type("Multizone", 4)
-        assert len(aedt_app.modeler.layers.zones) == 3
-    assert aedt_app.modeler.layers.change_stackup_type("Overlap")
-    assert aedt_app.modeler.layers.change_stackup_type("Laminate")
-    assert not aedt_app.modeler.layers.change_stackup_type("lami")
+        assert app.modeler.layers.change_stackup_type("Multizone", 4)
+        assert len(app.modeler.layers.zones) == 3
+    assert app.modeler.layers.change_stackup_type("Overlap")
+    assert app.modeler.layers.change_stackup_type("Laminate")
+    assert not app.modeler.layers.change_stackup_type("lami")
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Not running in non-graphical mode")
