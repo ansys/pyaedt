@@ -401,6 +401,8 @@ def test_em_loss(ipk_app, test_tmp_dir):
     em_project = shutil.copy2(project, test_tmp_dir / project_name)
 
     assert ipk_app.copyGroupFrom("Group1", "uUSB", USB_HFSS, str(em_project))
+    ipk_app.save_project()
+
     hfss_spath = str(test_tmp_dir / USB_HFSS)
     surface_list = [
         "USB_VCC",
@@ -1083,7 +1085,7 @@ def test_mesh_priority(board_ipk_app):
     assert board_ipk_app.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
 
 
-def test0_update_source(ipk_app):
+def test_update_source(ipk_app):
     ipk_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
     source_2d = ipk_app.assign_source(ipk_app.modeler["boxSource"].top_face_z.id, "Total Power", "10W")
     assert source_2d["Total Power"] == "10W"
@@ -1879,7 +1881,7 @@ def test_get_max_temp_location_transient(transient_app):
     assert isinstance(min_temp[1], float)
 
 
-def test_get_max_temp_location_steadystate(max_temp_app):
+def test_get_max_temp_location_steady_state(max_temp_app):
     max_temp = max_temp_app.post.get_temperature_extremum(assignment="Box1", max_min="Max", location="Surface")
     assert isinstance(max_temp, tuple)
     assert len(max_temp[0]) == 3
