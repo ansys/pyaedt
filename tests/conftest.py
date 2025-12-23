@@ -25,7 +25,6 @@
 import fnmatch
 import inspect
 import json
-import logging
 import os
 from pathlib import Path
 import shutil
@@ -237,9 +236,6 @@ def desktop(tmp_path_factory, request):
 
     desktop_app.disable_autosave()
 
-    # Important: Remove old file handlers that point to other test directories
-    _cleanup_logger_handlers(desktop_app.logger)
-
     yield desktop_app
 
     try:
@@ -433,30 +429,3 @@ def _get_test_path_from_caller():
     frame = inspect.stack()[2]
     module = inspect.getmodule(frame[0])
     return Path(module.__file__).parent
-
-
-def _cleanup_logger_handlers(logger):
-    """
-    Remove FileHandlers that point to directories from other test modules.
-    This prevents FileNotFoundError when trying to write to deleted temp dirs.
-    """
-    actual_logger = getattr(logger, "_global", None) or getattr(logger, "logger", None)
-
-    if actual_logger is None or not hasattr(actual_logger, "handlers"):
-        # If we can't find the underlying logger, skip cleanup
-        return
-
-    handlers_to_remove = []
-    for handler in actual_logger.handlers[:]:
-        if isinstance(handler, logging.FileHandler):
-            # Check if the log file's directory still exists
-            log_path = Path(handler.baseFilename)
-            if not log_path.parent.exists():
-                handlers_to_remove.append(handler)
-
-    for handler in handlers_to_remove:
-        try:
-            handler.close()
-            actual_logger.removeHandler(handler)
-        except Exception as e:
-            pyaedt_logger.debug(f"Failed to remove handler {handler}: {e}")
