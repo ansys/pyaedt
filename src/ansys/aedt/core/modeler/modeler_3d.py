@@ -26,7 +26,6 @@ import copy
 import datetime
 import json
 import os.path
-import warnings
 
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.base import PyAedtBase
@@ -65,33 +64,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self._app = instance
         return self
 
-    @property
-    def primitives(self):
-        """Primitives.
-
-        .. deprecated:: 0.4.15
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
-
-        """
-        mess = "The property `primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
-        warnings.warn(mess, DeprecationWarning)
-        return self
-
-    @pyaedt_function_handler(
-        component_file="input_file",
-        component_name="name",
-        object_list="assignment",
-        boundaries_list="boundaries",
-        excitation_list="excitations",
-        included_cs="coordinate_systems",
-        reference_cs="reference_coordinate_system",
-        auxiliary_dict="export_auxiliary",
-    )
+    @pyaedt_function_handler()
     def create_3dcomponent(
         self,
         input_file,
@@ -192,8 +165,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
         ----------
         >>> oEditor.Create3DComponent
         """
+        # If design name has a white space (as it usually happens with Maxwell 2D/3D new designs),
+        # it has to be replaced with an underscore.
         if not name:
-            name = self._app.design_name
+            name = self._app.design_name.replace(" ", "_")
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
             self.logger.error("Password type must be 'UserSuppliedPassword' or 'InternalPassword'")
@@ -418,14 +393,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self.oeditor.Create3DComponent(arg, arg2, input_file, arg3)
         return True
 
-    @pyaedt_function_handler(
-        component_name="name",
-        object_list="assignment",
-        boundaries_list="boundaries",
-        excitation_list="excitations",
-        included_cs="coordinate_systems",
-        reference_cs="reference_coordinate_system",
-    )
+    @pyaedt_function_handler()
     def replace_3dcomponent(
         self,
         name=None,
@@ -585,15 +553,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         new_name = list(set(self.user_defined_component_names) - set(old_components))
         return self.user_defined_components[new_name[0]]
 
-    @pyaedt_function_handler(
-        startingposition="origin",
-        innerradius="inner_radius",
-        outerradius="outer_radius",
-        dielradius="diel_radius",
-        matinner="mat_inner",
-        matouter="mat_outer",
-        matdiel="mat_diel",
-    )
+    @pyaedt_function_handler()
     def create_coaxial(
         self,
         origin,
@@ -1095,8 +1055,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
             for output_stl in output_stls:
                 self.import_3d_cad(
                     output_stl,
-                    create_lightweigth_part=import_as_light_weight,
                     healing=False,
+                    create_lightweight_part=import_as_light_weight,
                     merge_planar_faces=enable_stl_merge,
                     merge_angle=merge_angle,
                 )
@@ -1344,7 +1304,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                 if not os.path.exists(parts_dict[part]["file_name"]):
                     continue
                 obj_names = [i for i in self.object_names]
-                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweigth_part=create_lightweigth_part)
+                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweight_part=create_lightweigth_part)
                 added_objs = [i for i in self.object_names if i not in obj_names]
                 if part == "terrain":
                     transparency = 0.2
@@ -1360,7 +1320,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
                     self[obj].color = color
         return scene
 
-    @pyaedt_function_handler(objects_list="assignment", segments_number="segments", mesh_sheets_number="mesh_sheets")
+    @pyaedt_function_handler()
     def objects_segmentation(
         self,
         assignment,
@@ -1542,7 +1502,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         except (GrpcApiError, SystemExit):
             return False
 
-    @pyaedt_function_handler(region_cs="assignment", region_name="name")
+    @pyaedt_function_handler()
     def change_region_coordinate_system(self, assignment="Global", name="Region"):
         """
         Change region coordinate system.

@@ -69,6 +69,8 @@ inclusion_list = [
 
 
 def _write_mes(mes_text):
+    if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
+        return
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
@@ -121,7 +123,11 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             "async_helpers",
             "plugins",
         ]
-        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
+        if (
+            any(exc in trace for exc in exceptions)
+            or "plugins" in trace
+            or ("site-packages" in trace and ("\\aedt\\" not in trace and "/aedt/" not in trace))
+        ):
             continue
         for el in trace.split("\n"):
             _write_mes(el)
@@ -136,7 +142,11 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             "async_helpers",
             "plugins",
         ]
-        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
+        if (
+            any(exc in trace for exc in exceptions)
+            or "plugins" in trace
+            or ("site-packages" in trace and ("\\aedt\\" not in trace and "/aedt/" not in trace))
+        ):
             continue
         tblist = trace.split("\n")
         for el in tblist:
@@ -228,7 +238,14 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
             _exception(sys.exc_info(), user_function, args, kwargs, "AEDT API Error")
             return raise_exception_or_return_false(e)
         except BaseException as e:
-            _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
+            msg = str(sys.exc_info()[1])
+            if "ANSYS_GRPC_CERTIFICATES" in msg:
+                msg = re.sub(
+                    r"ANSYS_GRPC_CERTIFICATES", "ANSYS_GRPC_CERTIFICATES", msg.capitalize(), flags=re.IGNORECASE
+                )
+            else:
+                msg = msg.capitalize()
+            _exception(sys.exc_info(), user_function, args, kwargs, msg)
             return raise_exception_or_return_false(e)
 
     return wrapper
@@ -347,12 +364,19 @@ def _log_method(func, new_args, new_kwargs):
         return
     if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
         return
-    if (
-        not settings.enable_debug_edb_logger
-        and "Edb" in str(func) + str(new_args)
-        or "edb_core" in str(func) + str(new_args)
-    ):
+    # Avoid infinite recursion with __repr__ and __str__ methods
+    if func.__name__ in ("__repr__", "__str__"):
         return
+    try:
+        if not func or (
+            not settings.enable_debug_edb_logger
+            and "Edb" in str(func) + str(new_args)
+            or "edb_core" in str(func) + str(new_args)
+        ):
+            return
+    except Exception:
+        return
+
     line_begin = "ARGUMENTS: "
     message = []
     delta = time.time() - settings.time_tick
@@ -381,6 +405,7 @@ def _log_method(func, new_args, new_kwargs):
         for k, v in args_dict.items():
             if k != "self":
                 message.append(f"    {k} = {v}")
+
     for m in message:
         settings.logger.debug(m)
 
@@ -598,7 +623,7 @@ def time_fn(fn, *args, **kwargs):
     return results
 
 
-@pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
+@pyaedt_function_handler()
 def filter_tuple(value, search_key_1, search_key_2):
     """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
@@ -622,7 +647,7 @@ def filter_tuple(value, search_key_1, search_key_2):
     return False
 
 
-@pyaedt_function_handler(search_key1="search_key_1")
+@pyaedt_function_handler()
 def filter_string(value, search_key_1):
     """Filter a string"""
     ignore_case = True
@@ -683,7 +708,7 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def active_sessions(version=None, student_version=False, non_graphical=False):
+def active_sessions(version=None, student_version=False, non_graphical=False) -> dict:
     """Get information for the active AEDT sessions.
 
     Parameters
@@ -735,13 +760,19 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
             pid = p.info["pid"]
             name = p.info["name"]
             cmd = p.info.get("cmdline", [])
+            if cmd is None:
+                cmd = []
             if name in keys:
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
                         if "-grpcsrv" in cmd:
                             if not version or (version and version in cmd[0]):
                                 try:
-                                    return_dict[pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                                    options = cmd[cmd.index("-grpcsrv") + 1].split(":")
+                                    if len(options) > 1:
+                                        return_dict[pid] = int(options[1])
+                                    else:
+                                        return_dict[pid] = int(options[0])
                                 except (IndexError, ValueError):
                                     # default desktop grpc port.
                                     return_dict[pid] = 50051
@@ -819,7 +850,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     return return_list
 
 
-@pyaedt_function_handler(function_str="function")
+@pyaedt_function_handler()
 def conversion_function(data, function=None):  # pragma: no cover
     """Convert input data based on a specified function string.
 
@@ -1103,103 +1134,3 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
             subprocess.run(command, check=True)  # nosec
         except subprocess.CalledProcessError as e:  # nosec
             raise AEDTRuntimeError("An error occurred while installing with pip") from e
-
-
-class Help(PyAedtBase):  # pragma: no cover
-    def __init__(self):
-        self._base_path = "https://aedt.docs.pyansys.com/version/stable"
-        self.browser = "default"
-
-    def _launch_ur(self, url):
-        import webbrowser
-
-        if self.browser != "default":
-            webbrowser.get(self.browser).open_new_tab(url)
-        else:
-            webbrowser.open_new_tab(url)
-
-    def search(self, keywords, app_name=None, search_in_examples_only=False):
-        """Search for one or more keywords.
-
-        Parameters
-        ----------
-        keywords : str or list
-        app_name : str, optional
-            Name of a PyAEDT app. For example, ``"Hfss"``, ``"Circuit"``, ``"Icepak"``, or any other available app.
-        search_in_examples_only : bool, optional
-            Whether to search for the one or more keywords only in the PyAEDT examples.
-            The default is ``False``.
-        """
-        if isinstance(keywords, str):
-            keywords = [keywords]
-        if search_in_examples_only:
-            keywords.append("This example")
-        if app_name:
-            keywords.append(app_name)
-        url = self._base_path + f"/search.html?q={'+'.join(keywords)}"
-        self._launch_ur(url)
-
-    def getting_started(self):
-        """Open the PyAEDT User guide page."""
-        url = self._base_path + "/User_guide/index.html"
-        self._launch_ur(url)
-
-    def examples(self):
-        """Open the PyAEDT Examples page."""
-        url = self._base_path + "/examples/index.html"
-        self._launch_ur(url)
-
-    def github(self):
-        """Open the PyAEDT GitHub page."""
-        url = "https://github.com/ansys/pyaedt"
-        self._launch_ur(url)
-
-    def changelog(self, release=None):
-        """Open the PyAEDT GitHub Changelog for a given release.
-
-        Parameters
-        ----------
-        release : str, optional
-            Release to get the changelog for. For example, ``"0.6.70"``.
-        """
-        if release is None:
-            from ansys.aedt.core import __version__ as release
-        url = "https://github.com/ansys/pyaedt/releases/tag/v" + release
-        self._launch_ur(url)
-
-    def issues(self):
-        """Open the PyAEDT GitHub Issues page."""
-        url = "https://github.com/ansys/pyaedt/issues"
-        self._launch_ur(url)
-
-    def ansys_forum(self):
-        """Open the PyAEDT GitHub Issues page."""
-        url = "https://discuss.ansys.com/discussions/tagged/pyaedt"
-        self._launch_ur(url)
-
-    def developer_forum(self):
-        """Open the Discussions page on the Ansys Developer site."""
-        url = "https://developer.ansys.com/"
-        self._launch_ur(url)
-
-
-# class Property(property):
-#
-#     @pyaedt_function_handler()
-#     def getter(self, fget):
-#         """Property getter."""
-#         return self.__class__.__base__(fget, self.fset, self.fdel, self.__doc__)
-#
-#     @pyaedt_function_handler()
-#     def setter(self, fset):
-#         """Property setter."""
-#         return self.__class__.__base__(self.fget, fset, self.fdel, self.__doc__)
-#
-#     @pyaedt_function_handler()
-#     def deleter(self, fdel):
-#         """Property deleter."""
-#         return self.__class__.__base__(self.fget, self.fset, fdel, self.__doc__)
-
-# property = Property
-
-online_help = Help()

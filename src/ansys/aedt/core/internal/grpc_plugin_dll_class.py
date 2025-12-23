@@ -33,14 +33,11 @@ from pathlib import Path
 import re
 import types
 
-import grpc
-
+from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
-
-logger = settings.logger
 
 
 class AedtBlockObj(list):
@@ -112,7 +109,7 @@ class AedtObjWrapper:
 
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
-            settings.logger.debug(f" {funcName}{argv}")
+            pyaedt_logger.debug(f" {funcName}{argv}")
         try:
             if (settings.use_multi_desktop and funcName not in exclude_list) or funcName in inclusion_list:
                 self.dllapi.recreate_application(True)
@@ -127,6 +124,8 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
+            pyaedt_logger.debug("Failed to execute gRPC AEDT command:")
+            pyaedt_logger.debug(f"{funcName}({argv})")
             raise GrpcApiError(f"Failed to execute gRPC AEDT command: {funcName}")
 
     def __dir__(self):
@@ -233,11 +232,11 @@ class AedtPropServer(AedtObjWrapper):
             return
         propMap = self.__GetPropAttributes()
         try:
-            if attr in propMap:
+            if attr not in ["dllapi", "is_linux"] and attr in propMap:
                 self.SetPropValue(propMap[attr], val)
                 return
         except Exception:
-            settings.logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
+            pyaedt_logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
         super().__setattr__(attr, val)
 
     def GetName(self):
@@ -334,18 +333,20 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
-    def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
-        if not alwaysNew and port:
-            grpc_channel = grpc.insecure_channel(f"{machine}:{port}")
-            try:
-                grpc.channel_ready_future(grpc_channel).result(settings.desktop_launch_timeout)
-            except grpc.FutureTimeoutError:
-                settings.logger.error("Failed to connect to Desktop Session")
-                return
+    def CreateAedtApplication(self, machine, port=0, NGmode=False, alwaysNew=True):
         try:
+            pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
+            if machine.endswith("InsecureMode"):
+                target = machine.split(":")[0]
+                pyaedt_logger.warning(
+                    f"Starting gRPC client without TLS on {target}. This is INSECURE. "
+                    "Consider using a secure connection."
+                )
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
+            pyaedt_logger.info("Client application successfully started.")
         except Exception:
-            settings.logger.warning("Failed to create AedtApplication.")
+            pyaedt_logger.warning("Failed to create AedtApplication.")
+            self.aedt = None
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine

@@ -25,7 +25,6 @@ import locale
 import math
 from pathlib import Path
 import secrets
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -55,7 +54,7 @@ class CircuitComponents(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __getitem__(self, partname):
+    def __getitem__(self, partname) -> CircuitComponent:
         """Retrieve a part.
 
         Parameters
@@ -65,7 +64,7 @@ class CircuitComponents(PyAedtBase):
 
         Returns
         -------
-        type
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Part object details.
         """
         if isinstance(partname, int):
@@ -149,35 +148,8 @@ class CircuitComponents(PyAedtBase):
         return self._app.ocomponent_manager
 
     @property
-    def o_component_manager(self):  # pragma: no cover
-        """Component manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` property instead.
-        """
-        warnings.warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.ocomponent_manager
-
-    @property
     def osymbol_manager(self):
         """Model manager object."""
-        return self._app.osymbol_manager
-
-    @property
-    def o_symbol_manager(self):  # pragma: no cover
-        """Model manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` property instead.
-
-        """
-        warnings.warn(
-            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
-            DeprecationWarning,
-        )
         return self._app.osymbol_manager
 
     @property
@@ -489,7 +461,7 @@ class CircuitComponents(PyAedtBase):
             if name in self.components[el].composed_name:
                 return self.components[el]
 
-    @pyaedt_function_handler(touchstone_full_path="input_file")
+    @pyaedt_function_handler()
     def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap=True):
         """Create a model from a Touchstone file.
 
@@ -741,7 +713,7 @@ class CircuitComponents(PyAedtBase):
         self.ocomponent_manager.Add(arg)
         return model_name
 
-    @pyaedt_function_handler(touchstone_full_path="input_file")
+    @pyaedt_function_handler()
     def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None, port_names=None):
         """Create a model from a Touchstone file.
 
@@ -1096,7 +1068,7 @@ class CircuitComponents(PyAedtBase):
         self.add_id_to_component(comp_id, comp_name)
         return self.components[comp_id]
 
-    @pyaedt_function_handler(inst_name="name")
+    @pyaedt_function_handler()
     def create_component(
         self,
         name=None,
@@ -1169,7 +1141,7 @@ class CircuitComponents(PyAedtBase):
             self.enable_global_netlist(component_name, global_netlist_list)
         return self.components[comp_id]
 
-    @pyaedt_function_handler(component_name="assignment")
+    @pyaedt_function_handler()
     def disable_data_netlist(self, assignment):
         """Disable the Nexxim global net list.
 
@@ -1203,7 +1175,7 @@ class CircuitComponents(PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(component_name="assignment")
+    @pyaedt_function_handler()
     def enable_global_netlist(self, assignment, global_netlist_list=None):
         """Enable Nexxim global net list.
 
@@ -1243,7 +1215,7 @@ class CircuitComponents(PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(symbol_name="name", pin_lists="pins")
+    @pyaedt_function_handler()
     def create_symbol(self, name, pins):
         """Create a symbol.
 
@@ -1405,7 +1377,7 @@ class CircuitComponents(PyAedtBase):
                     self.components[objID] = o
         return len(self.components)
 
-    @pyaedt_function_handler(id="component_id")
+    @pyaedt_function_handler()
     def add_id_to_component(self, component_id, name=None):
         """Add an ID to a component.
 
@@ -1471,7 +1443,7 @@ class CircuitComponents(PyAedtBase):
 
         return len(self.components)
 
-    @pyaedt_function_handler(objname="assignment")
+    @pyaedt_function_handler()
     def get_obj_id(self, assignment):
         """Retrieve the ID of an object.
 
@@ -1491,7 +1463,7 @@ class CircuitComponents(PyAedtBase):
                 return el
         return None
 
-    @pyaedt_function_handler(partid="assignment")
+    @pyaedt_function_handler()
     def get_pins(self, assignment):
         """Retrieve one or more pins.
 
@@ -1519,7 +1491,7 @@ class CircuitComponents(PyAedtBase):
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
-    @pyaedt_function_handler(partid="assignment", pinname="pin")
+    @pyaedt_function_handler()
     def get_pin_location(self, assignment, pin):
         """Retrieve the location of a pin.
 
@@ -1549,28 +1521,6 @@ class CircuitComponents(PyAedtBase):
         return self._convert_point_to_units([x, y])
 
     @pyaedt_function_handler()
-    def number_with_units(self, value, units=None):
-        """Convert a number to a string with units. If value is a string, it's returned as is.
-
-        .. deprecated:: 0.14.0
-           Use :func:`value_with_units` in Analysis class instead.
-
-        Parameters
-        ----------
-        value : float, int, str
-            Input  number or string.
-        units : optional
-            Units for formatting. The default is ``None``, which uses ``"meter"``.
-
-        Returns
-        -------
-        str
-           String concatenating the value and unit.
-
-        """
-        return self._app.value_with_units(value, units)
-
-    @pyaedt_function_handler(points_array="points", line_width="width")
     def create_line(self, points, color=0, width=0, page=1):
         """Draw a graphical line.
 
@@ -1600,7 +1550,7 @@ class CircuitComponents(PyAedtBase):
             ["NAME:Attributes", "Page:=", page],
         )
 
-    @pyaedt_function_handler(points_array="points", wire_name="name")
+    @pyaedt_function_handler()
     def create_wire(self, points, name="", page=1):
         """Create a wire.
 
@@ -1660,7 +1610,7 @@ class ComponentInfo(PyAedtBase):
             self._props = load_keyword_in_aedt_file(self.file_name, self.name)
         return self._props
 
-    @pyaedt_function_handler(inst_name="assignment")
+    @pyaedt_function_handler()
     def place(self, assignment=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
         """Create a component from a library.
 

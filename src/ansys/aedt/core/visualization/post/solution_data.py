@@ -145,7 +145,7 @@ class SolutionData(PyAedtBase):
             variations_lists.append(variations)
         return variations_lists
 
-    @pyaedt_function_handler(variation_name="variation")
+    @pyaedt_function_handler()
     def variation_values(self, variation):
         """Get the list of the specific variation available values.
 
@@ -284,10 +284,6 @@ class SolutionData(PyAedtBase):
         self._solutions_imag = self._init_solution_data_imag()
         self._solutions_mag = self._init_solution_data_mag()
         self._solutions_phase = self._init_solution_data_phase()
-
-    @pyaedt_function_handler()
-    def __get_index(self, input_data):
-        return tuple([float(i) for i in input_data])
 
     @pyaedt_function_handler()
     def _full_keys(self, comb, solution, variation):
@@ -437,32 +433,8 @@ class SolutionData(PyAedtBase):
                 temp.append(self.active_intrinsic[it])
         return temp
 
-    @pyaedt_function_handler()
-    def data_magnitude(self, expression=None, convert_to_SI=False):
-        """Retrieve the data magnitude of an expression.
-
-        .. deprecated:: 0.20.0
-           Use :func:`get_expression_data` property instead.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``, in which case the
-            active expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        np.array
-            List of data.
-        """
-        warnings.warn("Method `data_magnitude` is deprecated. Use :func:`get_expression_data` property instead.")
-        return self.get_expression_data(expression, formula="magnitude", convert_to_SI=convert_to_SI)[1]
-
     @staticmethod
-    @pyaedt_function_handler(datalist="data", dataunits="data_units")
+    @pyaedt_function_handler()
     def _convert_list_to_SI(data, data_units, units):
         """Convert a data list to the SI unit system.
 
@@ -486,78 +458,6 @@ class SolutionData(PyAedtBase):
         if data_units in AEDT_UNITS and units in AEDT_UNITS[data_units]:
             sol = data * AEDT_UNITS[data_units][units]
         return sol
-
-    @pyaedt_function_handler()
-    def data_db10(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression and convert in db10.
-
-        .. deprecated:: 0.20.0
-           Use :func:`get_expression_data` property instead.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        np.array
-            List of the data in the database for the expression.
-        """
-        warnings.warn("Method `data_db10` is deprecated. Use :func:`get_expression_data` property instead.")
-        return self.get_expression_data(expression, formula="db10", convert_to_SI=convert_to_SI)[1]
-
-    @pyaedt_function_handler()
-    def data_db20(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression and convert in db20.
-
-        .. deprecated:: 0.20.0
-           Use :func:`get_expression_data` property instead.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        np.array
-            List of the data in the database for the expression.
-        """
-        warnings.warn("Method `data_db20` is deprecated. Use :func:`get_expression_data` property instead.")
-        return self.get_expression_data(expression, formula="db20", convert_to_SI=convert_to_SI)[1]
-
-    @pyaedt_function_handler()
-    def data_phase(self, expression=None, radians=True):
-        """Retrieve the phase part of the data for an expression.
-
-        .. deprecated:: 0.20.0
-           Use :func:`get_expression_data` property instead.
-
-        Parameters
-        ----------
-        expression : str, None
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
-        radians : bool, optional
-            Whether to convert the data into radians or degree.
-            The default is ``True`` for radians.
-
-        Returns
-        -------
-        np.array
-            Phase data for the expression.
-        """
-        warnings.warn("Method `data_phase` is deprecated. Use :func:`get_expression_data` property instead.")
-        return self.get_expression_data(expression, formula="phaserad" if radians else "phase")[1]
 
     @property
     def primary_sweep_values(self):
@@ -734,30 +634,6 @@ class SolutionData(PyAedtBase):
         return self.get_expression_data(expression, convert_to_SI=convert_to_SI)[1]
 
     @pyaedt_function_handler()
-    def data_imag(self, expression=None, convert_to_SI=False):
-        """Retrieve the imaginary part of the data for an expression.
-
-        .. deprecated:: 0.20.0
-           Use :func:`get_expression_data` property instead.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the imaginary data for the expression.
-        """
-        warnings.warn("Method `data_imag` is deprecated. Use :func:`get_expression_data` property instead.")
-        return self.get_expression_data(expression, formula="imag", convert_to_SI=convert_to_SI)[1]
-
-    @pyaedt_function_handler()
     def is_real_only(self, expression=None):
         """Check if the expression has only real values or not.
 
@@ -877,7 +753,7 @@ class SolutionData(PyAedtBase):
             new.add_trace([sw, self._get_data_formula(curve, formula)], name=name, properties=props)
         return new
 
-    @pyaedt_function_handler(math_formula="formula", xlabel="x_label", ylabel="y_label")
+    @pyaedt_function_handler()
     def plot(
         self,
         curves=None,
@@ -951,9 +827,7 @@ class SolutionData(PyAedtBase):
         else:
             return report_plotter.plot_2d(snapshot_path=snapshot_path, show=show)
 
-    @pyaedt_function_handler(
-        xlabel="x_label", ylabel="y_label", math_formula="formula", x_axis="primary_sweep", y_axis="secondary_sweep"
-    )
+    @pyaedt_function_handler()
     def plot_3d(
         self,
         curve=None,
@@ -1126,7 +1000,7 @@ class SolutionData(PyAedtBase):
 
         return self._ifft
 
-    @pyaedt_function_handler(csv_dir="csv_path", name_str="csv_file_header")
+    @pyaedt_function_handler()
     def ifft_to_file(
         self,
         u_axis="_u",

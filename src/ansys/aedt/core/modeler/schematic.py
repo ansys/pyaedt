@@ -96,36 +96,9 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._app.ocomponent_manager
 
     @property
-    def o_component_manager(self):  # pragma: no cover
-        """Component manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` property instead.
-
-        """
-        warnings.warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.ocomponent_manager
-
-    @property
     def omodel_manager(self):
         """Model manager object."""
         return self._app.omodel_manager
-
-    @property
-    def o_model_manager(self):  # pragma: no cover
-        """Model manager object.
-
-        .. deprecated:: 0.15.0
-           Use :func:`omodel_manager` property instead.
-        """
-        warnings.warn(
-            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.omodel_manager
 
     @property
     def oeditor(self):
@@ -147,12 +120,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         """
         self.oeditor.ZoomToFit()
 
-    @pyaedt_function_handler(
-        firstcomponent="starting_component",
-        secondcomponent="ending_component",
-        pinnum_first="pin_starting",
-        pinnum_second="pin_ending",
-    )
+    @pyaedt_function_handler()
     def connect_schematic_components(
         self, starting_component, ending_component, pin_starting=2, pin_ending=1, use_wire=True
     ):
@@ -187,7 +155,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         if self._app.design_type == "Maxwell Circuit":
             components = self.schematic.components
         else:
-            components = self.components
+            components = self.schematic
         starting_component = self._get_components_selections(starting_component)
         ending_component = self._get_components_selections(ending_component)
         start = components[starting_component[0]]
@@ -376,7 +344,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         except Exception:
             return False
 
-    @pyaedt_function_handler(property_id="assignment", property_name="name", property_value="value")
+    @pyaedt_function_handler()
     def change_text_property(self, assignment, name, value):
         """Change an oeditor property.
 
@@ -529,19 +497,6 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._schematic
 
     @property
-    def components(self):
-        """Schematic Component.
-
-        .. deprecated:: 0.4.13
-           Use :func:`Circuit.modeler.schematic` instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.circuits.primitives_nexxim.NexximComponents`
-        """
-        return self._schematic
-
-    @property
     def pages(self):
         """Return the number of pages of the current schematic.
 
@@ -643,26 +598,12 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
             return
         return self._primitives
 
-    @property
-    def primitives(self):
-        """Primitives.
-
-        .. deprecated:: 0.4.13
-           Use :func:`Circuit.modeler.layout` instead.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.primitives_3d_layout.Primitives3DLayout`
-
-        """
-        return self._primitives
-
     @model_units.setter
     def model_units(self, units):
         """Set the model units as a string e.g. "mm"."""
         self._app.units.length = units
 
-    @pyaedt_function_handler(selections="assignment", pos="offset")
+    @pyaedt_function_handler()
     def move(self, assignment, offset, units=None):
         """Move the selections by the specified ``[x, y]`` coordinates.
 
@@ -714,7 +655,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         )
         return True
 
-    @pyaedt_function_handler(selections="assignment")
+    @pyaedt_function_handler()
     def rotate(self, assignment, degrees=90):
         """Rotate the selections by degrees.
 

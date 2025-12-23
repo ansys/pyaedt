@@ -45,7 +45,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 try:
     import skrf as rf
-except ImportError:  # pragma: no cover
+except ImportError:
     warnings.warn(
         "The Scikit-rf module is required to run functionalities of TouchstoneData.\n"
         "Install with \n\npip install scikit-rf"
@@ -121,6 +121,8 @@ class TouchstoneData(rf.Network, PyAedtBase):
                     if not pnames:
                         pnames = [f"{i + 1}" for i in range(self.nports)]
                 self.port_names = pnames
+            else:
+                self.port_names = [pname.strip() for pname in self.port_names]
         self.log_x = True
 
     @pyaedt_function_handler()
@@ -655,7 +657,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return worst_el, dict_means
 
 
-@pyaedt_function_handler(file_path="input_file")
+@pyaedt_function_handler()
 def read_touchstone(input_file):
     """Load the contents of a Touchstone file into an NPort.
 
@@ -674,7 +676,7 @@ def read_touchstone(input_file):
     return data
 
 
-@pyaedt_function_handler(folder="input_dir")
+@pyaedt_function_handler()
 def check_touchstone_files(input_dir="", passivity=True, causality=True):
     """Check passivity and causality for all Touchstone files included in the folder.
 

@@ -183,6 +183,10 @@ class ColorMapSettings(BaseFolderPlot):
         color_repr = self.color
         return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
 
+    def __str__(self):
+        color_repr = self.color
+        return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
+
     def to_dict(self):
         """Convert the color map settings to a dictionary.
 
@@ -245,6 +249,14 @@ class AutoScale(BaseFolderPlot):
             f"use_current_scale_for_animation={self.use_current_scale_for_animation})"
         )
 
+    def __str__(self):
+        return (
+            f"AutoScale(n_levels={self.n_levels}, "
+            f"limit_precision_digits={self.limit_precision_digits}, "
+            f"precision_digits={self.precision_digits}, "
+            f"use_current_scale_for_animation={self.use_current_scale_for_animation})"
+        )
+
     def to_dict(self):
         """Convert the auto-scale settings to a dictionary.
 
@@ -297,6 +309,9 @@ class MinMaxScale(BaseFolderPlot):
     def __repr__(self):
         return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
 
+    def __str__(self):
+        return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
+
     def to_dict(self):
         """Convert the min-max scale settings to a dictionary.
 
@@ -339,6 +354,9 @@ class SpecifiedScale(PyAedtBase):
         self.scale_values = scale_values
 
     def __repr__(self):
+        return f"SpecifiedScale(scale_values={self.scale_values})"
+
+    def __str__(self):
         return f"SpecifiedScale(scale_values={self.scale_values})"
 
     def to_dict(self):
@@ -407,6 +425,9 @@ class NumberFormat(BaseFolderPlot):
             raise ValueError(f"{v} is not valid. Accepted values are {', '.join(self._accepted)}.")
 
     def __repr__(self):
+        return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
+
+    def __str__(self):
         return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
 
     def to_dict(self):
@@ -563,6 +584,12 @@ class Scale3DSettings(BaseFolderPlot):
             f"log={self.log}, db={self.db})"
         )
 
+    def __str__(self):
+        return (
+            f"Scale3DSettings(scale_type='{self.scale_type}', scale_settings={self.scale_settings}, "
+            f"log={self.log}, db={self.db})"
+        )
+
     def to_dict(self):
         """Convert the scale settings to a dictionary.
 
@@ -652,6 +679,12 @@ class MarkerSettings(BaseFolderPlot):
             raise KeyError(f"{v} is not a valid marker type.")
 
     def __repr__(self):
+        return (
+            f"MarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
+            f"map_color={self.map_color}, marker_size={self.marker_size})"
+        )
+
+    def __str__(self):
         return (
             f"MarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
             f"map_color={self.map_color}, marker_size={self.marker_size})"
@@ -765,6 +798,15 @@ class ArrowSettings(BaseFolderPlot):
             raise ValueError(f"{v} is not valid. Accepted values are {','.join(self._allowed_arrow_types)}.")
 
     def __repr__(self):
+        return (
+            f"Arrow3DSettings(arrow_type='{self.arrow_type}', arrow_size={self.arrow_size}, "
+            f"map_size={self.map_size}, map_color={self.map_color}, "
+            f"show_arrow_tail={self.show_arrow_tail}, magnitude_filtering={self.magnitude_filtering}, "
+            f"magnitude_threshold={self.magnitude_threshold}, min_magnitude={self.min_magnitude}, "
+            f"max_magnitude={self.max_magnitude})"
+        )
+
+    def __str__(self):
         return (
             f"Arrow3DSettings(arrow_type='{self.arrow_type}', arrow_size={self.arrow_size}, "
             f"map_size={self.map_size}, map_color={self.map_color}, "
@@ -914,18 +956,7 @@ class FieldPlot(PyAedtBase):
 
     """
 
-    @pyaedt_function_handler(
-        objlist="objects",
-        surfacelist="surfaces",
-        linelist="lines",
-        cutplanelist="cutplanes",
-        solutionName="solution",
-        quantityName="quantity",
-        IntrinsincList="intrinsics",
-        seedingFaces="seeding_faces",
-        layers_nets="layer_nets",
-        layers_plot_type="layer_plot_type",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         postprocessor,
@@ -1619,40 +1650,6 @@ class FieldPlot(PyAedtBase):
         self._postprocessor.field_plots.pop(self.name, None)
 
     @pyaedt_function_handler()
-    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None):
-        """Change Field Plot Scale.
-
-        .. deprecated:: 0.10.1
-           Use :class:`FieldPlot.folder_settings` methods instead.
-
-        Parameters
-        ----------
-        minimum_value : str, float
-            Minimum value of the scale.
-        maximum_value : str, float
-            Maximum value of the scale.
-        is_log : bool, optional
-            Set to ``True`` if Log Scale is setup.
-        is_db : bool, optional
-            Set to ``True`` if dB Scale is setup.
-        scale_levels : int, optional
-            Set number of color levels. The default is ``None``, in which case the
-            setting is not changed.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.SetPlotFolderSettings
-        """
-        return self._postprocessor.change_field_plot_scale(
-            self.plot_folder, minimum_value, maximum_value, is_log, is_db, scale_levels
-        )
-
-    @pyaedt_function_handler()
     def export_image(
         self,
         full_path=None,
@@ -1783,8 +1780,8 @@ class FieldPlot(PyAedtBase):
             return self._postprocessor.plot_field_from_fieldplot(
                 self.name,
                 project_path=export_path,
-                meshplot=plot_mesh,
-                imageformat="jpg",
+                mesh_plot=plot_mesh,
+                image_format="jpg",
                 view=view,
                 plot_label=self.quantity,
                 show=False,

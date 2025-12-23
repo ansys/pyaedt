@@ -38,6 +38,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
@@ -93,7 +94,14 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
     def check_design_type(self):
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
-        if self.aedt_application.design_type not in ["HFSS", "Icepak", "HFSS 3D", "Maxwell 3D", "Q3D", "Mechanical"]:
+        if self.aedt_application.design_type not in [
+            "HFSS",
+            "Icepak",
+            "HFSS 3D",
+            "Maxwell 3D",
+            "Q3D",
+            DesignType.ICEPAKFEA,
+        ]:
             self.release_desktop()
             raise AEDTRuntimeError(
                 "This extension only works with HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, or Mechanical designs."
@@ -305,10 +313,7 @@ def main(data: ImportNastranExtensionData):
 
         outfile = simplify_and_preview_stl(str(file_path), decimation=data.decimate)
         aedtapp.modeler.import_3d_cad(
-            outfile,
-            healing=False,
-            create_lightweigth_part=data.lightweight,
-            merge_planar_faces=data.planar,
+            outfile, healing=False, create_lightweight_part=data.lightweight, merge_planar_faces=data.planar
         )
 
     app.logger.info("Geometry imported correctly.")

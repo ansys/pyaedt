@@ -74,6 +74,12 @@ class BoundaryProps(dict):
 class BoundaryCommon(PropsManager, PyAedtBase):
     """ """
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
     @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve boundary properties.

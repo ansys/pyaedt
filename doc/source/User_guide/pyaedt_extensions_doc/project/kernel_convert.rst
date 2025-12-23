@@ -41,13 +41,13 @@ You can launch the extension user interface from the terminal, you can find the 
 
 .. code::
 
-   python.exe path/to/pyaedt/extensions/project/kernel_converter.py
+   python.exe path/to/pyaedt/extensions/common/kernel_converter.py
 
 Finally, this code shows how you can run the extension directly from a Python script:
 
 .. code:: python
 
-    from ansys.aedt.core.extensions.project.kernel_converter import main
+    from ansys.aedt.core.extensions.common.kernel_converter import main
 
     main(test_args = {"password": "my_pwd",
                     "application": "HFSS",

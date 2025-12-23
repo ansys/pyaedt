@@ -46,11 +46,13 @@ dependencies = [
 
 [project.optional-dependencies]
 unit-tests = [
-    "pytest>=7.4.0,<8.5",
+    "pytest>=7.4.0,<9.1",
     "pytest-cov>=4.0.0,<7.1",
     "mock>=5.1.0,<5.3",
     "fpdf2",
     "requests",
+    "rpyc>=6.0.0,<6.1",
+    "typer>=0.20.0",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
@@ -65,9 +67,9 @@ tests = [
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.9",
     "pyvista[io]>=0.38.0,<0.47",
-    "scikit-rf>=0.30.0,<1.9",
+    "scikit-rf>=0.30.0,<1.10",
     "tables",
-    "rpyc>=6.0.0,<6.1",
+    "cryptography",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -78,12 +80,12 @@ dotnet = [
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.7",
     "jupyter",
-    "numpydoc>=1.5.0,<1.9",
+    "numpydoc==1.10.0",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
     "sphinx-autobuild==2024.10.3",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.20",
+    "sphinx-gallery>=0.14.0,<0.21",
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
@@ -98,7 +100,7 @@ graphics = [
     "fpdf2",
 ]
 jupyter = [
-    "jupyterlab>=3.6.0,<4.5",
+    "jupyterlab>=3.6.0,<4.6",
     "ipython>=7.30.0,<9.1",
 ]
 all = [
@@ -110,9 +112,10 @@ all = [
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.9",
+    "scikit-rf>=0.30.0,<1.10",
     "pyaedt[jupyter]",
     "requests",
+    "typer>=0.20.0",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
     "uv>=0.8.17",
@@ -126,8 +129,8 @@ examples = [
     "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.4",
-    "scikit-rf>=0.30.0,<1.9",
+    "plotly>=6.0,<6.6",
+    "scikit-rf>=0.30.0,<1.10",
     "fpdf2",
     "rpyc>=6.0.0,<6.1",
 ]
@@ -149,10 +152,13 @@ Discussions = "https://github.com/ansys/pyaedt/discussions"
 Releases = "https://github.com/ansys/pyaedt/releases"
 Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
+[project.scripts]
+pyaedt = "ansys.aedt.core.cli:app"
+
 [tool.ruff]
 line-length = 120
 fix = true
-exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files 
+exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files
 
 [tool.ruff.format]
 quote-style = "double"
@@ -218,7 +224,7 @@ ignore = [
     "PTH119", # os-path-basename
     "PTH120", # os-path-dirname
     "PTH122", # os-path-splitext
-    "PTH123", # builtin-open 
+    "PTH123", # builtin-open
     "PTH201", # path-constructor-current-directory
     "PTH208", # os-listdir
 
@@ -350,3 +356,5 @@ showcontent = true
 directory = "test"
 name = "Test"
 showcontent = true
+
+

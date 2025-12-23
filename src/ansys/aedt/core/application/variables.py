@@ -37,11 +37,15 @@ Examples
 
 """
 
+from __future__ import annotations
+
 import ast
 import os
 import re
 import types
-import warnings
+from typing import Any
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -49,13 +53,14 @@ from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import _resolve_unit_system
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_array
 from ansys.aedt.core.generic.numbers_utils import is_number
-from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class CSVDataset(PyAedtBase):
@@ -155,7 +160,7 @@ class CSVDataset(PyAedtBase):
                                 if var_name in self._unit_dict:
                                     var_value = Variable(value).rescale_to(self._unit_dict[var_name]).numeric_value
                                 else:
-                                    var_value = Variable(value).value
+                                    var_value = Variable(value).si_value
                                 self._data[var_name].append(var_value)
 
                             # Add augmented quantities
@@ -419,7 +424,7 @@ class VariableManager(PyAedtBase):
         """
         return self._variable_dict([self._odesign, self._oproject])
 
-    @pyaedt_function_handler(variable_value="variable")
+    @pyaedt_function_handler()
     def decompose(self, variable):
         """Decompose a variable string to a floating with its unit.
 
@@ -716,12 +721,12 @@ class VariableManager(PyAedtBase):
     @property
     def _oproject(self):
         """Project."""
-        return self._app._oproject
+        return self._app.oproject
 
     @property
     def _odesign(self):
         """Design."""
-        return self._app._odesign
+        return self._app.odesign
 
     @property
     def _logger(self):
@@ -731,24 +736,24 @@ class VariableManager(PyAedtBase):
     def __init__(self, app):
         # Global Desktop Environment
         self._app = app
-        self._independent_design_variables = {}
-        self._independent_project_variables = {}
-        self._dependent_design_variables = {}
-        self._dependent_project_variables = {}
+        self.__independent_design_variables = {}
+        self.__independent_project_variables = {}
+        self.__dependent_design_variables = {}
+        self.__dependent_project_variables = {}
 
     @property
     def _independent_variables(self):
         all_independent = {}
-        all_independent.update(self._independent_project_variables)
-        all_independent.update(self._independent_design_variables)
+        all_independent.update(self.__independent_project_variables)
+        all_independent.update(self.__independent_design_variables)
         return all_independent
 
     @property
     def _dependent_variables(self):
         all_dependent = {}
-        for k, v in self._dependent_project_variables.items():
+        for k, v in self.__dependent_project_variables.items():
             all_dependent[k] = v
-        for k, v in self._dependent_design_variables.items():
+        for k, v in self.__dependent_design_variables.items():
             all_dependent[k] = v
         return all_dependent
 
@@ -777,15 +782,44 @@ class VariableManager(PyAedtBase):
     def _cleanup_variables(self):
         variables = self._get_var_list_from_aedt(self._app.odesign) + self._get_var_list_from_aedt(self._app.oproject)
         all_dicts = [
-            self._independent_project_variables,
-            self._independent_design_variables,
-            self._dependent_project_variables,
-            self._dependent_design_variables,
+            self.__independent_project_variables,
+            self.__independent_design_variables,
+            self.__dependent_project_variables,
+            self.__dependent_design_variables,
         ]
         for dict_var in all_dicts:
             for var_name in list(dict_var.keys()):
                 if var_name not in variables:
                     del dict_var[var_name]
+
+    @pyaedt_function_handler()
+    def _update_variable_dict(self, object_list):
+        """Update variable dictionary.
+
+        Parameters
+        ----------
+        object_list : list
+            List of objects.
+
+        """
+        all_names = {}
+        for obj in object_list:
+            variables = [i for i in self._get_var_list_from_aedt(obj) if i not in list(self._all_variables.keys())]
+            for variable_name in variables:
+                variable_expression = self.get_expression(variable_name)
+                if variable_expression:
+                    all_names[variable_name] = variable_expression
+                    si_value = self._app.get_evaluated_value(variable_name)
+                    value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
+                    is_number_flag = is_number(value._calculated_value)
+                    if variable_name.startswith("$") and is_number_flag:
+                        self.__independent_project_variables[variable_name] = value
+                    elif variable_name.startswith("$"):
+                        self.__dependent_project_variables[variable_name] = value
+                    elif is_number_flag:
+                        self.__independent_design_variables[variable_name] = value
+                    else:
+                        self.__dependent_design_variables[variable_name] = value
 
     @pyaedt_function_handler()
     def _variable_dict(self, object_list, dependent=True, independent=True):
@@ -806,43 +840,26 @@ class VariableManager(PyAedtBase):
             Dictionary of the specified variables.
 
         """
-        all_names = {}
-        for obj in object_list:
-            variables = [i for i in self._get_var_list_from_aedt(obj) if i not in list(self._all_variables.keys())]
-            for variable_name in variables:
-                variable_expression = self.get_expression(variable_name)
-                if variable_expression:
-                    all_names[variable_name] = variable_expression
-                    si_value = self._app.get_evaluated_value(variable_name)
-                    value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
-                    is_number_flag = is_number(value._calculated_value)
-                    if variable_name.startswith("$") and is_number_flag:
-                        self._independent_project_variables[variable_name] = value
-                    elif variable_name.startswith("$"):
-                        self._dependent_project_variables[variable_name] = value
-                    elif is_number_flag:
-                        self._independent_design_variables[variable_name] = value
-                    else:
-                        self._dependent_design_variables[variable_name] = value
+        self._update_variable_dict(object_list)
         self._cleanup_variables()
         vars_to_output = {}
         dicts_to_add = []
         if independent:
             if self._app.odesign in object_list:
-                dicts_to_add.append(self._independent_design_variables)
+                dicts_to_add.append(self.__independent_design_variables)
             if self._app.oproject in object_list:
-                dicts_to_add.append(self._independent_project_variables)
+                dicts_to_add.append(self.__independent_project_variables)
         if dependent:
             if self._app.odesign in object_list:
-                dicts_to_add.append(self._dependent_design_variables)
+                dicts_to_add.append(self.__dependent_design_variables)
             if self._app.oproject in object_list:
-                dicts_to_add.append(self._dependent_project_variables)
+                dicts_to_add.append(self.__dependent_project_variables)
         for dict_var in dicts_to_add:
             for k, v in dict_var.items():
                 vars_to_output[k] = v
         return vars_to_output
 
-    @pyaedt_function_handler(variable_name="name")
+    @pyaedt_function_handler()
     def get_expression(self, name):  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
 
@@ -865,7 +882,7 @@ class VariableManager(PyAedtBase):
         else:
             return False
 
-    @pyaedt_function_handler(variable="name")
+    @pyaedt_function_handler()
     def aedt_object(self, name):
         """Retrieve an AEDT object.
 
@@ -880,7 +897,7 @@ class VariableManager(PyAedtBase):
         else:
             return self._odesign
 
-    @pyaedt_function_handler(variable_name="name", readonly="read_only", postprocessing="is_post_processing")
+    @pyaedt_function_handler()
     def set_variable(
         self,
         name,
@@ -907,7 +924,7 @@ class VariableManager(PyAedtBase):
         read_only : bool, optional
             Whether to set the design property or project variable to
             read-only. The default is ``False``.
-        hidden :  bool, optional
+        hidden : bool, optional
             Whether to hide the design property or project variable. The
             default is ``False``.
         description : str, optional
@@ -971,20 +988,22 @@ class VariableManager(PyAedtBase):
 
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
         """
-        if name in self._independent_variables:
-            del self._independent_variables[name]
-            if name in self._independent_design_variables:
-                del self._independent_design_variables[name]
-            elif name in self._independent_project_variables:
-                del self._independent_project_variables[name]
-        elif name in self._dependent_variables:
-            del self._dependent_variables[name]
-            if name in self._dependent_design_variables:
-                del self._dependent_design_variables[name]
-            elif name in self._dependent_project_variables:
-                del self._dependent_project_variables[name]
+        if name in self.independent_variables:
+            if name in self.__independent_design_variables:
+                del self.__independent_design_variables[name]
+            elif name in self.__independent_project_variables:
+                del self.__independent_project_variables[name]
+        elif name in self.dependent_variables:
+            if name in self.__dependent_design_variables:
+                del self.__dependent_design_variables[name]
+            elif name in self.__dependent_project_variables:
+                del self.__dependent_project_variables[name]
         if not description:
             description = ""
+
+        if name in self.variables:
+            variable = self.variables[name]
+            circuit_parameter = variable.is_circuit_parameter
 
         desktop_object = self.aedt_object(name)
         if name.startswith("$"):
@@ -1019,7 +1038,7 @@ class VariableManager(PyAedtBase):
             variable = str(expression)
         # Handle None, "" as Separator
         elif isinstance(expression, list):
-            variable = str(expression)
+            variable = str(expression).replace("'", '"')
         elif not expression:
             prop_type = "SeparatorProp"
             variable = ""
@@ -1125,9 +1144,10 @@ class VariableManager(PyAedtBase):
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if name.lower() not in lower_case_vars:
             return False
+
         return True
 
-    @pyaedt_function_handler(separator_name="name")
+    @pyaedt_function_handler()
     def delete_separator(self, name):
         """Delete a separator from either the active project or design.
 
@@ -1167,7 +1187,7 @@ class VariableManager(PyAedtBase):
                 self._logger.debug("Failed to change desktop object property.")
         return False
 
-    @pyaedt_function_handler(var_name="name")
+    @pyaedt_function_handler()
     def delete_variable(self, name):
         """Delete a variable.
 
@@ -1192,16 +1212,34 @@ class VariableManager(PyAedtBase):
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if name.lower() in lower_case_vars:
             try:
-                desktop_object.ChangeProperty(
-                    [
-                        "NAME:AllTabs",
+                variable = self.variables[name]
+                if (
+                    self._app._is_object_oriented_enabled()
+                    and variable.is_circuit_parameter
+                    and variable.has_definition_parameters
+                ):
+                    desktop_object.ChangeProperty(
                         [
-                            f"NAME:{var_type}VariableTab",
-                            ["NAME:PropServers", f"{var_type}Variables"],
-                            ["NAME:DeletedProps", name],
-                        ],
-                    ]
-                )
+                            "NAME:AllTabs",
+                            [
+                                "NAME:DefinitionParameterTab",
+                                ["NAME:PropServers", f"Instance:{self._odesign.GetName()}"],
+                                ["NAME:DeletedProps", name],
+                            ],
+                        ]
+                    )
+                else:
+                    desktop_object.ChangeProperty(
+                        [
+                            "NAME:AllTabs",
+                            [
+                                f"NAME:{var_type}VariableTab",
+                                ["NAME:PropServers", f"{var_type}Variables"],
+                                ["NAME:DeletedProps", name],
+                            ],
+                        ]
+                    )
+
             except Exception:  # pragma: no cover
                 self._logger.debug("Failed to change desktop object property.")
             else:
@@ -1209,7 +1247,7 @@ class VariableManager(PyAedtBase):
                 return True
         return False
 
-    @pyaedt_function_handler(var_name="name")
+    @pyaedt_function_handler()
     def is_used(self, name):
         """Find if a variable is used.
 
@@ -1239,27 +1277,6 @@ class VariableManager(PyAedtBase):
                     self._logger.warning(f"{name} used in the material: {mat.name}.")
                     return used
         return used
-
-    @pyaedt_function_handler(var_name="name")
-    def is_used_variable(self, name):
-        """Find if a variable is used.
-
-        .. deprecated:: 0.7.4
-           Use :func:`is_used` method instead.
-
-        Parameters
-        ----------
-        name : str
-            Name of the variable.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        warnings.warn("`is_used_variable` is deprecated. Use `is_used` method instead.", DeprecationWarning)
-        return self.is_used(name)
 
     def _find_used_variable_history(self, history, var_name):
         """Find if a variable is used.
@@ -1311,27 +1328,34 @@ class VariableManager(PyAedtBase):
             "Maxwell Circuit",
             "Circuit Netlist",
         ]:
+            if self._app.design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+            ] and "GetDesignName" in dir(desktop_object):
+                # To retrieve Parameter Default Variables
+                try:
+                    v = list(self._app.get_oo_object(desktop_object, "DefinitionParameters").GetPropNames())
+                except AttributeError:
+                    v = []
+                var_list = v
+
             # To retrieve local variables
             try:
-                v = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
+                v = list(self._app.get_oo_object(desktop_object, "Variables").GetPropNames())
             except AttributeError:
                 v = []
             var_list += v
-        if self._app._is_object_oriented_enabled() and self._app.design_type in [
-            "Circuit Design",
-            "Twin Builder",
-            "HFSS 3D Layout Design",
-        ]:
-            # To retrieve Parameter Default Variables
-            try:
-                v = list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
-            except AttributeError:
-                v = []
-            var_list += v
+            if self._app._aedt_version >= "2025.2":
+                return var_list
 
         if "GetVariables" in desktop_object.__dir__():
             var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
-        var_list += [i for i in list(self._app.oproject.GetArrayVariables()) if i not in var_list]
+        try:
+            arr_vars = list(desktop_object.GetArrayVariables())
+            var_list += [i for i in arr_vars if i not in var_list]
+        except Exception:
+            self._app.logger.debug("Could not retrieve array variables.")
         return var_list
 
 
@@ -1340,10 +1364,28 @@ class Variable(PyAedtBase):
 
     Parameters
     ----------
-    value : float, str
-        Numerical value of the variable in SI units.
-    units : str
-        Units for the value.
+    expression : float or str
+        Variable expression.
+    units : str, optional
+        Unit string to enforce. If provided, must be consistent with parsed units.
+    si_value : float, optional
+        Value in SI units. If provided, it overrides the parsed/calculated value.
+    full_variables : dict, optional
+        Map of known variables for expression decomposition.
+    name : str, optional
+        Variable name in AEDT.
+    app : object, optional
+        AEDT application of type :class:`ansys.aedt.core.application`.
+    readonly : bool, optional
+        Flag controlling read only property. The default is ``False``.
+    hidden : bool, optional
+        Flags controlling hidden property. The default is ``False``.
+    sweep : bool, optional
+        Flags controlling sweep property. The default is ``True``.
+    postprocessing : bool, optional
+        Flags controlling postprocessing property.
+    circuit_parameter : bool, optional
+        Define Parameter Default variable in Circuit design.
 
     Examples
     --------
@@ -1365,23 +1407,29 @@ class Variable(PyAedtBase):
 
     """
 
+    def __repr__(self):
+        return self.expression
+
+    def __str__(self):
+        return self.expression
+
     def __init__(
         self,
-        expression,
-        units=None,
-        si_value=None,
-        full_variables=None,
-        name=None,
+        expression: Union[float, str],
+        units: Optional[str] = None,
+        si_value: Optional[float] = None,
+        full_variables: Optional[dict] = None,
+        name: Optional[str] = None,
         app=None,
-        readonly=False,
-        hidden=False,
-        sweep=True,
-        description=None,
-        postprocessing=False,
-        circuit_parameter=True,
+        readonly: Optional[bool] = False,
+        hidden: Optional[bool] = False,
+        sweep: Optional[bool] = True,
+        description: Optional[str] = None,
+        postprocessing: Optional[bool] = False,
+        circuit_parameter: Optional[bool] = True,
     ):
-        if not full_variables:
-            full_variables = {}
+        full_variables = full_variables or {}
+
         self._variable_name = name
         self._app = app
         self._readonly = readonly
@@ -1391,443 +1439,526 @@ class Variable(PyAedtBase):
         self._circuit_parameter = circuit_parameter
         self._description = description
         self._is_optimization_included = None
-        if units:
-            if unit_system(units):
-                specified_units = units
-        self._units = None
-        self._expression = expression
-        self._calculated_value, self._units = decompose_variable_value(expression, full_variables)
-        if si_value is not None:
-            self._value = si_value
-        else:
-            self._value = self._calculated_value
-        # If units have been specified, check for a conflict and otherwise use the specified unit system
-        if units:
-            if self._units and self._units != specified_units:
-                raise RuntimeError(
-                    f"The unit specification {specified_units} is inconsistent with the identified units {self._units}."
-                )
-            self._units = specified_units
 
-        if not si_value and is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except KeyError:
-                scale = 1
-            if isinstance(scale, tuple):
-                self._value = scale[0](self._value, inverse=False)
-            elif isinstance(scale, types.FunctionType):
-                self._value = scale(self._value, False)
-            else:
-                self._value = self._value * scale
+        # Parse expression and units
+        self._expression = expression
+        self._calculated_value, parsed_units = decompose_variable_value(expression, full_variables)
+        self._units = parsed_units
+
+        # Respect explicit SI value if provided
+        self._value = si_value if si_value is not None else self._calculated_value
+
+        # Enforce unit specification if provided
+        if units is not None:
+            enforced_system = unit_system(units)
+            if not enforced_system:
+                raise ValueError(f"Unrecognized units '{units}'.")
+            if self._units and self._units != units:
+                raise RuntimeError(
+                    f"The unit specification {units} is inconsistent with the identified units {self._units}."
+                )
+            self._units = units
+
+        # Convert numeric value to SI if we have a scale
+        if si_value is None and is_number(self._value):
+            self._value = self.__to_si(self._value, self._units)
 
     @property
     def _aedt_obj(self):
-        if "$" in self._variable_name and self._app:
+        """Return the correct AEDT object based on variable scope."""
+        if self._variable_name and self._variable_name.startswith("$") and self._app:
             return self._app._oproject
         elif self._app:
             return self._app._odesign
         return None
 
     @pyaedt_function_handler()
-    def _update_var(self):
-        if self._app:
-            return self._app.variable_manager.set_variable(
-                self._variable_name,
-                self._expression,
-                read_only=self._readonly,
-                hidden=self._hidden,
-                sweep=self._sweep,
-                description=self._description,
-                is_post_processing=self._postprocessing,
-                circuit_parameter=self._circuit_parameter,
+    def _oo(self, obj, path):
+        return self._app.get_oo_object(obj, path)
+
+    # Low-level property read/write
+    @pyaedt_function_handler()
+    def update_var(self):
+        """Push the current variable state to AEDT via variable manager."""
+        if not self._app:
+            raise AEDTRuntimeError(
+                f"Cannot update variable {self._variable_name}: the AEDT application connection is not initialized."
             )
-        return False
+        return self._app.variable_manager.set_variable(
+            self._variable_name,
+            self._expression,
+            read_only=self._readonly,
+            hidden=self._hidden,
+            sweep=self._sweep,
+            description=self._description,
+            is_post_processing=self._postprocessing,
+            circuit_parameter=self._circuit_parameter,
+        )
+
+    @pyaedt_function_handler()
+    def __target_container_name(self):
+        """Resolve the property container name for this variable."""
+        # Default container
+        default_container = "Variables"
+
+        # If AEDT is not connected, always fall back to the default container
+        if not self._app:
+            return default_container
+
+        # Check for DefinitionParameters if applicable
+        if self.has_definition_parameters and self.is_circuit_parameter:
+            try:
+                definition_params = self._oo(self._app.odesign, "DefinitionParameters")
+            except Exception:  # pragma: no cover
+                # If the parameters cannot be accessed, use LocalVariables
+                return "LocalVariables"
+
+            try:
+                props = definition_params.GetPropNames()
+            except Exception:  # pragma: no cover
+                # If the properties cannot be accessed, use LocalVariables
+                return "LocalVariables"
+
+            variable_in_definition_parameters = self._variable_name in list(props)
+            if variable_in_definition_parameters:
+                return "DefinitionParameters"
+            return "LocalVariables"
+
+        return default_container
 
     @pyaedt_function_handler()
     def _set_prop_val(self, prop, val, n_times=10):
-        if self._app.design_type == "Maxwell Circuit":
+        """Set a property value with retries, handling AEDT containers automatically."""
+        if not self._app or self._app.design_type == "Maxwell Circuit":
             return
-        try:
-            name = "Variables"
 
-            if self._app.design_type in [
-                "Circuit Design",
-                "Twin Builder",
-                "HFSS 3D Layout Design",
-            ]:
-                if self._variable_name in list(
-                    self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames()
-                ):
-                    name = "DefinitionParameters"
-                else:
-                    name = "LocalVariables"
-            i = 0
-            while i < n_times:
-                if name == "DefinitionParameters":
-                    result = self._app.get_oo_object(self._aedt_obj, name).SetPropValue(prop, val)
-                else:
-                    result = self._app.get_oo_object(self._aedt_obj, f"{name}/{self._variable_name}").SetPropValue(
-                        prop, val
+        container = self.__target_container_name()
+
+        if container == "DefinitionParameters":
+            prop_name, prop_to_set = prop.split("/")
+            try:
+                self._app.odesign.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:DefinitionParameterTab",
+                            ["NAME:PropServers", f"Instance:{self._app.odesign.GetName()}"],
+                            [
+                                "NAME:ChangedProps",
+                                [f"NAME:{self.name}", [f"NAME:{prop_name}", f"{prop_to_set}:=", val]],
+                            ],
+                        ],
+                    ]
+                )
+                return True
+            except Exception as e:
+                raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
+        else:
+            try:
+                # Object-oriented set property value
+                path = (
+                    f"{container}/{self._variable_name}"
+                    if container != "Variables"
+                    else f"Variables/{self._variable_name}"
+                )
+                _retry_ntimes(n_times, self._oo(self._aedt_obj, path).SetPropValue, prop, val)
+                return True
+            except Exception as e:
+                raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
+
+    def _get_prop_generic(self, prop, evaluated=False):
+        """Generic property getter. If *evaluated* is True, returns the evaluated value."""
+        if not self._aedt_obj:
+            return None
+        prop = prop or self.name
+        app = self._aedt_obj
+        # DefinitionParameters only available in circuit and HFSS 3D Layout design type
+        if self.has_definition_parameters:
+            inst_name = f"Instance:{app.GetName()}"
+
+            if self.is_circuit_parameter:
+                # Definition parameters properties do not work with Object-Oriented-Programming API
+                obj = self._oo(app, "DefinitionParameters")
+                if not obj or prop != self.name:
+                    self._app.logger.error(
+                        "Parameter Default variable properties can not be load. AEDT API limitation."
                     )
-                if result:
-                    break
-                i += 1
-        except Exception:
-            self._app.logger.debug(f"Failed to set property '{prop}' value.")
+                    return None
+                return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
+
+            else:
+                if self.name in self._app.get_oo_name(app, inst_name):
+                    var_obj = self._oo(app, f"{inst_name}/{self.name}")
+                    return var_obj.GetPropEvaluatedValue(prop) if evaluated else var_obj.GetPropValue(prop)
+
+        if self.name in self._app.get_oo_name(app, "Variables"):
+            var_obj = self._oo(app, f"Variables/{self.name}")
+            if evaluated and self._app._aedt_version <= "2024.2":  # pragma: no cover
+                return var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            elif evaluated and self._app._aedt_version >= "2024.2":
+                return var_obj.GetPropEvaluatedValue()
+            return var_obj.GetPropValue(prop)
+
+        # Fallback: simple path
+        obj = self._oo(app, "Variables")
+        return obj.GetPropEvaluatedValue(prop) if evaluated else obj.GetPropValue(prop)
 
     @pyaedt_function_handler()
-    def _get_prop_val(self, prop):
-        if self._app.design_type == "Maxwell Circuit":
-            return
-        try:
-            name = "Variables"
+    def _get_prop_val(self, prop=None):
+        return self._get_prop_generic(prop, evaluated=False)
 
-            if self._app.design_type in [
-                "Circuit Design",
-                "Twin Builder",
-                "HFSS 3D Layout Design",
-            ]:
-                if self._variable_name in list(
-                    self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames()
-                ):
-                    return self._app.get_oo_object(self._aedt_obj, "DefinitionParameters").GetPropValue(prop)
-                else:
-                    name = "LocalVariables"
-            return self._app.get_oo_object(self._aedt_obj, f"{name}/{self._variable_name}").GetPropValue(prop)
-        except Exception:
-            self._app.logger.debug(f"Failed to get property '{prop}' value.")
+    @pyaedt_function_handler()
+    def _get_prop_evaluated_val(self, prop=None):
+        return self._get_prop_generic(prop, evaluated=True)
 
+    # Public properties
     @property
-    def name(self):
+    def name(self) -> str:
         """Variable name."""
         return self._variable_name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str):
         fallback_val = self._variable_name
         self._variable_name = value
-        if not self._update_var():
+        if not self.update_var():
             self._variable_name = fallback_val
             if self._app:
-                self._app.logger.error('"Failed to update property "name".')
+                raise AEDTRuntimeError('Failed to update property "name".')
 
     @property
-    def is_optimization_enabled(self):
-        """ "Check if optimization is enabled."""
+    def has_definition_parameters(self) -> bool:
+        """Whether the design type has DefinitionParameters or only LocalVariables."""
+        if not self._app:  # pragma: no cover
+            return False
+        return self._app.design_type in {
+            "Circuit Design",
+            "Twin Builder",
+            "HFSS 3D Layout Design",
+            "Maxwell Circuit",
+        }
+
+    @property
+    def is_optimization_enabled(self) -> bool:
+        """Whether optimization is enabled for this variable."""
         return self._get_prop_val("Optimization/Included")
 
     @is_optimization_enabled.setter
-    def is_optimization_enabled(self, value):
+    def is_optimization_enabled(self, value: bool):
         self._set_prop_val("Optimization/Included", value, 10)
 
     @property
-    def optimization_min_value(self):
-        """ "Optimization min value."""
+    def optimization_min_value(self) -> bool:
+        """Optimization lower bound."""
         return self._get_prop_val("Optimization/Min")
 
     @optimization_min_value.setter
-    def optimization_min_value(self, value):
+    def optimization_min_value(self, value: bool):
         self._set_prop_val("Optimization/Min", value, 10)
 
     @property
-    def optimization_max_value(self):
-        """ "Optimization max value."""
+    def optimization_max_value(self) -> bool:
+        """Optimization upper bound."""
         return self._get_prop_val("Optimization/Max")
 
     @optimization_max_value.setter
-    def optimization_max_value(self, value):
+    def optimization_max_value(self, value: bool):
         self._set_prop_val("Optimization/Max", value, 10)
 
     @property
-    def is_sensitivity_enabled(self):
-        """Check if Sensitivity is enabled."""
+    def is_sensitivity_enabled(self) -> bool:
+        """Whether sensitivity analysis is enabled."""
         return self._get_prop_val("Sensitivity/Included")
 
     @is_sensitivity_enabled.setter
-    def is_sensitivity_enabled(self, value):
+    def is_sensitivity_enabled(self, value: bool):
         self._set_prop_val("Sensitivity/Included", value, 10)
 
     @property
-    def sensitivity_min_value(self):
-        """ "Sensitivity min value."""
+    def sensitivity_min_value(self) -> bool:
+        """Sensitivity lower bound."""
         return self._get_prop_val("Sensitivity/Min")
 
     @sensitivity_min_value.setter
-    def sensitivity_min_value(self, value):
+    def sensitivity_min_value(self, value: bool):
         self._set_prop_val("Sensitivity/Min", value, 10)
 
     @property
-    def sensitivity_max_value(self):
-        """ "Sensitivity max value."""
+    def sensitivity_max_value(self) -> bool:
+        """Sensitivity upper bound."""
         return self._get_prop_val("Sensitivity/Max")
 
     @sensitivity_max_value.setter
-    def sensitivity_max_value(self, value):
+    def sensitivity_max_value(self, value: bool):
         self._set_prop_val("Sensitivity/Max", value, 10)
 
     @property
-    def sensitivity_initial_disp(self):
-        """ "Sensitivity initial value."""
+    def sensitivity_initial_disp(self) -> bool:
+        """Sensitivity initial displacement (if applicable)."""
         return self._get_prop_val("Sensitivity/IDisp")
 
     @sensitivity_initial_disp.setter
-    def sensitivity_initial_disp(self, value):
+    def sensitivity_initial_disp(self, value: bool):
         self._set_prop_val("Sensitivity/IDisp", value, 10)
 
     @property
-    def is_tuning_enabled(self):
-        """Check if tuning is enabled."""
+    def is_tuning_enabled(self) -> bool:
+        """Whether tuning is enabled."""
         return self._get_prop_val("Tuning/Included")
 
     @is_tuning_enabled.setter
-    def is_tuning_enabled(self, value):
+    def is_tuning_enabled(self, value: bool):
         self._set_prop_val("Tuning/Included", value, 10)
 
     @property
-    def tuning_min_value(self):
-        """ "Tuning min value."""
+    def tuning_min_value(self) -> bool:
+        """Tuning lower bound."""
         return self._get_prop_val("Tuning/Min")
 
     @tuning_min_value.setter
-    def tuning_min_value(self, value):
+    def tuning_min_value(self, value: bool):
         self._set_prop_val("Tuning/Min", value, 10)
 
     @property
-    def tuning_max_value(self):
-        """ "Tuning max value."""
+    def tuning_max_value(self) -> bool:
+        """Tuning upper bound."""
         return self._get_prop_val("Tuning/Max")
 
     @tuning_max_value.setter
-    def tuning_max_value(self, value):
+    def tuning_max_value(self, value: bool):
         self._set_prop_val("Tuning/Max", value, 10)
 
     @property
-    def tuning_step_value(self):
-        """ "Tuning Step value."""
+    def tuning_step_value(self) -> bool:
+        """Tuning step value."""
         return self._get_prop_val("Tuning/Step")
 
     @tuning_step_value.setter
-    def tuning_step_value(self, value):
+    def tuning_step_value(self, value: bool):
         self._set_prop_val("Tuning/Step", value, 10)
 
     @property
-    def is_statistical_enabled(self):
-        """Check if statistical is enabled."""
+    def is_statistical_enabled(self) -> bool:
+        """Whether statistical analysis is enabled."""
         return self._get_prop_val("Statistical/Included")
 
     @is_statistical_enabled.setter
-    def is_statistical_enabled(self, value):
+    def is_statistical_enabled(self, value: bool):
         self._set_prop_val("Statistical/Included", value, 10)
 
     @property
-    def read_only(self):
-        """Read-only flag value."""
+    def read_only(self) -> bool:
+        """Current read-only flag."""
         self._readonly = self._get_prop_val("ReadOnly")
         return self._readonly
 
     @read_only.setter
-    def read_only(self, value):
+    def read_only(self, value: bool):
         fallback_val = self._readonly
         self._readonly = value
-        if not self._update_var():
+        if not self.update_var():
             self._readonly = fallback_val
             if self._app:
                 self._app.logger.error('Failed to update property "read_only".')
 
     @property
-    def hidden(self):
-        """Hidden flag value."""
+    def hidden(self) -> bool:
+        """Current hidden flag."""
         self._hidden = self._get_prop_val("Hidden")
         return self._hidden
 
     @hidden.setter
-    def hidden(self, value):
+    def hidden(self, value: bool):
         fallback_val = self._hidden
         self._hidden = value
-        if not self._update_var():
+        if not self.update_var():
             self._hidden = fallback_val
             if self._app:
                 self._app.logger.error('Failed to update property "hidden".')
 
     @property
-    def sweep(self):
-        """Sweep flag value."""
+    def sweep(self) -> bool:
+        """Current sweep flag."""
         self._sweep = self._get_prop_val("Sweep")
         return self._sweep
 
     @sweep.setter
-    def sweep(self, value):
+    def sweep(self, value: bool):
         fallback_val = self._sweep
         self._sweep = value
-        if not self._update_var():
+        if not self.update_var():
             self._sweep = fallback_val
             if self._app:
                 self._app.logger.error('Failed to update property "sweep".')
 
     @property
-    def description(self):
-        """Description value."""
+    def description(self) -> str:
+        """Current description."""
         self._description = self._get_prop_val("Description")
         return self._description
 
     @description.setter
-    def description(self, value):
+    def description(self, value: str):
         fallback_val = self._description
         self._description = value
-        if not self._update_var():
+        if not self.update_var():
             self._description = fallback_val
             if self._app:
                 self._app.logger.error('Failed to update property "description".')
 
     @property
-    def post_processing(self):
-        """Postprocessing flag value."""
+    def post_processing(self) -> bool:
+        """Whether this variable is a post-processing variable."""
         if self._app:
-            return True if self._variable_name in self._app.variable_manager.post_processing_variables else False
-
-    @property
-    def circuit_parameter(self):
-        """Circuit parameter flag value."""
-        if "$" in self._variable_name:
-            return False
-        if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            prop_server = f"Instance:{self._aedt_obj.GetName()}"
-            return (
-                True
-                if self._variable_name in self._aedt_obj.GetProperties("DefinitionParameterTab", prop_server)
-                else False
-            )
+            return self._variable_name in self._app.variable_manager.post_processing_variables
         return False
 
     @property
-    def expression(self):
-        """Expression."""
+    def is_circuit_parameter(self) -> bool:
+        """Whether this variable is a circuit parameter (for supported design types)."""
+        if not self._app or "$" in (self._variable_name or ""):
+            return False
+        if self._app.design_type in [
+            "HFSS 3D Layout Design",
+            "Circuit Design",
+            "Maxwell Circuit",
+            "Twin Builder",
+        ]:
+            prop_server = f"Instance:{self._aedt_obj.GetName()}"
+            try:
+                props = self._aedt_obj.GetProperties("DefinitionParameterTab", prop_server)
+            except Exception:
+                return False
+            return self._variable_name in props
+        return False
+
+    @property
+    def expression(self) -> str:
+        """Raw AEDT expression."""
+        expression = self._expression
         if self._aedt_obj:
-            return self._aedt_obj.GetVariableValue(self._variable_name)
-        return
+            expression = self._aedt_obj.GetVariableValue(self._variable_name)
+        return expression
 
     @expression.setter
-    def expression(self, value):
+    def expression(self, value: str):
         fallback_val = self._expression
         self._expression = value
-        if not self._update_var():
+        if not self.update_var():
             self._expression = fallback_val
             if self._app:
                 self._app.logger.error("Failed to update property Expression.")
 
+    # Values and units
     @property
-    def numeric_value(self):
-        """Numeric part of the expression as a float value."""
+    def numeric_value(self) -> Union[float, list[Any], Any]:
+        """Numeric value of the expression in current units.
+
+        If the expression is an array-like string ("[1, 2, 3]"), returns a list.
+        """
         if is_array(self._value):
             return list(ast.literal_eval(self._value))
         try:
-            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-            evaluated_value = (
-                var_obj.GetPropEvaluatedValue()
-                if self._app._aedt_version > "2024.2"
-                else var_obj.GetPropEvaluatedValue("EvaluatedValue")
-            )
+            evaluated_value = self._get_prop_evaluated_val()
             if (
                 isinstance(evaluated_value, str)
                 and evaluated_value.strip().startswith("[")
                 and evaluated_value.strip().endswith("]")
             ):
                 evaluated_value = ast.literal_eval(evaluated_value)
+            elif evaluated_value is None:
+                return self._value_fallback()
             val, _ = decompose_variable_value(evaluated_value)
             return val
-        except (Exception, TypeError, AttributeError):
-            if is_number(self._value):
-                try:
-                    scale = AEDT_UNITS[self.unit_system][self._units]
-                except KeyError:
-                    scale = 1
-                if isinstance(scale, tuple):
-                    return scale[0](self._value, True)
-                elif isinstance(scale, types.FunctionType):
-                    return scale(self._value, True)
-                else:
-                    return self._value / scale
-            else:  # pragma: no cover
-                return self._value
+        except Exception:
+            self._value_fallback()
 
     @property
-    def unit_system(self):
-        """Unit system of the expression as a string."""
+    def unit_system(self) -> str:
+        """Unit system name."""
         return unit_system(self._units)
 
     @property
-    def units(self):
-        """Units."""
+    def units(self) -> str:
+        """Unit string associated with the expression."""
         try:
-            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-            evaluated_value = (
-                var_obj.GetPropEvaluatedValue()
-                if self._app._aedt_version > "2024.2"
-                else var_obj.GetPropEvaluatedValue("EvaluatedValue")
-            )
-
-            _, self._units = decompose_variable_value(evaluated_value)
-            return self._units
-        except (TypeError, AttributeError, GrpcApiError):
-            pass
+            evaluated_value = self._get_prop_evaluated_val()
+            if evaluated_value is None:
+                self._units = self._units_fallback()
+            else:
+                _, self._units = decompose_variable_value(evaluated_value)
+        except Exception:
+            self._units = self._units_fallback()
         return self._units
 
     @property
-    def value(self):
-        """Value."""
+    def si_value(self) -> float:
+        """Current value in SI units (float).
+
+        This getter keeps the cached SI value in sync with the AEDT backend.
+        It queries the evaluated variable value from AEDT, converts it to SI
+        units using the current unit system and unit string.
+        """
+        # If there is no AEDT app attached, just return the cached value.
+        if not self._app:
+            return self._value
+
+        try:
+            # Get the evaluated value from AEDT
+            evaluated_value = self._get_prop_evaluated_val()
+        except Exception:  # pragma: no cover
+            # If anything goes wrong while querying AEDT, return the cached value.
+            return self._value
+
+        if evaluated_value is None:  # pragma: no cover
+            # No evaluated value available, fall back to cached value.
+            return self._value
+
+        try:
+            # Decompose into numeric part and units.
+            numeric, units = decompose_variable_value(evaluated_value)
+
+            # Keep the local unit cache up to date.
+            if units:
+                self._units = units
+        except Exception:  # pragma: no cover
+            # If parsing fails, do not touch the cache.
+            return self._value
+
+        # If the numeric part is not a scalar number,
+        # we cannot convert it to SI consistently, so just return the cache.
+        if not is_number(numeric):
+            return self._value
+
+        # Convert the evaluated numeric value to SI and update the cache.
+        self._value = self.__to_si(numeric, self._units)
         return self._value
 
     @property
     def evaluated_value(self):
-        """String value.
-
-        The numeric value with the unit is concatenated and returned as a string. The numeric display
-        in the modeler and the string value can differ. For example, you might see ``10mm`` in the
-        modeler and see ``10.0mm`` returned as the string value.
-
-        """
-        return f"{self.numeric_value}{self._units}"
+        """Concatenated numeric value and unit string."""
+        if self.numeric_value is None:
+            return None
+        return f"{self.numeric_value}{self.units}"
 
     @pyaedt_function_handler()
-    def decompose(self):
-        """Decompose a variable value to a floating with its unit.
+    def decompose(self) -> tuple:
+        """Decompose the evaluated expression into a floating-point number and units.
 
         Returns
         -------
         tuple
             The float value of the variable and the units exposed as a string.
-
-        Examples
-        --------
-        >>> hfss = Hfss()
-        >>> hfss["v1"] = "3N"
-        >>> print(hfss.variable_manager["v1"].decompose("v1"))
-        >>> (3.0, "N")
-
         """
         return decompose_variable_value(self.evaluated_value)
 
     @pyaedt_function_handler()
-    def rescale_to(self, units):
-        """Rescale the expression to a new unit within the current unit system.
+    def rescale_to(self, units: str) -> Variable:
+        """Rescale the expression to the provided *units* within the same unit system.
 
-        Parameters
-        ----------
-        units : str
-            Units to rescale to.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.application.variables import Variable
-
-        >>> v = Variable("10W")
-        >>> assert v.numeric_value == 10
-        >>> assert v.units == "W"
-        >>> v.rescale_to("kW")
-        >>> assert v.numeric_value == 0.01
-        >>> assert v.units == "kW"
-
+        Returns
+        -------
+        :class:`ansys.aedt.core.application.variables.Variable`
         """
         new_unit_system = unit_system(units)
         if new_unit_system != self.unit_system:
@@ -1838,71 +1969,28 @@ class Variable(PyAedtBase):
         return self
 
     @pyaedt_function_handler()
-    def format(self, format):
-        """Retrieve the string value with the specified numerical formatting.
-
-        Parameters
-        ----------
-        format : str
-            Format for the numeric value of the string. For example, ``'06.2f'``. For
-            more information, see the `PyFormat documentation <https://pyformat.info/>`_.
+    def format(self, fmt: str) -> str:
+        """Return the string value using the specified numeric format ('06.2f').
 
         Returns
         -------
         str
-            String value with the specified numerical formatting.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.application.variables import Variable
-
-        >>> v = Variable("10W")
-        >>> assert v.format("f") == "10.000000W"
-        >>> assert v.format("06.2f") == "010.00W"
-        >>> assert v.format("6.2f") == " 10.00W"
 
         """
-        return f'{self.numeric_value:" + format + "}{self._units}'
+        return f"{self.numeric_value:{fmt}}{self._units}"
 
+    # Arithmetic operators
     @pyaedt_function_handler()
-    def __mul__(self, other):
-        """Multiply the variable with a number or another variable and return a new object.
+    def __mul__(self, other: Union[Variable, float, int]) -> Variable:
+        """Multiply this variable by a number or another variable.
 
         Parameters
         ----------
-                other : numbers.Number or variable
-                    Object to be multiplied.
+        other : :class:`ansys.aedt.core.application.variables.Variable`, float or int
 
         Returns
         -------
-                type
-                    Variable.
-
-        Examples
-        --------
-                >>> from ansys.aedt.core.application.variables import Variable
-
-                Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``.
-                A numerical value is also considered to be unitless.
-
-        import ansys.aedt.core.generic.constants        >>> v1 = Variable("10mm")
-                >>> v2 = Variable(3)
-                >>> result_1 = v1 * v2
-                >>> result_2 = v1 * 3
-                >>> assert result_1.numeric_value == 30.0
-                >>> assert result_1.unit_system == "Length"
-                >>> assert result_2.numeric_value == result_1.numeric_value
-                >>> assert result_2.unit_system == "Length"
-
-                Multiply voltage times current to obtain power.
-
-        import ansys.aedt.core.generic.constants        >>> v3 = Variable("3mA")
-                >>> v4 = Variable("40V")
-                >>> result_3 = v3 * v4
-                >>> assert result_3.numeric_value == 0.12
-                >>> assert result_3.units == "W"
-                >>> assert result_3.unit_system == "Power"
-
+        :class:`ansys.aedt.core.application.variables.Variable`
         """
         if not is_number(other) and not isinstance(other, Variable):
             raise ValueError("Multiplier must be a scalar quantity or a variable.")
@@ -1913,191 +2001,195 @@ class Variable(PyAedtBase):
         else:
             if self.unit_system == "None":
                 return self.numeric_value * other
-            elif other.unit_system == "None":
+            if other.unit_system == "None":
                 return other.numeric_value * self
-            else:
-                result_value = self.value * other.value
-                result_units = _resolve_unit_system(self.unit_system, other.unit_system, "multiply")
-                if not result_units:
-                    result_units = _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
-
+            result_value = self.si_value * other.si_value
+            result_units = _resolve_unit_system(
+                self.unit_system, other.unit_system, "multiply"
+            ) or _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
         return Variable(f"{result_value}{result_units}")
 
     __rmul__ = __mul__
 
     @pyaedt_function_handler()
-    def __add__(self, other):
-        """Add the variable to another variable to return a new object.
+    def __add__(self, other: Union[Variable, float, int]) -> Variable:
+        """Add two variables with the same unit system.
 
         Parameters
         ----------
-        other : class:`ansys.aedt.core.application.variables.Variable`
-            Object to be multiplied.
+        other : :class:`ansys.aedt.core.application.variables.Variable`, float or int
 
         Returns
         -------
-        type
-            Variable.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.application.variables import Variable
-        >>> import ansys.aedt.core.generic.constants
-        >>> v1 = Variable("3mA")
-        >>> v2 = Variable("10A")
-        >>> result = v1 + v2
-        >>> assert result.numeric_value == 10.003
-        >>> assert result.units == "A"
-        >>> assert result.unit_system == "Current"
-
+        :class:`ansys.aedt.core.application.variables.Variable`
         """
         if not isinstance(other, Variable):
             raise ValueError("You can only add a variable with another variable.")
         if self.unit_system != other.unit_system:
             raise ValueError("Only Variable objects with the same unit system can be added.")
 
-        result_value = self.value + other.value
+        result_value = self.si_value + other.si_value
         result_units = SI_UNITS[self.unit_system]
-        # If the units of the two operands are different, return SI-Units
         result_variable = Variable(f"{result_value}{result_units}")
-
-        # If the units of both operands are the same, return those units
         if self.units == other.units:
             result_variable.rescale_to(self.units)
-
         return result_variable
 
     @pyaedt_function_handler()
-    def __sub__(self, other):
-        """Subtract another variable from the variable to return a new object.
+    def __sub__(self, other: Union[Variable, float, int]) -> Variable:
+        """Subtract two variables with the same unit system.
 
         Parameters
         ----------
-        other : class:`ansys.aedt.core.application.variables.Variable`
-            Object to be subtracted.
+        other : :class:`ansys.aedt.core.application.variables.Variable`, float or int
 
         Returns
         -------
-        type
-            Variable.
-
-        Examples
-        --------
-        >>> import ansys.aedt.core.generic.constants
-        >>> from ansys.aedt.core.application.variables import Variable
-        >>> v3 = Variable("3mA")
-        >>> v4 = Variable("10A")
-        >>> result_2 = v3 - v4
-        >>> assert result_2.numeric_value == -9.997
-        >>> assert result_2.units == "A"
-        >>> assert result_2.unit_system == "Current"
-
+        :class:`ansys.aedt.core.application.variables.Variable`
         """
         if not isinstance(other, Variable):
             raise ValueError("You can only subtract a variable from another variable.")
         if self.unit_system != other.unit_system:
             raise ValueError("Only Variable objects with the same unit system can be subtracted.")
 
-        result_value = self.value - other.value
+        result_value = self.si_value - other.si_value
         result_units = SI_UNITS[self.unit_system]
-        # If the units of the two operands are different, return SI-Units
         result_variable = Variable(f"{result_value}{result_units}")
-
-        # If the units of both operands are the same, return those units
         if self.units == other.units:
             result_variable.rescale_to(self.units)
-
         return result_variable
 
-    # Python 3.x version
     @pyaedt_function_handler()
-    def __truediv__(self, other):
-        """Divide the variable by a number or another variable to return a new object.
+    def __truediv__(self, other: Union[Variable, float, int]) -> Variable:
+        """Divide this variable by a number or another variable.
 
         Parameters
         ----------
-        other : numbers.Number or variable
-            Object by which to divide.
+        other : :class:`ansys.aedt.core.application.variables.Variable`, float or int
 
         Returns
         -------
-        type
-            Variable.
-
-        Examples
-        --------
-        Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically
-        resolve the new units to ``"A"``.
-
-        >>> from ansys.aedt.core.application.variables import Variable
-        >>> import ansys.aedt.core.generic.constants
-        >>> v1 = Variable("10W")
-        >>> v2 = Variable("40V")
-        >>> result = v1 / v2
-        >>> assert result_1.numeric_value == 0.25
-        >>> assert result_1.units == "A"
-        >>> assert result_1.unit_system == "Current"
-
+        :class:`ansys.aedt.core.application.variables.Variable`
         """
         if not is_number(other) and not isinstance(other, Variable):
             raise ValueError("Divisor must be a scalar quantity or a variable.")
-
         if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
         else:
-            result_value = self.value / other.value
+            result_value = self.si_value / other.si_value
             result_units = _resolve_unit_system(self.unit_system, other.unit_system, "divide")
-
         return Variable(f"{result_value}{result_units}")
 
-    # Python 2.7 version
     @pyaedt_function_handler()
-    def __div__(self, other):
-        return self.__truediv__(other)
-
-    @pyaedt_function_handler()
-    def __rtruediv__(self, other):
-        """Divide another object by this object.
+    def __rtruediv__(self, other: Union[Variable, float, int]) -> Variable:
+        """Right-division: divide *other* by this variable.
 
         Parameters
         ----------
-        other : numbers.Number or variable
-            Object to divide by.
+        other : :class:`ansys.aedt.core.application.variables.Variable`, float or int
 
         Returns
         -------
-        type
-            Variable.
-
-        Examples
-        --------
-        Divide a number by a variable with units ``"s"`` and automatically determine that
-        the result is in ``"Hz"``.
-
-        >>> import ansys.aedt.core.generic.constants
-        >>> from ansys.aedt.core.application.variables import Variable
-        >>> v = Variable("1s")
-        >>> result = 3.0 / v
-        >>> assert result.numeric_value == 3.0
-        >>> assert result.units == "Hz"
-        >>> assert result.unit_system == "Freq"
-
+        :class:`ansys.aedt.core.application.variables.Variable`
         """
+        if not is_number(other) and not isinstance(other, Variable):
+            raise ValueError("Divisor must be a scalar quantity or a variable.")
         if is_number(other):
             result_value = other / self.numeric_value
             result_units = _resolve_unit_system("None", self.unit_system, "divide")
-
         else:
             result_value = other.numeric_value / self.numeric_value
             result_units = _resolve_unit_system(other.unit_system, self.unit_system, "divide")
-
         return Variable(f"{result_value}{result_units}")
 
-    # # Python 2.7 version
-    # @pyaedt_function_handler()
-    # def __div__(self, other):
-    #     return self.__rtruediv__(other)
+    @pyaedt_function_handler()
+    def _value_fallback(self):
+        # Fall back to local cached value
+        if is_number(self._value):
+            # Cached value is stored as SI → return it in "native" units.
+            return self.__from_si(self._value, self._units)
+
+        val, _ = decompose_variable_value(str(self._value))
+        return val
+
+    @pyaedt_function_handler()
+    def _units_fallback(self):
+        units = self._units
+        if not is_number(self._value):
+            _, units = decompose_variable_value(self._value)
+        self._units = units
+        return self._units
+
+    @pyaedt_function_handler()
+    def __to_si(self, numeric: float, units: Optional[str] = None) -> float:
+        """Convert a numeric value from the given units to SI units.
+
+        Parameters
+        ----------
+        numeric : float
+            Numeric value expressed in ``units``.
+        units : str, optional
+            Unit string. If not provided, uses ``self._units``.
+
+        Returns
+        -------
+        float
+            Numeric value expressed in SI units for the current unit system.
+        """
+        units = units or self._units
+
+        try:
+            scale = AEDT_UNITS[self.unit_system][units]
+        except Exception:
+            # If there is no scale information, assume the value is already SI.
+            return numeric
+
+        if isinstance(scale, tuple):
+            # Tuple convention: first element is a conversion function.
+            # inverse=False means: from current units to SI.
+            return scale[0](numeric, inverse=False)
+        elif isinstance(scale, types.FunctionType):
+            # Custom conversion function, False means: from current units to SI.
+            return scale(numeric, False)
+        else:
+            # Scalar scale factor.
+            return numeric * scale
+
+    @pyaedt_function_handler()
+    def __from_si(self, si_numeric: float, units: Optional[str] = None) -> float:
+        """Convert a numeric value from SI units to the given units.
+
+        Parameters
+        ----------
+        si_numeric : float
+            Numeric value expressed in SI units.
+        units : str, optional
+            Target unit string. If not provided, uses ``self._units``.
+
+        Returns
+        -------
+        float
+            Numeric value expressed in ``units``.
+        """
+        units = units or self._units
+
+        try:
+            scale = AEDT_UNITS[self.unit_system][units]
+        except Exception:
+            # If there is no scale information, assume SI == target units.
+            return si_numeric
+
+        if isinstance(scale, tuple):
+            # Tuple convention: first element is a conversion function.
+            # inverse=True means: from SI to current units.
+            return scale[0](si_numeric, inverse=True)
+        elif isinstance(scale, types.FunctionType):
+            # Custom conversion function, True means: from SI to current units.
+            return scale(si_numeric, True)
+        else:
+            # Scalar scale factor: invert it to go from SI to current units.
+            return si_numeric / scale
 
 
 class DataSet(PyAedtBase):
@@ -2340,7 +2432,7 @@ class DataSet(PyAedtBase):
             del self._app.design_datasets[self.name]
         return True
 
-    @pyaedt_function_handler(dataset_path="output_dir")
+    @pyaedt_function_handler()
     def export(self, output_dir=None):
         """Export the dataset.
 

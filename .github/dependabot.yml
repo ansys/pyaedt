@@ -23,19 +23,13 @@ updates:
     commit-message:
       prefix: "BUILD(pip)"
 
-  - package-ecosystem: "github-actions"
+  - package-ecosystem: "github-actions" # zizmor: ignore[dependabot-cooldown] cooldown feature is not available for github actions yet.
     directory: "/"
     schedule:
       interval: "weekly"
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
-    cooldown:
-      default-days: 7
-      include:
-        - "*"  # Include all dependencies in cooldown
-      exclude:
-        - "ansys/actions"
     assignees:
       - "pyansys-ci-bot"
     labels:

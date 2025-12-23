@@ -22,31 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from pathlib import Path
-import tempfile
 from unittest.mock import patch
-
-import pytest
 
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
-from ansys.aedt.core.internal.filesystem import Scratch
-
-
-@pytest.fixture(scope="module", autouse=True)
-def local_scratch():
-    temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-    scratch = Scratch(temp_dir)
-    yield scratch
-    scratch.remove()
 
 
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.run")
 @patch("tkinter.filedialog.askopenfilename")
-def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, local_scratch):
+def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, test_tmp_dir):
     mock_check_design_type.return_value = True
-    config_file = local_scratch.path / "config.json"
+    config_file = test_tmp_dir / "config.json"
     with open(config_file, "w") as f:
         json.dump(DATA, f, indent=4)
 
