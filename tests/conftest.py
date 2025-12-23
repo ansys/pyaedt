@@ -25,6 +25,7 @@
 import fnmatch
 import inspect
 import json
+import logging
 import os
 from pathlib import Path
 import shutil
@@ -439,10 +440,14 @@ def _cleanup_logger_handlers(logger):
     Remove FileHandlers that point to directories from other test modules.
     This prevents FileNotFoundError when trying to write to deleted temp dirs.
     """
-    import logging
+    actual_logger = getattr(logger, "_global", None) or getattr(logger, "logger", None)
+
+    if actual_logger is None or not hasattr(actual_logger, "handlers"):
+        # If we can't find the underlying logger, skip cleanup
+        return
 
     handlers_to_remove = []
-    for handler in logger.handlers[:]:
+    for handler in actual_logger.handlers[:]:
         if isinstance(handler, logging.FileHandler):
             # Check if the log file's directory still exists
             log_path = Path(handler.baseFilename)
@@ -452,6 +457,6 @@ def _cleanup_logger_handlers(logger):
     for handler in handlers_to_remove:
         try:
             handler.close()
-            logger.removeHandler(handler)
+            actual_logger.removeHandler(handler)
         except Exception as e:
             pyaedt_logger.debug(f"Failed to remove handler {handler}: {e}")
