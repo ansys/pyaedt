@@ -178,13 +178,13 @@ def cleanup_all_tmp_at_end(tmp_path_factory):
 
     # Now the session is over, try to remove everything inside `base`
     try:
-        for p in sorted(base.rglob("*"), key=lambda x: x.is_dir()):
+        for log_file in base.glob("*.log"):
             try:
-                p.unlink()
-            except (IsADirectoryError, PermissionError):
-                shutil.rmtree(p, ignore_errors=True)
+                log_file.unlink()
+            except Exception as e:
+                pyaedt_logger.debug(f"Failed to delete {log_file}: {e}")
     except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup temporary directory {base}")
+        pyaedt_logger.warning(f"Failed to cleanup logs in {base}")
 
     # Remove pkg- temp dirs from system temp
     try:
@@ -196,9 +196,9 @@ def cleanup_all_tmp_at_end(tmp_path_factory):
                     try:
                         entry.unlink()
                     except Exception as e:
-                        pyaedt_logger.debug(f"Error {type(e)} occurred while deleting log file: {e}")
+                        pyaedt_logger.debug(f"Error deleting log: {e}")
     except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
+        pyaedt_logger.warning(f"Failed to cleanup {temp_dir}")
 
 
 # ================================
@@ -219,16 +219,15 @@ def file_tmp_root(tmp_path_factory, request):
 
 
 @pytest.fixture(scope="module")
-def desktop(tmp_path_factory):
+def desktop(tmp_path_factory, request):
     """
     Creates a Desktop instance for each test worker (xdist) or module.
     Module scope ensures only one Desktop is used by test file.
     """
-    # New temp directory for the test session
-    base = tmp_path_factory.getbasetemp()
-
-    if "popen-gw" in str(base):
-        base = base.parent
+    # Create module-specific temp directory (like file_tmp_root does)
+    module_path = Path(request.fspath)
+    name = module_path.stem
+    base = tmp_path_factory.mktemp(f"{name}-desktop-")
 
     desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
 
