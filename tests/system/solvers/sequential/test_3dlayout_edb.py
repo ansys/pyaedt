@@ -141,9 +141,6 @@ def test_get_geometries(aedt_app):
     assert circle.radius
     circle.radius = "2.5mm"
     assert circle.radius == "2.5mm"
-
-
-def test_geo_units(aedt_app):
     assert aedt_app.modeler.geometries["line_209"].object_units == "mm"
 
 
