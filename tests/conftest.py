@@ -294,18 +294,7 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
             solution_type=solution_type,
         )
 
-        # Save temp data in the tmp_path_factory
-        base = tmp_path_factory.getbasetemp()
-
-        if "popen-gw" in str(base):
-            base = base.parent
-
-        desktop.odesktop.SetTempDirectory(str(base))
-        desktop.odesktop.SetProjectDirectory(str(base))
         app = application_cls(**args)
-
-        app.odesktop.SetTempDirectory(str(base))
-        app.odesktop.SetProjectDirectory(str(base))
 
         return app
 
@@ -364,22 +353,7 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
             design_name=design,
             solution_type=solution_type,
         )
-
-        # Save temp data in the tmp_path_factory
-        base = tmp_path_factory.getbasetemp()
-
-        if "popen-gw" in str(base):
-            base = base.parent
-
-        # Save temp data in the tmp_path_factory
-        desktop.odesktop.SetTempDirectory(str(base))
-        desktop.odesktop.SetProjectDirectory(str(base))
-
         app = application_cls(**args)
-
-        # Temp dir specific to this project
-        app.odesktop.SetTempDirectory(str(base))
-        desktop.odesktop.SetProjectDirectory(str(base))
 
         return app
 
