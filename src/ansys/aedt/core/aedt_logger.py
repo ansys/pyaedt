@@ -1010,20 +1010,19 @@ class AedtLogger:
             self.add_logger("Design")
         return self._design
 
+    @contextmanager
+    def suspend_logging(self):
+        """Temporarily disable all logs and restore them afterwards."""
+        previous_state = (self.log_on_stdout, self.log_on_file, self.log_on_desktop)
+
+        self.log_on_stdout = False
+        self.log_on_file = False
+        self.log_on_desktop = False
+
+        try:
+            yield
+        finally:
+            self.log_on_stdout, self.log_on_file, self.log_on_desktop = previous_state
+
 
 pyaedt_logger = AedtLogger(to_stdout=settings.enable_screen_logs)
-
-
-@contextmanager
-def suspend_logging(self):
-    """Temporarily disable all logs and restore them afterwards."""
-    previous_state = (self.log_on_stdout, self.log_on_file, self.log_on_desktop)
-
-    self.log_on_stdout = False
-    self.log_on_file = False
-    self.log_on_desktop = False
-
-    try:
-        yield
-    finally:
-        self.log_on_stdout, self.log_on_file, self.log_on_desktop = previous_state

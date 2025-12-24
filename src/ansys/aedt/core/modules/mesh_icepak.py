@@ -24,7 +24,6 @@
 from abc import abstractmethod
 import os.path
 
-from ansys.aedt.core.aedt_logger import suspend_logging
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -317,7 +316,7 @@ class CommonRegion(PyAedtBase):
 
     def _update_region_data(self):
         region = self.object
-        with suspend_logging():
+        with self._app.logger.suspend_logging():
             create_region = region.history()
         self._padding_type = []
         self._padding_value = []
