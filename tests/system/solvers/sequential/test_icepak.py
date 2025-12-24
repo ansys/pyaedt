@@ -449,16 +449,16 @@ def test_em_loss(ipk_app, test_tmp_dir):
     ]
     param_list = []
     assert ipk_app.assign_em_losses(
-            object_list,
-            "uUSB",
-            "Setup1",
-            "LastAdaptive",
-            "2.5GHz",
-            name=None,
-            surface_objects=surface_list,
-            source_project_name=hfss_spath,
-            parameters=param_list,
-        )
+        object_list,
+        "uUSB",
+        "Setup1",
+        "LastAdaptive",
+        "2.5GHz",
+        name=None,
+        surface_objects=surface_list,
+        source_project_name=hfss_spath,
+        parameters=param_list,
+    )
     assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
 
 
