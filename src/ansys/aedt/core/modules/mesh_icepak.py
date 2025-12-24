@@ -24,6 +24,7 @@
 from abc import abstractmethod
 import os.path
 
+from ansys.aedt.core.aedt_logger import suspend_logging
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -316,17 +317,8 @@ class CommonRegion(PyAedtBase):
 
     def _update_region_data(self):
         region = self.object
-        try:
-            self._app.logger.disable_desktop_log()
-            self._app.logger.disable_log_on_file()
-            self._app.logger.disable_stdout_log()
+        with suspend_logging():
             create_region = region.history()
-        except Exception as e:
-            raise e
-        finally:
-            self._app.logger.enable_desktop_log()
-            self._app.logger.enable_desktop_log()
-            self._app.logger.enable_desktop_log()
         self._padding_type = []
         self._padding_value = []
         for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
