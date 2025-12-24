@@ -175,8 +175,10 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         settings.logger.info(f"target EDB: {selected_edb}")
         app = Edb(edbpath=str(selected_edb), edbversion=self.aedt_info.version)
 
-        temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
-        temp_dir.mkdir()
+        temp_dir = test_folder
+        if test_folder is None:
+            temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
+            temp_dir.mkdir()
 
         new_name = create_new_edb_name(Path(app.edbpath).stem) + ".aedb"
         app.save_as(str(temp_dir / new_name))
@@ -195,7 +197,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
     def load_edb_into_hfss3dlayout(self, edb_path: Union[str, Path]):
         app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            app.release_desktop(False, False)
+            app.desktop_class.release_desktop(False, False)
         else:
             app.close_project(save=False)
         return app

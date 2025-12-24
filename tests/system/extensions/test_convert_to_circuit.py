@@ -56,8 +56,8 @@ def test_convert_to_circuit_with_components(add_app):
     """Test conversion with various component types."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_components_test",
-        design_name="TBComponentsTest",
+        project="convert_components_test",
+        design="TBComponentsTest",
     )
 
     # Add variables that would be used by components
@@ -70,16 +70,17 @@ def test_convert_to_circuit_with_components(add_app):
     # Test conversion
     result = main(data)
     assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_exception_handling(add_app):
     """Test exception handling in main function."""
     # Create a project first but use wrong design name
-    _ = add_app(
+    tb = add_app(
         application=TwinBuilder,
-        project_name="convert_exception_test",
-        design_name="TBExceptionTest",
+        project="convert_exception_test",
+        design="TBExceptionTest",
     )
 
     # Test with non-existent design
@@ -88,6 +89,7 @@ def test_convert_to_circuit_exception_handling(add_app):
     # This should raise AttributeError due to non-existent design
     with pytest.raises(AttributeError):
         main(data)
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -95,8 +97,8 @@ def test_convert_to_circuit_wire_conversion(add_app):
     """Test wire conversion functionality."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_wire_test",
-        design_name="TBWireTest",
+        project="convert_wire_test",
+        design="TBWireTest",
     )
 
     points1 = [[0, 0, 0], [0.1, 0, 0], [0.1, 0.1, 0]]
@@ -108,6 +110,7 @@ def test_convert_to_circuit_wire_conversion(add_app):
     data = ConvertToCircuitExtensionData(design_name=tb.design_name)
     result = main(data)
     assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -115,8 +118,8 @@ def test_convert_to_circuit_fml_init_equations(add_app):
     """Test FML_INIT component equation processing."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_fml_init_test",
-        design_name="TBFMLInitTest",
+        project="convert_fml_init_test",
+        design="TBFMLInitTest",
     )
 
     # Create a mock FML_INIT component with equation parameters
@@ -145,6 +148,7 @@ def test_convert_to_circuit_fml_init_equations(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -152,8 +156,8 @@ def test_convert_to_circuit_catalog_components(add_app):
     """Test conversion of components that exist in the catalog."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_catalog_test",
-        design_name="TBCatalogTest",
+        project="convert_catalog_test",
+        design="TBCatalogTest",
     )
 
     # Create components that would be in the catalog
@@ -190,6 +194,7 @@ def test_convert_to_circuit_catalog_components(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -197,8 +202,8 @@ def test_convert_to_circuit_offset_calculations(add_app):
     """Test component offset calculations with rotation."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_offset_test",
-        design_name="TBOffsetTest",
+        project="convert_offset_test",
+        design="TBOffsetTest",
     )
 
     try:
@@ -232,6 +237,7 @@ def test_convert_to_circuit_offset_calculations(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -239,8 +245,8 @@ def test_convert_to_circuit_gport_components(add_app):
     """Test conversion of GPort (ground) components."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_gport_test",
-        design_name="TBGPortTest",
+        project="convert_gport_test",
+        design="TBGPortTest",
     )
 
     try:
@@ -264,6 +270,7 @@ def test_convert_to_circuit_gport_components(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -271,8 +278,8 @@ def test_convert_to_circuit_unconnected_pins(add_app):
     """Test handling of unconnected pins and wire creation."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_pins_test",
-        design_name="TBPinsTest",
+        project="convert_pins_test",
+        design="TBPinsTest",
     )
 
     try:
@@ -299,6 +306,7 @@ def test_convert_to_circuit_unconnected_pins(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -306,8 +314,8 @@ def test_convert_to_circuit_property_mapping(add_app):
     """Test component property mapping from catalog."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_properties_test",
-        design_name="TBPropertiesTest",
+        project="convert_properties_test",
+        design="TBPropertiesTest",
     )
 
     try:
@@ -339,6 +347,7 @@ def test_convert_to_circuit_property_mapping(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -346,8 +355,8 @@ def test_convert_to_circuit_component_naming(add_app):
     """Test component name parsing and reference designator handling."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_naming_test",
-        design_name="TBNamingTest",
+        project="convert_naming_test",
+        design="TBNamingTest",
     )
 
     try:
@@ -384,3 +393,4 @@ def test_convert_to_circuit_component_naming(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+    tb.close_project(save=False)
