@@ -386,7 +386,15 @@ class TestClass:
         ]
         param_list = []
         assert ipk.assign_em_losses(
-            "uUSB", "Setup1", "LastAdaptive", "2.5GHz", surface_list, hfss_spath, param_list, object_list
+            object_list,
+            "uUSB",
+            "Setup1",
+            "LastAdaptive",
+            "2.5GHz",
+            name=None,
+            surface_objects=surface_list,
+            source_project_name=hfss_spath,
+            parameters=param_list,
         )
         assert len(ipk.oboundary.GetBoundariesOfType("EM Loss")) == 1
 
