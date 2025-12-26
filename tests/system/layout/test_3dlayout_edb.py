@@ -28,8 +28,9 @@ import shutil
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
-from tests import TESTS_SEQUENTIAL_PATH
+from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
@@ -222,13 +223,13 @@ def test_change_property(aedt_app):
 
 
 def test_assign_touchstone_model(aedt_app, test_tmp_dir):
-    model_path = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32_DC0V_25degC_series.s2p"
+    model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "GRM32_DC0V_25degC_series.s2p"
     file = shutil.copy2(model_path, test_tmp_dir / "GRM32_DC0V_25degC_series.s2p")
     assert aedt_app.modeler.set_touchstone_model(assignment="C217", input_file=str(file), model_name="Test1")
 
 
 def test_assign_spice_model(aedt_app, file_tmp_root):
-    model_path = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
+    model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
     file = shutil.copy2(model_path, file_tmp_root / "GRM32ER72A225KA35_25C_0V.sp")
     assert aedt_app.modeler.set_spice_model(
         assignment="C1", input_file=file, subcircuit_name="GRM32ER72A225KA35_25C_0V"
@@ -279,31 +280,31 @@ def test_merge(flipchip):
     assert (comp.location[1] - 0.2) < tol
 
 
-# @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
-# def test_change_stackup(add_app):
-#     app = add_app(application=Hfss3dLayout)
-#     app.modeler.layers.add_layer(
-#         layer="Top",
-#         layer_type="signal",
-#         thickness="0.035mm",
-#         elevation="1.035mm",
-#         material="copper",
-#     )
-#     app.modeler.layers.add_layer(
-#         layer="Bottom",
-#         layer_type="signal",
-#         thickness="0.035mm",
-#         elevation="0mm",
-#         material="copper",
-#     )
-#
-#     if NON_GRAPHICAL:
-#         assert app.modeler.layers.change_stackup_type("Multizone", 4)
-#         assert len(app.modeler.layers.zones) == 3
-#     assert app.modeler.layers.change_stackup_type("Overlap")
-#     assert app.modeler.layers.change_stackup_type("Laminate")
-#     assert not app.modeler.layers.change_stackup_type("lami")
-#     app.close_project(app.project_name, save=False)
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
+def test_change_stackup(add_app):
+    app = add_app(application=Hfss3dLayout)
+    app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness="0.035mm",
+        elevation="1.035mm",
+        material="copper",
+    )
+    app.modeler.layers.add_layer(
+        layer="Bottom",
+        layer_type="signal",
+        thickness="0.035mm",
+        elevation="0mm",
+        material="copper",
+    )
+
+    if NON_GRAPHICAL:
+        assert app.modeler.layers.change_stackup_type("Multizone", 4)
+        assert len(app.modeler.layers.zones) == 3
+    assert app.modeler.layers.change_stackup_type("Overlap")
+    assert app.modeler.layers.change_stackup_type("Laminate")
+    assert not app.modeler.layers.change_stackup_type("lami")
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Not running in non-graphical mode")
@@ -342,7 +343,7 @@ def test_3dplacement(aedt_app):
     aedt_app.modeler.layers.add_layer("diel", "dielectric")
     aedt_app.modeler.layers.add_layer("TOP", "signal")
     tol = 1e-12
-    encrypted_model_path = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "SMA_RF_Jack.a3dcomp"
+    encrypted_model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "SMA_RF_Jack.a3dcomp"
     comp = aedt_app.modeler.place_3d_component(
         str(encrypted_model_path), 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
     )
@@ -461,7 +462,7 @@ def test_set_port_properties_on_rlc_component(aedt_app):
 
 
 def test_import_table(aedt_app):
-    file_header = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
+    file_header = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
     assert not aedt_app.import_table(file_header, column_separator="dummy")

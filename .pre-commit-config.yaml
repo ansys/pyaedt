@@ -19,6 +19,7 @@ exclude: |
         tests/system/extensions/example_models/|
         tests/system/solvers/example_models/|
         tests/system/icepak/example_models/|
+        tests/system/layout/example_models/|
         tests/system/solvers/sequential/example_models/
     )
 

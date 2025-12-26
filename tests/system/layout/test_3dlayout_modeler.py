@@ -38,7 +38,7 @@ from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import USE_GRPC
 
-TEST_SUBFOLDER = "T41"
+TEST_SUBFOLDER = "layout"
 RIGID_FLEX = "demo_flex"
 POST_PROCESSING_PROJECT = "test_post_processing"
 POST_LAYOUT_PROJECT = "test_post_3d_layout_solved_23R2"
