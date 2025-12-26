@@ -426,7 +426,7 @@ def test_create_edge_port(aedt_app):
     assert aedt_app.delete_port(port_wave.name)
     assert aedt_app.create_edge_port("line1", 3, False)
     assert len(aedt_app.excitation_names) > 0
-    time_domain = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Sinusoidal.csv"
+    time_domain = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "Sinusoidal.csv"
     assert aedt_app.boundaries[0].properties["Magnitude"] == "1V"
     assert aedt_app.edit_source_from_file(
         source=port_wave.name,
