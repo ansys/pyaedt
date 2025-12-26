@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import os
 from pathlib import Path
 import re
 import shutil
@@ -41,6 +42,7 @@ FARFIELD_DATA = "test.ffd"
 TEST_SUBFOLDER = "T04"
 
 custom_array = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "custom_array.sarr"
+on_ci = os.getenv("ON_CI", "false").lower() == "true"
 
 
 @pytest.fixture
@@ -256,6 +258,7 @@ def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal):
         aedt_terminal.create_sbr_file_based_antenna(far_field_data=str(ffd_test_path))
 
 
+@pytest.mark.skipif(on_ci, reason="Map download takes too long for unit test.")
 @pytest.mark.skipif(is_linux, reason="Not supported.")
 def test_import_map(aedt_sbr):
     ansys_home = [40.273726, -80.168269]
