@@ -1139,7 +1139,7 @@ def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
 
 
 def test_import_edb(aedt_app, test_tmp_dir):
-    example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
+    example_project = TESTS_GENERAL_PATH / "example_models" / "layout_edb" / "Package.aedb"
     target_path = test_tmp_dir / "Package_test_92.aedb"
     shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))
