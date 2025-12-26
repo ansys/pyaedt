@@ -1425,15 +1425,19 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             app.oproject.Close()
             for root, dirs, files in os.walk(temp_folder, topdown=False):
                 for name in files:
+                    file_dir = Path(root) / name
                     try:
-                        (Path(root) / name).unlink()
-                    except PermissionError:  # pragma: no cover
+                        if file_dir.is_file():
+                            file_dir.unlink()
+                    except Exception:  # pragma: no cover
                         self.logger.warning(f"{Path(root) / name} can not be deleted.")
                 for name in dirs:
+                    results_dir = Path(root) / name
                     try:
-                        (Path(root) / name).rmdir()
-                    except PermissionError:  # pragma: no cover
-                        self.logger.warning(f"{Path(root) / name} can not be deleted.")
+                        if results_dir.is_dir():
+                            shutil.rmtree(results_dir)
+                    except Exception as e:  # pragma: no cover
+                        self.logger.warning(f"{results_dir} can not be deleted. {str(e)}")
             temp_folder.rmdir()
             phi, theta, psi = q.to_euler('zxz')
             cs_name = assignment.name + "_" + wcs + "_ref"
@@ -1455,11 +1459,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             try:
                 if results_directory.is_dir():
                     shutil.rmtree(results_directory)
-            except PermissionError:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.logger.warning(f"{results_directory} can not be deleted.")
             try:
                 project_file.unlink(missing_ok=True)
-            except PermissionError:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.logger.warning(f"{project_file} can not be deleted.")
             return assignment.target_coordinate_system
 
