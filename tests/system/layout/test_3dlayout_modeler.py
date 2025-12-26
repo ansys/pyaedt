@@ -712,34 +712,136 @@ def test_export_to_hfss(aedt_app, test_tmp_dir):
     via.net_name = "newNet"
 
     filename = "export_to_hfss_test"
-    filename2 = "export_to_hfss_test2"
-    filename3 = "export_to_hfss_test_non_unite"
     setup_name = "SetupToDelete"
     setup = aedt_app.create_setup(name=setup_name)
     setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup.update()
 
     file_fullname = test_tmp_dir / filename
-    file_fullname2 = test_tmp_dir / filename2
-    file_fullname3 = test_tmp_dir / filename3
 
     aedt_app.save_project()
     assert setup.export_to_hfss(output_file=str(file_fullname))
     assert (file_fullname.with_suffix(".aedt")).is_file()
-    assert setup.export_to_hfss(output_file=str(file_fullname2), keep_net_name=True)
-    assert (file_fullname2.with_suffix(".aedt")).is_file()
-    assert setup.export_to_hfss(output_file=str(file_fullname3), keep_net_name=True, unite=False)
-    assert (file_fullname3.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
+
+    filename = "export_to_hfss_test_keep_net"
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_hfss(output_file=str(file_fullname), keep_net_name=True)
+    assert (file_fullname.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_hfss_non_unite(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
+
+    filename = "export_to_hfss_test_non_unite"
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_hfss(output_file=str(file_fullname), keep_net_name=True, unite=False)
+    assert (file_fullname.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_q3d(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
 
     filename = "export_to_q3d_test"
-    file_fullname4 = test_tmp_dir / filename
-    assert setup.export_to_q3d(str(file_fullname4))
-    assert (file_fullname4.with_suffix(".aedt")).is_file()
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_q3d(str(file_fullname))
+    assert (file_fullname.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_q3d_keep_net_non_unite(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
 
     filename = "export_to_q3d_test2"
-    file_fullname5 = test_tmp_dir / filename
-    assert setup.export_to_q3d(str(file_fullname5), keep_net_name=True, unite=False)
-    assert (file_fullname5.with_suffix(".aedt")).is_file()
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_q3d(str(file_fullname), keep_net_name=True, unite=False)
+    assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
 def test_variables(aedt_app):
