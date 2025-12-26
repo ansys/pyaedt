@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
+from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import USE_GRPC
 
@@ -1123,9 +1124,7 @@ def test_set_differential_pairs(aedt_app, add_app_example):
 
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
 def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
-    diff_def_file_original = (
-        TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "differential_pairs_definition.txt"
-    )
+    diff_def_file_original = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "differential_pairs_definition.txt"
     diff_def_file = shutil.copy2(diff_def_file_original, test_tmp_dir / "differential_pairs_definition.txt")
 
     assert hfss3dl.load_diff_pairs_from_file(diff_def_file)
@@ -1138,7 +1137,7 @@ def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
 
 
 def test_import_edb(aedt_app, test_tmp_dir):
-    example_project = TESTS_GENERAL_PATH / "example_models" / "layout_edb" / "Package.aedb"
+    example_project = TESTS_LAYOUT_PATH / "example_models" / "layout_edb" / "Package.aedb"
     target_path = test_tmp_dir / "Package_test_92.aedb"
     shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))
