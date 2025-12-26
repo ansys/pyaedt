@@ -378,7 +378,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "solvers and not flaky_linux"
+          pytest ${{ PYTEST_ARGUMENTS }} --timeout=600 -m "solvers and not flaky_linux"
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -767,7 +767,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m icepak
+          pytest ${{ PYTEST_ARGUMENTS }} --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -838,7 +838,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m icepak
+          pytest ${{ PYTEST_ARGUMENTS }} --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -887,14 +887,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -906,15 +902,13 @@ jobs:
             Stop-Process -Id $_.Id -Force
           }
 
-
-
       - name: Run tests marked with 'layout'
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m layout
+          pytest ${{ PYTEST_ARGUMENTS }} --timeout=600 -m layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -985,7 +979,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m layout
+          pytest ${{ PYTEST_ARGUMENTS }} --timeout=600 -m layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
