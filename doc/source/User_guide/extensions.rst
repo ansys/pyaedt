@@ -172,6 +172,13 @@ They are small automated workflows with a simple GUI.
 
             Automated assembly workflow.
 
+   .. grid-item-card:: Fresnel coefficients
+            :link: pyaedt_extensions_doc/hfss/fresnel
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Extract Fresnel coefficients from HFSS Floquet port simulations for periodic structures.
+
 
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
