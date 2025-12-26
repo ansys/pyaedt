@@ -787,7 +787,7 @@ class FacePrimitive(PyAedtBase):
             self._is_planar = True
             return True
         except Exception:
-            if self.logger or hasattr(self.logger, "clear_messages"):
+            if self.logger and hasattr(self.logger, "clear_messages"):
                 self.logger.clear_messages()
             self._is_planar = False
             return False
