@@ -1425,9 +1425,15 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             app.oproject.Close()
             for root, dirs, files in os.walk(temp_folder, topdown=False):
                 for name in files:
-                    (Path(root) / name).unlink()
+                    try:
+                        (Path(root) / name).unlink()
+                    except PermissionError:  # pragma: no cover
+                        self.logger.warning(f"{Path(root) / name} can not be deleted.")
                 for name in dirs:
-                    (Path(root) / name).rmdir()
+                    try:
+                        (Path(root) / name).rmdir()
+                    except PermissionError:  # pragma: no cover
+                        self.logger.warning(f"{Path(root) / name} can not be deleted.")
             temp_folder.rmdir()
             phi, theta, psi = q.to_euler('zxz')
             cs_name = assignment.name + "_" + wcs + "_ref"
@@ -1451,7 +1457,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                     shutil.rmtree(results_directory)
             except PermissionError:  # pragma: no cover
                 self.logger.warning(f"{results_directory} can not be deleted.")
-            project_file.unlink(missing_ok=True)
+            try:
+                project_file.unlink(missing_ok=True)
+            except PermissionError:  # pragma: no cover
+                self.logger.warning(f"{project_file} can not be deleted.")
             return assignment.target_coordinate_system
 
     @staticmethod

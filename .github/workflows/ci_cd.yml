@@ -66,6 +66,7 @@ jobs:
   # dependency update could execute arbitrary code in our build environment.
   # Dependabot PRs must be reviewed carefully and approved manually before
   # running the CI.
+
   block-pyansys-ci-bot:
     name: "Block PyAnsys-CI-bot (on dependabot PR)"
     needs: block-dependabot
@@ -76,6 +77,7 @@ jobs:
         run: |
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
+
 
   vulnerabilities:
     name: "Vulnerabilities"
@@ -194,6 +196,7 @@ jobs:
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
+
   unit-tests:
     name: Unit tests
     needs: [smoke-tests]
@@ -304,7 +307,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -375,7 +378,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m "solvers and not flaky_linux"
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "solvers and not flaky_linux"
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -545,7 +548,6 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -704,7 +706,9 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
   system-tests-icepak-windows:
     name: Test icepak (windows)
@@ -737,10 +741,12 @@ jobs:
           uv pip install -U wheel setuptools
 
 
+
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
+
 
 
       - name: Remove Ansys processes (if any)
@@ -754,14 +760,14 @@ jobs:
           }
 
 
+
       - name: Run tests marked with 'icepak'
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
-
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -832,7 +838,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -846,9 +852,6 @@ jobs:
           name: pytest-icepak-linux
           path: junit/test-results.xml
         if: ${{ always() }}
-
-
-
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -1365,10 +1368,12 @@ jobs:
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
+
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
+
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1377,6 +1382,7 @@ jobs:
             echo "Killing PID $pid"
             kill -9 "$pid"
           done
+
 
       - name: Run tests marked with 'flaky'
         env:
@@ -1389,6 +1395,7 @@ jobs:
           command: |
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
+
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
