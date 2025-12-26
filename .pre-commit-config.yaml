@@ -18,6 +18,7 @@ exclude: |
         tests/system/visualization/example_models/|
         tests/system/extensions/example_models/|
         tests/system/solvers/example_models/|
+        tests/system/icepak/example_models/|
         tests/system/solvers/sequential/example_models/
     )
 

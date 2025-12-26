@@ -50,6 +50,7 @@ SYSTEM_TEST_PREFIX = "tests/system"
 SYSTEM_SOLVERS_TEST_PREFIX = "tests/system/solvers"
 SYSTEM_GENERAL_TEST_PREFIX = "tests/system/general"
 VISUALIZATION_GENERAL_TEST_PREFIX = "tests/system/visualization"
+SYSTEM_ICEPAK_TEST_PREFIX = "tests/system/icepak"
 EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
@@ -132,6 +133,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             item.add_marker(pytest.mark.general)
         elif item.nodeid.startswith(VISUALIZATION_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.visualization)
+        elif item.nodeid.startswith(SYSTEM_ICEPAK_TEST_PREFIX):
+            item.add_marker(pytest.mark.icepak)
         elif item.nodeid.startswith(EXTENSIONS_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.extensions)
         elif item.nodeid.startswith(FILTER_SOLUTIONS_TEST_PREFIX):

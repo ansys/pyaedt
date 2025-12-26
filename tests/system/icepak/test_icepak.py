@@ -43,7 +43,7 @@ from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 from tests import TESTS_GENERAL_PATH
-from tests import TESTS_SEQUENTIAL_PATH
+from tests import TESTS_ICEPAK_PATH
 from tests.conftest import config
 
 TEST_SUBFOLDER = "icepak"
@@ -159,7 +159,6 @@ def ipk_app(add_app):
     app.close_project(save=False, name=project_name)
 
 
-@pytest.mark.flaky_linux
 def test_import_pcb(board_3dl_app):
     component_name = "RadioBoard1"
     pcb = board_3dl_app.create_ipk_3dcomponent_pcb(
@@ -171,7 +170,6 @@ def test_import_pcb(board_3dl_app):
     assert board_3dl_app.modeler.get_object_from_name("RadioBoard1_001_TOP_BBox")
 
 
-@pytest.mark.flaky_linux
 def test_pcb_devices(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.included_parts = 1
@@ -201,7 +199,6 @@ def test_pcb_devices(board_ipk_app):
         assert not cmp2.included_parts.override_definition("a", "b")
 
 
-@pytest.mark.flaky_linux
 def test_pcb_packages(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.included_parts = "Package"
@@ -221,7 +218,6 @@ def test_pcb_packages(board_ipk_app):
     )  # material does not exist
 
 
-@pytest.mark.flaky_linux
 def test_pcb_board_extents_and_resolution(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     assert cmp2.set_board_extents("Bounding Box")
@@ -233,7 +229,6 @@ def test_pcb_board_extents_and_resolution(board_ipk_app):
     assert cmp2.set_custom_resolution(row=100, col=200)
 
 
-@pytest.mark.flaky_linux
 def test_pcb_filters_error_messages(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.included_parts = "Device"
@@ -260,7 +255,6 @@ def test_pcb_filters_error_messages(board_ipk_app):
     assert cmp2.power == "10W"
 
 
-@pytest.mark.flaky_linux
 def test_pcb_comp_properties(board_ipk_app):
     cmp2 = board_ipk_app.native_components["Board_w_cmp"]
     cmp2.set_high_side_radiation(
@@ -287,7 +281,6 @@ def test_pcb_comp_properties(board_ipk_app):
     assert cmp2.board_cutout_material == "copper"
 
 
-@pytest.mark.flaky_linux
 def test_pcb_comp_import(board_ipk_app):
     component_name = "RadioBoard2"
     cmp = board_ipk_app.create_ipk_3dcomponent_pcb(
@@ -397,7 +390,7 @@ def test_assign_pcb_region(ipk_app):
 def test_em_loss(ipk_app, test_tmp_dir):
     project_name = USB_HFSS + ".aedtz"
 
-    project = TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / project_name
+    project = TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / project_name
     em_project = shutil.copy2(project, test_tmp_dir / project_name)
 
     assert ipk_app.copyGroupFrom("Group1", "uUSB", USB_HFSS, str(em_project))
@@ -677,11 +670,11 @@ def test_create_source(ipk_app):
 
 def test_import_idf(ipk_app, test_tmp_dir):
     brd_board = shutil.copy2(
-        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emn",
+        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emn",
         test_tmp_dir / "brd_board.emn",
     )
     shutil.copy2(
-        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emp",
+        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "brd_board.emp",
         test_tmp_dir / "brd_board.emp",
     )
     assert ipk_app.import_idf(str(brd_board))
@@ -895,12 +888,12 @@ def test_advanced3dcomp_import(board_ipk_app, test_tmp_dir):
     cs2.props["OriginZ"] = 20
 
     file = shutil.copy2(
-        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp",
+        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp",
         test_tmp_dir / "Advanced3DComp.a3dcomp",
     )
 
     shutil.copy2(
-        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp.json",
+        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "Advanced3DComp.a3dcomp.json",
         test_tmp_dir / "Advanced3DComp.a3dcomp.json",
     )
 
@@ -1681,7 +1674,7 @@ def test_mesh_reuse(ipk_app, test_tmp_dir):
         str(test_tmp_dir / "nonexistent_cylinder_mesh.msh"),
     )
     file_mesh = shutil.copy2(
-        TESTS_SEQUENTIAL_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh",
+        TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / "CylinderMesh.msh",
         test_tmp_dir / "CylinderMesh.msh",
     )
     assert ipk_app.mesh.assign_mesh_reuse(cylinder.name, str(file_mesh))
