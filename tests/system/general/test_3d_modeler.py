@@ -73,34 +73,6 @@ def aedt_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_restore_model(aedt_app):
-    for name in aedt_app.modeler.get_matched_object_name("outer*"):
-        aedt_app.modeler.delete(name)
-    outer = aedt_app.modeler.create_cylinder(
-        orientation="X", origin=[0, 0, 0], radius=1, height=20, name="outer", material="Aluminum"
-    )
-    for name in aedt_app.modeler.get_matched_object_name("Core*"):
-        aedt_app.modeler.delete(name)
-    core = aedt_app.modeler.create_cylinder(
-        orientation="X", origin=[0, 0, 0], radius=0.8, height=20, name="Core", material="teflon_based"
-    )
-    for name in aedt_app.modeler.get_matched_object_name("inner*"):
-        aedt_app.modeler.delete(name)
-    inner = aedt_app.modeler.create_cylinder(
-        orientation="X", origin=[0, 0, 0], radius=0.3, height=20, name="inner", material="Aluminum"
-    )
-
-    for name in aedt_app.modeler.get_matched_object_name("Poly1*"):
-        aedt_app.modeler.delete(name)
-    udp1 = [0, 0, 0]
-    udp2 = [5, 0, 0]
-    udp3 = [5, 5, 0]
-    aedt_app.modeler.create_polyline([udp1, udp2, udp3], name="Poly1", xsection_type="Rectangle")
-
-    aedt_app.modeler.subtract(outer, core)
-    aedt_app.modeler.subtract(core, inner)
-
-
 def test_bounding_box(aedt_app):
     bounding = aedt_app.modeler.obounding_box
     assert len(bounding) == 6

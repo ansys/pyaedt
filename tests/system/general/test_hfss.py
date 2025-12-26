@@ -78,7 +78,7 @@ def component_array_app(add_app_example):
 
 
 def test_save(aedt_app, test_tmp_dir):
-    project_name = "Test_Exercse201119" + ".aedt"
+    project_name = "Test_Exercse201119.aedt"
     test_project = test_tmp_dir / project_name
     aedt_app.save_project(str(test_project))
     assert test_project.is_file

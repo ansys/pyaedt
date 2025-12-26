@@ -54,15 +54,17 @@ def _write_jpg(design_info, scratch):
 @pytest.fixture(params=[CS_NAME, CS1_NAME, CS2_NAME, CS3_NAME])
 def cs_app(add_app_example, request):
     app = add_app_example(project=request.param, subfolder=TEST_SUBFOLDER)
+    project_name = app.project_name
     yield app
-    app.close_project(app.project_name)
+    app.close_project(name=project_name, save=False)
 
 
 @pytest.fixture
 def add_mat(add_app):
     app = add_app()
+    project_name = app.project_name
     yield app
-    app.close_project(app.project_name)
+    app.close_project(name=project_name, save=False)
 
 
 def test_check_top_level_keys(test_tmp_dir):

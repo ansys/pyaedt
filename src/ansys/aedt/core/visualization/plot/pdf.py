@@ -280,7 +280,7 @@ class AnsysReport(FPDF, PyAedtBase):
             image_path = os.path.join(design.working_directory, "model.jpg")
             design.plot(
                 show=False,
-                export_path=image_path,
+                output_file=image_path,
                 dark_mode=False,
                 show_grid=False,
                 show_bounding=False,
