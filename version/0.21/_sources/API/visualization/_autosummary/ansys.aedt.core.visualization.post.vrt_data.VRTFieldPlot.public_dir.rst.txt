@@ -1,0 +1,6 @@
+public\_dir
+===========
+
+.. currentmodule:: ansys.aedt.core.visualization.post.vrt_data
+
+.. autoproperty:: VRTFieldPlot.public_dir

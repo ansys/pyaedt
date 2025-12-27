@@ -1,0 +1,6 @@
+set\_custom\_hpc\_options
+=========================
+
+.. currentmodule:: ansys.aedt.core.hfss3dlayout
+
+.. automethod:: Hfss3dLayout.set_custom_hpc_options

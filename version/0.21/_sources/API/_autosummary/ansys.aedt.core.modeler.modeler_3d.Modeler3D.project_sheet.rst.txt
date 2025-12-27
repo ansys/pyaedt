@@ -1,0 +1,6 @@
+project\_sheet
+==============
+
+.. currentmodule:: ansys.aedt.core.modeler.modeler_3d
+
+.. automethod:: Modeler3D.project_sheet
