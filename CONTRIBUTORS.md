@@ -70,6 +70,7 @@
 * [kmahajan-cadfem](https://github.com/kmahajan-cadfem)
 * [lollipop](https://github.com/cutelolly)
 * [Lorenzo Vecchietti](https://github.com/lorenzovecchietti)
+* [Madeline Coleman](https://github.com/mcoleman-ansys)
 * [madelinecoleman1](https://github.com/madelinecoleman1)
 * [mahesh - ansys](https://github.com/mahesh-dhanekula)
 * [Maksim Beliaev](https://github.com/beliaev-maksim)
