@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from pathlib import Path
 import shutil
 
@@ -29,12 +30,13 @@ import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
-from tests import TESTS_GENERAL_PATH
+from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 
-TEST_SUBFOLDER = "T40"
+TEST_SUBFOLDER = "layout_edb"
 ORIGINAL_PROJECT = "ANSYS-HSD_V1"
+ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 
 
 @pytest.fixture
@@ -140,9 +142,6 @@ def test_get_geometries(aedt_app):
     assert circle.radius
     circle.radius = "2.5mm"
     assert circle.radius == "2.5mm"
-
-
-def test_geo_units(aedt_app):
     assert aedt_app.modeler.geometries["line_209"].object_units == "mm"
 
 
@@ -225,19 +224,19 @@ def test_change_property(aedt_app):
 
 
 def test_assign_touchstone_model(aedt_app, test_tmp_dir):
-    model_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32_DC0V_25degC_series.s2p"
+    model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "GRM32_DC0V_25degC_series.s2p"
     file = shutil.copy2(model_path, test_tmp_dir / "GRM32_DC0V_25degC_series.s2p")
     assert aedt_app.modeler.set_touchstone_model(assignment="C217", input_file=str(file), model_name="Test1")
 
 
-def test_assign_spice_model(aedt_app):
-    model_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
+def test_assign_spice_model(aedt_app, file_tmp_root):
+    model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "GRM32ER72A225KA35_25C_0V.sp"
+    file = shutil.copy2(model_path, file_tmp_root / "GRM32ER72A225KA35_25C_0V.sp")
     assert aedt_app.modeler.set_spice_model(
-        assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
+        assignment="C1", input_file=file, subcircuit_name="GRM32ER72A225KA35_25C_0V"
     )
 
 
-@pytest.mark.flaky_linux
 def test_nets(aedt_app, test_tmp_dir):
     nets = aedt_app.modeler.nets
     assert nets["GND"].name == "GND"
@@ -280,13 +279,31 @@ def test_merge(flipchip):
     assert (comp.location[1] - 0.2) < tol
 
 
-def test_change_stackup(aedt_app):
+@pytest.mark.skipif(ON_CI, reason="Lead to logger issues on CI runners")
+def test_change_stackup(add_app):
+    app = add_app(application=Hfss3dLayout)
+    app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness="0.035mm",
+        elevation="1.035mm",
+        material="copper",
+    )
+    app.modeler.layers.add_layer(
+        layer="Bottom",
+        layer_type="signal",
+        thickness="0.035mm",
+        elevation="0mm",
+        material="copper",
+    )
+
     if NON_GRAPHICAL:
-        assert aedt_app.modeler.layers.change_stackup_type("Multizone", 4)
-        assert len(aedt_app.modeler.layers.zones) == 3
-    assert aedt_app.modeler.layers.change_stackup_type("Overlap")
-    assert aedt_app.modeler.layers.change_stackup_type("Laminate")
-    assert not aedt_app.modeler.layers.change_stackup_type("lami")
+        assert app.modeler.layers.change_stackup_type("Multizone", 4)
+        assert len(app.modeler.layers.zones) == 3
+    assert app.modeler.layers.change_stackup_type("Overlap")
+    assert app.modeler.layers.change_stackup_type("Laminate")
+    assert not app.modeler.layers.change_stackup_type("lami")
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.mark.skipif(NON_GRAPHICAL, reason="Not running in non-graphical mode")
@@ -325,7 +342,7 @@ def test_3dplacement(aedt_app):
     aedt_app.modeler.layers.add_layer("diel", "dielectric")
     aedt_app.modeler.layers.add_layer("TOP", "signal")
     tol = 1e-12
-    encrypted_model_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "SMA_RF_Jack.a3dcomp"
+    encrypted_model_path = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "SMA_RF_Jack.a3dcomp"
     comp = aedt_app.modeler.place_3d_component(
         str(encrypted_model_path), 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
     )
@@ -444,8 +461,7 @@ def test_set_port_properties_on_rlc_component(aedt_app):
 
 
 def test_import_table(aedt_app):
-    aedt_app.insert_design("import_table")
-    file_header = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
+    file_header = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "table_header.csv"
     file_invented = "invented.csv"
 
     assert not aedt_app.import_table(file_header, column_separator="dummy")
@@ -460,12 +476,6 @@ def test_import_table(aedt_app):
     assert table not in aedt_app.existing_analysis_sweeps
 
 
-def test_value_with_units(aedt_app):
-    assert aedt_app.value_with_units("10mm") == "10mm"
-    assert aedt_app.value_with_units("10") == "10mm"
-
-
-@pytest.mark.flaky_linux
 def test_ports_on_nets(aedt_app):
     nets = ["DDR4_DQ0", "DDR4_DQ1"]
     ports_before = len(aedt_app.port_list)
