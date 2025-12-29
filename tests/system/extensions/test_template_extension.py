@@ -52,7 +52,7 @@ def test_load_aedt_file_success(add_app, test_tmp_dir):
     app_0 = add_app(application=Hfss)
     _ = app_0.modeler.create_box([10, 10, 10], [20, 20, 20], OBJECT_NAME, display_wireframe=True)
     app_0.save_project(file_name=str(AEDT_PATH))
-    app_0.close_project(app_0.project_name)
+    app_0.close_project(name=app_0.project_name, save=False)
 
     # Load the project with the extension
     add_app(application=Hfss)
@@ -62,4 +62,4 @@ def test_load_aedt_file_success(add_app, test_tmp_dir):
     # Assert that the object was loaded correctly
     assert 1 == len(app.modeler.object_list)
     assert OBJECT_NAME == app.modeler.object_list[0].name
-    app.close_project(app.project_name, save=False)
+    app.close_project(name=app.project_name, save=False)

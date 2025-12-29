@@ -33,7 +33,7 @@ from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl impor
 from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import PushExcitation3DLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests import TESTS_GENERAL_PATH
+from tests import TESTS_LAYOUT_PATH
 
 
 def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir):
@@ -41,7 +41,7 @@ def test_push_excitation_3dl_generate_button(add_app_example, test_tmp_dir):
     h3d = add_app_example(
         application=Hfss3dLayout,
         project="test_post_3d_layout_solved_23R2",
-        subfolder=TESTS_GENERAL_PATH / "example_models" / "T41",
+        subfolder=TESTS_LAYOUT_PATH / "example_models" / "layout",
     )
 
     # Create a test CSV file
@@ -140,11 +140,11 @@ def test_push_excitation_3dl_with_sinusoidal_input(add_app_example, test_tmp_dir
     h3d = add_app_example(
         application=Hfss3dLayout,
         project="test_post_3d_layout_solved_23R2",
-        subfolder=TESTS_GENERAL_PATH / "example_models" / "T41",
+        subfolder=TESTS_LAYOUT_PATH / "example_models" / "layout",
     )
 
     # Use the existing sinusoidal CSV file
-    file_path = TESTS_GENERAL_PATH / "example_models" / "T41" / "Sinusoidal.csv"
+    file_path = TESTS_LAYOUT_PATH / "example_models" / "layout" / "Sinusoidal.csv"
     file = shutil.copy2(file_path, test_tmp_dir / "Sinusoidal.csv")
 
     try:
@@ -186,11 +186,11 @@ def test_push_excitation_3dl_main_function(add_app_example, test_tmp_dir):
     h3d = add_app_example(
         application=Hfss3dLayout,
         project="test_post_3d_layout_solved_23R2",
-        subfolder=TESTS_GENERAL_PATH / "example_models" / "T41",
+        subfolder=TESTS_LAYOUT_PATH / "example_models" / "layout",
     )
 
     # Use the existing sinusoidal CSV file
-    file_path = TESTS_GENERAL_PATH / "example_models" / "T41" / "Sinusoidal.csv"
+    file_path = TESTS_LAYOUT_PATH / "example_models" / "layout" / "Sinusoidal.csv"
     file = shutil.copy2(file_path, test_tmp_dir / "Sinusoidal.csv")
 
     try:
