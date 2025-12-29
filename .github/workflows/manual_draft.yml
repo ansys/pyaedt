@@ -217,13 +217,15 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -293,6 +295,8 @@ jobs:
 
       - name: Run tests marked with 'general'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
@@ -300,7 +304,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile -m general
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -364,13 +368,15 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -451,13 +457,15 @@ jobs:
 
       - name: Run tests marked with 'visualization' and 'avoid_ansys_load'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
           command: |
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -519,13 +527,15 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m extensions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -591,6 +601,7 @@ jobs:
       - name: Run tests marked with 'extensions'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
@@ -599,7 +610,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m "extensions and not flaky_linux"
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -667,6 +678,7 @@ jobs:
        - name: Run tests marked with 'flaky'
          env:
            ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
          uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
          with:
            max_attempts: 2
@@ -675,7 +687,7 @@ jobs:
            command: |
              export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
              source .venv/bin/activate
-             xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
+             xvfb-run pytest ${PYTEST_ARGUMENTS} --timeout=600 -m flaky_linux
 
        - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
          with:
@@ -734,13 +746,15 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 30
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -v -rA --color=yes -m emit
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -799,13 +813,15 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m filter_solutions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -863,9 +879,11 @@ jobs:
       - name: Run tests marked with 'icepak'
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m icepak -x
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 -m icepak -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -928,10 +946,11 @@ jobs:
       - name: Run tests marked with 'icepak'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m icepak -x
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -989,9 +1008,11 @@ jobs:
       - name: Run tests marked with 'layout'
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m layout
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1054,10 +1075,11 @@ jobs:
       - name: Run tests marked with 'layout'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           source .venv/bin/activate
-          pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m layout
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:

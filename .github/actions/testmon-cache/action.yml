@@ -26,11 +26,14 @@ runs:
 
     - name: Check testmon cache status
       shell: bash
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        TESTMON_FILE: ${{ inputs.testmon-datafile }}
       run: |
-        if [ "${{ github.event_name }}" == "pull_request" ]; then
-          if [ -f "${{ inputs.testmon-datafile }}" ]; then
+        if [ "$EVENT_NAME" == "pull_request" ]; then
+          if [ -f "$TESTMON_FILE" ]; then
             echo "✅ Testmon cache restored successfully"
-            ls -lh ${{ inputs.testmon-datafile }}
+            ls -lh "$TESTMON_FILE"
           else
             echo "ℹ️ No testmon cache found - will run all tests"
           fi
