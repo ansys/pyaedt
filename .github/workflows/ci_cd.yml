@@ -305,9 +305,10 @@ jobs:
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        shell: pwsh
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+          pytest $env:PYTEST_ARGUMENTS --timeout=600 -m solvers
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -453,9 +454,10 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
+          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
+            pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m general
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -610,9 +612,10 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
+          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m visualization -x
+            pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m visualization -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -765,9 +768,10 @@ jobs:
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        shell: pwsh
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
+          pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m icepak -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -906,9 +910,10 @@ jobs:
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        shell: pwsh
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
+          pytest $env:PYTEST_ARGUMENTS --timeout=600 -m layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1097,9 +1102,10 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
+          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m extensions -x
+            pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m extensions -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: steps.changes.outputs.run_tests == 'true'
@@ -1335,9 +1341,10 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
+          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m filter_solutions
+            pytest $env:PYTEST_ARGUMENTS --timeout=600 -m filter_solutions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: steps.changes.outputs.run_tests == 'true'
@@ -1451,9 +1458,10 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
+          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -v -rA --color=yes -m emit
+            pytest $env:PYTEST_ARGUMENTS --timeout=600 -v -rA --color=yes -m emit
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: steps.changes.outputs.run_tests == 'true'
