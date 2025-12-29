@@ -305,7 +305,6 @@ jobs:
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        shell: pwsh
         run: |
           .venv\Scripts\Activate.ps1
           pytest $env:PYTEST_ARGUMENTS --timeout=600 -m solvers
@@ -454,7 +453,6 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
-          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
             pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m general
@@ -612,7 +610,6 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
-          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
             pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m visualization -x
@@ -768,7 +765,6 @@ jobs:
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        shell: pwsh
         run: |
           .venv\Scripts\Activate.ps1
           pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m icepak -x
@@ -910,7 +906,6 @@ jobs:
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        shell: pwsh
         run: |
           .venv\Scripts\Activate.ps1
           pytest $env:PYTEST_ARGUMENTS --timeout=600 -m layout
@@ -1102,7 +1097,6 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
-          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
             pytest $env:PYTEST_ARGUMENTS -n 4 --dist loadfile --timeout=600 -m extensions -x
@@ -1341,7 +1335,6 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
-          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
             pytest $env:PYTEST_ARGUMENTS --timeout=600 -m filter_solutions
@@ -1458,7 +1451,6 @@ jobs:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 40
-          shell: pwsh
           command: |
             .venv\Scripts\Activate.ps1
             pytest $env:PYTEST_ARGUMENTS --timeout=600 -v -rA --color=yes -m emit
