@@ -5,6 +5,7 @@ log:
   enable_local_log_file: false
   enable_global_log_file: false
   enable_desktop_logs: false
+  enable_file_logs: false
 
 general:
   number_of_grpc_api_retries: 6

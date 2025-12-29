@@ -24,6 +24,9 @@
 
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
+from pathlib import Path
+from typing import Union
+
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -326,12 +329,12 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def export_configuration(self, output_file):
+    def export_configuration(self, output_file: Union[str, Path]) -> str:
         """Export Rmxprt project to config file.
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`, optional
             Full path to json file to be created.
 
         Returns
