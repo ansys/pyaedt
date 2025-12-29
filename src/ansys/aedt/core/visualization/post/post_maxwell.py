@@ -30,8 +30,11 @@ It contains all advanced postprocessing functionalities for creating and editing
 
 import secrets
 import string
+from typing import List
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -176,7 +179,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>>                                                   intrinsics="200Hz")
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
-        if self._app.solution_type != "Electrostatic":
+        if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -389,7 +392,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
         """
-        if self._app.solution_type != "Electrostatic":
+        if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
         if plot_name not in (self.field_plot_names):
             raise AEDTRuntimeError("The Field Line Tracing Plot needs to be generated.")
@@ -466,19 +469,19 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
     @min_aedt_version("2026.1")
     def modify_inception_parameters(
         self,
-        plot_name,
-        gas_type=0,
-        gas_pressure=1,
-        use_inception=False,
-        potential_u0=0,
-        potential_k=0,
-        potential_a=1,
-        critical_value=2.588,
-        streamer_constant=9.15,
-        ionization_check=False,
-        ionization_equation="x",
-        ionization_dataset=[0],
-    ):  # pragma: no cover
+        plot_name: str,
+        gas_type: int = 0,
+        gas_pressure: int = 1,
+        use_inception: bool = False,
+        potential_u0: int = 0,
+        potential_k: int = 0,
+        potential_a: int = 1,
+        critical_value: float = 2.588,
+        streamer_constant: float = 9.15,
+        ionization_check: bool = False,
+        ionization_equation: str = "x",
+        ionization_dataset: Optional[List] = None,
+    ) -> bool:  # pragma: no cover
         """Modify inception voltage evaluation parameters.
 
         .. note::
@@ -554,9 +557,12 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>> m2d.modify_inception_parameters()
         >>> m2d.desktop_class.release_desktop()
         """
-        if self._app.solution_type != "Electrostatic":
+        if not ionization_dataset:
+            ionization_dataset = [0]
+        if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             raise AEDTRuntimeError("Field line traces is valid only for Electrostatic solution.")
-        if plot_name not in (self.field_plot_names):
+
+        if plot_name not in self.field_plot_names:
             raise AEDTRuntimeError("The field line tracing plot must be generated.")
 
         arg_list = [
