@@ -884,3 +884,34 @@ def test_m2d_export_inception_voltage(m2dtest):
     m2dtest.solution_type = "Magnetostatic"
     with pytest.raises(AEDTRuntimeError):
         m2dtest.post.export_inception_voltage("my_plot", file_path, [1, 2, 4])
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Method not available before 2026.1")
+def test_m2d_modify_inception_parameters(m2dtest):
+    m2dtest.set_active_design("field_line_trace")
+    file_path = str(Path(m2dtest.working_directory, "my_file.txt"))
+    with pytest.raises(AEDTRuntimeError):
+        m2dtest.post.modify_inception_parameters("my_plot", gas_type=0, gas_pressure=2)
+    plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="my_plot")
+    m2dtest.post.modify_inception_parameters("my_plot", gas_type=0, gas_pressure=2)
+    assert m2dtest.post.modify_inception_parameters(plot.name, gas_type=0, gas_pressure=1.5)
+    assert m2dtest.post.modify_inception_parameters(plot.name, gas_type=1, gas_pressure=2)
+    assert m2dtest.post.modify_inception_parameters(
+        plot.name,
+        gas_type=2,
+        use_inception=True,
+        streamer_constant=6.09,
+        ionization_check=True,
+        ionization_equation="x",
+    )
+    assert m2dtest.post.modify_inception_parameters(
+        plot.name,
+        gas_type=2,
+        use_inception=True,
+        streamer_constant=6.09,
+        ionization_check=False,
+        ionization_dataset=[2, 0, 0.15, 0.2, 0.4],
+    )
+    m2dtest.solution_type = "Magnetostatic"
+    with pytest.raises(AEDTRuntimeError):
+        m2dtest.post.modify_inception_parameters("my_plot", file_path, [1, 2, 4])
