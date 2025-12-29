@@ -815,7 +815,12 @@ class Design(AedtObjects, PyAedtBase):
         """
         if self._project_name and self._project_name in self.desktop_class.project_list:
             return self._project_name
-        elif self.oproject:
+
+        if not self.oproject:
+            # If no active project is loaded, try to get the active project.
+            self.oproject = None
+
+        if self.oproject:
             try:
                 self._project_name = self.oproject.GetName()
                 self._project_path = None
@@ -1257,6 +1262,8 @@ class Design(AedtObjects, PyAedtBase):
                 if ".aedtz" in proj_name:
                     p = Path(proj_name)
                     save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    if str(p.stem) in self.desktop_class.project_list:
+                        save_to_file = available_file_name(p.parent / f"{generate_unique_name(str(p.stem))}.aedt")
                     self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
                     proj_name = save_to_file.stem
@@ -2545,6 +2552,9 @@ class Design(AedtObjects, PyAedtBase):
     def release_desktop(self, close_projects=True, close_desktop=True):
         """Release AEDT.
 
+        .. deprecated:: 0.19.1
+            This method is deprecated. Use the ``ansys.aedt.core.desktop.release_desktop()`` method instead.
+
         Parameters
         ----------
         close_projects : bool, optional
@@ -3171,7 +3181,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def copy_project(self, destination, name):
+    def copy_project(self, destination: str, name: str):
         """Copy the project to another destination.
 
         .. note::
@@ -3181,7 +3191,7 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         destination : str
             Path to save a copy of the project to.
-        name :
+        name : str
             Name to give the project in the new destination.
 
         Returns
@@ -3256,6 +3266,9 @@ class Design(AedtObjects, PyAedtBase):
         self.logger.info(f"Closing the AEDT Project {name}")
         oproj = self.desktop_class.active_project(name)
         proj_path = oproj.GetPath()
+        if not name:
+            proj_path = oproj.GetName()
+
         proj_file = Path(proj_path) / (name + ".aedt")
         if save:
             oproj.Save()
@@ -3287,7 +3300,7 @@ class Design(AedtObjects, PyAedtBase):
                 i += 0.2
                 time.sleep(0.2)
 
-        if str(Path(proj_file)) in inner_project_settings.properties:
+        if proj_file and str(Path(proj_file)) in inner_project_settings.properties:
             del inner_project_settings.properties[str(Path(proj_file))]
         return True
 

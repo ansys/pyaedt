@@ -26,6 +26,8 @@ from pathlib import Path
 import re
 import secrets
 import time
+from typing import Optional
+from typing import Union
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -2151,7 +2153,9 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_siwave_dynamic_link(self, input_file, solution=None, simulate_solutions=False):
+    def add_siwave_dynamic_link(
+        self, input_file: Union[str, Path], solution: Optional[str] = None, simulate_solutions: bool = False
+    ) -> "CircuitComponent":
         """Add a siwave dinamyc link object.
 
         Parameters

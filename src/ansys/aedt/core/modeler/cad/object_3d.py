@@ -35,6 +35,7 @@ objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 import math
 from pathlib import Path
 import re
+import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -1020,18 +1021,37 @@ class Object3d(PyAedtBase):
 
     @property
     def is3d(self):
-        """Check for if the object is 3D.
+        """Check if the object is a 3D solid object.
+
+        This method determines whether the current object represents a
+        three-dimensional solid geometry by checking its object type.
+
+        .. deprecated::
+           Use :func:`is_3d` property instead.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
-
+            ``True`` if the object is a 3D solid, ``False`` otherwise.
         """
-        if self.object_type == "Solid":
-            return True
-        else:
-            return False
+        warnings.warn("`is3d` is deprecated. Use `is_3d` property instead.", DeprecationWarning)
+        res = self.is_3d
+        return res
+
+    @property
+    def is_3d(self):
+        """Check if the object is a 3D solid object.
+
+        This method determines whether the current object represents a
+        three-dimensional solid geometry by checking its object type.
+
+        Returns
+        -------
+        bool
+            ``True`` if the object is a 3D solid, ``False`` otherwise.
+        """
+        res = self.object_type == "Solid"
+        return res
 
     @property
     def mass(self):
@@ -1396,7 +1416,7 @@ class Object3d(PyAedtBase):
             return False
 
     @property
-    def model(self):
+    def is_model(self):
         """Part model or non-model property.
 
         Returns
@@ -1420,12 +1440,37 @@ class Object3d(PyAedtBase):
                 self._model = True
             return self._model
 
-    @model.setter
-    def model(self, fModel):
+    @is_model.setter
+    def is_model(self, fModel):
         vArg1 = ["NAME:Model", "Value:=", fModel]
         fModel = _to_boolean(fModel)
         self._change_property(vArg1)
         self._model = fModel
+
+    @property
+    def model(self):
+        """Part model or non-model property.
+
+        .. deprecated::
+           Use :func:`is_model` property instead.
+
+        Returns
+        -------
+        bool
+            ``True`` when model, ``False`` otherwise.
+
+        References
+        ----------
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        warnings.warn("`model` is deprecated. Use `is_model` property instead.", DeprecationWarning)
+        return self.is_model
+
+    @model.setter
+    def model(self, fModel):
+        self.is_model = fModel
 
     @pyaedt_function_handler()
     def unite(self, assignment):
@@ -1976,8 +2021,7 @@ class Object3d(PyAedtBase):
 
         """
         if not vertices and not edges:
-            self.logger.error("Either vertices or edges have to be provided as input.")
-            return False
+            raise ValueError("Either vertices or edges have to be provided as input.")
         edge_id_list = []
         vertex_id_list = []
         if edges is not None:

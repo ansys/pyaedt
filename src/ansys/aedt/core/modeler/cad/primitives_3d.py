@@ -35,6 +35,7 @@ from math import sqrt
 from math import tan
 import os
 from pathlib import Path
+import shutil
 from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Edb
@@ -56,6 +57,15 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+
+# Error messages
+ERROR_MSG_CENTER = "The ``center`` argument must be a valid three-element list."
+ERROR_MSG_ORIGIN = "The ``origin`` argument must be a valid three-element list."
+ERROR_MSG_RADIUS = "The ``radius`` argument must be greater than 0."
+ERROR_MSG_SIZES_2 = "The ``sizes`` argument must be a valid two-element list."
+ERROR_MSG_SIZES_3 = "The ``sizes`` argument must be a valid three-element list."
+ERROR_MSG_START = "The ``start`` argument must be a valid three-element list."
+ERROR_MSG_END = "The ``end`` argument must be a valid three-element list."
 
 
 class Primitives3D(GeometryModeler, PyAedtBase):
@@ -160,11 +170,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         if len(sizes) != 3:
-            self.logger.error("The ``dimension_list`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_SIZES_3)
 
         x_position, y_position, z_position = self._pos_with_arg(origin)
         x_size, y_size, z_size = self._pos_with_arg(sizes)
@@ -243,11 +251,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
-            self.logger.error("The ``radius`` argument must be greater than 0.")
-            return False
+            raise ValueError(ERROR_MSG_RADIUS)
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
 
         axis = GeometryOperators.cs_axis_str(orientation)
         x_center, y_center, z_center = self._pos_with_arg(origin)
@@ -331,14 +337,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         """
         orientation = GeometryOperators.cs_axis_str(orientation)
         if len(center) != 3:
-            self.logger.error("The ``center_position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_CENTER)
         if len(origin) != 3:
-            self.logger.error("The ``start_position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         if center == origin:
-            self.logger.error("The ``center_position`` and ``start_position`` arguments must be different.")
-            return False
+            raise ValueError("The ``center`` and ``origin`` arguments must be different.")
 
         x_center, y_center, z_center = self._pos_with_arg(center)
         x_start, y_start, z_start = self._pos_with_arg(origin)
@@ -418,17 +421,13 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
-            self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``bottom_radius`` argument must be greater than 0.")
         if isinstance(top_radius, (int, float)) and top_radius < 0:
-            self.logger.error("The ``top_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``top_radius`` argument must be greater than 0.")
         if isinstance(height, (int, float)) and height <= 0:
-            self.logger.error("The ``height`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``height`` argument must be greater than 0.")
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
 
         x_center, y_center, z_center = self._pos_with_arg(origin)
         axis = GeometryOperators.cs_axis_str(orientation)
@@ -491,11 +490,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> ret_object = aedtapp.modeler.create_sphere(origin=[0,0,0],radius=2,name="mysphere",material="copper")
         """
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         if isinstance(radius, (int, float)) and radius < 0:
-            self.logger.error("The ``radius`` argument must be greater than 0.")
-            return False
+            raise ValueError(ERROR_MSG_RADIUS)
 
         x_center, y_center, z_center = self._pos_with_arg(origin)
         radius = self._app.value_with_units(radius)
@@ -564,8 +561,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
         """
         if len(origin) != 3:
-            self.logger.error("The ``center`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         # if major_radius <= 0 or minor_radius <= 0:
         #     raise ValueError("Both major and minor radius must be greater than 0.")
         # if minor_radius >= major_radius:
@@ -662,12 +658,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                          beta=4,bond_type=0,name="mybox",material="copper")
         """
         if len(start) != 3:
-            self.logger.error("The ``start_position`` argument must be a valid three-Element List")
-            return False
+            raise ValueError(ERROR_MSG_START)
         x_position, y_position, z_position = self._pos_with_arg(start)
         if len(end) != 3:
-            self.logger.error("The ``end_position`` argument must be a valid three-Element List")
-            return False
+            raise ValueError(ERROR_MSG_END)
         x_position_end, y_position_end, z_position_end = self._pos_with_arg(end)
 
         cont = 0
@@ -736,7 +730,16 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, orientation, origin, sizes, name=None, material=None, is_covered=True, **kwargs):
+    def create_rectangle(
+        self,
+        orientation,
+        origin,
+        sizes,
+        name=None,
+        material=None,
+        is_covered=True,
+        **kwargs
+    ) -> "Object3d":
         """Create a rectangle.
 
         Parameters
@@ -771,8 +774,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         >>> oEditor.CreateRectangle
         """
         if len(sizes) != 2:
-            self.logger.error("The ``sizes`` argument must be a valid two-element list.")
-            return False
+            raise ValueError(ERROR_MSG_SIZES_2)
 
         axis = GeometryOperators.cs_plane_to_axis_str(orientation)
         x_start, y_start, z_start = self._pos_with_arg(origin)
@@ -853,6 +855,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                                   radius=2, num_sides=8, name="mycyl",
         ...                                                   material="vacuum")
         """
+        if isinstance(radius, (int, float)) and radius < 0:
+            raise ValueError(ERROR_MSG_RADIUS)
+
         non_model_flag = ""
         if non_model:
             non_model_flag = "NonModel#"
@@ -1165,7 +1170,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     @pyaedt_function_handler()
     def create_helix(self, assignment, origin, x_start_dir, y_start_dir, z_start_dir, turns=1,
                      right_hand=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
-        """Create an helix from a polyline.
+        """Create a helix from a polyline.
 
         Parameters
         ----------
@@ -1218,12 +1223,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         ...                                                 turns=1,right_hand=True,radius_increment=0.0,thread=1.0)
         """
         if not assignment or assignment == "":
-            self.logger.error("The name of the polyline cannot be an empty string.")
-            return False
+            raise ValueError("The name of the polyline cannot be an empty string.")
 
         if len(origin) != 3:
-            self.logger.error("The ``position`` argument must be a valid three-element list.")
-            return False
+            raise ValueError(ERROR_MSG_ORIGIN)
         x_center, y_center, z_center = self._pos_with_arg(origin)
 
         arg_1 = [
@@ -1368,11 +1371,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             Polyline object or ``False`` if it fails.
         """
         if internal_radius < 0:
-            self.logger.error("The ``internal_radius`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``internal_radius`` argument must be greater than 0.")
         if faces < 0:
-            self.logger.error("The ``faces`` argument must be greater than 0.")
-            return False
+            raise ValueError("The ``faces`` argument must be greater than 0.")
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
@@ -1424,10 +1425,24 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             app.oproject.Close()
             for root, dirs, files in os.walk(temp_folder, topdown=False):
                 for name in files:
-                    (Path(root) / name).unlink()
+                    file_dir = Path(root) / name
+                    try:
+                        if file_dir.is_file():
+                            file_dir.unlink(missing_ok=True)
+                    except Exception as e:  # pragma: no cover
+                        self.logger.warning(f"{Path(root) / name} can not be deleted. {str(e)}")
                 for name in dirs:
-                    (Path(root) / name).rmdir()
-            temp_folder.rmdir()
+                    results_dir = Path(root) / name
+                    try:
+                        if results_dir.is_dir():
+                            shutil.rmtree(results_dir, ignore_errors=True)
+                    except Exception as e:  # pragma: no cover
+                        self.logger.warning(f"{results_dir} can not be deleted. {str(e)}")
+            try:
+                shutil.rmtree(temp_folder, ignore_errors=True)
+            except Exception as e:  # pragma: no cover
+                self.logger.warning(f"{temp_folder} can not be deleted. {str(e)}")
+
             phi, theta, psi = q.to_euler('zxz')
             cs_name = assignment.name + "_" + wcs + "_ref"
             if cs_name not in [i.name for i in self.coordinate_systems]:
@@ -1442,15 +1457,26 @@ class Primitives3D(GeometryModeler, PyAedtBase):
                 )
             return cs_name
         else:
-            app.close_project()
+            results_directory = Path(app.results_directory)
+            project_file = Path(app.project_file)
+            app.close_project(save=False)
+            try:
+                if results_directory.is_dir():
+                    shutil.rmtree(results_directory, ignore_errors=True)
+            except Exception as e:  # pragma: no cover
+                self.logger.warning(f"{results_directory} can not be deleted. {str(e)}")
+            try:
+                project_file.unlink(missing_ok=True)
+            except Exception as e:  # pragma: no cover
+                self.logger.warning(f"{project_file} can not be deleted. {str(e)}")
             return assignment.target_coordinate_system
 
     @staticmethod
     def __create_temp_project(app):
         """Create temporary project with a duplicated design."""
         from ansys.aedt.core import Icepak
-        temp_proj_name = generate_unique_project_name()
-        ipkapp_temp = Icepak(project=Path(app.toolkit_directory) / temp_proj_name)
+        temp_proj_name = generate_unique_project_name(str(app.toolkit_directory))
+        ipkapp_temp = Icepak(project=temp_proj_name)
         ipkapp_temp.delete_design(ipkapp_temp.design_name)
         app.oproject.CopyDesign(app.design_name)
         ipkapp_temp.oproject.Paste()

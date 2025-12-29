@@ -2171,7 +2171,7 @@ class Setup3DLayout(CommonSetup):
             primitive_dict[net] = []
             self._app.logger.info(f"Processing net {net}...")
             for prim in primitives:
-                if prim.layer_name not in layers_elevation:
+                if prim.layer_name not in layers_elevation:  # pragma: no cover
                     continue
                 z = layers_elevation[prim.layer_name]
                 if prim.__class__.__name__ in ["EdbPath", "Path"]:
@@ -2222,12 +2222,13 @@ class Setup3DLayout(CommonSetup):
         from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
         bbox = primitive.bbox
-        primitive_x_points = []
-        primitive_y_points = []
-        for arc in primitive.arcs:
-            if len(arc.points) == 2:
-                primitive_x_points += arc.points[0]
-                primitive_y_points += arc.points[1]
+
+        if not primitive.polygon_data.points:
+            raise ValueError("Primitive has no polygon data points.")
+
+        primitive_x_points = [pt[0] for pt in primitive.polygon_data.points]
+        primitive_y_points = [pt[1] for pt in primitive.polygon_data.points]
+
         dx = (bbox[2] - bbox[0]) / n
         dy = (bbox[3] - bbox[1]) / n
         xcoords = [i for i in np.arange(bbox[0], bbox[2], dx)]

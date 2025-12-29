@@ -24,21 +24,19 @@
 
 import json
 import os
-from pathlib import Path
 
 import pytest
 
-from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from tests.conftest import config
+from tests import TESTS_EXTENSIONS_PATH
 
 is_linux = os.name == "posix"
 
 AEDB_FILE_NAME = "Parametric_Microstrip_Simulation"
 TEST_SUBFOLDER = "post_layout_design"
-AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
+AEDT_FILE_PATH = TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
 def cleanup_files(*files):
@@ -50,7 +48,7 @@ def cleanup_files(*files):
 
 @pytest.mark.flaky_linux
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
-def test_export_layout_all_options(add_app, local_scratch):
+def test_export_layout_all_options(add_app_example, test_tmp_dir):
     """Test successful execution of export layout with all options enabled."""
     data = ExportLayoutExtensionData(
         export_ipc=True,
@@ -58,205 +56,178 @@ def test_export_layout_all_options(add_app, local_scratch):
         export_bom=True,
     )
 
-    file_name = AEDB_FILE_NAME + ".aedb"
-    file_path = Path(local_scratch.path) / file_name
-    local_scratch.copyfolder(AEDT_FILE_PATH, file_path)
-
-    # Verify the original AEDB file exists and can be opened
-    edb_app = Edb(edbpath=str(file_path), edbversion=config["desktopVersion"])
-    edb_app.close_edb()
-
     # Perform the export operation
-    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
+    app = add_app_example(
+        application=Hfss3dLayout,
+        is_edb=True,
+        project=AEDB_FILE_NAME,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER,
+    )
+
     result = main(data)
-    app.close_project()
+    app.close_project(save=False)
 
     # Verify the export operation was successful
     assert result is True
 
     # Check that all expected export files were created
-    project_path = file_path.parent
-    base_name = file_path.stem
+    ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
+    bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
+    config_file = test_tmp_dir / f"{AEDB_FILE_NAME}_config.json"
 
-    ipc_file = project_path / f"{base_name}_ipc2581.xml"
-    bom_file = project_path / f"{base_name}_bom.csv"
-    config_file = project_path / f"{base_name}_config.json"
-
-    assert ipc_file.exists(), "IPC2581 file was not created"
-    assert bom_file.exists(), "BOM file was not created"
-    assert config_file.exists(), "Configuration file was not created"
+    assert ipc_file.exists()
+    assert bom_file.exists()
+    assert config_file.exists()
 
     # Verify file contents are not empty
-    assert ipc_file.stat().st_size > 0, "IPC2581 file is empty"
-    assert bom_file.stat().st_size > 0, "BOM file is empty"
-    assert config_file.stat().st_size > 0, "Configuration file is empty"
+    assert ipc_file.stat().st_size > 0
+    assert bom_file.stat().st_size > 0
+    assert config_file.stat().st_size > 0
 
     # Verify configuration file contains valid JSON
     with open(config_file, "r") as f:
         config_data = json.load(f)
-        assert isinstance(config_data, dict), "Configuration file is not valid JSON"
+        assert isinstance(config_data, dict)
 
 
 @pytest.mark.flaky_linux
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
-def test_export_layout_ipc_only(add_app, local_scratch):
+def test_export_layout_ipc_only(add_app_example, test_tmp_dir):
     """Test export layout with only IPC2581 option enabled."""
+    ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
+    bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
+    config_file = test_tmp_dir / f"{AEDB_FILE_NAME}_config.json"
+
     data = ExportLayoutExtensionData(
         export_ipc=True,
         export_configuration=False,
         export_bom=False,
     )
 
-    file_name = AEDB_FILE_NAME + ".aedb"
-    file_path = Path(local_scratch.path) / file_name
-    local_scratch.copyfolder(AEDT_FILE_PATH, file_path)
-
-    # Clean up any existing export files before test
-    project_path = file_path.parent
-    base_name = file_path.stem
-
-    ipc_file = project_path / f"{base_name}_ipc2581.xml"
-    bom_file = project_path / f"{base_name}_bom.csv"
-    config_file = project_path / f"{base_name}_config.json"
-
-    cleanup_files(ipc_file, bom_file, config_file)
-
-    # Perform the export operation
-    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
+    app = add_app_example(
+        application=Hfss3dLayout,
+        is_edb=True,
+        project=AEDB_FILE_NAME,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER,
+    )
     result = main(data)
-    app.close_project()
+    app.close_project(save=False)
 
     # Verify the export operation was successful
     assert result is True
 
     # Check that only IPC file was created
-    assert ipc_file.exists(), "IPC2581 file was not created"
-    assert not bom_file.exists(), "BOM file should not be created"
-    assert not config_file.exists(), "Configuration file should not be created"
+    assert ipc_file.exists()
+    assert not bom_file.exists()
+    assert not config_file.exists()
 
     # Verify IPC file content
-    assert ipc_file.stat().st_size > 0, "IPC2581 file is empty"
+    assert ipc_file.stat().st_size > 0
 
 
-def test_export_layout_bom_only(add_app, local_scratch):
+def test_export_layout_bom_only(add_app_example, test_tmp_dir):
     """Test export layout with only BOM option enabled."""
+    ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
+    bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
+    config_file = test_tmp_dir / f"{AEDB_FILE_NAME}_config.json"
+
     data = ExportLayoutExtensionData(
         export_ipc=False,
         export_configuration=False,
         export_bom=True,
     )
 
-    file_name = AEDB_FILE_NAME + ".aedb"
-    file_path = Path(local_scratch.path) / file_name
-    local_scratch.copyfolder(AEDT_FILE_PATH, file_path)
-
-    # Clean up any existing export files before test
-    project_path = file_path.parent
-    base_name = file_path.stem
-
-    ipc_file = project_path / f"{base_name}_ipc2581.xml"
-    bom_file = project_path / f"{base_name}_bom.csv"
-    config_file = project_path / f"{base_name}_config.json"
-
-    cleanup_files(ipc_file, bom_file, config_file)
-
-    # Perform the export operation
-    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
+    app = add_app_example(
+        application=Hfss3dLayout,
+        is_edb=True,
+        project=AEDB_FILE_NAME,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER,
+    )
     result = main(data)
-    app.close_project()
+    app.close_project(save=False)
 
     # Verify the export operation was successful
     assert result is True
 
     # Check that only BOM file was created
-    assert not ipc_file.exists(), "IPC2581 file should not be created"
-    assert bom_file.exists(), "BOM file was not created"
-    assert not config_file.exists(), "Configuration file should not be created"
+    assert not ipc_file.exists()
+    assert bom_file.exists()
+    assert not config_file.exists()
 
     # Verify BOM file content
-    assert bom_file.stat().st_size > 0, "BOM file is empty"
+    assert bom_file.stat().st_size > 0
 
 
 @pytest.mark.flaky_linux
-def test_export_layout_config_only(add_app, local_scratch):
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
+def test_export_layout_config_only(add_app_example, test_tmp_dir):
     """Test export layout with only configuration option enabled."""
+    ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
+    bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
+    config_file = test_tmp_dir / f"{AEDB_FILE_NAME}_config.json"
     data = ExportLayoutExtensionData(
         export_ipc=False,
         export_configuration=True,
         export_bom=False,
     )
 
-    file_name = AEDB_FILE_NAME + ".aedb"
-    file_path = Path(local_scratch.path) / file_name
-    local_scratch.copyfolder(AEDT_FILE_PATH, file_path)
-
-    # Clean up any existing export files before test
-    project_path = file_path.parent
-    base_name = file_path.stem
-
-    ipc_file = project_path / f"{base_name}_ipc2581.xml"
-    bom_file = project_path / f"{base_name}_bom.csv"
-    config_file = project_path / f"{base_name}_config.json"
-
-    cleanup_files(ipc_file, bom_file, config_file)
-
-    # Perform the export operation
-    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
+    app = add_app_example(
+        application=Hfss3dLayout,
+        is_edb=True,
+        project=AEDB_FILE_NAME,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER,
+    )
     result = main(data)
-    app.close_project()
+    app.close_project(save=False)
 
     # Verify the export operation was successful
     assert result is True
 
     # Check that only configuration file was created
-    assert not ipc_file.exists(), "IPC2581 file should not be created"
-    assert not bom_file.exists(), "BOM file should not be created"
-    assert config_file.exists(), "Configuration file was not created"
+    assert not ipc_file.exists()
+    assert not bom_file.exists()
+    assert config_file.exists()
 
     # Verify configuration file content
-    assert config_file.stat().st_size > 0, "Configuration file is empty"
+    assert config_file.stat().st_size > 0
 
     # Verify configuration file contains valid JSON
     with open(config_file, "r") as f:
         config_data = json.load(f)
-        assert isinstance(config_data, dict), "Configuration file is not valid JSON"
+        assert isinstance(config_data, dict)
 
 
-def test_export_layout_no_options(add_app, local_scratch):
+@pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
+def test_export_layout_no_options(add_app_example, test_tmp_dir):
     """Test export layout with all options disabled."""
+    ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
+    bom_file = test_tmp_dir / f"{AEDB_FILE_NAME}_bom.csv"
+    config_file = test_tmp_dir / f"{AEDB_FILE_NAME}_config.json"
+
     data = ExportLayoutExtensionData(
         export_ipc=False,
         export_configuration=False,
         export_bom=False,
     )
 
-    file_name = AEDB_FILE_NAME + ".aedb"
-    file_path = Path(local_scratch.path) / file_name
-    local_scratch.copyfolder(AEDT_FILE_PATH, file_path)
-
-    # Clean up any existing export files before test
-    project_path = file_path.parent
-    base_name = file_path.stem
-
-    ipc_file = project_path / f"{base_name}_ipc2581.xml"
-    bom_file = project_path / f"{base_name}_bom.csv"
-    config_file = project_path / f"{base_name}_config.json"
-
-    cleanup_files(ipc_file, bom_file, config_file)
-
-    # Perform the export operation
-    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
+    app = add_app_example(
+        application=Hfss3dLayout,
+        is_edb=True,
+        project=AEDB_FILE_NAME,
+        subfolder=TESTS_EXTENSIONS_PATH / "example_models" / TEST_SUBFOLDER,
+    )
     result = main(data)
-    app.close_project()
+    app.close_project(save=False)
 
     # Verify the export operation was successful
     # (even with no exports)
     assert result is True
 
     # Check that no export files were created
-    assert not ipc_file.exists(), "IPC2581 file should not be created"
-    assert not bom_file.exists(), "BOM file should not be created"
-    assert not config_file.exists(), "Configuration file should not be created"
+    assert not ipc_file.exists()
+    assert not bom_file.exists()
+    assert not config_file.exists()
 
 
 def test_export_layout_default_arguments():

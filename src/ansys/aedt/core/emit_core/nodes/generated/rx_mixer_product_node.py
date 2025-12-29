@@ -30,8 +30,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class RxMixerProductNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -71,7 +71,7 @@ class RxMixerProductNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -236,9 +236,9 @@ class RxMixerProductNode(EmitNode):
         self._set_property("Maximum LO Harmonic Order", f"{value}")
 
     class MixingModeOption(Enum):
-        LO_ABOVE_TUNED_RF_FREQUENCY = "LO Above Tuned (RF) Frequency"
-        LO_BELOW_TUNED_RF_FREQUENCY = "LO Below Tuned (RF) Frequency"
-        LO_ABOVEBELOW_TUNED_RF_FREQUENCY = "LO Above/Below Tuned (RF) Frequency"
+        LO_ABOVE_TUNED_RF_FREQUENCY = "AboveTunedFrequency"
+        LO_BELOW_TUNED_RF_FREQUENCY = "BelowTunedFrequency"
+        LO_ABOVEBELOW_TUNED_RF_FREQUENCY = "BothTunedFrequencies"
 
     @property
     def mixing_mode(self) -> MixingModeOption:
@@ -277,8 +277,8 @@ class RxMixerProductNode(EmitNode):
         self._set_property("RF Transition Frequency", f"{value}")
 
     class UseHighLOOption(Enum):
-        ABOVE_TRANSITION_FREQUENCY = "Above Transition Frequency"
-        BELOW_TRANSITION_FREQUENCY = "Below Transition Frequency"
+        ABOVE_TRANSITION_FREQUENCY = "AboveTransition"
+        BELOW_TRANSITION_FREQUENCY = "BelowTransition"
 
     @property
     def use_high_lo(self) -> UseHighLOOption:

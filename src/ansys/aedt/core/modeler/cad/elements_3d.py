@@ -28,6 +28,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -82,8 +83,7 @@ class ModifiablePrimitive(PyAedtBase):
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
-            return False
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
         return True
 
     @pyaedt_function_handler()
@@ -516,8 +516,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("Fillet is possible only on a vertex in 2D designs.")
-                return False
+                raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
 
         vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:FilletParameters"]
@@ -528,8 +527,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
-            return False
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
         return True
 
     @pyaedt_function_handler()
@@ -789,7 +787,8 @@ class FacePrimitive(PyAedtBase):
             self._is_planar = True
             return True
         except Exception:
-            self.logger.clear_messages()
+            if self.logger and hasattr(self.logger, "clear_messages"):
+                self.logger.clear_messages()
             self._is_planar = False
             return False
 
