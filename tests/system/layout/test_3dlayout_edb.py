@@ -22,13 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from pathlib import Path
 import shutil
 
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -36,6 +36,7 @@ from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "layout_edb"
 ORIGINAL_PROJECT = "ANSYS-HSD_V1"
+ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 
 
 @pytest.fixture
@@ -278,7 +279,7 @@ def test_merge(flipchip):
     assert (comp.location[1] - 0.2) < tol
 
 
-@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
+@pytest.mark.skipif(ON_CI, reason="Lead to logger issues on CI runners")
 def test_change_stackup(add_app):
     app = add_app(application=Hfss3dLayout)
     app.modeler.layers.add_layer(
