@@ -767,7 +767,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -838,7 +838,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1099,7 +1099,7 @@ jobs:
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m extensions -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: steps.changes.outputs.run_tests == 'true'
@@ -1221,7 +1221,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m "extensions and not flaky_linux" -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: steps.changes.outputs.run_tests == 'true'
