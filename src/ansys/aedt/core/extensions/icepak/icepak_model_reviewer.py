@@ -185,7 +185,7 @@ class Table(ttk.Frame):
         self.rows_data.append(full_data)
         self.tree.insert("", "end", values=full_data)
 
-    def toggle_row(self, row_id, item_index):
+    def toggle_row(self, row_id):
         if row_id in self.selected_rows:
             self.selected_rows.remove(row_id)
             self.tree.set(row_id, 0, "⬜")
@@ -195,6 +195,21 @@ class Table(ttk.Frame):
 
     def get_modified_data(self):
         return [self.tree.item(row)["values"][1:] for row in self.tree.get_children()]
+
+    def update_cell_value(self, row_id, col, new_value):
+        """Modified data update logic decoupled from UI events."""
+        # Determine which rows to update (bulk edit if selected)
+        if row_id in self.selected_rows:
+            targets = self.selected_rows
+        else:
+            targets = {row_id}
+        for rid in targets:
+            idx = self.tree.index(rid)
+            # Check read-only constraint
+            if col not in self.read_only_data[idx]:
+                self.tree.set(rid, col, new_value)
+                # Update the underlying data list
+                self.rows_data[idx][col] = new_value
 
     def edit_cell(self, event):
         region = self.tree.identify("region", event.x, event.y)
@@ -206,7 +221,7 @@ class Table(ttk.Frame):
         item_index = self.tree.index(row_id)
 
         if col == 0:
-            self.toggle_row(row_id, item_index)
+            self.toggle_row(row_id)
             return
 
         if col in self.read_only_data[item_index]:
@@ -225,16 +240,7 @@ class Table(ttk.Frame):
         type_ = self.types[col]
 
         def apply_to_selected(new_value):
-            for rid in self.tree.get_children():
-                if row_id in self.selected_rows:
-                    targets = self.selected_rows
-                else:
-                    targets = {row_id}
-                if rid in targets:
-                    idx = self.tree.index(rid)
-                    if col not in self.read_only_data[idx]:
-                        self.tree.set(rid, col, new_value)
-                        self.rows_data[idx][col] = new_value
+            self.update_cell_value(row_id, col, new_value)
 
         if type_ == "text":
             entry = tk.Entry(self.tree)

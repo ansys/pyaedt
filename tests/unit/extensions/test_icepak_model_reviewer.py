@@ -27,9 +27,12 @@ import os
 from unittest.mock import patch
 
 import pytest
+import tkinter as tk
+from tkinter import ttk
 
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import EXTENSION_TITLE
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import IcepakModelReviewer
+from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import Table
 from tests import TESTS_UNIT_PATH
 
 
@@ -64,6 +67,22 @@ def patched_import_data_to_project():
     with patch.object(IcepakModelReviewer, "import_data_to_project", return_value=None) as mock_loader:
         yield mock_loader
 
+
+@pytest.fixture
+def table_instance():
+
+    """Setup a table instance for testing."""
+    root = tk.Tk()
+    headers = ["Name", "Status"]
+    types = ["text", "combo"]
+    # Row 0: Column 1 (Name) is read-only
+    # Row 1: No read-only columns
+    read_only_data = [{1}, set()]
+
+    table = Table(root, headers, types, read_only_data)
+    table.add_row(["Alice", "Active"])
+    table.add_row(["Bob", "Inactive"])
+    return table
 
 def test_icepak_model_reviewer(mock_icepak_app):
     """Test instantiation of the IcepakModelReviewer."""
@@ -219,3 +238,25 @@ def test_icepak_model_reviewer_table_modification(
     extension.update_button.invoke()
     assert extension.combined_data["objects"]["MEMORY1"]["Material"] == "Al-Extruded"
     assert extension.combined_data["objects"]["SERIAL_PORT"]["Model"] == "False"
+
+
+def test_icepak_table_modification(mock_icepak_app, patched_loader):
+    extension = IcepakModelReviewer(withdraw=True)
+    extension.load_button.invoke()
+
+    boundary_table = extension.root.boundary_tab.winfo_children()[0]
+    row1 = boundary_table.tree.get_children()[0]
+
+    # 1. TEST PROGRAMMATIC MODIFICATION
+    # Simulates changing 'Value 1' (Col 5) to '10W'
+    boundary_table.update_cell_value(row1, 5, "10W")
+    assert boundary_table.tree.item(row1)["values"][5] == "10W"
+
+    # 2. TEST BULK EDITING (UI Logic Coverage)
+    row3 = boundary_table.tree.get_children()[2]
+    boundary_table.toggle_row(row1)  # Select row 1
+    boundary_table.toggle_row(row3)  # Select row 2
+
+    # Modifying row1 should now also modify row2
+    boundary_table.update_cell_value(row1, 5, "99W")
+    assert boundary_table.tree.item(row3)["values"][5] == "99W"
