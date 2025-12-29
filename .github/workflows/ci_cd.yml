@@ -1545,84 +1545,84 @@ jobs:
 #        with:
 #          name: pytest-flaky-linux
 #          path: junit/test-results.xml
-
-  package:
-    name: Package library
-    needs: [system-tests-solvers-windows,
-            system-tests-solvers-linux,
-            system-tests-general-windows,
-            system-tests-general-linux,
-            system-tests-visualization-windows,
-            system-tests-visualization-linux,
-            system-tests-icepak-windows,
-            system-tests-icepak-linux,
-            system-tests-layout-windows,
-            system-tests-layout-linux,
-            system-tests-extensions-windows,
-            system-tests-extensions-linux,
-            system-tests-filter-windows,
-            system-tests-emit-windows,
-            system-tests-flaky-linux,
-            doc-build]
-    runs-on: ubuntu-latest
-    permissions:
-      attestations: write   # Required to create and publish package attestations (SLSA provenance)
-      contents: read        # Required to read repository content for packaging
-      id-token: write       # Required for OIDC token generation (for provenance signing)
-    steps:
-      - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          attest-provenance: true
-
-  # TODO: Si if we can fix the PDF issue and leverage classic ansys/release-github
-  release:
-    name: Release project
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [package, doc-build]
-    runs-on: ubuntu-latest
-    # Specifying a GitHub environment is optional, but strongly encouraged
-    environment: release
-    permissions:
-      id-token: write   # Required for OIDC authentication to PyPI (trusted publisher)
-      contents: write   # Required to create GitHub releases and upload release assets
-    steps:
-      - name: Download the library artifacts from build-library step
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: ${{ env.PACKAGE_NAME }}-artifacts
-          path: ${{ env.PACKAGE_NAME }}-artifacts
-
-      - name: Release to PyPI using trusted publisher
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
-        with:
-          repository-url: "https://upload.pypi.org/legacy/"
-          print-hash: true
-          packages-dir: ${{ env.PACKAGE_NAME }}-artifacts
-          skip-existing: false
-
-      - name: Release to GitHub
-        uses: ansys/actions/release-github@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: false
-          add-artifact-attestation-notes: true
-
-  upload-release-doc:
-    name: Upload release documentation
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    runs-on: ubuntu-latest
-    needs: [release]
-    permissions:
-      contents: write   # Required to commit and push documentation to gh-pages branch
-    steps:
-      - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          cname: ${{ env.DOCUMENTATION_CNAME }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
-          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+#
+#  package:
+#    name: Package library
+#    needs: [system-tests-solvers-windows,
+#            system-tests-solvers-linux,
+#            system-tests-general-windows,
+#            system-tests-general-linux,
+#            system-tests-visualization-windows,
+#            system-tests-visualization-linux,
+#            system-tests-icepak-windows,
+#            system-tests-icepak-linux,
+#            system-tests-layout-windows,
+#            system-tests-layout-linux,
+#            system-tests-extensions-windows,
+#            system-tests-extensions-linux,
+#            system-tests-filter-windows,
+#            system-tests-emit-windows,
+#            system-tests-flaky-linux,
+#            doc-build]
+#    runs-on: ubuntu-latest
+#    permissions:
+#      attestations: write   # Required to create and publish package attestations (SLSA provenance)
+#      contents: read        # Required to read repository content for packaging
+#      id-token: write       # Required for OIDC token generation (for provenance signing)
+#    steps:
+#      - name: Build library source and wheel artifacts
+#        uses: ansys/actions/build-library@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+#        with:
+#          library-name: ${{ env.PACKAGE_NAME }}
+#          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+#          attest-provenance: true
+#
+#  # TODO: Si if we can fix the PDF issue and leverage classic ansys/release-github
+#  release:
+#    name: Release project
+#    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+#    needs: [package, doc-build]
+#    runs-on: ubuntu-latest
+#    # Specifying a GitHub environment is optional, but strongly encouraged
+#    environment: release
+#    permissions:
+#      id-token: write   # Required for OIDC authentication to PyPI (trusted publisher)
+#      contents: write   # Required to create GitHub releases and upload release assets
+#    steps:
+#      - name: Download the library artifacts from build-library step
+#        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+#        with:
+#          name: ${{ env.PACKAGE_NAME }}-artifacts
+#          path: ${{ env.PACKAGE_NAME }}-artifacts
+#
+#      - name: Release to PyPI using trusted publisher
+#        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+#        with:
+#          repository-url: "https://upload.pypi.org/legacy/"
+#          print-hash: true
+#          packages-dir: ${{ env.PACKAGE_NAME }}-artifacts
+#          skip-existing: false
+#
+#      - name: Release to GitHub
+#        uses: ansys/actions/release-github@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+#        with:
+#          library-name: ${{ env.PACKAGE_NAME }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          generate_release_notes: false
+#          add-artifact-attestation-notes: true
+#
+#  upload-release-doc:
+#    name: Upload release documentation
+#    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+#    runs-on: ubuntu-latest
+#    needs: [release]
+#    permissions:
+#      contents: write   # Required to commit and push documentation to gh-pages branch
+#    steps:
+#      - name: Deploy the stable documentation
+#        uses: ansys/actions/doc-deploy-stable@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+#        with:
+#          cname: ${{ env.DOCUMENTATION_CNAME }}
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+#          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
