@@ -51,14 +51,6 @@ def _write_jpg(design_info, scratch):
     return filename
 
 
-@pytest.fixture(params=[CS_NAME, CS1_NAME, CS2_NAME, CS3_NAME])
-def cs_app(add_app_example, request):
-    app = add_app_example(project=request.param, subfolder=TEST_SUBFOLDER)
-    project_name = app.project_name
-    yield app
-    app.close_project(name=project_name, save=False)
-
-
 @pytest.fixture
 def add_mat(add_app):
     app = add_app()
@@ -107,9 +99,22 @@ def test_check_design_type_names_jpg(test_tmp_dir):
     assert ["feeder", "Cassegrain_reflectors"] == design_names
 
 
-def test_check_coordinate_system_retrival(cs_app):
-    coordinate_systems = cs_app.modeler.coordinate_systems
-    assert coordinate_systems
+def test_check_coordinate_system_retrival(add_app_example):
+    app_1 = add_app_example(subfolder=TEST_SUBFOLDER, project=CS_NAME)
+    assert app_1.modeler.coordinate_systems
+    app_1.close_project(app_1.project_name, save=False)
+
+    app_2 = add_app_example(subfolder=TEST_SUBFOLDER, project=CS1_NAME)
+    assert app_2.modeler.coordinate_systems
+    app_2.close_project(app_2.project_name, save=False)
+
+    app_3 = add_app_example(subfolder=TEST_SUBFOLDER, project=CS2_NAME)
+    assert app_3.modeler.coordinate_systems
+    app_3.close_project(app_3.project_name, save=False)
+
+    app_4 = add_app_example(subfolder=TEST_SUBFOLDER, project=CS3_NAME)
+    assert app_4.modeler.coordinate_systems
+    app_4.close_project(app_4.project_name, save=False)
 
 
 def test_load_material_file(test_tmp_dir):
