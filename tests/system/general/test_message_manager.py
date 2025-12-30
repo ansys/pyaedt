@@ -100,17 +100,17 @@ def test_messaging(icepak_app):  # pragma: no cover
     settings.enable_desktop_logs = True
     msg = icepak_app.logger
     msg.clear_messages(level=3)
-    msg.log_on_desktop=False
+    msg.log_on_desktop = False
     assert not msg.log_on_desktop
-    msg.log_on_desktop=True
+    msg.log_on_desktop = True
     assert msg.log_on_desktop
-    msg.log_on_stdout=False
+    msg.log_on_stdout = False
     assert not msg.log_on_stdout
-    msg.log_on_stdout=True
+    msg.log_on_stdout = True
     assert msg.log_on_stdout
-    msg.log_on_file=False
+    msg.log_on_file = False
     assert not msg.log_on_file
-    msg.log_on_file=True
+    msg.log_on_file = True
     assert msg.log_on_file
     msg.add_info_message("Test Info")
     msg.add_info_message("Test Info", "Project")
