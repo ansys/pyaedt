@@ -467,6 +467,7 @@ def test_em_loss(ipk_app, test_tmp_dir):
         "2.5GHz",
         name=None,
         parameters=param_list,
+        loss_multiplier=transient_dataset
     )
     assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
 
