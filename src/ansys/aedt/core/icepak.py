@@ -63,7 +63,7 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionar
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from src.ansys.aedt.core.modeler.cad.object_3d import Object3d
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
 class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
