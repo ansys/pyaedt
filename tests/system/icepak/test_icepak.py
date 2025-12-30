@@ -456,9 +456,9 @@ def test_em_loss(ipk_app, test_tmp_dir):
     assert b
     assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
     b.delete()
-    ipk_app.solution_type="Transient"
-    ds=ipk_app.create_dataset("test", [0, 1], [0, 1], x_unit="s", is_project_dataset=False)
-    transient_dataset=ipk_app.create_dataset_transient_assignment(ds.name)
+    ipk_app.solution_type = "Transient"
+    ds = ipk_app.create_dataset("test", [0, 1], [0, 1], x_unit="s", is_project_dataset=False)
+    transient_dataset = ipk_app.create_dataset_transient_assignment(ds.name)
     assert ipk_app.assign_em_losses(
         ipk_app.modeler["USB_VCC"],
         "uUSB",
