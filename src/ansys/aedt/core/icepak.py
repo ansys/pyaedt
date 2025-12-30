@@ -28,6 +28,11 @@ import csv
 import os
 from pathlib import Path
 import re
+from typing import Dict
+from typing import List
+from typing import Literal
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
@@ -58,6 +63,7 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionar
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from src.ansys.aedt.core.modeler.cad.object_3d import Object3d
 
 
 class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
