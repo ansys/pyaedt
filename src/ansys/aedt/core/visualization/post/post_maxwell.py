@@ -30,8 +30,11 @@ It contains all advanced postprocessing functionalities for creating and editing
 
 import secrets
 import string
+from typing import List
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -176,7 +179,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>>                                                   intrinsics="200Hz")
         """
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
-        if self._app.solution_type != "Electrostatic":
+        if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -389,7 +392,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
         >>> m2d.desktop_class.release_desktop()
         """
-        if self._app.solution_type != "Electrostatic":
+        if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
         if plot_name not in (self.field_plot_names):
             raise AEDTRuntimeError("The Field Line Tracing Plot needs to be generated.")
@@ -460,4 +463,144 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
             self.ofieldsreporter.ExportInceptionVoltage(plot_name, output_file)
         else:
             self.ofieldsreporter.ExportInceptionVoltage(plot_name, output_file, field_line_number)
+        return True
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def modify_inception_parameters(
+        self,
+        plot_name: str,
+        gas_type: int = 0,
+        gas_pressure: int = 1,
+        use_inception: bool = False,
+        potential_u0: int = 0,
+        potential_k: int = 0,
+        potential_a: int = 1,
+        critical_value: float = 2.588,
+        streamer_constant: float = 9.15,
+        ionization_check: bool = False,
+        ionization_equation: str = "x",
+        ionization_dataset: Optional[List] = None,
+    ) -> bool:  # pragma: no cover
+        """Modify inception voltage evaluation parameters.
+
+        .. note::
+            This method requires field line traces to be computed beforehand to enable inception voltage evaluation.
+
+        Parameters
+        ----------
+        plot_name : str
+            Name of the field fine trace plot as it appears in the AEDT GUI project manager tree.
+        gas_type : int, optional
+            ´´0´´ for Dry Air, ´´1´´ for SF6, ´´2´´ for User Defined.
+            The default value is ´´0´´.
+        gas_pressure: int, optional
+            Gas pressure in Bar.
+            The default value is ´´1´´.
+        use_inception: bool, optional
+            ´´True´´ to use the inception parameters U0, K, A.
+            The default value is ´´True´´.
+        potential_u0: float, optional
+            U0 parameter (constant voltage offset value).
+            Enabled if ´´use_inception´´ is ´´True´´.
+            The default value is ´´0´´.
+        potential_k: int, optional
+            Streamer constant (empirical value).
+            Enabled if ´´use_inception´´ is ´´True´´.
+            The default value is ´´0´´.
+        potential_a: int, optional
+            A parameter.
+            Enabled if ´´use_inception´´ is ´´True´´.
+            The default value is ´´1´´.
+        critical_value: float, optional
+            Critical electric field value at which the gas starts to ionize.
+            Enabled if ´´gas_type´´ is ´´2´´.
+            The default value is ´´2.588´´.
+        streamer_constant: float, optional
+            Number related to the critical electron numbers of electrons in the streamer.
+            Enabled if ´´gas_type´´ is ´´2´´.
+            The default value is ´´9.15´´.
+        ionization_check: bool, optional
+            If ´´True´´ enables customized ionization equation of the form f(x),
+            i.e. , 16.8*x –81.0; if ´´False´´, a dataset must be entered.
+            Enabled if ´´gas_type´´ is ´´2´´ .
+        ionization_equation: str, optional
+            Contains the polynomial customized ionization equation of the form f(x), i.e. , 16.8*x –81.0.
+            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´True´´.
+        ionization_dataset: list, optional
+            Dataset: E/p [kV/mm-bar], ap [1/mm-bar]; i.e., [2,0,0.15,0.2,0.4].
+            Enabled if ´´gas_type´´ is ´´2´´ and ´´ionization_check´´ is ´´False´´.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+        >>> oModule.ModifyInceptionParameters
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+
+        Create a field line traces plot in the Region from seeding faces (insulator faces).
+        >>> plot = m2d.post.create_fieldplot_line_traces(
+        ...     plot_name="LineTracesTest"
+        ...     seeding_faces = (["Region"],)
+        ...     in_volume_tracing_objs = (["Region"],)
+        ... )
+
+        The inception voltage evaluation can be performed on all (or a subset) of the
+        created field line traces and inception voltage parameters can be edited
+        >>> m2d.modify_inception_parameters()
+        >>> m2d.desktop_class.release_desktop()
+        """
+        if not ionization_dataset:
+            ionization_dataset = [0]
+        if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
+            raise AEDTRuntimeError("Field line traces is valid only for Electrostatic solution.")
+
+        if plot_name not in self.field_plot_names:
+            raise AEDTRuntimeError("The field line tracing plot must be generated.")
+
+        arg_list = [
+            "NAME:InceptionEvaluationSettings",
+            "Gas Type:=",
+            gas_type,
+            "Gas Pressure:=",
+            gas_pressure,
+            "Use Inception:=",
+            use_inception,
+            "Potential U0:=",
+            potential_u0,
+            "Potential K:=",
+            potential_k,
+            "Potential A:=",
+            potential_a,
+        ]
+
+        index_gas_type_insert = arg_list.index(gas_pressure) + 1
+        extra_args = [
+            "Critical Value:=",
+            critical_value,
+            "Streamer Constant:=",
+            streamer_constant,
+        ]
+        if gas_type == 2:
+            if ionization_check:
+                extra_args += [
+                    "Ionization Equation Check:=",
+                    ionization_check,
+                    "Ionization Equation:=",
+                    ionization_equation,
+                ]
+            else:
+                extra_args += [
+                    "Ionization Coefficient Dataset:=",
+                    ionization_dataset,
+                ]
+        arg_list[index_gas_type_insert:index_gas_type_insert] = extra_args
+        self.ofieldsreporter.ModifyInceptionParameters(plot_name, arg_list)
         return True
