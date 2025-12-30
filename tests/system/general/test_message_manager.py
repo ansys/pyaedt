@@ -44,6 +44,8 @@ def icepak_app(add_app):
 
 def test_global_messenger():
     msg = AedtLogger()
+    with pytest.raises(ValueError):
+        msg.add_logger("Projectt")
     msg.clear_messages()
 
     # Add messages at different levels
@@ -98,6 +100,18 @@ def test_messaging(icepak_app):  # pragma: no cover
     settings.enable_desktop_logs = True
     msg = icepak_app.logger
     msg.clear_messages(level=3)
+    msg.log_on_desktop=False
+    assert not msg.log_on_desktop
+    msg.log_on_desktop=True
+    assert msg.log_on_desktop
+    msg.log_on_stdout=False
+    assert not msg.log_on_stdout
+    msg.log_on_stdout=True
+    assert msg.log_on_stdout
+    msg.log_on_file=False
+    assert not msg.log_on_file
+    msg.log_on_file=True
+    assert msg.log_on_file
     msg.add_info_message("Test Info")
     msg.add_info_message("Test Info", "Project")
     msg.add_info_message("Test Info", "Global")
@@ -114,6 +128,8 @@ def test_messaging(icepak_app):  # pragma: no cover
     msg.add_info_message("Test Debug")
     msg.add_info_message("Test Debug", "Project")
     msg.add_info_message("Test Debug", "Global")
+    with msg.suspend_logging():
+        msg.add_info_message("Test Debug 2")
     assert len(msg.messages.info_level) > 0
     assert len(msg.aedt_messages.global_level) >= 4
     assert len(msg.aedt_messages.project_level) >= 4
