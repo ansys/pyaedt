@@ -442,7 +442,7 @@ def test_em_loss(ipk_app, test_tmp_dir):
         "Rectangle7",
     ]
     param_list = []
-    assert ipk_app.assign_em_losses(
+    b = ipk_app.assign_em_losses(
         object_list,
         "uUSB",
         "Setup1",
@@ -451,6 +451,21 @@ def test_em_loss(ipk_app, test_tmp_dir):
         name=None,
         surface_objects=surface_list,
         source_project_name=hfss_spath,
+        parameters=param_list,
+    )
+    assert b
+    assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
+    b.delete()
+    ipk_app.solution_type="Transient"
+    ds=ipk_app.create_dataset("test", [0, 1], [0, 1], x_unit="s", is_project_dataset=False)
+    transient_dataset=ipk_app.create_dataset_transient_assignment(ds.name)
+    assert ipk_app.assign_em_losses(
+        ipk_app.modeler["USB_VCC"],
+        "uUSB",
+        "Setup1",
+        "LastAdaptive",
+        "2.5GHz",
+        name=None,
         parameters=param_list,
     )
     assert len(ipk_app.oboundary.GetBoundariesOfType("EM Loss")) == 1
