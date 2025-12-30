@@ -222,6 +222,10 @@ class AedtLogger:
 
     def add_file_logger(self, filename, project_name, level=None):
         """Add a new file to the logger handlers list."""
+        # Ensure the directory exists
+        log_path = Path(filename)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
         _project = logging.getLogger(project_name)
         _project.setLevel(level if level else self.level)
         _project.addFilter(AppFilter("Project", project_name))
