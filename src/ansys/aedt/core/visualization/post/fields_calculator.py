@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 import copy
-import os
+from pathlib import Path
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -35,6 +35,8 @@ from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 class FieldsCalculator(PyAedtBase):
@@ -91,22 +93,18 @@ class FieldsCalculator(PyAedtBase):
 
     def __init__(self, app):
         self.expression_catalog = read_configuration_file(
-            os.path.join(
-                ansys.aedt.core.__path__[0],
-                "visualization",
-                "post",
-                "fields_calculator_files",
-                "expression_catalog.toml",
-            )
+            Path(ansys.aedt.core.__path__[0])
+            / "visualization"
+            / "post"
+            / "fields_calculator_files"
+            / "expression_catalog.toml"
         )
         self.expression_schema = read_configuration_file(
-            os.path.join(
-                ansys.aedt.core.__path__[0],
-                "visualization",
-                "post",
-                "fields_calculator_files",
-                "fields_calculator.schema.json",
-            )
+            Path(ansys.aedt.core.__path__[0])
+            / "visualization"
+            / "post"
+            / "fields_calculator_files"
+            / "fields_calculator.schema.json"
         )
         self.__app = app
         self.design_type = app.design_type
@@ -253,7 +251,7 @@ class FieldsCalculator(PyAedtBase):
 
         # Import clc
         self.ofieldsreporter.LoadNamedExpressions(
-            os.path.abspath(file_name), expression_info["fields_type"][design_type_index], [name]
+            str(Path(file_name).resolve()), expression_info["fields_type"][design_type_index], [name]
         )
 
         return expression_info["name"]
@@ -289,7 +287,7 @@ class FieldsCalculator(PyAedtBase):
                 file.write("$end 'Named_Expression'\n")
         except Exception:  # pragma: no cover
             return False
-        return os.path.abspath(file_name)
+        return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
     def expression_plot(self, calculation, assignment, names, setup=None):
@@ -476,21 +474,19 @@ class FieldsCalculator(PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> my_toml = os.path.join("my_path_to_toml", "my_toml.toml")
+        >>> my_toml = str(Path("my_path_to_toml") / "my_toml.toml")
         >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
         >>> hfss.desktop_class.release_desktop(False, False)
         """
-        if not os.path.isfile(input_file):
+        if not Path(input_file).is_file():
             self.__app.logger.error("File does not exist.")
             return False
 
         new_expression_catalog = read_configuration_file(input_file)
 
-        if new_expression_catalog:
-            for _, new_expression_props in new_expression_catalog.items():
-                new_expression = self.validate_expression(new_expression_props)
-                if new_expression:
-                    self.expression_catalog.update(new_expression)
+        for new_expression_key, new_expression_props in new_expression_catalog.items():
+            if self.validate_expression(new_expression_props):
+                self.expression_catalog[new_expression_key] = new_expression_props
 
         return self.expression_catalog
 
@@ -561,14 +557,14 @@ class FieldsCalculator(PyAedtBase):
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        >>> file_path = os.path.join(hfss.working_directory, "my_expr.fld")
+        >>> file_path = Path(hfss.working_directory) / "my_expr.fld"
         >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.desktop_class.release_desktop(False, False)
         """
         if not self.is_expression_defined(expression):
             self.__app.logger.error("Expression does not exist in current stack.")
             return False
-        if os.path.splitext(output_file)[1] not in [".fld", ".reg"]:
+        if Path(output_file).suffix not in [".fld", ".reg"]:
             self.__app.logger.error("Invalid file extension. Accepted extensions are '.fld' and '.reg'.")
             return False
         if not setup:
@@ -620,16 +616,16 @@ class FieldsCalculator(PyAedtBase):
         float
             Value computed.
         """
-        out_file = os.path.join(self.__app.working_directory, generate_unique_name("expression") + ".fld")
-        self.write(expression, setup=setup, intrinsics=intrinsics, output_file=out_file)
+        out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
+        self.write(expression, setup=setup, intrinsics=intrinsics, output_file=str(out_file))
         value = None
-        if os.path.exists(out_file):
+        if out_file.exists():
             with open_file(out_file, "r") as f:
                 lines = f.readlines()
                 lines = [line.strip() for line in lines]
                 value = lines[-1]
             try:
-                os.remove(out_file)
+                out_file.unlink()
             except OSError:
                 pass
         return value
@@ -804,9 +800,49 @@ class FieldsCalculator(PyAedtBase):
             )
             return False
 
-        if os.path.exists(output_file):
-            return output_file
+        if output_file:
+            output_file = Path(output_file)
+
+        if output_file.exists():
+            return str(output_file)
         return False
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2026.1")
+    def get_expressions(self, field_type: str = None) -> dict:
+        """Get dictionary of available Field Calculator expressions.
+
+        Parameters
+        ----------
+        field_type : str, optional
+            Field type. Options are ``"Fields"`` or ``"Time Averaged Fields"``.
+            The default is ``None``, in which case all expressions are returned.
+
+        Returns
+        -------
+        dict
+            Field Calculator expressions.
+            Where key is the named expression and value is the expression string.
+
+        References
+        ----------
+        >>> oModule.GetFieldsCalculatorExpressions
+        Example
+        -------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        >>> exprs = hfss.post.fields_calculator.get_expressions()
+        >>> hfss.desktop_class.release_desktop(False, False)
+        """
+        expressions = {}
+        field_type = field_type or ""
+        if field_type and field_type not in ["Fields", "Time Averaged Fields"]:
+            raise AEDTRuntimeError("Invalid field type.")
+        for expr in self.ofieldsreporter.GetFieldsCalculatorExpressions(field_type):
+            k, val = map(str.strip, expr.split("=", 1))
+            expressions[k] = val
+        return expressions
 
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
