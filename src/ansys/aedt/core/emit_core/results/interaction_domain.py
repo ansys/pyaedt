@@ -25,9 +25,9 @@
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
-from ansys.aedt.core.emit_core.nodes import emit_node
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
 
 class InteractionDomain:
     def __init__(self, emit_obj):
@@ -62,14 +62,14 @@ class InteractionDomain:
 
         self.rx_name = ""
         """Receiver name."""
-    
+
     @pyaedt_function_handler()
-    def set_receiver(self, name : str, band_name : str, freq : float, units : str):
+    def set_receiver(self, name: str, band_name: str, freq: float, units: str):
         """
         Set the receiver radio name, band name, and channel frequency.
 
         Parameters
-        ---------- 
+        ----------
         name : str
             Name of the receiver radio.
         band_name : str
@@ -78,26 +78,23 @@ class InteractionDomain:
             Channel frequency of the receiver.
         units : str
             Units of the channel frequency.
-        
+
         Returns
         -------
         None
         """
-        
         self.rx_name = name
         self.rx_band_name = band_name
 
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
-            err_msg = (f"Unit {units} is not valid for frequency. "
-                       f"Valid units are: {EMIT_INTERNAL_UNITS["Freq"]}")
+            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
             warnings.warn(err_msg)
 
-        converted_freq = consts.unit_converter(freq, 'Freq', units, EMIT_INTERNAL_UNITS['Freq']) 
+        converted_freq = consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
         self.rx_channel_frequency = converted_freq
-        
-    
+
     @pyaedt_function_handler()
-    def set_interferer(self, name : str, band_name : str, freq : float, units : str):
+    def set_interferer(self, name: str, band_name: str, freq: float, units: str):
         """
         Set a single interferer radio name, band name, and channel frequency.
 
@@ -110,14 +107,13 @@ class InteractionDomain:
         freq : float
             Channel frequency of the interferer.
         units : str
-            Units of the channel frequency. 
+            Units of the channel frequency.
 
         Returns
         -------
         None
 
         """
-
         self.interferer_names = []
         self.interferer_names.append(name)
         self.interferer_band_names = []
@@ -125,15 +121,12 @@ class InteractionDomain:
         self.interferer_channel_frequencies = []
 
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
-            err_msg = (f"Unit {units} is not valid for frequency. "
-                       f"Valid units are: {EMIT_INTERNAL_UNITS["Freq"]}")
+            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
             warnings.warn(err_msg)
-            
-        
-        converted_freq = consts.unit_converter(freq, 'Freq', units, EMIT_INTERNAL_UNITS['Freq']) 
+
+        converted_freq = consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
         self.interferer_channel_frequencies.append(converted_freq)
-    
-    
+
     @pyaedt_function_handler()
     def set_interferers(self, names: list, band_names: list, freqs: list, units: str):
         """
@@ -149,83 +142,77 @@ class InteractionDomain:
             List of channel frequencies of the interferers.
         units : str
             Units of the channel frequencies.
-        
+
         Returns
         -------
         None
 
         """
-
-
-        if len(band_names) > 0 and  len(band_names) != len(names):
+        if len(band_names) > 0 and len(band_names) != len(names):
             err_msg = "When assigning bands you must assign one band per interferer."
             warnings.warn(err_msg)
         if len(freqs) > 0 and len(freqs) != len(band_names):
             err_msg = "When assigning channels you must assign one channel per band."
             warnings.warn(err_msg)
-        
+
         self.interferer_names = names
         self.interferer_band_names = band_names
 
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
-            err_msg = (f"Unit {units} is not valid for frequency. "
-                       f"Valid units are: {EMIT_INTERNAL_UNITS["Freq"]}")
-            warnings.warn(err_msg) 
+            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
+            warnings.warn(err_msg)
 
-        converted_freqs = [
-            consts.unit_converter(freq, 'Freq', units, EMIT_INTERNAL_UNITS['Freq']) for freq in freqs
-        ]
+        converted_freqs = [consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"]) for freq in freqs]
 
         self.interferer_channel_frequencies = converted_freqs
-    
+
     @pyaedt_function_handler()
     def get_receiver_channel_frequency(self, units: str) -> float:
         """
         Get the receiver channel frequency in the specified units.
-        
+
         Parameters
         ----------
         units : str
             Units of the channel frequency to return.
-        
+
         Returns
         -------
         converted_freq : float
             Receiver channel frequency in the specified units.
         """
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
-            err_msg = (f"Unit {units} is not valid for frequency. "
-                       f"Valid units are: {EMIT_INTERNAL_UNITS["Freq"]}")
+            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
             warnings.warn(err_msg)
-        
-        converted_freq = consts.unit_converter(self.rx_channel_frequency, 'Freq', units, EMIT_INTERNAL_UNITS['Freq']) 
+
+        converted_freq = consts.unit_converter(self.rx_channel_frequency, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
         return converted_freq
-    
+
     @pyaedt_function_handler()
     def get_interferer_channel_frequencies(self, units: str) -> list:
         """
         Get the interferer channel frequencies in the specified units.
-        
+
         Parameters
         ----------
         units : str
             Units of the channel frequencies to return.
-        
+
         Returns
         -------
         converted_freqs : list
             List of interferer channel frequencies in the specified units.
         """
         if units not in EMIT_INTERNAL_UNITS["Freq"]:
-            err_msg = (f"Unit {units} is not valid for frequency. "
-                       f"Valid units are: {EMIT_INTERNAL_UNITS["Freq"]}")
+            err_msg = f"Unit {units} is not valid for frequency. Valid units are: {EMIT_INTERNAL_UNITS['Freq']}"
             warnings.warn(err_msg)
-        
+
         converted_freqs = [
-            consts.unit_converter(freq, 'Freq', units, EMIT_INTERNAL_UNITS['Freq']) for freq in self.interferer_channel_frequencies
+            consts.unit_converter(freq, "Freq", units, EMIT_INTERNAL_UNITS["Freq"])
+            for freq in self.interferer_channel_frequencies
         ]
         return converted_freqs
-    
+
     def is_single_instance(self):
         """
         Check if the Interaction Domain instance is fully defined for a single
@@ -234,14 +221,13 @@ class InteractionDomain:
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         bool
             True if the instance is fully defined, False otherwise.
-            
-        """
 
+        """
         if not self.rx_name or not self.rx_band_name or self.rx_channel_frequency < 0:
             return False
         if not self.interferer_names or not self.interferer_band_names or not self.interferer_channel_frequencies:
