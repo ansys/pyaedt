@@ -838,7 +838,7 @@ class AedtLogger:
         Returns
         -------
         bool
-            True if logging to stdout is enabled, False otherwise.
+            ``True`` if logging to stdout is enabled, ``False`` otherwise.
         """
         return self._log_on_screen
 
