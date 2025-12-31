@@ -316,7 +316,8 @@ class CommonRegion(PyAedtBase):
 
     def _update_region_data(self):
         region = self.object
-        create_region = region.history()
+        with self._app.logger.suspend_logging():
+            create_region = region.history()
         self._padding_type = []
         self._padding_value = []
         for padding_direction in ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]:
