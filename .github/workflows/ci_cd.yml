@@ -1692,7 +1692,7 @@ jobs:
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: false
+          generate-release-notes: false
           add-artifact-attestation-notes: true
 
   upload-release-doc:
