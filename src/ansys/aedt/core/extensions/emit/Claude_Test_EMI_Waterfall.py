@@ -136,8 +136,6 @@ def plot_matrix_heatmap(data, min_val=None, max_val=None,xlabel = "column index"
 
     # Adjust layout to prevent cutting off labels
     plt.tight_layout()
-    plt.savefig('my_plot.png')
-    print(plt.get_backend())
     return plt.gcf()
 
 

@@ -57,10 +57,7 @@ class App:
         self.aggressor_band_combo.grid(row=4, column=1, sticky="we", padx=4, pady=4)
 
         # Buttons
-        self.extract_button = tk.Button(root, text="Extract Data", command=self.extract_data)
-        self.extract_button.grid(row=5, column=0, padx=4, pady=8)
-
-        self.export_button = tk.Button(root, text="Export CSV File", command=self.generate)
+        self.export_button = tk.Button(root, text="Export CSV File", command=self.export_csv)
         self.export_button.grid(row=5, column=1, padx=4, pady=8, sticky="w")
 
         self.waterfall_button = tk.Button(root, text="Generate Waterfall EMI Plot", command=self.waterfall)
@@ -147,32 +144,36 @@ class App:
         except Exception as e:
             messagebox.showerror("Extraction Error", f"Error during extraction: {e}")
 
-    def generate(self):
+    def export_csv(self):
+        self.extract_data()
         if self.emi is None:
             if messagebox.askyesno("Data Missing", "No extracted data found. Run extraction now?"):
                 self.extract_data()
             else:
                 return
-
-        project_dir = os.path.dirname(self.project_var.get()) or os.getcwd()
-        victim = self.victim_combo.get()
-        victim_band = self.victim_band_combo.get()
-        aggressor = self.aggressor_combo.get()
-        aggressor_band = self.aggressor_band_combo.get()
+        filename = filedialog.asksaveasfilename(title="Save Results to CSV", defaultextension=".csv", filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+        if filename:
+            victim = self.victim_combo.get()
+            victim_band = self.victim_band_combo.get()
+            aggressor = self.aggressor_combo.get()
+            aggressor_band = self.aggressor_band_combo.get()
+        else:
+            messagebox.showwarning("Save Cancelled", "Filename not specified")
+            return
 
         try:
             aggressor_frequencies = self.revision.get_active_frequencies(aggressor, aggressor_band, TxRxMode.TX)
             victim_frequencies = self.revision.get_active_frequencies(victim, victim_band, TxRxMode.RX)
 
-            csv_path = os.path.join(project_dir, "pivot_table.csv")
-            export_csv.export_csv(csv_path, self.emi, self.rx_power, self.desense, self.sensitivity,
+            export_csv.export_csv(filename, self.emi, self.rx_power, self.desense, self.sensitivity,
                                    aggressor, aggressor_band, aggressor_frequencies,
                                    victim, victim_band, victim_frequencies)
-            messagebox.showinfo("Export Complete", f"CSV exported to {csv_path}")
+            messagebox.showinfo("Export Complete", f"CSV exported to {filename}")
         except Exception as e:
             messagebox.showerror("Export Error", f"Failed to export CSV: {e}")
 
     def waterfall(self):
+        self.extract_data()
         if self.emi is None:
             if messagebox.askyesno("Data Missing", "No extracted data found. Run extraction now?"):
                 self.extract_data()
@@ -201,12 +202,15 @@ class App:
                 data,
                 xticks=aggressor_frequencies,
                 yticks=victim_frequencies,
-                xlabel="Tx channels",
-                ylabel="Rx channel",
+                xlabel=f"Tx channels - {aggressor} | {aggressor_band}",
+                ylabel=f"Rx channels - {victim} | {victim_band}",
                 title=f"EMI Waterfall {self.project_var.get()}",
                 red_threshold=red,
                 yellow_threshold=yellow)
-            plt.show()
+            manager = plt.get_current_fig_manager()
+            # manager.window.showMaximized()
+            plt.rcParams['savefig.directory'] = os.path.dirname(self.project_var.get())
+            fig.show()
         except Exception as e:
             messagebox.showerror("Waterfall Error", f"Failed to generate waterfall: {e}")
 
