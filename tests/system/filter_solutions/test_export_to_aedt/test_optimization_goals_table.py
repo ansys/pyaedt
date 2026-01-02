@@ -71,7 +71,7 @@ class TestClass:
             "-23.01",
             "<=",
             "dB(S(Port2,Port1))",
-            "0,5",
+            "0.5",
             "Y",
         ]
         assert (
