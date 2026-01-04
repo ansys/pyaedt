@@ -1,0 +1,6 @@
+is\_grpc\_api
+=============
+
+.. currentmodule:: ansys.aedt.core.desktop
+
+.. autoproperty:: Desktop.is_grpc_api

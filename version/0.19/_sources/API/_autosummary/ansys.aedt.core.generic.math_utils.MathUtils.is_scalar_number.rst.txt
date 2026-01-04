@@ -1,0 +1,6 @@
+is\_scalar\_number
+==================
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. automethod:: MathUtils.is_scalar_number
