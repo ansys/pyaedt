@@ -6728,7 +6728,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         external_data=None,
         simulate_source=True,
         preserve_source_solution=True,
-        source_coord_system="Global",
+        coordinate_system="Global",
         name=None,
     ) -> BoundaryObject:
         """Create a far field wave excitation.
@@ -6751,7 +6751,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         preserve_source_solution : bool, optional
             Whether to preserve the source solution. The default is ``True``.
             This parameter is only used when ``assignment`` is provided.
-        source_coord_system : str, optional
+        coordinate_system : str, optional
             Coordinate system to use for the source. The default is ``"Global"``.
         name : str, optional
             Name of the excitation. The default is ``None``, in which
@@ -6794,7 +6794,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 "IsFarField": True,
                 "UseDataLink": False,
                 "ExternalDataFile": external_data,
-                "SourceCoordSystem": source_coord_system,
+                "SourceCoordSystem": coordinate_system,
             }
         else:
             # Use data link to another design
@@ -6828,7 +6828,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 "ForceSourceToSolve": simulate_source,
                 "PreservePartnerSoln": preserve_source_solution,
                 "PathRelativeTo": "TargetProject",
-                "SourceCoordSystem": source_coord_system,
+                "SourceCoordSystem": coordinate_system,
             }
 
         return self._create_boundary(name, props, "Far Field Wave")
