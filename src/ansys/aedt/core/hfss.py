@@ -6738,10 +6738,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         assignment : ansys.aedt.core.Hfss, optional
             Source HFSS object from which to link the far field data. Required when using data link.
             The default is ``None``.
-        setup : str, optional
-            Name of the setup to use from the source design. Format should be "Setup : Sweep".
-            The default is ``None``, in which case the nominal adaptive setup is used.
-            This parameter is only used when ``assignment`` is provided.
+        setup : optional
+            Name of the setup. The default is ``None``, in which
+            case a name is automatically assigned.
         external_data : str, optional
             Path to external far field data file (ffd file). When provided, the far field
             excitation uses this file instead of linking to another design. The default is ``None``.
@@ -6808,7 +6807,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
             design_name = assignment.design_name
 
-            if not setup:
+            if not setup.get_sweep():
                 setup = assignment.nominal_adaptive
 
             params = {}
