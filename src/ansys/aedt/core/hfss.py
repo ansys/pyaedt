@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -6805,12 +6805,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 project_name = "This Project*"
             else:
                 project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
-            
+
             design_name = assignment.design_name
-            
+
             if not setup:
                 setup = assignment.nominal_adaptive
-            
+
             params = {}
             pars = assignment.available_variations.get_independent_nominal_values()
             for el in pars:
