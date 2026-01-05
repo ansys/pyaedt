@@ -550,6 +550,8 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             self._app.oboundary.AssignFluxTangential(self._get_args())
         elif bound_type == "Plane Incident Wave":
             self._app.oboundary.AssignPlaneWave(self._get_args())
+        elif bound_type == "Far Field Wave":
+            self._app.oboundary.AssignFarFieldWave(self._get_args())
         elif bound_type == "Hertzian Dipole Wave":
             self._app.oboundary.AssignHertzianDipoleWave(self._get_args())
         elif bound_type == "ResistiveSheet":
