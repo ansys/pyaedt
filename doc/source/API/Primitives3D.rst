@@ -13,9 +13,14 @@ They are accessible through the ``modeler`` property:
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call return the Modeler3D class
     modeler = app.modeler
@@ -24,7 +29,7 @@ They are accessible through the ``modeler`` property:
     primitives = modeler
 
     # This call return an Object3d object
-    my_box = primitives.create_box([0,0,0],[10,10,10])
+    my_box = primitives.create_box([0, 0, 0], [10, 10, 10])
     my_box = primitives.objects[my_box.id]
 
     # This call return a FacePrimitive object list
@@ -61,14 +66,21 @@ modeler, including all primitives methods and properties for HFSS, Maxwell 3D, Q
 .. code:: python
 
     from ansys.aedt.core import Circuit
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the NexximComponents class
-    origin = [0,0,0]
-    sizes = [10,5,20]
-    #Material and name are not mandatory fields
-    box_object = app.modeler.primivites.create_box(origin, sizes, name="mybox", material="copper")
+    origin = [0, 0, 0]
+    sizes = [10, 5, 20]
+    # Material and name are not mandatory fields
+    box_object = app.modeler.primivites.create_box(
+        origin, sizes, name="mybox", material="copper"
+    )
 
     ...
