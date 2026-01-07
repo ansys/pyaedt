@@ -7,7 +7,7 @@ Getting started
             :link: About
             :link-type: doc
             :margin: 2 2 0 0
-            
+
             Learn more about PyAnsys and AEDT.
 
    .. grid-item-card:: Installation

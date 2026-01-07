@@ -17,9 +17,13 @@ EMIT version check and set units example:
     import ansys.aedt.core
     from ansys.aedt.core import Emit
 
-    emit = Emit(ansys.aedt.core.generate_unique_project_name(),
-                specified_version="2025.2", non_graphical=False,
-                new_desktop_session=True, close_on_exit=True)
+    emit = Emit(
+        ansys.aedt.core.generate_unique_project_name(),
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+    )
 
     # This call returns detailed version info for EMIT
     ver = emit.version(detailed=True)
@@ -53,8 +57,12 @@ EMIT-HFSS link creation example:
         os.mkdir(temp_folder)
 
     # Launch AEDT
-    aedtapp = ansys.aedt.core.launch_desktop(specified_version="2025.2", non_graphical=False,
-                                             new_desktop_session=True, close_on_exit=True)
+    aedtapp = ansys.aedt.core.launch_desktop(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+    )
 
     # Verify the ``Cell Phone RFT Defense`` example exists
     example_name = "Cell Phone RFI Desense"
@@ -117,9 +125,13 @@ Create and Analyze an EMIT project:
     from ansys.aedt.core import Emit
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
 
-    emit = Emit(ansys.aedt.core.generate_unique_project_name(),
-                specified_version="2025.2", non_graphical=False,
-                new_desktop_session=True, close_on_exit=True)
+    emit = Emit(
+        ansys.aedt.core.generate_unique_project_name(),
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+    )
 
     # Create a radio and connect an antenna to it
     rad1 = emit.modeler.components.create_component("New Radio")
@@ -130,7 +142,9 @@ Create and Analyze an EMIT project:
     # Quickly create 2 more radios with antennas automatically
     # connected to them
     rad2, ant2 = emit.modeler.components.create_radio_antenna("GPS Receiver")
-    rad3, ant3 = emit.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
+    rad3, ant3 = emit.modeler.components.create_radio_antenna(
+        "Bluetooth Low Energy (LE)", "Bluetooth"
+    )
 
     # Create a new ``Revision``
     rev = emit.results.analyze()
@@ -144,9 +158,9 @@ Create and Analyze an EMIT project:
     # Configure the interaction domain that will be analyzed
     domain = emit.results.interaction_domain()
     domain.set_receiver(rad2.name, rx_bands[0], -1)
-    domain.set_interferer(rad3.name,tx_bands[0])
+    domain.set_interferer(rad3.name, tx_bands[0])
 
-    # Analzye the domain and get the worst case interference
+    # Analyze the domain and get the worst case interference
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(ResultType.EMI)
     emi = worst.get_value(ResultType.EMI)
