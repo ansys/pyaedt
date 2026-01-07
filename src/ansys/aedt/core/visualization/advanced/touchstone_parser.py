@@ -190,8 +190,6 @@ class TouchstoneData(rf.Network, PyAedtBase):
         exclude_include=True,
         frequency_sample=5,
         output_file=None,
-        aedb_path=None,
-        design_name=None,
     ):
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
@@ -217,10 +215,6 @@ class TouchstoneData(rf.Network, PyAedtBase):
             Specify frequency sample at which coupling check will be done. The default is ``5``.
         output_file : str, or :class:'pathlib.Path', optional
             Output file path to save where identified coupling will be listed. The default is ``None``.
-        aedb_path : path, optional
-            Full path to the ``aedb`` folder. This project is used to identify ports location. The default is ``None``.
-        design_name : string, optional
-            Design name from the project where to identify ports location. The default is ``None``.
 
         Returns
         -------
@@ -269,79 +263,36 @@ class TouchstoneData(rf.Network, PyAedtBase):
         k_start = bisect.bisect_left(self.frequency.f, start_frequency)
         k_stop = bisect.bisect_right(self.frequency.f, stop_frequency)
 
-
-
         s_db = self.s_db[:, :, :]
         temp_list = []
         temp_file = []
-        if aedb_path is not None:
-            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion=aedt_versions.latest_version)
-            for i in range(self.number_of_ports):
-                for j in range(i, self.number_of_ports):
-                    if i == j:
-                        continue
-                    refdes1 = self.port_names[i].split("_")[0]
-                    refdes2 = self.port_names[j].split("_")[0]
-                    if refdes1 == refdes2 and not s_same_component:
-                        continue
 
-                    for k in range(k_start, k_stop, frequency_sample):
-                        loss = s_db[k, i, j]
-                        if high_loss < loss < low_loss:
-                            temp_list.append((i, j))
-                            port1 = self.port_names[i]
-                            port2 = self.port_names[j]
-                            # This if statement is mandatory as the codeword to use is different with regard to
-                            # port type: Circuit(.location) or Gap(.position)
-                            if edbapp.ports[port1].hfss_type == "Circuit":
-                                loc_port_1 = edbapp.ports[port1].location
-                            else:
-                                loc_port_1 = edbapp.ports[port1].position
-                            if edbapp.ports[port2].hfss_type == "Circuit":
-                                loc_port_2 = edbapp.ports[port2].location
-                            else:
-                                loc_port_2 = edbapp.ports[port2].position
-                            # This if statement is mandatory as some port return None for port location which will
-                            # issue error on the formatting
-                            if loc_port_1 is not None:
-                                loc_port_1[0] = f"{loc_port_1[0]:.4f}"
-                                loc_port_1[1] = f"{loc_port_1[1]:.4f}"
-                            if loc_port_2 is not None:
-                                loc_port_2[0] = f"{loc_port_2[0]:.4f}"
-                                loc_port_2[1] = f"{loc_port_2[1]:.4f}"
-                            sxy = f"S({port1},{port2})"
-                            ports_location = f"{port1}: {loc_port_1}, {port2}: {loc_port_2}"
-                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz, {ports_location}\n"
-                            temp_file.append(line)
-                            break
-            edbapp.close()
-        else:
-            for i in range(self.number_of_ports):
-                refdes1 = self.port_names[i].split("_")[0]
-                if len(comp_list) != 0:
-                    if exclude_include:
-                        if not any(refdes1.lower() in x.lower() for x in comp_list):
-                            continue
-                    else:
-                        if any(refdes1.lower() in x.lower() for x in comp_list):
-                            continue
-                for j in range(i, self.number_of_ports):
-                    if i == j:
+        for i in range(self.number_of_ports):
+            refdes1 = self.port_names[i].split("_")[0]
+            if len(comp_list) != 0:
+                if exclude_include:
+                    if not any(refdes1.lower() in x.lower() for x in comp_list):
                         continue
-                    refdes2 = self.port_names[j].split("_")[0]
-                    if len(comp_list) != 0 and not exclude_include:
-                        if any(refdes2.lower() in x.lower() for x in comp_list):
-                            continue
-                    if refdes1.lower() == refdes2.lower() and not s_same_component:
+                else:
+                    if any(refdes1.lower() in x.lower() for x in comp_list):
                         continue
-                    for k in range(k_start, k_stop, frequency_sample):
-                        loss = s_db[k, i, j]
-                        if high_loss < loss < low_loss:
-                            temp_list.append((i, j))
-                            sxy = f"S({self.port_names[i]},{self.port_names[j]})"
-                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
-                            temp_file.append(line)
-                            break
+            for j in range(i, self.number_of_ports):
+                if i == j:
+                    continue
+                refdes2 = self.port_names[j].split("_")[0]
+                if len(comp_list) != 0 and not exclude_include:
+                    if any(refdes2.lower() in x.lower() for x in comp_list):
+                        continue
+                if refdes1.lower() == refdes2.lower() and not s_same_component:
+                    continue
+                for k in range(k_start, k_stop, frequency_sample):
+                    loss = s_db[k, i, j]
+                    if high_loss < loss < low_loss:
+                        temp_list.append((i, j))
+                        sxy = f"S({self.port_names[i]},{self.port_names[j]})"
+                        line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
+                        temp_file.append(line)
+                        break
         if output_file is not None:
             output_file = Path(output_file)
             if output_file.is_file():
