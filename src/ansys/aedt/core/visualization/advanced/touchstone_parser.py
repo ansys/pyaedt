@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import bisect
 from copy import copy
 import itertools
 import os
@@ -31,11 +32,9 @@ from typing import List
 from typing import Optional
 from typing import Union
 import warnings
-import bisect
 
 import numpy as np
 
-from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
@@ -255,7 +254,6 @@ class TouchstoneData(rf.Network, PyAedtBase):
         high.
 
         """
-
         nb_freq = self.frequency.npoints
 
         k = 0
