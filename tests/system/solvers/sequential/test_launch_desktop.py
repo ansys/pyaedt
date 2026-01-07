@@ -34,6 +34,7 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Mechanical
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
+from ansys.aedt.core import Rmxprt
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import SolutionsHfss
@@ -260,6 +261,13 @@ def test_run_desktop_circuit_netlist(desktop):
     aedtapp = CircuitNetlist()
     assert aedtapp.design_type == "Circuit Netlist"
     assert aedtapp.solution_type == ""
+    aedtapp.close_project(save=False)
+
+
+def test_run_desktop_rmxpert(desktop):
+    aedtapp = Rmxprt()
+    assert aedtapp.design_type == "Rmxprt Solution"
+    assert aedtapp.solution_type == "TR"
     aedtapp.close_project(save=False)
 
 
