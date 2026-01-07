@@ -1994,8 +1994,8 @@ def test_plane_wave(aedt_app):
 
 def test_far_field(aedt_app, add_app, test_tmp_dir):
     # Test error when neither assignment nor external_data is provided
-    with pytest.raises(ValueError, match="Either 'assignment' or 'external_data' must be provided."):
-        aedt_app.far_field()
+    with pytest.raises(ValueError, match="The 'assignment' parameter must be provided."):
+        aedt_app.far_field_wave()
 
     # Create simple geometry in target design
     _ = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], "TargetBox")
@@ -2008,7 +2008,7 @@ def test_far_field(aedt_app, add_app, test_tmp_dir):
     setup.props["MaximumPasses"] = 2
 
     # Test far field with assignment from same project
-    far_field_boundary = aedt_app.far_field(
+    far_field_boundary = aedt_app.far_field_wave(
         assignment=source_design, setup=setup, coordinate_system="Global", name="FarField1"
     )
     assert far_field_boundary is not None
@@ -2020,13 +2020,13 @@ def test_far_field(aedt_app, add_app, test_tmp_dir):
     ffd_file_original = TESTS_GENERAL_PATH / "example_models" / "T04" / "test.ffd"
     ffd_file = shutil.copy2(ffd_file_original, test_tmp_dir / "test.ffd")
 
-    far_field_ext = aedt_app.far_field(external_data=str(ffd_file), coordinate_system="Global", name="FarFieldExternal")
+    far_field_ext = aedt_app.far_field_wave(assignment=str(ffd_file), coordinate_system="Global", name="FarFieldExternal")
     assert far_field_ext is not None
     assert far_field_ext.name == "FarFieldExternal"
     assert far_field_ext.name in aedt_app.excitation_names
 
     # Test with different properties
-    far_field_boundary2 = aedt_app.far_field(
+    far_field_boundary2 = aedt_app.far_field_wave(
         assignment=source_design,
         setup=setup,
         coordinate_system="Global",
@@ -2044,7 +2044,7 @@ def test_far_field(aedt_app, add_app, test_tmp_dir):
     external_setup = external_source.create_setup("Setup1", Frequency="10GHz")
     external_setup.props["MaximumPasses"] = 2
 
-    far_field_external_project = aedt_app.far_field(
+    far_field_external_project = aedt_app.far_field_wave(
         assignment=external_source, setup=external_setup, coordinate_system="Global", name="FarFieldExternalProject"
     )
     assert far_field_external_project is not None
