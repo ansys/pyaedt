@@ -814,7 +814,7 @@ class AedtLogger:
         return self._log_on_desktop
 
     @log_on_desktop.setter
-    def log_on_desktop(self, value):
+    def log_on_desktop(self, value: bool):
         """Enable or disable the log in AEDT."""
         if value:
             self.enable_desktop_log()
