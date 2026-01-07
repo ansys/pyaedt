@@ -508,12 +508,20 @@ class Revision:
         all_colors = []
 
         # Get project results and radios
-        modeRx = TxRxMode.RX
-        modeTx = TxRxMode.TX
-        tx_interferer = InterfererType().TRANSMITTERS
-        rx_radios = self.get_receiver_names()
-        tx_radios = self.get_interferer_names(tx_interferer)
-        radios = self.emit_project.modeler.components.get_radios()
+        mode_rx = TxRxMode.RX
+        mode_tx = TxRxMode.TX
+        rx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_rx)
+        if interferer_type is None or interferer_type == InterfererType.TRANSMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx)
+        elif interferer_type == InterfererType.TRANSMITTERS_AND_EMITTERS:
+            tx_radios = self.get_all_radio_nodes(tx_rx_mode=mode_tx, include_emitters=True)
+        else:
+            tx_radios = self.get_all_emitter_radios()
+
+        if tx_radios is None:
+            raise ValueError("No interferers defined in the analysis.")
+        if rx_radios is None:
+            raise ValueError("No receivers defined in the analysis.")
 
         for tx_radio in tx_radios:
             rx_powers = []
