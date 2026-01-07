@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1011,7 +1011,6 @@ def test_assign_resistive_sheet(m3d_app, maxwell_versioned):
         m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
 
-@pytest.mark.flaky_linux
 def test_assign_layout_force(layout_comp):
     nets_layers = {
         "<no-net>": ["<no-layer>", "TOP", "UNNAMED_000", "UNNAMED_002"],

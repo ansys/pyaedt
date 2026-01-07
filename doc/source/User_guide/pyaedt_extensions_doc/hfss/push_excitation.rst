@@ -36,7 +36,7 @@ Using the extension
 4. Click on **Push excitation** to apply the configuration.
 
 .. note::
-   
+
    Select the port and file before applying the configuration.
 
 Command line

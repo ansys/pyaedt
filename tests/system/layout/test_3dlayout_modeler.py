@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,10 +35,11 @@ from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from tests import TESTS_GENERAL_PATH
+from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import USE_GRPC
 
-TEST_SUBFOLDER = "T41"
+TEST_SUBFOLDER = "layout"
 RIGID_FLEX = "demo_flex"
 POST_PROCESSING_PROJECT = "test_post_processing"
 POST_LAYOUT_PROJECT = "test_post_3d_layout_solved_23R2"
@@ -425,7 +426,7 @@ def test_create_edge_port(aedt_app):
     assert aedt_app.delete_port(port_wave.name)
     assert aedt_app.create_edge_port("line1", 3, False)
     assert len(aedt_app.excitation_names) > 0
-    time_domain = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Sinusoidal.csv"
+    time_domain = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "Sinusoidal.csv"
     assert aedt_app.boundaries[0].properties["Magnitude"] == "1V"
     assert aedt_app.edit_source_from_file(
         source=port_wave.name,
@@ -686,7 +687,6 @@ def test_validate(aedt_app):
     assert aedt_app.validate_full_design()
 
 
-@pytest.mark.flaky_linux
 def test_export_to_hfss(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
         layer="Top",
@@ -712,34 +712,136 @@ def test_export_to_hfss(aedt_app, test_tmp_dir):
     via.net_name = "newNet"
 
     filename = "export_to_hfss_test"
-    filename2 = "export_to_hfss_test2"
-    filename3 = "export_to_hfss_test_non_unite"
     setup_name = "SetupToDelete"
     setup = aedt_app.create_setup(name=setup_name)
     setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
     setup.update()
 
     file_fullname = test_tmp_dir / filename
-    file_fullname2 = test_tmp_dir / filename2
-    file_fullname3 = test_tmp_dir / filename3
 
     aedt_app.save_project()
     assert setup.export_to_hfss(output_file=str(file_fullname))
     assert (file_fullname.with_suffix(".aedt")).is_file()
-    assert setup.export_to_hfss(output_file=str(file_fullname2), keep_net_name=True)
-    assert (file_fullname2.with_suffix(".aedt")).is_file()
-    assert setup.export_to_hfss(output_file=str(file_fullname3), keep_net_name=True, unite=False)
-    assert (file_fullname3.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
+
+    filename = "export_to_hfss_test_keep_net"
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_hfss(output_file=str(file_fullname), keep_net_name=True)
+    assert (file_fullname.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_hfss_non_unite(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
+
+    filename = "export_to_hfss_test_non_unite"
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_hfss(output_file=str(file_fullname), keep_net_name=True, unite=False)
+    assert (file_fullname.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_q3d(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
 
     filename = "export_to_q3d_test"
-    file_fullname4 = test_tmp_dir / filename
-    assert setup.export_to_q3d(str(file_fullname4))
-    assert (file_fullname4.with_suffix(".aedt")).is_file()
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_q3d(str(file_fullname))
+    assert (file_fullname.with_suffix(".aedt")).is_file()
+
+
+def test_export_to_q3d_keep_net_non_unite(aedt_app, test_tmp_dir):
+    aedt_app.modeler.layers.add_layer(
+        layer="Top",
+        layer_type="signal",
+        thickness=3.5e-5,
+        elevation="1.035mm",
+        material="copper",
+        isnegative=True,
+    )
+
+    aedt_app.modeler.layers.add_layer(
+        layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="copper"
+    )
+
+    r1 = aedt_app.modeler.create_rectangle("Top", [0, 0], [6, 8], 0, 0, "myrectangle_d")
+    r1.net_name = "newNet"
 
     filename = "export_to_q3d_test2"
-    file_fullname5 = test_tmp_dir / filename
-    assert setup.export_to_q3d(str(file_fullname5), keep_net_name=True, unite=False)
-    assert (file_fullname5.with_suffix(".aedt")).is_file()
+    setup_name = "SetupToDelete"
+    setup = aedt_app.create_setup(name=setup_name)
+    setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "1GHz"
+    setup.update()
+
+    file_fullname = test_tmp_dir / filename
+
+    aedt_app.save_project()
+    assert setup.export_to_q3d(str(file_fullname), keep_net_name=True, unite=False)
+    assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
 def test_variables(aedt_app):
@@ -1124,9 +1226,7 @@ def test_set_differential_pairs(aedt_app, add_app_example):
 
 @pytest.mark.skipif(is_linux, reason="Bug on linux")
 def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
-    diff_def_file_original = (
-        TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "differential_pairs_definition.txt"
-    )
+    diff_def_file_original = TESTS_LAYOUT_PATH / "example_models" / TEST_SUBFOLDER / "differential_pairs_definition.txt"
     diff_def_file = shutil.copy2(diff_def_file_original, test_tmp_dir / "differential_pairs_definition.txt")
 
     assert hfss3dl.load_diff_pairs_from_file(diff_def_file)
@@ -1139,7 +1239,7 @@ def test_load_and_save_diff_pair_file(hfss3dl, test_tmp_dir):
 
 
 def test_import_edb(aedt_app, test_tmp_dir):
-    example_project = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "Package.aedb"
+    example_project = TESTS_LAYOUT_PATH / "example_models" / "layout_edb" / "Package.aedb"
     target_path = test_tmp_dir / "Package_test_92.aedb"
     shutil.copytree(example_project, target_path)
     assert aedt_app.import_edb(str(target_path))

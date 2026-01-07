@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,3 +34,5 @@ TESTS_GENERAL_PATH = TESTS_SYSTEM_PATH / "general"
 TESTS_SOLVERS_PATH = TESTS_SYSTEM_PATH / "solvers"
 TESTS_VISUALIZATION_PATH = TESTS_SYSTEM_PATH / "visualization"
 TESTS_SEQUENTIAL_PATH = TESTS_SOLVERS_PATH / "sequential"
+TESTS_ICEPAK_PATH = TESTS_SYSTEM_PATH / "icepak"
+TESTS_LAYOUT_PATH = TESTS_SYSTEM_PATH / "layout"

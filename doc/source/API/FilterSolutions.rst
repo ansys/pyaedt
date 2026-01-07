@@ -1,7 +1,7 @@
 Filter design
 ====================
 This section describes the classes used for creating and modifying parameters in the ``filtersolutions`` module.
-The module provides tools for designing and customizing filter configurations. 
+The module provides tools for designing and customizing filter configurations.
 
 The module includes two classes, ``LumpedDesign`` and ``DistributedDesign``, both inherited from the ``FilterDesignBase`` class as described in the :ref:`BaseFilterDesign` section.
 
@@ -42,11 +42,11 @@ They are accessible through:
     from ansys.aedt.core.filtersolutions_core import FilterClass, FilterType
 
     # This call returns an instance of the LumpedDesign class
-    design = ansys.aedt.core.filtersolutions.LumpedDesign(version= "2025.2")
+    design = ansys.aedt.core.filtersolutions.LumpedDesign(version="2025.2")
     # This property in the Attributes class specifies the filter class as band pass
     design.attributes.filter_class = FilterClass.BAND_PASS
     # This property in the Attributes class specifies the filter type as elliptic
-    design.attributes.filter_type = FilterType.ELLIPTIC   
+    design.attributes.filter_type = FilterType.ELLIPTIC
     # This property in the LumpedTopology class enables the trap topology by setting it to true
     design.topology.trap_topology = True
     ...
@@ -91,11 +91,11 @@ They are accessible through:
     from ansys.aedt.core.filtersolutions_core import FilterClass, FilterType
 
     # This call returns an instance of the DistributedDesign class
-    design = ansys.aedt.core.filtersolutions.DistributedDesign(version= "2025.2")
+    design = ansys.aedt.core.filtersolutions.DistributedDesign(version="2025.2")
     # This property in the Attributes class specifies the filter class as band pass
     design.attributes.filter_class = FilterClass.BAND_PASS
     # This property in the Attributes class specifies the filter type as Elliptic
-    design.attributes.filter_type = FilterType.ELLIPTIC   
+    design.attributes.filter_type = FilterType.ELLIPTIC
     # This property in the DistributedTopology class sets the load resistance to 50 ohms.
     design.topology.load_resistance = "50"
     ...

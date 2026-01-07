@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -102,10 +102,10 @@ def test_convert_to_circuit_wire_conversion(add_app):
     )
 
     points1 = [[0, 0, 0], [0.1, 0, 0], [0.1, 0.1, 0]]
-    tb.modeler.components.create_wire(points1, "TestWire1")
+    tb.modeler.schematic.create_wire(points1, "TestWire1")
 
     points2 = [[0.2, 0, 0], [0.3, 0, 0]]
-    tb.modeler.components.create_wire(points2, "TestWire2")
+    tb.modeler.schematic.create_wire(points2, "TestWire2")
 
     data = ConvertToCircuitExtensionData(design_name=tb.design_name)
     result = main(data)
@@ -126,7 +126,7 @@ def test_convert_to_circuit_fml_init_equations(add_app):
     # This simulates the structure that would exist in a real Twin Builder design
     try:
         # Create a component that has FML_INIT in its name
-        comp = tb.modeler.components.create_resistor("R1", "1ohm", [0, 0])
+        comp = tb.modeler.schematic.create_resistor("R1", "1ohm", [0, 0])
 
         # Mock the component name to simulate FML_INIT
         # In real scenarios, this would be created by Twin Builder
@@ -164,7 +164,7 @@ def test_convert_to_circuit_catalog_components(add_app):
     # These component names should match what's in tb_nexxim_mapping.toml
     try:
         # Create a resistor component
-        resistor = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        resistor = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
 
         # Set component properties that would be mapped
         if hasattr(resistor, "parameters"):
@@ -172,14 +172,14 @@ def test_convert_to_circuit_catalog_components(add_app):
             resistor.parameters["R"] = "100ohm"
 
         # Create a capacitor component
-        capacitor = tb.modeler.components.create_capacitor("C1", "1uF", [0.1, 0])
+        capacitor = tb.modeler.schematic.create_capacitor("C1", "1uF", [0.1, 0])
 
         if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
             capacitor.parameters["C"] = "1uF"
 
         # Create an inductor component
-        inductor = tb.modeler.components.create_inductor("L1", "1mH", [0.2, 0])
+        inductor = tb.modeler.schematic.create_inductor("L1", "1mH", [0.2, 0])
 
         if hasattr(inductor, "parameters"):
             inductor.parameters["InstanceName"] = "L1"
@@ -208,13 +208,13 @@ def test_convert_to_circuit_offset_calculations(add_app):
 
     try:
         # Create components with different angles to test offset calculations
-        resistor1 = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        resistor1 = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
         resistor1.angle = 0  # No rotation
 
-        resistor2 = tb.modeler.components.create_resistor("R2", "200ohm", [0.1, 0.1])
+        resistor2 = tb.modeler.schematic.create_resistor("R2", "200ohm", [0.1, 0.1])
         resistor2.angle = 90  # 90 degree rotation
 
-        resistor3 = tb.modeler.components.create_resistor("R3", "300ohm", [0.2, 0.2])
+        resistor3 = tb.modeler.schematic.create_resistor("R3", "300ohm", [0.2, 0.2])
         resistor3.angle = 180  # 180 degree rotation
 
         # Set instance names for proper reference designators
@@ -252,12 +252,12 @@ def test_convert_to_circuit_gport_components(add_app):
     try:
         # Create a component and manually set its name to contain "GPort"
         # This simulates how ground ports appear in Twin Builder
-        ground_comp = tb.modeler.components.create_resistor("GND1", "0ohm", [0, 0])
+        ground_comp = tb.modeler.schematic.create_resistor("GND1", "0ohm", [0, 0])
         ground_comp._name = "CompInst@GPort"
         ground_comp.angle = 45  # Test with rotation
 
         # Create another ground component with different angle
-        ground_comp2 = tb.modeler.components.create_resistor("GND2", "0ohm", [0.1, 0.1])
+        ground_comp2 = tb.modeler.schematic.create_resistor("GND2", "0ohm", [0.1, 0.1])
         ground_comp2._name = "CompInst@GPortRef"
         ground_comp2.angle = 90
 
@@ -284,14 +284,14 @@ def test_convert_to_circuit_unconnected_pins(add_app):
 
     try:
         # Create components that will have unconnected pins
-        resistor = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        resistor = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
 
         if hasattr(resistor, "parameters"):
             resistor.parameters["InstanceName"] = "R1"
             resistor.parameters["R"] = "100ohm"
 
         # Create a capacitor at a different location
-        capacitor = tb.modeler.components.create_capacitor("C1", "1uF", [0.2, 0.2])
+        capacitor = tb.modeler.schematic.create_capacitor("C1", "1uF", [0.2, 0.2])
 
         if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
@@ -320,19 +320,19 @@ def test_convert_to_circuit_property_mapping(add_app):
 
     try:
         # Create components with various properties that should be mapped
-        resistor = tb.modeler.components.create_resistor("R1", "1kohm", [0, 0])
+        resistor = tb.modeler.schematic.create_resistor("R1", "1kohm", [0, 0])
 
         if hasattr(resistor, "parameters"):
             resistor.parameters["InstanceName"] = "R1"
             resistor.parameters["R"] = "1kohm"  # This should be mapped according to catalog
 
-        capacitor = tb.modeler.components.create_capacitor("C1", "10uF", [0.1, 0])
+        capacitor = tb.modeler.schematic.create_capacitor("C1", "10uF", [0.1, 0])
 
         if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
             capacitor.parameters["C"] = "10uF"  # This should be mapped according to catalog
 
-        inductor = tb.modeler.components.create_inductor("L1", "10mH", [0.2, 0])
+        inductor = tb.modeler.schematic.create_inductor("L1", "10mH", [0.2, 0])
 
         if hasattr(inductor, "parameters"):
             inductor.parameters["InstanceName"] = "L1"
@@ -361,14 +361,14 @@ def test_convert_to_circuit_component_naming(add_app):
 
     try:
         # Create components with different naming patterns
-        comp1 = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
+        comp1 = tb.modeler.schematic.create_resistor("R1", "100ohm", [0, 0])
         comp1._name = "CompInst@R"  # This should be parsed to "R"
 
-        comp2 = tb.modeler.components.create_capacitor("C1", "1uF", [0.1, 0])
+        comp2 = tb.modeler.schematic.create_capacitor("C1", "1uF", [0.1, 0])
         comp2._name = "CompInst@C"  # This should be parsed to "C"
 
         # Test component without InstanceName parameter
-        comp3 = tb.modeler.components.create_inductor("L1", "1mH", [0.2, 0])
+        comp3 = tb.modeler.schematic.create_inductor("L1", "1mH", [0.2, 0])
         comp3._name = "CompInst@L"  # This should be parsed to "L"
 
         # Set parameters for first two components

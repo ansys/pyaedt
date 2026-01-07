@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -787,7 +787,8 @@ class FacePrimitive(PyAedtBase):
             self._is_planar = True
             return True
         except Exception:
-            self.logger.clear_messages()
+            if self.logger and hasattr(self.logger, "clear_messages"):
+                self.logger.clear_messages()
             self._is_planar = False
             return False
 

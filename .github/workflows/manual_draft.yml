@@ -851,4 +851,3 @@ jobs:
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
-        

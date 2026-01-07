@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,6 +41,7 @@ def netlist_test(add_app_example):
     app.close_project(save=False)
 
 
+@pytest.mark.flaky_linux
 def test_post(netlist_test):
     if NON_GRAPHICAL:
         assert len(netlist_test.post.plots) == 0
@@ -48,6 +49,7 @@ def test_post(netlist_test):
         assert len(netlist_test.post.plots) == 1
 
 
+@pytest.mark.flaky_linux
 def test_browse_log_file(netlist_test, test_tmp_dir):
     assert not netlist_test.browse_log_file()
     netlist_test.analyze()

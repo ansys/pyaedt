@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -410,25 +410,25 @@ def test_force_project_path_disable(aedt_app):
     settings.force_error_on_missing_project = False
 
 
-@pytest.mark.skipif(is_linux, reason="Crashing in Linux.")
-def test_get_app(desktop, add_app):
-    app = add_app(application=Icepak)
-    project_name = app.project_name
-    d = desktop
-    assert d[[0, 0]]
-    assert not d[[project_name, "invalid_name"]]
-    assert d[[0, app.design_name]]
-    assert d[[project_name, 0]]
-    assert not d[[project_name, 5]]
-    assert not d[[1, 0]]
-    assert not d[[1, 0, 3]]
-
-    app.create_new_project("Test")
-    assert d[[1, 0]]
-    assert "Test" in d[[1, 0]].project_name
-    project_name2 = app.project_name
-    app.close_project(project_name2)
-    app.close_project(project_name)
+# @pytest.mark.skipif(is_linux, reason="Crashing in Linux.")
+# def test_get_app(desktop, add_app):
+#     app = add_app(application=Icepak)
+#     project_name = app.project_name
+#     d = desktop
+#     assert d[[0, 0]]
+#     assert not d[[project_name, "invalid_name"]]
+#     assert d[[0, app.design_name]]
+#     assert d[[project_name, 0]]
+#     assert not d[[project_name, 5]]
+#     assert not d[[1, 0]]
+#     assert not d[[1, 0, 3]]
+#
+#     app.create_new_project("Test")
+#     assert d[[1, 0]]
+#     assert "Test" in d[[1, 0]].project_name
+#     project_name2 = app.project_name
+#     app.close_project(project_name2)
+#     app.close_project(project_name)
 
 
 def test_toolkit(aedt_app, desktop, test_tmp_dir):

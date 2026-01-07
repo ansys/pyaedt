@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -427,7 +427,7 @@ class TestClass:
     @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
-    def test_export_design(self, lumped_design, local_scratch):
+    def test_export_design(self, lumped_design, test_tmp_dir):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.export_design(
                 export_format=ExportFormat.PYTHON_SCRIPT,
@@ -438,8 +438,7 @@ class TestClass:
             assert info.value.args[0] == "Python export path is not specified"
         else:
             assert info.value.args[0] == "Python export path is not specified."
-        design_export_path = resource_path("test_exported_design.py")
-        design_export_path_local = local_scratch.copyfile(design_export_path)
+        design_export_path_local = str(test_tmp_dir / "test_exported_design.py")
         lumped_design.export_to_aedt.export_design(
             export_format=ExportFormat.PYTHON_SCRIPT,
             export_creation_mode=ExportCreationMode.OVERWRITE,

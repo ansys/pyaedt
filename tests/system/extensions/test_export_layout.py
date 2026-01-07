@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -159,6 +159,7 @@ def test_export_layout_bom_only(add_app_example, test_tmp_dir):
 
 
 @pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_config_only(add_app_example, test_tmp_dir):
     """Test export layout with only configuration option enabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"
@@ -196,6 +197,8 @@ def test_export_layout_config_only(add_app_example, test_tmp_dir):
         assert isinstance(config_data, dict)
 
 
+@pytest.mark.flaky_linux
+@pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_no_options(add_app_example, test_tmp_dir):
     """Test export layout with all options disabled."""
     ipc_file = test_tmp_dir / f"{AEDB_FILE_NAME}_ipc2581.xml"

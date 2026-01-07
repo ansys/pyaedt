@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -50,6 +50,8 @@ SYSTEM_TEST_PREFIX = "tests/system"
 SYSTEM_SOLVERS_TEST_PREFIX = "tests/system/solvers"
 SYSTEM_GENERAL_TEST_PREFIX = "tests/system/general"
 VISUALIZATION_GENERAL_TEST_PREFIX = "tests/system/visualization"
+SYSTEM_ICEPAK_TEST_PREFIX = "tests/system/icepak"
+SYSTEM_LAYOUT_TEST_PREFIX = "tests/system/layout"
 EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
 FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 EMIT_TEST_PREFIX = "tests/system/emit"
@@ -132,6 +134,10 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             item.add_marker(pytest.mark.general)
         elif item.nodeid.startswith(VISUALIZATION_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.visualization)
+        elif item.nodeid.startswith(SYSTEM_ICEPAK_TEST_PREFIX):
+            item.add_marker(pytest.mark.icepak)
+        elif item.nodeid.startswith(SYSTEM_LAYOUT_TEST_PREFIX):
+            item.add_marker(pytest.mark.layout)
         elif item.nodeid.startswith(EXTENSIONS_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.extensions)
         elif item.nodeid.startswith(FILTER_SOLUTIONS_TEST_PREFIX):
@@ -168,32 +174,6 @@ def clean_old_pytest_temps(tmp_path_factory):
                 pyaedt_logger.debug(f"Error {type(e)} occurred while deleting temp directory: {e}")
 
 
-@pytest.fixture(scope="session")
-def desktop(tmp_path_factory):
-    """
-    Creates a Desktop instance and a root directory for each test worker (xdist).
-    Session scope ensures only one Desktop per worker is created.
-    """
-    desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
-
-    # New temp directory for the test session
-    base = str(tmp_path_factory.getbasetemp())
-    desktop_app.odesktop.SetTempDirectory(base)
-    desktop_app.odesktop.SetProjectDirectory(base)
-
-    desktop_app.disable_autosave()
-
-    yield desktop_app
-
-    try:
-        # Restore original temp directory
-        desktop_app.odesktop.SetTempDirectory(str(tempfile.gettempdir()))
-        desktop_app.odesktop.SetProjectDirectory(str(tempfile.gettempdir()))
-        desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
-    except Exception as e:
-        raise Exception("Failed to close Desktop instance") from e
-
-
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_all_tmp_at_end(tmp_path_factory):
     """Cleanup: Remove all files and directories under pytest's basetemp at session end."""
@@ -204,13 +184,13 @@ def cleanup_all_tmp_at_end(tmp_path_factory):
 
     # Now the session is over, try to remove everything inside `base`
     try:
-        for p in sorted(base.rglob("*"), key=lambda x: x.is_dir()):
+        for log_file in base.glob("*.log"):
             try:
-                p.unlink()
-            except (IsADirectoryError, PermissionError):
-                shutil.rmtree(p, ignore_errors=True)
+                log_file.unlink()
+            except Exception as e:
+                pyaedt_logger.debug(f"Failed to delete {log_file}: {e}")
     except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup temporary directory {base}")
+        pyaedt_logger.warning(f"Failed to cleanup logs in {base}")
 
     # Remove pkg- temp dirs from system temp
     try:
@@ -222,9 +202,9 @@ def cleanup_all_tmp_at_end(tmp_path_factory):
                     try:
                         entry.unlink()
                     except Exception as e:
-                        pyaedt_logger.debug(f"Error {type(e)} occurred while deleting log file: {e}")
+                        pyaedt_logger.debug(f"Error deleting log: {e}")
     except Exception:
-        pyaedt_logger.warning(f"Failed to cleanup temporary directory {temp_dir}")
+        pyaedt_logger.warning(f"Failed to cleanup {temp_dir}")
 
 
 # ================================
@@ -242,6 +222,33 @@ def file_tmp_root(tmp_path_factory, request):
         shutil.rmtree(root, ignore_errors=True)
     except Exception:
         pyaedt_logger.warning(f"Failed to cleanup temporary directory {root}")
+
+
+@pytest.fixture(scope="module")
+def desktop(tmp_path_factory, request):
+    """
+    Creates a Desktop instance for each test worker (xdist) or module.
+    Module scope ensures only one Desktop is used by test file.
+    """
+    # New temp directory for the test session
+    base = tmp_path_factory.getbasetemp()
+
+    if "popen-gw" in str(base):
+        base = base.parent
+
+    desktop_app = Desktop(DESKTOP_VERSION, NON_GRAPHICAL, NEW_THREAD)
+
+    desktop_app.odesktop.SetTempDirectory(str(base))
+    desktop_app.odesktop.SetProjectDirectory(str(base))
+
+    desktop_app.disable_autosave()
+
+    yield desktop_app
+
+    try:
+        desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
+    except Exception as e:
+        raise Exception("Failed to close Desktop instance") from e
 
 
 # ================================
@@ -293,13 +300,7 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
             solution_type=solution_type,
         )
 
-        # Save temp data in the tmp_path_factory
-        desktop.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
-        desktop.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
         app = application_cls(**args)
-
-        app.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
-        app.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
 
         return app
 
@@ -358,16 +359,7 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
             design_name=design,
             solution_type=solution_type,
         )
-
-        # Save temp data in the tmp_path_factory
-        desktop.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
-        desktop.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
-
         app = application_cls(**args)
-
-        # Temp dir specific to this project
-        app.odesktop.SetTempDirectory(str(tmp_path_factory.getbasetemp()))
-        desktop.odesktop.SetProjectDirectory(str(tmp_path_factory.getbasetemp()))
 
         return app
 
