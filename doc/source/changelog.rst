@@ -139,7 +139,7 @@ This document contains the release notes for the project.
         * - Message manager tests independent
           - `#6911 <https://github.com/ansys/pyaedt/pull/6911>`_
 
-        * - Indepedent Setup tests
+        * - Independent Setup tests
           - `#6916 <https://github.com/ansys/pyaedt/pull/6916>`_
 
         * - Refactor test_15_ibis_reader to follow test guidelines
@@ -1063,7 +1063,7 @@ This document contains the release notes for the project.
         * - Configure layout test
           - `#6577 <https://github.com/ansys/pyaedt/pull/6577>`_
 
-        * - Setting rigth default TDR options
+        * - Setting right default TDR options
           - `#6578 <https://github.com/ansys/pyaedt/pull/6578>`_
 
         * - Fix problem with extension manager hanging on some extensions
@@ -1240,7 +1240,7 @@ This document contains the release notes for the project.
         * - Fix issue in method to create tdr analysis which caused failure when more than 1 input is present
           - `#6460 <https://github.com/ansys/pyaedt/pull/6460>`_
 
-        * - Fixed issue in export_results fro q3d
+        * - Fixed issue in export_results for q3d
           - `#6467 <https://github.com/ansys/pyaedt/pull/6467>`_
 
         * - Icepak boundary update is missing
@@ -2008,7 +2008,7 @@ This document contains the release notes for the project.
         * - Update ``CONTRIBUTORS.md`` with the latest contributors
           - `#6105 <https://github.com/ansys/pyaedt/pull/6105>`_, `#6144 <https://github.com/ansys/pyaedt/pull/6144>`_
 
-        * - Add hint for toolkit icon visiblity
+        * - Add hint for toolkit icon visibility
           - `#6123 <https://github.com/ansys/pyaedt/pull/6123>`_
 
 
@@ -2643,7 +2643,7 @@ This document contains the release notes for the project.
         * - Reduce number of units call from odesktop
           - `#5927 <https://github.com/ansys/pyaedt/pull/5927>`_
 
-        * - "Time" removed from intrinsincs keys in Steady State simulations
+        * - "Time" removed from intrinsic keys in Steady State simulations
           - `#5928 <https://github.com/ansys/pyaedt/pull/5928>`_
 
         * - colormap names in folder settings

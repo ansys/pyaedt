@@ -52,6 +52,7 @@ Finally, this code shows how you can use the Advanced Field Calculator:
 .. code:: python
 
     import ansys.aedt.core
+
     hfss = ansys.aedt.core.Hfss()
 
     # Specify the AEDT session to connect
