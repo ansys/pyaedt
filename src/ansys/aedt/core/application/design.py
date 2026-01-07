@@ -228,13 +228,13 @@ class Design(AedtObjects, PyAedtBase):
         self._odesign: Optional[Any] = None
         self._oproject: Optional[Any] = None
 
-        if self._design_type == "HFSS":
+        if self._design_type == DesignType.HFSS.NAME:
             self.design_solutions = HFSSDesignSolution(None, self._design_type, self._aedt_version)
-        elif self._design_type == "Icepak":
+        elif self._design_type == DesignType.ICEPAK.NAME:
             self.design_solutions = IcepakDesignSolution(None, self._design_type, self._aedt_version)
-        elif self._design_type == "Maxwell 2D":
+        elif self._design_type == DesignType.MAXWELL2D.NAME:
             self.design_solutions = Maxwell2DDesignSolution(None, self._design_type, self._aedt_version)
-        elif self._design_type in ["RMxprt", "ModelCreation"]:
+        elif self._design_type in [DesignType.RMXPRT.NAME, DesignType.MODELCREATION.NAME]:
             self.design_solutions = RmXprtDesignSolution(None, self._design_type, self._aedt_version)
         else:
             self.design_solutions = DesignSolution(None, self._design_type, self._aedt_version)
@@ -3443,26 +3443,26 @@ class Design(AedtObjects, PyAedtBase):
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
 
-        if design_type == "RMxprt":
+        if design_type == DesignType.RMXPRT.NAME:
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
-        elif design_type == "ModelCreation":
+        elif design_type == DesignType.MODELCREATION.NAME:
             new_design = self._oproject.InsertDesign(
                 "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
             )
-        elif design_type == "Icepak":
+        elif design_type == DesignType.ICEPAK.NAME:
             new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
-        elif design_type == "Circuit Design":
+        elif design_type == DesignType.CIRCUIT.NAME:
             new_design = self._oproject.InsertDesign(design_type, unique_design_name, "None", "")
         else:
-            if design_type == "HFSS" and self._aedt_version < "2021.2":
+            if design_type == DesignType.HFSS.NAME and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
-            elif design_type == "HFSS" and self._aedt_version < "2024.1":
+            elif design_type == DesignType.HFSS.NAME and self._aedt_version < "2024.1":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "HFSS Modal Network", "")
             else:
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
-        if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
+        if not is_windows and settings.aedt_version and self.design_type == DesignType.CIRCUIT.NAME:
             time.sleep(1)
             self.desktop_class.close_windows()
         if new_design is None:  # pragma: no cover

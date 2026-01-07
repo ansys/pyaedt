@@ -327,7 +327,7 @@ class TwinbuilderConstants(metaclass=DynamicMeta):
 
 
 class RmxprtConstants(metaclass=DynamicMeta):
-    NAME = "RMxprt"
+    NAME = "RMxprtSolution"
 
     model_name = "RMxprtDesign"
     solution_default = "GRM"

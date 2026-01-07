@@ -264,10 +264,10 @@ def test_run_desktop_circuit_netlist(desktop):
     aedtapp.close_project(save=False)
 
 
-def test_run_desktop_rmxpert(desktop):
+def test_run_desktop_rmxprt(desktop):
     aedtapp = Rmxprt()
-    assert aedtapp.design_type == "Rmxprt Solution"
-    assert aedtapp.solution_type == "TR"
+    assert aedtapp.design_type == DesignType.RMXPRT.NAME
+    assert aedtapp.solution_type == DesignType.RMXPRT.solution_default
     aedtapp.close_project(save=False)
 
 
