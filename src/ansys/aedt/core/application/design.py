@@ -4089,10 +4089,10 @@ class Design(AedtObjects, PyAedtBase):
         if des_name in self.design_list:
             self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
             dtype = self._odesign.GetDesignType()
-            if dtype not in {"RMxprt", "ModelCreation"}:
+            if dtype not in ["RMxprt", "ModelCreation"]:
                 if dtype != self._design_type:
                     raise ValueError(f"Specified design is not of type {self._design_type}.")
-            elif self._design_type not in {"RMxprt", "ModelCreation"}:
+            elif self._design_type not in [DesignType.RMXPRT.NAME, DesignType.MODELCREATION.NAME]:
                 raise ValueError(f"Specified design is not of type {self._design_type}.")
 
             return True
