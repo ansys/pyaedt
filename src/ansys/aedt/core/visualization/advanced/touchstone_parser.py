@@ -181,8 +181,12 @@ class TouchstoneData(rf.Network, PyAedtBase):
     def get_coupling_in_range(
         self,
         start_frequency=1e9,
+        stop_frequency=10e9,
         low_loss=-40,
         high_loss=-60,
+        s_same_component=True,
+        comp_list=[],
+        exclude_include=True,
         frequency_sample=5,
         output_file=None,
         aedb_path=None,
@@ -195,10 +199,19 @@ class TouchstoneData(rf.Network, PyAedtBase):
         ----------
         start_frequency : float, optional
             Specify frequency value below which not check will be done. The default is ``1e9``.
+        stop_frequency : float, optional
+            Specify frequency value above which not check will be done. The default is ``10e9``.
         low_loss: float, optional
             Specify range lower loss. The default is ``-40``.
         high_loss: float, optional
             Specify range higher loss. The default is ``-60``.
+        s_same_component: bool
+            Boolean exclude S parameter from pins of same component when ``False``, default is ``False``.
+        comp_list: list, optional
+            List of string of component names to exclude or include. The default value is an ``Empty list``.
+        exclude_include: bool
+            Boolean include only components from comp_list when ``True``,
+            exclude  components from comp_list when ``False``, Default is ``True``.
         frequency_sample : integer, optional
             Specify frequency sample at which coupling check will be done. The default is ``5``.
         output_file : str, or :class:'pathlib.Path', optional
@@ -210,21 +223,52 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
         Returns
         -------
-         list
-            List of S parameters in the range [high_loss, low_loss] to plot.
+         list:
+            List of S parameters index in the range [high_loss, low_loss].
+
+        Examples
+        --------
+        For an S parameter file created from a project with 16 ports created on three different components U9, U1, X1.
+        The full matrix is 16x16 = 256 S parameter values per frequencies.
+        The matrix diagonal is excluded from the scan such S(i,i) parameters are ignored.
+        Half of the matrix is as well excluded assuming S(i,j) = S(j,i). Only part of the matrix above diagonal
+        is scanned.
+        If start_frequency=2e9 and stop_frequency=5e9 only S parameters between these two frequencies will be scanned.
+        So scan starts at start_frequency and stop at stop_frequency with a sampling of frequency_sample.
+        As soon a value between highloss and lowloss is identified and written in output_file with the format below:
+
+        S(U1_AU17,X1_B14) Loss= -50.61dB Freq= 1.007GH
+        S(U1_AU17,X1_B15) Loss= -49.38dB Freq= 1.007GH
+        S(U9_20,X1_A11) Loss= -45.19dB Freq= 1.374GH
+        S(X1_A11,X1_B15) Loss= -55.65dB Freq= 1.252GH
+
+        Usage of parameter s_same_component.
+
+        If s_same_component=False this will exclude from the scan S parameter from ports on same component.
+        So all S(U1_xxx, U1_yyy), S(X1_xxx, X1_yyy) and S(U9_xxx, U9_yyy) will be excluded from the scan.
+        Referring to the list above "S(X1_A11,X1_B15) Loss= -55.65dB Freq= 1.252GH" will disappear.
+
+        Usage of parameters comp_list, exclude_include.
+        With comp_list = ["U9"] and excludeinclude = False: only S parameter from U1 ports and X1 ports will be scanned.
+        With comp_list = ["X1", "U1"] and excludeinclude = True:
+            only S parameter from U1 ports and all other components port
+            and
+            only S parameter from X1 ports and all other components port
+        Will be scanned.
+
+        Notice that usage of parameters comp_list and exclude_include will really benefit when the number of ports is
+        high.
 
         """
-        nb_freq = self.frequency.npoints
-        k = 0
-        k_start = 0
 
-        # identify frequency index at which to start the check
-        while k < nb_freq:
-            if self.frequency.f[k] >= start_frequency:
-                k_start = k
-                break
-            else:
-                k = k + 1
+        nb_freq = self.frequency.npoints
+
+        k = 0
+        # identify frequency index at which to start and stop the check
+        k_start = bisect.bisect_left(self.frequency.f, start_frequency)
+        k_stop = bisect.bisect_right(self.frequency.f, stop_frequency)
+
+
 
         s_db = self.s_db[:, :, :]
         temp_list = []
@@ -235,7 +279,12 @@ class TouchstoneData(rf.Network, PyAedtBase):
                 for j in range(i, self.number_of_ports):
                     if i == j:
                         continue
-                    for k in range(k_start, nb_freq, frequency_sample):
+                    refdes1 = self.port_names[i].split("_")[0]
+                    refdes2 = self.port_names[j].split("_")[0]
+                    if refdes1 == refdes2 and not s_same_component:
+                        continue
+
+                    for k in range(k_start, k_stop, frequency_sample):
                         loss = s_db[k, i, j]
                         if high_loss < loss < low_loss:
                             temp_list.append((i, j))
@@ -267,10 +316,24 @@ class TouchstoneData(rf.Network, PyAedtBase):
             edbapp.close()
         else:
             for i in range(self.number_of_ports):
+                refdes1 = self.port_names[i].split("_")[0]
+                if len(comp_list) != 0:
+                    if exclude_include:
+                        if not any(refdes1.lower() in x.lower() for x in comp_list):
+                            continue
+                    else:
+                        if any(refdes1.lower() in x.lower() for x in comp_list):
+                            continue
                 for j in range(i, self.number_of_ports):
                     if i == j:
                         continue
-                    for k in range(k_start, nb_freq, frequency_sample):
+                    refdes2 = self.port_names[j].split("_")[0]
+                    if len(comp_list) != 0 and not exclude_include:
+                        if any(refdes2.lower() in x.lower() for x in comp_list):
+                            continue
+                    if refdes1.lower() == refdes2.lower() and not s_same_component:
+                        continue
+                    for k in range(k_start, k_stop, frequency_sample):
                         loss = s_db[k, i, j]
                         if high_loss < loss < low_loss:
                             temp_list.append((i, j))
