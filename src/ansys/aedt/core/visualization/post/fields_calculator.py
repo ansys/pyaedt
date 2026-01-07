@@ -28,7 +28,6 @@ from pathlib import Path
 from jsonschema import exceptions
 from jsonschema import validate
 
-import ansys.aedt.core
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
@@ -94,19 +93,11 @@ class FieldsCalculator(PyAedtBase):
     """
 
     def __init__(self, app):
-        self.expression_catalog = read_configuration_file(PARENT_DIR / "fields_calculator_files" / "expression_catalog.toml")
-            Path(ansys.aedt.core.__path__[0])
-            / "visualization"
-            / "post"
-            / "fields_calculator_files"
-            / "expression_catalog.toml"
+        self.expression_catalog = read_configuration_file(
+            PARENT_DIR / "fields_calculator_files" / "expression_catalog.toml"
         )
-        self.expression_schema = read_configuration_file(PARENT_DIR / "fields_calculator_files" / "fields_calculator.schema.json")
-            Path(ansys.aedt.core.__path__[0])
-            / "visualization"
-            / "post"
-            / "fields_calculator_files"
-            / "fields_calculator.schema.json"
+        self.expression_schema = read_configuration_file(
+            PARENT_DIR / "fields_calculator_files" / "fields_calculator.schema.json"
         )
         self.__app = app
         self.design_type = app.design_type
