@@ -256,9 +256,6 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
         """
 
-        nb_freq = self.frequency.npoints
-
-        k = 0
         # identify frequency index at which to start and stop the check
         k_start = bisect.bisect_left(self.frequency.f, start_frequency)
         k_stop = bisect.bisect_right(self.frequency.f, stop_frequency)
