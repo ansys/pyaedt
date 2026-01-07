@@ -128,9 +128,16 @@ def test_messaging(icepak_app):  # pragma: no cover
     msg.add_info_message("Test Debug")
     msg.add_info_message("Test Debug", "Project")
     msg.add_info_message("Test Debug", "Global")
-    with msg.suspend_logging():
-        msg.add_info_message("Test Debug 2")
     assert len(msg.messages.info_level) > 0
+    with msg.suspend_logging():
+        msgs = icepak_app.logger.get_messages(level=0, aedt_messages=True)
+        start_counts = [len(msgs.info_level), len(msgs.warning_level), len(msgs.error_level)]
+        msg.add_info_message("Test Debug 2")
+        msg.add_warning_message("Test Debug 2")
+        msg.add_error_message("Test Debug 2")
+        msgs = icepak_app.logger.get_messages(level=0, aedt_messages=True)
+        end_counts = [len(msgs.info_level), len(msgs.warning_level), len(msgs.error_level)]
+        assert start_counts == end_counts
     assert len(msg.aedt_messages.global_level) >= 4
     assert len(msg.aedt_messages.project_level) >= 4
     assert len(msg.aedt_messages.design_level) >= 4
