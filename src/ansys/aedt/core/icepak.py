@@ -1135,14 +1135,14 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Name of the source setup from which to map losses.
         sweep : str
             Name of the source setup sweep from which to map losses.
+        map_frequency : str, float, list of float, or list of str, optional
+            Frequency or frequencies to map. The default is ``None``.
         source_project_name : str, optional
             Name of the source project from which to map losses. The default is ``None``, in which case the
             source from the same project is used.
         name : str, optional
             Name to assign to the boundary condition.
             The default is ``None`` in which case it will be automatically generated.
-        map_frequency : str, float, list of float, or list of str, optional
-            Frequency or frequencies to map. The default is ``None``.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
             List of objects in the source that are metals. The default is ``None``.
