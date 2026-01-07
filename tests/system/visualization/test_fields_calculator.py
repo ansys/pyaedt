@@ -136,9 +136,9 @@ def test_expression_plot(aedtapp):
     aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     aedtapp.create_setup()
     expr_name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-    
+
     reports = aedtapp.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [expr_name])
-    
+
     assert reports
     assert aedtapp.post.plots
     assert reports == aedtapp.post.plots
