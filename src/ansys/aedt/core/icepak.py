@@ -28,11 +28,7 @@ import csv
 import os
 from pathlib import Path
 import re
-from typing import Dict
-from typing import List
 from typing import Literal
-from typing import Optional
-from typing import Union
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
@@ -1106,18 +1102,18 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_em_losses(
         self,
-        assignment: Union[str, Object3d, List[str], List[Object3d]],
+        assignment: str | Object3d | list[str] | list[Object3d],
         design: str,
         setup: str,
         sweep: str,
-        map_frequency: Optional[Union[str, float, List[float], List[str]]] = None,
-        source_project_name: Optional[str] = None,
-        name: Optional[str] = None,
-        surface_objects: Optional[List[Union[str, int]]] = None,
-        parameters: Optional[Union[List[str], Dict[str, str]]] = None,
+        map_frequency: str | float | list[float] | list[str] | None = None,
+        source_project_name: str | None = None,
+        name: str | None = None,
+        surface_objects: list[str | int] | None = None,
+        parameters: list[str] | dict[str, str] | None = None,
         force_source_solve: bool = True,
         preserve_source_solution: bool = True,
-        loss_multiplier: Union[float, PieceWiseLinearDictionary] = 1.0,
+        loss_multiplier: float | PieceWiseLinearDictionary = 1.0,
         harmonic_loss_sweep_coupling: bool = False,
         q3d_loss_type: Literal["DCVolOrACSurfLoss", "ContactResistanceLoss", "HarmonicLoss"] = "DCVolOrACSurfLoss",
     ):
