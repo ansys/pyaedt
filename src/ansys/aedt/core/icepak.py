@@ -1181,7 +1181,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         if not isinstance(assignment, list):
             assignment = [assignment]
         if isinstance(assignment[0], Object3d):
-            assignment = [o.name for o in assignment]
+            try:
+                assignment = [a.name for a in assignment]
+            except AttributeError:
+                raise TypeError("All elements must be Object3d.")
 
         if self.project_name == source_project_name or source_project_name is None:
             project_name = "This Project*"
