@@ -94,8 +94,16 @@ def test_get_coupling_in_range(test_tmp_dir):
 
     ts = TouchstoneData(touchstone_file=touchstone_file_path)
     res = ts.get_coupling_in_range(
-        start_frequency=2e9, stop_frequency=5e9, high_loss=-60, low_loss=-40,
-        s_same_component=True, comp_list=[], exclude_include=True, frequency_sample=5, output_file=str(output_file))
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        high_loss=-60,
+        low_loss=-40,
+        s_same_component=True,
+        comp_list=[],
+        exclude_include=True,
+        frequency_sample=5,
+        output_file=str(output_file),
+    )
     assert isinstance(res, list)
     res = ts.get_coupling_in_range(
         start_frequency=2e9,
