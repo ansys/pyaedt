@@ -92,34 +92,50 @@ def test_get_coupling_in_range(test_tmp_dir):
 
     output_file = test_tmp_dir / "test_44_gcir.log"
 
-    aedb_path = TEST_DIR / "si-verse_v1.1_cutout_FF.aedb"
-    file_path = test_tmp_dir / "si-verse_v1.1_cutout_FF.aedb"
-    shutil.copytree(aedb_path, file_path)
-
-    design_name = "main"
     ts = TouchstoneData(touchstone_file=touchstone_file_path)
     res = ts.get_coupling_in_range(
-        start_frequency=2e9, stop_frequency=5e9, high_loss=-60, low_loss=-40, frequency_sample=5,
-        output_file=str(output_file)
-    )
+        start_frequency=2e9, stop_frequency=5e9, high_loss=-60, low_loss=-40,
+        s_same_component=True, comp_list=[], exclude_include=True, frequency_sample=5, output_file=str(output_file))
     assert isinstance(res, list)
     res = ts.get_coupling_in_range(
-        start_frequency=1e9,
+        start_frequency=2e9,
+        stop_frequency=5e9,
         high_loss=-60,
         low_loss=-40,
         frequency_sample=5,
         output_file=str(output_file),
-        aedb_path=str(file_path),
     )
     assert isinstance(res, list)
     res = ts.get_coupling_in_range(
-        start_frequency=1e9,
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        s_same_component=False,
         high_loss=-60,
         low_loss=-40,
         frequency_sample=5,
         output_file=str(output_file),
-        aedb_path=str(file_path),
-        design_name=design_name,
+    )
+    assert isinstance(res, list)
+    res = ts.get_coupling_in_range(
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        comp_list=["U9"],
+        exclude_include=False,
+        high_loss=-60,
+        low_loss=-40,
+        frequency_sample=5,
+        output_file=str(output_file),
+    )
+    assert isinstance(res, list)
+    res = ts.get_coupling_in_range(
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        comp_list=["U1", "X1"],
+        exclude_include=True,
+        high_loss=-60,
+        low_loss=-40,
+        frequency_sample=5,
+        output_file=str(output_file),
     )
     assert isinstance(res, list)
 
