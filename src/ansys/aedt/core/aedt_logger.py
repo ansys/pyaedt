@@ -881,7 +881,7 @@ class AedtLogger:
         return self._log_on_file
 
     @log_on_file.setter
-    def log_on_file(self, value):
+    def log_on_file(self, value: bool):
         """Enable or disable printing log messages to a file."""
         if value:
             self.enable_log_on_file()
