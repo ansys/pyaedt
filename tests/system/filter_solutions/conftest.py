@@ -22,11 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import locale
+
 import pytest
 
 from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
 from tests.conftest import DESKTOP_VERSION
+
+# Ensure US English locale (with cross-platform fallbacks)
+for _loc in ("en_US.UTF-8", "English_United States.1252", "en_US"):
+    try:
+        locale.setlocale(locale.LC_ALL, _loc)
+        break
+    except locale.Error:
+        continue
+else:
+    # Fallback to "C" if US English is unavailable
+    locale.setlocale(locale.LC_ALL, "C")
 
 
 @pytest.fixture
