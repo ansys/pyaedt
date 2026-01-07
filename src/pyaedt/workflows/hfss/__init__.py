@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.hfss import *
+from ansys.aedt.extensions.hfss import *

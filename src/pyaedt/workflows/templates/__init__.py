@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.templates import *
+from ansys.aedt.extensions.templates import *

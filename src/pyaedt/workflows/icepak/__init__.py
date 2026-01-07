@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.icepak import *
+from ansys.aedt.extensions.icepak import *

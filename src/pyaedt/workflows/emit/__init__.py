@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.emit import *
+from ansys.aedt.extensions.emit import *

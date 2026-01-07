@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.project.import_nastran import *
+from ansys.aedt.extensions.project.import_nastran import *

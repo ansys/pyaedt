@@ -1,1838 +1,0 @@
-$begin 'AnsoftComponentChkSum'
-	ChecksumString='f04b4fa42a68b3fcc28364de6e92eca9'
-	ChecksumHistory()
-	VersionHistory()
-	FormatVersion=11
-	Version(2024, 1)
-	ComponentDefinitionType='DesignDerivedComponentDefinition'
-$end 'AnsoftComponentChkSum'
-$begin 'AnsoftComponentHeader'
-	$begin 'Information'
-		$begin 'ComponentInfo'
-			ComponentName='Chassi'
-			Company=''
-			'Company URL'=''
-			'Model Number'=''
-			'Help URL'=''
-			Version='1.0'
-			Notes=''
-			IconType=''
-			Owner='Hui Zhou'
-			Email='hui.zhou@ansys.com'
-			Date='2:29:17 PM  Feb 09, 2024'
-			HasLabel=false
-			LabelImage=''
-		$end 'ComponentInfo'
-	$end 'Information'
-	$begin 'DesignDataDescriptions'
-		$begin 'DesignSettings'
-			ProductName='HFSS'
-			SolutionType='HFSS Terminal Network'
-			$begin 'DrivenOptions'
-				AutoOpen=false
-			$end 'DrivenOptions'
-		$end 'DesignSettings'
-		$begin 'Component Meshing'
-			Type='Volume'
-		$end 'Component Meshing'
-	$end 'DesignDataDescriptions'
-	$begin 'Preview'
-		Image='/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE\
-BAQICAQECAQEBAgICAgICAgICAQICAgICAgICAgL/2wBDAQEBAQEBAQEBAQECAQEBAgICAgICAgICAg\
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgL/wAARCADIAMgDASIAAhEBAxEB/\
-8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQR\
-BRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUp\
-TVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5us\
-LDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAA\
-AECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHB\
-CSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ\
-3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4u\
-Pk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigAooooAKKKKACiiigAooooAKKKKACiii\
-gAor5y/a7/aA0z9lf8AZj+OH7QmqR2dwvwr+Hev+JdJ0/UGkSy1nxULb7B4M8P3LQzRusWo+Lr3RLEl\
-HRx/aHysGwa/m5/4J2f8HAH7SP7SX7XvwY+A37Rvw5+Avg34e/GafV/D2ieJvAHhT4keHtbXxXNY6vF\
-4NNte+LPilrFrf6VfeLdHOjMsdoX+13yhZ4zBKhAP606KKKACiiigAooooAKKKKACiiigAooooAKKKK\
-ACiiigAooooAKKKKACiiigAooooA/mC/4Odf2kP+EO/Z3+Dn7MWi6gItY+Nnjmfxx4ut4pgG/4QP4YJ\
-btp9jqEZYCO2vfHGuaJdQO3Bk8FTAY2Ma/KT/gpd4I/Zr+A/wCzt/wTP+IP7KX7SH7PXj743/swaFoP\
-w/8AH1r8I/jD8N/H3idfF8eoSfGvT/HMejeEPEl1dR6DZ/F6T4lyyXLI0SS+MbGJpld0Mv3p+0b+yL8\
-Yv+Cj3/Bb+2tPjh+z58bbD9i34Uaf/wAILJ4y8UeBPib4E8BeLvBnw28O6trN/p/h74gx2OnwXsPiD4\
-va7qUVrc6XqKXFxpN4LyznZYFcfdv7UX/BAr9gG9/Z1+NMf7PP7PFx4R+OVv8ADnxPqXwo1u1+K/xy8\
-RzJ460jTZtV8PaZ/Yvir4lX9hew6hf2UWnyCezn2R6o8sSCZI2UA2P+Cs/xj8P/ALQv/BCv4ofHLwuU\
-XQ/iv8PP2YfHdnbJKJm05vEXx6+CeoXmj3Djpe2V9Nc2k6nlJ7KRGAKmvwy+Bv8AwTO1z9oX/gjRq37\
-Wnj39pH4vQv8ABP4c/tA/EP8AZ4+Dek6hpsPwj8J+F/hR4x+InibxrBrGgzWD3GoeKNb8X6P46nXUra\
-6s5rYXtks322G1jt4/oX4TeBf2wPFf/BAD9q/9knxv+zD+0npXxU+GfxD+GUHwo8Ea58D/AIoad4r8b\
-fD3xT+0F8MPiNdR+DdA1Hwul74qk0nWbT4h3GoLYxXA07Tzay3HkwlTX6Zfsd/Bz4veGP8Ag3w8XfBb\
-xL8K/iR4e+MVz+yx+3R4etvhNrngfxPpPxLuNf8AF3iX9oOfwpocHgS/0uPVJdY1SDWtGfTrZbUzXqa\
-tbNbJKJ4i4B8a/sFftP8A7Y/j/wD4IKftPeKfhj4l8Z+OPj/8EPGvjH4W/DHxAst94k8f2PgCy074Pe\
-K9fuNJvJvOvNR13RfA/wAQPG7aOwMtxarotjDaD/RreNfxb/ZL+Hf/AATa/aN8BXGpftXft0ftJ/s+/\
-toahrmsbfGnjCyHin4TvNJq00mi6sddTQLrUr2Y6Ybdr+TVvE3h5lvfOELPCkcsv9Ef/BDL4aftX/s3\
-/wDBNX9ojT1/Z38T6N8fYv2iviB4u+HPwh+POn+KfgY/jaGT4TfAywspft3irw2s9npdzc6RrlvaXjW\
-62M9/pb2k17ZxrcXVt+dH7U/jj9rP9p7wh8SPh58Zv+CAqy/tG+Lo/EWjaB+0j8Ovhx8QdJj8J3eqed\
-baPr9x4h8P+CrxPGeracZVnjubzxl/ZNzcRCaWx+yvLbSAH6s/tZ/sFWnxV/4I3eJ/hH4U/aE8U/tia\
-x8MdEk+PXwL+MnibWPD/i/Uddl8CW93qDeG/C2veHDMNc0m58Gv4z0jS/Pv9QuI5NfjtzevbW1vBD5d\
-+xj/AMFFk8Mf8EFfFHxvu9bUfEj9l74e+KP2ebKaScGaPx9py6Z4U+BGI2PmSwronjX4ZmUjJb7Bdsr\
-ARsU+4/8Agiv+yH8Zv2Mv2IdJ+F/x7kW18eeKPiD4s+JU/goapb61H8ONJ8T6d4d02z8Fte2M8to91v\
-0C61O7jtJJLeO88TXMYkkdZJG/k0/aa/Z1+L3wz/bk+M//AASW+E19HY/Cf9pD9rL4NfEPwvp9orXEO\
-heHdW03xJqXhQNHDMBFomj+GPibK2sLJGrzP8L7G5TbFAplAPp74T/B/wDaZ/ZR/wCCEfj79o34Ef8A\
-CYeHviV+1T8aPDWv/FbxX4O/tG18beFv2VvC1p408OaLqNtqGm/6ZpME/jHzrufULd0ZdE+IMju8UBm\
-lrwL9lH4C/wDBKz46+Bvhxq+sf8FGP2g/2Wf2w7t9CuvH+pfFG30yy8Dpr6SxnxAfB3jCz0qwg0+ylu\
-jJ/Z2oan4yW7jV0uLvTN/mQJ/ap8cIfjN+zZ+ypYaB+xR8EPCnxg8VfCnwr4U8G+CPhP4o8W/8IhaTe\
-B/DGjw6FGml3f2ZYtb1m002xsCmny3Wmi9jScRXgulgtbr+R79qvQ/2ov21vAr/AAyT/gg1efBn9prX\
-dY0X+1v2l/Afw68b/DvQnurTW7W91Se3hvPBOm6OFv7W3ksprzXvFOtQw2t7NKjiZbe4twD+074HeEb\
-zwF8Ifh34Pvvin4n+N02g+FtMsk+LPjK80bUvE3jyz8rztP1/VtT0CzgtdVnksJbZVu1V5bqOJLi5uL\
-q5kmuZivn7/gnP+z54+/ZW/Ym/Z7+AXxR1yHxB4/8Ah74Ou7XxNd219JqVnp99rviXXfFKeGLDUJP+P\
-3TtFtNct9HtpEAieDQ42hAiKAFAH2tRRRQAUUUUAFFFFABRRX4kftV/8Frfgj8NLm+8F/sypoP7SHi/\
-7Rp+h/8ACf8AhHxN4d8VfCTS/EmtaMdXt/DXhqXwx4kE/wAWvinDo97ZavpPhc3/AIS0LxsmgeIfCmg\
-fEa38d6Je+HoAD9gviJ8RPBnwn8Ga38QPiBrcXh/wr4fitWvr5rXUNTvLm81LULTR9D0LQtD0e0uL/w\
-AUeK9U17UNM0zR9H0y1u9V1nVdWs9L0uzu9Qu7a2l/n9+P/wDwXu8Oy69oHg39lH4a+O9cutSvLjUbT\
-x94l+EmhfGC0+I3ha5stUufCuofB74N+DP2mvCPiDxFod9baF4vuNa1fUL/AE6/8D3ngoeF/E3hOHX9\
-Uu4vDf56eJPBv7S37XHjSH4v/tQfFKSG4uZtV1LQNH8Pabr1tF4bsPElhd6XqOj/AA6+HnxJm1G1+CX\
-hO68MXU3hnXNGubfUbL4l+C/7Il+Jvgyw+ImnX2sPy1x4N8L+Cf2s/Aum+FtFs9It72/+E+rarNCrza\
-lr+uXPwr/b+t77xH4m1i6eS78T+KLpLS3N7qeoT3OoXskQlu7maUlyAfqn+y9/wXh8M+KfGuvfCr9qb\
-4NfEv4a6v4evfCWkx/FTRfhZreg2Wta947Oo3HhnwtrX7N6+M/Fni/wt4wvprjw5p3h/R/DOqfEbVPE\
-kQ1LxTcWnhnQNP1EaZ+9HgL4heAfir4T0nx78L/HHg/4keBde+3f2H408BeJtF8YeE9Z/svUrzRtT/s\
-nxH4evbiz1H7PrGnahaT+TM/k3NjNBJtlidF/je8FfCP4cfFv9qb9uTS/iD4VsNfiiT4AaZZ6gJb7Sf\
-EOl6b4g+Dhs/Een6J4q0O6ttT0Ky1PTrdLPU4rO7gj1KxeSxvluLOWWB+/0CH9tv8AY48SXXjX9m34m\
-XninwgrWT3ngQQCDw3caVollaWGlaZ42+D9vp95p2taNFpHh7Qf+Eh8R+E7C4+JF/ofhPw/8L/hTpvw\
-18J2cP2YA/sSor8lf2P/APgr58Av2mdT8NeA/Gulz/BX4s+KJ4rLRdIfXV+Ivwt8UajNrkXhqS38HfF\
-3R9FsUm0uDxhqvhnwnHrWv6P4b8PeJvHWsv4U+HWr+Obi2N3L+tVABRRRQAV8l/tn/GX45fBT4Q2Gsf\
-s3/BG/+PHxj8Z/EHwZ8NfB/hr7Jrs/hLwxd+ML2e3n+IfxOu/DltJc6N8NtItrWSTUrzdbRRNcQLNd2\
-kcjTp9aV8eft1eB/wBrn4l/s8+I/AP7FXj74e/Cz4yeK9R0/SLj4h/ELV/EmiR+FfBM0N8/iS+8I6j4\
-X8Ha5Pa+NZWj060tJms0FrBqF1e291b39tZsQD8ubj/gqr+1r4A8F/HP4Z/E34HfA3xL+1t4B/ar/Z+\
-/Y++GWp/CrxP4yP7NXxF+LP7ROh6r4i0axfVPEcjatZT+HdK0Wdtes2uorlLjVrK0m/s1zLIvd+Hf+C\
-if7cf/AAiH7R/wW1T9lnwL8Q/28vgD8dPgl8Gbzw98HJvH2r/AJtD/AGhtAvfFXgL41+Jbm6W41vwv8\
-NLLQNI1ObVZbueEQiaxN1c6YbieO04fRv8Agm/+3B4l/ZR0v4G+M9U/Yg+DHjn9nj43/BP9pX9kXxL+\
-z9b/AB58S6VqHxn+HuqeNdS8aeIv2jtS+L63Go+JdQ1aXXNLlXU7Rby7kurm+mv4biJLa3PWR/sM/wD\
-BSbw/8KP2vviJ4K+O37Omgft5ftt/EL4ZS/Ebx94ek+I3hL4VfCv4TfC/wZqng/QtF+E+pzeC9Z1qfx\
-kmmXK2kN9e6fBJbW+qS3MV2NTsoL24AOd179tn9tzxn+y//wAFFfBfivXPgR+zt+1R+xt4o+EegaT8f\
-vhPH4j8c/AfxXrPinUvDfi/UvA3gzQ/G/hXxBf6v8RZPDsUnht9IlsL67fWviFpVkLOzuzuX5N/4Ib/\
-ALIPjz4qftGftI/8FB/2uvGmt+NP2m/hT8dfij+zZe6Brtvp8tx4e+J3hfwn4T0nx74svtV02X7NJJb\
-eHvE8nhzSrCwggsLCzguvJDxGxS1+4PhJ/wAEzvj98Qv2dNN/Zm/a28V/Cf4AeDfhN8Uvh18Zvgb4t/\
-4Js+PPi74U+KeofEbQrL4jw+M/FPxj8e/tAeHdYudc1261jxP4b1e21CyUajJq2myXdxeRfZrSM/QH/\
-BMX9gHx9+wp/wANaf8ACe/Gfxh8Wf8Ahef7R/if4heC/wDhIfiLrXjvy/AKef8A8I5448df2z4M0jZ+\
-0f4h/tW8/wCE81O0+12Wrf8ACL6B5E/+hPuAPjP9pb/gpp+1v4G/bN/a2/Z/+GnxL/4JhfCDwD+zVZ/\
-Bi+0aT9tLxt8Tfh38QviYvxO+DukfETVLPwLP4e8cpZ+ML/T9Xk1CC4SGwsvskOtaNFJ9oluHmPUfGr\
-/grZ+0D4M/4Jf/AAk/bi8CfstR3Xjb4jeC7vxP4tuPFF1eN8HPhJBpnxZ8H/CWx1bX4ota0/WfEkfin\
-VfF+mXfhbSrK5juJdNku9Qur/yNKl+2eg/Ff/gkN4T/AGjfj9/wUe+Jfx10/wCGmo6V+1Non7N8P7NX\
-jvR7a91L4yfAjxT8IPhDceC/E/iUX2oeHLQeGkuvF1n4Xufsek6vdwa3p+irBqwtykUI3/jP+xl+2l+\
-0b/wSa8V/sXfGDxn8A739pvUtP+HHhaz+I2jeIfG8Pwv8R+H/AIb/ABa+H3jPS9c8Rzr8LLfUND8Sze\
-EfClzaXMFnot3azajbxXKTQQ3kkdiAfslRRRQAUUUUAFFFeCfHz9qH4BfsweH4vEnxz+Jmh+Bra803X\
-9Z0jRWg1bxJ448S6R4RhsLzxpqvg/4c+EdOv/EHjPTdC0nUrXUden0rTLyLQ9K83VtWaz02Ce7jAPe6\
-/P39sD/go58Bv2SdN17T7y+j+JvxN0CSK18QfDrwVrGnXt58NX1Lwy/inRdf+Nkum/bdR8AeE5NCaPV\
-5ILDRvEHjC68L6Zrvivw54N8R6L4V8S3Gl/i58eP+Cpv7U37WWo+I/ht+y3p978I/hdPe6p4Z1T4h/C\
-zxX4T13x5PpjT3Wl3t3dfHu60vVPDngW9+wahe6Vr2i+FbKXxd4V1KDQPiR8NPG/xT8H3JsL3wL4U/s\
-oeDfAF1pOveIr5PGPijRhP/AGUun6NbeCPAHh37Z4hHjDULPwn8O9Fu5LfRvDdx45htfE0egT3N74c0\
-LxUbnXPB2keGJLp7dQC78bPj5+1r/wAFI2e38cWug/C34Cfv44PA66h4ruvAWvaTqciag3hfxV8PbPU\
-H0r9puGJ7dGtfiHa+I9O0+RIfA3jr4Wj4c+KdM8a6FrHpXw7+EHhT4dgahBJqXizxlLa39lqXxK8aNp\
-mrfELWbPU9U/trULXUfEFnpdqPs91rW7Ub9IIYF1TWbu98QaqL3xBqeqape+p0UAFfGXjL/k8L4ffX4\
-Rf+qy/4KDV8/wDxA/aP+KXxh8YeN/hV4E0XxX4atfCfxF8X+ADo/grTvHsHi34mz+BNaj03VdQ0P48+\
-G7U6f8G9Pih1XRTc3F9pd5DofiHXPBcetnXPBXiLxW/h/wAa+Hdho/7Hvxa0ZvjZrPg3wt9v8Z+BviP\
-LL4d0q9i1y+0DxB4C/bR0CLUvEHw+8KS6lZaJrtjq+v8Ah3Sb2x8Ipc+G9Lhk0yOC6uTJNqN2AfpB8A\
-/+Tuf25v8Ar6/Zq/8AVR3FfbVfn7+yf418K/EX9o/9svxt4J1uy8R+FvES/s032kavYM5huYf+FT3cE\
-0UsMyJLZX8F3DcW91azxxXNpc2s1tcxRXEUkafoFQB84fGr9lr4SfGuy1ifXPC2hW3inU1FxL4gOmyz\
-Wusapb6LL4d0278daHYahZp45W28O3OoabZ3FzNHrOi2WtXr+FdZ8O6pLFqlvzHwh/a4/bJ/4JzzQQ+\
-OdQl+Nn7OVjENKgsvEHijR9D+FPhOCYx2lvrl7ry+H7/xF+z9ZWum6bCmgeD/AAR4Y1L4f+HtG8L6V4\
-A8O+FPFvjrx0PGGgfW1FAH6wfsnft6fAL9sSDUrD4c3nijwt8QPD9pc3fir4TfEjRbbQfHfhoWU2krq\
-llPcaLqmpaF4h1jTLfxN4KfxHYaHreq3vg648e6LpHjG38P69fx6UPtCv4+Pij+x1pGr3Gl+Ifgz4iu\
-PhJrnhi60/WPDPh3w9FZaJ4Q0PxBosestpfinwGdN0uRvhf8S7U67rqeH/EcVnrVr4KvvGev+LPDnhi\
-Pxnq11rsn0j8AP+Ctn7QH7M2paN8Ff2xvAbfFPS7AXGmeHvHPhNdU8LeO/wCy7C3utQhsNK8WfF/x9e\
-aX+0Jpumafc/aNW8Xa9r3g638JeBPBNp4h+I/i/WviR4jvPDNmAf07UV5l8J/jN8LPjn4Zl8X/AAm8c\
-aF430Wy1KTQNc/sq5ZNY8IeKrbT9O1PU/A/j3wzfRw6l8PviFp9pq+m/wBq+HtbtNP1vSZbtbfUrC1u\
-MxD02gAooooAKKKKACiiigAooooAK4/x78QvAPwq8J6t49+KHjjwf8N/Aug/Yf7c8aePfE2i+D/Cejf\
-2pqVno2mf2t4j8Q3tvZ6d9o1jUdPtIPOmTzrm+hgj3SyojdhX80//AAcfP8YfDPgb9kn4m/D+/uNQ8I\
-+GPGfx08L+KvASaj4knsdZ8ReNvg9d3GieNta8GaeU0vxV4f8AD/w08KfGxNSbW5X0+LTfFt5Y6nYap\
-4b1XxFZSgHof7VX/BY3xdqmrTfDr9iTwNP4ne8udX8N3XxK8Q6D4i07xxZeJ/D840bxv4RsfhT4v8JR\
-z/BXXbG81OK1s/FvjjSdcsvDnifSdOh8ffDS18BeMfCXjfWvzT0n9nfxn8U/FWp/F79pzx3qXi34h+L\
-9U0DxL4ji8PW03gbWNc13wpJdy+CfE/xA13QvF2psnxH0ae5urvR7vwpf6Svg6LxTrHgLw3qt38MbfQ\
-fD2n+hfs73f7O954beT4BT6HNbDRfCi6sWbWj8QE8OpZXsfw7Xxmvjb/ipE0UeHo5h4aGrgQf2IsH9i\
-/8AEo+zV9D0AUtN03TtG06w0jSLCy0rSdKsrXTdL0vTbWCx07TdOsYI7WysLCytY1is7KG2iijiijVY\
-4441RFCgAXaKKACsXxD4k8O+EdHvPEPivXtF8MaBp/2f7frniHVLHRdHsftd1BY2v2zU9SnihtvNvbm\
-2hj3uu+W4SNcu6g+cw/Ei98ff6H8EYtF8WW5/4/viVqz6ynwt0q1mP2Vbzwzremae0Pxg1uC9NyZNK0\
-S/gs430C/0/WvEfhzUDYxXnWeGPhZZafq9n4x8aan/AMLE+INj57aR4n1rRtGs7bwTHqNpPb6tpPwy0\
-a0tT/whuiT/AG2+jllkudQ12+s2tbLXNe1mHTrA24B5j4d8L+ItY1HX9W+G3w98MfAXR/Gd6NR8U/ED\
-VvCWiRfFfx20k95cjWbTwRp8KRaNez2uv3V7Yar4xubrVdO1Jbu01vwBIs8kje2eDfhz4M8AjUZPDGj\
-C21LWvsn9v+I9Tv8AVPEfjHxL/Z32pdK/4Snxr4kvbvV/E/2OC8uILH+0L25+xWrLaWvk20ccS9tRQB\
-5/4q+GfhjxVqcHiUx3/hzxzY2UWn6V8QvCN6/h/wAa2Fja3Fxf2OlXGrWqlfEvhaLWLj7c/h/WYdS8O\
-3l3BFLqOk3gQLWVD498dfD0Cw+IXhrW/G/hi0HkWfxR8BabJ4m8RTWseVt7n4h/Crw5o0Wo2mtyy3Om\
-WYm8IWWv2V7cQ32sXem+D9KEdjbeq0UAbWmanput6bp2s6NqNjq+j6vY2mp6Tq2mXdvf6bqem39vHd2\
-Oo6dfWkjxXtjNayxSQzRu0ckcqujMrAm9Xznrnwmksby88R/B/wARD4R+MtR1qHWtam0/SW1zwB4wnu\
-dXg1PxNJ45+GH9q2Wn6zruqxRLFdeIbOTTPFQW1tok177DFLY3HR6N8XXsdS0/w58WtAsvhfr+sXtpp\
-PhzUpPFem678O/HGuahcRx2fhvwR4wurbTbu78UmO7sFGl6vo2iajfzi+/sG21qx0u+1CIA9prD8SeG\
-PDXjLRb3w34v8PaH4q8O6l9n/tHQfEmk2GuaLf8A2O7gv7T7bpep28sF15V9a200e+NtktvHIuHRWG5\
-RQB8BN+zL8Uf2ffFmmfFX9knxz4h0rWPCdha2Wk+CLbxl/wAK78RL4V0fUr7xDYfDjwz8Q7TQ76xvfA\
-MOqz3mo23g/wAQaRJ4c8UeNtbj8X/Fm98eW+njRLn9R/2Tf+C0Vl4w8R2/ws/a18A2vw18ZWbRx6/8U\
-vCema54S+HegRvZapqsviH4m/Df4lao+v8AwX8IzQWd4dDefUvEOuX3hfwXr/xR8aeH/hn4Fs5bq281\
-ryr4sfBf4f8Axo0WLRvHOkfbfsXmPpeo27RreafK11p+pJHPa3UM1l4k0Qa3ovh7UJtF1q01PQL+98N\
-abNqelX32G3WMA/pt8PeIdA8XaBofivwprmj+J/C3ifR9M8Q+GvEvh7U7LWtA8Q6BrVlBqWja5oes6b\
-PLb6to93p1zbXFtc28kkM8NwksTvG6sdiv48PAHiD9sj/gn1r2s+JfgB438T/Ez4Z+KtYvfEfjnwfqP\
-gXTviVpmq6zd3dz/aXjz4jeBbS9h8b/ABY+OWof2vqUj614d8U+Hh4q1nVNDj8V6l4L+Hnw50zRdW/c\
-b9jv/grH+zf+1Dp+i6D4q8SeCPg58ZNR1TTNBm8CTfEK28a+Bb3xJ4l1y58P+DvB3hD42L4f0nRfE/x\
-B1TV7DXbGw8Myx6f4j1mfwZrWr+F9K8ReB49H8Z62AfqTRRRQAUUUUAFFFFABX4Xf8F5f+Tfvg3/2Pv\
-x6/wDWE/2s6/dGvwu/4Ly/8m/fBv8A7H349f8ArCf7WdAH5w/FL9lPRPFWrr42+FHizUPgR8SYrzVdW\
-fxB4L0u1/4R3xBr2uX1vfanrvjrwnp11pz+K76W7ghu7uMajaWfiC+0bRW8ZWvijTtC0vS4PJbX9obx\
-78F9T03wN+1J4HvtNluLqx0jw58XfAC6x488I+M5tSkaLw9ZX0Fh4E0aa5+Il7cT22nDRfDul3uqX19\
-oeta83hnw34TjsLqX7X8W/EHwj4HOnQ+ItWMOp619r/sDw3pWn6p4k8Y+Jf7O+zPqv/CL+C/Ddld6t4\
-m+x293BPe/YLK5+xWpa7uvJto5JV4u/wDBfjT4x6XqOmePEu/hz8NNdsbzRda+Ggt/DOqePvFmj3cEm\
-ma7pnjfxhpusavpWgeFtU0+91a2fTvD4fWY4IrHU4PF2m3Vxd6LZgHK3Xxf8MalPFonw5urH4n+LtQs\
-dMvdO0nwnfPqmg6fba/ptrrPh/WfHnjTRbO+sfh74XvNCu11K1u78/aNW0+0uG8OWGu36w6dcTRfCnV\
-fGuLj42apovi3SZR5yfCTS9FtX+FdpIQJ7JvEn9u2s2ofE/WrCa4vI47u+bTtCuXtbDVofB+l6zY2t5\
-D5FqH7HuvfBJp/Ev7IvjTXPBGn2RfUb74H3ptPEPg3xMITBPc2GiHxHqttDFrl/do09/fa5c3GualDp\
-GmeFtI8bfD7w+sl5a7/AMPf2rdF1nxXa/DD4t+C/EPwQ+LU7RRp4W8Rrdap4f1KSfUodHWbQPF66Vaf\
-atCHiDUNH0S31q/sNM0HX/Ed+2j+DdU8UGL7TIAfWFFFFABRRRQAUUUUAFUtT0zTda03UNH1jT7LVtI\
-1ayu9M1XStTtIL/TdT02/gktb7T9QsbqN4ryymtZZY5YpFaOSORkdSpIN2igDx+Dwd4y+HAz8HLrRLr\
-w4fmuPhV4+1jxQnh22kQfZLKH4d+M4G1Sf4S6Hb2UkIOiwaJrGgiDw9ZWOiaV4be41LUrrv/BnxR8P+\
-LtQn8NXVve+DPiBZWUuraj8M/F114eh8b2WhpcW1vD4khs/D+u6haa74WlkvrKNdU0u9v8ATo7uaTS7\
-i5h1ezv7C06GuY8WeC/C3jnToNM8V6JZazb2V9Fq2kzTq8OpaBrttBc29j4k8MazaPHeeF/FNpHd3Js\
-tU06e21CyklMtpcwygOAD0+ivn6HVfit8OSJdbvh8YvAtsfN1HVxpEOk/GTQLBcveag2geDdEXSPi0F\
-uLt5Psmlab4X1Kz0rQ/JsbHxhrtxFBcereD/HHhLx9pk2r+D9esNctLO9k0nVY7Z3i1LQNct7e1ub7w\
-34n0a6SO88LeKbWK8tRe6XqMFrqNjJMIru2hlBQAHV18y/Gn9lb4d/GO4vtembUfC/jS80zVNJuPEGj\
-Xd+lnrOm61o9toOv6N4k0e1v7dn0zWtB03RNH8Q3ujXWh+JtX8NaRH4ZPiS20V5LRvpqigD5u+B/7dH\
-7aP7B+peG/AHxS8M33x9/Z20a+0rw5pOm+C/A+hWM9n4XhuItNsdL+CN1aeJbWL4Z3y22pTXw8OeLdR\
-vtP1nxHqHhz4PfBrwr4U8K2I8S2/8AQj+zT+21+zd+1jYW5+EXxE0m98WHR9Q1zUPhtrN1Yad4+sNM0\
-PVLPw34m1zTdLhvp7b4geAtO8a3cmgSeMfCd5r/AIIvda027sdI8Sak9tIR+OOp6Zput6bqOjazp1jq\
-+j6vY3ematpOp2lvf6bqem39vJaX2najY3cbxXtjNayyxzQyI0ckcrI6srEH4x8d/sjf2Nq8fxD/AGc\
-vEniH4afEHS9XsNf0vRdN+KHxJ+GnhW41qw0a98JWN4PGXwwvYfFHhezs/Amo6h4as9N0++Okab4P17\
-xD4c8L6f4VvfEc3ibTwD+wyiv5sv2cP+CwXxU+CWqP8O/+CgeieLNS0+1slu7X4t2/w50PQPFOj6FYX\
-UEvib4jfEzV/B1zZeAPFvh2P+1rTzNF8CCXXvDn9v8AgfwZpUPxd8ceI9cn8O/0MfDr4i+DPiz4M0P4\
-g/D7XIfEPhTxDDdPYX6Wt/pt3b3em393o+uaHrmh6xaW9/4Y8VaXr2n6npusaPqVraaro+q6TeaXqln\
-aahaXNtEAdrRRRQAV/P8Af8F+rn4l6z8M/wBmL4Z/Cb4ZeL/iB408b/En423dpcaV4euNT8L2ukaR+y\
-v8ZdB8XeHbrVINRt2T4k33grxr4l1LwtpESz3Wst4C1YWltdy2Isbv+gGuL+Inw78G/FfwbrfgDx/ok\
-Wv+FdfitBfWJu9Q0y8trzTNQtNZ0PXdC1zRru3v/C/ivS9f07TNT0fWNMurTVdG1XSbPVNLvLTULS2u\
-YgD+bf4S6f8AD9LHXNW8HeINQ8Xa5c6jHo/j3xD4m1a/1Px1B4l0aE3N34T8X6ZqqQzfDrUtPvNa1Ce\
-TwjHYaLZ+H7zxBex22haU9zPC3rle9/tCfsA/ETQNTt/Fnwmvvin8Y9LstOGmWMumfFPwR4X/AGoPh7\
-o0Gqyw6H4H8J6l8StBtvA37Uvw+trDWZxbL8YdR/4Svwsj+KfEVp4v8Z+J/EtpaaX8VWnjfX/DdhqV3\
-480nxBqPhzQb9tN8QfE/TvhR48+Gtl4Q1J9MtPEL6L8afgh48urnxv+ztf2vhi8j1ifUfEtmfCj+GL3\
-RfE7+J7OLxFZ6VbAHrVef/Ez4WeAvjD4VuvBfxF0BPEHh67d5Gt01DVtFv7aSayvNLu303XfD9/a3+k\
-vc6Lqerafdm1uYTd6brV9ptz5tje3dvN2emanputabp+saPqFlq2katZWmp6VqumXcF/pup6bfwR3Vj\
-qGn31rI8V5ZTWssUkUsbNHJHIroxUgm7QB+d118NP2iP2XY/tPwl1Kb9oT4Qcte/Dfxfbzaf4/8DxWl\
-tk6l4a8Q+HLl7W28EwWEl2ieHvCfgm4a0tfCGg6F4Z8GXF/q+ueIkyf2M/2hfEXxjvPiHonj7xRbr4x\
-8NXNnaf8K915PB2gfELw3NpUs8Hiw614O0Mpe2kFvdat4Yt7mW4iaK1vp302R4dStr+0g/Sevn342fs\
-0fDT47HTtR8Spr3h7xjoQtT4b+IHgrVE0fxZ4fuLCW/fTNRsze2l3p1/rGnprPiL+xb3UNPvLvw5P4n\
-1DUfDs+k6rctfhp2TVt/60IlDmnCXM1yX0T0d1bVdbbrsz0qivhufx9+0h+zUhsPiz4Cb4v/CbS1a30\
-74ofD7Ubm88S6Jo1qLhLObxw3jHVs7hFFdXuo6j4ju9I0Twr4d0OJ9Z+I/jrxPeSyXH1v4M8eeD/iHp\
-MuteC/EOna/Y2t6+l6mtpIyahoOtwW1rd3vhvxPo9ykd54W8VWsN7a/bdK1GC11GxeYRXdtBLlAizra\
-KKKACiiigD85l8T/tJL/wUJm0Q6V8RZPgBPZW2jpqz+HPE4+HNnpFr8ILvxLJDb6kkC6G9/c/E28iE2\
-pypJrKzaTBo0Gowae9xp1x+jNFFABXn/in4c6N4j1SDxRp13feCviDZWMek6d8SvCVr4ei8aWmhCe5u\
-J/Dc914g0LULPXvC0sl7eSNpeqWV/p8d3LFqlvbQ6tZ2F/a+gUUAeWQfEvxX4BPlfGq00N9Ab5Lb4re\
-AtI8UJ4ZhlB+1XknxC8Gzrqk/wAJNEt7GWQjWrjW9Y0DyPD99fa1qvhp59N0269t0zU9N1vTdO1nRtR\
-sdX0fV7G01PSdW0y7t7/TdT02/t47ux1HTr60keK9sZrWWKSGaN2jkjlV0ZlYE4teU3vw61fR9Sv9f+\
-FnjS98B6rql7d6nqvh7VbO48a/CvW9S1CeWe+1C/8AAF1rFnL4evXur/Wr+aXwtq3hqTU9Z1VtT8Qtr\
-jKYHAPfqK8Df9oHwz4Yt5ofi7pWsfCjW7aJlii1a1ufEHhnxbexqIorH4Z+MPDtpNB411rUL2HUV0Xw\
-40Vh441KDT2uT4RtUkjU/OF1+0d8WP2jmGg/sveHNe8GeBb+dEf9pjxHp2gXGm21rFPcvDqvgzwt4hs\
-7mx8U6RcxW5Vlje/1u0v9Hv8Awp4n0DwLeXtr4q0oA9+/aW+IHwH8CeDbKf45rYXto97JqXhHTRblvE\
-lv4ksI49KsPEnhfXI7i2Pw41O11LxFpVjB4tn1LQ7HQtQ8VacLjXtLlvbaV/Vv+DaTwb8UdO+EH7T3j\
-vxPrtn/AMK38UeNfgp4b8D+CLKDxB4fXRfFPhr4MaP4t8WeMbnwXfeG9O0+0vtb8A/E74L20+vWaz3P\
-iaXwS17d3V/aw6Xq+p/OXwh/Ze8A/DDWp/HmrtcfEv4v3/kPffFbx1DHrvi6wEenXumtpXhjXNae81X\
-TdCjtNV1W0t31DVdX1w6TLaaPqWu6nYaXpkVr+l//AAQM/wCTRvHn/ZR/gv8A+u+/2IaAP3FooooAKK\
-KKACvnX4zfss/B/wCN2p2/i/X9Gv8Awr8V9K0eHQ/DXxv+HGpSeCvi94f0uxuNU1PRtBk8WabGR428A\
-2niTVptXPg3xRb694I1LU7eC51vw1qgiVK+iqKAP57vjr+yl8Xf2d9S8UePYGvb7wJa3uq+ItV+M2le\
-KNIf4YaxYmeG8vvE37XXwWuvD1vL+z7ez3Ws3Y1bx38G7bUfD9xrFx4g+K3xI8N+HPDVkfDkHl+g+Op\
-LuXw7Y+JtAu/Dd54tsINS8Ga/Y3lr4w+FPxL0240y41ey1r4V/F3w35uj+KrDUNJ07WtT0vTruTSvFd\
-xoekS63eeGNO08eYP6Ya+B/jx/wT9+EnxNtvFerfDjR/Avwv8AGnjbWH1zxxp2ueAJviL+z58VtU1LX\
-m8Q+I9e+NX7NUPi/QtC8fePrzWP7P1IeMra40fxuNT8JaGl34lv/DtnfeG9UAPzXorhPHnwx+MX7Nes\
-6Novi/w2/hWHxPrFl4b8K+GPH3x6034gfCz4geIb1La9tvCX7MX7SPjfQdP8T+JPjDdSXzQr4J+Llj4\
-auPEep6hd/wDCC63beEfBWsXtx4t+0P8AGHxn4S+BPxj1n4e+FvEWjfGXwdoNhZL4R8a6bbeE9Y8EX3\
-ijWU8Kp8QNSn8T2k+i6t4B0SceI9SfxJDcX/grUIvh/qzxa9NptlfXtuAfUlfFXjv9jXwzaamvxB/Z1\
-1e8+AnxP0nThYaWng1PD9l4E1vRopZJpfA2oeHNe8Ia3ZeDPCt019r9wyaJpkdgniDXY/F2r6H4k1fS\
-7CNed8O/tFeLPhPokut/F/xTovxl+Edpfy6NN8e/hzoclqfBF/pkFjda7b/tF6VLp+kWvwZ8extq1l5\
-/gbUNO03xFpU2v+G/C2gv8TvE15r02hfZ/hLxr4V8dabPqvhPXLLWrWzvZNK1WK3d4tS0DXLeC2ub7w\
-54m0e6SO78MeKLWO8the6XqEFtqFlJKIru2hlBQAH48ftR/taftOfA/wAI+GfD/jzw1YfDf4gN4709p\
-fF/gO48MXvh74meBtP0jxNL4ufwjpHjXTvEn/COaeuqDRYrO7ZtW1SCDT49V8WaR4LXXNC0XVv0m+B3\
-iTV/GXwV+D/i/wAQXo1PXvFXwu+H/iTW9SWC0tV1DV9c8J6TqepXotrCCKC3Et7dTSeXDHHEnmbY0RA\
-qj2rxP4U8L+N9DvvDHjTw3oHi7w1qf2b+0vD3ifR9O1/Q9Q+xXlvqFn9u0nVbaW3u/Kv7S1ni8yNvLm\
-to5Uw6Kw+H9d/Zo+K3wX1PVPFH7JvivTrbQdTvLnXfFHwf8eJf+J4vE2vXv2i417xQPFniHxAt74u8V\
-TKbprK1vtZ8N32oatrNufEPxAbwroOh+GtPAPseivlH4U/tX+F/F+pXHgT4qaK3wI+M+l66nhzW/hr4\
-u12w1O2h1fVNYvNL8IafpPjiygi03U9X16KyubnRNLlNprOr2VnNq2k6bf8Ah9rLWr36uoAKKKKACvL\
-/AI3+ItZ8H/Bb4veLfDt5/Z3iDwv8L/H/AIi0LUPs9rd/YdZ0Twnq2p6ZefZL6CWC68q9tYH8uaOSJ9\
-m2RHQlT6hXzh8Yf2mfBXwsuX8NaTZaj8TPiU13Dpq/DvwIP7d17Rb6+0htZ0u48Y2OjRXmoaJpsmnFb\
-4wWWm6rr0+j2mpazpWgarp+jatLZgHEfsPfE/4s/Fb4OaprnxhmstT8RaN8RPFnhTTPFGm2ujx6b4v0\
-PRBpoOt6fqfhgLo3iSwj1+51/TYdR0ZF0+ePQFUNPcx3NzNV8c/tavqOrf8ACGfs3+Cb346eJbqwhu1\
-8X+HrrTLz4XaRbXYv4WvP+Elh1eCz1y/t5bO5lt7e81Lw7oWty+Hta0Cw8YQeJ9Ku9Jh4K4+Efxk/aX\
-l+2ftNSf8ACv8A4drk6f8AA3wT4kW4GrWc975t5ofxWktLjUNL8QNE1uvkatZ3c17L9l0XXPDsXw31u\
-z1e11f6x8G+BPCHw90l9E8GeH9O0CwuLttS1H7HEzX2t6zLbWtpd+IfEmrXDPd+JvE1zDZWv2zU9Qnu\
-dQvXhEt3czSZcgHzPof7LV3408QWnxF/ab8YyfFjxsslxfWvhLSG1jRfhH4Nl1O2jt9Q0TwxoN9qlxe\
-XWjHS5rzRNRhM9ho3i3R7Wyl8VeG9R1qGXU5vZofD/wAQPhyReeB/Eut+PPClofPvfhl491KTxL4mkt\
-Ey1zb/AA8+K3iPWItQt9blmutRvDD4vvdfsr2e3sdGs9S8H6Xvvrb16igDN8E/EPQvHK6jbWVtreh+I\
-NC+xp4k8I+KtIu9C8S6DLfC6jgkltblTBreiSXunaxa2utaTcajoGpXGhXy6Vqt+lpM6fav/BAz/k0b\
-x5/2Uf4L/wDrvv8AYhr82PixD8Jbm48M2/j2G4ufGEn9tf8ACuoPBkXi6f42SbE05/F3/CqIfhcp8YP\
-jS1s213/hHgcaSsp1b/iVi4r7t/4IJ6Z8Z/hb4Q/a3/Zo+Mfhq2utR+DPxS+DOoW3xb8OT6lceBPFtx\
-4r/Zp+Fvhu1+G2gzXfg7TIp9d8JfD34Z/DWXVpVmnuZW+Ilo1zBEn2bUNWAP3/AKKKKACiiigAooooA\
-KKKKAMfxD4e0DxdoGueFPFeh6P4n8LeJ9H1Pw94l8NeIdMsta0DxDoGtWU+m6zoeuaNqUEtvq2j3enX\
-Nzb3NtcRyQzw3DxSo8bsp/LP47/8E2k1YWl78FJ/Bms+HtAlvj4N+BvxRvdd+HenfCyz1ebSo7/Qv2Z\
-P2nPg3ox8b/s0+FJfLv7jUtHlsPHOlXml6VpfgXw3Z+BvCUCwQfrJRQB/GRrv7NfjP4UfEO71L4BXPi\
-74W/HPwJ4Yu57vwD4e8K+Fvhd8bdM+GmjatPp+u6T4q/Zz8a+EvEHh74k/AyPUrrxQt34++CEWqeD/A\
-BP8R/E0Wu+Hfhv401TQNOlTxD4fXXxk1H42/CXUPh98P/Dfw48NvZrZ+Ir79nS01bVv2WPiPY6R8VfA\
-tp4k1Twda+Gpbzw58KtFi8E3Px4Sx07xB4r1d73UNH1XxFbeAfAXxA8bQXGp/wBrXxW+DXwu+OPhqHw\
-l8WPBGheNtGsNTj8QaC2qW7x6z4P8V2thqOmaX458A+J7CSHU/h78Q9PtdX1H+yvEWh3en63pMt21xp\
-t/aXGJR+Qfx5/YI+KXgC+1v4peENcPxeNtbR6nrPxM0fwr/wAIz+1JZ2+kWGmWMd/8TPhj8HtH03wf+\
-3jotvbNfW8WhxaL4D8VeGvB+iXVj4BHin4g6nZXUgB5PRXjOnfFIaPpWp6z48vPCX/CF+HtcuPCPiH4\
-w+G9aTT/AAR4U8Y2aQK/gT42+DvGUtn4m/Zo+Lu6SNtS8L+JrKaz0C81nTPDlz4qvfEl/badL7NQB5f\
-8Ufgv8LvjPpK6P8S/B2m+JYIbLVdOsdQaS+0nxHpGn6/FbW3iOw0HxboV3a6p4fstTsLSG01SKyvLdN\
-SsS9hfLcWcssD/AB3deHP2mf2YT/aNr4g179pf4J6fKoutEuNI8ReLvj7pVi8s0NpaaObZ7q/8W6xLK\
-893qOrXV5qlrfarqunaRYeGfhz4Ps9S8RaZ+ilFAH5AfDP9vrXviz+1/oHwZ8IWHgq5+EfiBNSFtq0l\
-jqMvjiG60P4XXniXXLX+2tM8X3Oi6pFa+O9N1TTvt2nQ32mXcGnu+nX15C8OoS/ffxN+Mnwy+DmlLq/\
-xI8Yab4agmtNTv7KxdLzVPEOrWOhpbTa/e6F4V0S1udT16006zvILrUpLK0nTTrLfe3rQWkckyfBv7f\
-Hwa+D/AIw/aJ/ZuHjPTrHwlpfjTwj+0/q3xS8deF/C/hifxjqekfD74WeE7+wvtRudS8J6qdevNO0ey\
-uYbB57K9u7COQtpBtb1LaeL5c/YK+GHwE1b4m6B4u8IeGV8RWh0b4nXlhd+PY7PxNrPhnxR4L0b9i/X\
-jZWtxceF9KtF1zw38QviB8S7Kz1uw0iwuLmGQSxzTW32Vx3RyzHzy2tnEcJN5Xh69PDTr2/drEVqdWr\
-Tpc3WcqdCrOyvyxjeVuaPNPPBTVPmXO05W62TSb9LtH22fF/7S37S/lp4U/4x5+B2scf8JzpWsaPq3x\
-X8YeF7z7Wn9o+CtT+w31rpP2zSpLu0eW3tbFNMvU0vxX4R8aeNNDl+x3XuHwn+AHwq+C9rEvgfwtY22\
-sCxutPufFF7Ba3HiKe01G9g1bV9OtLqK3jh8M+HLrX4n1J9C0aDTfD9vf3c9zY6VatK4Ps1FcJQUUV5\
-N4h+JsltY69qHhjSdKm0HwvfNpnin4q/EzxTbfB/9n7wjqSaqdEOn638XPEWnXA16+fxBbalorReFNL\
-8Tyab4itY9G8RroUs4mQA9L1PU9N0TTdQ1nWdQsdJ0fSbG71PVdV1O7t7DTdM02wgkur7UNQvrqRIrK\
-xhtYpZJZZHWOOOJndlVSR5udb+IHjjWvCvg7wh4T8TeEbr4jXV5pXgaLxJZ6f4d+PPxNnsPJXW7P4Af\
-ADxvax6hfaxp8nmxavrfxAg8JeFvCFnqFr441Ua/wCDbPUWP1n8DP8AgnH8Zfi/qWg+OviPHfeCNJtr\
-7S9f0r4gfHTQdL1r4j2kkNxpGsWOs/s+fsl2tw/hj9n2+jttTvr3wn40+Jdz4i+KvhS/tLzw14y8E6v\
-p7iQ/t98F/wBnL4K/s+WesW/wn8CWXh7UvE39n/8ACYeMtT1LXfGnxM8ef2LLqr+H/wDhYfxW8c6rqX\
-iX4hf2XBrWpWukf21q1/8A2Tp866bpv2XT4obaMA/ML9mn/gmh4nSG81f46apqvgfwz4rgsr7xN4D8L\
-/FHx1qv7Qnjy8sbNrzwvP8AFn9pLwV4k0aL4V6VY6l4h8Q3N38N/hZbQeF9K8QWks+geOdQ8Ka3rvhv\
-VP168BfD3wD8KvCek+Avhf4H8H/DfwLoP27+w/BfgLwzovg/wno39qaleazqf9k+HPD1lb2enfaNY1H\
-ULufyYU865vpp5N0sru3YUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAfNnxt/Zc8B/GrV7Lxl/wkHj\
-74WfFTStHg8PaV8WPhP4htNE8ULoEGo3V/Bofifw14l0jV/CfxS0e2Gr+Kk0q28Y+G/EMPh2XxtrOpe\
-Gk0fWb+XUq/Fv4t/sy/Fj9liW5ulttF8NeALC2j1CTxt8N/hJcWH7GV0jWlzqmqR+Kvhx4Z8U+IPG37\
-EutRR6RfHXvGM9z4l+Dek6RpU3jLWHHi/wAVXuhWH9G9FAH8y/h/4maHqF54f0HXp7Dw/wCKfE1gmo+\
-F7ddQfUvB/wAS9OOkrr//AAknwO+IT2Ntpvxq8Gv4cmsNVF7ojS3Vhp2tWJ8Q6doOpSy6Zb+kV6V/wU\
-x/4Ix+D/2qra/+Lv7NQ8K/Df8AacGqXV3LaePPE/jWx+B/ju08R64NX8Sf21pGi6ZrTfDPWo9d1PxR4\
-l+2eF9Ghi8Qa/4o16fxJZ3uq+IT4m0f8lfhVZftm/sa6N8Lfgx+0j8CvippFnf6SkWjan8R9a8IeL9J\
-twunfEPxjq2h6P8AtE/DG+v/AAfp8mkeEvAk1rpXhLXZ1vUtbTVfFviLxT4H+H+mWi2vz9TOsRhc1r4\
-LMMrnhcsUYOjjoydWjOUvihWUIXwvI/t1peze/OrpP5apxDi8HneJy/NMlqYLKFCEqGZRk62HqSlZTh\
-XUKd8G4O/v15KlJK/tFeKfnH/BRr4M3n7QXxm/ZB+EWn+M7n4fXniyx/aJaDxhZ6XLrNzo7eHtD+Gni\
-ktFpsOs6e1w06aI1sSLyHyxeGT94E8p/nP/AIJxeAZfhzrPhPRptdm8RS614R+L/j99QuLRrOeM/Ev4\
-a/8ABOz4gf2XKr31wbl7L/hI/shuS6/ajZfaPJt/M8iP7E+JPxP8CfEv9sX9hC88F+IYNUaHQP2lNVv\
-dKubXUdD8S6VpfiX4VeFtS8L6lrfhPX7O11PQ7DVdJQX2lTXlpBHqenzRahYtcWU0U7/Lf7LXjLwx4K\
-8UfCy/8T6xa6VHqfwdk0TRLV/NudX8SeIbz9mn/gmbNpvhfwpoVlHJe+LPFt4tpcLY6Tptvdajfyx+T\
-Z2s8pCH9LwmcY9cD5tlFPFXyupmOBrezSg4upUw+MUpqXLze8sPQ2la0FZayv8AQctOeIpVo2k5U5Wk\
-ndNXg1Z7Ne82n1ufrXXGaz41tLHXbfwV4e0vUfH/AMSr7ThrenfDDwdeeG28aXPh5Z7mC58UXkPiXxB\
-pth4b8JQy2d1E2ravf6fp0t6sGk211PrN9p2nXnwfoHxr+P8A+3l8Q5v2df2Kvhf4s1h7rXLHwx45+L\
-uiarf23hH4MNeP4/it/F3xI+Ongue88PeDNN07xD8NRqNvY+Hp/G1t8SPC+sXGmaB4g0LxPs01/wBQv\
-+CVH/BAHwV+zrc+KfjZ+2lpOh/FH4teNYL7R7H4NNr9l4y+A+k/DvxHoXw28RrpPxO+Hl94SSx8X/EP\
-SfiTo/ixIrObVvFHhGyi0vQdW0v7Tr2mWOs2f54s1qVcxw2DwmCnicJWhKcsUuZUI8rS5Yz5HGcnzLl\
-tNKXvWb5J8v6i+AsJguDM64kz7ifD5Ln+W4qhhqOQyVGeZ11XhOar1KDxVOvhaNP2VRVnUw8p0f3TqQ\
-j9Zwyq8V8EP2cPi9+2PcJLpJ+HXjP4fp5E91r2l6n8V4v2UtKtZ9TfQNQvF+K+naRpf/DwDVF+x6x5v\
-gPRLbwx4Gt10/xN4U+I+vWetL4Uvp/3J/Zy/Yb+FnwJk8M+KddGnfFX4reEtOt9M8F+ONd8E+DPD+j/\
-AAY0h/Dk3h3U/BP7NvgrQdJWH4LfD6Wz1DWLUol3qvijUNInsNG8UeLfE1nomiix+1aK9g/NwooooAK\
-KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigArj/AB78PfAPxV8J6t4C+KHgfwf8SPAuvfYf7c\
-8F+PfDOi+MPCes/wBl6lZ6zpn9reHPENlcWeo/Z9Y07T7uDzoX8m5sYZ49ssSOvYUUAfz7/Hr/AIIY+\
-GofE/hr4hfsg/Ea/wDB9x4S1XXdU0z4IfGjx58ZtS+G9peeM9E8K+DPFOr+Dfi/8PPGlj4/8D6nPoul\
-Xuq6q1/qPimTxFeaLougJdeHPD1qY4/k79lP/g3G8T3cunan+3z8bdA1fQtN03wt4e1D4G/svat4zt/\
-DXxJ0bwhpnwMjtLL4t/Hb4g6PY+LPFPgS8v8A4RyGbwba2On6Zoty1tq3g3UfDDM+lW/9XNFc1DB4XD\
-YLGZdQoRp5fjq1CvOglakquHhiYRlGmrQiprFVHVgo8lScadSUfaQ5mZA5cLYnFYrh6f8AZNTFQUf3M\
-YR9g+bmnUwj5ObBVqr0rVcJKjOrG6m2p1Ofifhz8OfBXwk8FaF8PPh5oUHhzwl4cguY9O06O5v9Rupr\
-rUb+61fWtb1vWtXuri/8TeKdT13UNT1LV9X1K5u9U1jVNWvNU1S8u9Qu7m5l7aiiukAooooAKKKKACi\
-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAC\
-iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q=='
-	$end 'Preview'
-	ContainsLightweightGeometry=false
-$end 'AnsoftComponentHeader'
-$begin 'ComponentBody'
-	$begin 'HFSSModel'
-		$begin 'Variables'
-		$end 'Variables'
-		$begin 'Datasets'
-		$end 'Datasets'
-		$begin 'DesignData'
-			$begin 'DesignSettings'
-				'Allow Material Override'=false
-				IncludeTemperatureDependence=false
-				EnableFeedback=false
-				Temperatures(7, '22cel', 59, '22cel', 462, '22cel')
-				ObjsEnabledForDeformation()
-			$end 'DesignSettings'
-			$begin 'DCThickness'
-				DCThicknessObjects(7, '"<Effective>"', 59, '"<Effective>"', 462, '"<Effective>"')
-			$end 'DCThickness'
-			$begin 'Circuit Elements'
-			$end 'Circuit Elements'
-			$begin 'PMLGroups'
-			$end 'PMLGroups'
-			$begin 'MeshOperations'
-				$begin 'GlobalSurfApproximation'
-					CurvedSurfaceApproxChoice='UseSlider'
-					SliderMeshSettings=5
-				$end 'GlobalSurfApproximation'
-				$begin 'GlobalCurvilinear'
-					Apply=false
-				$end 'GlobalCurvilinear'
-				$begin 'GlobalModelRes'
-					UseAutoLength=true
-				$end 'GlobalModelRes'
-				MeshMethod='Auto'
-				UseLegacyFaceterForTauVolumeMesh=false
-				DynamicSurfaceResolution=false
-				UseFlexMeshingForTAUvolumeMesh=false
-				UseAlternativeMeshMethodsAsFallBack=true
-				AllowPhiForLayeredGeometry=true
-			$end 'MeshOperations'
-		$end 'DesignData'
-	$end 'HFSSModel'
-	$begin 'MaterialDefinitions'
-		$begin 'Variables'
-		$end 'Variables'
-		$begin 'Datasets'
-		$end 'Datasets'
-		$begin 'Definitions'
-			$begin 'Materials'
-				$begin 'aluminum'
-					CoordinateSystemType='Cartesian'
-					BulkOrSurfaceType=1
-					$begin 'PhysicsTypes'
-						set('Electromagnetic', 'Thermal', 'Structural')
-					$end 'PhysicsTypes'
-					$begin 'AttachedData'
-						$begin 'MatAppearanceData'
-							property_data='appearance_data'
-							Red=232
-							Green=235
-							Blue=235
-						$end 'MatAppearanceData'
-					$end 'AttachedData'
-					permeability='1.000021'
-					conductivity='38000000'
-					thermal_conductivity='237.5'
-					mass_density='2689'
-					specific_heat='951'
-					youngs_modulus='69000000000'
-					poissons_ratio='0.31'
-					thermal_expansion_coefficient='2.33e-05'
-					ModTime=1499970477
-					Library='Materials'
-					LibLocation='Project'
-					ModSinceLib=true
-				$end 'aluminum'
-				$begin 'vacuum'
-					CoordinateSystemType='Cartesian'
-					BulkOrSurfaceType=1
-					$begin 'PhysicsTypes'
-						set('Electromagnetic')
-					$end 'PhysicsTypes'
-					$begin 'AttachedData'
-						$begin 'MatAppearanceData'
-							property_data='appearance_data'
-							Red=230
-							Green=230
-							Blue=230
-							Transparency=0.94999998807907104
-						$end 'MatAppearanceData'
-					$end 'AttachedData'
-					permittivity='1'
-					ModTime=1499970477
-					Library='Materials'
-					LibLocation='SysLibrary'
-					ModSinceLib=false
-				$end 'vacuum'
-			$end 'Materials'
-			$begin 'SurfaceMaterials'
-			$end 'SurfaceMaterials'
-		$end 'Definitions'
-	$end 'MaterialDefinitions'
-	$begin 'GeometryData'
-		$begin 'Variables'
-		$end 'Variables'
-		$begin 'Datasets'
-		$end 'Datasets'
-		$begin 'GeometryCore'
-			BlockVersionID=3
-			DataVersion=4
-			NativeKernel='PARASOLID'
-			NativeKernelVersionID=24
-			Units='mm'
-			ModelExtents=10000
-			InstanceID=-1
-			$begin 'ValidationOptions'
-				EntityCheckLevel='Strict'
-				IgnoreUnclassifiedObjects=false
-				SkipIntersectionChecks=false
-			$end 'ValidationOptions'
-			ContainsGeomLinkUDM=false
-			$begin 'GeometryOperations'
-				BlockVersionID=2
-				$begin 'AnsoftRangedIDServerManager'
-					$begin 'AnsoftRangedIDServer'
-						IDServerObjectTypeID=0
-						IDServerRangeMin=0
-						IDServerRangeMax=2146483647
-						NextUniqueID=537
-						MoveBackwards=false
-					$end 'AnsoftRangedIDServer'
-					$begin 'AnsoftRangedIDServer'
-						IDServerObjectTypeID=1
-						IDServerRangeMin=2146483648
-						IDServerRangeMax=2146485547
-						NextUniqueID=2146483654
-						MoveBackwards=false
-					$end 'AnsoftRangedIDServer'
-				$end 'AnsoftRangedIDServerManager'
-				StartBackGroundFaceID=2146483648
-				$begin 'CoordinateSystems'
-					$begin 'Operation'
-						OperationType='CreateRelativeCoordinateSystem'
-						ID=457
-						ReferenceCoordSystemID=1
-						$begin 'RelativeCSParameters'
-							KernelVersion=24
-							Mode='Axis/Position'
-							OriginX='33mm'
-							OriginY='128mm'
-							OriginZ='6mm'
-							XAxisXvec='1mm'
-							XAxisYvec='0mm'
-							XAxisZvec='0mm'
-							YAxisXvec='0mm'
-							YAxisYvec='1mm'
-							YAxisZvec='0mm'
-						$end 'RelativeCSParameters'
-						ParentPartID=-1
-						ReferenceUDMID=-1
-						$begin 'Attributes'
-							Name='Guiding_Pin'
-							UDMId=-1
-						$end 'Attributes'
-						$begin 'Operations'
-						$end 'Operations'
-						XYPlaneID=458
-					$end 'Operation'
-				$end 'CoordinateSystems'
-				$begin 'OperandCSs'
-				$end 'OperandCSs'
-				$begin 'UserDefinedModels'
-				$end 'UserDefinedModels'
-				$begin 'OperandUserDefinedModels'
-				$end 'OperandUserDefinedModels'
-				$begin 'ToplevelParts'
-					$begin 'GeometryPart'
-						$begin 'Attributes'
-							Name='Lid_Solid'
-							Flags=''
-							Color='(128 128 128)'
-							Transparency=0.84999999999999998
-							PartCoordinateSystem=1
-							UDMId=-1
-							GroupId=5
-							MaterialValue='"aluminum"'
-							SurfaceMaterialValue='""'
-							SolveInside=false
-							ShellElement=false
-							ShellElementThickness='0mm'
-							ReferenceTemperature='20cel'
-							IsMaterialEditable=true
-							UseMaterialAppearance=false
-							IsLightweight=false
-							IsAlwaysHidden=false
-						$end 'Attributes'
-						$begin 'Operations'
-							$begin 'Operation'
-								OperationType='NativeBody'
-								ID=6
-								ReferenceCoordSystemID=1
-								$begin 'NativeBodyParameters'
-									KernelVersion=23
-									SourceFile='UserDefinedModel Part'
-								$end 'NativeBodyParameters'
-								ParentPartID=7
-								ReferenceUDMID=-1
-								IsSuppressed=false
-								$begin 'OperationIdentity'
-									$begin 'Topology'
-										NumLumps=1
-										NumShells=1
-										NumFaces=10
-										NumWires=0
-										NumLoops=10
-										NumCoedges=48
-										NumEdges=24
-										NumVertices=16
-									$end 'Topology'
-									BodyID=-1
-									StartFaceID=-1
-									StartEdgeID=-1
-									StartVertexID=-1
-									NumNewFaces=0
-									NumNewEdges=0
-									NumNewVertices=0
-									FaceNameAndIDMap()
-									EdgeNameAndIDMap()
-									VertexNameAndIDMap()
-								$end 'OperationIdentity'
-								BodyType='BRepBody'
-								$begin 'BodyBlock'
-									BodyFileNamesVec[1: '0000007.x_b']
-								$end 'BodyBlock'
-							$end 'Operation'
-							$begin 'Operation'
-								OperationType='Move'
-								ID=456
-								ReferenceCoordSystemID=1
-								$begin 'TranslateParameters'
-									KernelVersion=24
-									TargetID=7
-									TranslateVectorX='-126.177359312881mm'
-									TranslateVectorY='88.9926406871193mm'
-									TranslateVectorZ='9.84mm'
-								$end 'TranslateParameters'
-								ParentPartID=7
-								ReferenceUDMID=-1
-								IsSuppressed=false
-								$begin 'OperationIdentity'
-									$begin 'Topology'
-										NumLumps=1
-										NumShells=1
-										NumFaces=10
-										NumWires=0
-										NumLoops=10
-										NumCoedges=48
-										NumEdges=24
-										NumVertices=16
-									$end 'Topology'
-									BodyID=-1
-									StartFaceID=-1
-									StartEdgeID=-1
-									StartVertexID=-1
-									NumNewFaces=0
-									NumNewEdges=0
-									NumNewVertices=0
-									FaceNameAndIDMap()
-									EdgeNameAndIDMap()
-									VertexNameAndIDMap()
-								$end 'OperationIdentity'
-								TranformBaseOperationID=6
-							$end 'Operation'
-						$end 'Operations'
-						$begin 'SubregionDependencyInformation'
-							ChildSubregions[0:]
-						$end 'SubregionDependencyInformation'
-					$end 'GeometryPart'
-					$begin 'GeometryPart'
-						$begin 'Attributes'
-							Name='Box_Solid'
-							Flags=''
-							Color='(128 128 128)'
-							Transparency=0.84999999999999998
-							PartCoordinateSystem=1
-							UDMId=-1
-							GroupId=5
-							MaterialValue='"aluminum"'
-							SurfaceMaterialValue='""'
-							SolveInside=false
-							ShellElement=false
-							ShellElementThickness='0mm'
-							ReferenceTemperature='20cel'
-							IsMaterialEditable=true
-							UseMaterialAppearance=false
-							IsLightweight=false
-							IsAlwaysHidden=false
-						$end 'Attributes'
-						$begin 'Operations'
-							$begin 'Operation'
-								OperationType='NativeBody'
-								ID=58
-								ReferenceCoordSystemID=1
-								$begin 'NativeBodyParameters'
-									KernelVersion=23
-									SourceFile='UserDefinedModel Part'
-								$end 'NativeBodyParameters'
-								ParentPartID=59
-								ReferenceUDMID=-1
-								IsSuppressed=false
-								$begin 'OperationIdentity'
-									$begin 'Topology'
-										NumLumps=1
-										NumShells=1
-										NumFaces=59
-										NumWires=0
-										NumLoops=68
-										NumCoedges=312
-										NumEdges=156
-										NumVertices=104
-									$end 'Topology'
-									BodyID=-1
-									StartFaceID=-1
-									StartEdgeID=-1
-									StartVertexID=-1
-									NumNewFaces=0
-									NumNewEdges=0
-									NumNewVertices=0
-									FaceNameAndIDMap()
-									EdgeNameAndIDMap()
-									VertexNameAndIDMap()
-								$end 'OperationIdentity'
-								BodyType='BRepBody'
-								$begin 'BodyBlock'
-									BodyFileNamesVec[1: '0000059.x_b']
-								$end 'BodyBlock'
-							$end 'Operation'
-							$begin 'Operation'
-								OperationType='Move'
-								ID=455
-								ReferenceCoordSystemID=1
-								$begin 'TranslateParameters'
-									KernelVersion=24
-									TargetID=59
-									TranslateVectorX='-126.177359312881mm'
-									TranslateVectorY='88.9926406871193mm'
-									TranslateVectorZ='9.84mm'
-								$end 'TranslateParameters'
-								ParentPartID=59
-								ReferenceUDMID=-1
-								IsSuppressed=false
-								$begin 'OperationIdentity'
-									$begin 'Topology'
-										NumLumps=1
-										NumShells=1
-										NumFaces=59
-										NumWires=0
-										NumLoops=68
-										NumCoedges=312
-										NumEdges=156
-										NumVertices=104
-									$end 'Topology'
-									BodyID=-1
-									StartFaceID=-1
-									StartEdgeID=-1
-									StartVertexID=-1
-									NumNewFaces=0
-									NumNewEdges=0
-									NumNewVertices=0
-									FaceNameAndIDMap()
-									EdgeNameAndIDMap()
-									VertexNameAndIDMap()
-								$end 'OperationIdentity'
-								TranformBaseOperationID=58
-							$end 'Operation'
-						$end 'Operations'
-						$begin 'SubregionDependencyInformation'
-							ChildSubregions[0:]
-						$end 'SubregionDependencyInformation'
-					$end 'GeometryPart'
-					$begin 'GeometryPart'
-						$begin 'Attributes'
-							Name='RegularPolyhedron1'
-							Flags=''
-							Color='(232 235 235)'
-							Transparency=0
-							PartCoordinateSystem=1
-							UDMId=-1
-							GroupId=5
-							MaterialValue='"aluminum"'
-							SurfaceMaterialValue='""'
-							SolveInside=false
-							ShellElement=false
-							ShellElementThickness='0mm'
-							ReferenceTemperature='20cel'
-							IsMaterialEditable=true
-							UseMaterialAppearance=true
-							IsLightweight=false
-							IsAlwaysHidden=false
-						$end 'Attributes'
-						$begin 'Operations'
-							$begin 'Operation'
-								OperationType='Polyhedron'
-								ID=461
-								ReferenceCoordSystemID=457
-								$begin 'PolyhedronParameters'
-									KernelVersion=24
-									XCenter='0mm'
-									YCenter='0mm'
-									ZCenter='0mm'
-									XStart='-1mm'
-									YStart='-1mm'
-									ZStart='0mm'
-									Height='-4mm'
-									NumSides='12'
-									WhichAxis='Z'
-								$end 'PolyhedronParameters'
-								ParentPartID=462
-								ReferenceUDMID=-1
-								IsSuppressed=false
-								$begin 'OperationIdentity'
-									$begin 'Topology'
-										NumLumps=1
-										NumShells=1
-										NumFaces=14
-										NumWires=0
-										NumLoops=14
-										NumCoedges=72
-										NumEdges=36
-										NumVertices=24
-									$end 'Topology'
-									BodyID=462
-									StartFaceID=463
-									StartEdgeID=477
-									StartVertexID=513
-									NumNewFaces=14
-									NumNewEdges=36
-									NumNewVertices=24
-									FaceNameAndIDMap()
-									EdgeNameAndIDMap()
-									VertexNameAndIDMap()
-								$end 'OperationIdentity'
-							$end 'Operation'
-						$end 'Operations'
-						$begin 'SubregionDependencyInformation'
-							ChildSubregions[0:]
-						$end 'SubregionDependencyInformation'
-					$end 'GeometryPart'
-				$end 'ToplevelParts'
-				$begin 'OperandParts'
-				$end 'OperandParts'
-				$begin 'Planes'
-				$end 'Planes'
-				$begin 'Points'
-				$end 'Points'
-				$begin 'GeometryEntityLists'
-				$end 'GeometryEntityLists'
-				$begin 'CachedNames'
-					$begin 'allobjects'
-						allobjects(-1)
-					$end 'allobjects'
-					$begin 'box_solid'
-						box_solid(-1)
-					$end 'box_solid'
-					$begin 'global'
-						global(-1)
-					$end 'global'
-					$begin 'guiding_pin'
-						guiding_pin(-1)
-					$end 'guiding_pin'
-					$begin 'lid_solid'
-						lid_solid(-1)
-					$end 'lid_solid'
-					$begin 'mechanics'
-						mechanics(-1)
-					$end 'mechanics'
-					$begin 'model'
-						model(-1)
-					$end 'model'
-					$begin 'regularpolyhedron'
-						regularpolyhedron(1)
-					$end 'regularpolyhedron'
-				$end 'CachedNames'
-			$end 'GeometryOperations'
-			$begin 'GeometryDependencies'
-				$begin 'DependencyInformation'
-					NumParents=1
-					DependencyObject('GeometryBodyOperation', 6)
-					DependencyObject('CoordinateSystem', 1)
-				$end 'DependencyInformation'
-				$begin 'DependencyInformation'
-					NumParents=2
-					DependencyObject('GeometryBodyOperation', 456)
-					DependencyObject('CoordinateSystem', 1)
-					DependencyObject('GeometryBodyOperation', 6)
-				$end 'DependencyInformation'
-				$begin 'DependencyInformation'
-					NumParents=1
-					DependencyObject('GeometryBodyOperation', 58)
-					DependencyObject('CoordinateSystem', 1)
-				$end 'DependencyInformation'
-				$begin 'DependencyInformation'
-					NumParents=2
-					DependencyObject('GeometryBodyOperation', 455)
-					DependencyObject('CoordinateSystem', 1)
-					DependencyObject('GeometryBodyOperation', 58)
-				$end 'DependencyInformation'
-				$begin 'DependencyInformation'
-					NumParents=1
-					DependencyObject('GeometryBodyOperation', 461)
-					DependencyObject('CoordinateSystem', 457)
-				$end 'DependencyInformation'
-				$begin 'DependencyInformation'
-					NumParents=1
-					DependencyObject('CoordinateSystem', 457)
-					DependencyObject('CoordinateSystem', 1)
-				$end 'DependencyInformation'
-			$end 'GeometryDependencies'
-		$end 'GeometryCore'
-		$begin 'AssignedEntities'
-			AssignedObject[0:]
-		$end 'AssignedEntities'
-		$begin 'Settings'
-			IncludedParts[3: 7, 59, 462]
-			HiddenParts[0:]
-			IncludedCS[1: 457]
-			ReferenceCS=1
-			IncludedParameters()
-			IncludedDependentParameters()
-			ParameterDescription()
-		$end 'Settings'
-	$end 'GeometryData'
-$end 'ComponentBody'
-$begin 'AllReferencedFilesForComponent'
-$begin 'NativeGeometryFiles'
-NumFiles= 2
-$begin 'x_b'
-NativeGeometryFiles/0000007.x_b
-BIN000000019756
-**ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz**************************
-**PARASOLID !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~0123456789**************************
-**PART1;
-MC=unknown;
-MC_MODEL=unknown;
-MC_ID=unknown;
-OS=unknown;
-OS_RELEASE=unknown;
-FRU=sdl_parasolid_customer_support;
-APPL=Electronics Desktop;
-SITE=unknown;
-USER=unknown;
-FORMAT=binary;
-GUISE=transmit;
-KEY=C:/Users/hzhou/AppData/Local/Temp/Cab6BF4294361707485380133.RefFiles/NativeGeometryFiles/0000007.x_b;
-FILE=C:/Users/hzhou/AppData/Local/Temp/Cab6BF4294361707485380133.RefFiles/NativeGeometryFiles/0000007.x_b;
-DATE=unknown;
-**PART2;
-SCH=SCH_3501210_35102;
-USFLD_SIZE=0;
-**PART3;
-**END_OF_HEADER*****************************************************************
-B3   : TRANSMIT FILE created by modeller version 3501210   SCH_3501210_35102_13006Á     ∞ PART_XMT_BLOCK	Part list	n_entries   dindex_map_offset   d	index_mapR  schema_embedding_mapR  mesh_offset_dataŒ  entriesÌ                  $CCCIlatticeﬁ  CCCImeshÓ Ipolyline CCCCCCCDIowner CCCIboundary_latticeﬁ  CCCIboundary_meshÓ Iboundary_polyline CCCAindex_map_offset   dA	index_mapR  Anode_id_index_mapR  Aschema_embedding_mapR  Achild  Alowest_node_id   dAmesh_offset_dataŒ  Z b                @è@:å0‚éyE>    	  
-                                       @è@:å0‚éyE>                           Q ˇ               F CI	list_type   uI
-notransmit   lCCCDCCDIfinger_index   dIfinger_blockÙ CZ                    ˇ             ˇ                                 	CCCCCCIframeÊ  CAowner  Z          V  ˇ           nôèíº¬ J CIindex_map_offset   dCCZ                                Q                Q                P CCCCCDIlegal_owners   lCZ      ! D                        S ˇ         @è@O ˇ   ! SDL/TYSA_DENSITYP     " # (#                     T ˇ    UNIT=mmO    # AEDT_EntityName_V1P     $ % (#                     S     {ÆG·zÑ?O    % AEDT_ExtentScale_V1Q         &   '  ( F                  ) )  	 @      *   +  2 ˇ
- ¶    , -   +cÓZB>ËÛ?
-◊£p=
-Ìø]˛C˙ÌÎ–?                      ø—;fû†Ê?—;fû†Ê?         ˇ ú    . /   +¨ã€h o@ÖÎQ∏Îø*:íÀHœ?              ?          Ñ    0 1  ¨ã€h o@ÖÎQ∏Îø]˛C˙ÌÎ–?       +  2  V  ˇ    '   nôèíº¬3  4 5         6 7  8 9   nôèíº¬ Q    6     :  ' ;    ˇ7  < = >  ? @  3 + 8    ; ?  A B   nôèíº¬  9 v     C B 2w-!Ù@∏ÖÎQ∏Ë?]˛C˙ÌÎ–? C u    D  9 2w-!Ù@∏ÖÎQ∏Ë?*:íÀHœ? B w    8 9 E ¨ã€h o@ÕÃÃÃÃÃÊ?]˛C˙ÌÎ–? E x    A B F ¨ã€h o@ÕÃÃÃÃÃÊ?*:íÀHœ? A    G H 8 D E   nôèíº¬  F y    I E J Y∑— ﬁÙ?∏ÖÎQ∏Ë?*:íÀHœ? I    K L M N F   nôèíº¬  J z    M F O Y∑— ﬁÙ?∏ÖÎQ∏Ë?]˛C˙ÌÎ–? M 	   P = D I J   nôèíº¬  O {    Q J R cÓZB>ËÛ?ÕÃÃÃÃÃÊ?*:íÀHœ? Q 
-   S T N U O   nôèíº¬  R |    N O V cÓZB>ËÛ?ÕÃÃÃÃÃÊ?]˛C˙ÌÎ–? N    W X I Q R   nôèíº¬  V }    Y R Z cÓZB>ËÛ?ÖÎQ∏Îø*:íÀHœ? Y    [ \ U ] V   nôèíº¬  Z ~    U V ^ cÓZB>ËÛ?ÖÎQ∏Îø]˛C˙ÌÎ–? U    _ ` Q Y Z   nôèíº¬  ^     a Z b Y∑— ﬁÙ?
-◊£p=
-Ìø*:íÀHœ? a    c d ] e ^   nôèíº¬  b Ä    ] ^ f Y∑— ﬁÙ?
-◊£p=
-Ìø]˛C˙ÌÎ–? ]    g h Y a b   nôèíº¬  f Å    i b j 2w-!Ù@
-◊£p=
-Ìø*:íÀHœ? i    k l e 0 f   nôèíº¬  j Ç    e f 1 2w-!Ù@
-◊£p=
-Ìø]˛C˙ÌÎ–? e    m n a i j   nôèíº¬  1 É    o j  ¨ã€h o@ÖÎQ∏Îø*:íÀHœ? o    p q 0  1   nôèíº¬ Q    p m   o r  m s    q  t u v o w x  y + 0    s z i o    nôèíº¬ Q    s t   0 {  p |    z  < > n 0 } ~  u + ˇ< ?    = ,   >  < 7 z 8  Ä   + n  < z h e Å Ç  É + }  t v u e z ~   - ~ (   |   nôèíº¬z Ç Ä Ñ     u  t } q 0 y Ö   + t <    u Ü   y  á à  o u Ö  â - Ö '   ä   nôèíº¬u ã x å       á y ç 0 > Ä   - á =     é   ç  á  à 8 H è  > + Ä *   ê   nôèíº¬> ~ @ /    Q    ê â   Ä ë  ä í    @    í   nôèíº¬7 Ä  ì     / õ    Ä î   +¨ã€h o@ÖÎQ∏Îø]˛C˙ÌÎ–?              ?         ˇî ö    x Ñ /  +2w-!Ù@ÖÎQ∏Îø*:íÀHœ?                      ?              ø        ∏ÖÎQ∏Æ? x )   ï   nôèíº¬q Ö . î     Ñ ô    ~ å î  +2w-!Ù@ÖÎQ∏Îø]˛C˙ÌÎ–?                      ?              ø        ∏ÖÎQ∏Æ? å ò    Ö ñ Ñ  +¨ã€h o@ÖÎQ∏Îø*:íÀHœ?                      ? ñ ó    ã ó å  +Y∑— ﬁÙ?
-◊£p=
-Ìø*:íÀHœ?      ?                 ã &   ò   nôèíº¬l ô Ö ñ     ó ñ    Ç ö ñ  +Y∑— ﬁÙ?
-◊£p=
-Ìø]˛C˙ÌÎ–?      ?                 Ç %   õ   nôèíº¬n ú ~ ó     ö ï    ô ù ó  +2w-!Ù@
-◊£p=
-Ìø*:íÀHœ?                      ? ô $   û   nôèíº¬É ü ã ö     ù î    ü † ö  +Y∑— ﬁÙ?ÖÎQ∏Îø*:íÀHœ?                      ?      ø                ∏ÖÎQ∏Æ? ü #   °   nôèíº¬d ¢ ô ù     † ì    ú £ ù  +Y∑— ﬁÙ?ÖÎQ∏Îø]˛C˙ÌÎ–?                      ?      ø                ∏ÖÎQ∏Æ? ú "   §   nôèíº¬h • Ç †     £ í    ¢ ¶ †  +Y∑— ﬁÙ?
-◊£p=
-Ìø*:íÀHœ?                      ? ¢ !   ß   nôèíº¬® © ü £     ¶ ë    © ™ £  +cÓZB>ËÛ?ÕÃÃÃÃÃÊ?*:íÀHœ?              ø         ©     ´   nôèíº¬\ ¨ ¢ ¶     ™ ê    • ≠ ¶  +cÓZB>ËÛ?ÕÃÃÃÃÃÊ?]˛C˙ÌÎ–?              ø         •    Æ   nôèíº¬` Ø ú ™     ≠ è    ¨ ∞ ™  +cÓZB>ËÛ?ÖÎQ∏Îø*:íÀHœ?                      ? ¨    ±   nôèíº¬≤ ≥ © ≠     ∞ é    ≥ ¥ ≠  +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?*:íÀHœ?                      ?              ?        ∏ÖÎQ∏Æ? ≥    µ   nôèíº¬T ∂ ¨ ∞     ¥ ç    Ø ∑ ∞  +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?]˛C˙ÌÎ–?                      ?              ?        ∏ÖÎQ∏Æ? Ø    ∏   nôèíº¬X π • ¥     ∑ å    ∂ ∫ ¥  +cÓZB>ËÛ?ÕÃÃÃÃÃÊ?*:íÀHœ?                      ? ∂    ª   nôèíº¬º Ω ≥ ∑     ∫ ã    Ω æ ∑  +2w-!Ù@∏ÖÎQ∏Ë?*:íÀHœ?      ø                 Ω    ø   nôèíº¬L ¿ ∂ ∫     æ ä    π ¡ ∫  +2w-!Ù@∏ÖÎQ∏Ë?]˛C˙ÌÎ–?      ø                 π    ¬   nôèíº¬= è Ø æ     ¡ â    ¿ √ æ  +Y∑— ﬁÙ?∏ÖÎQ∏Ë?*:íÀHœ?                      ? ¿    ƒ   nôèíº¬≈ 4 Ω ¡     √ à    4 ∆ ¡  +2w-!Ù@ÕÃÃÃÃÃÊ?*:íÀHœ?                      ?      ?                ∏ÖÎQ∏Æ? 4    «   nôèíº¬»  ¿ √     ∆ á    è ì √  +¨ã€h o@ÕÃÃÃÃÃÊ?*:íÀHœ?                      ? è    …   nôèíº¬ç . π ∆     ì Ü    @ 5 ∆  +2w-!Ù@ÕÃÃÃÃÃÊ?]˛C˙ÌÎ–?                      ?      ?                ∏ÖÎQ∏Æ? 5 Ö      ì  +2w-!Ù@∏ÖÎQ∏Ë?*:íÀHœ?                      ?Q    …    è    « À    . +   À   nôèíº¬à x è     Q    À    . Ã  … Õ    à  á ç y A â .   + â  Œ w œ o à .   - Œ >    – —   w  Œ “ â i q x   - œ  Œ â – A » 4  à - –  Œ œ ” D L Ω   - »  ‘ 3 H D œ 4  ’ + ‘ 6    3 *   3  ‘ ? »  ’   ÷ + H  ‘ » ? A ç è  œ - D    Õ » A M C   nôèíº¬  ’  ◊ L ÷ D 3   – - ◊ 7    ≈ ÿ   L  ◊ ≈ ’ I – Ω  Ÿ + ÷  ◊ ’ ≈  = π   - ≈  ◊ ÷ L M Ÿ ¿  ⁄ + =  < X 7 M ÷ π  ≈ + X  < ` = N ⁄ Ø  º + `  < h X U € •  ≤ + ⁄  ‹ Ÿ º M X Ø   - º  ‹ ⁄ T N › ∂  € + ‹ 8    º ﬁ   T  ‹ º Ÿ Q ” ≥  › + ›  ﬂ \ € Q º ∂  ‡ - €  ﬂ › ≤ N ` •   - ﬂ 9    ≤ ·   ≤  ﬂ € \ U ‚ ¨  „ + \  ﬂ ≤ › Y ‡ ©  ‚ + ‚  ‰ d „ Y ≤ ¨  Â - „  ‰ ‚ ® U h ú   - ‰ :    ® Ê   ®  ‰ „ d ] Á ¢  Å + h  < n ` ] „ ú  ® + d  ‰ ® ‚ a Â ü  Á + Á  Ë l Å a ® ¢  “ - Å  Ë Á É ] n Ç   - Ë ;    É È   É  Ë Å l e v ô  } + l  Ë É Á i “ ã  v + v  t q } i É ô  w - “  Œ Â w a l ã   - Â  Œ ‡ “ Y d ü   - ‡  Œ ” Â Q \ ©   - ”  Œ – ‡ I T ≥   - ˇÈ 1   Í   nôèíº¬Ü Ê Ë 	 Î +  Ü Ê 2 Q    Í #   È Ï  Õ Ì    Ü 2   Ì   nôèíº¬é È t 	 Ó +  é È 2  Ê 0   Ô   nôèíº¬È · ‰ 	  +  È · 2 2 Î ¢    È  Ó  +cÓZB>ËÛ?
-◊£p=
-Ìø*:íÀHœ?              ø        —;fû†Ê?        —;fû†Ê? 2           *  * ,   Ò   nôèíº¬ÿ  ‘ 	 Ú +  ÿ  2 Q    Ò 8   * Û  Ô Ù    ÿ -   Ù   nôèíº¬ﬁ * ◊ 	 ı +  ﬁ * 2 3 ˇÚ ù    *  ı  +2w-!Ù@ÕÃÃÃÃÃÊ?*:íÀHœ?                      ?∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?        2 ı û    ÿ Ú ˆ  +F%uö@∏ÖÎQ∏Ë?*:íÀHœ?ó/4˘≤ëº      ?        —;fû†Ê?Cmú√â<—;fû†Ê?3 ˆ ü    ﬁ ı ˜  +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?*:íÀHœ?                      ?∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?         ﬁ .   ¯   nôèíº¬· ÿ ‹ 	 ˆ +  · ÿ 2 2 ˜ †    · ˆ   +cÓZB>ËÛ?∏ÖÎQ∏Ë?*:íÀHœ?      ø                        —;fû†Ê?—;fû†Ê? · /   ˘   nôèíº¬Ê ﬁ ﬂ 	 ˜ +  Ê ﬁ 2 3  °    Ê ˜ Î  +Y∑— ﬁÙ?ÖÎQ∏Îø*:íÀHœ?                      ?∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?        Q    ˘ M   · ˙  ¯ ˚   Q    ˙ L  ¸ · ˝ ˘ ˛ ˇ   Q    ¯ F   ﬁ ˛  Ù ˘   Q    ˚ T   é ˇ  ˘    é 3   ˚   nôèíº¬— Ü á 	 +  — Ü 2 Q    ˇ S  ¸ é ˚ ˙  Q    [   —  ˚    — 4     nôèíº¬, é Œ 	 - +  , é 2 Q    Z  ¸ — ˇ  	Q    b   ,      , 5     nôèíº¬ — < 	 
- -   — 2 Q    a  ¸ , 
-  P    ¸ (#                     Q    
-`  ,   R ˇ      P     (#                     Q    _  ,  
-   Q    Y  — 
- T    ANSYS_PERSIST_IDT    F77Q    X  —    Q    R  é ˇ ˝  T    ANSYS_PERSIST_IDT    F76Q    Q  é     Q    ˝ K  · ˙ ! "#T    ANSYS_PERSIST_IDT    F75Q    J  ·  ˝ $%&  Q    !D  ﬁ $˛ '˝  ()T    "ANSYS_PERSIST_IDT    #F71Q    $C  ﬁ  !*+,  Q    ˛ E  ¸ ﬁ !¯ -˙  .Q    '=  ÿ *-/! 01T    (ANSYS_PERSIST_IDT    )F70Q    *<  ÿ  '2$34  Q    ->  ¸ ÿ 'Ù Û ˛  5Q    /6  * 2Û 6' 78T    0ANSYS_PERSIST_IDT    1F69Q    25  *  /9*:;  Q    Û 7  ¸ * /Ò <- =Q    6/  Ê 9<>/ ?@T    7ANSYS_PERSIST_IDT    8F68Q    9.  Ê  6A2BC  Q    <0  ¸ Ê 6Ô DÛ  EQ    >(  Ü ADF6 GHT    ?ANSYS_PERSIST_IDT    @F72Q    A'  Ü  >I9JK  Q    D)  ¸ Ü >Ì Ï < LQ    F!  È IÏ M> NOT    GANSYS_PERSIST_IDT    HF74Q    I   È  FPAQR  Q    Ï "  ¸ È FÍ SD TQ    M  D PSUF VWT    NANSYS_PERSIST_IDT    OF73Q    P  D  MXIYZ  Q    S  ¸ D MÕ Ã Ï  [Q    U  . XÃ \M ]^T    VANSYS_PERSIST_IDT    WV104Q    X  .  U_P`a  Q    Ã   ¸ . UÀ   S bQ    \  è _  cU deT    ]ANSYS_PERSIST_IDT    ^E87Q    _  è  \fXgh  Q        ¸ è \… iÃ  jQ    c  4 fik\ lmT    dANSYS_PERSIST_IDT    eE101Q    f  4  cn_op  Q    i  ¸ 4 c« q   rQ    k˛  ¿ nqsc tuT    lANSYS_PERSIST_IDT    mE86Q    n˝  ¿  kvfwx  Q    qˇ  ¸ ¿ kƒ yi zQ    s˜  π vy{k |}T    tANSYS_PERSIST_IDT    uE99Q    vˆ  π  s~nÄ  Q    y¯  ¸ π s¬ Åq ÇQ    {  Ω ~ÅÉs ÑÖT    |ANSYS_PERSIST_IDT    }E85Q    ~Ô  Ω  {Üváà  Q    ÅÒ  ¸ Ω {ø ây äQ    ÉÈ  ∂ Üâã{ åçT    ÑANSYS_PERSIST_IDT    ÖE93Q    ÜË  ∂  Éé~èê  Q    âÍ  ¸ ∂ Éª ëÅ íQ    ã‚  Ø éëìÉ îïT    åANSYS_PERSIST_IDT    çE98Q    é·  Ø  ãñÜóò  Q    ë„  ¸ Ø ã∏ ôâ öQ    ì€  ≥ ñôõã úùT    îANSYS_PERSIST_IDT    ïE84Q    ñ⁄  ≥  ìûéü†  Q    ô‹  ¸ ≥ ìµ °ë ¢Q    õ‘  ¨ û°£ì §•T    úANSYS_PERSIST_IDT    ùE92Q    û”  ¨  õ¶ñß®  Q    °’  ¸ ¨ õ± ©ô ™Q    £Õ  • ¶©´õ ¨≠T    §ANSYS_PERSIST_IDT    •E97Q    ¶Ã  •  £ÆûØ∞  Q    ©Œ  ¸ • £Æ ±° ≤Q    ´∆  © Æ±≥£ ¥µT    ¨ANSYS_PERSIST_IDT    ≠E83Q    Æ≈  ©  ´∂¶∑∏  Q    ±«  ¸ © ´´ π© ∫Q    ≥ø  ¢ ∂πª´ ºΩT    ¥ANSYS_PERSIST_IDT    µE91Q    ∂æ  ¢  ≥æÆø¿  Q    π¿  ¸ ¢ ≥ß ¡± ¬Q    ª∏  ú æ¡√≥ ƒ≈T    ºANSYS_PERSIST_IDT    ΩE96Q    æ∑  ú  ª∆∂«»  Q    ¡π  ¸ ú ª§ …π  Q    √±  ü ∆…Àª ÃÕT    ƒANSYS_PERSIST_IDT    ≈E82Q    ∆∞  ü  √Œæœ–  Q    …≤  ¸ ü √° —¡ “Q    À™  ô Œ—”√ ‘’T    ÃANSYS_PERSIST_IDT    ÕE90Q    Œ©  ô  À÷∆◊ÿ  Q    —´  ¸ ô Àû Ÿ… ⁄Q    ”£  Ç ÷Ÿ€À ‹›T    ‘ANSYS_PERSIST_IDT    ’E95Q    ÷¢  Ç  ”ﬁŒﬂ‡  Q    Ÿ§  ¸ Ç ”õ ·— ‚Q    €ú  ã ﬁ·„” ‰ÂT    ‹ANSYS_PERSIST_IDT    ›E81Q    ﬁõ  ã  €Ê÷ÁË  Q    ·ù  ¸ ã €ò ÈŸ ÍQ    „ï  x ÊÈÎ€ ÏÌT    ‰ANSYS_PERSIST_IDT    ÂE89Q    Êî  x  „ÓﬁÔ  Q    Èñ  ¸ x „ï Ò· ÚQ    Îé  @ ÓÒÛ„ ÙıT    ÏANSYS_PERSIST_IDT    ÌE88Q    Óç  @  ÎˆÊ˜¯  Q    Òè  ¸ @ Îí ë È ˘Q    Ûá  Ä ˆë ˙Î ˚¸T    ÙANSYS_PERSIST_IDT    ıE78Q    ˆÜ  Ä  Û˝Ó˛ˇ  Q    ë à  ¸ Ä Ûê  Ò Q    ˙Ä  Ö ˝ Û T    ˚ANSYS_PERSIST_IDT    ¸E79Q    ˝  Ö  ˙ˆ  Q     Å  ¸ Ö ˙ä ë  	Q    y  ~ 
-˙ T    ANSYS_PERSIST_IDT    E94Q    x  ~  ˝  Q    z  ¸ ~ | {   Q    
-r  0 {  T    ANSYS_PERSIST_IDT    E80Q    q  0  
-  Q    { s  ¸ 0 
-s r  Q    k  o r 
- T    ANSYS_PERSIST_IDT    V106Q    j  o    Q    r l  ¸ o p {  Q    d  e   !"T    ANSYS_PERSIST_IDT    V113Q    c  e  #$%  Q    e  ¸ e m &r  'Q     ]  i #&( )*T    !ANSYS_PERSIST_IDT    "V107Q    #\  i   +,-  Q    &^  ¸ i  k . /Q    (V  ] +.0  12T    )ANSYS_PERSIST_IDT    *V114Q    +U  ]  (3#45  Q    .W  ¸ ] (g 6& 7Q    0O  a 368( 9:T    1ANSYS_PERSIST_IDT    2V108Q    3N  a  0;+<=  Q    6P  ¸ a 0c >. ?Q    8H  U ;>@0 ABT    9ANSYS_PERSIST_IDT    :V115Q    ;G  U  8C3DE  Q    >I  ¸ U 8_ F6 GQ    @A  Y CFH8 IJT    AANSYS_PERSIST_IDT    BV109Q    C@  Y  @K;LM  Q    FB  ¸ Y @[ N> OQ    H:  N KNP@ QRT    IANSYS_PERSIST_IDT    JV116Q    K9  N  HSCTU  Q    N;  ¸ N HW VF WQ    P3  Q SVXH YZT    QANSYS_PERSIST_IDT    RV110Q    S2  Q  P[K\]  Q    V4  ¸ Q PS ^N _Q    X,  M [^`P abT    YANSYS_PERSIST_IDT    ZV117Q    [+  M  XcSde  Q    ^-  ¸ M XP fV gQ    `%  I cfhX ijT    aANSYS_PERSIST_IDT    bV111Q    c$  I  `k[lm  Q    f&  ¸ I `K n^ oQ    h  A knp` qrT    iANSYS_PERSIST_IDT    jV118Q    k  A  hsctu  Q    n  ¸ A hG vf wQ    p  8 svxh yzT    qANSYS_PERSIST_IDT    rV112Q    s  8  p{k|}  Q    v  ¸ 8 p; : n ~Q    x   {: p ÄÅT    yANSYS_PERSIST_IDT    zV105Q    {    xÇsÉÑ  Q    :   ¸  x6 Öv ÜQ    	   ÇÖáx àâT    ÄANSYS_PERSIST_IDT    ÅV103Q    Ç    ä{ãå  Q    Ö
-  ¸  ' ç:  éQ    áˇ   èêè ëíT    àANSYS_PERSIST_IDT    âE100Q    è˛   ìáìá îïQ    ê   $  áñ    T    ëANSYS_PERSIST_IDT    íB102P    $ óò(#                       Q    ñ  ó êç   ôP    ó¸ ö(#                        Q    ç  ¸  ñ&  Ö õT    ôaluminumQ    &    ç    úR    õ   P     ù(#                     R    ú    ˇˇˇˇÄÄÄÄ   O    ùAEDT_BODYFlagGroupColor_V1O    öAEDT_MaterialName_V1O    òAEDT_SurfaceMaterial_V1Q    ì˝   ûèûè ü†T    îAnsoftSolveInsideT    ï0Q    û¸   °ì°ì ¢£T    üAnsoftShellElementT    †0Q    °˚   §û§û •¶T    ¢AnsoftShellElementThicknessT    £nan Q    §˙   ß° ° ®©T    •AnsoftReferenceTemperatureT    ¶nan Q    ß˘  ™ ´§  ¨T    ®AnsoftTransparencyT    ©0P    ™≠Æh                      Q    ´¯  Ø ∞ß  ±S    ¨‡?‡?‡?P    Ø≤≥f             
-Q    ∞˜  ¥ ä´  µb ˇ	   ±L i d \ S o l i d P    ¥∂(#           
-Q    äˆ   ∑∞ Ç∏π∫ b    µS t r u c t u r a l   s t e e l ,   S 2 7 5 N P    ª(#                    Q    ∑Í  ≤  ä  ºT    ∏B102R    π   T    ∫LidP    ≤ΩæQ             T 	   ºLid_SolidO    æSDL/TYSA_NAMEO    ªdsRefAttName.3O    ∂SPAATTRIB_MATERIAL_NAMEO    ≥SDL/TYSA_UNAMEO    ÆSDL/TYSA_COLOUR_2Q    '     Ö  6   R    é   T    ãE100R    å   R    Ü*   T    ÉV103R    Ñ   Q    ;    8 v 6 G   R    ~+   Q    G     A n ; K   Q    K '   I f G P   Q    P .   M ^ K S   Q    S 5   Q V P W   Q    W <   N N S [   Q    [ C   Y F W _   Q    _ J   U > [ c   Q    c Q   a 6 _ g   Q    g X   ] . c k   Q    k _   i & g m   Q    m f   e  k p   T    |V105R    }   R    w,   T    tV112R    u   R    o/   T    lV118R    m   R    g.   T    dV111R    e   R    _1   T    \V117R    ]   R    W0   T    TV110R    U   R    O3   T    LV116R    M	   R    G2   T    DV109R    E
-   R    ?5   T    <V115R    =   R    74   T    4V108R    5   R    /7   T    ,V114R    -   R    '6   T    $V107R    %   R    9   T    V113R       R    8   T    V106R       Q    | {   ~  s ä   R    '   Q    ä Ç   Ö   | ê   T    E80R       R    	   T    E94R       R    (   T    ˛E79R    ˇ   Q    í ê   @ Ò ê ï   R    ˘)   Q    ï ó   x È í ò   Q    ò û   ã · ï õ   Q    õ •   Ç Ÿ ò û   Q    û ¨   ô — õ °   Q    ° ≥   ü … û §   Q    § ∫   ú ¡ ° ß   Q    ß ¡   ¢ π § ´   Q    ´ »   © ± ß Æ   Q    Æ œ   • © ´ ±   Q    ± ÷   ¨ ° Æ µ   Q    µ ›   ≥ ô ± ∏   Q    ∏ ‰   Ø ë µ ª   Q    ª Î   ∂ â ∏ ø   Q    ø Ú   Ω Å ª ¬   Q    ¬ ˘   π y ø ƒ   Q    ƒ     ¿ q ¬ «   Q    «    4 i ƒ …   T    ˜E78R    ¯   R    Ú   T    ÔE88R       R    Í   T    ÁE89R    Ë   R    ‚&   T    ﬂE81R    ‡   R    ⁄   T    ◊E95R    ÿ   R    “   T    œE90R    –   R     %   T    «E82R    »   R    ¬   T    øE96R    ¿   R    ∫   T    ∑E91R    ∏   R    ≤$   T    ØE83R    ∞   R    ™   T    ßE97R    ®   R    ¢   T    üE92R    †
-   R    ö#   T    óE84R    ò	   R    í   T    èE98R    ê   R    ä   T    áE93R    à   R    Ç"   T    E85R    Ä   R    z   T    wE99R    x   R    r   T    oE86R    p   R    j!   T    gE101R    h   R    b    T    `E87R    a   Q    Õ    D S À Í   R    [-   T    YV104R    Z   R    T   T    QF73R    R   Q    Ì *   Ü D Í Ô   R    L   Q    Ô 1   Ê < Ì Ò   T    JF74R    K   R    E   T    BF72R    C   R    =   T    :F68R    ;   Q    Ù ?   ÿ - Ò ¯   R    5	   T    3F69R    4   R    .
-   T    +F70R    ,   T    %F71R    &   T    F75R        T    F76R    	   T    F77R    
-   O    AEDT_GenericNameProperty_V1O    AEDT_EntityID_V1R    	   2 - •    — 
-  +cÓZB>ËÛ?
-◊£p=
-Ìø*:íÀHœ?                      ø—;fû†Ê?—;fû†Ê?        2 §    é Ó -  +¨ã€h o@
-◊£p=
-Ìø*:íÀHœ?      ?                        —;fû†Ê?—;fû†Ê?3 Ó £    Ü Î  +2w-!Ù@ÖÎQ∏Îø*:íÀHœ?                      ?∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?        R       R         Ÿ  ‹ T ⁄ I ≈ ¿  ” - ?  ‘ H 3 8 7 @  ç - +        	  S J    )         ∑∞´ß
-êñ&          T 	   ( Lid_Solid  $end 'x_b'
-$begin 'x_b'
-NativeGeometryFiles/0000059.x_b
-BIN000000103928
-**ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz**************************
-**PARASOLID !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~0123456789**************************
-**PART1;
-MC=unknown;
-MC_MODEL=unknown;
-MC_ID=unknown;
-OS=unknown;
-OS_RELEASE=unknown;
-FRU=sdl_parasolid_customer_support;
-APPL=Electronics Desktop;
-SITE=unknown;
-USER=unknown;
-FORMAT=binary;
-GUISE=transmit;
-KEY=C:/Users/hzhou/AppData/Local/Temp/Cab6BF4294361707485380133.RefFiles/NativeGeometryFiles/0000059.x_b;
-FILE=C:/Users/hzhou/AppData/Local/Temp/Cab6BF4294361707485380133.RefFiles/NativeGeometryFiles/0000059.x_b;
-DATE=unknown;
-**PART2;
-SCH=SCH_3501210_35102;
-USFLD_SIZE=0;
-**PART3;
-**END_OF_HEADER*****************************************************************
-B3   : TRANSMIT FILE created by modeller version 3501210   SCH_3501210_35102_13006Á     ∞ PART_XMT_BLOCK	Part list	n_entries   dindex_map_offset   d	index_mapR  schema_embedding_mapR  mesh_offset_dataŒ  entriesÌ                  $CCCIlatticeﬁ  CCCImeshÓ Ipolyline CCCCCCCDIowner CCCIboundary_latticeﬁ  CCCIboundary_meshÓ Iboundary_polyline CCCAindex_map_offset   dA	index_mapR  Anode_id_index_mapR  Aschema_embedding_mapR  Achild  Alowest_node_id   dAmesh_offset_dataŒ  Z l                @è@:å0‚éyE>    	  
-                                       @è@:å0‚éyE>                           Q ˇ               F CI	list_type   uI
-notransmit   lCCCDCCDIfinger_index   dIfinger_blockÙ CZ                    ˇ             ˇ                                 	CCCCCCIframeÊ  CAowner  Z          V  ˇ           nôèíº¬ J CIindex_map_offset   dCCZ                                Q                Q                P CCCCCDIlegal_owners   lCZ      ! D                        S ˇ         @è@O ˇ   ! SDL/TYSA_DENSITYP     " # (#                     T ˇ    UNIT=mmO    # AEDT_EntityName_V1P     $ % (#                     S     {ÆG·zÑ?O    % AEDT_ExtentScale_V1Q     ≥    &   '  ( F                  ) )  	 á     *   +  2 ˇ
-    , -   +©–Dÿ¸?6<ΩRñ—ø7¿[ A°ø                      ?—;fû†Ê?—;fû†Ê?         ˇ Ã   . /   +Íï≤q¨ @∏ÖÎQ∏Ë?Zd;ﬂOçó?              ø          0   0 1  µ¶y«):Ù?ÖÎQ∏Îøn£º¥ø       +  2  V  ˇ m   '   nôèíº¬3  4 5         6 7  8 9   nôèíº¬ Q    6 ¡    :  ' ;    ˇ7  < 3 =  > ?  @ - 8    ; A  B C   nôèíº¬  9 …     D –ƒèTf¬˘?œΩáKé´ø7¿[ A°ø D     E 9 C Sã≤¨€ú˘?ØÎÏÜm£ø7¿[ A°ø E    F > B G D   nôèíº¬  C À   8 D H –ƒèTf¬˘?œΩáKé´øn£º¥ø H Ã   B C I Sã≤¨€ú˘?ØÎÏÜm£øn£º¥ø B    J K 8 E H   nôèíº¬  I Õ   L H M Y¯\∆Q˘?ØÎÏÜm£ø7¿[ A°ø L    N O G P I   nôèíº¬  M Œ   G I Q Y¯\∆Q˘?ØÎÏÜm£øn£º¥ø G 	   R S E L M   nôèíº¬  Q œ   T M U ‹ﬁµ;,˘?œΩáKé´ø7¿[ A°ø T 
-   V W P X Q   nôèíº¬  U –   P Q Y ‹ﬁµ;,˘?œΩáKé´øn£º¥ø P    Z [ L T U   nôèíº¬  Y —   \ U ] Y¯\∆Q˘?+Ÿ±à◊±ø7¿[ A°ø \    ^ _ X ` Y   nôèíº¬  ] “   X Y a Y¯\∆Q˘?+Ÿ±à◊±øn£º¥ø X    b c T \ ]   nôèíº¬  a ”   d ] e Sã≤¨€ú˘?+Ÿ±à◊±ø7¿[ A°ø d    f g ` h a   nôèíº¬  e ‘   ` a i Sã≤¨€ú˘?+Ÿ±à◊±øn£º¥ø `    j k \ d e   nôèíº¬  i ’   h e l ﬁ_§r @œΩáKé´ø7¿[ A°ø h    m n d o i   nôèíº¬  l ÷   p i q ù¸¯7* @+Ÿ±à◊±ø7¿[ A°ø p    r s t u l   nôèíº¬  q ◊   o l v ﬁ_§r @œΩáKé´øn£º¥ø o    w x h t q   nôèíº¬  v ÿ   t q y ù¸¯7* @+Ÿ±à◊±øn£º¥ø t    z { o p v   nôèíº¬  y Ÿ   | v } 6ﬂü¬O @+Ÿ±à◊±ø7¿[ A°ø |    ~  u Ä y   nôèíº¬  } ⁄   u y Å 6ﬂü¬O @+Ÿ±à◊±øn£º¥ø u    Ç É p | }   nôèíº¬  Å €   Ñ } Ö ÿ“ÕÛáb @œΩáKé´ø7¿[ A°ø Ñ    Ü á Ä à Å   nôèíº¬  Ö ‹   Ä Å â ÿ“ÕÛáb @œΩáKé´øn£º¥ø Ä    ä ã | Ñ Ö   nôèíº¬  â ›   å Ö ç 6ﬂü¬O @ØÎÏÜm£ø7¿[ A°ø å    é è à ê â   nôèíº¬  ç ﬁ   à â ë 6ﬂü¬O @ØÎÏÜm£øn£º¥ø à    í ì Ñ å ç   nôèíº¬  ë ﬂ   î ç ï ù¸¯7* @ØÎÏÜm£ø7¿[ A°ø î    ñ ó ê ò ë   nôèíº¬  ï ‡   ê ë ô ù¸¯7* @ØÎÏÜm£øn£º¥ø ê    ö õ å î ï   nôèíº¬  ô ·   ò ï ú ﬁ_§r @l±€gïﬂø7¿[ A°ø ò    ù û î ü ô   nôèíº¬  ú ‚   † ô ° ù¸¯7* @Dì7¿L‡ø7¿[ A°ø †    ¢ £ § • ú   nôèíº¬  ° „   ü ú ¶ ﬁ_§r @l±€gïﬂøn£º¥ø ü    ß ® ò § °   nôèíº¬  ¶ ‰   § ° © ù¸¯7* @Dì7¿L‡øn£º¥ø §    ™ ´ ü † ¶   nôèíº¬  © Â   ¨ ¶ ≠ 6ﬂü¬O @Dì7¿L‡ø7¿[ A°ø ¨     Æ Ø • ∞ ©   nôèíº¬  ≠ Ê   • © ± 6ﬂü¬O @Dì7¿L‡øn£º¥ø • !   ≤ ≥ † ¨ ≠   nôèíº¬  ± Á   ¥ ≠ µ ÿ“ÕÛáb @l±€gïﬂø7¿[ A°ø ¥ "   ∂ ∑ ∞ ∏ ±   nôèíº¬  µ Ë   ∞ ± π ÿ“ÕÛáb @l±€gïﬂøn£º¥ø ∞ #   ∫ ª ¨ ¥ µ   nôèíº¬  π È   º µ Ω 6ﬂü¬O @¥Ø<HOëﬁø7¿[ A°ø º $   æ ø ∏ ¿ π   nôèíº¬  Ω Í   ∏ π ¡ 6ﬂü¬O @¥Ø<HOëﬁøn£º¥ø ∏ %   ¬ √ ¥ º Ω   nôèíº¬  ¡ Î   ƒ Ω ≈ ù¸¯7* @¥Ø<HOëﬁø7¿[ A°ø ƒ &   ∆ « ¿ » ¡   nôèíº¬  ≈ Ï   ¿ ¡ … ù¸¯7* @¥Ø<HOëﬁøn£º¥ø ¿ '     À º ƒ ≈   nôèíº¬  … Ì   » ≈ Ã  Oz/1˘?l±€gïﬂø7¿[ A°ø » (   Õ Œ ƒ œ …   nôèíº¬  Ã Ó   – … — }?,"∫V˘?Dì7¿L‡ø7¿[ A°ø – )   “ ” ‘ ’ Ã   nôèíº¬  — Ô   œ Ã ÷  Oz/1˘?l±€gïﬂøn£º¥ø œ *   ◊ ÿ » ‘ —   nôèíº¬  ÷    ‘ — Ÿ }?,"∫V˘?Dì7¿L‡øn£º¥ø ‘ +   ⁄ € œ – ÷   nôèíº¬  Ÿ Ò   ‹ ÷ › w≤Êqœ°˘?Dì7¿L‡ø7¿[ A°ø ‹ ,   ﬁ ﬂ ’ ‡ Ÿ   nôèíº¬  › Ú   ’ Ÿ · w≤Êqœ°˘?Dì7¿L‡øn£º¥ø ’ -   ‚ „ – ‹ ›   nôèíº¬  · Û   ‰ › Â ÙÎ√Z«˘?l±€gïﬂø7¿[ A°ø ‰ .   Ê Á ‡ Ë ·   nôèíº¬  Â Ù   ‡ · È ÙÎ√Z«˘?l±€gïﬂøn£º¥ø ‡ /   Í Î ‹ ‰ Â   nôèíº¬  È ı   Ï Â Ì w≤Êqœ°˘?¥Ø<HOëﬁø7¿[ A°ø Ï 0   Ó Ô Ë  È   nôèíº¬  Ì ˆ   Ë È Ò w≤Êqœ°˘?¥Ø<HOëﬁøn£º¥ø Ë 1   Ú Û ‰ Ï Ì   nôèíº¬  Ò ˜   Ù Ì ı }?,"∫V˘?¥Ø<HOëﬁø7¿[ A°ø Ù 2   ˆ ˜  ¯ Ò   nôèíº¬  ı ¯    Ò ˘ }?,"∫V˘?¥Ø<HOëﬁøn£º¥ø  3   ˙ ˚ Ï Ù ı   nôèíº¬  ˘ ˘   ¯ ı ¸ ÙlV}Æ∂@∏ÖÎQ∏Ë?Zd;ﬂOçó? ¯ 4   ˝ ˛ Ù ˇ ˘   nôèíº¬  ¸ ˙    ˘ ÙlV}Æ∂@∏ÖÎQ∏Ë?úƒ ∞rhëø  5   ¸   nôèíº¬  ˚   ˇ ¸ Íï≤q¨ @∏ÖÎQ∏Ë?Zd;ﬂOçó? ˇ 6   ¯   nôèíº¬  ¸   	Íï≤q¨ @∏ÖÎQ∏Ë?úƒ ∞rhëø 7   
-ˇ    nôèíº¬  	˝   2w-!Ù@∏ÖÎQ∏Ë?ç(Ìæ0πø 8   	  nôèíº¬  ˛   	Y∑— ﬁÙ?∏ÖÎQ∏Ë?ç(Ìæ0πø 9      nôèíº¬  ˇ   Y∑— ﬁÙ?∏ÖÎQ∏Ë?*:íÀHœ? :     nôèíº¬      2w-!Ù@∏ÖÎQ∏Ë?*:íÀHœ? ;     nôèíº¬     2w-!Ù@ÆG·zË?n£º¥ø <     nôèíº¬      !Y∑— ﬁÙ?ÆG·zË?n£º¥ø  =   "#$%  nôèíº¬  !   &2w-!Ù@ÆG·zË?*:íÀHœ? >   '($!  nôèíº¬  &   $!)Y∑— ﬁÙ?ÆG·zË?*:íÀHœ? $?   *+ &  nôèíº¬  )   %&,ÙlV}Æ∂@ÆG·zË?úƒ ∞rhëø %@   -. /)  nôèíº¬  ,   0)1ÙlV}Æ∂@ÆG·zË?Zd;ﬂOçó? 0A   2345,  nôèíº¬  1   /,6Íï≤q¨ @ÆG·zË?úƒ ∞rhëø /B   78%41  nôèíº¬  6   419Íï≤q¨ @ÆG·zË?Zd;ﬂOçó? 4C   :;/06  nôèíº¬  9	   56<cÓZB>ËÛ?ÕÃÃÃÃÃÊ?ç(Ìæ0πø 5D   =>0?9  nôèíº¬  <
-   @9AcÓZB>ËÛ?ÖÎQ∏Îøç(Ìæ0πø @E   BCDE<  nôèíº¬  A   ?<F¨ã€h o@ÕÃÃÃÃÃÊ?ç(Ìæ0πø ?F   GH5IA  nôèíº¬  F   IAJ¨ã€h o@ÖÎQ∏Îøç(Ìæ0πø IG   KL?MF  nôèíº¬  J   MFN2w-!Ù@
-◊£p=
-Ìøç(Ìæ0πø MH   OPIDJ  nôèíº¬  N   DJQY∑— ﬁÙ?
-◊£p=
-Ìøç(Ìæ0πø DI   RSM@N  nôèíº¬  Q   TNUcÓZB>ËÛ?ÍÛ∑Ω.|¢ø‚‹4—Uü? TJ   VWXYQ  nôèíº¬  U   EQZcÓZB>ËÛ?üñI•8Œø‚‹4—Uü? EK   [\@]U  nôèíº¬  Z   ]U^cÓZB>ËÛ?ÊwÇ]SÄœø•“]-Â›î? ]L   _`EaZ  nôèíº¬  ^   aZbcÓZB>ËÛ?ÊwÇ]SÄœøâ¡ú∆ëø aM   cd]e^  nôèíº¬  b   e^fcÓZB>ËÛ?üñI•8ŒøTìò@éúø eN   ghaib  nôèíº¬  f   ibjcÓZB>ËÛ?ÍÛ∑Ω.|¢øTìò@éúø iO   klemf  nôèíº¬  j   mfncÓZB>ËÛ?ï›ò◊Ï∫öøâ¡ú∆ëø mP   opiXj  nôèíº¬  n   XjqcÓZB>ËÛ?ï›ò◊Ï∫öø•“]-Â›î? XQ   rsmTn  nôèíº¬  q   YntcÓZB>ËÛ?ÕÃÃÃÃÃÊ?*:íÀHœ? YR   uvTwq  nôèíº¬  t   wqxcÓZB>ËÛ?ÖÎQ∏Îø*:íÀHœ? wS   yzY{t  nôèíº¬  x   {t|2w-!Ù@
-◊£p=
-Ìø*:íÀHœ? {T   }~wx  nôèíº¬  |   xÄY∑— ﬁÙ?
-◊£p=
-Ìø*:íÀHœ? U   ÅÇ{É|  nôèíº¬  Ä   É|Ñ¨ã€h o@ÕÃÃÃÃÃÊ?*:íÀHœ? ÉV   ÖÜáÄ  nôèíº¬  Ñ   áÄà¨ã€h o@ÖÎQ∏Îø*:íÀHœ? áW   âäÉãÑ  nôèíº¬  à   ãÑåY∑— ﬁÙ?ffffffÏø*:íÀHœ? ãX   çéáèà  nôèíº¬  å   êàë2w-!Ù@ffffffÏø*:íÀHœ? êY   íìîïå  nôèíº¬  ë   èåñµ¶y«):Ù?ÖÎQ∏Îø*:íÀHœ? èZ   óòãôë  nôèíº¬  ñ    ôëöµ¶y«):Ù?ÕÃÃÃÃÃÊ?*:íÀHœ? ô[   õúèùñ  nôèíº¬  ö!   ùñûÉ/L¶
-F@ÕÃÃÃÃÃÊ?*:íÀHœ? ù\   ü†ôîö  nôèíº¬  û"   îö°É/L¶
-F@ÖÎQ∏Îø*:íÀHœ? î]   ¢£ùêû  nôèíº¬  °#   ïû§É/L¶
-F@ÕÃÃÃÃÃÊ?n£º¥ø ï^   •¶êß°  nôèíº¬  §$   ß°®É/L¶
-F@ÖÎQ∏Îøn£º¥ø ß_   ©™ï´§  nôèíº¬  ®%   ´§¨Y∑— ﬁÙ?ffffffÏøn£º¥ø ´`   ≠ÆßØ®  nôèíº¬  ¨&   Ø®∞2w-!Ù@ffffffÏøn£º¥ø Øa   ±≤´≥¨  nôèíº¬  ∞'   ¥¨µµ¶y«):Ù?üñI•8Œø‚‹4—Uü? ¥b   ∂∑∏π∞  nôèíº¬  µ(   ≥∞∫µ¶y«):Ù?ÍÛ∑Ω.|¢ø‚‹4—Uü? ≥c   ªºØΩµ  nôèíº¬  ∫)   Ωµæµ¶y«):Ù?ï›ò◊Ï∫öø•“]-Â›î? Ωd   ø¿≥¡∫  nôèíº¬  æ*   ¡∫¬µ¶y«):Ù?ï›ò◊Ï∫öøâ¡ú∆ëø ¡e   √ƒΩ≈æ  nôèíº¬  ¬+   ≈æ∆µ¶y«):Ù?ÍÛ∑Ω.|¢øTìò@éúø ≈f   «»¡…¬  nôèíº¬  ∆,   …¬ µ¶y«):Ù?üñI•8ŒøTìò@éúø …g   ÀÃ≈Õ∆  nôèíº¬   -   Õ∆Œµ¶y«):Ù?ÊwÇ]SÄœøâ¡ú∆ëø Õh   œ–…∏   nôèíº¬  Œ.   ∏ 1 µ¶y«):Ù?ÊwÇ]SÄœø•“]-Â›î? ∏i   —“Õ¥Œ  nôèíº¬  1 /   πŒ µ¶y«):Ù?ÕÃÃÃÃÃÊ?n£º¥ø πj   ”‘¥0 1   nôèíº¬ Q    ”ã   π’ —÷   ‘ ◊ÿŸπ⁄€ ‹- 0 k   ÷⁄π    nôèíº¬ Q    ÷í   0 › ”ﬁ   ⁄ ﬂ‡·0 ‘€ Ÿ+ ˇﬂn   ¶‚  ‡ ﬂ≤⁄´„‰  + · ﬂ⁄#πÂÊ  + €ı   ﬁ  nôèíº¬⁄Ê‰Á    Ÿ ◊‘ò0 ËÈ „+ ◊i   ‘Í  ò ◊ŸÿèúÎ Ï+ Ë ÌÓ„èŸÈ  - È˜   Ô  nôèíº¬ŸÎÒ    „ ÌËÚ0 ‡‰  - Ìx   „Û  Ú Ì„Ó´Ùı ‡- ‰˙   ˆ  nôèíº¬‡€˜¯   Q    ˆß   ‰˘ Ô˙   ˜Í   ˙  nôèíº¬≤‰˚¸    ˇ¯ø   ‰˝˛ +Y∑— ﬁÙ?ÖÎQ∏Îøn£º¥ø                      ?      ø                {ÆG·z§? ˝æ   Êˇ¯ +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?n£º¥ø                      ?              ?        {ÆG·z§? ˛¿   ˚¯  +2w-!Ù@ÖÎQ∏Îøn£º¥ø                      ?              ø        {ÆG·z§? ˚˚     nôèíº¬˜˛     ¡   ˛ +µ¶y«):Ù?ÍÛ∑Ω.|¢øTìò@éúø      ø                 ¸     nôèíº¬˚     ¬     +cÓZB>ËÛ?çñI•8ŒøTìò@éúø      ?                 ˝   	  nôèíº¬
-    √    +cÓZB>ËÛ?‘wÇ]SÄœø•“]-Â›î?      ?                 ˛     nôèíº¬    ƒ    +µ¶y«):Ù?‘wÇ]SÄœøâ¡ú∆ëø      ø        Îˇˇˇˇ?ü< ˇ     nôèíº¬    ≈    +µ¶y«):Ù?çñI•8Œø‚‹4—Uü?      ø                      nôèíº¬    ∆    +cÓZB>ËÛ?ÍÛ∑Ω.|¢ø‚‹4—Uü?      ?                     nôèíº¬    «    +µ¶y«):Ù?ï›ò◊Ï∫öø•“]-Â›î?      ø                     nôèíº¬    »     +cÓZB>ËÛ?ï›ò◊Ï∫öøâ¡ú∆ëø      ?        Îˇˇˇˇ?üº   !  nôèíº¬"#     …   $% +ÙlV}Æ∂@∏ÖÎQ∏Ë?Zd;ﬂOçó?              ø         $  &  nôèíº¬'()     %    * /  +ÙlV}Æ∂@∏ÖÎQ∏Ë?úƒ ∞rhëø              ø         *  +  nôèíº¬,-.%    / À   /%  +Íï≤q¨ @∏ÖÎQ∏Ë?úƒ ∞rhëø              ø         /  0  nôèíº¬123/    Q    0   /4 +5   1 6.7/8/  + 2∑   5  nôèíº¬7./9    3¬   :  nôèíº¬8/;<   Q    :   3= 5>   8 ?8@/A3 B+ ;∂   >  nôèíº¬C3. D    <á   3EF +Íï≤q¨ @ÆG·zË?Zd;ﬂOçó?                      ø EÜ   .G< +Íï≤q¨ @ÆG·zË?úƒ ∞rhëø      ?                 Fà   H<I +ÙlV}Æ∂@ÆG·zË?Zd;ﬂOçó?      ø                 H√   J  nôèíº¬;. (F    Iâ   KFL +cÓZB>ËÛ?ÕÃÃÃÃÃÊ?ç(Ìæ0πø              ø         Kƒ   M  nôèíº¬CNOI    Lä   PIQ +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?ç(Ìæ0πø                      ø      ø                ∏ÖÎQ∏Æ? P≈   R  nôèíº¬STUL    Qã   ULV +2w-!Ù@ÕÃÃÃÃÃÊ?ç(Ìæ0πø                      ø              ?        ∏ÖÎQ∏Æ? U∆   W  nôèíº¬XPYQ    Vå   ZQ[ +¨ã€h o@ÖÎQ∏Îøç(Ìæ0πø              ?         Z«   \  nôèíº¬H]^V    [ç   YV_ +2w-!Ù@ÖÎQ∏Îøç(Ìæ0πø                      ø      ?                ∏ÖÎQ∏Æ? Y»   `  nôèíº¬aUb[    _é   c[d +Y∑— ﬁÙ?
-◊£p=
-Ìøç(Ìæ0πø      ?                 c…   e  nôèíº¬POf_    dè   b_g +Y∑— ﬁÙ?ÖÎQ∏Îøç(Ìæ0πø                      ø              ø        ∏ÖÎQ∏Æ? b    h  nôèíº¬iYjd    gê   jdk +cÓZB>ËÛ?ÍÛ∑Ω.|¢ø‚‹4—Uü?              ø         jÀ   l  nôèíº¬mbng    kë   ngo +cÓZB>ËÛ?çñI•8Œø•“]-Â›î?      ?                            @Ôº      ?{ÆG·zÑ? nÃ   p  nôèíº¬qjrk    oí   rks +cÓZB>ËÛ?ÊwÇ]SÄœø•“]-Â›î?                      ø rÕ   t  nôèíº¬unvo    sì   vow +cÓZB>ËÛ?çñI•8Œøâ¡ú∆ëø      ?                              øÒˇˇˇˇ?Ø<{ÆG·zÑ? vŒ   x  nôèíº¬yrzs    wî   zs{ +cÓZB>ËÛ?üñI•8ŒøTìò@éúø              ?     yº zœ   |  nôèíº¬}v~w    {ï   ~w +cÓZB>ËÛ?ÍÛ∑Ω.|¢øâ¡ú∆ëø      ?                        ˘ˇˇˇˇo◊<      ø{ÆG·zÑ? ~–   Ä  nôèíº¬ÅzÇ{    ñ   Ç{É +cÓZB>ËÛ?ï›ò◊Ï∫öøâ¡ú∆ëø                      ? Ç—   Ñ  nôèíº¬Ö~Ü    Éó   Üá +cÓZB>ËÛ?ÍÛ∑Ω.|¢ø•“]-Â›î?      ?                              ?    @ø<{ÆG·zÑ? Ü“   à  nôèíº¬WÇNÉ    áò   âÉä +cÓZB>ËÛ?ÕÃÃÃÃÃÊ?*:íÀHœ?              ø         â”   ã  nôèíº¬zåçá    äô   Náé +cÓZB>ËÛ?ÕÃÃÃÃÃÊ?*:íÀHœ?                      ø N‘   è  nôèíº¬êÜKä    éö   Oäë +cÓZB>ËÛ?ÖÎQ∏Îøç(Ìæ0πø                      ? O’   í  nôèíº¬ìKcé    ëõ   féî +2w-!Ù@
-◊£p=
-Ìøç(Ìæ0πø                      ? f÷   ï  nôèíº¬ñc]ë    îú   óëò +Y∑— ﬁÙ?
-◊£p=
-Ìø*:íÀHœ?      ?                 ó◊   ô  nôèíº¬~çöî    òù   ]îõ +Y∑— ﬁÙ?
-◊£p=
-Ìø*:íÀHœ?                      ø ]ÿ   ú  nôèíº¬ùfZò    õû   ^òû +¨ã€h o@ÕÃÃÃÃÃÊ?ç(Ìæ0πø                      ? ^Ÿ   ü  nôèíº¬†Z°õ    ûü   ¢õ£ +¨ã€h o@ÖÎQ∏Îø*:íÀHœ?              ?         ¢⁄   §  nôèíº¬Üö•û    £†   °û¶ +¨ã€h o@ÖÎQ∏Îø*:íÀHœ?                      ø °€   ß  nôèíº¬®^©£    ¶°   å£™ +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?*:íÀHœ?                      ?              ?        ∏ÖÎQ∏Æ? å‹   ´  nôèíº¬¨©â¶    ™¢   ç¶≠ +Y∑— ﬁÙ?ÖÎQ∏Îø*:íÀHœ?                      ?      ø                ∏ÖÎQ∏Æ? ç›   Æ  nôèíº¬Øâó™    ≠£   ö™∞ +2w-!Ù@ÖÎQ∏Îø*:íÀHœ?                      ?              ø        ∏ÖÎQ∏Æ? öﬁ   ±  nôèíº¬≤ó¢≠    ∞§   •≠≥ +2w-!Ù@ÕÃÃÃÃÃÊ?*:íÀHœ?                      ?      ?                ∏ÖÎQ∏Æ? •ﬂ   ¥  nôèíº¬µ¢∂∞    ≥•   ∑∞∏ +Y∑— ﬁÙ?ffffffÏø*:íÀHœ?      ?                 ∑‡   π  nôèíº¬ìı∫≥    ∏¶   ∂≥ª +Y∑— ﬁÙ?ÖÎQ∏Îø*:íÀHœ?                      ø              ø        {ÆG·z§? ∂·   º  nôèíº¬Ï•Ω∏    ªß   Î∏æ +µ¶y«):Ù?ÕÃÃÃÃÃÊ?*:íÀHœ?              ø         Î‚   ø  nôèíº¬ò¿Èª    æ®   Ωª¡ +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?*:íÀHœ?                      ø      ø                {ÆG·z§? Ω„   ¬  nôèíº¬√∂ƒæ    ¡©   ƒæ≈ +2w-!Ù@ÕÃÃÃÃÃÊ?*:íÀHœ?                      ø              ?        {ÆG·z§? ƒ‰   ∆  nôèíº¬«Ω»¡    ≈™   …¡  +É/L¶
-F@ÖÎQ∏Îø*:íÀHœ?              ?         …Â   À  nôèíº¬†»Ã≈     ´   »≈Õ +2w-!Ù@ÖÎQ∏Îø*:íÀHœ?                      ø      ?                {ÆG·z§? »Ê   Œ  nôèíº¬œƒ…     Õ¨   Ã – +É/L¶
-F@ÕÃÃÃÃÃÊ?*:íÀHœ?                      ø ÃÁ   —  nôèíº¬“…”Õ    –≠   Õ‘ +É/L¶
-F@ÖÎQ∏Îøn£º¥ø              ?         Ë   ’  nôèíº¬¶È÷–    ‘Æ   ”–¸ +É/L¶
-F@ÖÎQ∏Îøn£º¥ø                      ? ”È   ◊  nôèíº¬ÿÃı‘    ¸Ø   ˜‘Ÿ +Y∑— ﬁÙ?ffffffÏøn£º¥ø      ?                 Ÿ∞   ı¸⁄ +Y∑— ﬁÙ?ffffffÏøn£º¥ø                      ? ıÎ   €  nôèíº¬Ù”∑Ÿ    ⁄±   ∫Ÿ‹ +2w-!Ù@ffffffÏø*:íÀHœ?                      ø ∫Ï   ›  nôèíº¬ﬁ∑ﬂ⁄    ‹≤   ﬂ⁄‡ +µ¶y«):Ù?üñI•8Œø‚‹4—Uü?              ?         ﬂÌ   ·  nôèíº¬‚∫„‹    ‡≥   „‹‰ +µ¶y«):Ù?ÍÛ∑Ω.|¢ø•“]-Â›î?      ø                        ˘ˇˇˇˇo◊<      ?{ÆG·zÑ? „Ó   Â  nôèíº¬ÊﬂÁ‡    ‰¥   Á‡Ë +µ¶y«):Ù?ï›ò◊Ï∫öø•“]-Â›î?                      ø ÁÔ   È  nôèíº¬Í„Î‰    Ëµ   Î‰Ï +µ¶y«):Ù?ÍÛ∑Ω.|¢øâ¡ú∆ëø      ø                              ?    @Ø<{ÆG·zÑ? Î   Ì  nôèíº¬ÓÁÔË    Ï∂   ÔË +µ¶y«):Ù?ÍÛ∑Ω.|¢øTìò@éúø              ø     y< ÔÒ   Ò  nôèíº¬ÚÎÛÏ    ∑   ÛÏÙ +µ¶y«):Ù?çñI•8Œøâ¡ú∆ëø      ø                            @Ôº      ø{ÆG·zÑ? ÛÚ   ı  nôèíº¬ˆÔ˜    Ù∏   ˜¯ +µ¶y«):Ù?ÊwÇ]SÄœøâ¡ú∆ëø                      ? ˜Û   ˘  nôèíº¬˙Û˚Ù    ¯π   ˚ÙÁ +µ¶y«):Ù?çñI•8Œø•“]-Â›î?      ø                              ø        {ÆG·zÑ? ˚Ù   ¸  nôèíº¬∑˜¿¯    Á∫   €¯˝ +µ¶y«):Ù?ÕÃÃÃÃÃÊ?n£º¥ø              ø         ˝ª   ¿ÁÒ +µ¶y«):Ù?ÕÃÃÃÃÃÊ?n£º¥ø                      ? ¿ˆ   ˛  nôèíº¬ÿ˚Î˝    Òº   È˝ˇ +µ¶y«):Ù?ÖÎQ∏Îø*:íÀHœ?                      ø ˇΩ   ÷Ò˝ +2w-!Ù@ÕÃÃÃÃÃÊ?n£º¥ø                      ?      ?                {ÆG·z§? ÷¯   ˇ  nôèíº¬ ˇ   Q    ˇ|   ÷ ˛     ﬂ#¶÷  + º     nôèíº¬#÷Ê   Q    É    ˇ   # ﬂ·   + Ê˘     nôèíº¬·€˝    Å   	
- +2w-!Ù@ÆG·zË?n£º¥ø      ø                 	Ä    +2w-!Ù@∏ÖÎQ∏Ë?*:íÀHœ?                      ø 
-Ç    +2w-!Ù@ÆG·zË?n£º¥ø                      ? Ω     nôèíº¬
-    É   
- +2w-!Ù@ÆG·zË?*:íÀHœ?      ø                 æ     nôèíº¬T    Ñ   TG +Y∑— ﬁÙ?ÆG·zË?*:íÀHœ?                      ø Tø     nôèíº¬P    GÖ   #E +ÙlV}Æ∂@ÆG·zË?úƒ ∞rhëø                      ? #¿     nôèíº¬-G   Q    ¶   #     ,0# '+ -¥     nôèíº¬#*   Q    ≠   -      , !- "+ y   -#$ +ÙlV}Æ∂@∏ÖÎQ∏Ë?Zd;ﬂOçó?                      ø #x   %& +}?,"∫V˘?¥Ø<HOëﬁøn£º¥ø      ‡ø≠LXËz∂Îø         $z   (D +Íï≤q¨ @∏ÖÎQ∏Ë?Zd;ﬂOçó?      ?                 (µ      nôèíº¬˛ H$$    D{   ;$9 +Íï≤q¨ @∏ÖÎQ∏Ë?úƒ ∞rhëø                      ? 9|   2D' +ÙlV}Æ∂@∏ÖÎQ∏Ë?úƒ ∞rhëø      ø                 '}   (9) +2w-!Ù@∏ÖÎQ∏Ë?ç(Ìæ0πø      ø                 (∏   *  nôèíº¬+%,'    )~   ,' +Y∑— ﬁÙ?∏ÖÎQ∏Ë?ç(Ìæ0πø                      ? ,π   -  nôèíº¬.()       ©)	 +2w-!Ù@∏ÖÎQ∏Ë?*:íÀHœ?      ø                 ©∫   /  nôèíº¬°å   Q    /…   ©0 -1    2¨µ© .+ 2d   34 ¨ 2zY5å  + µ 2Ü6•  +  7.© 8- . 7+, 5+ 7\   +9  + 7.:( S+  ;<5., +- 5 ;=¨å  - ;   5>  = ;5<YêN ¨- < ;=5SP ê- ê ?Cv5=N  + ?a   v@  C ?ìê@>K i+ v ?êìYzâ =- ì ?vCwAO B+ z 2Ø¨wvâ ì+ Ø 2~zBç  + ~ 2≤Ø{Çó ñ+ B CADwØç  - CÇ   BE  A CFB@ìO  - D CBFù] Ø- F CDADib ù- ù GPÇDD]  + Gb   PH  P GñùMSc a+ Ç Gùñ~ó D- ñ GÇP{If J+ I KLJMñf  - J KIM{≤ö  - KÅ   JN  M KJLá®° ≤- ≤ 2Ü~áJö  + Ü 2µ≤Éä¢ †+ ä O®†áÜ¢ M- † OäHÉP^ 6+ Oc   HQ  H O†®?LZ X+ P RS6?†^  - 6 RP8Éµ•  - RÄ   6T  8 R6S µ- S R8PXU  -  7+8 :+ ª   1  nôèíº¬,	   Q    1–   U /V  Q    Uœ  WX10Y ZQ    V◊   %Y 1[   %≥   V  nôèíº¬\](#   Q    Y÷  W%^VU_ `Q    [ﬁ   ]_ Va   ]±   [  nôèíº¬˚ b%c   Q    _›  W]d[Ye fQ    aÂ   be [g   b∞   a  nôèíº¬hi]j   Q    e‰  Wbka_l mQ    gÏ   il an   iÆ   g  nôèíº¬Û obp   Q    lÎ  Wiqger sQ    nÛ   or gt   o≠   n  nôèíº¬uviw   Q    rÚ  Woxnly zQ    t˙   vy n{   v´   t  nôèíº¬Î |o}   Q    y˘  Wv~tr ÄQ    {   | tÅ   |™   {  nôèíº¬ÇÉvÑ   Q       W|Ö{yÜ áQ    Å   ÉÜ {à   É®   Å  nôèíº¬„ â|ä   Q    Ü  WÉãÅå çQ    à   âå Åé   âß   à  nôèíº¬èêÉë   Q    å  WâíàÜì îQ    é   êì àï   ê•   é  nôèíº¬€ ñâó   Q    ì  Wêòéåô öQ    ï   ñô éõ   ñ§   ï  nôèíº¬úùêû   Q    ô  Wñüïì† °Q    õ$   ù† ï¢   ù£   õ  nôèíº¬£§ñ•   Q    †#  Wù¶õôß ®Q    ¢+   §ß õ©   §°   ¢  nôèíº¬™´ù¨   Q    ß*  W§≠¢†Æ ØQ    ©2   ´Æ ¢∞   ´ü   ©  nôèíº¬À ±§≤   Q    Æ1  W´≥©ß¥ µQ    ∞9   ±¥ ©∂   ±û   ∞  nôèíº¬∑∏´π   Q    ¥8  W±∫∞Æª ºQ    ∂@   ∏ª ∞Ω   ∏ú   ∂  nôèíº¬√ æ±ø   Q    ª?  W∏¿∂¥¡ ¬Q    ΩG   æ¡ ∂√   æõ   Ω  nôèíº¬ƒ≈∏∆   Q    ¡F  Wæ«Ωª» …Q    √N   ≈» Ω    ≈ô   √  nôèíº¬ª ÀæÃ   Q    »M  W≈Õ√¡Œ œQ     U   ÀŒ √–   Àò      nôèíº¬—“≈”   Q    ŒT  WÀ‘ »’ ÷Q    –\   “’  ◊   “ñ   –  nôèíº¬≥ ÿÀŸ   Q    ’[  W“⁄–Œ€ ‹Q    ◊c   ÿ€ –›   ÿï   ◊  nôèíº¬ﬁﬂ“‡   Q    €b  Wÿ·◊’‚ „Q    ›j   ﬂ‚ ◊‰   ﬂì   ›  nôèíº¬´ ÂÿÊ   Q    ‚i  WﬂÁ›€Ë ÈQ    ‰q   ÂË ›Í   Âí   ‰  nôèíº¬ÎÏﬂÌ   Q    Ëp  WÂÓ‰‚Ô Q    Íx   ÏÔ ‰Ò   Ïë   Í  nôèíº¬ÚÛÂÙ   Q    Ôw  WÏıÍËˆ ˜Q    Ò   Ûˆ Í¯   Ûè   Ò  nôèíº¬˘˙Ï˚   Q    ˆ~  WÛ¸ÒÔ˝ ˛Q    ¯Ü   ˙˝ Òˇ   ˙ç   ¯  nôèíº¬õ  Û   Q    ˝Ö  W˙¯ˆ Q    ˇç     ¯    å   ˇ  nôèíº¬˙   Q    å  W 	ˇ˝
- Q    î   
- ˇ   ä     nôèíº¬ì     Q    
-ì  W Q    õ       â     nôèíº¬   Q    ö  W
- Q    ¢       á     nôèíº¬ã    Q    °  W Q    ©       Ü     nôèíº¬ !"   Q    ®  W#$ %Q    ∞   !$ &   !Ñ     nôèíº¬É '(   Q    $Ø  W!)* +Q    &∑   '* ,   'É   &  nôèíº¬-.!/   Q    *∂  W'0&$1 2Q    ,æ   .1 &3   .Å   ,  nôèíº¬{ 4'5   Q    1Ω  W.6,*7 8Q    3≈   47 ,9   4Ä   3  nôèíº¬:;.<   Q    7ƒ  W4=31> ?Q    9Ã   ;> 3@   ;   9  nôèíº¬AB4C   Q    >À  W;D97E FQ    @”   BE 9G   B}   @  nôèíº¬HI;J   Q    E“  WBK@>L MQ    G⁄   IL @N   I{   G  nôèíº¬k OBP   Q    LŸ  WIQGER SQ    N·   OR GT   Oz   N  nôèíº¬UVIW   Q    R‡  WOXNLY ZQ    TË   VY N[   Vx   T  nôèíº¬c \O]   Q    YÁ  WV^TR_ `Q    [Ô   \_ Ta   \w   [  nôèíº¬bcVd   Q    _Ó  W\e[Yf gQ    aˆ   cf [h   cu   a  nôèíº¬[ i\j   Q    fı  Wcka_l mQ    h˝   il an   it   h  nôèíº¬opcq   Q    l¸  Wirhfs tQ    n   ps hu   pr   n  nôèíº¬S viw   Q    s  Wpxnly zQ    u   vy n{   vq   u  nôèíº¬|}p~   Q    y
-  WvusÄ ÅQ    {   }Ä uÇ   }o   {  nôèíº¬K 4 vÉ   Q    Ä  W}Ñ{yÖ ÜQ    Ç   4 Ö {á   4 n   Ç  nôèíº¬à }â   Q    Ö  W4 äÇÄã åQ    á    , ã Çç   ˇ, B  á  nôèíº¬ éè	 
- +   é2 Q    ã  W, êáÖë íQ    ç'   éë áì   éA  ç  nôèíº¬, îï	 - +  , î2 Q    ë&  Wéñçãó òQ    ì.   îó çô   î@  ì  nôèíº¬éöõ	 ú+  éö2 Q    ó-  Wîùìëû üQ    ô5   öû ì†   ö?  ô  nôèíº¬îE°	 ¢+  îE2 Q    û4  Wö£ôó§ •Q    †<   E§ ô¶   E>  †  nôèíº¬öNC	 ß+  öN2 Q    §;  WE®†û© ™Q    ¶C   N© †´   N=  ¶  nôèíº¬ETK	 ¨+  ET2 Q    ©B  WN≠¶§Æ ØQ    ´J   TÆ ¶∞   T<  ´  nôèíº¬N>R	 ±+  N>2 Q    ÆI  WT≤´©≥ ¥Q    ∞Q   >≥ ´µ   >;  ∞  nôèíº¬T∂;	 ∑+  T∂2 Q    ≥P  W>∏∞Æπ ∫Q    µX   ∂π ∞ª   ∂:  µ  nôèíº¬>ºΩ	 æ+  >º2 Q    πW  W∂øµ≥¿ ¡Q    ª_   º¿ µ¬   º9  ª  nôèíº¬∂√?	 ƒ+  ∂√2 Q    ¿^  Wº≈ªπ∆ «Q    ¬f   √∆ ª»   √8  ¬  nôèíº¬º…6	  +  º…2 Q    ∆e  W√À¬¿Ã ÕQ    »m   …Ã ¬Œ   …7  »  nôèíº¬√œ	 –+  √œ2 Q    Ãl  W…—»∆“ ”Q    Œt   œ“ »‘   œ6  Œ  nôèíº¬…’÷	 ◊-  …’2 Q    “s  WœÿŒÃŸ ⁄Q    ‘{   ’Ÿ Œ€   ’5  ‘  nôèíº¬œÛ‹	 ›-  œÛ2 Q    Ÿz  W’ﬁ‘“ﬂ ‡Q    €Ç   Ûﬂ ‘·   Û4  €  nôèíº¬’‚Ì	 „-  ’‚2 Q    ﬂÅ  WÛ‰€ŸÂ ÊQ    ·â   ‚Â €Á   ‚3  ·  nôèíº¬ÛËÈ	 Í-  ÛË2 Q    Âà  W‚Î·ﬂÏ ÌQ    Áê   ËÏ ·Ó   Ë2  Á  nôèíº¬‚Ô	 Ò-  ‚Ô2 Q    Ïè  WËÚÁÂÛ ÙQ    Óó   ÔÛ Áı   Ô1  Ó  nôèíº¬Ëˆ˜	 ¯-  Ëˆ2 Q    Ûñ  WÔ˘ÓÏ˙ ˚Q    ıû   ˆ˙ Ó¸   ˆ0  ı  nôèíº¬Ô˝˛	 ˇ-  Ô˝2 Q    ˙ù  Wˆ ıÛ Q    ¸•   ˝ ı   ˝/  ¸  nôèíº¬ˆ	 -  ˆ2 Q    §  W˝¸˙ 	Q    ¨    ¸
-   .    nôèíº¬˝	 -  ˝2 Q    ´  W Q    
-≥       -  
-  nôèíº¬	 -  2 Q    ≤  W
- Q    ∫    
-   ,    nôèíº¬	 -  2 Q    π  W Q    ¡       +    nôèíº¬‚ 	 !-  ‚2 Q    ¿  W"# $Q    »   ‚# %   ‚*    nôèíº¬Í&	 '+  Í2 Q    #«  W‚() *Q    %œ   Í) +   Í)  %  nôèíº¬‚,-	 .-  ‚,2 Q    )Œ  WÍ/%#0 1Q    +÷   ,0 %2   ,(  +  nôèíº¬Í34	 5-  Í32 Q    0’  W,6+)7 8Q    2›   37 +9   3'  2  nôèíº¬,3:	 ;-  ,32 Q    7‹  W3<20= >Q    9‰   3= 2?   3&  9  nôèíº¬3Q2	 @-  3Q2 Q    =„  W3A97B CQ    ?Î   QB 9D   Q%  ?  nôèíº¬3HO	 E-  3H2 Q    BÍ  WQF?=G HQ    DÚ   HG ?I   H$  D  nôèíº¬Q@G	 J-  Q@2 Q    GÒ  WHKDBL MQ    I˘   @L DN   @#  I  nôèíº¬HOP	 Q-  HO2 Q    L¯  W@RIGS TQ    N    OS IU   O"  N  nôèíº¬@VW	 X-  @V2 Q    Sˇ  WOYNLZ [Q    U   VZ N\   V!  U  nôèíº¬O9]	 ^-  O92 Q    Z  WV_US` aQ    \   9` Ub   9   \  nôèíº¬Vcd	 e-  Vc2 Q    `  W9f\Zg hQ    b   cg \i   c  b  nôèíº¬9jk	 l+  9j2 Q    g  Wcmb`n oQ    i   jn bp   j  i  nôèíº¬cqr	 s+  cq2 Q    n  Wjtigu vQ    p#   qu iw   q  p  nôèíº¬jxy	 z+  jx2 Q    u"  Wq{pn| }Q    w*   x| p~   x  w  nôèíº¬qÄ	 Å+  q2 Q    |)  WxÇwuÉ ÑQ    ~1   É wÖ     ~  nôèíº¬xÜá	 à+  xÜ2 Q    É0  Wâ~|ä ãQ    Ö8   Üä ~å   Ü  Ö  nôèíº¬çé	 è+  ç2 Q    ä7  WÜêÖÉë íQ    å?   çë Öì   ç  å  nôèíº¬Üîï	 ñ+  Üî2 Q    ë>  Wçóåäò ôQ    ìF   îò åö   î  ì  nôèíº¬çõú	 ù+  çõ2 Q    òE  Wîûìëü †Q    öM   õü ì°   õ  ö  nôèíº¬î¢£	 §+  î¢2 Q    üL  Wõ•öò¶ ßQ    °T   ¢¶ ö®   ¢  °  nôèíº¬õ©™	 ´+  õ©2 Q    ¶S  W¢¨°ü≠ ÆQ    ®[   ©≠ °Ø   ©  ®  nôèíº¬¢∞±	 ≤+  ¢∞2 Q    ≠Z  W©≥®¶¥ µQ    Øb   ∞¥ ®∂   ∞  Ø  nôèíº¬©∑∏	 π+  ©∑2 Q    ¥a  W∞∫Ø≠ª ºQ    ∂i   ∑ª ØΩ   ∑  ∂  nôèíº¬∞æø	 ¿+  ∞æ2 Q    ªh  W∑¡∂¥¬ √Q    Ωp   æ¬ ∂ƒ   æ  Ω  nôèíº¬∑≈∆	 «+  ∑≈2 Q    ¬o  Wæ»Ωª…  Q    ƒw   ≈… ΩÀ   ≈  ƒ  nôèíº¬æÃÕ	 Œ+  æÃ2 Q    …v  W≈œƒ¬– —Q    À~   Ã– ƒ“   Ã  À  nôèíº¬≈”‘	 ’+  ≈”2 Q    –}  WÃ÷À…◊ ÿQ    “Ö   ”◊ ÀŸ   ”  “  nôèíº¬Ã⁄€	 ‹+  Ã⁄2 Q    ◊Ñ  W”›“–ﬁ ﬂQ    Ÿå   ⁄ﬁ “‡   ⁄  Ÿ  nôèíº¬”·‚	 „+  ”·2 Q    ﬁã  W⁄‰Ÿ◊Â ÊQ    ‡ì   ·Â ŸÁ   ·  ‡  nôèíº¬⁄ËÈ	 Í+  ⁄Ë2 Q    Âí  W·Î‡ﬁÏ ÌQ    Áö   ËÏ ‡Ó   Ë  Á  nôèíº¬·Ô	 Ò+  ·Ô2 Q    Ïô  WËÚÁÂÛ ÙQ    Ó°   ÔÛ Áı   Ô  Ó  nôèíº¬Ëˆ˜	 ¯+  Ëˆ2 Q    Û†  WÔ˘ÓÏ˙ ˚Q    ı®   ˆ˙ Ó¸   ˆ
-  ı  nôèíº¬Ô˝˛	 ˇ+  Ô˝2 Q    ˙ß  Wˆ ıÛ Q    ¸Ø   ˝ ı   ˝	  ¸  nôèíº¬ˆ* 	 +  ˆ* 2 Q    Æ  W˝¸˙ Q    ∂   *  ¸	   *     nôèíº¬˝ < 	 
-+  ˝ 2 Q    µ  W*  Q    	Ω       p   	  nôèíº¬O ?    Q    º  W	 Q    ƒ   ?  	   ? l     nôèíº¬>    Q    √  W?  Q    À       s     nôèíº¬W    Q       W  Q    “    !   v     nôèíº¬_ "#   Q    —  W$% &Q    !Ÿ   "% '   "y   !  nôèíº¬g ()   Q    %ÿ  W"*!+ ,Q    '‡   (+ !-   (|   '  nôèíº¬." /   Q    +ﬂ  W(0'%1 2Q    -Á   31 '4   3~   -  nôèíº¬s 567   Q    1Ê  W38-+9 :Q    4Ó   69 -;   6Ç   4  nôèíº¬ 3<=   Q    9Ì  W6>41? @Q    ;ı   <? 4A   <Ö   ;  nôèíº¬á 6BC   Q    ?Ù  W<D;9E FQ    A¸   BE ;G   Bà   A  nôèíº¬è <HI   Q    E˚  WBJA?K LQ    G   HK AM   Hã   G  nôèíº¬ó BN   Q    K  WHOGEP QQ    M
-   P GR   é   M  nôèíº¬SH? T   Q    P	  WUMKV WQ    R   XV MY   Xê   R  nôèíº¬£ Z[\   Q    V  WX]RP^ _Q    Y   [^ R`   [î   Y  nôèíº¬Ø Xab   Q    ^  W[cYVd eQ    `   ad Yf   aó   `  nôèíº¬∑ [gh   Q    d  Wai`^j kQ    f&   gj `l   gö   f  nôèíº¬ø amn   Q    j%  Wgofdp qQ    l-   mp fr   mù   l  nôèíº¬« g5s   Q    p,  Wmtlju vQ    r4   5u lw   5†   r  nôèíº¬xm3y   Q    u3  W5zrp{ |Q    w;   ){ r}   )¢   w  nôèíº¬” $~   Q    {:  W)ÄwuÅ ÇQ    }B   ~Å wÉ   ~¶   }  nôèíº¬ﬂ )ÑÖ   Q    ÅA  W~Ü}{á àQ    ÉI   Ñá }â   Ñ©   É  nôèíº¬Á ~äã   Q    áH  WÑåÉÅç éQ    âP   äç Éè   ä¨   â  nôèíº¬Ô Ñêë   Q    çO  Wäíâáì îQ    èW   êì âï   êØ   è  nôèíº¬˜ äZñ   Q    ìV  Wêóèçò ôQ    ï^   Zò èö   Z≤   ï  nôèíº¬õêX&   Q    ò]  WZúïìù ûQ    öe   . ù ïü   .   ö  nôèíº¬@;H    Q    ùd  W. †öò° ¢Q    ül   .° ö    .¡   ü  nôèíº¬.*2E   Q    °k  W.£üù  §P    W•¶(#                     Q    £j  ß.®°†  ©™R ˇ   §Ú   P    ß ´(#                     Q    ®i  ¨. £≠ ÆØ  Q    †c  ß. ≠ùú£ ∞±T    ©ANSYS_PERSIST_IDT    ™E188Q    ≠b  ¨.  †≤®≥¥  Q    ú\  ßZ≤òó† µ∂T    ∞ANSYS_PERSIST_IDT    ±E182Q    ≤[  ¨Z ú∑≠∏π  Q    óU  ßê∑ìíú ∫ªT    µANSYS_PERSIST_IDT    ∂E296Q    ∑T  ¨ê óº≤Ωæ  Q    íN  ßäºçåó ø¿T    ∫ANSYS_PERSIST_IDT    ªE297Q    ºM  ¨ä í¡∑¬√  Q    åG  ßÑ¡áÜí ƒ≈T    øANSYS_PERSIST_IDT    ¿E298Q    ¡F  ¨Ñ å∆º«»  Q    Ü@  ß~∆ÅÄå … T    ƒANSYS_PERSIST_IDT    ≈E299Q    ∆?  ¨~ ÜÀ¡ÃÕ  Q    Ä9  ß)À{zÜ ŒœT    …ANSYS_PERSIST_IDT     E300Q    À8  ¨) Ä–∆—“  Q    z2  ß5–utÄ ”‘T    ŒANSYS_PERSIST_IDT    œE301Q    –1  ¨5 z’À÷◊  Q    t+  ßm’poz ÿŸT    ”ANSYS_PERSIST_IDT    ‘E302Q    ’*  ¨m t⁄–€‹  Q    o$  ßg⁄jit ›ﬁT    ÿANSYS_PERSIST_IDT    ŸE303Q    ⁄#  ¨g oﬂ’‡·  Q    i  ßaﬂdco ‚„T    ›ANSYS_PERSIST_IDT    ﬁE304Q    ﬂ  ¨a i‰⁄ÂÊ  Q    c  ß[‰^]i ÁËT    ‚ANSYS_PERSIST_IDT    „E305Q    ‰  ¨[ cÈﬂÍÎ  Q    ]  ßXÈVUc ÏÌT    ÁANSYS_PERSIST_IDT    ËE306Q    È  ¨X ]Ó‰Ô  Q    U  ßÓPO] ÒÚT    ÏANSYS_PERSIST_IDT    ÌE307Q    Ó  ¨ UÛÈÙı  Q    O  ßHÛKJU ˆ˜T    ÒANSYS_PERSIST_IDT    ÚE308Q    Û   ¨H O¯Ó˘˙  Q    J˙  ßB¯EDO ˚¸T    ˆANSYS_PERSIST_IDT    ˜E309Q    ¯˘  ¨B J˝Û˛ˇ  Q    DÛ  ß<˝?>J  T    ˚ANSYS_PERSIST_IDT    ¸E310Q    ˝Ú  ¨< D¯  Q    >Ï  ß698D T     ANSYS_PERSIST_IDT    E311Q    Î  ¨6 >˝	  Q    8Â  ß310> 
-T    ANSYS_PERSIST_IDT    E312Q    ‰  ¨3 8  Q    0ﬁ  ß(+*8 T    
-ANSYS_PERSIST_IDT    E313Q    ›  ¨( 0  Q    *◊  ß"%$0 T    ANSYS_PERSIST_IDT    E314Q    ÷  ¨" *  Q    $–  ß* T    ANSYS_PERSIST_IDT    E315Q    œ  ¨ $  Q    …  ß$ T    ANSYS_PERSIST_IDT    E316Q    »  ¨  !"  Q    ¬  ß?   #$T    ANSYS_PERSIST_IDT    E317Q     ¡  ¨?  %&'  Q    ª  ß% ()T    #ANSYS_PERSIST_IDT    $E319Q    %∫  ¨ * +,  Q    ¥  ß* * -.T    (ANSYS_PERSIST_IDT    )E318Q    *≥  ¨*  /%01  Q    ≠  ß˝/  23T    -ANSYS_PERSIST_IDT    .F295Q    /¨  ¨˝ 4*56  Q     ¶  ßˆ4˙˘ 78T    2ANSYS_PERSIST_IDT    3F294Q    4•  ¨ˆ  9/:;  Q    ˘ü  ßÔ9ÛÚ  <=T    7ANSYS_PERSIST_IDT    8F293Q    9û  ¨Ô ˘>4?@  Q    Úò  ßË>ÏÎ˘ ABT    <ANSYS_PERSIST_IDT    =F292Q    >ó  ¨Ë ÚC9DE  Q    Îë  ß·CÂ‰Ú FGT    AANSYS_PERSIST_IDT    BF291Q    Cê  ¨· ÎH>IJ  Q    ‰ä  ß⁄Hﬁ›Î KLT    FANSYS_PERSIST_IDT    GF290Q    Hâ  ¨⁄ ‰MCNO  Q    ›É  ß”M◊÷‰ PQT    KANSYS_PERSIST_IDT    LF289Q    MÇ  ¨” ›RHST  Q    ÷|  ßÃR–œ› UVT    PANSYS_PERSIST_IDT    QF288Q    R{  ¨Ã ÷WMXY  Q    œu  ß≈W…»÷ Z[T    UANSYS_PERSIST_IDT    VF287Q    Wt  ¨≈ œ\R]^  Q    »n  ßæ\¬¡œ _`T    ZANSYS_PERSIST_IDT    [F286Q    \m  ¨æ »aWbc  Q    ¡g  ß∑aª∫» deT    _ANSYS_PERSIST_IDT    `F285Q    af  ¨∑ ¡f\gh  Q    ∫`  ß∞f¥≥¡ ijT    dANSYS_PERSIST_IDT    eF284Q    f_  ¨∞ ∫kalm  Q    ≥Y  ß©k≠¨∫ noT    iANSYS_PERSIST_IDT    jF283Q    kX  ¨© ≥pfqr  Q    ¨R  ß¢p¶•≥ stT    nANSYS_PERSIST_IDT    oF282Q    pQ  ¨¢ ¨ukvw  Q    •K  ßõuüû¨ xyT    sANSYS_PERSIST_IDT    tF281Q    uJ  ¨õ •zp{|  Q    ûD  ßîzòó• }~T    xANSYS_PERSIST_IDT    yF280Q    zC  ¨î ûuÄÅ  Q    ó=  ßçëêû ÇÉT    }ANSYS_PERSIST_IDT    ~F279Q    <  ¨ç óÑzÖÜ  Q    ê6  ßÜÑäâó áàT    ÇANSYS_PERSIST_IDT    ÉF278Q    Ñ5  ¨Ü êâäã  Q    â/  ßâÉÇê åçT    áANSYS_PERSIST_IDT    àF277Q    â.  ¨ âéÑèê  Q    Ç(  ßxé|{â ëíT    åANSYS_PERSIST_IDT    çF276Q    é'  ¨x Çìâîï  Q    {!  ßqìutÇ ñóT    ëANSYS_PERSIST_IDT    íF275Q    ì   ¨q {òéôö  Q    t  ßjònm{ õúT    ñANSYS_PERSIST_IDT    óF274Q    ò  ¨j tùìûü  Q    m  ßcùgft †°T    õANSYS_PERSIST_IDT    úF273Q    ù  ¨c m¢ò£§  Q    f  ß9¢`_m •¶T    †ANSYS_PERSIST_IDT    °F268Q    ¢  ¨9 fßù®©  Q    _  ßVßZYf ™´T    •ANSYS_PERSIST_IDT    ¶F120Q    ß  ¨V _¨¢≠Æ  Q    Y˛  ßO¨SR_ Ø∞T    ™ANSYS_PERSIST_IDT    ´F132Q    ¨˝  ¨O Y±ß≤≥  Q    R˜  ß@±LKY ¥µT    ØANSYS_PERSIST_IDT    ∞F119Q    ±ˆ  ¨@ R∂¨∑∏  Q    K  ßH∂GFR π∫T    ¥ANSYS_PERSIST_IDT    µF121Q    ∂Ô  ¨H Kª±ºΩ  Q    FÈ  ßQªBAK æøT    πANSYS_PERSIST_IDT    ∫F122Q    ªË  ¨Q F¿∂¡¬  Q    A‚  ß3¿=<F √ƒT    æANSYS_PERSIST_IDT    øF123Q    ¿·  ¨3 A≈ª∆«  Q    <€  ß3≈76A »…T    √ANSYS_PERSIST_IDT    ƒF128Q    ≈⁄  ¨3 < ¿ÀÃ  Q    6‘  ß, 0/< ÕŒT    »ANSYS_PERSIST_IDT    …F129Q     ”  ¨, 6œ≈–—  Q    /Õ  ßÍœ)(6 “”T    ÕANSYS_PERSIST_IDT    ŒF130Q    œÃ  ¨Í /‘ ’÷  Q    (∆  ß‚‘#"/ ◊ÿT    “ANSYS_PERSIST_IDT    ”F131Q    ‘≈  ¨‚ (Ÿœ⁄€  Q    "ø  ßŸ( ‹›T    ◊ANSYS_PERSIST_IDT    ÿF213Q    Ÿæ  ¨ "ﬁ‘ﬂ‡  Q    ∏  ßﬁ" ·‚T    ‹ANSYS_PERSIST_IDT    ›F145Q    ﬁ∑  ¨ „Ÿ‰Â  Q    ±  ß„ ÊÁT    ·ANSYS_PERSIST_IDT    ‚F146Q    „∞  ¨ ËﬁÈÍ  Q    ™  ßË ÎÏT    ÊANSYS_PERSIST_IDT    ÁF147Q    Ë©  ¨ Ì„ÓÔ  Q    £  ß˝Ì  ÒT    ÎANSYS_PERSIST_IDT    ÏF148Q    Ì¢  ¨˝ ÚËÛÙ  Q     ú  ßˆÚ˙˘ ıˆT    ANSYS_PERSIST_IDT    ÒF157Q    Úõ  ¨ˆ  ˜Ì¯˘  Q    ˘ï  ßÔ˜ÛÚ  ˙˚T    ıANSYS_PERSIST_IDT    ˆF158Q    ˜î  ¨Ô ˘¸Ú˝˛  Q    Úé  ßË¸ÏÎ˘ ˇ T    ˙ANSYS_PERSIST_IDT    ˚F159Q    ¸ç  ¨Ë Ú˜  Q    Îá  ß‚Â‰Ú T    ˇANSYS_PERSIST_IDT     F160Q    Ü  ¨‚ Î¸  Q    ‰Ä  ßÛﬂﬁÎ 	
-T    ANSYS_PERSIST_IDT    F177Q      ¨Û ‰  Q    ﬁy  ß’Ÿÿ‰ T    	ANSYS_PERSIST_IDT    
-F198Q    x  ¨’ ﬁ  Q    ÿr  ßœ“—ﬁ T    ANSYS_PERSIST_IDT    F203Q    q  ¨œ ÿ  Q    —k  ß…ÃÀÿ T    ANSYS_PERSIST_IDT    F208Q    j  ¨… —  Q    Àd  ß√∆≈— T    ANSYS_PERSIST_IDT    F178Q    c  ¨√ À !  Q    ≈]  ßº¿øÀ "#T    ANSYS_PERSIST_IDT    F179Q    \  ¨º ≈$%&  Q    øV  ß∂$π∏≈ '(T    "ANSYS_PERSIST_IDT    #F180Q    $U  ¨∂ ø)*+  Q    ∏O  ß>)≥≤ø ,-T    'ANSYS_PERSIST_IDT    (F181Q    )N  ¨> ∏.$/0  Q    ≤H  ßT.Æ≠∏ 12T    ,ANSYS_PERSIST_IDT    -F238Q    .G  ¨T ≤3)45  Q    ≠A  ßN3©®≤ 67T    1ANSYS_PERSIST_IDT    2F239Q    3@  ¨N ≠8.9:  Q    ®:  ßE8§£≠ ;<T    6ANSYS_PERSIST_IDT    7F240Q    89  ¨E ®=3>?  Q    £3  ßö=ûù® @AT    ;ANSYS_PERSIST_IDT    <F241Q    =2  ¨ö £B8CD  Q    ù,  ßîBóñ£ EFT    @ANSYS_PERSIST_IDT    AF269Q    B+  ¨î ùG=HI  Q    ñ%  ßéGëêù JKT    EANSYS_PERSIST_IDT    FF270Q    G$  ¨é ñLBMN  Q    ê  ß, Lãäñ OPT    JANSYS_PERSIST_IDT    KF271Q    L  ¨,  êQGRS  Q    ä  ß4 QÖÑê TUT    OANSYS_PERSIST_IDT    PF272Q    Q  ¨4  äVLWX  Q    Ñ  ß}VÄä YZT    TANSYS_PERSIST_IDT    UE237Q    V  ¨} Ñ[Q\]  Q    	  ßv[yxÑ ^_T    YANSYS_PERSIST_IDT    ZE267Q    [  ¨v `Vab  Q    x  ßp`sr cdT    ^ANSYS_PERSIST_IDT    _E236Q    `  ¨p xe[fg  Q    r˚  ßielkx hiT    cANSYS_PERSIST_IDT    dE266Q    e˙  ¨i rj`kl  Q    kÙ  ßcjfer mnT    hANSYS_PERSIST_IDT    iE235Q    jÛ  ¨c koepq  Q    eÌ  ß\o_^k rsT    mANSYS_PERSIST_IDT    nE265Q    oÏ  ¨\ etjuv  Q    ^Ê  ßVtYXe wxT    rANSYS_PERSIST_IDT    sE234Q    tÂ  ¨V ^yoz{  Q    Xﬂ  ßOyRQ^ |}T    wANSYS_PERSIST_IDT    xE264Q    yﬁ  ¨O X~tÄ  Q    Qÿ  ßI~LKX ÅÇT    |ANSYS_PERSIST_IDT    }E233Q    ~◊  ¨I QÉyÑÖ  Q    K—  ßBÉEDQ ÜáT    ÅANSYS_PERSIST_IDT    ÇE263Q    É–  ¨B Kà~âä  Q    D   ß;à>=K ãåT    ÜANSYS_PERSIST_IDT    áE232Q    à…  ¨; DçÉéè  Q    =√  ß4ç76D êëT    ãANSYS_PERSIST_IDT    åE332Q    ç¬  ¨4 =íàìî  Q    6º  ß.í10= ïñT    êANSYS_PERSIST_IDT    ëE231Q    íª  ¨. 6óçòô  Q    0µ  ß'ó*)6 öõT    ïANSYS_PERSIST_IDT    ñE261Q    ó¥  ¨' 0úíùû  Q    )Æ  ß!ú$#0 ü†T    öANSYS_PERSIST_IDT    õE230Q    ú≠  ¨! )°ó¢£  Q    #ß  ß°) §•T    üANSYS_PERSIST_IDT    †E260Q    °¶  ¨ #¶úß®  Q    †  ß¶# ©™T    §ANSYS_PERSIST_IDT    •E229Q    ¶ü  ¨ ´°¨≠  Q    ô  ß´ ÆØT    ©ANSYS_PERSIST_IDT    ™E259Q    ´ò  ¨ ∞¶±≤  Q    í  ß∞
-	 ≥¥T    ÆANSYS_PERSIST_IDT    ØE228Q    ∞ë  ¨ µ´∂∑  Q    	ã  ß µ ∏πT    ≥ANSYS_PERSIST_IDT    ¥E258Q    µä  ¨  	∫∞ªº  Q    Ñ  ß˙∫˝¸	 ΩæT    ∏ANSYS_PERSIST_IDT    πE227Q    ∫É  ¨˙ øµ¿¡  Q    ¸}  ßÛøˆı ¬√T    ΩANSYS_PERSIST_IDT    æE333Q    ø|  ¨Û ¸ƒ∫≈∆  Q    ıv  ßÏƒÔÓ¸ «»T    ¬ANSYS_PERSIST_IDT    √E226Q    ƒu  ¨Ï ı…ø À  Q    Óo  ßÂ…ËÁı ÃÕT    «ANSYS_PERSIST_IDT    »E326Q    …n  ¨Â ÓŒƒœ–  Q    Áh  ßﬂŒ‚·Ó —“T    ÃANSYS_PERSIST_IDT    ÕE225Q    Œg  ¨ﬂ Á”…‘’  Q    ·a  ßÿ”€⁄Á ÷◊T    —ANSYS_PERSIST_IDT    “E331Q    ”`  ¨ÿ ·ÿŒŸ⁄  Q    ⁄Z  ß“ÿ’‘· €‹T    ÷ANSYS_PERSIST_IDT    ◊E224Q    ÿY  ¨“ ⁄›”ﬁﬂ  Q    ‘S  ßÀ›ŒÕ⁄ ‡·T    €ANSYS_PERSIST_IDT    ‹E330Q    ›R  ¨À ‘‚ÿ„‰  Q    ÕL  ß≈‚»«‘ ÂÊT    ‡ANSYS_PERSIST_IDT    ·E223Q    ‚K  ¨≈ ÕÁ›ËÈ  Q    «E  ßæÁ¡¿Õ ÍÎT    ÂANSYS_PERSIST_IDT    ÊE329Q    ÁD  ¨æ «Ï‚ÌÓ  Q    ¿>  ß∏Ïª∫« ÔT    ÍANSYS_PERSIST_IDT    ÎE222Q    Ï=  ¨∏ ¿ÒÁÚÛ  Q    ∫7  ß±Ò¥≥¿ ÙıT    ÔANSYS_PERSIST_IDT    E328Q    Ò6  ¨± ∫ˆÏ˜¯  Q    ≥0  ß´ˆÆ≠∫ ˘˙T    ÙANSYS_PERSIST_IDT    ıE221Q    ˆ/  ¨´ ≥˚Ò¸˝  Q    ≠)  ß§˚ß¶≥ ˛ˇT    ˘ANSYS_PERSIST_IDT    ˙E327Q    ˚(  ¨§ ≠ 	ˆ		  Q    ¶"  ßù 	†ü≠ 		T    ˛ANSYS_PERSIST_IDT    ˇE220Q     	!  ¨ù ¶	˚		  Q    ü  ßñ	ôò¶ 			T    	ANSYS_PERSIST_IDT    	E320Q    	  ¨ñ ü
-	 			  Q    ò  ßê
-	ìíü 		T    	ANSYS_PERSIST_IDT    		E219Q    
-	  ¨ê ò				  Q    í  ßâ	åãò 		T    	ANSYS_PERSIST_IDT    	E325Q    	  ¨â í	
-			  Q    ã  ßÉ	ÜÖí 		T    	ANSYS_PERSIST_IDT    	E218Q    	  ¨É ã				  Q    Öˇ  ß|	~ã 		T    	ANSYS_PERSIST_IDT    	E324Q    	˛  ¨| Ö			 	  Q    ~¯  ßv	yxÖ !	"	T    	ANSYS_PERSIST_IDT    	E217Q    	˜  ¨v ~#		$	%	  Q    xÒ  ßo#	rq~ &	'	T    !	ANSYS_PERSIST_IDT    "	E323Q    #	  ¨o x(		)	*	  Q    qÍ  ßi(	lkx +	,	T    &	ANSYS_PERSIST_IDT    '	E216Q    (	È  ¨i q-	#	.	/	  Q    k„  ßb-	edq 0	1	T    +	ANSYS_PERSIST_IDT    ,	E322Q    -	‚  ¨b k2	(	3	4	  Q    d‹  ß]2	_^k 5	6	T    0	ANSYS_PERSIST_IDT    1	E215Q    2	€  ¨] d7	-	8	9	  Q    ^’  ß%7	YXd :	;	T    5	ANSYS_PERSIST_IDT    6	E321Q    7	‘  ¨% ^<	2	=	>	  Q    XŒ  ß<	U?	^ @	A	T    :	ANSYS_PERSIST_IDT    ;	E214Q    <	Õ  ¨ XB	7	C	D	  Q    ?	«  ß©B	0E	X F	G	T    @	ANSYS_PERSIST_IDT    A	E244Q    B	∆  ¨© ?	H	<	I	J	  Q    0»  W©?	/K	U L	Q    E	¿  ß,H	K	M	?	 N	O	T    F	ANSYS_PERSIST_IDT    G	E136Q    H	ø  ¨, E	P	B	Q	R	  Q    K	¡  W,E	-S	0 T	Q    M	π  ß(P	S	U	E	 V	W	T    N	ANSYS_PERSIST_IDT    O	E245Q    P	∏  ¨( M	X	H	Y	Z	  Q    S	∫  W(M	*[	K	 \	Q    U	≤  ß(X	[	]	M	 ^	_	T    V	ANSYS_PERSIST_IDT    W	E127Q    X	±  ¨( U	`	P	a	b	  Q    [	≥  W(U	 S	 c	Q    ]	´  ß-`	d	U	 e	f	T    ^	ANSYS_PERSIST_IDT    _	E190Q    `	™  ¨- ]	g	X	h	i	  Q    ¨  W-]	[	 j	Q    d	§  ß#g	k	]	 l	m	T    e	ANSYS_PERSIST_IDT    f	E193Q    g	£  ¨# d	n	`	o	p	  Q    •  W#d	q	 r	Q    k	ù  ßTn	q	s	d	 t	u	T    l	ANSYS_PERSIST_IDT    m	E189Q    n	ú  ¨T k	v	g	w	x	  Q    q	û  WTk	y	 z	Q    s	ñ  ßv	y	{	k	 |	}	T    t	ANSYS_PERSIST_IDT    u	E205Q    v	ï  ¨ s	~	n		Ä	  Q    y	ó  Ws	Å	q	 Ç	Q    {	è  ß~	Å	É	s	 Ñ	Ö	T    |	ANSYS_PERSIST_IDT    }	E140Q    ~	é  ¨ {	Ü	v	á	à	  Q    Å	ê  W{	â	y	 ä	Q    É	à  ßÊÜ	â	ã	{	 å	ç	T    Ñ	ANSYS_PERSIST_IDT    Ö	E209Q    Ü	á  ¨Ê É	é	~	è	ê	  Q    â	â  WÊÉ	Å	 ë	Q    ã	Å  ßé	í	É	 ì	î	T    å	ANSYS_PERSIST_IDT    ç	E206Q    é	Ä  ¨ ã	ï	Ü	ñ	ó	  Q    Ç  Wã	â	 ò	Q    í	z  ß÷ï	ô	ã	 ö	õ	T    ì	ANSYS_PERSIST_IDT    î	E144Q    ï	y  ¨÷ í	ú	é	ù	û	  Q    {  W÷í	ˇü	 †	Q    ô	s  ß¿ú	ü	°	í	 ¢	£	T    ö	ANSYS_PERSIST_IDT    õ	E211Q    ú	r  ¨¿ ô	§	ï	•	¶	  Q    ü	t  W¿ô	˛ß	 ®	Q    °	l  ß˚§	ß	©	ô	 ™	´	T    ¢	ANSYS_PERSIST_IDT    £	E204Q    §	k  ¨˚ °	¨	ú	≠	Æ	  Q    ß	m  W˚°	¸Ø	ü	 ∞	Q    ©	e  ß˜¨	Ø	±	°	 ≤	≥	T    ™	ANSYS_PERSIST_IDT    ´	E170Q    ¨	d  ¨˜ ©	¥	§	µ	∂	  Q    Ø	f  W˜©	˘∑	ß	 ∏	Q    ±	^  ßÛ¥	∑	π	©	 ∫	ª	T    ≤	ANSYS_PERSIST_IDT    ≥	E151Q    ¥	]  ¨Û ±	º	¨	Ω	æ	  Q    ∑	_  WÛ±	ıø	Ø	 ¿	Q    π	W  ßÔº	ø	¡	±	 ¬	√	T    ∫	ANSYS_PERSIST_IDT    ª	E176Q    º	V  ¨Ô π	ƒ	¥	≈	∆	  Q    ø	X  WÔπ	Ò«	∑	 »	Q    ¡	P  ßÎƒ	«	…	π	  	À	T    ¬	ANSYS_PERSIST_IDT    √	E152Q    ƒ	O  ¨Î ¡	Ã	º	Õ	Œ	  Q    «	Q  WÎ¡	Ìœ	ø	 –	Q    …	I  ßÁÃ	œ	—	¡	 “	”	T     	ANSYS_PERSIST_IDT    À	E174Q    Ã	H  ¨Á …	‘	ƒ	’	÷	  Q    œ	J  WÁ…	È◊	«	 ÿ	Q    —	B  ß„‘	◊	Ÿ	…	 ⁄	€	T    “	ANSYS_PERSIST_IDT    ”	E149Q    ‘	A  ¨„ —	‹	Ã	›	ﬁ	  Q    ◊	C  W„—	Âﬂ	œ	 ‡	Q    Ÿ	;  ßﬂ‹	ﬂ	·	—	 ‚	„	T    ⁄	ANSYS_PERSIST_IDT    €	E172Q    ‹	:  ¨ﬂ Ÿ	‰	‘	Â	Ê	  Q    ﬂ	<  WﬂŸ	·Á	◊	 Ë	Q    ·	4  ß∫‰	Á	È	Ÿ	 Í	Î	T    ‚	ANSYS_PERSIST_IDT    „	E150Q    ‰	3  ¨∫ ·	Ï	‹	Ì	Ó	  Q    Á	5  W∫·	›Ô	ﬂ	 	Q    È	-  ßıÏ	Ô	Ò	·	 Ú	Û	T    Í	ANSYS_PERSIST_IDT    Î	E195Q    Ï	,  ¨ı È	Ù	‰	ı	ˆ	  Q    Ô	.  WıÈ	€˜	Á	 ¯	Q    Ò	&  ß”Ù	˜	˘	È	 ˙	˚	T    Ú	ANSYS_PERSIST_IDT    Û	E199Q    Ù	%  ¨” Ò	¸	Ï	˝	˛	  Q    ˜	'  W”Ò	◊ˇ	Ô	  
-Q    ˘	  ß¸	ˇ	
-Ò	 
-
-T    ˙	ANSYS_PERSIST_IDT    ˚	E194Q    ¸	  ¨ ˘	
-Ù	
-
-  Q    ˇ	   W˘	’
-˜	 
-Q    
-  ßÃ
-
-	
-˘	 
-
-
-T    
-ANSYS_PERSIST_IDT    
-E141Q    
-  ¨Ã 
-
-¸	
-
-  Q    
-  WÃ
-—
-ˇ	 
-Q    	
-  ß»
-
-
-
- 
-
-T    
-
-ANSYS_PERSIST_IDT    
-E210Q    
-  ¨» 	
-
-
-
-
-  Q    
-  W»	
-Œ
-
- 
-Q    
-
-  ß…
-
-
-	
- 
-
-T    
-ANSYS_PERSIST_IDT    
-E197Q    
-	  ¨… 
-
-
-
-
-  Q    
-  W…
-À
-
-  
-Q    
-  ßƒ
-
-!
-
- "
-#
-T    
-ANSYS_PERSIST_IDT    
-E137Q    
-  ¨ƒ 
-$
-
-%
-&
-  Q    
-  Wƒ
-∆'
-
- (
-Q    !
-¸  ßΩ$
-'
-)
-
- *
-+
-T    "
-ANSYS_PERSIST_IDT    #
-E212Q    $
-˚  ¨Ω !
-,
-
--
-.
-  Q    '
-˝  WΩ!
-¬/
-
- 0
-Q    )
-ı  ßÎ,
-/
-1
-!
- 2
-3
-T    *
-ANSYS_PERSIST_IDT    +
-E207Q    ,
-Ù  ¨Î )
-4
-$
-5
-6
-  Q    /
-ˆ  WÎ)
-ø7
-'
- 8
-Q    1
-Ó  ß∂4
-7
-9
-)
- :
-;
-T    2
-ANSYS_PERSIST_IDT    3
-E139Q    4
-Ì  ¨∂ 1
-<
-,
-=
->
-  Q    7
-Ô  W∂1
-º?
-/
- @
-Q    9
-Á  ß∑<
-?
-A
-1
- B
-C
-T    :
-ANSYS_PERSIST_IDT    ;
-E202Q    <
-Ê  ¨∑ 9
-D
-4
-E
-F
-  Q    ?
-Ë  W∑9
-πG
-7
- H
-Q    A
-‡  ß•D
-G
-I
-9
- J
-K
-T    B
-ANSYS_PERSIST_IDT    C
-E138Q    D
-ﬂ  ¨• A
-L
-<
-M
-N
-  Q    G
-·  W•A
-¥O
-?
- P
-Q    I
-Ÿ  ßöL
-O
-Q
-A
- R
-S
-T    J
-ANSYS_PERSIST_IDT    K
-E256Q    L
-ÿ  ¨ö I
-T
-D
-U
-V
-  Q    O
-⁄  WöI
-±W
-G
- X
-Q    Q
-“  ßçT
-W
-Y
-I
- Z
-[
-T    R
-ANSYS_PERSIST_IDT    S
-E255Q    T
-—  ¨ç Q
-\
-L
-]
-^
-  Q    W
-”  WçQ
-Æ_
-O
- `
-Q    Y
-À  ßå\
-_
-a
-Q
- b
-c
-T    Z
-ANSYS_PERSIST_IDT    [
-E254Q    \
-   ¨å Y
-d
-T
-e
-f
-  Q    _
-Ã  WåY
-´g
-W
- h
-Q    a
-ƒ  ß°d
-g
-i
-Y
- j
-k
-T    b
-ANSYS_PERSIST_IDT    c
-E257Q    d
-√  ¨° a
-l
-\
-m
-n
-  Q    g
-≈  W°a
-ßo
-_
- p
-Q    i
-Ω  ß¢l
-o
-q
-a
- r
-s
-T    j
-ANSYS_PERSIST_IDT    k
-E246Q    l
-º  ¨¢ i
-t
-d
-u
-v
-  Q    o
-æ  W¢i
-§w
-g
- x
-Q    q
-∂  ß^t
-w
-y
-i
- z
-{
-T    r
-ANSYS_PERSIST_IDT    s
-E133Q    t
-µ  ¨^ q
-|
-l
-}
-~
-  Q    w
-∑  W^q
-ü
-o
- Ä
-Q    y
-Ø  ß]|
-
-Å
-q
- Ç
-É
-T    z
-ANSYS_PERSIST_IDT    {
-E247Q    |
-Æ  ¨] y
-Ñ
-t
-Ö
-Ü
-  Q    
-∞  W]y
-úá
-w
- à
-Q    Å
-®  ßóÑ
-á
-â
-y
- ä
-ã
-T    Ç
-ANSYS_PERSIST_IDT    É
-E248Q    Ñ
-ß  ¨ó Å
-å
-|
-ç
-é
-  Q    á
-©  WóÅ
-ôè
-
- ê
-Q    â
-°  ßfå
-è
-ë
-Å
- í
-ì
-T    ä
-ANSYS_PERSIST_IDT    ã
-E134Q    å
-†  ¨f â
-î
-Ñ
-ï
-ñ
-  Q    è
-¢  Wfâ
-ïó
-á
- ò
-Q    ë
-ö  ßOî
-ó
-ô
-â
- ö
-õ
-T    í
-ANSYS_PERSIST_IDT    ì
-E249Q    î
-ô  ¨O ë
-ú
-å
-ù
-û
-  Q    ó
-õ  WOë
-íü
-è
- †
-Q    ô
-ì  ßNú
-ü
-°
-ë
- ¢
-£
-T    ö
-ANSYS_PERSIST_IDT    õ
-E242Q    ú
-í  ¨N ô
-§
-î
-•
-¶
-  Q    ü
-î  WNô
-èß
-ó
- ®
-Q    °
-å  ßâ§
-ß
-©
-ô
- ™
-´
-T    ¢
-ANSYS_PERSIST_IDT    £
-E243Q    §
-ã  ¨â °
-¨
-ú
-≠
-Æ
-  Q    ß
-ç  Wâ°
-ãØ
-ü
- ∞
-Q    ©
-Ö  ßÜ¨
-Ø
-±
-°
- ≤
-≥
-T    ™
-ANSYS_PERSIST_IDT    ´
-E135Q    ¨
-Ñ  ¨Ü ©
-¥
-§
-µ
-∂
-  Q    Ø
-Ü  WÜ©
-à∑
-ß
- ∏
-Q    ±
-~  ßÇ¥
-∑
-π
-©
- ∫
-ª
-T    ≤
-ANSYS_PERSIST_IDT    ≥
-E171Q    ¥
-}  ¨Ç ±
-º
-¨
-Ω
-æ
-  Q    ∑
-  WÇ±
-Ñø
-Ø
- ¿
-Q    π
-w  ß~º
-ø
-¡
-±
- ¬
-√
-T    ∫
-ANSYS_PERSIST_IDT    ª
-E153Q    º
-v  ¨~ π
-ƒ
-¥
-≈
-∆
-  Q    ø
-x  W~π
-Ä«
-∑
- »
-Q    ¡
-p  ßzƒ
-«
-…
-π
-  
-À
-T    ¬
-ANSYS_PERSIST_IDT    √
-E173Q    ƒ
-o  ¨z ¡
-Ã
-º
-Õ
-Œ
-  Q    «
-q  Wz¡
-|œ
-ø
- –
-Q    …
-i  ßvÃ
-œ
-—
-¡
- “
-”
-T     
-ANSYS_PERSIST_IDT    À
-E156Q    Ã
-h  ¨v …
-‘
-ƒ
-’
-÷
-  Q    œ
-j  Wv…
-x◊
-«
- ÿ
-Q    —
-b  ßr‘
-◊
-Ÿ
-…
- ⁄
-€
-T    “
-ANSYS_PERSIST_IDT    ”
-E175Q    ‘
-a  ¨r —
-‹
-Ã
-›
-ﬁ
-  Q    ◊
-c  Wr—
-tﬂ
-œ
- ‡
-Q    Ÿ
-[  ßn‹
-ﬂ
-·
-—
- ‚
-„
-T    ⁄
-ANSYS_PERSIST_IDT    €
-E155Q    ‹
-Z  ¨n Ÿ
-‰
-‘
-Â
-Ê
-  Q    ﬂ
-\  WnŸ
-pÁ
-◊
- Ë
-Q    ·
-T  ßj‰
-Á
-È
-Ÿ
- Í
-Î
-T    ‚
-ANSYS_PERSIST_IDT    „
-E169Q    ‰
-S  ¨j ·
-Ï
-‹
-Ì
-Ó
-  Q    Á
-U  Wj·
-lÔ
-ﬂ
- 
-Q    È
-M  ßbÏ
-Ô
-Ò
-·
- Ú
-Û
-T    Í
-ANSYS_PERSIST_IDT    Î
-E154Q    Ï
-L  ¨b È
-Ù
-‰
-ı
-ˆ
-  Q    Ô
-N  WbÈ
-h˜
-Á
- ¯
-Q    Ò
-F  ßcÙ
-˜
-˘
-È
- ˙
-˚
-T    Ú
-ANSYS_PERSIST_IDT    Û
-E250Q    Ù
-E  ¨c Ò
-¸
-Ï
-˝
-˛
-  Q    ˜
-G  WcÒ
-eˇ
-Ô
-  Q    ˘
-?  ßY¸
-ˇ
-Ò
- T    ˙
-ANSYS_PERSIST_IDT    ˚
-E125Q    ¸
->  ¨Y ˘
-Ù
-  Q    ˇ
-@  WY˘
-`˜
- Q    8  ßZ	˘
- 
-T    ANSYS_PERSIST_IDT    E251Q    7  ¨Z ¸
-  Q    9  WZ\ˇ
- Q    	1  ßU T    
-ANSYS_PERSIST_IDT    E124Q    0  ¨U 	  Q    2  WU	W Q    *  ßP	 T    ANSYS_PERSIST_IDT    E252Q    )  ¨P   Q    +  WPR  Q    #  ßK! "#T    ANSYS_PERSIST_IDT    E253Q    "  ¨K $%&  Q    $  WKM' (Q    !  ßH$') *+T    "ANSYS_PERSIST_IDT    #E126Q    $  ¨H !,-.  Q    '  WH!J/ 0Q    )  ß;,/1! 23T    *ANSYS_PERSIST_IDT    +E186Q    ,  ¨; )4$56  Q    /  W;)>=' 7Q    1  ß34=8) 9:T    2ANSYS_PERSIST_IDT    3E191Q    4  ¨3 1;,<=  Q    =  W31:>/ ?Q    8  ß2;>@1 ABT    9ANSYS_PERSIST_IDT    :E187Q    ;  ¨2 8C4DE  Q    >  W2854= FQ    @   ß/C4G8 HIT    AANSYS_PERSIST_IDT    BE192Q    Cˇ  ¨/ @J;KL  Q    4  W/@0M> NQ    G˘  ß*JMO@ PQT    HANSYS_PERSIST_IDT    IE183Q    J¯  ¨* GRCST  Q    M˙  W*G+U4 VQ    OÚ  ß$RUWG XYT    PANSYS_PERSIST_IDT    QE184Q    RÒ  ¨$ OZJ[\  Q    UÛ  W$O&]M ^Q    WÎ  ßZ]_O `aT    XANSYS_PERSIST_IDT    YE185Q    ZÍ  ¨ WbRcd  Q    ]Ï  WW!eU fQ    _‰  ßbegW hiT    `ANSYS_PERSIST_IDT    aE165Q    b„  ¨ _jZkl  Q    eÂ  W_m] nQ    g›  ßjmo_ pqT    hANSYS_PERSIST_IDT    iE166Q    j‹  ¨ grbst  Q    mﬁ  Wgue vQ    o÷  ßruwg xyT    pANSYS_PERSIST_IDT    qE161Q    r’  ¨ ozj{|  Q    u◊  Wo}m ~Q    wœ  ßz}o ÄÅT    xANSYS_PERSIST_IDT    yE162Q    zŒ  ¨ wÇrÉÑ  Q    }–  WwÖu ÜQ    »  ßÇÖáw àâT    ÄANSYS_PERSIST_IDT    ÅE163Q    Ç«  ¨ äzãå  Q    Ö…  Wç} éQ    á¡  ßäçè êëT    àANSYS_PERSIST_IDT    âE164Q    ä¿  ¨ áíÇìî  Q    ç¬  Wá	ïÖ ñQ    è∫  ßíïóá òôT    êANSYS_PERSIST_IDT    ëE167Q    íπ  ¨ èöäõú  Q    ïª  Wèùç ûQ    ó≥  ß˚öùüè †°T    òANSYS_PERSIST_IDT    ôE168Q    ö≤  ¨˚ ó¢í£§  Q    ù¥  W˚ó•ï ¶Q    ü¨  ß˜¢•ßó ®©T    †ANSYS_PERSIST_IDT    °E196Q    ¢´  ¨˜ ü™ö´¨  Q    •≠  W˜ü˙˘ù ≠Q    ß•  ß‰™˘Æü Ø∞T    ®ANSYS_PERSIST_IDT    ©E142Q    ™§  ¨‰ ß±¢≤≥  Q    ˘¶  W‰ßˆ¥• µQ    Æû  ßÈ±¥∂ß ∑∏T    ØANSYS_PERSIST_IDT    ∞E201Q    ±ù  ¨È Æπ™∫ª  Q    ¥ü  WÈÆÔº˘ ΩQ    ∂ó  ß€πºæÆ ø¿T    ∑ANSYS_PERSIST_IDT    ∏E200Q    πñ  ¨€ ∂¡±¬√  Q    ºò  W€∂ﬁ›¥ ƒQ    æê  ß0 ¡›≈∂ ∆«T    øANSYS_PERSIST_IDT    ¿E143Q    ¡è  ¨0  æ»π…   Q    ›ë  W0 æ÷’º ÀQ    ≈â  ßπ»’Ãæ ÕŒT    ∆ANSYS_PERSIST_IDT    «V349Q    »à  ¨π ≈œ¡–—  Q    ’ä  Wπ≈”“› ”Q    ÃÇ  ß∏œ“‘≈ ’÷T    ÕANSYS_PERSIST_IDT    ŒV384Q    œÅ  ¨∏ Ã◊»ÿŸ  Q    “É  W∏Ã—⁄’ €Q    ‘{  ßÕ◊⁄‹Ã ›ﬁT    ’ANSYS_PERSIST_IDT    ÷V353Q    ◊z  ¨Õ ‘ﬂœ‡·  Q    ⁄|  WÕ‘œ‚“ „Q    ‹t  ß…ﬂ‚‰‘ ÂÊT    ›ANSYS_PERSIST_IDT    ﬁV388Q    ﬂs  ¨… ‹Á◊ËÈ  Q    ‚u  W…‹ÀÍ⁄ ÎQ    ‰m  ß≈ÁÍÏ‹ ÌÓT    ÂANSYS_PERSIST_IDT    ÊV354Q    Ál  ¨≈ ‰ÔﬂÒ  Q    Ín  W≈‰«Ú‚ ÛQ    Ïf  ß¡ÔÚÙ‰ ıˆT    ÌANSYS_PERSIST_IDT    ÓV389Q    Ôe  ¨¡ Ï˜Á¯˘  Q    Úg  W¡Ï√˙Í ˚Q    Ù_  ßΩ˜˙¸Ï ˝˛T    ıANSYS_PERSIST_IDT    ˆV351Q    ˜^  ¨Ω ÙˇÔ   Q    ˙`  WΩÙøÚ Q    ¸X  ß≥ˇÙ T    ˝ANSYS_PERSIST_IDT    ˛V386Q    ˇW  ¨≥ ¸˜	  Q    Y  W≥¸ª
-˙ Q    Q  ß¥
-¸ T    ANSYS_PERSIST_IDT    V352Q    P  ¨¥ ˇ  Q    
-R  W¥∂ Q    J  ßØ T    ANSYS_PERSIST_IDT    V387Q    I  ¨Ø   Q    K  WØ±
- Q    C  ß´ T    ANSYS_PERSIST_IDT    V348Q    B  ¨´  !  Q    D  W´≠" #Q    <  ßß"$ %&T    ANSYS_PERSIST_IDT    V383Q    ;  ¨ß '()  Q    "=  Wß©* +Q    $5  ßï'*, -.T    %ANSYS_PERSIST_IDT    &V382Q    '4  ¨ï $/01  Q    *6  Wï$•2" 3Q    ,.  ßî/24$ 56T    -ANSYS_PERSIST_IDT    .V347Q    /-  ¨î ,7'89  Q    2/  Wî,¢:* ;Q    4'  ßù7:<, =>T    5ANSYS_PERSIST_IDT    6V378Q    7&  ¨ù 4?/@A  Q    :(  Wù4üB2 CQ    <   ßô?BD4 EFT    =ANSYS_PERSIST_IDT    >V343Q    ?  ¨ô <G7HI  Q    B!  Wô<õJ: KQ    D  ßèGJL< MNT    EANSYS_PERSIST_IDT    FV380Q    G  ¨è DO?PQ  Q    J  WèDóRB SQ    L  ßêORTD UVT    MANSYS_PERSIST_IDT    NV345Q    O  ¨ê LWGXY  Q    R  WêLíZJ [Q    T  ßãWZ\L ]^T    UANSYS_PERSIST_IDT    VV344Q    W
-  ¨ã T_O`a  Q    Z  WãTçbR cQ    \  ßá_bdT efT    ]ANSYS_PERSIST_IDT    ^V379Q    _  ¨á \gWhi  Q    b  Wá\âjZ kQ    d˝  ßÉgjl\ mnT    eANSYS_PERSIST_IDT    fV374Q    g¸  ¨É do_pq  Q    j˛  WÉdÖrb sQ    lˆ  ßortd uvT    mANSYS_PERSIST_IDT    nV339Q    oı  ¨ lwgxy  Q    r˜  WlÅzj {Q    tÔ  ß{wz|l }~T    uANSYS_PERSIST_IDT    vV375Q    wÓ  ¨{ toÄÅ  Q    z  W{t}Çr ÉQ    |Ë  ßwÇÑt ÖÜT    }ANSYS_PERSIST_IDT    ~V340Q    Á  ¨w |áwàâ  Q    ÇÈ  Ww|yäz ãQ    Ñ·  ßYáäå| çéT    ÖANSYS_PERSIST_IDT    ÜV341Q    á‡  ¨Y Ñèêë  Q    ä‚  WYÑuíÇ ìQ    å⁄  ßXèíîÑ ïñT    çANSYS_PERSIST_IDT    éV376Q    èŸ  ¨X åóáòô  Q    í€  WXåröä õQ    î”  ßmóöúå ùûT    ïANSYS_PERSIST_IDT    ñV355Q    ó“  ¨m îüè†°  Q    ö‘  Wmîo¢í £Q    úÃ  ßiü¢§î •¶T    ùANSYS_PERSIST_IDT    ûV390Q    üÀ  ¨i úßó®©  Q    ¢Õ  Wiúk™ö ´Q    §≈  ßeß™¨ú ≠ÆT    •ANSYS_PERSIST_IDT    ¶V358Q    ßƒ  ¨e §Øü∞±  Q    ™∆  We§g≤¢ ≥Q    ¨æ  ßaØ≤¥§ µ∂T    ≠ANSYS_PERSIST_IDT    ÆV393Q    ØΩ  ¨a ¨∑ß∏π  Q    ≤ø  Wa¨c∫™ ªQ    ¥∑  ß]∑∫º¨ ΩæT    µANSYS_PERSIST_IDT    ∂V357Q    ∑∂  ¨] ¥øØ¿¡  Q    ∫∏  W]¥_¬≤ √Q    º∞  ßEø¬ƒ¥ ≈∆T    ΩANSYS_PERSIST_IDT    æV392Q    øØ  ¨E º«∑»…  Q    ¬±  WEº[ ∫ ÀQ    ƒ©  ßT« Ãº ÕŒT    ≈ANSYS_PERSIST_IDT    ∆V356Q    «®  ¨T ƒœø–—  Q     ™  WTƒV“¬ ”Q    Ã¢  ßDœ“‘ƒ ’÷T    ÕANSYS_PERSIST_IDT    ŒV391Q    œ°  ¨D Ã◊«ÿŸ  Q    “£  WDÃR⁄  €Q    ‘õ  ßM◊⁄‹Ã ›ﬁT    ’ANSYS_PERSIST_IDT    ÷V371Q    ◊ö  ¨M ‘ﬂœ‡·  Q    ⁄ú  WM‘O‚“ „Q    ‹î  ßIﬂ‚‰‘ ÂÊT    ›ANSYS_PERSIST_IDT    ﬁV336Q    ﬂì  ¨I ‹Á◊ËÈ  Q    ‚ï  WI‹KÍ⁄ ÎQ    ‰ç  ß?ÁÍÏ‹ ÌÓT    ÂANSYS_PERSIST_IDT    ÊV370Q    Áå  ¨? ‰ÔﬂÒ  Q    Íé  W?‰GÚ‚ ÛQ    ÏÜ  ß@ÔÚÙ‰ ıˆT    ÌANSYS_PERSIST_IDT    ÓV335Q    ÔÖ  ¨@ Ï˜Á¯˘  Q    Úá  W@ÏB˙Í ˚Q    Ù  ß5˜˙¸Ï ˝˛T    ıANSYS_PERSIST_IDT    ˆV337Q    ˜~  ¨5 ÙˇÔ   Q    ˙Ä  W5Ù=Ú Q    ¸x  ß4ˇÙ T    ˝ANSYS_PERSIST_IDT    ˛V372Q    ˇw  ¨4 ¸˜	  Q    y  W4¸:
-˙ Q    q  ß/
-¸ T    ANSYS_PERSIST_IDT    V359Q    p  ¨/ ˇ  Q    
-r  W/7 Q    j  ß0 T    ANSYS_PERSIST_IDT    V360Q    i  ¨0   Q    k  W02
- Q    c  ß% T    ANSYS_PERSIST_IDT    V362Q    b  ¨%  !  Q    d  W%-" #Q    \  ß$"$ %&T    ANSYS_PERSIST_IDT    V361Q    [  ¨$ '()  Q    "]  W$** +Q    $U  ß'*, -.T    %ANSYS_PERSIST_IDT    &V346Q    'T  ¨ $/01  Q    *V  W$'2" 3Q    ,N  ß /24$ 56T    -ANSYS_PERSIST_IDT    .V381Q    /M  ¨  ,7'89  Q    2O  W ,":* ;Q    4G  ß7:<, =>T    5ANSYS_PERSIST_IDT    6V350Q    7F  ¨ 4?/@A  Q    :H  W4B2 CQ    <@  ß?BD4 EFT    =ANSYS_PERSIST_IDT    >V385Q    ??  ¨ <G7HI  Q    BA  W<J: KQ    D9  ßGJL< MNT    EANSYS_PERSIST_IDT    FV377Q    G8  ¨ DO?PQ  Q    J:  WDRB SQ    L2  ßORTD UVT    MANSYS_PERSIST_IDT    NV342Q    O1  ¨ LWGXY  Q    R3  WLZJ [Q    T+  ßWZ\L ]^T    UANSYS_PERSIST_IDT    VV338Q    W*  ¨ T_O`a  Q    Z,  WTbR cQ    \$  ß_bdT efT    ]ANSYS_PERSIST_IDT    ^V373Q    _#  ¨ \gWhi  Q    b%  W\
-jZ kQ    d  ßˇ gjl\ mnT    eANSYS_PERSIST_IDT    fV395Q    g  ¨ˇ  do_pq  Q    j  Wˇ drb sQ    l  ß ortd uvT    mANSYS_PERSIST_IDT    nV394Q    o  ¨  lwgxy  Q    r  W lzj {Q    t  ß¯ wz|l }~T    uANSYS_PERSIST_IDT    vV396Q    w  ¨¯  toÄÅ  Q    z  W¯ t˝ Çr ÉQ    |  ß ÇÑt ÖÜT    }ANSYS_PERSIST_IDT    ~V397Q      ¨  |áwàâ  Q    Ç	  W |˙ äz ãQ    Ñ  ßÙ áäå| çéT    ÖANSYS_PERSIST_IDT    ÜV398Q    á   ¨Ù  Ñèêë  Q    ä  WÙ Ñˆ íÇ ìQ    å˙  ßË èíîÑ ïñT    çANSYS_PERSIST_IDT    éV428Q    è˘  ¨Ë  åóáòô  Q    í˚  WË åÚ öä õQ    îÛ  ßÏ óöúå ùûT    ïANSYS_PERSIST_IDT    ñV399Q    óÚ  ¨Ï  îüè†°  Q    öÙ  WÏ îÓ ¢í £Q    úÏ  ß‡ ü¢§î •¶T    ùANSYS_PERSIST_IDT    ûV429Q    üÎ  ¨‡  úßó®©  Q    ¢Ì  W‡ úÍ ™ö ´Q    §Â  ß‰ ß™¨ú ≠ÆT    •ANSYS_PERSIST_IDT    ¶V400Q    ß‰  ¨‰  §Øü∞±  Q    ™Ê  W‰ §Ê ≤¢ ≥Q    ¨ﬁ  ß’ Ø≤¥§ µ∂T    ≠ANSYS_PERSIST_IDT    ÆV430Q    Ø›  ¨’  ¨∑ß∏π  Q    ≤ﬂ  W’ ¨‚ ∫™ ªQ    ¥◊  ß‹ ∑∫º¨ ΩæT    µANSYS_PERSIST_IDT    ∂V401Q    ∑÷  ¨‹  ¥øØ¿¡  Q    ∫ÿ  W‹ ¥ﬁ ¬≤ √Q    º–  ß‘ ø¬ƒ¥ ≈∆T    ΩANSYS_PERSIST_IDT    æV431Q    øœ  ¨‘  º«∑»…  Q    ¬—  W‘ º⁄  ∫ ÀQ    ƒ…  ßœ « Ãº ÕŒT    ≈ANSYS_PERSIST_IDT    ∆V402Q    «»  ¨œ  ƒœø–—  Q        Wœ ƒ◊ “¬ ”Q    Ã¬  ß– œ“‘ƒ ’÷T    ÕANSYS_PERSIST_IDT    ŒV363Q    œ¡  ¨–  Ã◊«ÿŸ  Q    “√  W– Ã“ ⁄  €Q    ‘ª  ß» ◊⁄‹Ã ›ﬁT    ’ANSYS_PERSIST_IDT    ÷V432Q    ◊∫  ¨»  ‘ﬂœ‡·  Q    ⁄º  W» ‘Õ ‚“ „Q    ‹¥  ß¿ ﬂ‚‰‘ ÂÊT    ›ANSYS_PERSIST_IDT    ﬁV367Q    ﬂ≥  ¨¿  ‹Á◊ËÈ  Q    ‚µ  W¿ ‹  Í⁄ ÎQ    ‰≠  ßƒ ÁÍÏ‹ ÌÓT    ÂANSYS_PERSIST_IDT    ÊV403Q    Á¨  ¨ƒ  ‰ÔﬂÒ  Q    ÍÆ  Wƒ ‰∆ Ú‚ ÛQ    Ï¶  ß∏ ÔÚÙ‰ ıˆT    ÌANSYS_PERSIST_IDT    ÓV433Q    Ô•  ¨∏  Ï˜Á¯˘  Q    Úß  W∏ Ï¬ ˙Í ˚Q    Ùü  ßº ˜˙¸Ï ˝˛T    ıANSYS_PERSIST_IDT    ˆV404Q    ˜û  ¨º  ÙˇÔ   Q    ˙†  Wº Ùæ Ú Q    ¸ò  ß∞ ˇÙ T    ˝ANSYS_PERSIST_IDT    ˛V434Q    ˇó  ¨∞  ¸˜	  Q    ô  W∞ ¸∫ 
-˙ Q    ë  ß¥ 
-¸ T    ANSYS_PERSIST_IDT    V405Q    ê  ¨¥  ˇ  Q    
-í  W¥ ∂  Q    ä  ß•  T    ANSYS_PERSIST_IDT    V435Q    â  ¨•    Q    ã  W• ≤ 
- Q    É  ß¨  T    ANSYS_PERSIST_IDT    V406Q    Ç  ¨¨   !  Q    Ñ  W¨ Æ " #Q    |  ß§ "$ %&T    ANSYS_PERSIST_IDT    V436Q    {  ¨§  '()  Q    "}  W§ ™ * +Q    $u  ßü '*, -.T    %ANSYS_PERSIST_IDT    &V407Q    't  ¨ü  $/01  Q    *v  Wü $ß 2" 3Q    ,n  ß† /24$ 56T    -ANSYS_PERSIST_IDT    .V364Q    /m  ¨†  ,7'89  Q    2o  W† ,¢ :* ;Q    4g  ßò 7:<, =>T    5ANSYS_PERSIST_IDT    6V437Q    7f  ¨ò  4?/@A  Q    :h  Wò 4ù B2 CQ    <`  ßê ?BD4 EFT    =ANSYS_PERSIST_IDT    >V368Q    ?_  ¨ê  <G7HI  Q    Ba  Wê <ö J: KQ    DY  ßî GJL< MNT    EANSYS_PERSIST_IDT    FV408Q    GX  ¨î  DO?PQ  Q    JZ  Wî Dñ RB SQ    LR  ßà ORTD UVT    MANSYS_PERSIST_IDT    NV438Q    OQ  ¨à  LWGXY  Q    RS  Wà Lí ZJ [Q    TK  ßå WZ\L ]^T    UANSYS_PERSIST_IDT    VV409Q    WJ  ¨å  T_O`a  Q    ZL  Wå Té bR cQ    \D  ßÄ _bdT efT    ]ANSYS_PERSIST_IDT    ^V418Q    _C  ¨Ä  \gWhi  Q    bE  WÄ \ä jZ kQ    d=  ßÑ gjl\ mnT    eANSYS_PERSIST_IDT    fV410Q    g<  ¨Ñ  do_pq  Q    j>  WÑ dÜ rb sQ    l6  ßu ortd uvT    mANSYS_PERSIST_IDT    nV419Q    o5  ¨u  lwgxy  Q    r7  Wu lÇ zj {Q    t/  ß| wz|l }~T    uANSYS_PERSIST_IDT    vV411Q    w.  ¨|  toÄÅ  Q    z0  W| t~ Çr ÉQ    |(  ßt ÇÑt ÖÜT    }ANSYS_PERSIST_IDT    ~V420Q    '  ¨t  |áwàâ  Q    Ç)  Wt |z äz ãQ    Ñ!  ßo áäå| çéT    ÖANSYS_PERSIST_IDT    ÜV412Q    á   ¨o  Ñèêë  Q    ä"  Wo Ñw íÇ ìQ    å  ßp èíîÑ ïñT    çANSYS_PERSIST_IDT    éV365Q    è  ¨p  åóáòô  Q    í  Wp år öä õQ    î  ßh óöúå ùûT    ïANSYS_PERSIST_IDT    ñV421Q    ó  ¨h  îüè†°  Q    ö  Wh îm ¢í £Q    ú  ß` ü¢§î •¶T    ùANSYS_PERSIST_IDT    ûV369Q    ü  ¨`  úßó®©  Q    ¢  W` új ™ö ´Q    §  ßd ß™¨ú ≠ÆT    •ANSYS_PERSIST_IDT    ¶V413Q    ß  ¨d  §Øü∞±  Q    ™  Wd §f ≤¢ ≥Q    ¨˛  ßX Ø≤¥§ µ∂T    ≠ANSYS_PERSIST_IDT    ÆV423Q    Ø˝  ¨X  ¨∑ß∏π  Q    ≤ˇ  WX ¨b ∫™ ªQ    ¥˜  ß\ ∑∫º¨ ΩæT    µANSYS_PERSIST_IDT    ∂V414Q    ∑ˆ  ¨\  ¥øØ¿¡  Q    ∫¯  W\ ¥^ ¬≤ √Q    º  ßP ø¬ƒ¥ ≈∆T    ΩANSYS_PERSIST_IDT    æV424Q    øÔ  ¨P  º«∑»…  Q    ¬Ò  WP ºZ  ∫ ÀQ    ƒÈ  ßT « Ãº ÕŒT    ≈ANSYS_PERSIST_IDT    ∆V415Q    «Ë  ¨T  ƒœø–—  Q     Í  WT ƒV “¬ ”Q    Ã‚  ßG œ“‘ƒ ’÷T    ÕANSYS_PERSIST_IDT    ŒV425Q    œ·  ¨G  Ã◊«ÿŸ  Q    “„  WG ÃR ⁄  €Q    ‘€  ßL ◊⁄‹Ã ›ﬁT    ’ANSYS_PERSIST_IDT    ÷V416Q    ◊⁄  ¨L  ‘ﬂœ‡·  Q    ⁄‹  WL ‘N ‚“ „Q    ‹‘  ßB ﬂ‚‰‘ ÂÊT    ›ANSYS_PERSIST_IDT    ﬁV426Q    ﬂ”  ¨B  ‹Á◊ËÈ  Q    ‚’  WB ‹J Í⁄ ÎQ    ‰Õ  ßE ÁÍÏ‹ ÌÓT    ÂANSYS_PERSIST_IDT    ÊV417Q    ÁÃ  ¨E  ‰ÔﬂÒ  Q    ÍŒ  WE ‰F Ú‚ ÛQ    Ï∆  ß8 ÔÚÙ‰ ıˆT    ÌANSYS_PERSIST_IDT    ÓV427Q    Ô≈  ¨8  Ï˜Á¯˘  Q    Ú«  W8 Ï; : Í ˙Q    Ùø  ß ˜: ˚Ï ¸˝T    ıANSYS_PERSIST_IDT    ˆV366Q    ˜æ  ¨  Ù˛Ôˇ   Q    : ¿  W Ù6 Ú Q    ˚∏  ß ˛Ù T    ¸ANSYS_PERSIST_IDT    ˝V422Q    ˛∑  ¨  ˚˜  Q    π  W ˚' 	:  
-Q    Æ  ß ˚ T    ANSYS_PERSIST_IDT    E262Q    ≠  ß  Q    Ø  $      T    ANSYS_PERSIST_IDT    B334P    $ (#                       Q    ∞   	   P    W(#                        Q    	±  W &   T    aluminumQ    & ≤  • 	    R    ;   P    • (#                     R        ˇˇˇˇÄÄÄÄ   O    AEDT_BODYFlagGroupColor_V1O    AEDT_MaterialName_V1O    AEDT_SurfaceMaterial_V1Q    ¨  ß  T    AnsoftSolveInsideT    0Q    ´  ß  T    AnsoftShellElementT    0Q    ™  ß    !"T    AnsoftShellElementThicknessT    nan Q     ©  ß #  $%T    !AnsoftReferenceTemperatureT    "nan Q    #®  & '   (T    $AnsoftTransparencyT    %0P    &)*h                      Q    'ß  + ,#  -S    (‡?‡?‡?P    +./f             
-Q    ,¶  0 '  1b ˇ	   -B o x \ S o l i d P    0¨2(#           
-Q    •  ¨ 3, ˛456 b    1S t r u c t u r a l   s t e e l ,   S 2 7 5 N P    ¨ß7(#                    Q    3ô  .    8T    4B334R    5   T    6BoxP    .9:Q             T 	   8Box_SolidO    :SDL/TYSA_NAMEO    7dsRefAttName.3O    2SPAATTRIB_MATERIAL_NAMEO    /SDL/TYSA_UNAMEO    *SDL/TYSA_COLOUR_2Q    ' ∫      6   R    
-w   T    E262R       R      T    ˇV422R        Q    ; »   8 Ú 6 F   R    ˙  Q    F œ   E Í ; J   Q    J ÷   B ‚ F N   Q    N ›   L ⁄ J R   Q    R ‰   G “ N V   Q    V Î   T   R Z   Q    Z Ú   P ¬ V ^   Q    ^ ˘   \ ∫ Z b   Q    b     X ≤ ^ f   Q    f    d ™ b j   Q    j    ` ¢ f m   Q    m    h ö j r   Q    r    p í m w   Q    w #   o ä r z   Q    z *   t Ç w ~   Q    ~ 1   | z z Ç   Q    Ç 8   u r ~ Ü   Q    Ü ?   Ñ j Ç ä   Q    ä F   Ä b Ü é   Q    é M   å Z ä í   Q    í T   à R é ñ   Q    ñ [   î J í ö   Q    ö b   ê B ñ ù   Q    ù i   ò : ö ¢   Q    ¢ p   † 2 ù ß   Q    ß w   ü * ¢ ™   Q    ™ ~   § " ß Æ   Q    Æ Ö   ¨  ™ ≤   Q    ≤ å   •  Æ ∂   Q    ∂ ì   ¥ 
- ≤ ∫   Q    ∫ ö   ∞  ∂ æ   Q    æ °   º ˙ ∫ ¬   Q    ¬ ®   ∏ Ú æ ∆   Q    ∆ Ø   ƒ Í ¬     Q      ∂   ¿ ‚ ∆ Õ   Q    Õ Ω   » ⁄   “   Q    “ ƒ   – “ Õ ◊   Q    ◊ À   œ   “ ⁄   Q    ⁄ “   ‘ ¬ ◊ ﬁ   Q    ﬁ Ÿ   ‹ ∫ ⁄ ‚   Q    ‚ ‡   ’ ≤ ﬁ Ê   Q    Ê Á   ‰ ™ ‚ Í   Q    Í Ó   ‡ ¢ Ê Ó   Q    Ó ı   Ï ö Í Ú   Q    Ú ¸   Ë í Ó ˆ   Q    ˆ    Ù ä Ú ˙   Q    ˙ 
-    Ç ˆ ˝   Q    ˝    ¯ z ˙   Q        r ˝   Q       ˇ j 
-  Q    
-&   b   Q    -   Z 
-  Q    4   R   Q    ;   J   Q    B   B   Q    I   : "  Q    "P    2 '  Q    'W   * "*  Q    *^   $" '-  Q    -e   % *2  Q    2l   0 -7  Q    7s   /
- 2:  Q    :z   4 7=  Q    =Å   5˙ :B  Q    Bà   @Ú =G  Q    Gè   ?Í BK  Q    Kñ   I‚ GO  Q    Où   M⁄ KR  Q    R§   D“ OV  Q    V´   T  R[  Q    [≤   E¬ V_  Q    _π   ]∫ [c  Q    c¿   a≤ _g  Q    g«   e™ ck  Q    kŒ   i¢ go  Q    o’   mö kr  Q    r‹   Xí ou  Q    u„   Yä ry  Q    yÍ   wÇ u}  Q    }Ò   {z yÅ  Q    Å¯   r }Ö  Q    Öˇ   Éj Åâ  Q    â   áb Öç  Q    ç   ãZ âí  Q    í   êR çó  Q    ó   èJ íõ  Q    õ"   ôB óü  Q    ü)   ù: õ¢  Q    ¢0   î2 ü•  Q    •7   ï* ¢©  Q    ©>   ß" •≠  Q    ≠E   ´ ©±  Q    ±L   Ø ≠∂  Q    ∂S   ¥
- ±ª  Q    ªZ   ≥ ∂ø  Q    øa   Ω˙ ª√  Q    √h   ¡Ú ø«  Q    «o   ≈Í √À  Q    Àv   …‚ «œ  Q    œ}   Õ⁄ À—  Q    —Ñ   ∏“ œ”  T    ¯V366R    ˘   R    Û  T    V427R    Ò   R    Î  T    ËV417R    È   R    „  T    ‡V426R    ·   R    €  T    ÿV416R    Ÿ   R    ”  T    –V425R    —   R    À  T    »V415R    …   R    √  T    ¿V424R    ¡	   R    ª  T    ∏V414R    π
-   R    ≥  T    ∞V423R    ±   R    ´  T    ®V413R    ©   R    £  T    †V369R    °   R    õ"  T    òV421R    ô   R    ì   T    êV365R    ë   R    ã!  T    àV412R    â   R    É$  T    ÄV420R    Å   R    {#  T    xV411R    y   R    s&  T    pV419R    q   R    k%  T    hV410R    i   R    c(  T    `V418R    a   R    ['  T    XV409R    Y   R    S*  T    PV438R    Q   R    K)  T    HV408R    I   R    C+  T    @V368R    A   R    ;.  T    8V437R    9   R    3,  T    0V364R    1   R    +-  T    (V407R    )   R    #0  T     V436R    !   R    /  T    V406R       R    2  T    V435R       R    1  T    V405R    	    R    4  T     V434R    !   R    ˚3  T    ¯V404R    ˘"   R    Û6  T    V433R    Ò#   R    Î5  T    ËV403R    È$   R    „7  T    ‡V367R    ·%   R    €:  T    ÿV432R    Ÿ&   R    ”8  T    –V363R    —'   R    À9  T    »V402R    …(   R    √<  T    ¿V431R    ¡)   R    ª;  T    ∏V401R    π*   R    ≥>  T    ∞V430R    ±+   R    ´=  T    ®V400R    ©,   R    £@  T    †V429R    °-   R    õ?  T    òV399R    ô.   R    ìB  T    êV428R    ë/   R    ãA  T    àV398R    â0   R    ÉC  T    ÄV397R    Å1   R    {F  T    xV396R    y2   R    sD  T    pV394R    q3   R    kE  T    hV395R    i4   R    cJ  T    `V373R    a5   R    [G  T    XV338R    Y6   R    SH  T    PV342R    Q7   R    KI  T    HV377R    I8   R    CK  T    @V385R    A9   R    ;N  T    8V350R    9:   R    3L  T    0V381R    1;   R    +M  T    (V346R    )<   R    #O  T     V361R    !=   R    R  T    V362R    >   R    P  T    V360R    ?   R    Q  T    V359R    	@   R    S  T     V372R    A   R    ˚X  T    ¯V337R    ˘B   R    ÛT  T    V335R    ÒC   R    ÎU  T    ËV370R    ÈD   R    „V  T    ‡V336R    ·E   R    €W  T    ÿV371R    ŸF   R    ”`  T    –V391R    —G   R    ÀY  T    »V356R    …H   R    √Z  T    ¿V392R    ¡I   R    ª[  T    ∏V357R    πJ   R    ≥\  T    ∞V393R    ±K   R    ´]  T    ®V358R    ©L   R    £^  T    †V390R    °M   R    õ_  T    òV355R    ôN   R    ìa  T    êV376R    ëO   R    ãb  T    àV341R    âP   R    Éc  T    ÄV340R    ÅQ   R    {d  T    xV375R    yR   R    se  T    pV339R    qS   R    kf  T    hV374R    iT   R    cg  T    `V379R    aU   R    [l  T    XV344R    YV   R    Sh  T    PV345R    QW   R    Ki  T    HV380R    IX   R    Cj  T    @V343R    AY   R    ;k  T    8V378R    9Z   R    3m  T    0V347R    1[   R    +n  T    (V382R    )\   R    #o  T     V383R    !]   R    p  T    V348R    ^   R    x  T    V387R    _   R    q  T    V352R    	`   R    r  T     V386R    a   R    ˚s  T    ¯V351R    ˘b   R    Ût  T    V389R    Òc   R    Îu  T    ËV354R    Èd   R    „v  T    ‡V388R    ·e   R    €w  T    ÿV353R    Ÿf   R    ”y  T    –V384R    —g   R    Àz  T    …V349R     h   Q    ﬁô   €º ÷Ô  R    ƒ„   Q    Ô†   È¥ ﬁˆ  T    ¬E143R    √ä   R    Ωﬁ   T    ∫E200R    ªå   R    µ‰   T    ≤E201R    ≥è   Q    ˙Æ   ˜• ˆ  R    ≠Â   Q    µ   ˚ù ˙  Q    º   ï 	  Q    	√   ç   Q        Ö 	  Q    —   }   Q    ÿ   u   Q    ﬂ   m   Q    Ê   e !  Q    !Ì   ] &  Q    &Ù   $U !+  Q    +˚   *M &0  T    ´E142R    ¨   R    ¶Ê   T    £E196R    §ê   R    ûÁ   T    õE168R    úë   R    ñË   T    ìE167R    îí   R    éÈ   T    ãE164R    åì   R    ÜÍ   T    ÉE163R    Ñî   R    ~Î   T    {E162R    |ï   R    vÏ   T    sE161R    tñ   R    nÌ   T    kE166R    ló   R    fÓ   T    cE165R    dò   R    ^˙   T    [E185R    \ô   R    VÒ   T    SE184R    Tö   R    NÙ   T    KE183R    Lõ   Q    5	   2> 0:  R    FÛ   T    DE192R    EL   R    ?ı   T    <E187R    =W   Q    >   ;/ :J  R    7ˆ   Q    J   H' >M  Q    M%   K JR  Q    R,   P MW  Q    W3   U R\  Q    \:   Z W`  Q    `A   Yˇ
- \e  Q    eH   c˜
- `h  Q    hO   bÔ
- el  Q    lV   jÁ
- hp  Q    p]   nﬂ
- lt  Q    td   r◊
- px  Q    xk   vœ
- t|  Q    |r   z«
- xÄ  Q    Äy   ~ø
- |Ñ  Q    ÑÄ   Ç∑
- Äà  Q    àá   ÜØ
- Ñã  Q    ãé   âß
- àè  Q    èï   Nü
- ãí  Q    íú   Oó
- èï  Q    ï£   fè
- íô  Q    ô™   óá
- ïú  Q    ú±   ]
- ôü  Q    ü∏   ^w
- ú§  Q    §ø   ¢o
- üß  Q    ß∆   °g
- §´  Q    ´Õ   å_
- ßÆ  Q    Æ‘   çW
- ´±  Q    ±€   öO
- Æ¥  Q    ¥‚   •G
- ±π  Q    πÈ   ∑?
- ¥º  Q    º   ∂7
- πø  Q    ø˜   Î/
- º¬  Q    ¬˛   Ω'
- ø∆  Q    ∆   ƒ
- ¬À  Q    À   …
- ∆Œ  Q    Œ   »
- À—  Q    —   Ã
- Œ’  Q    ’!   ˇ	 —◊  Q    ◊(   ”˜	 ’€  Q    €/   ıÔ	 ◊›  Q    ›6   ∫Á	 €·  Q    ·=   ﬂﬂ	 ›Â  Q    ÂD   „◊	 ·È  Q    ÈK   Áœ	 ÂÌ  Q    ÌR   Î«	 ÈÒ  Q    ÒY   Ôø	 Ìı  Q    ı`   Û∑	 Ò˘  Q    ˘g   ˜Ø	 ı¸  Q    ¸n   ˚ß	 ˘˛  Q    ˛u   ¿ü	 ¸ˇ  T    5E191R    6K   R    0¯   T    -E186R    .X   R    (∫   T    %E126R    &Y   R     ≠   T    E253R    Z   R    Æ   T    E252R    [   R    ø   T    E124R    \   R    Ø   T    E251R    ]   R     º   T    ˝
-E125R    ˛
-^   R    ¯
-∞   T    ı
-E250R    ˆ
-_   R    
-±   T    Ì
-E154R    Ó
-`   R    Ë
-≤   T    Â
-E169R    Ê
-a   R    ‡
-≥   T    ›
-E155R    ﬁ
-b   R    ÿ
-¥   T    ’
-E175R    ÷
-c   R    –
-µ   T    Õ
-E156R    Œ
-d   R    »
-∂   T    ≈
-E173R    ∆
-e   R    ¿
-∑   T    Ω
-E153R    æ
-f   R    ∏
-∏   T    µ
-E171R    ∂
-g   R    ∞
-ƒ   T    ≠
-E135R    Æ
-h   R    ®
-π   T    •
-E243R    ¶
-i   R    †
-ª   T    ù
-E242R    û
-j   R    ò
-Ω   T    ï
-E249R    ñ
-k   R    ê
-∆   T    ç
-E134R    é
-l   R    à
-æ   T    Ö
-E248R    Ü
-m   R    Ä
-¿   T    }
-E247R    ~
-n   R    x
-»   T    u
-E133R    v
-o   R    p
-¡   T    m
-E246R    n
-p   R    h
-√   T    e
-E257R    f
-q   R    `
-≈   T    ]
-E254R    ^
-r   R    X
-«   T    U
-E255R    V
-s   R    P
-…   T    M
-E256R    N
-t   R    H
-“   T    E
-E138R    F
-u   R    @
-    T    =
-E202R    >
-v   R    8
-›   T    5
-E139R    6
-w   R    0
-À   T    -
-E207R    .
-x   R    (
-Ã   T    %
-E212R    &
-y   R     
-Œ   T    
-E137R    
-z   R    
-Õ   T    
-E197R    
-{   R    
-œ   T    
-E210R    
-|   R    
-ﬂ   T    
-E141R    
-}   R     
-–   T    ˝	E194R    ˛	~   R    ¯	—   T    ı	E199R    ˆ	Ä   R    	”   T    Ì	E195R    Ó	Å   R    Ë	‘   T    Â	E150R    Ê	Ç   R    ‡	’   T    ›	E172R    ﬁ	É   R    ÿ	÷   T    ’	E149R    ÷	Ñ   R    –	◊   T    Õ	E174R    Œ	Ö   R    »	ÿ   T    ≈	E152R    ∆	Ü   R    ¿	Ÿ   T    Ω	E176R    æ	á   R    ∏	⁄   T    µ	E151R    ∂	à   R    ∞	€   T    ≠	E170R    Æ	â   R    ®	‹   T    •	E204R    ¶	ã   R    †	‡   T    ù	E211R    û	ç   R    ò	·   T    ñ	E144R    ó	Q   Q    ä   Êâ	   R    ë	‚   Q    ë   Å	   Q    ò   y	   Q    ü   Tq	   T    è	E206R    ê	é   R    ä	™   T    á	E209R    à	R   R    Ç	´   T    	E140R    Ä	S   R    z	¨   T    w	E205R    x	T   R    r	Ô   T    o	E189R    p	U   R    j	   T    h	E193R    i	I   Q     ¥   ([	 *  R    c	˘   Q    *ª   (S	  -  Q    -¬   ,K	 */  T    a	E190R    b	J   R    \	ß   T    Y	E127R    Z	M   R    T	®   T    Q	E245R    R	N   R    L	¬   T    I	E136R    J	O   T    C	E244R    D	P   T    =	E214R    >	H   T    8	E321R    9	F   T    3	E215R    4	E   T    .	E322R    /	C   T    )	E216R    *	B   T    $	E323R    %	@   T    	E217R     	?   T    	E324R    	=   T    	E218R    	<   T    	E325R    	:   T    	E219R    	9   T    	E320R    	8   T    	E220R    	6   T    ¸E327R    ˝4   T    ˜E221R    ¯3   T    ÚE328R    Û1   T    ÌE222R    Ó0   T    ËE329R    È.   T    „E223R    ‰-   T    ﬁE330R    ﬂ+   T    ŸE224R    ⁄*   T    ‘E331R    ’(   T    œE225R    –'   T     E326R    À&   T    ≈E226R    ∆$   T    ¿E333R    ¡"   T    ªE227R    º!   T    ∂E258R    ∑   T    ±E228R    ≤   T    ¨E259R    ≠   T    ßE229R    ®   T    ¢E260R    £   T    ùE230R    û   T    òE261R    ô   T    ìE231R    î   T    éE332R    è   T    âE232R    ä   T    ÑE263R    Ö   T    E233R    Ä   T    zE264R    {   T    uE234R    v   T    pE265R    q
-   T    kE235R    l	   T    fE266R    g   T    aE236R    b   T    \E267R    ]   T    WE237R    X   T    RF272R    S;   T    MF271R    N:   T    HF270R    I9   T    CF269R    D8   T    >F241R    ?7   T    9F240R    :6   T    4F239R    55   T    /F238R    04   T    *F181R    +3   T    %F180R    &2   T     F179R    !1   T    F178R    0   T    F208R    /   T    F203R    .   T    F198R    -   T    F177R    ,   T    F160R    +   T    ˝F159R    ˛*   T    ¯F158R    ˘)   T    ÛF157R    Ù(   T    ÓF148R    Ô'   T    ÈF147R    Í&   T    ‰F146R    Â%   T    ﬂF145R    ‡$   T    ⁄F213R    €#   T    ’F131R    ÷"   T    –F130R    —!   T    ÀF129R    Ã    T    ∆F128R    «   T    ¡F123R    ¬   T    ºF122R    Ω   T    ∑F121R    ∏   T    ≤F119R    ≥   T    ≠F132R    Æ   T    ®F120R    ©   T    £F268R    §   T    ûF273R    ü   T    ôF274R    ö   T    îF275R    ï   T    èF276R    ê   T    äF277R    ã   T    ÖF278R    Ü   T    ÄF279R    Å   T    {F280R    |   T    vF281R    w   T    qF282R    r   T    lF283R    m   T    gF284R    h   T    bF285R    c   T    ]F286R    ^
-   T    XF287R    Y	   T    SF288R    T   T    NF289R    O   T    IF290R    J   T    DF291R    E   T    ?F292R    @   T    :F293R    ;   T    5F294R    6   T    0F295R    1   T    +E318R    ,   T    &E319R    '   T    !E317R    "   T    E316R       T    E315R       T    E314R       T    E313R       T    E312R    	   T    E311R       T    ˛E310R    ˇ   T    ˘E309R    ˙    T    ÙE308R    ı#   T    ÔE307R    %   T    ÍE306R    Î)   T    ÂE305R    Ê,   T    ‡E304R    ·/   T    €E303R    ‹2   T    ÷E302R    ◊5   T    —E301R    “7   T    ÃE300R    Õ;   T    «E299R    »>   T    ¬E298R    √A   T    ΩE297R    æD   T    ∏E296R    πG   T    ≥E182R    ¥ú   T    ÆE188R    ØV   O    ´AEDT_GenericNameProperty_V1O    ¶AEDT_EntityID_V1 . 6"1%B. + 6|   .√  " 67. ,*  - B ;A/.. 1-  ;B3%# ,- ;^   V  3 ;A0;H - , %"*  + {   …  A ;3B483 @- ; Ω<'43H A+ Ω~   ;∂  < Ω˛ ;ˇ @.   - ' Ω;˛ 0$  + ˛  Ω'<¯ ( !+  ¯ '$  -  d!ˇ ˛ ( C- ! d¯ - - d[   !97  d! 72 -  dC; 7- 7 61"2 8+ 8 ?C81/  - ?}   8º  C ?@8ˇ ; <+ @ ?8C4<.   +R    ¢˜   R    û    õ °” ˜ » =Z  + &w   Zc# +}?,"∫V˘?¥Ø<HOëﬁø7¿[ A°ø      ‡ø≠LXËz∂Îø         cv   ]j& +}?,"∫V˘?¥Ø<HOëﬁø7¿[ A°ø                      ø ju   bñc +w≤Êqœ°˘?¥Ø<HOëﬁøn£º¥ø      ø                 ñt   êpj +w≤Êqœ°˘?¥Ø<HOëﬁø7¿[ A°ø      ø                 ps   iwñ +w≤Êqœ°˘?¥Ø<HOëﬁø7¿[ A°ø                      ø wr   oëp +ÙÎ√Z«˘?l±€gïﬂøn£º¥ø      ‡ø≠LXËz∂Î?         ëq   ä}w +ÙÎ√Z«˘?l±€gïﬂø7¿[ A°ø      ‡ø≠LXËz∂Î?         }p   vÑë +ÙÎ√Z«˘?l±€gïﬂø7¿[ A°ø                      ø Ño   |ã} +w≤Êqœ°˘?Dì7¿L‡øn£º¥ø      ‡?≠LXËz∂Î?         ãn   ÑäÑ +w≤Êqœ°˘?Dì7¿L‡ø7¿[ A°ø      ‡?≠LXËz∂Î?         äm   Éëã +w≤Êqœ°˘?Dì7¿L‡ø7¿[ A°ø                      ø ël   âÖä +}?,"∫V˘?Dì7¿L‡øn£º¥ø      ?                 Ök   ~óë +}?,"∫V˘?Dì7¿L‡ø7¿[ A°ø      ?                 ój   êûÖ +}?,"∫V˘?Dì7¿L‡ø7¿[ A°ø                      ø ûi   ñ•ó + Oz/1˘?l±€gïﬂøn£º¥ø      ‡?≠LXËz∂Îø         •h   ùû + Oz/1˘?l±€gïﬂø7¿[ A°ø                      ø g   )¨• + Oz/1˘?l±€gïﬂø7¿[ A°ø      ‡?≠LXËz∂Îø         ¨f   §y +ù¸¯7* @¥Ø<HOëﬁøn£º¥ø      ‡ø≠LXËz∂Îø         ye   5≤¨ +ù¸¯7* @¥Ø<HOëﬁø7¿[ A°ø      ‡ø≠LXËz∂Îø         ≤d   ´πy +ù¸¯7* @¥Ø<HOëﬁø7¿[ A°ø                      ø πc   ±s≤ +6ﬂü¬O @¥Ø<HOëﬁøn£º¥ø      ø                 sb   møπ +6ﬂü¬O @¥Ø<HOëﬁø7¿[ A°ø      ø                 øa   ∏∆s +6ﬂü¬O @¥Ø<HOëﬁø7¿[ A°ø                      ø ∆`   ænø +ÿ“ÕÛáb @l±€gïﬂøn£º¥ø      ‡ø≠LXËz∂Î?         n_   gÃ∆ +ÿ“ÕÛáb @l±€gïﬂø7¿[ A°ø      ‡ø≠LXËz∂Î?         Ã^   ≈”n +ÿ“ÕÛáb @l±€gïﬂø7¿[ A°ø                      ø ”]   ÀhÃ +6ﬂü¬O @Dì7¿L‡øn£º¥ø      ‡?≠LXËz∂Î?         h\   aŸ” +6ﬂü¬O @Dì7¿L‡ø7¿[ A°ø      ‡?≠LXËz∂Î?         Ÿ[   “‡h +6ﬂü¬O @Dì7¿L‡ø7¿[ A°ø                      ø ‡Z   ÿbŸ +ù¸¯7* @Dì7¿L‡øn£º¥ø      ?                 bY   [Ê‡ +ù¸¯7* @Dì7¿L‡ø7¿[ A°ø      ?                 ÊX   ﬂÌb +ù¸¯7* @Dì7¿L‡ø7¿[ A°ø                      ø ÌW   ÂÙÊ +ﬁ_§r @l±€gïﬂøn£º¥ø      ‡?≠LXËz∂Îø         ÙV   Ï\Ì +ﬁ_§r @l±€gïﬂø7¿[ A°ø                      ø \U   X˚Ù +ﬁ_§r @l±€gïﬂø7¿[ A°ø      ‡?≠LXËz∂Îø         ˚T   ÛT\ +ù¸¯7* @ØÎÏÜm£øn£º¥ø      ‡ø≠LXËz∂Îø         TS   ˚ +ù¸¯7* @ØÎÏÜm£ø7¿[ A°ø      ‡ø≠LXËz∂Îø         R   ˙T +ù¸¯7* @ØÎÏÜm£ø7¿[ A°ø                      ø Q    N +6ﬂü¬O @ØÎÏÜm£øn£º¥ø      ø                 NP   H +6ﬂü¬O @ØÎÏÜm£ø7¿[ A°ø      ø                 O   N +6ﬂü¬O @ØÎÏÜm£ø7¿[ A°ø                      ø N   I +ÿ“ÕÛáb @œΩáKé´øn£º¥ø      ‡ø∂LXËz∂Î?         IM   B +ÿ“ÕÛáb @œΩáKé´ø7¿[ A°ø      ‡ø∂LXËz∂Î?         L   "I +ÿ“ÕÛáb @œΩáKé´ø7¿[ A°ø                      ø "K   C +6ﬂü¬O @+Ÿ±à◊±øn£º¥ø      ‡?≠LXËz∂Î?         CJ   <(" +6ﬂü¬O @+Ÿ±à◊±ø7¿[ A°ø      ‡?≠LXËz∂Î?         (I   !/C +6ﬂü¬O @+Ÿ±à◊±ø7¿[ A°ø                      ø /H   '=( +ù¸¯7* @+Ÿ±à◊±øn£º¥ø      ?                 =G   65/ +ù¸¯7* @+Ÿ±à◊±ø7¿[ A°ø      ?                 5F   .<= +ù¸¯7* @+Ÿ±à◊±ø7¿[ A°ø                      ø <E   4C5 +ﬁ_§r @œΩáKé´øn£º¥ø      ‡?≠LXËz∂Îø         CD   ;7< +ﬁ_§r @œΩáKé´ø7¿[ A°ø                      ø 7C   3JC +ﬁ_§r @œΩáKé´ø7¿[ A°ø      ‡?≠LXËz∂Îø         JB   B/7 +Sã≤¨€ú˘?+Ÿ±à◊±øn£º¥ø      ‡?≠LXËz∂Î?         /A   (PJ +Sã≤¨€ú˘?+Ÿ±à◊±ø7¿[ A°ø      ‡?≠LXËz∂Î?         P@   IW/ +Sã≤¨€ú˘?+Ÿ±à◊±ø7¿[ A°ø                      ø W?   O)P +Y¯\∆Q˘?+Ÿ±à◊±øn£º¥ø      ?                 )>   "]W +Y¯\∆Q˘?+Ÿ±à◊±ø7¿[ A°ø      ?                 ]=   Vd) +Y¯\∆Q˘?+Ÿ±à◊±ø7¿[ A°ø                      ø d<   \#] +‹ﬁµ;,˘?œΩáKé´øn£º¥ø      ‡?≠LXËz∂Îø         #;   jd +‹ﬁµ;,˘?œΩáKé´ø7¿[ A°ø      ‡?≠LXËz∂Îø         j:   cq# +‹ﬁµ;,˘?œΩáKé´ø7¿[ A°ø                      ø q9   ij +Y¯\∆Q˘?ØÎÏÜm£øn£º¥ø      ‡ø≠LXËz∂Îø         8   wq +Y¯\∆Q˘?ØÎÏÜm£ø7¿[ A°ø      ‡ø≠LXËz∂Îø         w7   p~ +Y¯\∆Q˘?ØÎÏÜm£ø7¿[ A°ø                      ø ~6   vw +Sã≤¨€ú˘?ØÎÏÜm£øn£º¥ø      ø                 5   É~ +Sã≤¨€ú˘?ØÎÏÜm£ø7¿[ A°ø      ø                 É4   }â +Sã≤¨€ú˘?ØÎÏÜm£ø7¿[ A°ø                      ø â3   4 5 É +–ƒèTf¬˘?œΩáKé´øn£º¥ø      ‡ø≠LXËz∂Î?         5 2    â +–ƒèTf¬˘?œΩáKé´ø7¿[ A°ø                      ø 1   ?  5  +–ƒèTf¬˘?œΩáKé´ø7¿[ A°ø      ‡ø∂LXËz∂Î?         °É   ” ö  ”  °ﬂ õ– Œ ) >+ ˜  °õÔ Ù ?ê @+ = k˚ AÙ õZ  - kZ   =c  ˚  k\= @] h+ A k=\» £ù õ- \ kA˚ œ B%  + £ éúŒ œ Aù \+ éU   Œ Ü  ú é>£‘ ÿ ñ C+ Œ  é£>» ” ) A- > éŒ ú– € ê D- €  áèD‘ >ê ú+ D á€ E– ﬂ ~  - áV   D  E áDè‹ „ É F- ﬂ  °Á ” ‹ D~ E+ Á  °Ô ﬂ ‰ FÑ G+ Ô  °˜ Á Ï Hä I+ F Ä„ G‹ Á Ñ  - G ÄFÇ‰ Î v H- ÄW   Fx  Ç ÄG„ ‡ J| K+ Î  yuH‡ Gv Ç+ H yÎ I‰ Ô ä  - yX   Hq  I yHuÏ Û i ?- u yIÎ Ë Ko L+ Û  rh?Ë Ii u+ ? rÛ @Ï ˜ ê  - rY   ?j  @ r?hÙ ˚ ] =- h r@Û  Lb B+ L MKBË hb  - B MLÿ  \%  - Mk   B‚N ÿ  MBCœ úñ £- C Mÿ J‘ èâ  - J MCK’ Ç|  - è áE€ ’ Câ J+ K MJL‡ uo  - Nl   O‚P O NQx ê ˘Û  - Pm   R‚ﬂ R PSA ` HB  - S PTRX UO  - A  PRU8 à4  3 - H È@ k 8 RB  + ÈH   V·  @  ÈVH 3   .- k  ÈHV` WI U+ V Èk @ d .(  - W XUd k I V- U Wc ` SO R+ G   XË  c  UXX YV b+ X c W\ g "  - Y ˜Zb\ c V X- b ˜Y[ X T\ S+ ˜F   ZÔ  [  ˜bZP [c o+ T P\SP b\  - \ PUTG oi  - U PA \B |v  - o ˛[S P \i T+ ˛E   ]ˆ  [ ˛]oT [ c Z- S  ˛o]G ^p |+ ] ˛S [L W   - ^ _|L S p ]- | ^K G Uv \+ D   _˝  K  |_B = } à+ _ K ^E O   - =  < 7 àE K } _- à < = 3 B A 4  U+ < C   7 *   3  < à7 8 @   H+ O  èW > L _ ^+ èÜ   > ,   W  è_ O T ] [+ >  èO .E 7 ?  = + . è> g  V(  + g  è._ d X" W+ _  èg W \ Z Y+ Z ˜[ YT _   - Q N`Oà    - x  NOao :4 A- ˘ øbõ o OÛ  + øN   c∑  b øc˘h A; S- õ  ø˘cê d˙ + c øõ bî S  - d ∆eî õ ˙ c-  ∆dì ê Q  O+ ∆M   eæ  ì  ∆eà f + e ∆ì då ó H  - f Õgå ì  e-  Õfã à ` Q+ ÕL   g≈  ã  ÕgÄ h  + ` NiQÄ   - i Na`u    - a Nx it -'  -   ‘hÉ Ä i `+ ‘K   jÃ  h ‘j Ñ ã  g- É  ‘ ju k! -+ j ‘É h| á <  - k €l-| É ! j- - €k{ u a' i+ €J   l”  {  €-lt m. :+ l €{ kp  6  - m ‚n :p { . l- : ‚mAt x 4 a+ ‚I   n ⁄  A ‚:n o b; ˘+ n  ‚Amh s 3 b- s  ï Sp n 3 m+ ïÖ   s é    ïá s | l6 k+ S ïs ó h c  + ó  ïSè î eH d+ è  ïó á å gB f+ á  ïè  Ñ j< h+ g Õã fÑ è B  - „  ÄÇF’ EÉ è+R    ôˇ   R    î˛   R    é˝   R    à¸   R    Ç˚   R    |   x õ£ « ò n5  + õÑ   £ î  £  õØ x† û X o+ «  õxø ƒ pm q+ n ïÀ rƒ x5  - ïT   nç  À  ï™n¿ q´ ∑+ r ïn™ò ÚÏ x- ™ ïrÀ ü s§  + Ú ∏Îû ü rÏ ™+ ∏O   û ∞  Î ∏oÚ§ ® Â t+ û  ∏Úoò £ X r- o ∏û Î† ´ ﬂ u- ´  ±ﬁu§ oﬂ Î+ u ±´ v† Ø [  - ±P   u©  v ±uﬁ¨ ≥ “ w- Ø  õ∑ £ ¨ u[ v+ ∑  õø Ø ¥ wa x+ ø  õ« ∑ º yg z+ w ™≥ x¨ ∑ a  - x ™w—¥ ª ≈ y- ™Q   w¢  — ™x≥ ∞ {À |+ ª  £ƒy∞ x≈ —+ y £ª z¥ ø g  - £R   yõ  z £yƒº √ ∏ p- ƒ £zª ∏ |æ }+ √  ú∑p∏ z∏ ƒ+ p ú√ qº « m  - úS   pî  q úp∑ƒ À ´ n- ∑ úq√ ¿ }± s+ } &|s∏ ∑±  - s &}® ¿ ™§  - &j   s‚M ®  &stü ÎÂ Ú- t &® {§ ﬁÿ  - { &t|• —À  - ﬁ ±v´ • tÿ {+ | &{}∞ ƒæ  - ≥  ™—w• v“ ﬁ+R    v  R    q  R    k  R    e  R    _  R    W  R    Q  R    L
-  R    F	  R    @  R    :  R    2  R    ,  R    &  R       R      R      R    <   2 
-Õ   *   +–ƒèTf¬˘?œΩáKé´øn£º¥ø≠LXËz∂Î?      ‡?        —˜ßÊë0ÿø)µ<AÏÚ‰?)µ<AÏÚ‰? 2           * 2 Œ   ˝
-ˇ +Sã≤¨€ú˘?ØÎÏÜm£øn£º¥ø              ?        —;fû†Ê?        —;fû†Ê?2 ˇœ   ˆ¯ +Y¯\∆Q˘?ØÎÏÜm£øn£º¥ø≠LXËz∂Îø      ‡?        —˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 ¯–   ÔˇÒ +‹ﬁµ;,˘?œΩáKé´øn£º¥ø≠LXËz∂Îø      ‡ø        —˜ßÊë0ÿø)µ<AÏÚ‰?)µ<AÏÚ‰?2 Ò—   Ë¯Í +Y¯\∆Q˘?+Ÿ±à◊±øn£º¥ø              ø        —;fû†Ê?        —;fû†Ê?2 Í“   ·Ò„ +Sã≤¨€ú˘?+Ÿ±à◊±øn£º¥ø≠LXËz∂Î?      ‡ø        ⁄˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 „”   ⁄Í‹ +ﬁ_§r @œΩáKé´øn£º¥ø≠LXËz∂Îø      ‡ø        ⁄˜ßÊë0ÿø)µ<AÏÚ‰?)µ<AÏÚ‰?2 ‹‘   ”„’ +ù¸¯7* @+Ÿ±à◊±øn£º¥ø              ø        —;fû†Ê?        —;fû†Ê?2 ’’   Ã‹Œ +6ﬂü¬O @+Ÿ±à◊±øn£º¥ø≠LXËz∂Î?      ‡ø        —˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 Œ÷   ≈’« +ÿ“ÕÛáb @œΩáKé´øn£º¥ø∂LXËz∂Î?      ‡?        »˜ßÊë0ÿø2µ<AÏÚ‰?2µ<AÏÚ‰?2 «◊   æŒ¿ +6ﬂü¬O @ØÎÏÜm£øn£º¥ø              ?        —;fû†Ê?        —;fû†Ê?2 ¿ÿ   ∑«π +ù¸¯7* @ØÎÏÜm£øn£º¥ø≠LXËz∂Îø      ‡?        ⁄˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 πŸ   ∞¿≤ +ﬁ_§r @l±€gïﬂøn£º¥ø≠LXËz∂Îø      ‡ø        ⁄˜ßÊë0ÿø)µ<AÏÚ‰?)µ<AÏÚ‰?2 ≤⁄   ©π´ +ù¸¯7* @Dì7¿L‡øn£º¥ø              ø        —;fû†Ê?        —;fû†Ê?2 ´€   ¢≤§ +6ﬂü¬O @Dì7¿L‡øn£º¥ø≠LXËz∂Î?      ‡ø        ⁄˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 §‹   õ´ù +ÿ“ÕÛáb @l±€gïﬂøn£º¥ø≠LXËz∂Î?      ‡?        ⁄˜ßÊë0ÿø)µ<AÏÚ‰?)µ<AÏÚ‰?2 ù›   î§ñ +6ﬂü¬O @¥Ø<HOëﬁøn£º¥ø              ?        —;fû†Ê?        —;fû†Ê?2 ñﬁ   çùè +ù¸¯7* @¥Ø<HOëﬁøn£º¥ø≠LXËz∂Îø      ‡?        ⁄˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 èﬂ   Üñà + Oz/1˘?l±€gïﬂøn£º¥ø≠LXËz∂Îø      ‡ø        ⁄˜ßÊë0ÿø)µ<AÏÚ‰?)µ<AÏÚ‰?2 à‡   èÅ +}?,"∫V˘?Dì7¿L‡øn£º¥ø              ø        —;fû†Ê?        —;fû†Ê?2 Å·   xàz +w≤Êqœ°˘?Dì7¿L‡øn£º¥ø≠LXËz∂Î?      ‡ø        ⁄˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 z‚   qÅs +ÙÎ√Z«˘?l±€gïﬂøn£º¥ø≠LXËz∂Î?      ‡?        ⁄˜ßÊë0ÿø)µ<AÏÚ‰?)µ<AÏÚ‰?2 s„   jzl +w≤Êqœ°˘?¥Ø<HOëﬁøn£º¥ø              ?        —;fû†Ê?        —;fû†Ê?2 l‰   cse +}?,"∫V˘?¥Ø<HOëﬁøn£º¥ø≠LXËz∂Îø      ‡?        ⁄˜ßÊë0ÿ?)µ<AÏÚ‰?)µ<AÏÚ‰?2 eÂ   9l^ +F%uö@∏ÖÎQ∏Ë?n£º¥øó/4˘≤ë<      ø        —;fû†Ê?Cmú√â<—;fû†Ê?2 ^Ê   VeX +F%uö@ÆG·zË?n£º¥øó/4˘≤ëº      ?        —;fû†Ê?Cmú√â<—;fû†Ê?2 XÁ   O^Q +*©–Dÿ∞øÖÎQ∏Öªøç(Ìæ0πø                      ?—;fû†Ê?—;fû†Ê?        2 QË   @XJ +cÓZB>ËÛ?∏ÖÎQ∏Ë?n£º¥ø      ?                        —;fû†Ê?—;fû†Ê?2 JÈ   HQE +cÓZB>ËÛ?
-◊£p=
-Ìøn£º¥ø              ?        —;fû†Ê?        —;fû†Ê?2 EÍ   QJ@ +¨ã€h o@
-◊£p=
-Ìøn£º¥ø      ø                        —;fû†Ê?—;fû†Ê?2 @Î   3E; +cÓZB>ËÛ?
-◊£p=
-Ìø*:íÀHœ?                      ø—;fû†Ê?—;fû†Ê?        2 ;Ï   3@5 +É/L¶
-F@
-◊£p=
-Ìøn£º¥ø      ?                        —;fû†Ê?—;fû†Ê?2 5Ì   ,;. +cÓZB>ËÛ?ffffffÏøn£º¥ø              ø        —;fû†Ê?        —;fû†Ê?2 .Ó   Í5' +µ¶y«):Ù?∏ÖÎQ∏Ë?n£º¥ø      ø                        —;fû†Ê?—;fû†Ê?2 'Ô   ‚.! +*©–Dÿ∞øÖÎQ∏Öªøn£º¥ø                      ?—;fû†Ê?—;fû†Ê?        2 !   ' +ˆ3:ëT˜?ï›ò◊Ï∫öøTìò@éúø    ¶ëº¥Ë¢ã.∫vº      ø—;fû†Ê?—;fû†Ê?9@Z6:êº2 Ò   ! +ˆ3:ëT˜?‘wÇ]SÄœøTìò@éúø    Äëº      ø        —;fû†Ê?c)@≠øàº—;fû†Ê?2 Ú    +ˆ3:ëT˜?‘wÇ]SÄœø‚‹4—Uü?    ¶ë<              ?—;fû†Ê?—;fû†Ê?ôóN∏jıàº2 Û    +ˆ3:ëT˜?ï›ò◊Ï∫öø‚‹4—Uü?    Äë<      ?        —;fû†Ê?c)@≠øàº—;fû†Ê?3 ˇÙ   ˝ˇ +ˆ3:ëT˜?çñI•8Œø•“]-Â›î?      ?¸ˇˇˇˇˇêº    †ëº{ÆG·zÑ?≤´ÁdÀ{ò<—;fû†Ê?—;fû†Ê?3 ˇı   ˆ¯ +ˆ3:ëT˜?ÍÛ∑Ω.|¢ø•“]-Â›î?      ?    Äëº    †ëº{ÆG·zÑ?°®ÅﬁM÷ò<—;fû†Ê?—;fû†Ê?3 ¯ˆ   ÔˇÒ +ˆ3:ëT˜?ÍÛ∑Ω.|¢øâ¡ú∆ëø      ?    Äëº    †ëº{ÆG·zÑ?°®ÅﬁM÷ò<—;fû†Ê?—;fû†Ê?3 Ò˜   Ë¯Í +ˆ3:ëT˜?çñI•8Œøâ¡ú∆ëø      ?¸ˇˇˇˇˇêº    †ëº{ÆG·zÑ?≤´ÁdÀ{ò<—;fû†Ê?—;fû†Ê?3 Í¯   ‚Ò„ +2w-!Ù@ÖÎQ∏Îøn£º¥ø                      ø{ÆG·z§?—;fû†Ê?—;fû†Ê?        3 „˘   ÛÍ› +Y∑— ﬁÙ?ÖÎQ∏Îøn£º¥ø                      ø{ÆG·z§?—;fû†Ê?—;fû†Ê?        3 ›˙   ’„◊ +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?n£º¥ø                      ø{ÆG·z§?—;fû†Ê?—;fû†Ê?        3 ◊˚   œ›– +2w-!Ù@ÕÃÃÃÃÃÊ?n£º¥ø                      ø{ÆG·z§?—;fû†Ê?—;fû†Ê?        2 –¸   …◊  +ÙlV}Æ∂@∏ÖÎQ∏Ë?úƒ ∞rhëø      øó/4˘≤ëº        Cmú√âº—;fû†Ê?—;fû†Ê?2  ˝   √–ƒ +Íï≤q¨ @∏ÖÎQ∏Ë?úƒ ∞rhëø                      ?—;fû†Ê?—;fû†Ê?        2 ƒ˛   º æ +Íï≤q¨ @∏ÖÎQ∏Ë?Zd;ﬂOçó?      ?ó/4˘≤ë<        Cmú√âº—;fû†Ê?—;fû†Ê?2 æˇ   ∂ƒ∑ +ÙlV}Æ∂@∏ÖÎQ∏Ë?Zd;ﬂOçó?                      ø—;fû†Ê?—;fû†Ê?        3 ∑    >æ± +Y∑— ﬁÙ?ÕÃÃÃÃÃÊ?n£º¥ø                      ø∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?        3 ±   T∑¨ +2w-!Ù@ÕÃÃÃÃÃÊ?n£º¥ø                      ø∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?        3 ¨   N±ß +2w-!Ù@ÖÎQ∏Îøn£º¥ø                      ø∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?        3 ß   E¨¢ +Y∑— ﬁÙ?ÖÎQ∏Îøn£º¥ø                      ø∏ÖÎQ∏Æ?—;fû†Ê?—;fû†Ê?        2 ¢   ößú +©–Dÿ¸?6<ΩRñ—ø7¿[ A°ø                      ?—;fû†Ê?—;fû†Ê?        2 ú   î¢-  +©–Dÿ¸?6<ΩRñ—ø7¿[ A°ø                      ?—;fû†Ê?—;fû†Ê?        2 -    éú
-  +©–Dÿ¸?6<ΩRñ—ø7¿[ A°ø                      ?—;fû†Ê?—;fû†Ê?        R    =   R    >   R    ˚?   R    Ù@   R    ÌA   R    ÊB   R    ﬂC   R    ÿD   R    —E   R     F   R    √G   R    ºH   R    µI   R    ÆJ   R    ßK   R    †L   R    ôM   R    íN   R    ãO   R    ÑP   R    }Q   R    vR   R    oS   R    hT   R    aU    ]]   V;  ]# ~-  ]~ +  ] +T Â+ ~ ÷  - ÷z   œ   ÷Ä~ï ÷  -  ÷~Ä«ƒ  - Ä ÷ù“Ã  - « 4£(ùƒ Ä+ 4e   é3  £ 4œ«î†… Å- ( 4«√ - √ 4(ú$ÇΩ  +  ]$( √+ ú 4√ÏôòÎ Ç- Ç ‹‹+ô√Ω ÿ- ‹y   Â’  ‹ ‹ÂÇπÿ¿ ·- + ‹ÇÂ$T - ÿ ◊ò‘ô‹¿  + Â ‹+‹ ·Ê  - Ï 4úéèÓ∂ Ë+ é 4Ïœãì∑ Ó- Ó ÌÚËãÏ∂ Ù- Ù 4ìÆãÚı  + 4g   Æ,  ì 4ﬁÙêé∑ œ+ Æ 4Ùﬁ´≤˜ Ú- ﬁ 4ÆìØÉ∫ Ñ+ ≤ ﬂ‡ØÆ˜ ﬁ+  ﬂ¶≤ßÑ˚  + ¶ ﬂ ï™ “+ Ñ ÈÉÖØ˚  - Èw   Ñ‚  É ÈÅÑêﬁ∫  - Ö ÈÑÅßÿ” - Å ÈÖÉîœ» ÿ- ÿ :†™îÖ”  + :f   †3  † :“ÿù£… «+ ™ :ÿ“ß¶ Ö- “ :™†ïÄÃ + œ 4é£êÅ» É+R    [V    W_   >O  > WSi5CK <- S W:><P  + i W>S@Fb A+ S WiaDPc F- a WSLMLY I+ L WaXIHZ L- L KMIIaY ®- ® OHäIM°  + X WL:?SU P+ : WXS+( S-R    TW    P`   m@? m PqWEÜj + q Pum]\n á+ W PmÖTsÜ Ü+ Ü Tmj à-  ÜâEä  + q   â  â ¥‚ﬂ ä- ä “\¥  - s   “˝  “ áä∏∑˚ ˙- \ äáEqn m- á \“]  -  –`∏á  + p   `  – Õ˙˜ ˆ- ` ]ur q-  `–aã  + u Pyqa`r + y P}uedv å+ } PÅyihz + d ãåayv u- å dÃe
-  - v   ÃË  Ã åã…ˆÛ Ú- 
-  »h…å  +  o   »  »  
-≈ÚÔ Ó- h  
-e}z y-   h»iç  + ç ˜ƒl≈  - ˜u   ƒÔ  ƒ ˜éç¡ÓÎ Í- l ˜çéiÅ~ }- é ˜lƒm"  - Å PÖ}ml~ é+ Ö PWÅXpÇ + p "mÖÇ Å-  p¿Xè  + r   ¿  ¿ "ΩÍÁ Ê- è ˛ºsΩ  - ˛t   ºˆ  º ˛àè≥Ê„ ‚- s ˛èàXWÜ Ö- à ˛sºT  -  âÜ≥à  + Ê -Í‚Ωº„ è+ ‚ -Ê∑≥âﬂ + -h   ‚Í◊ ∑ -‚˙¥“˚ â+ ˙ -∑ˆ∏–˜ + ˆ -˙ÚÕÃÛ ã+ Ú -ˆÓ…»Ô 
-+ ã ÃdÕ  - Ó -ÚÍ≈ƒÎ ç+ Í -ÓÊ¡¿Á "+ " ¿p¡é  +R    MX   R    HY   R    CZ   R    >[   R    8\   R    1]   R    *^   R    $_   R    `   R    a   R    b   R    	c   R    d   R    ˚e   R    Ùf   R    Ìg   R    Êh   R    ‡i   R    ⁄j   R    ”k   R    Õl   R    «m   R    ¡n   R    ∫o   R    ¥p   R    Øq   R    ™r   R    •s   R    üt   R    òu   R    ív   R    åx   R    Üy   R    Åz   R    z{   R    t|   R    m}   R    g~   R    `   R    ZÄ   R    SÅ   R    MÇ   R    FÉ   R    ?Ñ   R    8Ö   R    2Ü   R    +á   R    %à   R    â   R    ä   R    ã   R    å   R    ç   R    ˛é   R    ˜è   R    ê   R    Èë   R    „í   R    ‹ì   R    ÷î   R    œï   R    …ñ   R    ¬ó   R    ºò   R    µô   R    Øö   R    ®õ   R    °ú   R    öù   R    îû   R    çü   R    á†   R    Ä°   R    z¢   R    s£   R    m§   R    f•   R    `¶   R    Z©    +        	  S J    )         3®,'#£°& ü         T 	   ( Box_Solid  $end 'x_b'
-$end 'NativeGeometryFiles'
-$end 'AllReferencedFilesForComponent'

@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.mechanical import *
+from ansys.aedt.extensions.mechanical import *

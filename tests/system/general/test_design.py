@@ -31,7 +31,6 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
-from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
 from tests import TESTS_GENERAL_PATH
@@ -429,22 +428,6 @@ def test_force_project_path_disable(aedt_app):
 #     project_name2 = app.project_name
 #     app.close_project(project_name2)
 #     app.close_project(project_name)
-
-
-def test_toolkit(aedt_app, desktop, test_tmp_dir):
-    assert customize_automation_tab.available_toolkits()
-    file = test_tmp_dir / "test.py"
-    with open(file, "w") as f:
-        f.write("import ansys.aedt.core\n")
-    assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=str(file))
-    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
-    assert customize_automation_tab.add_script_to_menu(
-        name="test_toolkit",
-        script_file=str(file),
-        personal_lib=aedt_app.desktop_class.personallib,
-        aedt_version=aedt_app.desktop_class.aedt_version_id,
-    )
-    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
 
 
 def test_load_project(aedt_app, desktop, test_tmp_dir):

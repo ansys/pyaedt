@@ -71,7 +71,7 @@ def mock_aedt_process():
 @pytest.fixture
 def mock_add_pyaedt_to_aedt():
     """Mock the add_pyaedt_to_aedt function."""
-    with patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt") as mock_func:
+    with patch("ansys.aedt.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt") as mock_func:
         mock_func.return_value = True
         yield mock_func
 
@@ -633,7 +633,7 @@ def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path, mock_instal
     assert "not a directory" in result.stdout
 
 
-@patch("ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt", return_value=False)
+@patch("ansys.aedt.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt", return_value=False)
 def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
     """Test panel installation when installer returns False."""
     result = cli_runner.invoke(
@@ -646,7 +646,7 @@ def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal
 
 
 @patch(
-    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+    "ansys.aedt.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
     side_effect=ImportError("Cannot import installer"),
 )
 def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):
@@ -662,7 +662,7 @@ def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib, mock_
 
 
 @patch(
-    "ansys.aedt.core.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
+    "ansys.aedt.extensions.installer.pyaedt_installer.add_pyaedt_to_aedt",
     side_effect=Exception("Unexpected error"),
 )
 def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib, mock_installed_versions):

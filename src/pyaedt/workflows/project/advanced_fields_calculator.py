@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import *
+from ansys.aedt.extensions.project.advanced_fields_calculator import *

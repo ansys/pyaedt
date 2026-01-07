@@ -1824,7 +1824,13 @@ class Desktop(PyAedtBase):
         list
             List of toolkit names.
         """
-        from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
+        try:
+            from ansys.aedt.extensions.customize_automation_tab import available_toolkits
+        except ImportError:
+            raise ImportError(
+                "ansys-aedt-extensions is required for this functionality. "
+                "Please install it with 'pip install pyaedt[extensions]' or with 'pip install ansys-aedt-extensions'"
+            )
 
         return list(available_toolkits().keys())
 

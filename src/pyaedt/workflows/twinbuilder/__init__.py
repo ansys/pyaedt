@@ -1,1 +1,1 @@
-from ansys.aedt.core.extensions.twinbuilder import *
+from ansys.aedt.extensions.twinbuilder import *
