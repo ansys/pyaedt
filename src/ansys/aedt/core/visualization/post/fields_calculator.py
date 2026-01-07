@@ -94,7 +94,7 @@ class FieldsCalculator(PyAedtBase):
     """
 
     def __init__(self, app):
-        self.expression_catalog = read_configuration_file(
+        self.expression_catalog = read_configuration_file(PARENT_DIR / "fields_calculator_files" / "expression_catalog.toml")
             Path(ansys.aedt.core.__path__[0])
             / "visualization"
             / "post"
