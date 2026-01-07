@@ -38,6 +38,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+PARENT_DIR = Path(__file__).parent
+
 
 class FieldsCalculator(PyAedtBase):
     """Provides the Advanced fields calculator methods.
