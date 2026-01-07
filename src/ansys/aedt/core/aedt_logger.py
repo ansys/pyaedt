@@ -843,7 +843,7 @@ class AedtLogger:
         return self._log_on_screen
 
     @log_on_stdout.setter
-    def log_on_stdout(self, value):
+    def log_on_stdout(self, value: bool):
         """Enable or disable printing log messages to stdout."""
         if value:
             self.enable_stdout_log()
