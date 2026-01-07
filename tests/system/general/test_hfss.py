@@ -2020,7 +2020,9 @@ def test_far_field(aedt_app, add_app, test_tmp_dir):
     ffd_file_original = TESTS_GENERAL_PATH / "example_models" / "T04" / "test.ffd"
     ffd_file = shutil.copy2(ffd_file_original, test_tmp_dir / "test.ffd")
 
-    far_field_ext = aedt_app.far_field_wave(assignment=str(ffd_file), coordinate_system="Global", name="FarFieldExternal")
+    far_field_ext = aedt_app.far_field_wave(
+        assignment=str(ffd_file), coordinate_system="Global", name="FarFieldExternal"
+    )
     assert far_field_ext is not None
     assert far_field_ext.name == "FarFieldExternal"
     assert far_field_ext.name in aedt_app.excitation_names
