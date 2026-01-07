@@ -22,8 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
 import locale
+
+import pytest
 
 from ansys.aedt.core.filtersolutions import DistributedDesign
 from ansys.aedt.core.filtersolutions import LumpedDesign
@@ -39,6 +40,7 @@ for _loc in ("en_US.UTF-8", "English_United States.1252", "en_US"):
 else:
     # Fallback to "C" if US English is unavailable
     locale.setlocale(locale.LC_ALL, "C")
+
 
 @pytest.fixture
 def lumped_design():
