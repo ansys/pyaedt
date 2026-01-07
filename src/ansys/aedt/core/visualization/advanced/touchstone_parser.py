@@ -31,6 +31,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 import warnings
+import bisect
 
 import numpy as np
 
