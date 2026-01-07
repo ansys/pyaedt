@@ -49,7 +49,11 @@ Finally, this code shows how you can run the extension directly from a Python sc
 
     from ansys.aedt.core.extensions.common.kernel_converter import main
 
-    main(test_args = {"password": "my_pwd",
-                    "application": "HFSS",
-                    "solution": "Modal",
-                    "file_path": "C:\my_path\file_containing_projects"})
+    main(
+        test_args={
+            "password": "my_pwd",
+            "application": "HFSS",
+            "solution": "Modal",
+            "file_path": "C:\my_path\file_containing_projects",
+        }
+    )

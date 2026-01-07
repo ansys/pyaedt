@@ -28,8 +28,8 @@ Here is an example of YAML file :download:`YAML configuration file <../Resources
 
 Below is the content that can be updated through the YAML file.
 
-.. code-block:: yaml  
-  
+.. code-block:: yaml
+
     # Settings related to logging
     log:
         # Enable or disable the logging of EDB API methods
