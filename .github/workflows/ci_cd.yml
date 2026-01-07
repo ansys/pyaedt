@@ -1602,7 +1602,7 @@ jobs:
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
 
-  LAYOsystem-tests-emit-windows:
+  system-tests-emit-windows:
     name: Test EMIT (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
