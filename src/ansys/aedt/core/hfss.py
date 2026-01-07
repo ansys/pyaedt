@@ -6772,13 +6772,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> target = Hfss(project="target_project.aedt")
         >>> source = Hfss(project="target_project.aedt", design="Source_Design")
-        >>> far_field_src = target.far_field(assignment=source, setup="Setup1 : LastAdaptive")
+        >>> setup = source.create_setup("Setup1", Frequency="10GHz")
+        >>> far_field_src = target.far_field(assignment=source, setup=setup)
 
         Create a far field wave excitation from an external project.
 
         >>> target = Hfss(project="target_project.aedt")
         >>> source = Hfss(project="source_project.aedt", design="Array_Design")
-        >>> far_field_src = target.far_field(assignment=source, setup="Setup1 : Sweep")
+        >>> setup = source.create_setup("Setup1", Frequency="10GHz")
+        >>> far_field_src = target.far_field(assignment=source, setup=setup)
 
         Create a far field wave excitation from an external data file.
 

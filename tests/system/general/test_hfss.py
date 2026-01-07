@@ -2004,7 +2004,6 @@ def test_far_field(aedt_app, add_app, test_tmp_dir):
     source_design = add_app(application=Hfss, design="FarFieldSource", close_projects=False)
     source_design.solution_type = "Modal"
 
-    # Create setup without sweep (only adaptive)
     setup = source_design.create_setup("Setup1", Frequency="10GHz")
     setup.props["MaximumPasses"] = 2
 
