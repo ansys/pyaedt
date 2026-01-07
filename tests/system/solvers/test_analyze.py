@@ -679,7 +679,9 @@ def test_compute_com_parameter_ver_3p4(test_tmp_dir):
 
 
 def test_export_to_maxwell(add_app_example, add_app, test_tmp_dir):
-    app = add_app_example(project="assm_test", application=Rmxprt, subfolder="T00", solution_type="ASSM")
+    app = add_app_example(
+        project="assm_test", design="assm-1", application=Rmxprt, subfolder="T00", solution_type="ASSM"
+    )
     app.analyze(cores=4)
     m2d = app.create_maxwell_design("Setup1")
     assert m2d.design_type == "Maxwell 2D"
