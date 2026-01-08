@@ -128,6 +128,7 @@ def test_evaluate(mock_app):
         patch.object(fields_calculator, "write"),
     ):
         value = fields_calculator.evaluate(expression="expr", setup=None, intrinsics=None)
+
     assert value is not None
 
 
