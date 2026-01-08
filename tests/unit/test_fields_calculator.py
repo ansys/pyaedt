@@ -115,20 +115,18 @@ def test_write_array_design_variables(mock_app_array, test_tmp_dir):
         )
 
 
-def test_evaluate(mock_app):
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.unlink")
+@patch(
+    "ansys.aedt.core.visualization.post.fields_calculator.open_file", mock_open(read_data="line1\nline2\nfinal_value\n")
+)
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
+def test_evaluate(mock_unlink, mock_app):
     """Test the evaluate method of FieldsCalculator class."""
     fields_calculator = FieldsCalculator(mock_app)
     fields_calculator.is_expression_defined = MagicMock(return_value=True)
     fields_calculator.ofieldsreporter = MagicMock()
 
     with (
-        # patch("ansys.aedt.core.visualization.post.fields_calculator.generate_unique_name", return_value="testfile"),
-        patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True),
-        patch(
-            "ansys.aedt.core.visualization.post.fields_calculator.open_file",
-            mock_open(read_data="line1\nline2\nfinal_value\n"),
-        ),
-        patch("ansys.aedt.core.visualization.post.fields_calculator.Path.unlink"),
         patch.object(fields_calculator, "write"),
     ):
         value = fields_calculator.evaluate(expression="expr", setup=None, intrinsics=None)
@@ -136,35 +134,35 @@ def test_evaluate(mock_app):
     assert value is not None
 
 
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
 def test_export_with_sample_points_string(mock_app):
     """Test the export method of FieldsCalculator class with sample points as a path."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
 
-    with patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True):
-        output = fields_calculator.export(
-            quantity="Mag_E",
-            output_file="fake_output.fld",
-            solution="Setup1 : LastAdaptive",
-            sample_points="points.csv",
-        )
+    output = fields_calculator.export(
+        quantity="Mag_E",
+        output_file="fake_output.fld",
+        solution="Setup1 : LastAdaptive",
+        sample_points="points.csv",
+    )
 
     assert output == "fake_output.fld"
 
 
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
 def test_export_with_sample_points_list(mock_app):
     """Test the export method of FieldsCalculator class with sample points as a list."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
     sample_points = [(0, 0, 0), (1, 1, 1), (2, 2, 2)]
 
-    with patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True):
-        output = fields_calculator.export(
-            quantity="Mag_E",
-            output_file="fake_output.fld",
-            solution="Setup1 : LastAdaptive",
-            sample_points=sample_points,
-        )
+    output = fields_calculator.export(
+        quantity="Mag_E",
+        output_file="fake_output.fld",
+        solution="Setup1 : LastAdaptive",
+        sample_points=sample_points,
+    )
 
     assert output == "fake_output.fld"
 
@@ -179,6 +177,7 @@ def test_export_with_invalid_sample_points(mock_app):
     )
 
 
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
 def test_export_grid_type(mock_app):
     """Test the export method of FieldsCalculator class with different grid types."""
     fields_calculator = FieldsCalculator(mock_app)
@@ -187,10 +186,9 @@ def test_export_grid_type(mock_app):
     grid_types = ["Cartesian", "Cylindrical", "Spherical"]
 
     for grid_type in grid_types:
-        with patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True):
-            output = fields_calculator.export(
-                quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive", grid_type=grid_type
-            )
+        output = fields_calculator.export(
+            quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive", grid_type=grid_type
+        )
         assert output == "fake_output.fld"
 
 

@@ -621,6 +621,8 @@ class FieldsCalculator(PyAedtBase):
         out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
         self.write(expression, setup=setup, intrinsics=intrinsics, output_file=str(out_file))
 
+        # ClcEval does not return any value
+        # This is why we open the and read the file
         value = None
         if out_file.exists():
             with open_file(out_file, "r") as f:
