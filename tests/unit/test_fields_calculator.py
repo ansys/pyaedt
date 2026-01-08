@@ -207,8 +207,6 @@ def test_export_failure(mock_app):
     """Test the export method of FieldsCalculator class when export fails."""
     fields_calculator = FieldsCalculator(mock_app)
 
-    res = fields_calculator.export(
-        quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive"
-    )
+    res = fields_calculator.export(quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive")
 
     assert not res
