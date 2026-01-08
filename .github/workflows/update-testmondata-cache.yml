@@ -5,9 +5,13 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   actions: read
-  contents: read
+  contents: write
 
 env:
   TESTMON_DATAFILE: '.testmondata'
@@ -31,20 +35,24 @@ env:
 
 jobs:
   update-cache:
+    name: Update testmon cache on main branch
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: Identify Source PR
         id: find_pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           # Find the PR number associated with this merge commit
-          PR_NUMBER=$(gh pr list --state merged --search "${{ github.sha }}" --json number --jq '.[0].number')
+          PR_NUMBER=$(gh pr list --state merged --search "$COMMIT_SHA" --json number --jq '.[0].number')
           if [ -z "$PR_NUMBER" ]; then
-            echo "No PR found for commit ${{ github.sha }}. Skipping artifact download."
+            echo "No PR found for commit $COMMIT_SHA. Skipping artifact download."
             echo "pr_found=false" >> $GITHUB_OUTPUT
           else
             echo "Found PR #${PR_NUMBER}"
@@ -57,7 +65,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Unit Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -89,7 +97,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Integration Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -121,7 +129,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Solvers Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -153,7 +161,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Solvers Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -185,7 +193,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download General Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -217,7 +225,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download General Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -249,7 +257,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Visualization Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -281,7 +289,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Visualization Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -313,7 +321,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Icepak Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -345,7 +353,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Icepak Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -377,7 +385,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Layout Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -409,7 +417,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Layout Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -441,7 +449,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Extensions Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -473,7 +481,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Extensions Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -505,7 +513,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Filter Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -537,7 +545,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Emit Test Artifacts (Windows)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
@@ -569,7 +577,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Flaky Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v12
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
