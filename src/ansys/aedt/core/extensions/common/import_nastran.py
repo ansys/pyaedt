@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,6 +38,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
@@ -93,7 +94,14 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
     def check_design_type(self):
         """Check if the design type is HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, Mechanical"""
-        if self.aedt_application.design_type not in ["HFSS", "Icepak", "HFSS 3D", "Maxwell 3D", "Q3D", "Mechanical"]:
+        if self.aedt_application.design_type not in [
+            "HFSS",
+            "Icepak",
+            "HFSS 3D",
+            "Maxwell 3D",
+            "Q3D",
+            DesignType.ICEPAKFEA,
+        ]:
             self.release_desktop()
             raise AEDTRuntimeError(
                 "This extension only works with HFSS, Icepak, HFSS 3D, Maxwell 3D, Q3D, or Mechanical designs."

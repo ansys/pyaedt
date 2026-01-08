@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,7 +25,6 @@
 import math
 import re
 import sys
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Axis
@@ -798,141 +797,6 @@ class GeometryOperators(PyAedtBase):
             return 0.0
         else:
             return math.acos(d / (an * bn))
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def pointing_to_axis(*args, **kwargs):
-        """Retrieve the axes from the HFSS X axis and Y pointing axis as per
-        the definition of the AEDT interface coordinate system.
-
-        Parameters
-        ----------
-        x_pointing : List
-            List of ``[x, y, z]`` coordinates for the X axis.
-
-        y_pointing : List
-            List of ``[x, y, z]`` coordinates for the Y pointing axis.
-
-        Returns
-        -------
-        tuple
-            ``[Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz]`` of the three axes (normalized).
-        """
-        warnings.warn(
-            "GeometryOperators.pointing_to_axis is deprecated and has been moved to CoordinateSystem.pointing_to_axis.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem  # import here to avoid circular imports
-
-        return CoordinateSystem.pointing_to_axis(*args, **kwargs)
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def axis_to_euler_zxz(x, y, z):
-        """Retrieve Euler angles of a frame following the rotation sequence ZXZ.
-
-        Provides an assumption for the gimbal lock problem.
-
-        Parameters
-        ----------
-        x : List
-            List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
-        y : List
-            List of ``[Yx, Yy, Yz]`` coordinates for the Y axis.
-        z : List
-            List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
-
-        Returns
-        -------
-        tuple
-            (phi, theta, psi) containing the Euler angles in radians.
-
-        """
-        warnings.warn(
-            "GeometryOperators.axis_to_euler_zxz is deprecated. Consider using the Quaternion class."
-            ">>> from ansys.aedt.core.generic.quaternion import Quaternion"
-            ">>> m = Quaternion.axis_to_rotation_matrix(x, y, z)"
-            ">>> q = Quaternion.from_rotation_matrix(m)"
-            ">>> phi, theta, psi = q.to_euler('zxz')",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        tol = 1e-16
-        x1 = x[0]
-        x2 = x[1]
-        x3 = x[2]
-        y3 = y[2]
-        z1 = z[0]
-        z2 = z[1]
-        z3 = z[2]
-        if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
-            phi = MathUtils.atan2(x2, x1)
-            theta = 0.0
-            psi = 0.0
-        elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
-            phi = MathUtils.atan2(x2, x1)
-            theta = math.pi
-            psi = 0.0
-        else:
-            phi = MathUtils.atan2(z1, -z2)
-            theta = math.acos(z3)
-            psi = MathUtils.atan2(x3, y3)
-        return phi, theta, psi
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def axis_to_euler_zyz(x, y, z):
-        """Retrieve Euler angles of a frame following the rotation sequence ZYZ.
-
-        Provides assumption for the gimbal lock problem.
-
-        Parameters
-        ----------
-        x : List
-            List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
-        y : List
-            List of ``[Yx, Yy, Yz]`` coordinates for the Y axis.
-        z : List
-            List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
-
-        Returns
-        -------
-        tuple
-            (phi, theta, psi) containing the Euler angles in radians.
-
-        """
-        warnings.warn(
-            "GeometryOperators.axis_to_euler_zxz is deprecated. Consider using the Quaternion class."
-            ">>> from ansys.aedt.core.generic.quaternion import Quaternion"
-            ">>> m = Quaternion.axis_to_rotation_matrix(x, y, z)"
-            ">>> q = Quaternion.from_rotation_matrix(m)"
-            ">>> phi, theta, psi = q.to_euler('zyz')",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        tol = 1e-16
-        x1 = x[0]
-        x2 = x[1]
-        x3 = x[2]
-        y3 = y[2]
-        z1 = z[0]
-        z2 = z[1]
-        z3 = z[2]
-        if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
-            phi = MathUtils.atan2(-x1, x2)
-            theta = 0.0
-            psi = math.pi / 2
-        elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
-            phi = MathUtils.atan2(-x1, x2)
-            theta = math.pi
-            psi = math.pi / 2
-        else:
-            phi = MathUtils.atan2(z2, z1)
-            theta = math.acos(z3)
-            psi = MathUtils.atan2(y3, -x3)
-        return phi, theta, psi
 
     @staticmethod
     @pyaedt_function_handler()

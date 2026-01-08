@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,12 +30,12 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosRespons
 from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
 from ansys.aedt.core.generic.settings import is_linux
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
 from tests.system.filter_solutions.resources import read_resource_file
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(DESKTOP_VERSION < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_frequency_response_getter(self, lumped_design):
         mag_db = lumped_design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
@@ -94,7 +94,7 @@ class TestClass:
         )
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
-            if config["desktopVersion"] > "2025.1":
+            if DESKTOP_VERSION > "2025.1":
                 assert info.value.args[0] == "The frequency response data is not available for diplexer filters"
             else:
                 assert info.value.args[0] == misspelled_error
@@ -141,7 +141,7 @@ class TestClass:
         )
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The time response data is not available for diplexer filters"
         else:
             assert info.value.args[0] == misspelled_error
@@ -178,12 +178,12 @@ class TestClass:
         )
         with pytest.raises(RuntimeError) as info:
             lumped_design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
-        if config["desktopVersion"] > "2025.1":
+        if DESKTOP_VERSION > "2025.1":
             assert info.value.args[0] == "The S parameters data is not available for diplexer filters"
         else:
             assert info.value.args[0] == misspelled_error
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_pole_zeros_response_getter(self, lumped_design):
@@ -389,7 +389,7 @@ class TestClass:
         assert s21_db[0] == pytest.approx(-4.342896962104627e-10)
         assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026.1")
     # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
     # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_pole_zero_locations(self, lumped_design):

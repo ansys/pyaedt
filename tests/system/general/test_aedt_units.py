@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,62 +30,64 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 
 
-@pytest.fixture()
+@pytest.fixture
 def icepak_app(add_app):
     app = add_app(application=Icepak)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def layout_app(add_app):
     app = add_app(application=Hfss3dLayout)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def circuit_app(add_app):
     app = add_app(application=Circuit)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
-class TestClass:
-    def test_circuit_length(self, circuit_app):
-        assert circuit_app.units.length in AEDT_UNITS["Length"]
-        circuit_app.units.length = "mm"
-        assert circuit_app.units.length == "mm"
-        with pytest.raises(AttributeError):
-            circuit_app.units.length = "GHz"
+def test_circuit_length(circuit_app):
+    assert circuit_app.units.length in AEDT_UNITS["Length"]
+    circuit_app.units.length = "mm"
+    assert circuit_app.units.length == "mm"
+    with pytest.raises(AttributeError):
+        circuit_app.units.length = "GHz"
 
-    def test_icepak_length(self, icepak_app):
-        icepak_app.units.rescale_model = False
-        assert icepak_app.units.length in AEDT_UNITS["Length"]
-        icepak_app.length = "mm"
-        assert icepak_app.length == "mm"
-        with pytest.raises(AttributeError):
-            icepak_app.units.length = "GHz"
 
-    def test_layout_length(self, layout_app):
-        assert layout_app.units.length in AEDT_UNITS["Length"]
-        layout_app.length = "mm"
-        assert layout_app.length == "mm"
-        with pytest.raises(AttributeError):
-            layout_app.units.length = "GHz"
+def test_icepak_length(icepak_app):
+    icepak_app.units.rescale_model = False
+    assert icepak_app.units.length in AEDT_UNITS["Length"]
+    icepak_app.length = "mm"
+    assert icepak_app.length == "mm"
+    with pytest.raises(AttributeError):
+        icepak_app.units.length = "GHz"
 
-    def test_aedt_units(self, icepak_app):
-        assert icepak_app.units.frequency in AEDT_UNITS["Frequency"]
-        assert icepak_app.units.angle in AEDT_UNITS["Angle"]
-        assert icepak_app.units.resistance in AEDT_UNITS["Resistance"]
-        assert icepak_app.units.power in AEDT_UNITS["Power"]
-        assert icepak_app.units.time in AEDT_UNITS["Time"]
-        assert icepak_app.units.temperature in AEDT_UNITS["Temperature"]
-        assert icepak_app.units.inductance in AEDT_UNITS["Inductance"]
-        assert icepak_app.units.voltage in AEDT_UNITS["Voltage"]
-        assert icepak_app.units.current in AEDT_UNITS["Current"]
-        assert icepak_app.units.angular_speed in AEDT_UNITS["AngularSpeed"]
-        assert icepak_app.units.capacitance in AEDT_UNITS["Capacitance"]
-        assert icepak_app.units.conductance in AEDT_UNITS["Conductance"]
-        assert icepak_app.units.mass in AEDT_UNITS["Mass"]
-        assert icepak_app.units.speed in AEDT_UNITS["Speed"]
+
+def test_layout_length(layout_app):
+    assert layout_app.units.length in AEDT_UNITS["Length"]
+    layout_app.length = "mm"
+    assert layout_app.length == "mm"
+    with pytest.raises(AttributeError):
+        layout_app.units.length = "GHz"
+
+
+def test_aedt_units(icepak_app):
+    assert icepak_app.units.frequency in AEDT_UNITS["Frequency"]
+    assert icepak_app.units.angle in AEDT_UNITS["Angle"]
+    assert icepak_app.units.resistance in AEDT_UNITS["Resistance"]
+    assert icepak_app.units.power in AEDT_UNITS["Power"]
+    assert icepak_app.units.time in AEDT_UNITS["Time"]
+    assert icepak_app.units.temperature in AEDT_UNITS["Temperature"]
+    assert icepak_app.units.inductance in AEDT_UNITS["Inductance"]
+    assert icepak_app.units.voltage in AEDT_UNITS["Voltage"]
+    assert icepak_app.units.current in AEDT_UNITS["Current"]
+    assert icepak_app.units.angular_speed in AEDT_UNITS["AngularSpeed"]
+    assert icepak_app.units.capacitance in AEDT_UNITS["Capacitance"]
+    assert icepak_app.units.conductance in AEDT_UNITS["Conductance"]
+    assert icepak_app.units.mass in AEDT_UNITS["Mass"]
+    assert icepak_app.units.speed in AEDT_UNITS["Speed"]

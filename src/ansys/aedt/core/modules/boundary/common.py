@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -73,6 +73,12 @@ class BoundaryProps(dict):
 
 class BoundaryCommon(PropsManager, PyAedtBase):
     """ """
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):

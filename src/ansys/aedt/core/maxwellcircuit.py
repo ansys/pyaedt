@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -107,13 +107,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     >>> app = MaxwellCircuit("myfile.aedt")
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -132,7 +126,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
-            "Maxwell Circuit",
+            "MAXWELLCIRCUIT",
             project,
             design,
             version,
@@ -149,7 +143,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler(file_to_import="input_file")
+    @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
 
@@ -218,7 +212,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
                         ypos = 0
         return True
 
-    @pyaedt_function_handler(file_to_export="output_file")
+    @pyaedt_function_handler()
     def export_netlist_from_schematic(self, output_file):
         """Create netlist from schematic circuit.
 

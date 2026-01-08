@@ -1,24 +1,16 @@
 ci:
-    autofix_commit_msg: 'CHORE: Auto fixes from pre-commit hooks'
-    autoupdate_branch: 'chore/pre-commit-autoupdate'
-    autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
-    autoupdate_schedule: weekly
+  autofix_commit_msg: 'CHORE: Auto fixes from pre-commit hooks'
+  autoupdate_commit_msg: 'CHORE: Pre-commit automatic update'
+  autoupdate_schedule: weekly
 
-files: |
-    (?x)(
-        ^src/ansys/aedt/core/|
-        tests/
-    )
 exclude: |
-    (?x)(
-        ^src/ansys/aedt/core/rpc/|
-        ^src/ansys/aedt/core/sbrplus/matlab/|
-        ^src/ansys/aedt/core/extensions/installer|
-        tests/system/general/example_models/|
-        tests/system/visualization/example_models/|
-        tests/system/extensions/example_models/|
-        tests/system/solvers/example_models/
-    )
+  (?x)(
+      src/ansys/aedt/core/rpc/|
+      src/ansys/aedt/core/sbrplus/matlab/|
+      src/ansys/aedt/core/extensions/installer|
+      src/pyaedt|
+      tests/system/.*/example_models/
+  )
 
 repos:
 
@@ -27,7 +19,7 @@ repos:
   hooks:
     - id: ruff-check
     - id: ruff-format
-    
+
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.1
   hooks:

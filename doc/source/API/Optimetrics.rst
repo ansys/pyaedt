@@ -6,9 +6,14 @@ optimetrics setups.
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    app = Hfss(specified_version="2025.2",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
+
+    app = Hfss(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # returns the ParametericsSetups Class
     app.parametrics
@@ -17,7 +22,9 @@ optimetrics setups.
     app.optimizations
 
     # adds an optimization and returns Setup class with all settings and methods
-    sweep3 = hfss.opti_optimization.add_optimization(calculation="dB(S(1,1))", calculation_value="2.5GHz")
+    sweep3 = hfss.opti_optimization.add_optimization(
+        calculation="dB(S(1,1))", calculation_value="2.5GHz"
+    )
 
     ...
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,17 +36,17 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from ansys.aedt.core.cli import DEFAULT_TEST_CONFIG
-from ansys.aedt.core.cli import _display_config
-from ansys.aedt.core.cli import _get_config_path
-from ansys.aedt.core.cli import _get_tests_folder
-from ansys.aedt.core.cli import _load_config
-from ansys.aedt.core.cli import _prompt_config_value
-from ansys.aedt.core.cli import _save_config
-from ansys.aedt.core.cli import _update_bool_config
-from ansys.aedt.core.cli import _update_string_config
 from ansys.aedt.core.cli import app
-from ansys.aedt.core.cli import test_app
+from ansys.aedt.core.cli.common import DEFAULT_TEST_CONFIG
+from ansys.aedt.core.cli.common import _display_config
+from ansys.aedt.core.cli.common import _get_config_path
+from ansys.aedt.core.cli.common import _get_tests_folder
+from ansys.aedt.core.cli.common import _load_config
+from ansys.aedt.core.cli.common import _prompt_config_value
+from ansys.aedt.core.cli.common import _save_config
+from ansys.aedt.core.cli.config import _update_bool_config
+from ansys.aedt.core.cli.config import _update_string_config
+from ansys.aedt.core.cli.config import test_app
 
 
 @pytest.fixture
@@ -84,10 +84,6 @@ def mock_installed_versions():
     mock_versions = {
         "2025.2": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
         "2025.1": "C:\\Program Files\\ANSYS Inc\\v251\\AnsysEM",
-        "2024.2": "C:\\Program Files\\AnsysEM\\v242\\Win64",
-        "2024.1": "C:\\Program Files\\AnsysEM\\v241\\Win64",
-        "2025.2AWP": "C:\\Program Files\\ANSYS Inc\\v252",
-        "2025.1AWP": "C:\\Program Files\\ANSYS Inc\\v251",
     }
     with patch(
         "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
@@ -95,6 +91,14 @@ def mock_installed_versions():
         return_value=mock_versions,
     ):
         yield mock_versions
+
+
+@pytest.fixture
+def mock_online_help():
+    """Mock ansys.aedt.core.help.online_help to avoid real browser / network calls."""
+    with patch("ansys.aedt.core.help.online_help") as mock_help:
+        mock_help.silent = True
+        yield mock_help
 
 
 def test_cli_help_command(cli_runner):
@@ -178,7 +182,7 @@ def test_stop_all_command_with_access_denied(mock_process_iter, cli_runner, mock
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_all_command_with_process_no_longer_exists(
     mock_process_access, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -194,7 +198,7 @@ def test_stop_all_command_with_process_no_longer_exists(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_all_command_with_generic_exception(mock_process_access, mock_process_iter, cli_runner, mock_aedt_process):
     """Test stop all when generic exception occurs during kill."""
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
@@ -208,7 +212,7 @@ def test_stop_all_command_with_generic_exception(mock_process_access, mock_proce
 
 
 @patch("psutil.Process")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_pid_success(mock_process_access, mock_process_class, cli_runner, mock_aedt_process):
     """Test successfully stopping process by PID."""
     mock_process_class.return_value = mock_aedt_process
@@ -232,7 +236,7 @@ def test_stop_command_by_pid_access_denied(mock_process_class, cli_runner, mock_
 
 
 @patch("psutil.Process")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_process_class, cli_runner):
     """Test stopping process by PID when not in stoppable state."""
     mock_proc = Mock()
@@ -245,7 +249,7 @@ def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_proce
 
 
 @patch("psutil.Process")
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_pid_generic_exception(mock_process_access, mock_process_class, cli_runner, mock_aedt_process):
     """Test stopping process by PID when generic exception occurs."""
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
@@ -267,8 +271,8 @@ def test_stop_command_by_pid_invalid_pid(mock_process, cli_runner):
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_port_success(mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
     """Test successfully stopping process by port."""
     mock_process_iter.return_value = [mock_aedt_process]
@@ -281,7 +285,7 @@ def test_stop_command_by_port_success(mock_access, mock_get_port, mock_process_i
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50052)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50052)
 def test_stop_command_by_port_not_found(mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
     """Test stopping process by port when no process found on that port."""
     mock_process_iter.return_value = [mock_aedt_process]
@@ -293,8 +297,8 @@ def test_stop_command_by_port_not_found(mock_get_port, mock_process_iter, cli_ru
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=False)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=False)
 def test_stop_command_by_port_access_denied(
     mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -308,8 +312,8 @@ def test_stop_command_by_port_access_denied(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_port_no_such_process(
     mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -324,8 +328,8 @@ def test_stop_command_by_port_no_such_process(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=50051)
-@patch("ansys.aedt.core.cli._can_access_process", return_value=True)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
 def test_stop_command_by_port_generic_exception(
     mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
 ):
@@ -340,7 +344,7 @@ def test_stop_command_by_port_generic_exception(
 
 
 @patch("psutil.process_iter")
-@patch("ansys.aedt.core.cli._get_port", return_value=None)
+@patch("ansys.aedt.core.cli.process._get_port", return_value=None)
 def test_stop_command_by_port_no_port_info(mock_get_port, mock_process_iter, cli_runner, mock_aedt_process):
     """Test stopping process by port when process has no port information."""
     mock_process_iter.return_value = [mock_aedt_process]
@@ -441,7 +445,7 @@ def test_start_command_desktop_exception(mock_settings, mock_desktop, cli_runner
     assert "- Insufficient permissions" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_get_config_path(mock_get_tests_folder, tmp_path):
     """Test _get_config_path helper function."""
     mock_get_tests_folder.return_value = tmp_path
@@ -451,7 +455,7 @@ def test_get_config_path(mock_get_tests_folder, tmp_path):
     assert isinstance(config, dict)
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_load_config_existing_file(mock_get_tests_folder, tmp_path):
     """Test loading existing config file."""
     mock_get_tests_folder.return_value = tmp_path
@@ -466,7 +470,7 @@ def test_load_config_existing_file(mock_get_tests_folder, tmp_path):
     assert loaded_config["NonGraphical"] is False
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_load_config_invalid_file(mock_get_tests_folder, tmp_path):
     """Test loading invalid config file returns defaults."""
     mock_get_tests_folder.return_value = tmp_path
@@ -554,11 +558,11 @@ def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_pers
     """Test panel installation with short option flags."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "-v", "2024.1", "-p", str(temp_personal_lib)],
+        ["panels", "add", "-v", "2025.2", "-p", str(temp_personal_lib)],
     )
 
     assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2024.1..." in result.stdout
+    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
     assert "✓ PyAEDT panels installed successfully." in result.stdout
 
 
@@ -714,7 +718,7 @@ def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_
     )
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_save_config(mock_get_tests_folder, tmp_path):
     """Test saving config file."""
     mock_get_tests_folder.return_value = tmp_path
@@ -748,7 +752,7 @@ def test_display_config(cli_runner):
 # CONFIG COMMAND TESTS - CLI Integration Tests
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
     """Test desktop_version command."""
     mock_get_tests_folder.return_value = tmp_path
@@ -761,7 +765,7 @@ def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_desktop_version_invalid_format(mock_get_tests_folder, tmp_path, cli_runner):
     """Test desktop_version command with invalid format."""
     mock_get_tests_folder.return_value = tmp_path
@@ -770,7 +774,7 @@ def test_desktop_version_invalid_format(mock_get_tests_folder, tmp_path, cli_run
     assert "Invalid format" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_all_boolean_commands(mock_get_tests_folder, tmp_path, cli_runner):
     """Test all boolean configuration commands."""
     mock_get_tests_folder.return_value = tmp_path
@@ -792,7 +796,7 @@ def test_all_boolean_commands(mock_get_tests_folder, tmp_path, cli_runner):
         assert expected_output in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_local_example_folder_command(mock_get_tests_folder, tmp_path, cli_runner):
     """Test local_example_folder command."""
     mock_get_tests_folder.return_value = tmp_path
@@ -804,7 +808,7 @@ def test_local_example_folder_command(mock_get_tests_folder, tmp_path, cli_runne
     assert "local_example_folder set to '/path/to/examples'" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_persists_across_commands(mock_get_tests_folder, tmp_path, cli_runner):
     """Test that config changes persist across multiple commands."""
     mock_get_tests_folder.return_value = tmp_path
@@ -896,7 +900,7 @@ def test_prompt_config_value_unknown_type():
 # _update_bool_config TESTS (Interactive Mode)
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.confirm")
 def test_update_bool_config_interactive_change(mock_confirm, mock_get_tests_folder, tmp_path):
     """Test _update_bool_config interactive mode with change."""
@@ -912,7 +916,7 @@ def test_update_bool_config_interactive_change(mock_confirm, mock_get_tests_fold
     assert config["NonGraphical"] is False
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.confirm")
 def test_update_bool_config_interactive_no_change(mock_confirm, mock_get_tests_folder, tmp_path):
     """Test _update_bool_config interactive mode no change."""
@@ -928,7 +932,7 @@ def test_update_bool_config_interactive_no_change(mock_confirm, mock_get_tests_f
     assert config["NonGraphical"] is True
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_update_bool_config_with_value(mock_get_tests_folder, tmp_path):
     """Test _update_bool_config with explicit value."""
     mock_get_tests_folder.return_value = tmp_path
@@ -944,7 +948,7 @@ def test_update_bool_config_with_value(mock_get_tests_folder, tmp_path):
 # _update_string_config TESTS (Interactive Mode)
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.prompt")
 def test_update_string_config_interactive_no_validator(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config interactive mode no validator."""
@@ -959,7 +963,7 @@ def test_update_string_config_interactive_no_validator(mock_prompt, mock_get_tes
     assert config["local_example_folder"] == "/new/path"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.prompt")
 def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config interactive mode valid."""
@@ -979,7 +983,7 @@ def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 @patch("typer.prompt")
 def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config invalid then valid value."""
@@ -999,7 +1003,7 @@ def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, m
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_update_string_config_with_value_valid(mock_get_tests_folder, tmp_path):
     """Test _update_string_config with explicit valid value."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1017,7 +1021,7 @@ def test_update_string_config_with_value_valid(mock_get_tests_folder, tmp_path):
     assert config["desktopVersion"] == "2023.2"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_update_string_config_with_value_invalid(mock_get_tests_folder, tmp_path):
     """Test _update_string_config with explicit invalid value."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1041,7 +1045,7 @@ def test_update_string_config_with_value_invalid(mock_get_tests_folder, tmp_path
 # config_test COMMAND TESTS
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_show_flag(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with --show flag."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1053,7 +1057,7 @@ def test_config_test_show_flag(mock_get_tests_folder, tmp_path, cli_runner):
     assert "2025.2" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_show_flag_short(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with -s flag."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1064,7 +1068,7 @@ def test_config_test_show_flag_short(mock_get_tests_folder, tmp_path, cli_runner
     assert "Current Test Configuration" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_interactive_no_modify(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command declining to modify."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1075,7 +1079,7 @@ def test_config_test_interactive_no_modify(mock_get_tests_folder, tmp_path, cli_
     assert "No changes made" in result.stdout
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command with interactive modifications."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1096,7 +1100,7 @@ def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_p
     assert config["desktopVersion"] == "2024.1"
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_creates_config_file(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command creates config file if not exists."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1110,7 +1114,7 @@ def test_config_test_creates_config_file(mock_get_tests_folder, tmp_path, cli_ru
     assert config_file.exists()
 
 
-@patch("ansys.aedt.core.cli._get_tests_folder")
+@patch("ansys.aedt.core.cli.common._get_tests_folder")
 def test_config_test_loads_existing_config(mock_get_tests_folder, tmp_path, cli_runner):
     """Test config test command loads existing config file."""
     mock_get_tests_folder.return_value = tmp_path
@@ -1167,7 +1171,7 @@ def test_panels_add_selection_out_of_range_above(cli_runner, mock_installed_vers
 
     assert result.exit_code == 1
     assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 4" in result.stdout
+    assert "Please choose a number between 1 and 2" in result.stdout
 
 
 def test_panels_add_selection_out_of_range_below(cli_runner, mock_installed_versions):
@@ -1180,7 +1184,7 @@ def test_panels_add_selection_out_of_range_below(cli_runner, mock_installed_vers
 
     assert result.exit_code == 1
     assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 4" in result.stdout
+    assert "Please choose a number between 1 and 2" in result.stdout
 
 
 def test_panels_add_selection_negative(cli_runner, mock_installed_versions):
@@ -1193,7 +1197,7 @@ def test_panels_add_selection_negative(cli_runner, mock_installed_versions):
 
     assert result.exit_code == 1
     assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 4" in result.stdout
+    assert "Please choose a number between 1 and 2" in result.stdout
 
 
 def test_panels_add_valid_selection(
@@ -1219,3 +1223,134 @@ def test_panels_add_valid_selection(
         skip_version_manager=False,
         odesktop=None,
     )
+
+
+def test_doc_group_help(cli_runner):
+    """Ensure doc command group help works."""
+    result = cli_runner.invoke(app, ["doc", "--help"])
+
+    assert result.exit_code == 0
+    assert "Documentation commands" in result.stdout
+
+
+def test_doc_examples_command(cli_runner, mock_online_help):
+    """Test doc examples command."""
+    result = cli_runner.invoke(app, ["doc", "examples"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.examples.assert_called_once_with()
+
+
+def test_doc_github_command(cli_runner, mock_online_help):
+    """Test doc github command."""
+    result = cli_runner.invoke(app, ["doc", "github"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.github.assert_called_once_with()
+
+
+def test_doc_user_guide_command(cli_runner, mock_online_help):
+    """Test doc user_guide command."""
+    result = cli_runner.invoke(app, ["doc", "user-guide"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.user_guide.assert_called_once_with()
+
+
+def test_doc_getting_started_command(cli_runner, mock_online_help):
+    """Test doc getting_started command."""
+    result = cli_runner.invoke(app, ["doc", "getting-started"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.getting_started.assert_called_once_with()
+
+
+def test_doc_installation_command(cli_runner, mock_online_help):
+    """Test doc installation command."""
+    result = cli_runner.invoke(app, ["doc", "installation"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.installation_guide.assert_called_once_with()
+
+
+def test_doc_api_reference_command(cli_runner, mock_online_help):
+    """Test doc api_reference command."""
+    result = cli_runner.invoke(app, ["doc", "api"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.api_reference.assert_called_once_with()
+
+
+def test_doc_changelog_command_no_arg(cli_runner, mock_online_help):
+    """Test doc changelog command without version argument."""
+    result = cli_runner.invoke(app, ["doc", "changelog"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.changelog.assert_called_once_with(None)
+
+
+def test_doc_changelog_command_with_version(cli_runner, mock_online_help):
+    """Test doc changelog command with explicit version."""
+    result = cli_runner.invoke(app, ["doc", "changelog", "0.22.0"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.changelog.assert_called_once_with("0.22.0")
+
+
+def test_doc_issues_command(cli_runner, mock_online_help):
+    """Test doc issues command."""
+    result = cli_runner.invoke(app, ["doc", "issues"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.issues.assert_called_once_with()
+
+
+def test_doc_search_command_single_keyword(cli_runner, mock_online_help):
+    """Test doc search command with single keyword."""
+    result = cli_runner.invoke(app, ["doc", "search", "Maxwell"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.search.assert_called_once_with("Maxwell")
+
+
+def test_doc_search_command_multiple_keywords(cli_runner, mock_online_help):
+    """Test doc search command with multiple keywords."""
+    result = cli_runner.invoke(app, ["doc", "search", "Maxwell", "3D", "simulation"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.search.assert_called_once_with("Maxwell 3D simulation")
+
+
+def test_doc_search_command_no_keywords(cli_runner, mock_online_help):
+    """Test doc search command without keywords."""
+    result = cli_runner.invoke(app, ["doc", "search"])
+
+    assert result.exit_code == 1
+    assert "✗ Error: Please provide at least one search keyword" in result.stdout
+    assert "Usage: pyaedt doc search" in result.stdout
+    # Should not call online_help.search when no keywords provided
+    mock_online_help.search.assert_not_called()
+
+
+def test_doc_callback_opens_home_and_shows_help(cli_runner, mock_online_help):
+    """Test doc command without subcommand opens home and displays help."""
+    result = cli_runner.invoke(app, ["doc"])
+
+    assert result.exit_code == 0
+    assert mock_online_help.silent is False
+    mock_online_help.home.assert_called_once_with()
+    # Verify help text is displayed
+    assert "Documentation commands" in result.stdout
+    assert "examples" in result.stdout
+    assert "github" in result.stdout

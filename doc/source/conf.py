@@ -199,6 +199,7 @@ numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
     r"\.Modeler3D\.create_choke$",  # bad RT05
     r"HistoryProps.",  # bad RT05 because of the base class named dict
+    r"\.Profiles.",
 }
 
 # Favicon
@@ -265,9 +266,7 @@ html_context = {
     "github_repo": "pyaedt",
     "github_version": "main",
     "doc_path": "doc/source",
-    "pyansys_tags": [
-        "Electronics"
-    ]
+    "pyansys_tags": ["Electronics"],
 }
 
 # specify the location of your github repo
@@ -296,7 +295,7 @@ html_theme_options = {
     "static_search": {
         "threshold": 0.5,
         "minMatchCharLength": 2,
-        "limite": 10,
+        "limit": 10,
         "ignoreLocation": True,
     },
     "cheatsheet": {
