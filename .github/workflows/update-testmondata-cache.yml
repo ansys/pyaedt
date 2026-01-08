@@ -9,10 +9,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  actions: read # to download artifacts
-  contents: write # to save cache
-
 env:
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
@@ -37,6 +33,9 @@ jobs:
   update-cache:
     name: Update testmon cache on main branch
     runs-on: ubuntu-latest
+    permissions:
+      actions: read # to download artifacts
+      contents: write # to save cache
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
