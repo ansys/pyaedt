@@ -569,7 +569,11 @@ class FieldsCalculator(PyAedtBase):
         self.ofieldsreporter.CalcStack("clear")
         self.ofieldsreporter.CopyNamedExprToStack(expression)
         args = []
-        for k, v in self.__app.variable_manager.design_variables.items():
+        for k, v in (
+            self.__app.variable_manager.design_variables | self.__app.variable_manager.project_variables
+        ).items():
+            if "[" in v.evaluated_value:
+                raise AEDTRuntimeError("The method does not currently support array variables.")
             args.append(f"{k}:=")
             args.append(v.expression)
         intrinsics = self.__app.post._check_intrinsics(intrinsics)
@@ -578,7 +582,12 @@ class FieldsCalculator(PyAedtBase):
                 continue
             args.append(f"{k}:=")
             args.append(v)
-        self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
+        if self.__app.aedt_version_id < "2026.1":
+            self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
+        else:
+            solution_args = ["NAME:Setup", "Solution:=", setup]
+            expression_args = ["NAME:Expression", "NameOfExpression:=", [expression]]
+            self.ofieldsreporter.CalculatorWrite(output_file, ["NAME:Write", solution_args, expression_args], args)
         self.ofieldsreporter.CalcStack("clear")
         return True
 
@@ -611,6 +620,7 @@ class FieldsCalculator(PyAedtBase):
         """
         out_file = Path(self.__app.working_directory) / (generate_unique_name("expression") + ".fld")
         self.write(expression, setup=setup, intrinsics=intrinsics, output_file=str(out_file))
+
         value = None
         if out_file.exists():
             with open_file(out_file, "r") as f:

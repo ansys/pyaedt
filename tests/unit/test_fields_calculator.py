@@ -28,23 +28,40 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 
 
 @pytest.fixture
-def mock_app(tmp_path_factory):
+def mock_app(tmp_path_factory, request):
     app = MagicMock()
+    app.aedt_version_id = getattr(request, "param", "2025.2")
     app.nominal_adaptive = "Setup1 : LastAdaptive"
     app.setup_names = ["Setup1"]
     app.logger = MagicMock()
     app.variable_manager.design_variables = {}
+    app.variable_manager.project_variables = {}
     app.post._check_intrinsics([])
     app.working_directory = tmp_path_factory.mktemp("aedt_working_dir")
     return app
 
 
-def test_write(mock_app, test_tmp_dir):
-    """Test the write method of FieldsCalculator class."""
+@pytest.fixture
+def mock_app_array(tmp_path_factory, request):
+    app = MagicMock()
+    app.aedt_version_id = getattr(request, "param", "2025.2")
+    app.nominal_adaptive = "Setup1 : LastAdaptive"
+    app.setup_names = ["Setup1"]
+    app.logger = MagicMock()
+    app.variable_manager.design_variables = {"test_array": "[1,2,3]mm"}
+    app.variable_manager.project_variables = {}
+    app.post._check_intrinsics([])
+    app.working_directory = tmp_path_factory.mktemp("aedt_working_dir")
+    return app
+
+
+def test_write_empty_design_variables(mock_app, test_tmp_dir):
+    """Test the write method of FieldsCalculator class with no array variables."""
     fields_calculator = FieldsCalculator(mock_app)
     fields_calculator.ofieldsreporter = MagicMock()
     fields_calculator.is_expression_defined = MagicMock(return_value=True)
@@ -60,6 +77,40 @@ def test_write(mock_app, test_tmp_dir):
     assert result is True
 
 
+@pytest.mark.parametrize("mock_app", ["2026.1"], indirect=True)
+def test_write_20261(mock_app, test_tmp_dir):
+    """Test the write method of FieldsCalculator class with no array variables in AEDT 2026.1."""
+    fields_calculator = FieldsCalculator(mock_app)
+    fields_calculator.ofieldsreporter = MagicMock()
+    fields_calculator.is_expression_defined = MagicMock(return_value=True)
+    output_file = test_tmp_dir / "expr.fld"
+
+    result = fields_calculator.write(
+        expression="my_expr",
+        output_file=str(output_file),
+        setup=mock_app.nominal_adaptive,
+        intrinsics=None,
+    )
+
+    assert result is True
+
+
+def test_write_array_design_variables(mock_app_array, test_tmp_dir):
+    """Test the write method of FieldsCalculator class with array variables."""
+    fields_calculator = FieldsCalculator(mock_app_array)
+    fields_calculator.ofieldsreporter = MagicMock()
+    fields_calculator.is_expression_defined = MagicMock(return_value=True)
+    output_file = test_tmp_dir / "expr.fld"
+
+    with pytest.raises(AEDTRuntimeError):
+        fields_calculator.write(
+            expression="my_expr",
+            output_file=str(output_file),
+            setup=mock_app_array.nominal_adaptive,
+            intrinsics=None,
+        )
+
+
 def test_evaluate(mock_app):
     """Test the evaluate method of FieldsCalculator class."""
     fields_calculator = FieldsCalculator(mock_app)
@@ -67,7 +118,7 @@ def test_evaluate(mock_app):
     fields_calculator.ofieldsreporter = MagicMock()
 
     with (
-        patch("ansys.aedt.core.visualization.post.fields_calculator.generate_unique_name", return_value="testfile"),
+        # patch("ansys.aedt.core.visualization.post.fields_calculator.generate_unique_name", return_value="testfile"),
         patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True),
         patch(
             "ansys.aedt.core.visualization.post.fields_calculator.open_file",
