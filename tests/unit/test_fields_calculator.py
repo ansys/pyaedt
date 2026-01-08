@@ -143,12 +143,13 @@ def test_export_invalid_grid_type(mock_app):
     """Test the export method of FieldsCalculator class with an invalid grid type."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app._FieldsCalculator__app.post.export_field_file_on_grid = MagicMock(return_value="fake_output.fld")
-
     grid_type = "invalid"
 
-    assert not fields_calculator.export(
+    res = fields_calculator.export(
         quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive", grid_type=grid_type
     )
+
+    assert not res
 
 
 def test_export_failure(mock_app):
