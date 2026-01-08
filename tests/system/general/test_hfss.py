@@ -1993,10 +1993,6 @@ def test_plane_wave(aedt_app):
 
 
 def test_far_field(aedt_app, add_app, test_tmp_dir):
-    # Test error when neither assignment nor external_data is provided
-    with pytest.raises(ValueError, match="The 'assignment' parameter must be provided."):
-        aedt_app.far_field_wave()
-
     # Create simple geometry in target design
     _ = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], "TargetBox")
 

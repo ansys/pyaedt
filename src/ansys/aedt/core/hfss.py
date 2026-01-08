@@ -6723,20 +6723,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def far_field_wave(
         self,
-        assignment=None,
-        setup=None,
-        simulate_source=True,
-        preserve_source_solution=True,
-        coordinate_system="Global",
-        name=None,
+        assignment: Union[str, "Hfss"],
+        setup: Optional[str] = None,
+        simulate_source: bool = True,
+        preserve_source_solution: bool = True,
+        coordinate_system: str = "Global",
+        name: Optional[str] = None,
     ) -> BoundaryObject:
         """Create a far field wave excitation.
 
         Parameters
         ----------
-        assignment : ansys.aedt.core.Hfss or str, optional
+        assignment : ansys.aedt.core.Hfss or str
             Source HFSS object from which to link the far field data, or path to an external
-            far field data file (.ffd file). The default is ``None``.
+            far field data file (.ffd file).
         setup : optional
             Name of the setup. The default is ``None``, in which
             case a name is automatically assigned.
@@ -6785,9 +6785,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> far_field_wave_src = target.far_field_wave(assignment="/path/to/farfield.ffd")
         """
         name = self._get_unique_source_name(name, "IncFFWave")
-
-        if assignment is None:
-            raise ValueError("The 'assignment' parameter must be provided.")
 
         if isinstance(assignment, str):
             # Use external data file
