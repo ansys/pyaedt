@@ -172,9 +172,11 @@ def test_export_with_invalid_sample_points(mock_app):
     fields_calculator = FieldsCalculator(mock_app)
     sample_points = 1
 
-    assert not fields_calculator.export(
+    res = fields_calculator.export(
         quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive", sample_points=sample_points
     )
+
+    assert not res
 
 
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
