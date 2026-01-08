@@ -101,7 +101,6 @@ def test_export_with_sample_points_list(mock_app):
     """Test the export method of FieldsCalculator class with sample points as a list."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
-
     sample_points = [(0, 0, 0), (1, 1, 1), (2, 2, 2)]
 
     with patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True):
@@ -111,6 +110,7 @@ def test_export_with_sample_points_list(mock_app):
             solution="Setup1 : LastAdaptive",
             sample_points=sample_points,
         )
+
     assert output == "fake_output.fld"
 
 
