@@ -2587,6 +2587,10 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         return True
 
+    @pyaedt_function_handler()
+    def export_cg_matrix(self):
+        pass
+
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle Maxwell parameters
     def _create_boundary(self, name, props, boundary_type):
