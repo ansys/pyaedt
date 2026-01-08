@@ -97,10 +97,10 @@ def table_app():
     headings = ["Name", "Type", "Objects"]
     type_list = ["text", "combo", "multiple_text"]
     selection_dict = {
-        "Category": ["Solid", "Fluid"],
-        "Tags": ["CPU", "DDR", "RAM"]
+        "Type": ["Solid", "Fluid"],
+        "Objects": ["CPU", "DDR", "RAM"]
     }
-    row_data = [["BC1", "Solid", "CPU"]]
+    row_data = [["BC1", "Solid", ["CPU"]]]
     read_only_cols = [[]]
 
     # --- 2. CORRECT LAYOUT ---
@@ -160,6 +160,41 @@ def test_ui_edit_workflow(table_app):
     combo.event_generate("<<ComboboxSelected>>")  # Trigger selection event
     tree.update()
     assert tree.set(row_id, "#3") == "Fluid"
+
+    # ==========================================================
+    # 3. TESTING THE 'MULTIPLE_TEXT' COLUMN (#4)
+    # ==========================================================
+    x, y, w, h = tree.bbox(row_id, "#4")
+    event.x, event.y = x + 200, y + 20  # Adjust to hit the cell
+
+    def handle_toplevel():
+        # 1. Find the Toplevel window
+        # We look for a Toplevel that is a child of the table
+        top = next(c for c in table.winfo_children() if isinstance(c, tk.Toplevel))
+
+        # 2. Find the Listbox inside that Toplevel
+        listbox = next(c for c in top.winfo_children() if isinstance(c, tk.Listbox))
+
+        # 3. Select specific indices (e.g., first and second items)
+        listbox.selection_clear(0, tk.END)
+        listbox.selection_set(0)
+        listbox.selection_set(1)
+
+        # 4. Find and click the 'OK' button
+        ok_btn = next(c for c in top.winfo_children() if isinstance(c, ttk.Button))
+        ok_btn.invoke()
+
+    # Schedule the handler to run once the mainloop starts waiting for the window
+    table.after(100, handle_toplevel)
+
+    # This call will block due to self.wait_window(top),
+    # but the after() scheduled above will execute.
+    table.edit_cell(event)
+    tree.update()
+    # Verify the result (comma-separated string)
+    # Note: Ensure these expected values match your multi_select_options
+    # expected_val = f"{table.multi_select_options[table.headers[3]][0]}, {table.multi_select_options[table.headers[3]][1]}"
+    assert tree.set(row_id, "#4") == "CPU, DDR"
 
 
 
