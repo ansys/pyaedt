@@ -93,6 +93,7 @@ def test_export_with_sample_points_string(mock_app):
             solution="Setup1 : LastAdaptive",
             sample_points="points.csv",
         )
+
     assert output == "fake_output.fld"
 
 
