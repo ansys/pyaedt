@@ -144,6 +144,7 @@ def test_export_with_sample_points_string(mock_app):
             solution="Setup1 : LastAdaptive",
             sample_points="points.csv",
         )
+
     assert output == "fake_output.fld"
 
 
@@ -151,7 +152,6 @@ def test_export_with_sample_points_list(mock_app):
     """Test the export method of FieldsCalculator class with sample points as a list."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
-
     sample_points = [(0, 0, 0), (1, 1, 1), (2, 2, 2)]
 
     with patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True):
@@ -161,6 +161,7 @@ def test_export_with_sample_points_list(mock_app):
             solution="Setup1 : LastAdaptive",
             sample_points=sample_points,
         )
+
     assert output == "fake_output.fld"
 
 
@@ -193,17 +194,21 @@ def test_export_invalid_grid_type(mock_app):
     """Test the export method of FieldsCalculator class with an invalid grid type."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app._FieldsCalculator__app.post.export_field_file_on_grid = MagicMock(return_value="fake_output.fld")
-
     grid_type = "invalid"
 
-    assert not fields_calculator.export(
+    res = fields_calculator.export(
         quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive", grid_type=grid_type
     )
+
+    assert not res
 
 
 def test_export_failure(mock_app):
     """Test the export method of FieldsCalculator class when export fails."""
     fields_calculator = FieldsCalculator(mock_app)
-    assert not fields_calculator.export(
+
+    res = fields_calculator.export(
         quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive"
     )
+
+    assert not res
