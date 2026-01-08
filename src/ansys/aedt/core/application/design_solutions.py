@@ -434,7 +434,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
     def solution_type(self, solution_type):
         if solution_type:
             try:
-                self._odesign.SetDesignFlow(self._design_type, solution_type)
+                self._odesign.SetDesignFlow(self._design_type.NAME, solution_type)
                 self._solution_type = solution_type
             except Exception:
                 logger.error("Failed to set design flow.")
