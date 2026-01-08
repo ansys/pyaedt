@@ -2177,8 +2177,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Path(sab_file_pointer).unlink()
         if Path(fl_uscript_file_pointer).exists():
             Path(fl_uscript_file_pointer).unlink()
-        if Path(str(str(mesh_file_pointer)) + ".trn").exists():
-            Path(str(str(mesh_file_pointer)) + ".trn").unlink()
+        if Path(str(mesh_file_pointer) + ".trn").exists():
+            Path(str(mesh_file_pointer) + ".trn").unlink()
 
         export_success = self.export_3d_model(file_name, self.working_directory, ".sab", object_lists)
         if not export_success:
