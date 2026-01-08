@@ -53,7 +53,9 @@ def mock_app_array(tmp_path_factory, request):
     app.nominal_adaptive = "Setup1 : LastAdaptive"
     app.setup_names = ["Setup1"]
     app.logger = MagicMock()
-    app.variable_manager.design_variables = {"test_array": "[1,2,3]mm"}
+    v = MagicMock()
+    v.evaluated_value = "[1,2,3]mm"
+    app.variable_manager.design_variables = {"test_array": v}
     app.variable_manager.project_variables = {}
     app.post._check_intrinsics([])
     app.working_directory = tmp_path_factory.mktemp("aedt_working_dir")
@@ -101,6 +103,8 @@ def test_write_array_design_variables(mock_app_array, test_tmp_dir):
     fields_calculator.ofieldsreporter = MagicMock()
     fields_calculator.is_expression_defined = MagicMock(return_value=True)
     output_file = test_tmp_dir / "expr.fld"
+    # v = MagicMock()
+    # v.evaluated_value = "[1,2,3]mm"
 
     with pytest.raises(AEDTRuntimeError):
         fields_calculator.write(
