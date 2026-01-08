@@ -2045,6 +2045,7 @@ def test_far_field(aedt_app, add_app, test_tmp_dir):
     far_field_external_project = aedt_app.far_field_wave(
         assignment=external_source, setup=external_setup, coordinate_system="Global", name="FarFieldExternalProject"
     )
+    external_source.close_project()
     assert far_field_external_project is not None
     assert far_field_external_project.name == "FarFieldExternalProject"
     assert far_field_external_project.name in aedt_app.excitation_names
