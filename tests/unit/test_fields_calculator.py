@@ -43,13 +43,9 @@ def mock_app(tmp_path_factory):
     return app
 
 
-@pytest.fixture
-def fields_calculator(mock_app):
-    return FieldsCalculator(mock_app)
-
-
-def test_write(fields_calculator, mock_app, test_tmp_dir):
+def test_write(mock_app, test_tmp_dir):
     """Test the write method of FieldsCalculator class."""
+    fields_calculator = FieldsCalculator(mock_app)
     fields_calculator.ofieldsreporter = MagicMock()
     fields_calculator.is_expression_defined = MagicMock(return_value=True)
     output_file = test_tmp_dir / "expr.fld"
@@ -64,8 +60,9 @@ def test_write(fields_calculator, mock_app, test_tmp_dir):
     assert result is True
 
 
-def test_evaluate(fields_calculator, mock_app):
+def test_evaluate(mock_app):
     """Test the evaluate method of FieldsCalculator class."""
+    fields_calculator = FieldsCalculator(mock_app)
     fields_calculator.is_expression_defined = MagicMock(return_value=True)
     fields_calculator.ofieldsreporter = MagicMock()
 
@@ -83,8 +80,9 @@ def test_evaluate(fields_calculator, mock_app):
     assert value is not None
 
 
-def test_export_with_sample_points_string(fields_calculator, mock_app):
+def test_export_with_sample_points_string(mock_app):
     """Test the export method of FieldsCalculator class with sample points as a path."""
+    fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
 
     with patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True):
@@ -97,8 +95,9 @@ def test_export_with_sample_points_string(fields_calculator, mock_app):
     assert output == "fake_output.fld"
 
 
-def test_export_with_sample_points_list(fields_calculator, mock_app):
+def test_export_with_sample_points_list(mock_app):
     """Test the export method of FieldsCalculator class with sample points as a list."""
+    fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
 
     sample_points = [(0, 0, 0), (1, 1, 1), (2, 2, 2)]
@@ -113,8 +112,9 @@ def test_export_with_sample_points_list(fields_calculator, mock_app):
     assert output == "fake_output.fld"
 
 
-def test_export_with_invalid_sample_points(fields_calculator):
+def test_export_with_invalid_sample_points(mock_app):
     """Test the export method of FieldsCalculator class with invalid sample points."""
+    fields_calculator = FieldsCalculator(mock_app)
     sample_points = 1
 
     assert not fields_calculator.export(
@@ -122,8 +122,9 @@ def test_export_with_invalid_sample_points(fields_calculator):
     )
 
 
-def test_export_grid_type(fields_calculator, mock_app):
+def test_export_grid_type(mock_app):
     """Test the export method of FieldsCalculator class with different grid types."""
+    fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file_on_grid = MagicMock(return_value="fake_output.fld")
 
     grid_types = ["Cartesian", "Cylindrical", "Spherical"]
@@ -136,8 +137,9 @@ def test_export_grid_type(fields_calculator, mock_app):
         assert output == "fake_output.fld"
 
 
-def test_export_invalid_grid_type(fields_calculator, mock_app):
+def test_export_invalid_grid_type(mock_app):
     """Test the export method of FieldsCalculator class with an invalid grid type."""
+    fields_calculator = FieldsCalculator(mock_app)
     mock_app._FieldsCalculator__app.post.export_field_file_on_grid = MagicMock(return_value="fake_output.fld")
 
     grid_type = "invalid"
@@ -147,8 +149,9 @@ def test_export_invalid_grid_type(fields_calculator, mock_app):
     )
 
 
-def test_export_failure(fields_calculator, mock_app):
+def test_export_failure(mock_app):
     """Test the export method of FieldsCalculator class when export fails."""
+    fields_calculator = FieldsCalculator(mock_app)
     assert not fields_calculator.export(
         quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive"
     )
