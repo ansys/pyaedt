@@ -30,10 +30,19 @@ import pytest
 import tkinter as tk
 from tkinter import ttk
 
-from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import EXTENSION_TITLE
+from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import EXTENSION_TITLE, add_table_to_tab
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import IcepakModelReviewer
+from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import Table
 from tests import TESTS_UNIT_PATH
+from ansys.aedt.core.icepak import Icepak
+from pathlib import Path
+
+AEDT_FILENAME = "Graphics_Card"
+CONFIG_FILE = "Modified_Data.json"
+TEST_SUBFOLDER = "T45"
+AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDT_FILENAME + ".aedt")
+
 
 
 def config_file_load():
@@ -48,6 +57,7 @@ def mapping_load():
     with open(mapping_file, "r") as file:
         data = json.load(file)
     return data
+
 
 
 @pytest.fixture
@@ -68,21 +78,90 @@ def patched_import_data_to_project():
         yield mock_loader
 
 
+theme = ExtensionTheme()
+
+
+def add_icon_to_cells(data, read_only): return data
+
+
+def flatten_list(data): return data
+
+
+# --- Pytest Fixture ---
 @pytest.fixture
-def table_instance():
-
-    """Setup a table instance for testing."""
+def table_app():
     root = tk.Tk()
-    headers = ["Name", "Status"]
-    types = ["text", "combo"]
-    # Row 0: Column 1 (Name) is read-only
-    # Row 1: No read-only columns
-    read_only_data = [{1}, set()]
+    root.geometry("800x500")  # Set a size so it's visible
+    #root.withdraw()
+    # --- 1. MOCK DATA ---
+    headings = ["Name", "Type", "Objects"]
+    type_list = ["text", "combo", "multiple_text"]
+    selection_dict = {
+        "Category": ["Solid", "Fluid"],
+        "Tags": ["CPU", "DDR", "RAM"]
+    }
+    row_data = [["BC1", "Solid", "CPU"]]
+    read_only_cols = [[]]
 
-    table = Table(root, headers, types, read_only_data)
-    table.add_row(["Alice", "Active"])
-    table.add_row(["Bob", "Inactive"])
-    return table
+    # --- 2. CORRECT LAYOUT ---
+    notebook = ttk.Notebook(root)
+    notebook.pack(fill="both", expand=True)  # Must pack the notebook!
+
+    tab = ttk.Frame(notebook)
+    notebook.add(tab, text="Mock Tab")  # Must add the frame to the notebook!
+
+    table_data = (headings, type_list, selection_dict, row_data, read_only_cols)
+    table = add_table_to_tab(tab, table_data)
+
+    # --- 3. PROCESS EVENTS WITHOUT BLOCKING ---
+    root.update_idletasks()
+    root.update()
+    #root.mainloop()
+    # We do NOT use root.mainloop() here because it blocks pytest.
+    # root.update() is enough to render the window for the test.
+
+    yield root, table
+
+    root.destroy()
+# --- Main Test Case ---
+def test_ui_edit_workflow(table_app):
+    root, table = table_app
+    tree = table.tree
+    row_id = tree.get_children()[0]
+    tree.see(row_id)
+    # ==========================================================
+    # 1. TESTING THE 'TEXT' COLUMN (#2)
+    # ==========================================================
+    # Locate cell, simulate click, and type text
+    x, y, w, h = tree.bbox(row_id, "#2")
+    event = tk.Event()
+    event.x, event.y = x + 200, y + 20
+    table.edit_cell(event)
+
+    # Find the Entry widget that was dynamically created
+    entry = next(c for c in tree.winfo_children() if isinstance(c, tk.Entry))
+    entry.delete(0, tk.END)
+    entry.insert(0, "BC2")
+    tree.update()
+    entry.event_generate("<Return>")  # Simulate pressing Enter to save
+    assert tree.set(row_id, "#2") == "BC2"
+
+    # ==========================================================
+    # 2. TESTING THE 'COMBO' COLUMN (#3)
+    # ==========================================================
+    # Locate cell, simulate click, and select from dropdown
+    x, y, w, h = tree.bbox(row_id, "#3")
+    event.x, event.y = x + 200, y + 20
+    table.edit_cell(event)
+
+    # Find the Combobox widget that was dynamically created
+    combo = next(c for c in tree.winfo_children() if isinstance(c, ttk.Combobox))
+    combo.set("Fluid")
+    combo.event_generate("<<ComboboxSelected>>")  # Trigger selection event
+    tree.update()
+    assert tree.set(row_id, "#3") == "Fluid"
+
+
 
 def test_icepak_model_reviewer(mock_icepak_app):
     """Test instantiation of the IcepakModelReviewer."""
@@ -253,10 +332,14 @@ def test_icepak_table_modification(mock_icepak_app, patched_loader):
     assert boundary_table.tree.item(row1)["values"][5] == "10W"
 
     # 2. TEST BULK EDITING (UI Logic Coverage)
+    row2 = boundary_table.tree.get_children()[2]
     row3 = boundary_table.tree.get_children()[2]
     boundary_table.toggle_row(row1)  # Select row 1
-    boundary_table.toggle_row(row3)  # Select row 2
+    boundary_table.toggle_row(row2) # Select row 2
+    boundary_table.toggle_row(row2) # Unselect row 2
+    boundary_table.toggle_row(row3)  # Select row 3
 
     # Modifying row1 should now also modify row2
     boundary_table.update_cell_value(row1, 5, "99W")
     assert boundary_table.tree.item(row3)["values"][5] == "99W"
+
