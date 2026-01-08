@@ -9,6 +9,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 env:
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
