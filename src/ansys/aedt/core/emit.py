@@ -32,6 +32,7 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_enum
 from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
 from ansys.aedt.core.emit_core.results.results import Results
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.schematic import ModelerEmit
 
@@ -179,6 +180,9 @@ class Emit(Design, PyAedtBase):
 
             self.results = Results(self)
             """''Result'' object for the selected design."""
+
+            self.interaction_domain = InteractionDomain(self)
+            """''InteractionDomain'' object for the selected design."""
 
             self.__emit_api_enabled = True
 

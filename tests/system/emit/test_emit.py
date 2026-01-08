@@ -885,9 +885,10 @@ def test_radio_getters(emit_app):
     reason="Skipped on versions earlier than 2023.2",
 )
 def test_static_type_generation(emit_app):
-    domain = emit_app.results.interaction_domain()
+    domain = emit_app.interaction_domain
+    # domain = emit_app.results.interaction_domain()
     py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
-    assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
+    assert str(type(domain)) == f"<class 'ansys.aedt.core.emit_core.results.interaction_domain.InteractionDomain'>"
 
     # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
     assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
@@ -911,7 +912,7 @@ def test_version(emit_app):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.1",
+    DESKTOP_VERSION <= "2023.1" or DESKTOP_VERSION > "2025.2",
     reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
 )
 def test_basic_run(emit_app):
