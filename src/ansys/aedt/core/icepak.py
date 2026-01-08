@@ -28,6 +28,7 @@ import csv
 import os
 from pathlib import Path
 import re
+from typing import Literal
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
@@ -45,6 +46,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
@@ -1100,48 +1102,71 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_em_losses(
         self,
-        design="HFSSDesign1",
-        setup="Setup1",
-        sweep="LastAdaptive",
-        map_frequency=None,
-        surface_objects=None,
-        source_project_name=None,
-        parameters=None,
-        assignment=None,
+        assignment: str | Object3d | list[str] | list[Object3d],
+        design: str,
+        setup: str,
+        sweep: str,
+        map_frequency: str | float | list[float] | list[str] | None = None,
+        source_project_name: str | None = None,
+        name: str | None = None,
+        surface_objects: list[str | int] | None = None,
+        parameters: list[str] | dict[str, str] | None = None,
+        force_source_solve: bool = True,
+        preserve_source_solution: bool = True,
+        loss_multiplier: float | PieceWiseLinearDictionary = 1.0,
+        harmonic_loss_sweep_coupling: bool = False,
+        q3d_loss_type: Literal["DCVolOrACSurfLoss", "ContactResistanceLoss", "HarmonicLoss"] = "DCVolOrACSurfLoss",
     ):
-        """Map EM losses to an Icepak design.
+        """
+        Map EM losses to an Icepak design.
 
         Parameters
         ----------
-        design : string, optional
-            Name of the design with the source mapping. The default is ``"HFSSDesign1"``.
-        setup : str, optional
-            Name of the EM setup. The default is ``"Setup1"``.
-        sweep : str, optional
-            Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
-        map_frequency : str, optional
-            String containing the frequency to map. The default is ``None``.
+        assignment : str, ::class::aedt.core.modeler.cad.object_3d.Object3d,
+                     list of str, or list of ::class::aedt.core.modeler.cad.object_3d.Object3d
+            List of objects to apply EM Losses to.
+        design : str
+            Name of the source design from which to map losses.
+        setup : str
+            Name of the source setup from which to map losses.
+        sweep : str
+            Name of the source setup sweep from which to map losses.
+        map_frequency : str, float, list of float, or list of str, optional
+            Frequency or frequencies to map. The default is ``None``.
+        source_project_name : str, optional
+            Name of the source project from which to map losses. The default is ``None``, in which case the
+            source from the same project is used.
+        name : str, optional
+            Name to assign to the boundary condition.
+            The default is ``None`` in which case it will be automatically generated.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
             List of objects in the source that are metals. The default is ``None``.
-        source_project_name : str, optional
-            Name of the source project. The default is ``None``, in which case the
-            source from the same project is used.
-        parameters : list, dict, optional
-            List of all parameters to map from source and Icepak design.
-            The default is ``None``, in which case the variables are set to their values (no mapping).
-            If ``None`` the variables are set to their values (no mapping).
-            If a list is provided, the specified variables in the Icepak design are mapped to variables
-            in the source design having the same name.
-            If a dictionary is provided, it is possible to map variables to the source design having a different name.
-            The dictionary structure is {"source_design_variable": "icepak_variable"}.
-        assignment : list, optional
-            List of objects. The default is ``None``.
+        parameters : list or dict, optional
+            List of parameters to map between the source and Icepak design.
+            - If ``None`` (default), variables are set to their values (no mapping).
+            - If a **list** is provided, the specified variables in the Icepak design are mapped
+              to variables in the source design having the same name.
+            - If a **dictionary** is provided, it maps variables to the source design using
+              the structure ``{"source_design_variable": "icepak_variable"}``.
+        force_source_solve : bool, optional
+            Whether to force the source design to solve if results are missing.
+            The default is ``True``.
+        preserve_source_solution : bool, optional
+            Whether to preserve the source solution. The default is ``True``.
+        loss_multiplier : float or PieceWiseLinearDictionary, optional
+            Multiplier for the EM losses. The default is ``1.0``.
+        harmonic_loss_sweep_coupling : bool, optional
+            Whether to enable harmonic loss sweep coupling. The default is ``False``.
+        q3d_loss_type : str, optional
+            Type of Q3D loss mapping. Options are ``"DCVolOrACSurfLoss"``,
+            ``"ContactResistanceLoss"``, or ``"HarmonicLoss"``.
+            The default is ``"DCVolOrACSurfLoss"``. Relevant only if the coupling is with Q3D.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        BoundaryObject
+            The created boundary object.
 
         References
         ----------
@@ -1149,24 +1174,18 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         """
         if surface_objects is None:
             surface_objects = []
-        if assignment is None:
-            assignment = []
-
-        self.logger.info("Mapping EM losses.")
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        if isinstance(assignment[0], Object3d):
+            try:
+                assignment = [a.name for a in assignment]
+            except AttributeError:
+                raise TypeError("All elements must be Object3d.")
 
         if self.project_name == source_project_name or source_project_name is None:
             project_name = "This Project*"
         else:
             project_name = source_project_name + ".aedt"
-        #
-        # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
-        #
-        if not assignment:
-            assignment = self.modeler.object_names
-            if "Region" in assignment:
-                assignment.remove("Region")
-        else:
-            assignment = assignment[:]
 
         surfaces = surface_objects
         if map_frequency:
@@ -1193,14 +1212,28 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             "Design": design,
             "Soln": setup + " : " + sweep,
             "Params": argparam,
-            "ForceSourceToSolve": True,
-            "PreservePartnerSoln": True,
+            "ForceSourceToSolve": force_source_solve,
+            "PreservePartnerSoln": preserve_source_solution,
             "PathRelativeTo": "TargetProject",
-            "Intrinsics": intr,
+            "Intrinsics": intr if not harmonic_loss_sweep_coupling else [],
+            "IntrinsicsHarmonicLoss": intr if harmonic_loss_sweep_coupling else [],
             "SurfaceOnly": surfaces,
+            "HarmonicLossSweepCoupling": harmonic_loss_sweep_coupling,
+            "Q3DEMLossType": q3d_loss_type,
         }
-
-        name = generate_unique_name("EMLoss")
+        if isinstance(loss_multiplier, BoundaryDictionary):
+            assignment_value = self._parse_variation_data(
+                "Transient Multiplier",
+                loss_multiplier["Type"],
+                variation_value=loss_multiplier["Values"],
+                function=loss_multiplier["Function"],
+            )
+            props.update(assignment_value)
+            props["LossMultiplier"] = 1.0
+        else:
+            props["LossMultiplier"] = loss_multiplier
+        if name is None:
+            name = generate_unique_name("EMLoss")
         bound = self._create_boundary(name, props, "EMLoss")
         return bound
 
@@ -2021,27 +2054,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                 [object],
             ]
         )
-        return True
-
-    @pyaedt_function_handler()
-    def delete_em_losses(self, bound_name):
-        """Delete the EM losses boundary.
-
-        Parameters
-        ----------
-        bound_name : str
-            Name of the boundary.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.DeleteBoundaries
-        """
-        self.oboundary.DeleteBoundaries([bound_name])
         return True
 
     @pyaedt_function_handler()
