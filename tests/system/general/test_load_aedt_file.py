@@ -30,7 +30,6 @@ import pytest
 
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
-from ansys.aedt.core.internal.load_aedt_file import get_design_list_from_aedt_file
 from tests import TESTS_GENERAL_PATH
 
 TEST_SUBFOLDER = "T13"

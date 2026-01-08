@@ -36,7 +36,7 @@ def _get_data_model(child_object, level=-1):
             if p == "properties":
                 for prop in val:
                     if "value" in prop:
-                        p_out[prop["name"]] = int(prop["value"]) if prop["name"]=="Num Points" else prop["value"]
+                        p_out[prop["name"]] = int(prop["value"]) if prop["name"] == "Num Points" else prop["value"]
                     elif "values" in prop:
                         p_out[prop["name"]] = prop["values"]
                     else:
