@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: read
-  contents: write
+  actions: read # to download artifacts
+  contents: write # to save cache
 
 env:
   TESTMON_DATAFILE: '.testmondata'
@@ -65,7 +65,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Download Unit Test Artifacts (Linux)
         if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v6
+        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci_cd.yml
