@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import bisect
 from copy import copy
 import itertools
@@ -180,80 +181,94 @@ class TouchstoneData(rf.Network, PyAedtBase):
     @pyaedt_function_handler()
     def get_coupling_in_range(
         self,
-        start_frequency=1e9,
-        stop_frequency=10e9,
-        low_loss=-40,
-        high_loss=-60,
-        s_same_component=True,
-        comp_list=[],
-        exclude_include=True,
-        frequency_sample=5,
-        output_file=None,
-    ):
+        start_frequency: float = 1e9,
+        stop_frequency: float = 10e9,
+        max_loss: float = -40.0,
+        min_loss: float = -60,
+        include_same_component: bool = True,
+        component_filter: Optional[List] = None,
+        include_filter: bool = True,
+        frequency_sample: int = 5,
+        output_file: Optional[Union[str, Path]] = None,
+    ) -> List[tuple]:
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
 
         Parameters
         ----------
         start_frequency : float, optional
-            Specify frequency value below which not check will be done. The default is ``1e9``.
+            Frequency value below which no check is done. The default is ``1e9``.
         stop_frequency : float, optional
-            Specify frequency value above which not check will be done. The default is ``10e9``.
-        low_loss: float, optional
-            Specify range lower loss. The default is ``-40``.
-        high_loss: float, optional
-            Specify range higher loss. The default is ``-60``.
-        s_same_component: bool
-            Boolean exclude S parameter from pins of same component when ``False``, default is ``False``.
-        comp_list: list, optional
-            List of string of component names to exclude or include. The default value is an ``Empty list``.
-        exclude_include: bool
-            Boolean include only components from comp_list when ``True``,
-            exclude  components from comp_list when ``False``, Default is ``True``.
+            Frequency value above which no check is done. The default is ``10e9``.
+        max_loss: float, optional
+            Maximum loss threshold in dB. The default is ``-40.0``.
+        min_loss: float, optional
+            Minimum loss threshold in dB. The default is ``-60.0``.
+        include_same_component: bool, optional
+            Whether to include S-parameters between ports on the same component. The default is ``True``.
+        component_filter: list, optional
+            List of component names to filter. The default is ``None``.
+        include_filter: bool, optional
+            Whether to include or exclude components from `component_filter`.
+            When ``True``, only components in the filter list are scanned.
+            When ``False``, components in the filter list are excluded from the scan.
+            The default is ``True``.
         frequency_sample : integer, optional
-            Specify frequency sample at which coupling check will be done. The default is ``5``.
+            Frequency sample step at which coupling check is done. The default is ``5``.
         output_file : str, or :class:'pathlib.Path', optional
-            Output file path to save where identified coupling will be listed. The default is ``None``.
+            Output file path to save identified coupling information. The default is ``None``.
 
         Returns
         -------
          list:
-            List of S parameters index in the range [high_loss, low_loss].
+            List of tuples with S-parameter indices ``(i, j)`` in the range [max_loss, min_loss].
 
         Examples
         --------
-        For an S parameter file created from a project with 16 ports created on three different components U9, U1, X1.
-        The full matrix is 16x16 = 256 S parameter values per frequencies.
-        The matrix diagonal is excluded from the scan such S(i,i) parameters are ignored.
-        Half of the matrix is as well excluded assuming S(i,j) = S(j,i). Only part of the matrix above diagonal
-        is scanned.
-        If start_frequency=2e9 and stop_frequency=5e9 only S parameters between these two frequencies will be scanned.
-        So scan starts at start_frequency and stop at stop_frequency with a sampling of frequency_sample.
-        As soon a value between highloss and lowloss is identified and written in output_file with the format below:
+        >>> # Basic usage - scan all components in frequency range
+        >>> touchstone = TouchstoneData(touchstone_file="design.s16p")
+        >>> coupling = touchstone.get_coupling_in_range(
+        ...     start_frequency=2e9, stop_frequency=5e9, max_loss=-40.0, min_loss=-60.0
+        ... )
 
-        S(U1_AU17,X1_B14) Loss= -50.61dB Freq= 1.007GH
-        S(U1_AU17,X1_B15) Loss= -49.38dB Freq= 1.007GH
-        S(U9_20,X1_A11) Loss= -45.19dB Freq= 1.374GH
-        S(X1_A11,X1_B15) Loss= -55.65dB Freq= 1.252GH
+        >>> # Include only specific components, returns S-parameters only between U1 and X1 ports
+        >>> coupling = touchstone.get_coupling_in_range(component_filter=["U1", "X1"], include_filter=True)
 
-        Usage of parameter s_same_component.
+        >>> # Exclude specific components from scan, returns S-parameters from all components except U9
+        >>> coupling = touchstone.get_coupling_in_range(component_filter=["U9"], include_filter=False)
 
-        If s_same_component=False this will exclude from the scan S parameter from ports on same component.
-        So all S(U1_xxx, U1_yyy), S(X1_xxx, X1_yyy) and S(U9_xxx, U9_yyy) will be excluded from the scan.
-        Referring to the list above "S(X1_A11,X1_B15) Loss= -55.65dB Freq= 1.252GH" will disappear.
+        >>> # Exclude same-component coupling, excludes S(U1_xxx, U1_yyy), S(X1_xxx, X1_yyy).
+        >>> coupling = touchstone.get_coupling_in_range(include_same_component=False)
+        >>>
 
-        Usage of parameters comp_list, exclude_include.
-        With comp_list = ["U9"] and excludeinclude = False: only S parameter from U1 ports and X1 ports will be scanned.
-        With comp_list = ["X1", "U1"] and excludeinclude = True:
-            only S parameter from U1 ports and all other components port
-            and
-            only S parameter from X1 ports and all other components port
-        Will be scanned.
+        >>> # Save results to file with custom frequency sampling
+        >>> coupling = touchstone.get_coupling_in_range(frequency_sample=10, output_file="coupling_results.txt")
 
-        Notice that usage of parameters comp_list and exclude_include will really benefit when the number of ports is
-        high.
+        For an S-parameter file with 16 ports on three components (U9, U1, X1):
+        - The full matrix is 16x16 = 256 S-parameters per frequency
+        - The diagonal S(i,i) is excluded from the scan
+        - Half the matrix is excluded assuming S(i,j) = S(j,i)
+        - Only the upper triangle above the diagonal is scanned
 
+        When `start_frequency=2e9` and `stop_frequency=5e9`, only S-parameters between these
+        frequencies are scanned, with sampling every `frequency_sample` points.
+
+        Output file format when a value is found in the [min_loss, max_loss] range:
+            S(U1_AU17,X1_B14) Loss= -50.61dB Freq= 1.007GHz
+            S(U1_AU17,X1_B15) Loss= -49.38dB Freq= 1.007GHz
+            S(U9_20,X1_A11) Loss= -45.19dB Freq= 1.374GHz
+
+        Usage of `include_same_component`:
+        - When `False`, excludes S-parameters between ports on the same component
+        - All S(U1_xxx, U1_yyy), S(X1_xxx, X1_yyy), S(U9_xxx, U9_yyy) are excluded
+
+        Usage of `component_filter` and `include_filter`:
+        - `component_filter=["U9"]` with `include_filter=False`: scan only U1 and X1 ports
+        - `component_filter=["X1", "U1"]` with `include_filter=True`: scan only U1↔other and X1↔other
         """
+        if component_filter is None:
+            component_filter = []
+
         # identify frequency index at which to start and stop the check
         k_start = bisect.bisect_left(self.frequency.f, start_frequency)
         k_stop = bisect.bisect_right(self.frequency.f, stop_frequency)
@@ -264,25 +279,25 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
         for i in range(self.number_of_ports):
             refdes1 = self.port_names[i].split("_")[0]
-            if len(comp_list) != 0:
-                if exclude_include:
-                    if not any(refdes1.lower() in x.lower() for x in comp_list):
+            if len(component_filter) != 0:
+                if include_filter:
+                    if not any(refdes1.lower() in x.lower() for x in component_filter):
                         continue
                 else:
-                    if any(refdes1.lower() in x.lower() for x in comp_list):
+                    if any(refdes1.lower() in x.lower() for x in component_filter):
                         continue
             for j in range(i, self.number_of_ports):
                 if i == j:
                     continue
                 refdes2 = self.port_names[j].split("_")[0]
-                if len(comp_list) != 0 and not exclude_include:
-                    if any(refdes2.lower() in x.lower() for x in comp_list):
+                if len(component_filter) != 0 and not include_filter:
+                    if any(refdes2.lower() in x.lower() for x in component_filter):
                         continue
-                if refdes1.lower() == refdes2.lower() and not s_same_component:
+                if refdes1.lower() == refdes2.lower() and not include_same_component:
                     continue
                 for k in range(k_start, k_stop, frequency_sample):
                     loss = s_db[k, i, j]
-                    if high_loss < loss < low_loss:
+                    if min_loss < loss < max_loss:
                         temp_list.append((i, j))
                         sxy = f"S({self.port_names[i]},{self.port_names[j]})"
                         line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"

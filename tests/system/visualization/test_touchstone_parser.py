@@ -96,11 +96,21 @@ def test_get_coupling_in_range(test_tmp_dir):
     res = ts.get_coupling_in_range(
         start_frequency=2e9,
         stop_frequency=5e9,
-        high_loss=-60,
-        low_loss=-40,
-        s_same_component=True,
-        comp_list=[],
-        exclude_include=True,
+        include_same_component=True,
+        component_filter=[],
+        include_filter=True,
+        frequency_sample=5,
+        output_file=str(output_file),
+    )
+    assert isinstance(res, list)
+    res = ts.get_coupling_in_range(
+        start_frequency=2e9, stop_frequency=5e9, frequency_sample=5, output_file=str(output_file)
+    )
+    assert isinstance(res, list)
+    res = ts.get_coupling_in_range(
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        include_same_component=False,
         frequency_sample=5,
         output_file=str(output_file),
     )
@@ -108,8 +118,8 @@ def test_get_coupling_in_range(test_tmp_dir):
     res = ts.get_coupling_in_range(
         start_frequency=2e9,
         stop_frequency=5e9,
-        high_loss=-60,
-        low_loss=-40,
+        component_filter=["U9"],
+        include_filter=False,
         frequency_sample=5,
         output_file=str(output_file),
     )
@@ -117,31 +127,8 @@ def test_get_coupling_in_range(test_tmp_dir):
     res = ts.get_coupling_in_range(
         start_frequency=2e9,
         stop_frequency=5e9,
-        s_same_component=False,
-        high_loss=-60,
-        low_loss=-40,
-        frequency_sample=5,
-        output_file=str(output_file),
-    )
-    assert isinstance(res, list)
-    res = ts.get_coupling_in_range(
-        start_frequency=2e9,
-        stop_frequency=5e9,
-        comp_list=["U9"],
-        exclude_include=False,
-        high_loss=-60,
-        low_loss=-40,
-        frequency_sample=5,
-        output_file=str(output_file),
-    )
-    assert isinstance(res, list)
-    res = ts.get_coupling_in_range(
-        start_frequency=2e9,
-        stop_frequency=5e9,
-        comp_list=["U1", "X1"],
-        exclude_include=True,
-        high_loss=-60,
-        low_loss=-40,
+        component_filter=["U1", "X1"],
+        include_filter=True,
         frequency_sample=5,
         output_file=str(output_file),
     )
