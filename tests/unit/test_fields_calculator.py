@@ -163,7 +163,7 @@ def test_evaluate(mock_fc_write, mock_path_unlink, mock_path_exists, mock_app):
 
 
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
-def test_export_with_sample_points_string(mock_app):
+def test_export_with_sample_points_string(mock_path_exists, mock_app):
     """Test the export method of FieldsCalculator class with sample points as a path."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
@@ -179,7 +179,7 @@ def test_export_with_sample_points_string(mock_app):
 
 
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
-def test_export_with_sample_points_list(mock_app):
+def test_export_with_sample_points_list(mock_path_exists, mock_app):
     """Test the export method of FieldsCalculator class with sample points as a list."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file = MagicMock(return_value="fake_output.fld")
@@ -208,7 +208,7 @@ def test_export_with_invalid_sample_points(mock_app):
 
 
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
-def test_export_grid_type(mock_app):
+def test_export_grid_type(mock_path_exists, mock_app):
     """Test the export method of FieldsCalculator class with different grid types."""
     fields_calculator = FieldsCalculator(mock_app)
     mock_app.post.export_field_file_on_grid = MagicMock(return_value="fake_output.fld")
@@ -245,7 +245,7 @@ def test_export_failure(mock_app):
 
 
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.is_file", return_value=False)
-def test_load_expression_file_failure(mock_app, test_tmp_dir):
+def test_load_expression_file_failure(mock_is_file, mock_app, test_tmp_dir):
     """Test the failure of load_expression method of FieldsCalculator class."""
     fields_calculator = FieldsCalculator(mock_app)
     input_file = test_tmp_dir / "expr_load.fld"
@@ -258,7 +258,7 @@ def test_load_expression_file_failure(mock_app, test_tmp_dir):
     return_value={"expr1": {"unit": "V"}},
 )
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.is_file", return_value=True)
-def test_load_expression_file_success(mock_app, test_tmp_dir):
+def test_load_expression_file_success(mock_read_config, mock_app, test_tmp_dir):
     """Test the success of load_expression method of FieldsCalculator class."""
     fields_calculator = FieldsCalculator(mock_app)
     with patch.object(fields_calculator, "validate_expression", return_value=True):
