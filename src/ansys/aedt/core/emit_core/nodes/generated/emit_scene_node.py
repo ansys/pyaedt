@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
@@ -30,17 +30,25 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class EmitSceneNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def node_type(self) -> str:
         """The type of this emit node."""
         return self._node_type
 
+    def add_emitter(self):
+        """Add a new emitter"""
+        return self._add_child_node("Emitter")
+
     def add_group(self):
         """Add a new scene group"""
         return self._add_child_node("Group")
+
+    def import_cad(self, file_name):
+        """Add an existing CAD file"""
+        return self._import(file_name, "CAD")
 
     def add_antenna(self):
         """Add a new antenna"""

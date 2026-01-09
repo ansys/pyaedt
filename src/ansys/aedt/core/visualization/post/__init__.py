@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,7 @@ def post_processor(app=None, project=None, design=None, version=None):
     if app:
         if app.design_type == "Icepak":
             from ansys.aedt.core.visualization.post.post_icepak import PostProcessorIcepak as PostProcessor
-        elif app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        elif app.design_type in ["Twin Builder", "RMxprt", "Circuit Design", "Circuit Netlist"]:
             from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit as PostProcessor
         elif app.design_type in ["HFSS 3D Layout Design", "HFSS 3D Layout"]:
             from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout as PostProcessor

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,6 @@
 # SOFTWARE.
 from abc import abstractmethod
 import os.path
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -36,7 +35,6 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
-from ansys.aedt.core.modules.mesh import meshers
 
 
 class CommonRegion(PyAedtBase):
@@ -445,7 +443,11 @@ class MeshSettings(PyAedtBase):
     to the type of settings chosen (manual or automatic).
     """
 
-    _automatic_mesh_settings = {"MeshRegionResolution": 3}  # min: 1, max: 5
+    _automatic_mesh_settings = {
+        "MeshRegionResolution": 3,
+        "FacetLevel": 3,
+        "GeometryBasedMeshing": True,
+    }  # min: 1, max: 5
     _common_mesh_settings = {
         "ProximitySizeFunction": True,
         "CurvatureSizeFunction": True,
@@ -455,6 +457,8 @@ class MeshSettings(PyAedtBase):
         "EnforceCutCellMeshing": False,
         "Enforce2dot5DCutCell": False,
         "StairStepMeshing": False,
+        "MeshMethod": "MesherHD",
+        "ComputeGap": True,
     }
     _manual_mesh_settings = {
         "MaxElementSizeX": "0.02mm",
@@ -807,18 +811,6 @@ class MeshRegion(MeshRegionCommon):
             self._assignment = objects
         if self._assignment is not None:
             self.create()
-        # backward compatibility
-        if any(i in kwargs for i in ["dimension", "meshmodule", "unit"]):
-            warnings.warn(
-                "``MeshRegion`` initialization changed. ``meshmodule``, ``dimension``, ``unit`` "
-                "arguments are not supported anymore.",
-                DeprecationWarning,
-            )
-            if "dimension" in kwargs:
-                self.manual_settings = True
-                self.settings["MaxElementSizeX"] = float(kwargs["dimension"][0]) / 20
-                self.settings["MaxElementSizeY"] = float(kwargs["dimension"][1]) / 20
-                self.settings["MaxElementSizeZ"] = float(kwargs["dimension"][2]) / 20
 
     def _parse_assignment_value(self, assignment=None):
         if assignment is None:
@@ -993,76 +985,6 @@ class MeshRegion(MeshRegionCommon):
             self._assignment = self.assignment
         return result
 
-    # backward compatibility
-    @property
-    def Enable(self):
-        """
-        Get whether the mesh region is enabled.
-
-        Returns
-        -------
-        book
-        """
-        warnings.warn(
-            "`Enable` is deprecated. Use `enable` instead.",
-            DeprecationWarning,
-        )
-        return self.enable
-
-    @Enable.setter
-    def Enable(self, val):
-        warnings.warn(
-            "`Enable` is deprecated. Use `enable` instead.",
-            DeprecationWarning,
-        )
-        self.enable = val
-
-    @property
-    def Objects(self):
-        """
-        List of objects included in mesh region.
-
-        Returns
-        -------
-        list
-        """
-        warnings.warn(
-            "`Objects` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        return self.assignment
-
-    @Objects.setter
-    def Objects(self, objects):
-        warnings.warn(
-            "`Objects` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        self.assignment = objects
-
-    @property
-    def Submodels(self):
-        """
-        List of objects included in mesh region.
-
-        Returns
-        -------
-        list
-        """
-        warnings.warn(
-            "`Submodels` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        return self.assignment
-
-    @Submodels.setter
-    def Submodels(self, objects):
-        warnings.warn(
-            "`Submodels` is deprecated. Use `assignment` instead.",
-            DeprecationWarning,
-        )
-        self.assignment = objects
-
 
 class IcepakMesh(PyAedtBase):
     """Manages Icepak meshes.
@@ -1077,7 +999,7 @@ class IcepakMesh(PyAedtBase):
 
         self._odesign = self._app._odesign
         design_type = self._odesign.GetDesignType()
-        if design_type not in meshers:
+        if not hasattr(self._app._design_type, "mesher"):
             raise RuntimeError(f"Invalid design type {design_type}")  # pragma: no cover
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
@@ -1217,7 +1139,7 @@ class IcepakMesh(PyAedtBase):
 
         return meshops
 
-    @pyaedt_function_handler(meshop_name="name")
+    @pyaedt_function_handler()
     def assign_mesh_level(self, mesh_order, name=None):
         """Assign a mesh level to objects.
 
@@ -1256,7 +1178,7 @@ class IcepakMesh(PyAedtBase):
             list_meshops.append(name)
         return list_meshops
 
-    @pyaedt_function_handler(objects="assignment", filename="file_name", meshop_name="name")
+    @pyaedt_function_handler()
     def assign_mesh_from_file(self, assignment, file_name, name=None):
         """Assign a mesh from a file to objects.
 
@@ -1298,83 +1220,6 @@ class IcepakMesh(PyAedtBase):
             self.meshoperations.append(mop)
             return mop
         return False
-
-    @pyaedt_function_handler()
-    def automatic_mesh_pcb(self, accuracy=2):
-        """Create a custom mesh tailored on a PCB design.
-
-        .. deprecated:: 0.8.14
-
-        Parameters
-        ----------
-        accuracy : int, optional
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
-            respectively a coarse, standard, or very accurate mesh. The default is ``2``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditMeshOperation
-        """
-        warnings.warn("This method was deprecated in version 8.14.", DeprecationWarning)
-        xsize = self.boundingdimension[0] / (15 * accuracy * accuracy)
-        ysize = self.boundingdimension[1] / (15 * accuracy * accuracy)
-        zsize = self.boundingdimension[2] / (10 * accuracy)
-        MaxSizeRatio = 1 + (accuracy / 2)
-        self.global_mesh_region.MaxElementSizeX = xsize
-        self.global_mesh_region.MaxElementSizeY = ysize
-        self.global_mesh_region.MaxElementSizeZ = zsize
-        self.global_mesh_region.MaxSizeRatio = MaxSizeRatio
-        self.global_mesh_region.UserSpecifiedSettings = True
-        self.global_mesh_region.UniformMeshParametersType = "XYZ Max Sizes"
-        self.global_mesh_region.MaxLevels = 2
-        self.global_mesh_region.BufferLayers = 1
-        self.global_mesh_region.MinGapX = str(xsize / 10)
-        self.global_mesh_region.MinGapY = str(ysize / 10)
-        self.global_mesh_region.MinGapZ = str(zsize / 10)
-        self.global_mesh_region.update()
-        return True
-
-    @pyaedt_function_handler(accuracy2="accuracy", stairStep="enable_stair_step")
-    def automatic_mesh_3D(self, accuracy, enable_stair_step=True):
-        """Create a generic custom mesh.
-
-        .. deprecated:: 0.13.0
-
-        Parameters
-        ----------
-        accuracy : int
-            Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent respectively
-            a coarse, standard, or very accurate mesh.
-        enable_stair_step : bool, optional
-            Whether to enable a stair step. The default is ``True``.
-
-        Returns
-        -------
-         bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditMeshOperation
-        """
-        xsize = self.boundingdimension[0] / (10 * accuracy * accuracy)
-        ysize = self.boundingdimension[1] / (10 * accuracy * accuracy)
-        zsize = self.boundingdimension[2] / (10 * accuracy)
-        self.global_mesh_region.manual_settings = True
-        self.global_mesh_region.settings["MaxElementSizeX"] = xsize
-        self.global_mesh_region.settings["MaxElementSizeY"] = ysize
-        self.global_mesh_region.settings["MaxElementSizeZ"] = zsize
-        self.global_mesh_region.settings["MinGapX"] = str(xsize / 100)
-        self.global_mesh_region.settings["MinGapY"] = str(ysize / 100)
-        self.global_mesh_region.settings["MinGapZ"] = str(zsize / 100)
-        self.global_mesh_region.settings["StairStepMeshing"] = enable_stair_step
-        self.global_mesh_region.update()
-        return True
 
     @pyaedt_function_handler()
     def assign_priorities(self, assignment):
@@ -1456,130 +1301,7 @@ class IcepakMesh(PyAedtBase):
         self._modeler.oeditor.UpdatePriorityList(args[0])
         return True
 
-    @pyaedt_function_handler(obj_list="assignment", comp_name="component")
-    def add_priority(self, entity_type, assignment=None, component=None, priority=3):
-        """Add priority to objects.
-
-        .. deprecated:: 0.9.1
-        Use :func:`assign_priorities` function instead.
-
-        Parameters
-        ----------
-        entity_type : int
-            Type of the entity. Options are ``1`` and ``2``, which represent respectively
-            an object and a component.
-        assignment : list
-            List of 3D objects, which can include conductors and dielectrics.
-            If a non-3D object is passed, it is excluded.
-        component : str, optional
-            Name of the component. The default is ``None``.
-        priority : int, optional
-            Level of priority. The default is ``3``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oEditor.UpdatePriorityList
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Icepak
-        >>> app = Icepak()
-        >>> app.mesh.add_priority(entity_type=1, assignment=app.modeler.object_names, priority=3)
-        >>> app.mesh.add_priority(entity_type=2, component=app.modeler.user_defined_component_names[0], priority=2)
-        """
-        warnings.warn("Use :func:`assign_priorities` function instead.", DeprecationWarning)
-        i = priority
-
-        args = ["NAME:UpdatePriorityListData"]
-        if entity_type == 1:
-            non_user_defined_component_parts = self._app.modeler.oeditor.GetChildNames()
-            new_obj_list = []
-            for comp in assignment:
-                if comp != "Region" and comp in non_user_defined_component_parts:
-                    new_obj_list.append(comp)
-            assignment = ", ".join(new_obj_list)
-            if not new_obj_list:
-                return False
-            prio = [
-                "NAME:PriorityListParameters",
-                "EntityType:=",
-                "Object",
-                "EntityList:=",
-                assignment,
-                "PriorityNumber:=",
-                i,
-                "PriorityListType:=",
-                ["2D", "3D"][int(self._app.modeler[new_obj_list[0]].is3d)],
-            ]
-            self._priorities_args.append(prio)
-            args += self._priorities_args
-        elif entity_type == 2:
-            o = self._modeler.user_defined_components[component]
-            if (all(part.is3d for part in o.parts.values()) is False) and (
-                any(part.is3d for part in o.parts.values()) is True
-            ):
-                prio_3d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "3D",
-                ]
-                prio_2d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "2D",
-                ]
-                self._priorities_args.append(prio_3d)
-                self._priorities_args.append(prio_2d)
-            elif all(part.is3d for part in o.parts.values()) is True:
-                prio_3d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "3D",
-                ]
-                self._priorities_args.append(prio_3d)
-            else:
-                prio_2d = [
-                    "NAME:PriorityListParameters",
-                    "EntityType:=",
-                    "Component",
-                    "EntityList:=",
-                    component,
-                    "PriorityNumber:=",
-                    i,
-                    "PriorityListType:=",
-                    "2D",
-                ]
-                self._priorities_args.append(prio_2d)
-
-            args += self._priorities_args
-        self._modeler.oeditor.UpdatePriorityList(["NAME:UpdatePriorityListData"])
-        self._modeler.oeditor.UpdatePriorityList(args)
-        return True
-
-    @pyaedt_function_handler(objectlist="assignment")
+    @pyaedt_function_handler()
     def assign_mesh_region(self, assignment=None, level=5, name=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
@@ -1646,12 +1368,7 @@ class IcepakMesh(PyAedtBase):
             name = []
         return self._odesign.GenerateMesh(name) == 0
 
-    @pyaedt_function_handler(
-        groupName="group_name",
-        localMeshParamEn="enable_local_mesh_parameters",
-        localMeshParameters="local_mesh_parameters",
-        meshop_name="name",
-    )
+    @pyaedt_function_handler()
     def assign_mesh_level_to_group(
         self,
         mesh_level,

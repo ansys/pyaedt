@@ -10,13 +10,14 @@ of the codebase.
 Deprecation of function argument names
 --------------------------------------
 
-In the 1.0 release, several function argument names are deprecated. You should review 
+In the 1.0 release, several function argument names are deprecated. You should review
 your code and check the warnings that are logged at run time.
 The following example shows a warning triggered by the use of an argument that is currently acceptable but is not going to work with version 1.0.
 
 .. code-block:: python
 
     from pyaedt import Circuit
+
     c = Circuit(designname="whatever")
 
 Expected log output:
@@ -60,7 +61,7 @@ accordingly. An example of migration is shown below:
 
 .. code-block:: python
 
-    from pyaedt import Circuit    
+    from pyaedt import Circuit
 
 **New import:**
 
@@ -152,7 +153,7 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\DesignXPloration.py                           | src\\ansys\\aedt\\core\\modules\\design_xploration.py                    |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
-| pyaedt\\modules\\LayerStackup.py                               | src\\ansys\\aedt\\core\\modules\\layer_stackup.py                        |        
+| pyaedt\\modules\\LayerStackup.py                               | src\\ansys\\aedt\\core\\modules\\layer_stackup.py                        |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\MaterialLib.py                                | src\\ansys\\aedt\\core\\modules\\material_lib.py                         |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+

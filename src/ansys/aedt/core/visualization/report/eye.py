@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -120,6 +120,12 @@ class AMIConturEyeDiagram(CommonReport):
         int
             Quantity type.
         """
+        if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
+            self._legacy_props["quantity_type"] = 3
+        elif self.properties and any([i for i in self.properties.keys() if "AfterChannel" in i]):
+            self._legacy_props["quantity_type"] = 2
+        elif self.properties and any([i for i in self.properties.keys() if "AfterSource" in i]):
+            self._legacy_props["quantity_type"] = 1
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
@@ -316,7 +322,7 @@ class AMIConturEyeDiagram(CommonReport):
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
-    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
+    @pyaedt_function_handler()
     def eye_mask(
         self,
         points,
@@ -402,7 +408,7 @@ class AMIConturEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler(value="enable")
+    @pyaedt_function_handler()
     def rectangular_plot(self, enable=True):
         """Enable or disable the rectangular plot on the chart.
 
@@ -451,7 +457,7 @@ class AMIConturEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler(out_file="output_file")
+    @pyaedt_function_handler()
     def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 
@@ -539,6 +545,12 @@ class AMIEyeDiagram(CommonReport):
         int
             Quantity type.
         """
+        if self.properties and any([i for i in self.properties.keys() if "AfterProbe" in i]):
+            self._legacy_props["quantity_type"] = 3
+        elif self.properties and any([i for i in self.properties.keys() if "AfterChannel" in i]):
+            self._legacy_props["quantity_type"] = 2
+        elif self.properties and any([i for i in self.properties.keys() if "AfterSource" in i]):
+            self._legacy_props["quantity_type"] = 1
         return self._legacy_props.get("quantity_type", 0)
 
     @quantity_type.setter
@@ -887,7 +899,7 @@ class AMIEyeDiagram(CommonReport):
             BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True
 
-    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
+    @pyaedt_function_handler()
     def eye_mask(
         self,
         points,
@@ -967,7 +979,7 @@ class AMIEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler(value="enable")
+    @pyaedt_function_handler()
     def rectangular_plot(self, enable=True):
         """Enable or disable the rectangular plot on the chart.
 
@@ -1015,7 +1027,7 @@ class AMIEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler(out_file="output_file")
+    @pyaedt_function_handler()
     def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 

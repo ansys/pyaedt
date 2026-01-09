@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -51,8 +51,8 @@ class EmitterNode(EmitNode):
     """
 
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = True
         self._radio_node = RadioNode(emit_obj, result_id, node_id)
 
         # create_component code provides the radio_id, but we also
@@ -66,6 +66,7 @@ class EmitterNode(EmitNode):
                 ant_id = self._oRevisionData.GetChildNodeID(result_id, scene_node_id, ant)
                 self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
 
+    @property
     def node_type(self) -> str:
         """The type of this emit node"""
         return "EmitterNode"
@@ -106,6 +107,7 @@ class EmitterNode(EmitNode):
         """
         return self._antenna_node
 
+    @property
     def children(self):
         """Overridden to return the Waveforms
 
