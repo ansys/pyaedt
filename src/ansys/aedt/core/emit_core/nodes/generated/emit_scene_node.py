@@ -41,10 +41,6 @@ class EmitSceneNode(EmitNode):
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
-    def add_emitter(self):
-        """Add a new emitter"""
-        return self._add_child_node("Emitter")
-
     def add_group(self):
         """Add a new scene group"""
         return self._add_child_node("Group")

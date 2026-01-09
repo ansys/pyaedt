@@ -58,10 +58,6 @@ class SceneGroupNode(EmitNode):
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
-    def add_emitter(self):
-        """Add a new emitter"""
-        return self._add_child_node("Emitter")
-
     def rename(self, new_name: str = ""):
         """Rename this node"""
         self._rename(new_name)
