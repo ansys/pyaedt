@@ -37,7 +37,6 @@ env:
   TESTMON_CACHE_KEY_EXTENSIONS_LINUX: 'testmondata-extensions-linux'
   TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
-  TESTMON_CACHE_KEY_FLAKY_LINUX: 'testmondata-flaky-linux'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -484,7 +483,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m "solvers and not flaky_linux"
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
 
       - name: Consolidate testmondata file
@@ -691,7 +690,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m "general and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
 
 
       - name: Consolidate testmondata file
@@ -1507,7 +1506,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
 
       - name: Consolidate testmondata file
         run: |
@@ -1731,112 +1730,6 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
- # =================================================================================================
- # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
- # =================================================================================================
-
-  system-tests-flaky-linux:
-    name: Test flaky (linux)
-    if: github.event.pull_request.draft == false
-    needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt ]
-    env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-      ANS_NODEPCHECK: '1'
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_FLAKY_LINUX }}
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
-
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
-
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
-
-
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
-
-
-      - name: Run tests marked with 'flaky'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m flaky_linux
-
-
-
-      - name: Consolidate testmondata file
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-flaky-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-flaky-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_flaky
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: pytest-flaky-linux
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
   package:
     name: Package library
     needs: [system-tests-solvers-windows,
@@ -1853,7 +1746,6 @@ jobs:
             system-tests-extensions-linux,
             system-tests-filter-windows,
             system-tests-emit-windows,
-            system-tests-flaky-linux,
             doc-build]
     runs-on: ubuntu-latest
     permissions:
