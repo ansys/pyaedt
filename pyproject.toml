@@ -275,8 +275,6 @@ markers = [
     "extensions: mark a test as related to extensions.",
     "filter_solutions: mark a test as related to filter solutions.",
     "emit: mark a test as related to EMIT features.",
-    "flaky_linux: mark a test as flaky on Linux systems.",
-    "flaky_windows: mark a test as flaky on Windows systems.",
     "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
 ]
 filterwarnings = [
