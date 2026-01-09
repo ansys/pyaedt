@@ -6807,7 +6807,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 setup = assignment.nominal_adaptive
 
             params = {}
-            pars = assignment.available_variations.get_independent_nominal_values()
+            pars = assignment.available_variations.nominal_variation(dependent_params=False)
             for el in pars:
                 params[el] = pars[el]
 

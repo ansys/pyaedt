@@ -2504,7 +2504,7 @@ class AvailableVariations(PyAedtBase):
         return families
 
     @pyaedt_function_handler()
-    def get_independent_nominal_values(self) -> Dict:
+    def get_independent_nominal_values(self) -> Dict:  # pragma: no cover
         """Retrieve variations for a given setup.
 
         .. deprecated:: 0.22.0
