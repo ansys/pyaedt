@@ -403,4 +403,3 @@ class Waveform(EmitNode):
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
         self._set_property("Min Pts/Null", f"{value}")
-

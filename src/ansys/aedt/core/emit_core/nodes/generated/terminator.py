@@ -54,7 +54,7 @@ class Terminator(EmitNode):
         Max:
             Value should be between 1 and 100e9.
         VSWR:
-        
+
         """
         return self._get_table_data()
 
@@ -139,4 +139,3 @@ class Terminator(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
-
