@@ -183,8 +183,8 @@ class TouchstoneData(rf.Network, PyAedtBase):
         self,
         start_frequency: float = 1e9,
         stop_frequency: float = 10e9,
+        min_loss: float = -60.0,
         max_loss: float = -40.0,
-        min_loss: float = -60,
         include_same_component: bool = True,
         component_filter: Optional[List] = None,
         include_filter: bool = True,
@@ -200,10 +200,10 @@ class TouchstoneData(rf.Network, PyAedtBase):
             Frequency value below which no check is done. The default is ``1e9``.
         stop_frequency : float, optional
             Frequency value above which no check is done. The default is ``10e9``.
-        max_loss: float, optional
-            Maximum loss threshold in dB. The default is ``-40.0``.
         min_loss: float, optional
             Minimum loss threshold in dB. The default is ``-60.0``.
+        max_loss: float, optional
+            Maximum loss threshold in dB. The default is ``-40.0``.
         include_same_component: bool, optional
             Whether to include S-parameters between ports on the same component. The default is ``True``.
         component_filter: list, optional
