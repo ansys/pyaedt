@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -404,3 +403,4 @@ class Waveform(EmitNode):
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
         self._set_property("Min Pts/Null", f"{value}")
+

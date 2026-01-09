@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -42,6 +41,10 @@ class EmitSceneNode(EmitNode):
         """Add a new emitter"""
         return self._add_child_node("Emitter")
 
+    def add_emitter(self):
+        """Add a new emitter"""
+        return self._add_child_node("Emitter")
+
     def add_group(self):
         """Add a new scene group"""
         return self._add_child_node("Group")
@@ -65,9 +68,9 @@ class EmitSceneNode(EmitNode):
         self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
-        X_AXIS = "X Axis"
-        Y_AXIS = "Y Axis"
-        Z_AXIS = "Z Axis"
+        X_AXIS = "XAxis"
+        Y_AXIS = "YAxis"
+        Z_AXIS = "ZAxis"
 
     @property
     def ground_plane_normal(self) -> GroundPlaneNormalOption:

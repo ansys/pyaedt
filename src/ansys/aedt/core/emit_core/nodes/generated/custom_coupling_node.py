@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -104,3 +103,4 @@ class CustomCouplingNode(EmitNode):
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")
+

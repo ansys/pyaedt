@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -56,3 +55,4 @@ class SolutionCouplingNode(EmitNode):
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
+
