@@ -36,47 +36,60 @@ jobs:
     name: Update testmon cache on main branch
     runs-on: ubuntu-latest
     permissions:
-      actions: read # to download artifacts
-      contents: write # to save cache
+      actions: read   # Required to list workflow runs and artifacts
+      contents: write # Required to save cache
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Identify Source PR
-        id: find_pr
+      - name: Identify Source PR and Run ID
+        id: find_info
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_SHA: ${{ github.sha }}
+          WORKFLOW_NAME: "GitHub CI CD" 
         run: |
           # Find the PR number associated with this merge commit
           PR_NUMBER=$(gh pr list --state merged --search "$COMMIT_SHA" --json number --jq '.[0].number')
+          
           if [ -z "$PR_NUMBER" ]; then
             echo "No PR found for commit $COMMIT_SHA. Skipping artifact download."
             echo "pr_found=false" >> $GITHUB_OUTPUT
-          else
-            echo "Found PR #${PR_NUMBER}"
-            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "Found PR #${PR_NUMBER}"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+          # Find the Workflow Run ID for that PR
+          RUN_ID=$(gh run list --workflow "$WORKFLOW_NAME" --event pull_request --status success --limit 50 --json databaseId,pullRequests \
+            --jq ".[] | select(.pullRequests[].number == $PR_NUMBER) | .databaseId" | head -n 1)
+
+          if [ -n "$RUN_ID" ]; then
+            echo "Found Source Run ID: $RUN_ID"
+            echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
             echo "pr_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "No successful run found for PR #$PR_NUMBER in workflow '$WORKFLOW_NAME'"
+            echo "pr_found=false" >> $GITHUB_OUTPUT
           fi
 
       # ------------------------------------------------------------------
       # UNIT TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Unit Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-unit-linux
           path: unit-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Unit Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f unit-linux-data/.testmondata ]; then
             mv unit-linux-data/.testmondata .testmondata
@@ -87,7 +100,7 @@ jobs:
           fi
 
       - name: Upload Unit Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -97,18 +110,16 @@ jobs:
       # INTEGRATION TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Integration Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-integration-linux
           path: integration-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Integration Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f integration-linux-data/.testmondata ]; then
             mv integration-linux-data/.testmondata .testmondata
@@ -119,7 +130,7 @@ jobs:
           fi
 
       - name: Upload Integration Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -129,18 +140,16 @@ jobs:
       # SOLVERS TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download Solvers Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-solvers-win
           path: solvers-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Solvers Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f solvers-win-data/.testmondata ]; then
             mv solvers-win-data/.testmondata .testmondata
@@ -151,7 +160,7 @@ jobs:
           fi
 
       - name: Upload Solvers Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -161,18 +170,16 @@ jobs:
       # SOLVERS TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Solvers Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-solvers-linux
           path: solvers-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Solvers Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f solvers-linux-data/.testmondata ]; then
             mv solvers-linux-data/.testmondata .testmondata
@@ -183,7 +190,7 @@ jobs:
           fi
 
       - name: Upload Solvers Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -193,18 +200,16 @@ jobs:
       # GENERAL TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download General Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-general-win
           path: general-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save General Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f general-win-data/.testmondata ]; then
             mv general-win-data/.testmondata .testmondata
@@ -215,7 +220,7 @@ jobs:
           fi
 
       - name: Upload General Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -225,18 +230,16 @@ jobs:
       # GENERAL TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download General Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-general-linux
           path: general-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save General Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f general-linux-data/.testmondata ]; then
             mv general-linux-data/.testmondata .testmondata
@@ -247,7 +250,7 @@ jobs:
           fi
 
       - name: Upload General Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -257,18 +260,16 @@ jobs:
       # VISUALIZATION TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download Visualization Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-visualization-win
           path: visualization-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Visualization Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f visualization-win-data/.testmondata ]; then
             mv visualization-win-data/.testmondata .testmondata
@@ -279,7 +280,7 @@ jobs:
           fi
 
       - name: Upload Visualization Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -289,18 +290,16 @@ jobs:
       # VISUALIZATION TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Visualization Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-visualization-linux
           path: visualization-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Visualization Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f visualization-linux-data/.testmondata ]; then
             mv visualization-linux-data/.testmondata .testmondata
@@ -311,7 +310,7 @@ jobs:
           fi
 
       - name: Upload Visualization Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -321,18 +320,16 @@ jobs:
       # ICEPAK TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download Icepak Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-icepak-win
           path: icepak-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Icepak Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f icepak-win-data/.testmondata ]; then
             mv icepak-win-data/.testmondata .testmondata
@@ -343,7 +340,7 @@ jobs:
           fi
 
       - name: Upload Icepak Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -353,18 +350,16 @@ jobs:
       # ICEPAK TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Icepak Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-icepak-linux
           path: icepak-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Icepak Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f icepak-linux-data/.testmondata ]; then
             mv icepak-linux-data/.testmondata .testmondata
@@ -375,7 +370,7 @@ jobs:
           fi
 
       - name: Upload Icepak Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -385,18 +380,16 @@ jobs:
       # LAYOUT TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download Layout Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-layout-win
           path: layout-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Layout Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f layout-win-data/.testmondata ]; then
             mv layout-win-data/.testmondata .testmondata
@@ -407,7 +400,7 @@ jobs:
           fi
 
       - name: Upload Layout Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -417,18 +410,16 @@ jobs:
       # LAYOUT TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Layout Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-layout-linux
           path: layout-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Layout Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f layout-linux-data/.testmondata ]; then
             mv layout-linux-data/.testmondata .testmondata
@@ -439,7 +430,7 @@ jobs:
           fi
 
       - name: Upload Layout Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -449,18 +440,16 @@ jobs:
       # EXTENSIONS TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download Extensions Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-extensions-win
           path: extensions-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Extensions Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f extensions-win-data/.testmondata ]; then
             mv extensions-win-data/.testmondata .testmondata
@@ -471,7 +460,7 @@ jobs:
           fi
 
       - name: Upload Extensions Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -481,18 +470,16 @@ jobs:
       # EXTENSIONS TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Extensions Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-extensions-linux
           path: extensions-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Extensions Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f extensions-linux-data/.testmondata ]; then
             mv extensions-linux-data/.testmondata .testmondata
@@ -503,7 +490,7 @@ jobs:
           fi
 
       - name: Upload Extensions Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -513,18 +500,16 @@ jobs:
       # FILTER TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download Filter Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-filter-win
           path: filter-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Filter Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f filter-win-data/.testmondata ]; then
             mv filter-win-data/.testmondata .testmondata
@@ -535,7 +520,7 @@ jobs:
           fi
 
       - name: Upload Filter Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -545,18 +530,16 @@ jobs:
       # EMIT TESTS CACHE UPDATE (WINDOWS)
       # ------------------------------------------------------------------
       - name: Download Emit Test Artifacts (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-emit-win
           path: emit-win-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Emit Test Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f emit-win-data/.testmondata ]; then
             mv emit-win-data/.testmondata .testmondata
@@ -567,7 +550,7 @@ jobs:
           fi
 
       - name: Upload Emit Test Cache to GitHub Cache (Windows)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
@@ -577,18 +560,16 @@ jobs:
       # FLAKY TESTS CACHE UPDATE (LINUX)
       # ------------------------------------------------------------------
       - name: Download Flaky Test Artifacts (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
-        uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+        if: steps.find_info.outputs.pr_found == 'true'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci_cd.yml
-          pr: ${{ steps.find_pr.outputs.pr_number }}
           name: testmondata-flaky-linux
           path: flaky-linux-data
-          if_no_artifact_found: warn
+          run-id: ${{ steps.find_info.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save Flaky Test Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true'
+        if: steps.find_info.outputs.pr_found == 'true'
         run: |
           if [ -f flaky-linux-data/.testmondata ]; then
             mv flaky-linux-data/.testmondata .testmondata
@@ -599,7 +580,7 @@ jobs:
           fi
 
       - name: Upload Flaky Test Cache to GitHub Cache (Linux)
-        if: steps.find_pr.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
