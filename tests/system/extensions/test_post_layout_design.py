@@ -146,7 +146,6 @@ def test_layout_design_toolkit_unknown_action(add_app_example):
     h3d.close_project(save=False)
 
 
-@pytest.mark.flaky_linux
 def test_layout_design_toolkit_microvia(add_app_example):
     """Test microvia creation with conical shape."""
     h3d = add_app_example(
