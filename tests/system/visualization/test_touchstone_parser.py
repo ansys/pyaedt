@@ -103,10 +103,16 @@ def test_get_coupling_in_range(test_tmp_dir):
         output_file=str(output_file),
     )
     assert isinstance(res, list)
+    assert len(res) == 101
+    assert res[0] == (0, 1)
+
     res = ts.get_coupling_in_range(
         start_frequency=2e9, stop_frequency=5e9, frequency_sample=5, output_file=str(output_file)
     )
     assert isinstance(res, list)
+    assert len(res) == 101
+    assert res[0] == (0, 1)
+
     res = ts.get_coupling_in_range(
         start_frequency=2e9,
         stop_frequency=5e9,
@@ -115,6 +121,9 @@ def test_get_coupling_in_range(test_tmp_dir):
         output_file=str(output_file),
     )
     assert isinstance(res, list)
+    assert len(res) == 63
+    assert res[0] == (0, 10)
+
     res = ts.get_coupling_in_range(
         start_frequency=2e9,
         stop_frequency=5e9,
@@ -124,6 +133,9 @@ def test_get_coupling_in_range(test_tmp_dir):
         output_file=str(output_file),
     )
     assert isinstance(res, list)
+    assert len(res) == 77
+    assert res[0] == (0, 1)
+
     res = ts.get_coupling_in_range(
         start_frequency=2e9,
         stop_frequency=5e9,
@@ -133,6 +145,8 @@ def test_get_coupling_in_range(test_tmp_dir):
         output_file=str(output_file),
     )
     assert isinstance(res, list)
+    assert len(res) == 88
+    assert res[0] == (0, 1)
 
 
 def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
