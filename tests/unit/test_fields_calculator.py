@@ -143,23 +143,23 @@ def test_write_failure_file_extension(mock_app, test_tmp_dir):
     assert result is False
 
 
-@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.unlink")
 @patch(
-    "ansys.aedt.core.visualization.post.fields_calculator.open_file", mock_open(read_data="line1\nline2\nfinal_value\n")
+    "ansys.aedt.core.visualization.post.fields_calculator.open_file",
+    mock_open(read_data="line1\nline2\nfinal_value\n"),
 )
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
-def test_evaluate(mock_unlink, mock_app):
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.unlink")
+@patch("ansys.aedt.core.visualization.post.fields_calculator.FieldsCalculator.write")
+def test_evaluate(mock_fc_write, mock_path_unlink, mock_path_exists, mock_app):
     """Test the evaluate method of FieldsCalculator class."""
     fields_calculator = FieldsCalculator(mock_app)
     fields_calculator.is_expression_defined = MagicMock(return_value=True)
     fields_calculator.ofieldsreporter = MagicMock()
 
-    with (
-        patch.object(fields_calculator, "write"),
-    ):
-        value = fields_calculator.evaluate(expression="expr", setup=None, intrinsics=None)
+    value = fields_calculator.evaluate(expression="expr", setup=None, intrinsics=None)
 
     assert value is not None
+    mock_fc_write.assert_called_once()
 
 
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.exists", return_value=True)
