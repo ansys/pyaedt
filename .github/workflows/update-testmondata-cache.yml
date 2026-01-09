@@ -49,17 +49,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_SHA: ${{ github.sha }}
-          WORKFLOW_NAME: "GitHub CI CD" 
+          WORKFLOW_NAME: "GitHub CI CD"
         run: |
           # Find the PR number associated with this merge commit
           PR_NUMBER=$(gh pr list --state merged --search "$COMMIT_SHA" --json number --jq '.[0].number')
-          
+
           if [ -z "$PR_NUMBER" ]; then
             echo "No PR found for commit $COMMIT_SHA. Skipping artifact download."
             echo "pr_found=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           echo "Found PR #${PR_NUMBER}"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
