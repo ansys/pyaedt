@@ -103,8 +103,6 @@ def test_write_array_design_variables(mock_app_array, test_tmp_dir):
     fields_calculator.ofieldsreporter = MagicMock()
     fields_calculator.is_expression_defined = MagicMock(return_value=True)
     output_file = test_tmp_dir / "expr.fld"
-    # v = MagicMock()
-    # v.evaluated_value = "[1,2,3]mm"
 
     with pytest.raises(AEDTRuntimeError):
         fields_calculator.write(
@@ -113,6 +111,36 @@ def test_write_array_design_variables(mock_app_array, test_tmp_dir):
             setup=mock_app_array.nominal_adaptive,
             intrinsics=None,
         )
+
+
+def test_write_failure_expression_not_defined(mock_app, test_tmp_dir):
+    fields_calculator = FieldsCalculator(mock_app)
+
+    with patch.object(fields_calculator, "is_expression_defined", return_value=False):
+        output_file = test_tmp_dir / "expr.fld"
+        result = fields_calculator.write(
+            expression="my_expr",
+            output_file=str(output_file),
+            setup=mock_app.nominal_adaptive,
+            intrinsics=None,
+        )
+
+    assert result is False
+
+
+def test_write_failure_file_extension(mock_app, test_tmp_dir):
+    fields_calculator = FieldsCalculator(mock_app)
+
+    with patch.object(fields_calculator, "is_expression_defined", return_value=True):
+        output_file = test_tmp_dir / "expr.txt"
+        result = fields_calculator.write(
+            expression="my_expr",
+            output_file=str(output_file),
+            setup=mock_app.nominal_adaptive,
+            intrinsics=None,
+        )
+
+    assert result is False
 
 
 @patch("ansys.aedt.core.visualization.post.fields_calculator.Path.unlink")
@@ -214,3 +242,26 @@ def test_export_failure(mock_app):
     res = fields_calculator.export(quantity="Mag_E", output_file="fake_output.fld", solution="Setup1 : LastAdaptive")
 
     assert not res
+
+
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.is_file", return_value=False)
+def test_load_expression_file_failure(mock_app, test_tmp_dir):
+    """Test the failure of load_expression method of FieldsCalculator class."""
+    fields_calculator = FieldsCalculator(mock_app)
+    input_file = test_tmp_dir / "expr_load.fld"
+
+    assert not fields_calculator.load_expression_file(input_file)
+
+
+@patch(
+    "ansys.aedt.core.visualization.post.fields_calculator.read_configuration_file",
+    return_value={"expr1": {"unit": "V"}},
+)
+@patch("ansys.aedt.core.visualization.post.fields_calculator.Path.is_file", return_value=True)
+def test_load_expression_file_success(mock_app, test_tmp_dir):
+    """Test the success of load_expression method of FieldsCalculator class."""
+    fields_calculator = FieldsCalculator(mock_app)
+    with patch.object(fields_calculator, "validate_expression", return_value=True):
+        result = fields_calculator.load_expression_file("fake.toml")
+
+    assert "expr1" in result

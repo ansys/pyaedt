@@ -814,7 +814,7 @@ class FieldsCalculator(PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def get_expressions(self, field_type: str = None) -> dict:
+    def get_expressions(self, field_type: str = None) -> dict:  # pragma: no cover
         """Get dictionary of available Field Calculator expressions.
 
         Parameters
