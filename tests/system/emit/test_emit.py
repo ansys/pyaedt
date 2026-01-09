@@ -1857,8 +1857,8 @@ def test_all_generated_emit_node_properties(emit_app):
                 if node_type in nodes_to_skip and not dev_only:
                     print(f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include.")
                     continue
-                
-                #if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
+
+                # if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
                 #    continue
                 node_results = test_all_members(node, max_node_iterations)
                 results_dict.update(node_results)

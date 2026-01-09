@@ -698,7 +698,7 @@ class EmitNode:
                         elif unit not in EMIT_VALID_UNITS[units[i][:-4]]:
                             raise ValueError(f"{unit} is not valid for this property.")
                         else:
-                            #row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
+                            # row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
                             row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
                     elif isinstance(val, (float, int)):
                         row_list[i] = val
@@ -713,7 +713,11 @@ class EmitNode:
                             or any(fn in val for fn in EMIT_FN_ALLOWED_FUNCS)
                             or any(var in val for var in EMIT_FN_ALLOWED_VARS)
                         )
-                        if i == 0 and self._node_type in ["TxSpurNode", "RxSpurNode", "TxBbEmissionNode"] and is_function:
+                        if (
+                            i == 0
+                            and self._node_type in ["TxSpurNode", "RxSpurNode", "TxBbEmissionNode"]
+                            and is_function
+                        ):
                             try:
                                 self._check_valid_function(val)
                                 row_list[i] = val
@@ -741,7 +745,7 @@ class EmitNode:
                         raise ValueError(f"{input_unit} is not valid for this property.")
                     else:
                         row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
-                    
+
             data_return.append(tuple(row_list))
         return data_return
 
