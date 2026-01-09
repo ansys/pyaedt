@@ -653,7 +653,7 @@ class EmitNode:
             raise ValueError(f"Error parsing function expression: {e}")
 
     def _check_node_prop_table_data(self, data):
-        """Converts user inputted int or string table data to SI units.
+        """Converts user inputted int or string table data to SI units or ColumnUnits.
 
         The table nodes affected are:
         SamplingNode, TxSpurNode,
@@ -667,7 +667,7 @@ class EmitNode:
         Returns
         -------
         list of tuples
-            Data converted to SI units.
+            Data converted to SI units or ColumnUnits.
         """
         units = self._get_property("TableUnitTypes", True)
         cols = self._get_property("TableColumns", True)
@@ -689,35 +689,7 @@ class EmitNode:
                     elif col_unit in EMIT_VALID_UNITS["Power"]:
                         units[i] = "PowerUnit"
 
-                if "(" in cols[i] and isinstance(val, str):
-                    # Check for function inputs (TxSpurNode, RxSpurNode, TxBbEmissionNode (equation table only))
-                    is_function = (
-                        any(op in val for op in EMIT_FN_ALLOWED_OPS)
-                        or any(fn in val for fn in EMIT_FN_ALLOWED_FUNCS)
-                        or any(var in val for var in EMIT_FN_ALLOWED_VARS)
-                    )
-                    if i == 0 and self._node_type in ["TxSpurNode", "RxSpurNode", "TxBbEmissionNode"] and is_function:
-                        try:
-                            self._check_valid_function(val)
-                            row_list[i] = val
-                            continue
-                        except Exception:
-                            raise ValueError(f"{val} is not a valid function expression.")
-
-                    # Process input values and units
-                    s = val.strip().replace(" ", "")
-                    unit_index = s.find(next(filter(str.isalpha, s)))
-                    value = float(s[:unit_index])
-                    input_unit = s[unit_index:]
-
-                    # Handle dBc and dBm/Hz units
-                    if input_unit == "dBc" or input_unit == "dBm/Hz":
-                        row_list[i] = value
-                    elif input_unit not in EMIT_VALID_UNITS[units[i][:-4]]:
-                        raise ValueError(f"{input_unit} is not valid for this property.")
-                    else:
-                        row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
-                else:
+                if col_unit is None:
                     # Process values that are stored in SI units
                     if isinstance(val, str):
                         value, unit = self._string_to_value_units(val)
@@ -726,11 +698,50 @@ class EmitNode:
                         elif unit not in EMIT_VALID_UNITS[units[i][:-4]]:
                             raise ValueError(f"{unit} is not valid for this property.")
                         else:
+                            #row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
                             row_list[i] = self._convert_to_internal_units(val, units[i][:-4])
                     elif isinstance(val, (float, int)):
                         row_list[i] = val
                     else:
                         raise ValueError(f"{val} is not valid for this property.")
+                else:
+                    input_unit = None
+                    if isinstance(val, str):
+                        # Check for function inputs (TxSpurNode, RxSpurNode, TxBbEmissionNode (equation table only))
+                        is_function = (
+                            any(op in val for op in EMIT_FN_ALLOWED_OPS)
+                            or any(fn in val for fn in EMIT_FN_ALLOWED_FUNCS)
+                            or any(var in val for var in EMIT_FN_ALLOWED_VARS)
+                        )
+                        if i == 0 and self._node_type in ["TxSpurNode", "RxSpurNode", "TxBbEmissionNode"] and is_function:
+                            try:
+                                self._check_valid_function(val)
+                                row_list[i] = val
+                                continue
+                            except Exception:
+                                raise ValueError(f"{val} is not a valid function expression.")
+
+                        # Process input values and units
+                        s = val.strip().replace(" ", "")
+                        unit_index = s.find(next(filter(str.isalpha, s)))
+                        value = float(s[:unit_index])
+                        input_unit = s[unit_index:]
+                    else:
+                        # Value is numeric, so assume SI units
+                        value = float(val)
+                        if units[i] == "FrequencyUnit":
+                            input_unit = "Hz"
+                        elif units[i] == "PowerUnit":
+                            input_unit = "W"
+
+                    # Handle dBc and dBm/Hz units
+                    if input_unit is None or input_unit == "dBc" or input_unit == "dBm/Hz":
+                        row_list[i] = value
+                    elif input_unit not in EMIT_VALID_UNITS[units[i][:-4]]:
+                        raise ValueError(f"{input_unit} is not valid for this property.")
+                    else:
+                        row_list[i] = consts.unit_converter(value, units[i][:-4], input_unit, col_unit)
+                    
             data_return.append(tuple(row_list))
         return data_return
 

@@ -687,7 +687,7 @@ def test_manual_revision_access_test_getters(emit_app):
     DESKTOP_VERSION <= "2023.1",
     reason="Skipped on versions earlier than 2023.2",
 )
-@pytest.mark.skipif(DESKTOP_VERSION <= "2026.1", reason="Not stable test")
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Not stable test")
 def test_radio_band_getters(emit_app):
     rad1, ant1 = emit_app.modeler.components.create_radio_antenna("New Radio")
     rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
@@ -1854,8 +1854,12 @@ def test_all_generated_emit_node_properties(emit_app):
                     if exception:
                         child_node_add_exceptions[node_type] = exception
 
-                if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
+                if node_type in nodes_to_skip and not dev_only:
+                    print(f"Testing node {node_type} skipped. Set EMIT_PYAEDT_LONG=1 to include.")
                     continue
+                
+                #if max_node_iterations is None and dev_only and node_type in nodes_to_skip:
+                #    continue
                 node_results = test_all_members(node, max_node_iterations)
                 results_dict.update(node_results)
         return nodes_tested, results_dict
@@ -2083,42 +2087,42 @@ def test_table_inputs(emit_app):
     tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.ABSOLUTE
     spur_data = [("30 kHz", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 0.05), (70e6, 10e5, "1000 W")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [(0.03, 50e6, 80), (4, 5e6, 0.05), (70e6, 1e6, 60)]
+    assert tx_spurious_emissions.table_data == [(0.03, 50e6, 80), (4, 5e6, 0.05), (70, 1e6, 60)]
     spur_data = [("RF+10.0", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 80), (4, 5e6, 20), (70e6, 1e6, 60)]
+    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 80), (4, 5e6, 20), (70.0, 1e6, 60)]
     spur_data = [("trunc(abs(RF)+10.0*2/3-1)", "50 MHz", "100 kW"), ("4000000 Hz", 5e6, 20), (70e6, 10e5, "1000 W")]
     tx_spurious_emissions.table_data = spur_data
     assert tx_spurious_emissions.table_data == [
         ("trunc(abs(RF)+10.0*2/3-1)", 50e6, 80),
         (4, 5e6, 20),
-        (70e6, 1e6, 60),
+        (70, 1e6, 60),
     ]
 
     tx_spurious_emissions.spur_table_units = tx_spurious_emissions.SpurTableUnitsOption.RELATIVE
     spur_data = [("20 MHz", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [(20, 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
+    assert tx_spurious_emissions.table_data == [(20, 50e6, 5), (4, 5e6, 5), (70, 1e6, 6)]
     spur_data = [("RF+10.0", "50 MHz", "5 dBc"), ("4000000 Hz", 5e6, "5 dBc"), (70e6, 10e5, "6 dBc")]
     tx_spurious_emissions.table_data = spur_data
-    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 5), (4, 5e6, 5), (70e6, 1e6, 6)]
+    assert tx_spurious_emissions.table_data == [("RF+10.0", 50e6, 5), (4, 5e6, 5), (70, 1e6, 6)]
 
     # Rx Spurious Responses Table Data
     rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.ABSOLUTE
     spur_data = [(10e6, 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [(10e6, 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+    assert rx_spurious_responses.table_data == [(10, 10e6, 80), (20, 1e6, 65), (0.03, 30e6, 75)]
     spur_data = [("RF+10.0", 10e6, "100 kW"), (20e6, "1 MHz", 65), ("30 kHz", 30e6, 75)]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 80), (20e6, 1e6, 65), (0.03, 30e6, 75)]
+    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 80), (20, 1e6, 65), (0.03, 30e6, 75)]
 
     rx_spurious_responses.spur_table_units = rx_spurious_responses.SpurTableUnitsOption.RELATIVE
     spur_data = [("5 kHz", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [(0.005, 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+    assert rx_spurious_responses.table_data == [(0.005, 10e6, 5), (20, 4e6, 15), (30, 30e6, 25)]
     spur_data = [("RF+10.0", 10e6, "5 dBc"), (20e6, "4000000 Hz", "15 dBc"), (30e6, 30e6, "25 dBc")]
     rx_spurious_responses.table_data = spur_data
-    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 5), (20e6, 4e6, 15), (30e6, 30e6, 25)]
+    assert rx_spurious_responses.table_data == [("RF+10.0", 10e6, 5), (20, 4e6, 15), (30, 30e6, 25)]
 
     # Test column data tables input conversions
     # Rx Mixer Products Table Data
@@ -2194,7 +2198,7 @@ def test_table_inputs(emit_app):
         tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.EQUATION
         broadband_data = [("RF+10.0", 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
         tx_broadband_noise_profile.table_data = broadband_data
-        assert tx_broadband_noise_profile.table_data == [("RF+10.0", 10), (10e6, 5), (100e6, 30)]
+        assert tx_broadband_noise_profile.table_data == [("RF+10.0", 10), (10, 5), (100, 30)]
         tx_broadband_noise_profile.noise_behavior = tx_broadband_noise_profile.NoiseBehaviorOption.RELATIVE_BANDWIDTH
         broadband_data = [(1e6, 10), ("10 MHz", "5 dBm/Hz"), (100e6, "30 dBm/Hz")]
         tx_broadband_noise_profile.table_data = broadband_data
