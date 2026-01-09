@@ -39,6 +39,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+import warnings
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
@@ -2515,6 +2516,11 @@ class AvailableVariations(PyAedtBase):
         dict
             Dictionary of independent nominal variations with values.
         """
+        warnings.warn(
+            "Usage of get_independent_nominal_values is deprecated. Use nominal_variation instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.nominal_variation(dependent_params=False)
 
     @pyaedt_function_handler()
