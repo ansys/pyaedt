@@ -22,15 +22,14 @@
 # SOFTWARE.
 
 from dataclasses import dataclass
-from typing import Optional
 import tkinter
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Optional
 
-from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
+from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
-
 
 EXTENSION_TITLE = "EMIT Interference Classification"
 EXTENSION_DEFAULT_ARGUMENTS = {}
@@ -125,9 +124,11 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 anchor=tkinter.W
             )
 
-        prot_right = ttk.LabelFrame(prot_top, text="Protection Level Classification (Editable)", style="PyAEDT.TLabelframe")
+        prot_right = ttk.LabelFrame(
+            prot_top, text="Protection Level Classification (Editable)", style="PyAEDT.TLabelframe"
+        )
         prot_right.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
-        
+
         # Legend table (static headings/values)
         tv_prot = ttk.Treeview(prot_right, columns=("label", "value"), show="headings", height=4)
         tv_prot.heading("label", text="")
@@ -194,10 +195,21 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
         int_left = ttk.LabelFrame(int_top, text="Interference Type (Source / Victim)", style="PyAEDT.TLabelframe")
         int_left.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True, padx=(0, 6))
-        ttk.Checkbutton(int_left, text="Inband / Inband", variable=self._filters_interf["in_in"], style="PyAEDT.TCheckbutton").pack(anchor=tkinter.W)
-        ttk.Checkbutton(int_left, text="Out of Band / Inband", variable=self._filters_interf["out_in"], style="PyAEDT.TCheckbutton").pack(anchor=tkinter.W)
-        ttk.Checkbutton(int_left, text="Inband / Out of Band", variable=self._filters_interf["in_out"], style="PyAEDT.TCheckbutton").pack(anchor=tkinter.W)
-        ttk.Checkbutton(int_left, text="Out of Band / Out of Band", variable=self._filters_interf["out_out"], style="PyAEDT.TCheckbutton").pack(anchor=tkinter.W)
+        ttk.Checkbutton(
+            int_left, text="Inband / Inband", variable=self._filters_interf["in_in"], style="PyAEDT.TCheckbutton"
+        ).pack(anchor=tkinter.W)
+        ttk.Checkbutton(
+            int_left, text="Out of Band / Inband", variable=self._filters_interf["out_in"], style="PyAEDT.TCheckbutton"
+        ).pack(anchor=tkinter.W)
+        ttk.Checkbutton(
+            int_left, text="Inband / Out of Band", variable=self._filters_interf["in_out"], style="PyAEDT.TCheckbutton"
+        ).pack(anchor=tkinter.W)
+        ttk.Checkbutton(
+            int_left,
+            text="Out of Band / Out of Band",
+            variable=self._filters_interf["out_out"],
+            style="PyAEDT.TCheckbutton",
+        ).pack(anchor=tkinter.W)
 
         int_right = ttk.LabelFrame(int_top, text="Interference Type Classification", style="PyAEDT.TLabelframe")
         int_right.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
@@ -205,7 +217,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         tv_int.heading("itype", text="Interference Type (Source / Victim)")
         tv_int.column("itype", width=260, anchor=tkinter.CENTER)
         tv_int.pack(fill=tkinter.X, padx=6, pady=6)
-        
+
         # Color-coded legend rows
         irows = [
             ("Inband / Inband", "#FFA600"),
@@ -217,10 +229,12 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             iid = tv_int.insert("", tkinter.END, values=(text,))
             tv_int.tag_configure(text, background=color)
             tv_int.item(iid, tags=(text,))
+
         # Auto-resize legend single column
         def _resize_int_legend(_event=None):
             total = max(tv_int.winfo_width() - 4, 190)
             tv_int.column("itype", width=total)
+
         tv_int.bind("<Configure>", _resize_int_legend)
         _resize_int_legend()
         self._widgets["tv_int_legend"] = tv_int
@@ -255,7 +269,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             tx_radios, rx_radios, colors, values = self._compute_interference(filters)
             self._matrix = _MatrixData(tx_radios, rx_radios, colors, values)
             self._render_matrix(tab="interference")
-        except Exception as e:  
+        except Exception as e:
             messagebox.showerror("Error", f"Failed to generate interference results: {e}")
 
     def _on_run_protection(self):
@@ -266,7 +280,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             tx_radios, rx_radios, colors, values = self._compute_protection(filters)
             self._matrix = _MatrixData(tx_radios, rx_radios, colors, values)
             self._render_matrix(tab="protection")
-        except Exception as e:  
+        except Exception as e:
             messagebox.showerror("Error", f"Failed to generate protection results: {e}")
 
     # ---------------- Legend edit helpers -----------------
@@ -382,9 +396,10 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             i += 1
 
     def _on_export_excel(self):
+        from tkinter import filedialog
+
         import openpyxl
         from openpyxl.styles import PatternFill
-        from tkinter import filedialog
 
         if not self._matrix:
             messagebox.showwarning("No data", "Please generate results first.")
@@ -459,11 +474,10 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         app = self.aedt_application
         try:
             radios = app.modeler.components.get_radios()
-        except Exception:  
+        except Exception:
             radios = []
         if len(radios) < 2:
             raise RuntimeError("At least two radios are required.")
-        
 
         # Using global protection levels from legend
         global_levels = self._protection_levels.get("Global", self._get_legend_values())
@@ -472,13 +486,13 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         domain = app.results.interaction_domain()
 
         colors, matrix = rev.protection_level_classification(
-            domain=domain, 
+            domain=domain,
             interferer_type=InterfererType().TRANSMITTERS,
             global_protection_level=self._global_protection_level,
-            global_levels=global_levels, 
+            global_levels=global_levels,
             protection_levels=self._protection_levels,
-            use_filter=True, 
-            filter_list=filter_list
+            use_filter=True,
+            filter_list=filter_list,
         )
 
         tx = rev.get_interferer_names(InterfererType().TRANSMITTERS)
@@ -491,6 +505,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             return
         # Choose the correct canvas for the tab
         cnv = self._widgets["canvas_int"] if tab == "interference" else self._widgets["canvas_prot"]
+
         # Draw a resizable grid with per-cell backgrounds and values
         def draw_table(_event=None):
             cnv.delete("all")
@@ -530,7 +545,9 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 x0 = cell_x0 + c * col_w
                 x1 = x0 + col_w
                 cnv.create_rectangle(x0, grid_y0, x1, grid_y0 + header_h, fill="#f2f2f2", outline="#cccccc")
-                cnv.create_text((x0 + x1) / 2, grid_y0 + header_h / 2, text=str(self._matrix.tx_radios[c]), anchor="center")
+                cnv.create_text(
+                    (x0 + x1) / 2, grid_y0 + header_h / 2, text=str(self._matrix.tx_radios[c]), anchor="center"
+                )
 
             # Cells
             for r in range(num_rows):
@@ -557,6 +574,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
         cnv.bind("<Configure>", draw_table)
         draw_table()
+
 
 def main(_):  # batch mode not used for this interactive extension
     return True

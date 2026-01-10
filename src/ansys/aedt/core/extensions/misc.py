@@ -703,6 +703,7 @@ class ExtensionTwinBuilderCommon(ExtensionCommon):
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Twin Builder designs.")
 
+
 class ExtensionEMITCommon(ExtensionCommon):
     """Common methods for EMIT extensions."""
 
@@ -711,7 +712,8 @@ class ExtensionEMITCommon(ExtensionCommon):
         if self.aedt_application.design_type != "EMIT":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with EMIT designs.")
-        
+
+
 class ExtensionProjectCommon(ExtensionCommon):
     """Common methods for project-level extensions."""
 
