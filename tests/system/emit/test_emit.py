@@ -2390,10 +2390,6 @@ def test_emitters_radios(emit_app):
 
     radio_node: RadioNode = emit_app.schematic.create_component("New Radio", "Radios")
 
-    # test deprecated rename
-    radio_node.rename("Ansys")
-    assert radio_node.name == "Ansys"
-
     # rename the radio
     radio_node.name = "Synopsys"
     assert radio_node.name == "Synopsys"
