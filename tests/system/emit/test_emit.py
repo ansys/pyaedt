@@ -2373,7 +2373,7 @@ def test_emitters_radios(emit_app):
 
     emitter_radio_nodes = rev.get_all_emitter_radios()
     assert emitter_radio_nodes[0] == emitter_radio
-    
+
     # test retrieving the Waveforms from the Emitter's RadioNode
     waveforms = rev.get_all_band_nodes(emitter_radio, tx_rx_mode=TxRxMode.TX)
     assert emitter_node.children == waveforms
