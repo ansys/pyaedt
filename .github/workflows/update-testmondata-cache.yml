@@ -29,15 +29,15 @@ env:
   TESTMON_CACHE_KEY_EXTENSIONS_LINUX: 'testmondata-extensions-linux'
   TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
-  TESTMON_CACHE_KEY_FLAKY_LINUX: 'testmondata-flaky-linux'
 
 jobs:
   update-cache:
     name: Update testmon cache on main branch
     runs-on: ubuntu-latest
     permissions:
-      actions: read   # Required to list workflow runs and artifacts
-      contents: write # Required to save cache
+      actions: read        # Required to list workflow runs and artifacts
+      contents: write      # Required to save cache
+      pull-requests: read  # Required to read PR information
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -52,29 +52,32 @@ jobs:
           WORKFLOW_NAME: "GitHub CI CD"
         run: |
           # Find the PR number associated with this merge commit
-          PR_NUMBER=$(gh pr list --state merged --search "$COMMIT_SHA" --json number --jq '.[0].number')
-
-          if [ -z "$PR_NUMBER" ]; then
-            echo "No PR found for commit $COMMIT_SHA. Skipping artifact download."
+          pr_number=$(git log -1 --pretty=%B | grep -oP '(?<=#)\d+(?=\s+from)' | head -n 1)
+          
+          if [ -z "$pr_number" ]; then
+            echo "⚠️ No merged PR found for commit $COMMIT_SHA"
             echo "pr_found=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-
-          echo "Found PR #${PR_NUMBER}"
-          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-
-          # Find the Workflow Run ID for that PR
-          RUN_ID=$(gh run list --workflow "$WORKFLOW_NAME" --event pull_request --status success --limit 50 --json databaseId,pullRequests \
-            --jq ".[] | select(.pullRequests[].number == $PR_NUMBER) | .databaseId" | head -n 1)
-
-          if [ -n "$RUN_ID" ]; then
-            echo "Found Source Run ID: $RUN_ID"
-            echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
-            echo "pr_found=true" >> $GITHUB_OUTPUT
-          else
-            echo "No successful run found for PR #$PR_NUMBER in workflow '$WORKFLOW_NAME'"
+          
+          echo "✅ Found merged PR #$pr_number"
+          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+          echo "pr_found=true" >> $GITHUB_OUTPUT
+          
+          # Find the workflow run ID for the PR
+          run_id=$(gh run list \
+            --workflow="$WORKFLOW_NAME" \
+            --json databaseId,headBranch,event \
+            --jq ".[] | select(.event == \"pull_request\") | select(.headBranch != \"main\") | .databaseId" | head -n 1)
+          
+          if [ -z "$run_id" ]; then
+            echo "⚠️ No workflow run found for PR #$pr_number"
             echo "pr_found=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          
+          echo "✅ Found workflow run ID: $run_id"
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       # ------------------------------------------------------------------
       # UNIT TESTS CACHE UPDATE (LINUX)
@@ -555,33 +558,3 @@ jobs:
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main-${{ github.sha }}
-
-      # ------------------------------------------------------------------
-      # FLAKY TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Flaky Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: testmondata-flaky-linux
-          path: flaky-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Save Flaky Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        run: |
-          if [ -f flaky-linux-data/.testmondata ]; then
-            mv flaky-linux-data/.testmondata .testmondata
-            echo "Flaky Linux testmondata found and copied"
-          else
-            echo "No Flaky Linux testmondata artifact found"
-            exit 0
-          fi
-
-      - name: Upload Flaky Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_FLAKY_LINUX }}-main-${{ github.sha }}
