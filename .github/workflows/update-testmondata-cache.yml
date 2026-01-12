@@ -337,8 +337,7 @@ jobs:
             mv icepak-win-data/.testmondata .testmondata
             echo "Icepak Windows testmondata found and copied"
           else
-            echo "No Icepak Windows testmondata artifact found"
-            exit 0
+            echo "::warning::No Icepak Windows testmondata artifact found"
           fi
 
       - name: Upload Icepak Test Cache to GitHub Cache (Windows)
