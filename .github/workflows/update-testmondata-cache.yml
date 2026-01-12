@@ -367,8 +367,7 @@ jobs:
             mv icepak-linux-data/.testmondata .testmondata
             echo "Icepak Linux testmondata found and copied"
           else
-            echo "No Icepak Linux testmondata artifact found"
-            exit 0
+            echo "::warning::No Icepak Linux testmondata artifact found"
           fi
 
       - name: Upload Icepak Test Cache to GitHub Cache (Linux)
