@@ -32,11 +32,11 @@ runs:
       run: |
         if [ "$EVENT_NAME" == "pull_request" ]; then
           if [ -f "$TESTMON_FILE" ]; then
-            echo "✅ Testmon cache restored successfully"
+            echo "Testmon cache restored successfully"
             ls -lh "$TESTMON_FILE"
           else
-            echo "ℹ️ No testmon cache found - will run all tests"
+            echo "No testmon cache found - will run all tests"
           fi
         else
-          echo "ℹ️ Running on main branch - will recreate testmon cache"
+          echo "Running on main branch - will recreate testmon cache"
         fi
