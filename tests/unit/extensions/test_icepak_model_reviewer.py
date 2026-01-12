@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,25 +24,23 @@
 
 import json
 import os
+from pathlib import Path
+import tkinter as tk
+from tkinter import ttk
 from unittest.mock import patch
 
 import pytest
-import tkinter as tk
-from tkinter import ttk
 
-from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import EXTENSION_TITLE, add_table_to_tab
+from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import EXTENSION_TITLE
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import IcepakModelReviewer
+from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import add_table_to_tab
 from ansys.aedt.core.extensions.misc import ExtensionTheme
-from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import Table
 from tests import TESTS_UNIT_PATH
-from ansys.aedt.core.icepak import Icepak
-from pathlib import Path
 
 AEDT_FILENAME = "Graphics_Card"
 CONFIG_FILE = "Modified_Data.json"
 TEST_SUBFOLDER = "T45"
 AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDT_FILENAME + ".aedt")
-
 
 
 def config_file_load():
@@ -57,7 +55,6 @@ def mapping_load():
     with open(mapping_file, "r") as file:
         data = json.load(file)
     return data
-
 
 
 @pytest.fixture
@@ -81,10 +78,12 @@ def patched_import_data_to_project():
 theme = ExtensionTheme()
 
 
-def add_icon_to_cells(data, read_only): return data
+def add_icon_to_cells(data, read_only):
+    return data
 
 
-def flatten_list(data): return data
+def flatten_list(data):
+    return data
 
 
 # --- Pytest Fixture ---
@@ -92,14 +91,11 @@ def flatten_list(data): return data
 def table_app():
     root = tk.Tk()
     root.geometry("800x500")  # Set a size so it's visible
-    #root.withdraw()
+    # root.withdraw()
     # --- 1. MOCK DATA ---
     headings = ["Name", "Type", "Objects"]
     type_list = ["text", "combo", "multiple_text"]
-    selection_dict = {
-        "Type": ["Solid", "Fluid"],
-        "Objects": ["CPU", "DDR", "RAM"]
-    }
+    selection_dict = {"Type": ["Solid", "Fluid"], "Objects": ["CPU", "DDR", "RAM"]}
     row_data = [["BC1", "Solid", ["CPU"]]]
     read_only_cols = [[]]
 
@@ -116,13 +112,15 @@ def table_app():
     # --- 3. PROCESS EVENTS WITHOUT BLOCKING ---
     root.update_idletasks()
     root.update()
-    #root.mainloop()
+    # root.mainloop()
     # We do NOT use root.mainloop() here because it blocks pytest.
     # root.update() is enough to render the window for the test.
 
     yield root, table
 
     root.destroy()
+
+
 # --- Main Test Case ---
 def test_ui_edit_workflow(table_app):
     root, table = table_app
@@ -195,7 +193,6 @@ def test_ui_edit_workflow(table_app):
     # Note: Ensure these expected values match your multi_select_options
     # expected_val = f"{table.multi_select_options[table.headers[3]][0]}, {table.multi_select_options[table.headers[3]][1]}"
     assert tree.set(row_id, "#4") == "CPU, DDR"
-
 
 
 def test_icepak_model_reviewer(mock_icepak_app):
@@ -370,11 +367,10 @@ def test_icepak_table_modification(mock_icepak_app, patched_loader):
     row2 = boundary_table.tree.get_children()[2]
     row3 = boundary_table.tree.get_children()[2]
     boundary_table.toggle_row(row1)  # Select row 1
-    boundary_table.toggle_row(row2) # Select row 2
-    boundary_table.toggle_row(row2) # Unselect row 2
+    boundary_table.toggle_row(row2)  # Select row 2
+    boundary_table.toggle_row(row2)  # Unselect row 2
     boundary_table.toggle_row(row3)  # Select row 3
 
     # Modifying row1 should now also modify row2
     boundary_table.update_cell_value(row1, 5, "99W")
     assert boundary_table.tree.item(row3)["values"][5] == "99W"
-
