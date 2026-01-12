@@ -9,7 +9,6 @@ runs:
       shell: bash
       run: |
         echo "Checking if master cache update is running..."
-        BASE_SHA="${{ github.event.pull_request.base.sha }}"
 
         max_attempts=60
         attempt=0
@@ -51,4 +50,5 @@ runs:
           echo "::warning::Timeout waiting for cache update. Proceeding anyway..."
         fi
       env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
         GH_TOKEN: ${{ github.token }}
