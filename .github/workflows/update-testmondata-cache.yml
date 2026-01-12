@@ -68,6 +68,13 @@ jobs:
       - name: Prepare testmon data for caching
         run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
@@ -106,6 +113,13 @@ jobs:
 
       - name: Prepare testmon data for caching
         run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -173,6 +187,13 @@ jobs:
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
@@ -239,6 +260,13 @@ jobs:
         run: |
           source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -308,6 +336,13 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -379,6 +414,13 @@ jobs:
           source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
@@ -448,6 +490,13 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -520,6 +569,13 @@ jobs:
           source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
@@ -585,6 +641,13 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -653,6 +716,13 @@ jobs:
           source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
@@ -718,6 +788,13 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -785,6 +862,13 @@ jobs:
         run: |
           source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -854,6 +938,13 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -925,6 +1016,13 @@ jobs:
           source .venv/bin/activate
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
@@ -991,6 +1089,13 @@ jobs:
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
@@ -1056,6 +1161,13 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Delete old testmon caches
+        shell: bash
+        run: |
+          gh cache list --key ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1

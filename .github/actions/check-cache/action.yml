@@ -1,0 +1,54 @@
+name: 'Wait for Master Cache Update'
+description: 'Waits for the master cache update workflow to complete before proceeding with tests'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Wait for master cache update
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: |
+        echo "Checking if master cache update is running..."
+        BASE_SHA="${{ github.event.pull_request.base.sha }}"
+
+        max_attempts=60
+        attempt=0
+
+        while [ $attempt -lt $max_attempts ]; do
+          # Check workflow conclusion for base commit
+          WORKFLOW_CONCLUSION=$(gh run list \
+            --workflow=update-testmondata-cache.yml \
+            --branch=master \
+            --json status,conclusion,headSha \
+            --jq ".[] | select(.headSha == \"$BASE_SHA\") | .conclusion")
+
+          if [ "$WORKFLOW_CONCLUSION" == "success" ]; then
+            echo "::notice::Master cache update completed successfully"
+            break
+          elif [ "$WORKFLOW_CONCLUSION" == "failure" ] || [ "$WORKFLOW_CONCLUSION" == "cancelled" ]; then
+            echo "::warning::Master cache update workflow failed or was cancelled"
+            break
+          elif [ -z "$WORKFLOW_CONCLUSION" ]; then
+            # Check if workflow exists but hasn't completed
+            WORKFLOW_EXISTS=$(gh run list \
+              --workflow=update-testmondata-cache.yml \
+              --branch=master \
+              --json headSha \
+              --jq ".[] | select(.headSha == \"$BASE_SHA\") | .headSha")
+            
+            if [ -z "$WORKFLOW_EXISTS" ]; then
+              echo "::notice::No cache update workflow found for base commit (using existing cache)"
+              break
+            fi
+          fi
+
+          attempt=$((attempt + 1))
+          echo "::notice::Attempt $attempt/$max_attempts: Cache update still running, waiting 10s..."
+          sleep 10
+        done
+
+        if [ $attempt -eq $max_attempts ]; then
+          echo "::warning::Timeout waiting for cache update. Proceeding anyway..."
+        fi
+      env:
+        GH_TOKEN: ${{ github.token }}

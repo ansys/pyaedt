@@ -222,6 +222,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -260,6 +263,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -303,6 +309,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -387,6 +396,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -463,6 +475,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -555,6 +570,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -640,6 +658,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -733,6 +754,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -819,6 +843,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -899,6 +926,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -978,6 +1008,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1062,6 +1095,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -1138,6 +1174,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1231,6 +1270,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
         with:
@@ -1312,6 +1354,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
@@ -1395,6 +1440,9 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
         uses: ./.github/actions/testmon-cache
