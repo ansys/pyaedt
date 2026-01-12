@@ -40,7 +40,7 @@ jobs:
     name: Update unit test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to save cache 
+      contents: write # Needed to save cache
     env:
 
       TESTS_VERSION: '3.10'
