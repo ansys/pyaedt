@@ -42,7 +42,7 @@ jobs:
     permissions:
       contents: write
     env:
-      
+
       TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
