@@ -1191,8 +1191,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -m layout
-
-
       - name: Consolidate testmondata file
         run: |
           .venv\Scripts\Activate.ps1
