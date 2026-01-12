@@ -773,7 +773,7 @@ jobs:
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -853,7 +853,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -926,7 +926,7 @@ jobs:
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1001,7 +1001,7 @@ jobs:
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
