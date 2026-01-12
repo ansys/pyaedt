@@ -35,7 +35,7 @@ runs:
               --branch=master \
               --json headSha \
               --jq ".[] | select(.headSha == \"$BASE_SHA\") | .headSha")
-            
+
             if [ -z "$WORKFLOW_EXISTS" ]; then
               echo "::notice::No cache update workflow found for base commit (using existing cache)"
               break
