@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1318,7 +1318,7 @@ class Layers(PyAedtBase):
             layers[o.id] = o
         return layers
 
-    @pyaedt_function_handler(layername="layer", layertype="layer_type")
+    @pyaedt_function_handler()
     def add_layer(
         self, layer, layer_type="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
     ):

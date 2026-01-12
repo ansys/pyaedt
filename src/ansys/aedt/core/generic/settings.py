@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -45,7 +45,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 import uuid
-import warnings
 
 from ansys.aedt.core import pyaedt_path
 from ansys.aedt.core.base import PyAedtBase
@@ -78,7 +77,6 @@ ALLOWED_LOG_SETTINGS = [
 ALLOWED_LSF_SETTINGS = [
     "custom_lsf_command",
     "lsf_aedt_command",
-    "lsf_num_cores",
     "lsf_osrel",
     "lsf_queue",
     "lsf_ram",
@@ -238,7 +236,9 @@ class Settings(PyAedtBase):
         self.__grpc_secure_mode = DEFAULT_GRPC_SECURE_MODE
         self.__grpc_local = DEFAULT_GRPC_LOCAL
         self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
+        self._update_settings()
 
+    def _update_settings(self):
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
         if not pyaedt_settings_path:
@@ -531,20 +531,6 @@ class Settings(PyAedtBase):
     @lsf_aedt_command.setter
     def lsf_aedt_command(self, value):
         self.__lsf_aedt_command = value
-
-    @property
-    def lsf_num_cores(self):
-        """Number of LSF cores.
-
-        This attribute is valid only on Linux systems running LSF Scheduler.
-        """
-        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
-        return self.__num_cores
-
-    @lsf_num_cores.setter
-    def lsf_num_cores(self, value):
-        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
-        self.__num_cores = int(value)
 
     @property
     def num_cores(self):

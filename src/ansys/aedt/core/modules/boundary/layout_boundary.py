@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1267,7 +1267,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
         return self.filters.get("Exclude2DObjects", False)
 
     @objects_2d_filter.setter
-    @pyaedt_function_handler(filter="enable")
+    @pyaedt_function_handler()
     @disable_auto_update
     def objects_2d_filter(self, enable):
         """Set whether 2d objects are filtered.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -277,8 +277,8 @@ def test_main_function_with_valid_data(mock_desktop_class, mock_edb_class, mock_
 
     assert result is True
     mock_edb.auto_parametrize_design.assert_called_once()
-    mock_edb.close_edb.assert_called_once()
-    mock_edb.close_edb.assert_called_once()
+    mock_edb.close.assert_called_once()
+    mock_edb.close.assert_called_once()
 
 
 def test_main_function_negative_polygon_expansion():
@@ -347,7 +347,7 @@ def test_main_function_no_aedb_path(mock_desktop_class, mock_edb_class, mock_hfs
 
     assert result is True
     mock_edb.auto_parametrize_design.assert_called_once()
-    mock_edb.close_edb.assert_called_once()
+    mock_edb.close.assert_called_once()
 
 
 @patch("ansys.aedt.core.Desktop")

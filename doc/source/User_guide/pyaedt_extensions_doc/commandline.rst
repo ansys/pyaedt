@@ -30,11 +30,20 @@ Finally, this code shows how you can run the extension directly from a Python sc
     import ansys.aedt.core
     import os
     from ansys.aedt.core.extensions.project.import_nastran import main
+
     file_path = "my_file.stl"
     hfss = ansys.aedt.core.Hfss()
     # Specify the AEDT session to connect
     os.environ["PYAEDT_DESKTOP_PORT"] = str(hfss.desktop_class.port)
     os.environ["PYAEDT_DESKTOP_VERSION"] = hfss.desktop_class.aedt_version_id
     # Launch extension
-    main({"file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True, "is_test": False})
+    main(
+        {
+            "file_path": file_path,
+            "lightweight": True,
+            "decimate": 0.0,
+            "planar": True,
+            "is_test": False,
+        }
+    )
 

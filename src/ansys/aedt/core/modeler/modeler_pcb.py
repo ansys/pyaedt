@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,7 +26,6 @@ from pathlib import Path
 import re
 from typing import Optional
 from typing import Union
-from warnings import warn
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -102,36 +101,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return self._app.ocomponent_manager
 
     @property
-    def o_component_manager(self):  # pragma: no cover
-        """Component manager object.
-
-        .. deprecated:: 0.15.1
-           Use :func:`ocomponent_manager` property instead.
-
-        """
-        warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self._app.ocomponent_manager
-
-    @property
     def omodel_manager(self):
         """Model manager object."""
         return self._app.omodel_manager
-
-    @property
-    def o_model_manager(self):  # pragma: no cover
-        """Model manager object.
-
-        .. deprecated:: 0.15.1
-           Use :func:`omodel_manager` property instead.
-        """
-        warn(
-            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.omodel_manager
 
     @property
     def _edb_folder(self):
@@ -204,25 +176,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     def model_units(self, units):
         self._app.units.length = units
 
-    @property
-    def primitives(self):
-        """Primitives.
-
-        .. deprecated:: 0.4.15
-            There is no need to use the ``primitives`` property anymore. You can instantiate
-            methods for primitives directly from the modeler.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modeler.cad.primitives_3d_layout.Primitives3DLayout`
-
-        """
-        mess = "`primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
-        warn(mess, DeprecationWarning)
-        return self._primitives
-
-    @pyaedt_function_handler(object_name="assignment")
+    @pyaedt_function_handler()
     def obounding_box(self, assignment):
         """Bounding box of a specified object.
 
@@ -253,9 +207,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
         return xpos, ypos, zpos
 
-    @pyaedt_function_handler(
-        property_object="assignment", property_name="name", property_value="value", property_tab="aedt_tab"
-    )
+    @pyaedt_function_handler()
     def change_property(self, assignment, name, value, aedt_tab="BaseElementTab"):
         """Change an oeditor property.
 
@@ -334,7 +286,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         self.logger.info(f"Property {name} Changed correctly.")
         return True
 
-    @pyaedt_function_handler(pos_x="x", pos_y="y", pos_z="z")
+    @pyaedt_function_handler()
     def merge_design(self, merged_design=None, x="0.0", y="0.0", z="0.0", rotation="0.0"):
         """Merge a design into another.
 
@@ -382,7 +334,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         comp.location = [x, y, z]
         return comp
 
-    @pyaedt_function_handler(clip_name="name", position="location")
+    @pyaedt_function_handler()
     def change_clip_plane_position(self, name, location):
         """Change the clip plane position.
 
@@ -404,7 +356,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         """
         return self.change_property(name, "Location", location)
 
-    @pyaedt_function_handler(selection="assignment")
+    @pyaedt_function_handler()
     def colinear_heal(self, assignment, tolerance=0.1):
         """Remove small edges of one or more primitives.
 
@@ -452,7 +404,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
 
         return True
 
-    @pyaedt_function_handler(object_to_expand="assignment")
+    @pyaedt_function_handler()
     def expand(self, assignment, size=1, expand_type="ROUND", replace_original=False):
         """Expand the object by a specific size.
 
@@ -510,7 +462,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             return new_geom_names[0]
         return assignment
 
-    @pyaedt_function_handler(brd_filename="input_file", edb_path="output_dir", edb_name="name")
+    @pyaedt_function_handler()
     def import_cadence_brd(self, input_file, output_dir=None, name=None):
         """Import a cadence board.
 
@@ -563,7 +515,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         else:
             return str(value) + self.model_units
 
-    @pyaedt_function_handler(ipc_filename="input_file", edb_path="output_dir", edb_name="name")
+    @pyaedt_function_handler()
     def import_ipc2581(self, input_file, output_dir=None, name=None):
         """Import an IPC file.
 
@@ -630,7 +582,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self.oeditor.Subtract(vArg1)
         return self.cleanup_objects()
 
-    @pyaedt_function_handler(objects_to_split="assignment")
+    @pyaedt_function_handler()
     def convert_to_selections(self, assignment, return_list=False):
         """Convert one or more object to selections.
 
@@ -663,7 +615,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         else:
             return ",".join(objnames)
 
-    @pyaedt_function_handler(objectlists="assignment")
+    @pyaedt_function_handler()
     def unite(self, assignment):
         """Unite objects from names.
 
@@ -694,7 +646,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @pyaedt_function_handler(objectlists="assignment")
+    @pyaedt_function_handler()
     def intersect(self, assignment):
         """Intersect objects from names.
 
@@ -725,7 +677,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @pyaedt_function_handler(objectlists="assignment", direction_vector="vector")
+    @pyaedt_function_handler()
     def duplicate(self, assignment, count, vector):
         """Duplicate one or more elements along a vector.
 
@@ -753,7 +705,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         self.oeditor.Duplicate(["NAME:options", "count:=", count], ["NAME:elements"] + assignment, vector)
         return self.cleanup_objects()
 
-    @pyaedt_function_handler(objects="assignment")
+    @pyaedt_function_handler()
     def duplicate_across_layers(self, assignment, layers):
         """Duplicate one or more elements along a vector.
 
@@ -839,7 +791,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self.logger.info("Assigned Objects Temperature")
             return True
 
-    @pyaedt_function_handler(component_name="assignment", model_path="input_file")
+    @pyaedt_function_handler()
     def set_spice_model(
         self,
         assignment: str,

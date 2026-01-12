@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -69,6 +69,8 @@ inclusion_list = [
 
 
 def _write_mes(mes_text):
+    if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
+        return
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
     for el in parts:
@@ -403,6 +405,7 @@ def _log_method(func, new_args, new_kwargs):
         for k, v in args_dict.items():
             if k != "self":
                 message.append(f"    {k} = {v}")
+
     for m in message:
         settings.logger.debug(m)
 
@@ -620,7 +623,7 @@ def time_fn(fn, *args, **kwargs):
     return results
 
 
-@pyaedt_function_handler(search_key1="search_key_1", search_key2="search_key_2")
+@pyaedt_function_handler()
 def filter_tuple(value, search_key_1, search_key_2):
     """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
@@ -644,7 +647,7 @@ def filter_tuple(value, search_key_1, search_key_2):
     return False
 
 
-@pyaedt_function_handler(search_key1="search_key_1")
+@pyaedt_function_handler()
 def filter_string(value, search_key_1):
     """Filter a string"""
     ignore_case = True
@@ -847,7 +850,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     return return_list
 
 
-@pyaedt_function_handler(function_str="function")
+@pyaedt_function_handler()
 def conversion_function(data, function=None):  # pragma: no cover
     """Convert input data based on a specified function string.
 

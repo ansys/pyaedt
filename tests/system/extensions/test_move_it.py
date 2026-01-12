@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -37,7 +37,7 @@ def test_move_it_generate_button(add_app):
     """Test the Generate button in the Move IT extension."""
     data = MoveItExtensionData(velocity=1.4, acceleration=0.0, delay=0.0)
 
-    aedt_app = add_app(application=Hfss, project_name="move_it", design_name="generate")
+    aedt_app = add_app(application=Hfss, project="move_it", design="generate")
 
     aedt_app["p1"] = "100mm"
     aedt_app["p2"] = "71mm"
@@ -56,6 +56,7 @@ def test_move_it_generate_button(add_app):
     assert data == extension.data
     assert main(extension.data)
     assert 7 == len(aedt_app.variable_manager.variables)
+    aedt_app.close_project(aedt_app.project_name, save=False)
 
 
 def test_move_it_exceptions(add_app):
@@ -76,7 +77,7 @@ def test_move_it_exceptions(add_app):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    aedt_app = add_app(application=Q3d, project_name="move_it", design_name="wrong_design")
+    aedt_app = add_app(application=Q3d, project="move_it", design="wrong_design")
 
     aedt_app["p1"] = "100mm"
     aedt_app["p2"] = "71mm"
@@ -90,3 +91,4 @@ def test_move_it_exceptions(add_app):
 
     with pytest.raises(AEDTRuntimeError):
         main(data)
+    aedt_app.close_project(aedt_app.project_name, save=False)

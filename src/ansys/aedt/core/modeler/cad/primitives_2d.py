@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -55,7 +55,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
 
-    @pyaedt_function_handler(position="origin", matname="material")
+    @pyaedt_function_handler()
     def create_circle(
         self, origin, radius, num_sides=0, is_covered=True, name=None, material=None, non_model=False, **kwargs
     ):
@@ -102,7 +102,6 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
 
         """
-        # TODO: kwargs such as 'matname' and 'nonmodel' should be deprecated.
         axis = self.plane2d
         x_center, y_center, z_center = self._pos_with_arg(origin)
         radius = self._app.value_with_units(radius)
@@ -129,7 +128,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
-    @pyaedt_function_handler(position="origin", matname="material")
+    @pyaedt_function_handler()
     def create_ellipse(
         self,
         origin,
@@ -203,7 +202,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         new_object_name = self.oeditor.CreateEllipse(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", dimension_list="sizes", matname="material")
+    @pyaedt_function_handler()
     def create_rectangle(self, origin, sizes, is_covered=True, name=None, material=None, non_model=False, **kwargs):
         """Create a rectangle.
 
@@ -260,7 +259,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         new_object_name = self.oeditor.CreateRectangle(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", matname="material")
+    @pyaedt_function_handler()
     def create_regular_polygon(
         self, origin, start_point, num_sides=6, name=None, material=None, non_model=False, **kwargs
     ):
@@ -326,7 +325,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         new_object_name = self.oeditor.CreateRegularPolygon(arg_1, arg_2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(region_name="name")
+    @pyaedt_function_handler()
     def create_region(self, pad_value=300, pad_type="Percentage Offset", name="Region", **kwarg):
         """Create an air region.
 

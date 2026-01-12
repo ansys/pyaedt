@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,14 +36,14 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 def m3d_app(add_app):
     app = add_app(application=Maxwell3d)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture()
-def aedtapp(add_app):
+def aedt_app(add_app):
     app = add_app(application=Hfss)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(app.project_name, save=False)
 
 
 def test_create_button(m3d_app):
@@ -123,7 +123,7 @@ def test_exception_invalid_data(m3d_app):
         main(data)
 
 
-def test_invalid_solution_type(aedtapp):
+def test_invalid_solution_type(aedt_app):
     """Test that an exception is raised when the solution type is not Maxwell 3D."""
     data = CoilExtensionData(is_vertical=True, name="my_coil")
     with pytest.raises(AEDTRuntimeError):

@@ -80,7 +80,7 @@ dotnet = [
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.7",
     "jupyter",
-    "numpydoc>=1.5.0,<1.11",
+    "numpydoc==1.10.0",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
     "sphinx-autobuild==2024.10.3",
@@ -275,8 +275,6 @@ markers = [
     "extensions: mark a test as related to extensions.",
     "filter_solutions: mark a test as related to filter solutions.",
     "emit: mark a test as related to EMIT features.",
-    "flaky_linux: mark a test as flaky on Linux systems.",
-    "flaky_windows: mark a test as flaky on Windows systems.",
     "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
 ]
 filterwarnings = [

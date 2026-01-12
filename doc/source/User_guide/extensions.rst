@@ -333,13 +333,17 @@ The Python script requires a common initial part to define the port and the vers
         version = "2025.2"
 
     # your pyaedt script
-    app = ansys.aedt.core.Desktop(new_desktop_session=False, specified_version=version, port=port)
+    app = ansys.aedt.core.Desktop(
+        new_desktop_session=False, specified_version=version, port=port
+    )
 
     active_project = app.active_project()
     active_design = app.active_design(active_project)
 
     # no need to hardcode your application since get_pyaedt_app detects it for you
-    aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
+    aedtapp = ansys.aedt.core.get_pyaedt_app(
+        design_name=active_design.GetName(), desktop=app
+    )
 
     # your workflow
     aedtapp.modeler.create_sphere([0, 0, 0], 20)

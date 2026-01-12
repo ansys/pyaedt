@@ -16,7 +16,7 @@ In this case, you can use the Python interpreter available in the AEDT installat
 
 Here is the path to the Python 3.10 interpreter for the 2025 R1 installation:
 
-.. code:: python
+.. code:: bash
 
    path\to\AnsysEM\v251\commonfiles\CPython\3_10\winx64\Release\python"
 
@@ -44,9 +44,9 @@ The wheelhouse for PyAEDT can be found `here <https://github.com/ansys/pyaedt/re
 After downloading the wheelhouse for your distribution and Python release, unzip the file to a folder and
 run the Python command:
 
-.. code:: python
+.. code:: bash
 
-    >>> pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
+    pip install --no-cache-dir --no-index --find-links=/path/to/pyaedt/wheelhouse pyaedt
 
 
 Another option to install PyAEDT from the wheelhouse is to download the following file
@@ -66,12 +66,19 @@ This is typically caused by insufficient write permissions to your PersonalLib d
   :width: 800
   :alt: PyAEDT toolkit manager 3
 
-If the virtual environment was successfully created, you can first activate it, and then you manually register the toolkit panels using the following command:
+If the virtual environment was successfully created, you can manually register the toolkit panels using the CLI command after activating it:
 
-.. code::
+.. code:: bash
+
+    pyaedt panels add --version your_aedt_version --personal-lib "path_to_personalib"
+
+Alternatively, you can use the Python API directly:
+
+.. code:: python
 
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
+
+     add_pyaedt_to_aedt("your_aedt_version", r"path_to_personalib")
 
 If the issue persists, try installing all required dependencies, including the optional components, by running the following command:
 
@@ -160,8 +167,10 @@ variables have been defined correctly.
 .. code:: python
 
     import sys
+
     sys.path.append(r"ANSYSEM_ROOT252\PythonFiles\DesktopPlugin")
     import ScriptEnv
+
     print(dir())
     ScriptEnv.Initialize("", False, "", 50051)
     print(dir())
@@ -257,7 +266,7 @@ If you encounter such issue, you can try patching it by importing PyAEDT or PyED
 Extensions and panels
 ~~~~~~~~~~~~~~~~~~~~~
 
-If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the virtual environment. 
+If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the virtual environment.
 
 The management of extensions in AEDT has changed. Previously, extensions were copied to the _PersonalLib_ folder, which led to inconsistencies when updating PyAEDT extensions. This was because old extensions were not replaced until panels were reset, at which point the extension were copied from the virtual environment back into the _PersonalLib_ folder. Now, Extensions are loaded directly from the virtual environment, ensuring they remain up to date when PyAEDT is updated.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -137,7 +137,7 @@ class NamedVariable(PyAedtBase):
     @property
     def value(self):
         """Value."""
-        return self._variable.value
+        return self._variable.si_value
 
     @property
     def numeric_value(self):
@@ -2396,10 +2396,10 @@ class Patch(CommonObject, PyAedtBase):
             Change the side where the port is created.
         port_name : str, optional
             Name of the lumped port.
-        axisdir : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+        axisdir : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
+            Position of the port. It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
 
         Returns
         -------
@@ -2440,7 +2440,7 @@ class Patch(CommonObject, PyAedtBase):
         )
         if self.application.solution_type == "Modal":
             if axisdir is None:
-                axisdir = self.application.AxisDir.ZPos
+                axisdir = self.application.axis_directions.ZPos
             port = self.application.lumped_port(rect.name, integration_line=axisdir, name=port_name)
         elif self.application.solution_type == "Terminal":
             port = self.application.lumped_port(rect.name, reference=[reference_layer.name], name=port_name)
@@ -3131,10 +3131,10 @@ class Trace(CommonObject, PyAedtBase):
             Change the side where the port is created.
         port_name : str, optional
             Name of the lumped port.
-        axisdir : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+        axisdir : int or :class:`ansys.aedt.core.application.analysis.Analysis.axis_directions`, optional
+            Position of the port. It should be one of the values for ``Application.axis_directions``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.axis_directions.XNeg``.
 
         Returns
         -------
@@ -3179,13 +3179,13 @@ class Trace(CommonObject, PyAedtBase):
         )
         if self.application.solution_type == "Modal":
             if axisdir is None:
-                axisdir = self.application.AxisDir.ZPos
+                axisdir = self.application.axis_directions.ZPos
             port = self.application.lumped_port(
-                signal=port.name, name=port_name, integration_line=axisdir, create_port_sheet=False
+                assignment=port.name, name=port_name, integration_line=axisdir, create_port_sheet=False
             )
         elif self.application.solution_type == "Terminal":
             port = self.application.lumped_port(
-                signal=port.name,
+                assignment=port.name,
                 name=port_name,
                 integration_line=axisdir,
                 create_port_sheet=False,

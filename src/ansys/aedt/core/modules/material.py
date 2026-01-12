@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,7 +38,6 @@ This module contains these data classes for creating a material library:
 """
 
 import copy
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -705,7 +704,7 @@ class MatProperty(PyAedtBase):
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
 
-    @pyaedt_function_handler(dataset_name="dataset")
+    @pyaedt_function_handler()
     def add_thermal_modifier_dataset(self, dataset, index=0):
         """Add a thermal modifier to a material property using an existing dataset.
 
@@ -1189,7 +1188,7 @@ class MatProperty(PyAedtBase):
         self._property_value[index].spatialmodifier = formula
         return self._add_spatial_modifier(formula, index)
 
-    @pyaedt_function_handler(dataset_name="dataset")
+    @pyaedt_function_handler()
     def add_spatial_modifier_dataset(self, dataset, index=0):
         """Add a spatial modifier to a material property using an existing dataset.
 
@@ -2085,22 +2084,6 @@ class Material(CommonMaterial, PyAedtBase):
             self._update_props("stacking_direction", dict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @pyaedt_function_handler()
-    def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):  # pragma: no cover
-        """Set magnetic coercivity for material.
-
-        .. deprecated:: 0.7.0
-
-        Returns
-        -------
-        bool
-
-        """
-        warnings.warn(
-            "`set_magnetic_coercitivity` is deprecated. Use `set_magnetic_coercivity` instead.", DeprecationWarning
-        )
-        return self.set_magnetic_coercivity(value, x, y, z)
-
-    @pyaedt_function_handler()
     def set_magnetic_coercivity(self, value=0, x=1, y=0, z=0):
         """Set magnetic coercivity for material.
 
@@ -2130,7 +2113,7 @@ class Material(CommonMaterial, PyAedtBase):
         )
         return self.update()
 
-    @pyaedt_function_handler(points_list_at_freq="points_at_frequency")
+    @pyaedt_function_handler()
     def get_core_loss_coefficients(
         self,
         points_at_frequency,
@@ -2247,7 +2230,7 @@ class Material(CommonMaterial, PyAedtBase):
         )
         return list(coefficients)
 
-    @pyaedt_function_handler(points_list_at_freq="points_at_frequency")
+    @pyaedt_function_handler()
     def set_coreloss_at_frequency(
         self,
         points_at_frequency,
@@ -2515,7 +2498,7 @@ class Material(CommonMaterial, PyAedtBase):
         self._props["core_loss_equiv_cut_depth"] = f"{cut_depth}meter"
         return self.update()
 
-    @pyaedt_function_handler(point_list="points", punit="units")
+    @pyaedt_function_handler()
     def set_bp_curve_coreloss(
         self, points, kdc=0, cut_depth=0.0001, units="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
     ):
@@ -2634,22 +2617,6 @@ class Material(CommonMaterial, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def get_magnetic_coercitivity(self):  # pragma: no cover
-        """Get the magnetic coercivity values.
-
-        .. deprecated:: 0.7.0
-
-        Returns
-        -------
-        bool
-
-        """
-        warnings.warn(
-            "`get_magnetic_coercitivity` is deprecated. Use `get_magnetic_coercivity` instead.", DeprecationWarning
-        )
-        return self.get_magnetic_coercivity()
-
-    @pyaedt_function_handler()
     def is_conductor(self, threshold: float = 100000) -> bool:
         """Check if the material is a conductor.
 
@@ -2698,7 +2665,7 @@ class Material(CommonMaterial, PyAedtBase):
         """
         return not self.is_conductor(threshold)
 
-    @pyaedt_function_handler(i_freq="frequency")
+    @pyaedt_function_handler()
     def set_djordjevic_sarkar_model(
         self,
         dk=4,
