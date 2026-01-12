@@ -308,8 +308,7 @@ jobs:
             mv visualization-linux-data/.testmondata .testmondata
             echo "Visualization Linux testmondata found and copied"
           else
-            echo "No Visualization Linux testmondata artifact found"
-            exit 0
+            echo "::warning::No Visualization Linux testmondata artifact found"
           fi
 
       - name: Upload Visualization Test Cache to GitHub Cache (Linux)
