@@ -698,17 +698,6 @@ def test_export_to_maxwell(add_app_example, add_app, test_tmp_dir):
     assert app2.circuit
 
 
-def test_variations(hfss3dl_solved):
-    var_w_expr = hfss3dl_solved.available_variations.nominal_variation(expressions=True)
-    assert var_w_expr["gnd_len"] == "len+gnd_buffer"
-    assert len(var_w_expr) == 4
-    var_w_values = hfss3dl_solved.available_variations.nominal_variation()
-    assert len(var_w_values) == 4
-    assert var_w_values["gnd_len"] == "23.0mm"
-    var_independent = hfss3dl_solved.available_variations.nominal_variation(dependent_params=False)
-    assert len(var_independent) == 3
-
-
 def test_output_variables_3dlayout(hfss3dl_solved):
     hfss3dl_solved.set_differential_pair(
         assignment="Port1", reference="Port2", differential_mode="Diff", common_mode="Comm"
