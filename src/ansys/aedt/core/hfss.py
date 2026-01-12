@@ -2552,7 +2552,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not setup:
             setup = assignment.nominal_adaptive
         params = {}
-        pars = assignment.available_variations.get_independent_nominal_values()
+        pars = assignment.available_variations.nominal_variation(dependent_params=False)
 
         for el in pars:
             params[el] = pars[el]
@@ -5873,7 +5873,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
         if not variations:
-            variations = self.available_variations.get_independent_nominal_values()
+            variations = self.available_variations.nominal_variation(dependent_params=False)
         if not setup:
             setup = self.nominal_adaptive
 
@@ -6807,7 +6807,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
                 setup = assignment.nominal_adaptive
 
             params = {}
-            pars = assignment.available_variations.get_independent_nominal_values()
+            pars = assignment.available_variations.nominal_variation(dependent_params=False)
             for el in pars:
                 params[el] = pars[el]
 

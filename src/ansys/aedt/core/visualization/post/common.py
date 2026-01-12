@@ -1041,7 +1041,7 @@ class PostProcessorCommon(PyAedtBase):
         else:
             families_input[primary_sweep_variable] = [variations[primary_sweep_variable]]
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
         for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
@@ -1308,9 +1308,9 @@ class PostProcessorCommon(PyAedtBase):
         if not variations:
             variations = {}
         if not variations and domain == "Sweep":
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
         elif not variations and domain != "Sweep":
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
         if setup_name in self._app.design_setups:
             for v in self._app.design_setups[setup_name].default_intrinsics.keys():
                 if v not in variations:
@@ -1820,7 +1820,7 @@ class PostProcessorCommon(PyAedtBase):
             ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
                 del report._legacy_props["context"]["variations"]["Freq"]
             _update_props(props, report._legacy_props)
-            nominal_values = self._app.available_variations.get_independent_nominal_values()
+            nominal_values = self._app.available_variations.nominal_variation(dependent_params=False)
             for el, k in nominal_values.items():
                 if (
                     report._legacy_props.get("context", None)
