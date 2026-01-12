@@ -1992,6 +1992,65 @@ def test_plane_wave(aedt_app):
     assert new_plane_wave.name in aedt_app.excitation_names
 
 
+def test_far_field(aedt_app, add_app, test_tmp_dir):
+    # Create simple geometry in target design
+    _ = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], "TargetBox")
+
+    # Create a source design in the same project
+    source_design = add_app(application=Hfss, design="FarFieldSource", close_projects=False)
+    source_design.solution_type = "Modal"
+
+    setup = source_design.create_setup("Setup1", Frequency="10GHz")
+    setup.props["MaximumPasses"] = 2
+
+    # Test far field with assignment from same project
+    far_field_boundary = aedt_app.far_field_wave(
+        assignment=source_design, setup=setup, coordinate_system="Global", name="FarField1"
+    )
+    assert far_field_boundary is not None
+    assert far_field_boundary.name == "FarField1"
+    assert far_field_boundary.name in aedt_app.excitation_names
+    assert far_field_boundary.type == "Far Field Wave"
+
+    # Test far field with external data file
+    ffd_file_original = TESTS_GENERAL_PATH / "example_models" / "T04" / "test.ffd"
+    ffd_file = shutil.copy2(ffd_file_original, test_tmp_dir / "test.ffd")
+
+    far_field_ext = aedt_app.far_field_wave(
+        assignment=str(ffd_file), coordinate_system="Global", name="FarFieldExternal"
+    )
+    assert far_field_ext is not None
+    assert far_field_ext.name == "FarFieldExternal"
+    assert far_field_ext.name in aedt_app.excitation_names
+
+    # Test with different properties
+    far_field_boundary2 = aedt_app.far_field_wave(
+        assignment=source_design,
+        setup=setup,
+        coordinate_system="Global",
+        simulate_source=False,
+        preserve_source_solution=False,
+    )
+    assert far_field_boundary2 is not None
+    assert far_field_boundary2.name in aedt_app.excitation_names
+
+    # Test far field with external project
+    external_source = add_app(
+        application=Hfss, project="ExternalProject", design="ExternalSource", close_projects=False
+    )
+    external_source.solution_type = "Modal"
+    external_setup = external_source.create_setup("Setup1", Frequency="10GHz")
+    external_setup.props["MaximumPasses"] = 2
+
+    far_field_external_project = aedt_app.far_field_wave(
+        assignment=external_source, setup=external_setup, coordinate_system="Global", name="FarFieldExternalProject"
+    )
+    external_source.close_project()
+    assert far_field_external_project is not None
+    assert far_field_external_project.name == "FarFieldExternalProject"
+    assert far_field_external_project.name in aedt_app.excitation_names
+
+
 def test_export_on_completion(aedt_app, test_tmp_dir):
     assert aedt_app.export_touchstone_on_completion()
     assert aedt_app.export_touchstone_on_completion(export=True, output_dir=test_tmp_dir)
