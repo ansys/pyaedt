@@ -30,7 +30,6 @@ import pytest
 
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests import TESTS_EMIT_PATH
-from tests import TESTS_EMIT_PATH
 from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
@@ -41,7 +40,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
-    from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
     from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
 
 
