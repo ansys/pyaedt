@@ -49,7 +49,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
     def __init__(self, withdraw: bool = False):
         self._widgets = {}
         self._matrix: Optional[_MatrixData] = None
-        # Tk variables must be created after root exists; set up in add_extension_content
         self._filters_interf = {}
         self._filters_prot = {}
         super().__init__(
@@ -264,6 +263,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
     # ---------------- Event handlers -----------------
     def _on_run_interference(self):
+        """Generate interference type classification results."""
         try:
             filters = self._build_interf_filters()
             tx_radios, rx_radios, colors, values = self._compute_interference(filters)
@@ -273,6 +273,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             messagebox.showerror("Error", f"Failed to generate interference results: {e}")
 
     def _on_run_protection(self):
+        """Generate protection level classification results."""
         try:
             # Commit any pending edit in the legend before reading values
             self._commit_protection_legend_editor()
@@ -285,6 +286,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
     # ---------------- Legend edit helpers -----------------
     def _edit_protection_legend_value(self, event):
+        """Enable inline editing of protection level legend values."""
         tv = self._widgets.get("tv_prot_legend")
         if not tv:
             return
@@ -331,6 +333,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         self._widgets["tv_prot_editor"] = editor
 
     def _commit_protection_legend_editor(self):
+        """Commit any active inline editor for protection legend values."""
         editor = self._widgets.get("tv_prot_editor")
         if editor and editor.winfo_exists():
             # Trigger focus-out to commit
@@ -344,6 +347,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
     # ---------------- Legend/radio helpers -----------------
     def _get_legend_values(self):
+        """Retrieve protection level values from the legend table."""
         vals = []
         tv = self._widgets.get("tv_prot_legend")
         if not tv:
@@ -357,6 +361,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         return vals
 
     def _on_radio_specific_toggle(self):
+        """Configure legend and protection levels when radio-specific toggle changes."""
         enabled = bool(self._radio_specific_var.get())
         if enabled:
             # Build per-radio levels from current legend values
@@ -379,6 +384,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             self._global_protection_level = True
 
     def _on_radio_dropdown_changed(self, _evt=None):
+        """Update legend values when selected radio changes."""
         cur = self._radio_dropdown.get()
         if not cur:
             return
@@ -396,6 +402,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             i += 1
 
     def _on_export_excel(self):
+        """Export the current results matrix to an Excel file."""
         from tkinter import filedialog
 
         import openpyxl
@@ -435,6 +442,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
     # --------------- Computation helpers ----------------
     def _build_interf_filters(self):
+        """Build list of EMIT filter strings based on UI selections."""
         # Maps to EMIT filter strings used by Results APIs
         all_filters = [
             "TxFundamental:In-band",
@@ -451,6 +459,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         return [f for f, v in zip(all_filters, checks) if v]
 
     def _compute_interference(self, filter_list):
+        """Compute interference type classification matrix."""
         app = self.aedt_application
         # Radios
         try:
@@ -471,6 +480,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         return tx, rx, colors, matrix
 
     def _compute_protection(self, filter_list):
+        """Compute protection level classification matrix."""
         app = self.aedt_application
         try:
             radios = app.modeler.components.get_radios()
@@ -501,6 +511,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
     # --------------- UI rendering helpers ----------------
     def _render_matrix(self, tab: str):
+        """Display the results matrix on the canvas for the given tab."""
         if not self._matrix:
             return
         # Choose the correct canvas for the tab
