@@ -945,7 +945,11 @@ class GlobalService(rpyc.Service, PyAedtBase):
             for option in beta_options:
                 if option not in ng_feature:
                     ng_feature += f",{option}"
-        command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
+
+        certs_folder = os.environ.get("ANSYS_GRPC_CERTIFICATES")
+        secure_flag = "SecureMode" if certs_folder and os.path.exists(certs_folder) else "InSecureMode"
+        command = [aedt_exe, "-grpcsrv", f"0.0.0.0:{str(port)}:{secure_flag}", ng_feature]
+
         if non_graphical:
             command.append("-ng")
 
