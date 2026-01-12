@@ -87,7 +87,7 @@ def hfss3dl_post_app(add_app_example):
 
 
 def test_create_material(aedt_app):
-    materials_length =len(aedt_app.materials.material_keys)
+    materials_length = len(aedt_app.materials.material_keys)
     mymat = aedt_app.materials.add_material("myMaterial")
     mymat.permittivity = 4.1
     mymat.conductivity = 100
