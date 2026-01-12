@@ -17,7 +17,7 @@ runs:
           # Check workflow conclusion for base commit
           WORKFLOW_CONCLUSION=$(gh run list \
             --workflow=update-testmondata-cache.yml \
-            --branch=master \
+            --branch=main \
             --json status,conclusion,headSha \
             --jq ".[] | select(.headSha == \"$BASE_SHA\") | .conclusion")
 
@@ -31,7 +31,7 @@ runs:
             # Check if workflow exists but hasn't completed
             WORKFLOW_EXISTS=$(gh run list \
               --workflow=update-testmondata-cache.yml \
-              --branch=master \
+              --branch=main \
               --json headSha \
               --jq ".[] | select(.headSha == \"$BASE_SHA\") | .headSha")
 
