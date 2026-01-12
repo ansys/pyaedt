@@ -2465,7 +2465,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         analysis_setup = setup + " : " + default_adaptive
 
-        nominal_values = self.available_variations.get_independent_nominal_values()
+        nominal_values = self.available_variations.nominal_variation(dependent_params=False)
         if not nominal_values:
             variations = ""
         else:

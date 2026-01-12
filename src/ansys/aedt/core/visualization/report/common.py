@@ -422,7 +422,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self._legacy_props["context"]["secondary_sweep_range"] = ["All"]
         self._legacy_props["context"]["variations"] = {"Freq": ["All"]}
         if hasattr(self._app, "available_variations") and self._app.available_variations:
-            nominal_variation = self._post._app.available_variations.get_independent_nominal_values()
+            nominal_variation = self._post._app.available_variations.nominal_variation(dependent_params=False)
             for el, k in nominal_variation.items():
                 self._legacy_props["context"]["variations"][el] = k
         self._legacy_props["expressions"] = None
@@ -1343,7 +1343,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
                 sweep_list.append(_units_assignment(k))
             else:
                 sweep_list.append([_units_assignment(k)])
-        nominal_values = self._app.available_variations.get_independent_nominal_values()
+        nominal_values = self._app.available_variations.nominal_variation(dependent_params=False)
         for el in list(nominal_values.keys()):
             if el not in sweeps:
                 sweep_list.append(f"{el}:=")

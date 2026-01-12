@@ -333,6 +333,15 @@ class Revision:
                         bands.append(radio_child)
                 else:
                     bands.append(radio_child)
+            elif isinstance(radio_child, Waveform):
+                if enabled_only and not radio_child.enabled:
+                    # Skip disabled Bands if caller doesn't want all Bands
+                    continue
+                if tx_rx_mode == TxRxMode.RX:
+                    # Skip Waveforms for Rx mode
+                    continue
+                elif "true" in radio_child._get_property("TxEnabled", True):
+                    bands.append(radio_child)
             elif isinstance(radio_child, BandFolder):
                 folder_children = radio_child.children
                 for folder_child in folder_children:
