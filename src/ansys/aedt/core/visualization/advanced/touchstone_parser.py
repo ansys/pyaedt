@@ -183,8 +183,8 @@ class TouchstoneData(rf.Network, PyAedtBase):
         self,
         start_frequency: float = 1e9,
         stop_frequency: float = 10e9,
-        min_loss: float = -60.0,
-        max_loss: float = -40.0,
+        low_loss: float = -40.0,
+        high_loss: float = -60.0,
         include_same_component: bool = True,
         component_filter: Optional[List] = None,
         include_filter: bool = True,
@@ -200,10 +200,10 @@ class TouchstoneData(rf.Network, PyAedtBase):
             Frequency value below which no check is done. The default is ``1e9``.
         stop_frequency : float, optional
             Frequency value above which no check is done. The default is ``10e9``.
-        min_loss: float, optional
-            Minimum loss threshold in dB. The default is ``-60.0``.
-        max_loss: float, optional
-            Maximum loss threshold in dB. The default is ``-40.0``.
+        low_loss: float, optional
+            Minimum loss threshold in dB. The default is ``-40.0``.
+        high_loss: float, optional
+            Maximum loss threshold in dB. The default is ``-60.0``.
         include_same_component: bool, optional
             Whether to include S-parameters between ports on the same component. The default is ``True``.
         component_filter: list, optional
@@ -221,14 +221,14 @@ class TouchstoneData(rf.Network, PyAedtBase):
         Returns
         -------
          list:
-            List of tuples with S-parameter indices ``(i, j)`` in the range [max_loss, min_loss].
+            List of tuples with S-parameter indices ``(i, j)`` in the range [high_loss, low_loss].
 
         Examples
         --------
         >>> # Basic usage - scan all components in frequency range
         >>> touchstone = TouchstoneData(touchstone_file="design.s16p")
         >>> coupling = touchstone.get_coupling_in_range(
-        ...     start_frequency=2e9, stop_frequency=5e9, max_loss=-40.0, min_loss=-60.0
+        ...     start_frequency=2e9, stop_frequency=5e9, high_loss=-60.0, low_loss=-64.0
         ... )
 
         >>> # Include only specific components, returns S-parameters only between U1 and X1 ports
@@ -253,7 +253,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         When `start_frequency=2e9` and `stop_frequency=5e9`, only S-parameters between these
         frequencies are scanned, with sampling every `frequency_sample` points.
 
-        Output file format when a value is found in the [min_loss, max_loss] range:
+        Output file format when a value is found in the [high_loss, low_loss] range:
             S(U1_AU17,X1_B14) Loss= -50.61dB Freq= 1.007GHz
             S(U1_AU17,X1_B15) Loss= -49.38dB Freq= 1.007GHz
             S(U9_20,X1_A11) Loss= -45.19dB Freq= 1.374GHz
@@ -297,7 +297,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
                     continue
                 for k in range(k_start, k_stop, frequency_sample):
                     loss = s_db[k, i, j]
-                    if min_loss < loss < max_loss:
+                    if high_loss < loss < low_loss:
                         temp_list.append((i, j))
                         sxy = f"S({self.port_names[i]},{self.port_names[j]})"
                         line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
