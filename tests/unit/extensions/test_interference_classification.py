@@ -22,43 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.emit.interference_classification import EXTENSION_TITLE
 from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
-from ansys.aedt.core.extensions.misc import MOON
-from ansys.aedt.core.extensions.misc import SUN
 
 
 @pytest.fixture
 def mock_emit_environment():
     """Fixture to set up a mocked EMIT environment for testing."""
-    with patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop, \
-         patch("ansys.aedt.core.extensions.misc.active_sessions") as mock_active_sessions, \
-         patch("ansys.aedt.core.extensions.misc.get_pyaedt_app") as mock_get_pyaedt_app:
-        
+    with (
+        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
+        patch("ansys.aedt.core.extensions.misc.active_sessions") as mock_active_sessions,
+        patch("ansys.aedt.core.extensions.misc.get_pyaedt_app") as mock_get_pyaedt_app,
+    ):
         # Mock desktop and project
         mock_project = MagicMock()
         mock_project.GetName.return_value = "TestProject"
-        
+
         mock_design = MagicMock()
         mock_design.GetName.return_value = "TestDesign"
-        
+
         mock_desktop_instance = MagicMock()
         mock_desktop_instance.active_project.return_value = mock_project
         mock_desktop_instance.active_design.return_value = mock_design
         mock_desktop.return_value = mock_desktop_instance
         mock_active_sessions.return_value = {0: 0}
-        
+
         # Mock AEDT application with EMIT design type
         mock_emit_app = MagicMock()
         mock_emit_app.design_type = "EMIT"
         mock_get_pyaedt_app.return_value = mock_emit_app
-        
+
         yield {
             "desktop": mock_desktop,
             "desktop_instance": mock_desktop_instance,
@@ -168,7 +165,7 @@ def test_radio_dropdown_changed(mock_emit_environment):
     mock_analyze.get_receiver_names.return_value = ["Radio1", "Radio2"]
     mock_results.analyze.return_value = mock_analyze
     mock_aedt_app.results = mock_results
-    
+
     # Update the mock in the fixture
     mock_emit_environment["get_pyaedt_app"].return_value = mock_aedt_app
 
@@ -438,6 +435,7 @@ def test_export_excel_with_data(mock_asksaveasfilename, mock_emit_environment):
     assert mock_asksaveasfilename.called
 
     extension.root.destroy()
+
 
 def test_render_matrix(mock_emit_environment):
     """Test rendering matrix on canvas."""
