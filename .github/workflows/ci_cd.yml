@@ -212,13 +212,6 @@ jobs:
         run: |
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-
-
-
-
-
-
   unit-tests:
     name: Unit tests
     needs: [smoke-tests]
