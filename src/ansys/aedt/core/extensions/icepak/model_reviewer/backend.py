@@ -50,7 +50,7 @@ def import_config_file(aedtapp, json_data):
         aedtapp.logger.info("Sucessfully imported configuration")
     else:
         aedtapp.logger.info("Import has issues")
-    return None
+    return result
 
 
 def get_object_id_mapping(aedtapp):
