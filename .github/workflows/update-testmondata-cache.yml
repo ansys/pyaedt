@@ -40,7 +40,7 @@ jobs:
     name: Update unit test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache 
     env:
 
       TESTS_VERSION: '3.10'
@@ -81,7 +81,7 @@ jobs:
     name: Update integration test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
     steps:
@@ -120,7 +120,7 @@ jobs:
     name: Update solvers test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
@@ -186,7 +186,7 @@ jobs:
     name: Update solvers test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -253,7 +253,7 @@ jobs:
     name: Update general test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
@@ -322,7 +322,7 @@ jobs:
     name: Update general test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -392,7 +392,7 @@ jobs:
     name: Update visualization test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
@@ -462,7 +462,7 @@ jobs:
     name: Update visualization test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -533,7 +533,7 @@ jobs:
     name: Update icepak test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
@@ -599,7 +599,7 @@ jobs:
     name: Update icepak test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -666,7 +666,7 @@ jobs:
     name: Update layout test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
@@ -732,7 +732,7 @@ jobs:
     name: Update layout test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -799,7 +799,7 @@ jobs:
     name: Update extensions test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
@@ -868,7 +868,7 @@ jobs:
     name: Update extensions test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -938,7 +938,7 @@ jobs:
     name: Update filter test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
@@ -1004,7 +1004,7 @@ jobs:
     name: Update emit test cache (Windows)
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
       PYTHONMALLOC: malloc
