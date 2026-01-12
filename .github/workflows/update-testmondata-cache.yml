@@ -12,6 +12,8 @@ concurrency:
 permissions: {}
 
 env:
+  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
+  PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
   TESTMON_CACHE_KEY_INTEGRATION_LINUX: 'testmondata-integration-linux'
@@ -31,526 +33,1031 @@ env:
   TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
 
 jobs:
-  update-cache:
-    name: Update testmon cache on main branch
+  # ------------------------------------------------------------------
+  # UNIT TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-unit-linux:
+    name: Update unit test cache (Linux)
     runs-on: ubuntu-latest
     permissions:
-      actions: read        # Required to list workflow runs and artifacts
-      contents: write      # Required to save cache
-      pull-requests: read  # Required to read PR information
+      contents: write
+    env:
+      
+      TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Identify Source PR and Run ID
-        id: find_info
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_SHA: ${{ github.sha }}
-          WORKFLOW_NAME: "GitHub CI CD"
-        run: |
-          # Find the PR number associated with this merge commit
-          pr_number=$(git log -1 --pretty=%B | grep -oP '(?<=#)\d+(?=\s+from)' | head -n 1)
-
-          if [ -z "$pr_number" ]; then
-            echo "::warning::No merged PR found for commit $COMMIT_SHA"
-            echo "pr_found=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "Found merged PR #$pr_number"
-          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
-          echo "pr_found=true" >> $GITHUB_OUTPUT
-
-          # Find the workflow run ID for the PR
-          run_id=$(gh run list \
-            --workflow="$WORKFLOW_NAME" \
-            --json databaseId,headBranch,event \
-            --jq ".[] | select(.event == \"pull_request\") | select(.headBranch != \"main\") | .databaseId" | head -n 1)
-
-          if [ -z "$run_id" ]; then
-            echo "::warning::No workflow run found for PR #$pr_number"
-            echo "pr_found=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "Found workflow run ID: $run_id"
-          echo "run_id=$run_id" >> $GITHUB_OUTPUT
-
-      # ------------------------------------------------------------------
-      # UNIT TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Unit Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
         with:
-          name: testmondata-unit-linux
-          path: unit-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
 
-      - name: Save Unit Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        run: |
-          if [ -f unit-linux-data/.testmondata ]; then
-            mv unit-linux-data/.testmondata .testmondata
-            echo "Unit Linux testmondata found and copied"
-          else
-            echo "::warning::No Unit Linux testmondata artifact found"
-            exit 0
-          fi
+      - name: Run unit tests
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          pytest-postargs: 'tests/unit'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.TESTS_VERSION }}
+          optional-dependencies-name: unit-tests
+          requires-xvfb: true
 
-      - name: Upload Unit Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Prepare testmon data for caching
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # INTEGRATION TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Integration Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # INTEGRATION TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-integration-linux:
+    name: Update integration test cache (Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-integration-linux
-          path: integration-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Integration Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        run: |
-          if [ -f integration-linux-data/.testmondata ]; then
-            mv integration-linux-data/.testmondata .testmondata
-            echo "Integration Linux testmondata found and copied"
-          else
-            echo "::warning::No Integration Linux testmondata artifact found"
-            exit 0
-          fi
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}
 
-      - name: Upload Integration Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Run integration tests
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          pytest-postargs: 'tests/integration'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.TESTS_VERSION }}
+          optional-dependencies-name: integration-tests
+
+      - name: Prepare testmon data for caching
+        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # SOLVERS TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download Solvers Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # SOLVERS TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-solvers-win:
+    name: Update solvers test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-solvers-win
-          path: solvers-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Solvers Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f solvers-win-data/.testmondata ]; then
-            mv solvers-win-data/.testmondata .testmondata
-            echo "Solvers Windows testmondata found and copied"
-          else
-            echo "::warning::No Solvers Windows testmondata artifact found"
-            exit 0
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload Solvers Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'solvers'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m solvers
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # SOLVERS TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Solvers Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # SOLVERS TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-solvers-linux:
+    name: Update solvers test cache (Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-solvers-linux
-          path: solvers-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Solvers Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f solvers-linux-data/.testmondata ]; then
-            mv solvers-linux-data/.testmondata .testmondata
-            echo "Solvers Linux testmondata found and copied"
-          else
-            echo "::warning::No Solvers Linux testmondata artifact found"
-            exit 0
-          fi
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
 
-      - name: Upload Solvers Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'solvers'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+
+      - name: Prepare testmon data for caching
+        run: |
+          source .venv/bin/activate
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # GENERAL TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download General Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # GENERAL TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-general-win:
+    name: Update general test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-general-win
-          path: general-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save General Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f general-win-data/.testmondata ]; then
-            mv general-win-data/.testmondata .testmondata
-            echo "General Windows testmondata found and copied"
-          else
-            echo "::warning::No General Windows testmondata artifact found"
-            exit 0
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload General Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'general'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 -m general
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # GENERAL TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download General Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # GENERAL TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-general-linux:
+    name: Update general test cache (Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-general-linux
-          path: general-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save General Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f general-linux-data/.testmondata ]; then
-            mv general-linux-data/.testmondata .testmondata
-            echo "General Linux testmondata found and copied"
-          else
-            echo "::warning::No General Linux testmondata artifact found"
-            exit 0
-          fi
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
 
-      - name: Upload General Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'general'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
+
+      - name: Prepare testmon data for caching
+        run: |
+          source .venv/bin/activate
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # VISUALIZATION TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download Visualization Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # VISUALIZATION TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-visualization-win:
+    name: Update visualization test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+      MPLBACKEND: 'Agg'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-visualization-win
-          path: visualization-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Visualization Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f visualization-win-data/.testmondata ]; then
-            mv visualization-win-data/.testmondata .testmondata
-            echo "Visualization Windows testmondata found and copied"
-          else
-            echo "::warning::No Visualization Windows testmondata artifact found"
-            exit 0
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload Visualization Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'visualization'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # VISUALIZATION TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Visualization Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # VISUALIZATION TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-visualization-linux:
+    name: Update visualization test cache (Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+      MPLBACKEND: 'Agg'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-visualization-linux
-          path: visualization-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Visualization Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f visualization-linux-data/.testmondata ]; then
-            mv visualization-linux-data/.testmondata .testmondata
-            echo "Visualization Linux testmondata found and copied"
-          else
-            echo "::warning::No Visualization Linux testmondata artifact found"
-          fi
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
 
-      - name: Upload Visualization Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'visualization'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
+
+      - name: Prepare testmon data for caching
+        run: |
+          source .venv/bin/activate
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # ICEPAK TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download Icepak Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # ICEPAK TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-icepak-win:
+    name: Update icepak test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-icepak-win
-          path: icepak-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Icepak Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f icepak-win-data/.testmondata ]; then
-            mv icepak-win-data/.testmondata .testmondata
-            echo "Icepak Windows testmondata found and copied"
-          else
-            echo "::warning::No Icepak Windows testmondata artifact found"
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload Icepak Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'icepak'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m icepak -x
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # ICEPAK TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Icepak Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # ICEPAK TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-icepak-linux:
+    name: Update icepak test cache (Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-icepak-linux
-          path: icepak-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Icepak Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f icepak-linux-data/.testmondata ]; then
-            mv icepak-linux-data/.testmondata .testmondata
-            echo "Icepak Linux testmondata found and copied"
-          else
-            echo "::warning::No Icepak Linux testmondata artifact found"
-          fi
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
 
-      - name: Upload Icepak Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'icepak'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak -x
+
+      - name: Prepare testmon data for caching
+        run: |
+          source .venv/bin/activate
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # LAYOUT TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download Layout Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # LAYOUT TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-layout-win:
+    name: Update layout test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-layout-win
-          path: layout-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Layout Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f layout-win-data/.testmondata ]; then
-            mv layout-win-data/.testmondata .testmondata
-            echo "Layout Windows testmondata found and copied"
-          else
-            echo "::warning::No Layout Windows testmondata artifact found"
-            exit 0
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload Layout Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'layout'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m layout
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # LAYOUT TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Layout Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # LAYOUT TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-layout-linux:
+    name: Update layout test cache (Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-layout-linux
-          path: layout-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Layout Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f layout-linux-data/.testmondata ]; then
-            mv layout-linux-data/.testmondata .testmondata
-            echo "Layout Linux testmondata found and copied"
-          else
-            echo "::warning::No Layout Linux testmondata artifact found"
-            exit 0
-          fi
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
 
-      - name: Upload Layout Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'layout'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
+
+      - name: Prepare testmon data for caching
+        run: |
+          source .venv/bin/activate
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # EXTENSIONS TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download Extensions Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # EXTENSIONS TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-extensions-win:
+    name: Update extensions test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-extensions-win
-          path: extensions-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Extensions Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f extensions-win-data/.testmondata ]; then
-            mv extensions-win-data/.testmondata .testmondata
-            echo "Extensions Windows testmondata found and copied"
-          else
-            echo "::warning::No Extensions Windows testmondata artifact found"
-            exit 0
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload Extensions Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'extensions'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m extensions
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # EXTENSIONS TESTS CACHE UPDATE (LINUX)
-      # ------------------------------------------------------------------
-      - name: Download Extensions Test Artifacts (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # EXTENSIONS TESTS CACHE UPDATE (LINUX)
+  # ------------------------------------------------------------------
+  update-extensions-linux:
+    name: Update extensions test cache (Linux)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-extensions-linux
-          path: extensions-linux-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Extensions Test Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f extensions-linux-data/.testmondata ]; then
-            mv extensions-linux-data/.testmondata .testmondata
-            echo "Extensions Linux testmondata found and copied"
-          else
-            echo "::warning::No Extensions Linux testmondata artifact found"
-            exit 0
-          fi
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
 
-      - name: Upload Extensions Test Cache to GitHub Cache (Linux)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'extensions'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
+
+      - name: Prepare testmon data for caching
+        run: |
+          source .venv/bin/activate
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # FILTER TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download Filter Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # FILTER TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-filter-win:
+    name: Update filter test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-filter-win
-          path: filter-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Filter Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f filter-win-data/.testmondata ]; then
-            mv filter-win-data/.testmondata .testmondata
-            echo "Filter Windows testmondata found and copied"
-          else
-            echo "::warning::No Filter Windows testmondata artifact found"
-            exit 0
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload Filter Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'filter_solutions'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m filter_solutions
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}-main-${{ github.sha }}
 
-      # ------------------------------------------------------------------
-      # EMIT TESTS CACHE UPDATE (WINDOWS)
-      # ------------------------------------------------------------------
-      - name: Download Emit Test Artifacts (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  # ------------------------------------------------------------------
+  # EMIT TESTS CACHE UPDATE (WINDOWS)
+  # ------------------------------------------------------------------
+  update-emit-win:
+    name: Update emit test cache (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      TESTS_VERSION: '3.10'
+      PYTHONMALLOC: malloc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          name: testmondata-emit-win
-          path: emit-win-data
-          run-id: ${{ steps.find_info.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Save Emit Test Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true'
+      - name: Restore testmon cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
         run: |
-          if [ -f emit-win-data/.testmondata ]; then
-            mv emit-win-data/.testmondata .testmondata
-            echo "Emit Windows testmondata found and copied"
-          else
-            echo "::warning::No Emit Windows testmondata artifact found"
-            exit 0
-          fi
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
 
-      - name: Upload Emit Test Cache to GitHub Cache (Windows)
-        if: steps.find_info.outputs.pr_found == 'true' && hashFiles('.testmondata') != ''
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Run tests marked with 'emit'
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -v -rA --color=yes -m emit
+
+      - name: Prepare testmon data for caching
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
+
+      - name: Save updated testmon cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}

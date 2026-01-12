@@ -1,5 +1,5 @@
 name: 'Restore Testmon Cache'
-description: 'Restores testmon data from cache for pull requests only'
+description: 'Restores testmon data from cache'
 inputs:
   testmon-datafile:
     description: 'Path to the testmon data file'
@@ -13,8 +13,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Restore testmondata cache (PR only)
-      if: github.event_name == 'pull_request'
+    - name: Restore testmondata cache
       id: testmon-cache
       uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
@@ -30,13 +29,9 @@ runs:
         EVENT_NAME: ${{ github.event_name }}
         TESTMON_FILE: ${{ inputs.testmon-datafile }}
       run: |
-        if [ "$EVENT_NAME" == "pull_request" ]; then
           if [ -f "$TESTMON_FILE" ]; then
             echo "Testmon cache restored successfully"
             ls -lh "$TESTMON_FILE"
           else
             echo "No testmon cache found - will run all tests"
           fi
-        else
-          echo "Running on main branch - will recreate testmon cache"
-        fi

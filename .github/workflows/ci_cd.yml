@@ -237,19 +237,6 @@ jobs:
           optional-dependencies-name: unit-tests
           requires-xvfb: true
 
-      - name: Prepare testmon data for caching
-        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-unit-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -287,19 +274,6 @@ jobs:
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.TESTS_VERSION }}
           optional-dependencies-name: integration-tests
-
-      - name: Consolidate testmondata file
-        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-integration-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -382,22 +356,6 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -m solvers
 
-
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-solvers-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-solvers-tests-windows
@@ -477,22 +435,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
-
-
-      - name: Consolidate testmondata file
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-solvers-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -582,22 +524,6 @@ jobs:
             $args = $env:PYTEST_ARGUMENTS -split ' '
             pytest @args -n 4 --dist loadfile --timeout=600 -m general
 
-
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-general-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-general-tests-windows
@@ -684,22 +610,6 @@ jobs:
           command: |
             source .venv/bin/activate
             pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
-
-
-      - name: Consolidate testmondata file
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-general-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -791,22 +701,6 @@ jobs:
             $args = $env:PYTEST_ARGUMENTS -split ' '
             pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
 
-
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-visualization-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-visualization-tests-windows
@@ -896,20 +790,6 @@ jobs:
           command: |
             source .venv/bin/activate
             pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
-      - name: Consolidate testmondata file
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-visualization-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -987,21 +867,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 -m icepak -x
-
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-icepak-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1085,20 +950,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
-      - name: Consolidate testmondata file
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-icepak-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1179,20 +1030,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -m layout
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-layout-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1273,22 +1110,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
-
-
-      - name: Consolidate testmondata file
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-layout-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1379,22 +1200,6 @@ jobs:
             $args = $env:PYTEST_ARGUMENTS -split ' '
             pytest @args --timeout=600 -m extensions
 
-
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-extensions-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-extensions-tests-windows
@@ -1480,21 +1285,6 @@ jobs:
             source .venv/bin/activate
             pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
 
-      - name: Consolidate testmondata file
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-extensions-linux
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-extensions-tests-linux
@@ -1578,21 +1368,6 @@ jobs:
             $args = $env:PYTEST_ARGUMENTS -split ' '
             pytest @args --timeout=600 -m filter_solutions
 
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-filter-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
-
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-filter-tests-windows
@@ -1675,21 +1450,6 @@ jobs:
             .venv\Scripts\Activate.ps1
             $args = $env:PYTEST_ARGUMENTS -split ' '
             pytest @args --timeout=600 -v -rA --color=yes -m emit
-
-      - name: Consolidate testmondata file
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Upload testmondata artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v.6.0.0
-        with:
-          name: testmondata-emit-win
-          path: ${{ env.TESTMON_DATAFILE }}
-          retention-days: 1
-          if-no-files-found: warn
-          overwrite: true
-          include-hidden-files: true
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
