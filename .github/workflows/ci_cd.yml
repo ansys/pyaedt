@@ -885,7 +885,6 @@ jobs:
           done
 
 
-
       - name: Run tests marked with 'visualization'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
@@ -965,18 +964,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
-
-
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
-
-
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -988,10 +979,6 @@ jobs:
             Stop-Process -Id $_.Id -Force
           }
 
-
-
-
-
       - name: Run tests marked with 'icepak'
         env:
           PYTHONMALLOC: malloc
@@ -1000,6 +987,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 -m icepak -x
+
       - name: Consolidate testmondata file
         run: |
           .venv\Scripts\Activate.ps1

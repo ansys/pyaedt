@@ -55,12 +55,12 @@ jobs:
           pr_number=$(git log -1 --pretty=%B | grep -oP '(?<=#)\d+(?=\s+from)' | head -n 1)
 
           if [ -z "$pr_number" ]; then
-            echo "⚠️ No merged PR found for commit $COMMIT_SHA"
+            echo "::warning::No merged PR found for commit $COMMIT_SHA"
             echo "pr_found=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "✅ Found merged PR #$pr_number"
+          echo "Found merged PR #$pr_number"
           echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
           echo "pr_found=true" >> $GITHUB_OUTPUT
 
@@ -71,12 +71,12 @@ jobs:
             --jq ".[] | select(.event == \"pull_request\") | select(.headBranch != \"main\") | .databaseId" | head -n 1)
 
           if [ -z "$run_id" ]; then
-            echo "⚠️ No workflow run found for PR #$pr_number"
+            echo "::warning::No workflow run found for PR #$pr_number"
             echo "pr_found=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "✅ Found workflow run ID: $run_id"
+          echo "Found workflow run ID: $run_id"
           echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       # ------------------------------------------------------------------
@@ -98,7 +98,7 @@ jobs:
             mv unit-linux-data/.testmondata .testmondata
             echo "Unit Linux testmondata found and copied"
           else
-            echo "No Unit Linux testmondata artifact found"
+            echo "::warning::No Unit Linux testmondata artifact found"
             exit 0
           fi
 
@@ -128,7 +128,7 @@ jobs:
             mv integration-linux-data/.testmondata .testmondata
             echo "Integration Linux testmondata found and copied"
           else
-            echo "No Integration Linux testmondata artifact found"
+            echo "::warning::No Integration Linux testmondata artifact found"
             exit 0
           fi
 
@@ -158,7 +158,7 @@ jobs:
             mv solvers-win-data/.testmondata .testmondata
             echo "Solvers Windows testmondata found and copied"
           else
-            echo "No Solvers Windows testmondata artifact found"
+            echo "::warning::No Solvers Windows testmondata artifact found"
             exit 0
           fi
 
@@ -188,7 +188,7 @@ jobs:
             mv solvers-linux-data/.testmondata .testmondata
             echo "Solvers Linux testmondata found and copied"
           else
-            echo "No Solvers Linux testmondata artifact found"
+            echo "::warning::No Solvers Linux testmondata artifact found"
             exit 0
           fi
 
@@ -218,7 +218,7 @@ jobs:
             mv general-win-data/.testmondata .testmondata
             echo "General Windows testmondata found and copied"
           else
-            echo "No General Windows testmondata artifact found"
+            echo "::warning::No General Windows testmondata artifact found"
             exit 0
           fi
 
@@ -248,7 +248,7 @@ jobs:
             mv general-linux-data/.testmondata .testmondata
             echo "General Linux testmondata found and copied"
           else
-            echo "No General Linux testmondata artifact found"
+            echo "::warning::No General Linux testmondata artifact found"
             exit 0
           fi
 
@@ -278,7 +278,7 @@ jobs:
             mv visualization-win-data/.testmondata .testmondata
             echo "Visualization Windows testmondata found and copied"
           else
-            echo "No Visualization Windows testmondata artifact found"
+            echo "::warning::No Visualization Windows testmondata artifact found"
             exit 0
           fi
 
@@ -395,7 +395,7 @@ jobs:
             mv layout-win-data/.testmondata .testmondata
             echo "Layout Windows testmondata found and copied"
           else
-            echo "No Layout Windows testmondata artifact found"
+            echo "::warning::No Layout Windows testmondata artifact found"
             exit 0
           fi
 
@@ -425,7 +425,7 @@ jobs:
             mv layout-linux-data/.testmondata .testmondata
             echo "Layout Linux testmondata found and copied"
           else
-            echo "No Layout Linux testmondata artifact found"
+            echo "::warning::No Layout Linux testmondata artifact found"
             exit 0
           fi
 
@@ -455,7 +455,7 @@ jobs:
             mv extensions-win-data/.testmondata .testmondata
             echo "Extensions Windows testmondata found and copied"
           else
-            echo "No Extensions Windows testmondata artifact found"
+            echo "::warning::No Extensions Windows testmondata artifact found"
             exit 0
           fi
 
@@ -485,7 +485,7 @@ jobs:
             mv extensions-linux-data/.testmondata .testmondata
             echo "Extensions Linux testmondata found and copied"
           else
-            echo "No Extensions Linux testmondata artifact found"
+            echo "::warning::No Extensions Linux testmondata artifact found"
             exit 0
           fi
 
@@ -515,7 +515,7 @@ jobs:
             mv filter-win-data/.testmondata .testmondata
             echo "Filter Windows testmondata found and copied"
           else
-            echo "No Filter Windows testmondata artifact found"
+            echo "::warning::No Filter Windows testmondata artifact found"
             exit 0
           fi
 
@@ -545,7 +545,7 @@ jobs:
             mv emit-win-data/.testmondata .testmondata
             echo "Emit Windows testmondata found and copied"
           else
-            echo "No Emit Windows testmondata artifact found"
+            echo "::warning::No Emit Windows testmondata artifact found"
             exit 0
           fi
 
