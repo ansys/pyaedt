@@ -1000,9 +1000,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 -m icepak -x
-
-
-
       - name: Consolidate testmondata file
         run: |
           .venv\Scripts\Activate.ps1
