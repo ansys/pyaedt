@@ -37,6 +37,10 @@ class Cable(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    def rename(self, new_name: str = ""):
+        """Rename this node"""
+        self._rename(new_name)
+
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
@@ -175,3 +179,4 @@ class Cable(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

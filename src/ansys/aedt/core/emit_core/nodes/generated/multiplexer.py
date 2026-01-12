@@ -41,6 +41,10 @@ class Multiplexer(EmitNode):
         """Add a New Multiplexer Band to this Multiplexer"""
         return self._add_child_node("Multiplexer Pass Band")
 
+    def rename(self, new_name: str = ""):
+        """Rename this node"""
+        self._rename(new_name)
+
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
@@ -120,3 +124,4 @@ class Multiplexer(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+
