@@ -237,7 +237,7 @@ jobs:
           optional-dependencies-name: unit-tests
           requires-xvfb: true
 
-      - name: Consolidate testmondata file
+      - name: Prepare testmon data for caching
         run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
 
       - name: Upload testmondata artifact
