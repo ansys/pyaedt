@@ -1567,9 +1567,6 @@ def test_all_generated_emit_node_properties(emit_app):
             if member.startswith("delete"):
                 continue
 
-            if member.startswith("rename"):
-                continue
-
             if member.startswith("props_to_dict"):
                 continue
 
