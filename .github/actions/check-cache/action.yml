@@ -13,12 +13,13 @@ runs:
         # First check if the workflow file exists on the main branch
         if ! gh api repos/${GITHUB_REPOSITORY}/actions/workflows/update-testmondata-cache.yml --silent 2>/dev/null; then
           echo "::notice::Cache update workflow (update-testmondata-cache.yml) not found on main branch yet."
-          echo "::notice::This is expected before the workflow is merged. Skip from now"
+          echo "::notice::This is expected before the workflow is merged. Skip for now"
           exit 0
         fi
 
         max_attempts=60
         attempt=0
+        final_conclusion=""
 
         while [ $attempt -lt $max_attempts ]; do
           # Check workflow conclusion for base commit
@@ -30,9 +31,11 @@ runs:
 
           if [ "$WORKFLOW_CONCLUSION" == "success" ]; then
             echo "::notice::main cache update completed successfully"
+            final_conclusion="success"
             break
           elif [ "$WORKFLOW_CONCLUSION" == "failure" ] || [ "$WORKFLOW_CONCLUSION" == "cancelled" ]; then
             echo "::warning::main cache update workflow failed or was cancelled"
+            final_conclusion="$WORKFLOW_CONCLUSION"
             break
           elif [ -z "$WORKFLOW_CONCLUSION" ]; then
             # Check if workflow exists but hasn't completed
@@ -54,7 +57,14 @@ runs:
         done
 
         if [ $attempt -eq $max_attempts ]; then
-          echo "::warning::Timeout waiting for cache update. Proceeding anyway..."
+          echo "::error::Timeout waiting for cache update. Cannot proceed without verified cache."
+          exit 1
+        fi
+
+        # Verify the workflow completed successfully
+        if [ "$final_conclusion" == "failure" ] || [ "$final_conclusion" == "cancelled" ]; then
+          echo "::error::Cache update workflow did not complete successfully (status: $final_conclusion). Cannot proceed with tests."
+          exit 1
         fi
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
