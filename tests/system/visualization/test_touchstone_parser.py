@@ -87,40 +87,66 @@ def test_check_touchstone_file(test_tmp_dir):
 
 
 def test_get_coupling_in_range(test_tmp_dir):
-    touchstone_file_path_o = TEST_DIR / "HSD_PCIE_UT_main_cutout.s16p"
-    touchstone_file_path = shutil.copy2(touchstone_file_path_o, test_tmp_dir / "HSD_PCIE_UT_main_cutout.s16p")
+    touchstone_file_path_o = TEST_DIR / "si_verse_cutout.s16p"
+    touchstone_file_path = shutil.copy2(touchstone_file_path_o, test_tmp_dir / "si_verse_cutout.s16p")
 
     output_file = test_tmp_dir / "test_44_gcir.log"
 
-    aedb_path = TEST_DIR / "HSD_PCIE_UT.aedb"
-    file_path = test_tmp_dir / "HSD_PCIE_UT.aedb"
-    shutil.copytree(aedb_path, file_path)
-
-    design_name = "main_cutout1"
     ts = TouchstoneData(touchstone_file=touchstone_file_path)
     res = ts.get_coupling_in_range(
-        start_frequency=1e9, high_loss=-60, low_loss=-40, frequency_sample=5, output_file=str(output_file)
-    )
-    assert isinstance(res, list)
-    res = ts.get_coupling_in_range(
-        start_frequency=1e9,
-        high_loss=-60,
-        low_loss=-40,
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        include_same_component=True,
+        component_filter=[],
+        include_filter=True,
         frequency_sample=5,
         output_file=str(output_file),
-        aedb_path=str(file_path),
     )
     assert isinstance(res, list)
+    assert len(res) == 101
+    assert res[0] == (0, 1)
+
     res = ts.get_coupling_in_range(
-        start_frequency=1e9,
-        high_loss=-60,
-        low_loss=-40,
+        start_frequency=2e9, stop_frequency=5e9, frequency_sample=5, output_file=str(output_file)
+    )
+    assert isinstance(res, list)
+    assert len(res) == 101
+    assert res[0] == (0, 1)
+
+    res = ts.get_coupling_in_range(
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        include_same_component=False,
         frequency_sample=5,
         output_file=str(output_file),
-        aedb_path=str(file_path),
-        design_name=design_name,
     )
     assert isinstance(res, list)
+    assert len(res) == 63
+    assert res[0] == (0, 10)
+
+    res = ts.get_coupling_in_range(
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        component_filter=["U9"],
+        include_filter=False,
+        frequency_sample=5,
+        output_file=str(output_file),
+    )
+    assert isinstance(res, list)
+    assert len(res) == 77
+    assert res[0] == (0, 1)
+
+    res = ts.get_coupling_in_range(
+        start_frequency=2e9,
+        stop_frequency=5e9,
+        component_filter=["U1", "X1"],
+        include_filter=True,
+        frequency_sample=5,
+        output_file=str(output_file),
+    )
+    assert isinstance(res, list)
+    assert len(res) == 88
+    assert res[0] == (0, 1)
 
 
 def test_get_mixed_mode_touchstone_data_failure(touchstone_file, caplog: pytest.LogCaptureFixture):
