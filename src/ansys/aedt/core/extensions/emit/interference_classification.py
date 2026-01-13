@@ -128,28 +128,43 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         )
         prot_right.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 
-        # Legend table (static headings/values)
-        tv_prot = ttk.Treeview(prot_right, columns=("label", "value"), show="headings", height=4)
-        tv_prot.heading("label", text="")
-        tv_prot.heading("value", text="Protection Level (dBm)")
-        tv_prot.column("label", width=160, anchor=tkinter.W)
-        tv_prot.column("value", width=160, anchor=tkinter.CENTER)
-        tv_prot.pack(fill=tkinter.X, padx=6, pady=6)
-        # Populate legend rows and tag with background colors
+        # Canvas-based legend (more reliable color rendering than ttk.Treeview)
+        legend_frame = ttk.Frame(prot_right, style="PyAEDT.TFrame")
+        legend_frame.pack(fill=tkinter.X, padx=6, pady=6)
+
+        # Header
+        header_frame = ttk.Frame(legend_frame, style="PyAEDT.TFrame")
+        header_frame.pack(fill=tkinter.X)
+        ttk.Label(header_frame, text="Protection Level (dBm)", style="PyAEDT.TLabel").pack()
+
+        # Legend rows with Canvas for colors
         legend_rows = [
             ("Damage", "30.0", "#FFA600"),
             ("Overload", "-4.0", "#FF6361"),
             ("Intermodulation", "-30.0", "#D359A2"),
             ("Desensitization", "-104.0", "#7D73CA"),
         ]
-        for label, value, color in legend_rows:
-            iid = tv_prot.insert("", tkinter.END, values=(label, value))
-            tv_prot.tag_configure(label, background=color)
-            tv_prot.item(iid, tags=(label,))
-        self._widgets["tv_prot_legend"] = tv_prot
 
-        # Enable inline editing of the value column
-        tv_prot.bind("<Double-1>", self._edit_protection_legend_value)
+        prot_legend_entries = {}
+        for label, value, color in legend_rows:
+            row_frame = ttk.Frame(legend_frame, style="PyAEDT.TFrame")
+            row_frame.pack(fill=tkinter.X, pady=2)
+
+            # Color indicator (Canvas rectangle)
+            canvas = tkinter.Canvas(row_frame, width=20, height=20, highlightthickness=0)
+            canvas.pack(side=tkinter.LEFT, padx=(0, 6))
+            canvas.create_rectangle(0, 0, 20, 20, fill=color, outline="gray")
+
+            # Label
+            ttk.Label(row_frame, text=label, width=18, style="PyAEDT.TLabel").pack(side=tkinter.LEFT)
+
+            # Editable value entry
+            entry = ttk.Entry(row_frame, width=12, style="PyAEDT.TEntry")
+            entry.insert(0, value)
+            entry.pack(side=tkinter.LEFT, padx=6)
+            prot_legend_entries[label] = entry
+
+        self._widgets["prot_legend_entries"] = prot_legend_entries
 
         # Radio-specific protection levels controls
         self._radio_specific_var = tkinter.BooleanVar(master=root, value=False)
@@ -212,10 +227,10 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
         int_right = ttk.LabelFrame(int_top, text="Interference Type Classification", style="PyAEDT.TLabelframe")
         int_right.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
-        tv_int = ttk.Treeview(int_right, columns=("itype",), show="headings", height=4)
-        tv_int.heading("itype", text="Interference Type (Source / Victim)")
-        tv_int.column("itype", width=260, anchor=tkinter.CENTER)
-        tv_int.pack(fill=tkinter.X, padx=6, pady=6)
+
+        # Canvas-based legend (more reliable color rendering than ttk.Treeview)
+        int_legend_frame = ttk.Frame(int_right, style="PyAEDT.TFrame")
+        int_legend_frame.pack(fill=tkinter.X, padx=6, pady=6)
 
         # Color-coded legend rows
         irows = [
@@ -224,19 +239,18 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             ("Inband / Out of Band", "#D359A2"),
             ("Out of Band / Out of Band", "#7D73CA"),
         ]
+
         for text, color in irows:
-            iid = tv_int.insert("", tkinter.END, values=(text,))
-            tv_int.tag_configure(text, background=color)
-            tv_int.item(iid, tags=(text,))
+            row_frame = ttk.Frame(int_legend_frame, style="PyAEDT.TFrame")
+            row_frame.pack(fill=tkinter.X, pady=2)
 
-        # Auto-resize legend single column
-        def _resize_int_legend(_event=None):
-            total = max(tv_int.winfo_width() - 4, 190)
-            tv_int.column("itype", width=total)
+            # Color indicator (Canvas rectangle)
+            canvas = tkinter.Canvas(row_frame, width=20, height=20, highlightthickness=0)
+            canvas.pack(side=tkinter.LEFT, padx=(0, 6))
+            canvas.create_rectangle(0, 0, 20, 20, fill=color, outline="gray")
 
-        tv_int.bind("<Configure>", _resize_int_legend)
-        _resize_int_legend()
-        self._widgets["tv_int_legend"] = tv_int
+            # Label
+            ttk.Label(row_frame, text=text, style="PyAEDT.TLabel").pack(side=tkinter.LEFT)
 
         # Interference Type Results Matrix and Buttons
         int_matrix = ttk.Frame(int_tab, style="PyAEDT.TFrame")
@@ -275,8 +289,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
     def _on_run_protection(self):
         """Generate protection level classification results."""
         try:
-            # Commit any pending edit in the legend before reading values
-            self._commit_protection_legend_editor()
             filters = [k for k, v in self._filters_prot.items() if bool(v.get())]
             tx_radios, rx_radios, colors, values = self._compute_protection(filters)
             self._matrix = _MatrixData(tx_radios, rx_radios, colors, values)
@@ -284,79 +296,20 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate protection results: {e}")
 
-    # ---------------- Legend edit helpers -----------------
-    def _edit_protection_legend_value(self, event):
-        """Enable inline editing of protection level legend values."""
-        tv = self._widgets.get("tv_prot_legend")
-        if not tv:
-            return
-        region = tv.identify("region", event.x, event.y)
-        if region != "cell":
-            return
-        column = tv.identify_column(event.x)
-        # Only allow edits on second column (value)
-        if column != "#2":
-            return
-        row_iid = tv.identify_row(event.y)
-        if not row_iid:
-            return
-        # If an editor is already open, commit it first
-        self._commit_protection_legend_editor()
-
-        x, y, w, h = tv.bbox(row_iid, column)
-        current_val = tv.set(row_iid, column)
-        editor = ttk.Entry(tv)
-        editor.insert(0, current_val)
-        editor.place(x=x, y=y, width=w, height=h)
-
-        def commit(_event=None):
-            val_str = editor.get().strip()
-            try:
-                # validate numeric
-                float(val_str)
-            except Exception:
-                messagebox.showerror("Invalid value", "Please enter a numeric value (dBm).")
-                editor.destroy()
-                self._widgets["tv_prot_editor"] = None
-                return
-            tv.set(row_iid, column, val_str)
-            # Persist into protection levels for current radio or Global
-            values = self._get_legend_values()
-            idx = self._radio_dropdown.get() or "Global"
-            self._protection_levels[idx] = values
-            editor.destroy()
-            self._widgets["tv_prot_editor"] = None
-
-        editor.bind("<Return>", commit)
-        editor.bind("<FocusOut>", commit)
-        editor.focus_set()
-        self._widgets["tv_prot_editor"] = editor
-
-    def _commit_protection_legend_editor(self):
-        """Commit any active inline editor for protection legend values."""
-        editor = self._widgets.get("tv_prot_editor")
-        if editor and editor.winfo_exists():
-            # Trigger focus-out to commit
-            try:
-                editor.event_generate("<FocusOut>")
-            except Exception:
-                try:
-                    editor.destroy()
-                finally:
-                    self._widgets["tv_prot_editor"] = None
-
     # ---------------- Legend/radio helpers -----------------
     def _get_legend_values(self):
-        """Retrieve protection level values from the legend table."""
+        """Retrieve protection level values from the legend entry widgets."""
         vals = []
-        tv = self._widgets.get("tv_prot_legend")
-        if not tv:
-            return vals
-        for iid in tv.get_children(""):
-            row = tv.item(iid, "values")
-            try:
-                vals.append(float(row[1]))
-            except Exception:
+        entries = self._widgets.get("prot_legend_entries", {})
+        # Order: Damage, Overload, Intermodulation, Desensitization
+        for label in ["Damage", "Overload", "Intermodulation", "Desensitization"]:
+            entry = entries.get(label)
+            if entry:
+                try:
+                    vals.append(float(entry.get()))
+                except Exception:
+                    vals.append(0.0)
+            else:
                 vals.append(0.0)
         return vals
 
@@ -375,31 +328,43 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             self._radio_dropdown.configure(state="readonly", values=rx_names)
             if rx_names:
                 self._radio_dropdown.set(rx_names[0])
+                self._current_radio = rx_names[0]  # Track initial radio
             self._global_protection_level = False
         else:
             values = self._get_legend_values()
             self._protection_levels = {"Global": values}
             self._radio_dropdown.configure(state="disabled", values=[])
             self._radio_dropdown.set("")
+            self._current_radio = None  # Clear tracking when back to global
             self._global_protection_level = True
 
     def _on_radio_dropdown_changed(self, _evt=None):
-        """Update legend values when selected radio changes."""
+        """Update legend entry values when selected radio changes."""
+        # First, save the current Entry values to the previously selected radio
+        prev_radio = getattr(self, "_current_radio", None)
+        if prev_radio and prev_radio in self._protection_levels:
+            current_values = self._get_legend_values()
+            self._protection_levels[prev_radio] = current_values
+
+        # Now load the newly selected radio's values
         cur = self._radio_dropdown.get()
         if not cur:
             return
         if cur not in self._protection_levels:
             return
+
+        # Remember this as the current radio for next switch
+        self._current_radio = cur
+
         values = self._protection_levels[cur]
-        tv = self._widgets.get("tv_prot_legend")
-        if not tv:
-            return
-        i = 0
-        for iid in tv.get_children(""):
-            row_vals = list(tv.item(iid, "values"))
-            row_vals[1] = str(values[i])
-            tv.item(iid, values=tuple(row_vals))
-            i += 1
+        entries = self._widgets.get("prot_legend_entries", {})
+        # Order: Damage, Overload, Intermodulation, Desensitization
+        labels = ["Damage", "Overload", "Intermodulation", "Desensitization"]
+        for i, label in enumerate(labels):
+            entry = entries.get(label)
+            if entry and i < len(values):
+                entry.delete(0, tkinter.END)
+                entry.insert(0, str(values[i]))
 
     def _on_export_excel(self):
         """Export the current results matrix to an Excel file."""
@@ -489,8 +454,19 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         if len(radios) < 2:
             raise RuntimeError("At least two radios are required.")
 
-        # Using global protection levels from legend
-        global_levels = self._protection_levels.get("Global", self._get_legend_values())
+        # Always get current values from Entry widgets to capture any edits
+        current_values = self._get_legend_values()
+
+        # Update stored values
+        if self._global_protection_level:
+            self._protection_levels["Global"] = current_values
+            global_levels = current_values
+        else:
+            # Update the currently selected radio's values
+            cur_radio = self._radio_dropdown.get()
+            if cur_radio:
+                self._protection_levels[cur_radio] = current_values
+            global_levels = self._protection_levels.get("Global", current_values)
 
         rev = app.results.analyze()
         domain = app.results.interaction_domain()
