@@ -264,8 +264,7 @@ If you encounter such issue, you can try patching it by importing PyAEDT or PyED
     If you use gRPC or previous Numpy releases, you shouldn't be impacted by this issue.
 
 Extensions and panels
-~~~~~~~~~~~~~~~~~~~~~
-
+---------------------
 If you update PyAEDT from version **≤ 0.18.0 to a newer version**, you may need to recreate the virtual environment.
 
 The management of extensions in AEDT has changed. Previously, extensions were copied to the _PersonalLib_ folder, which led to inconsistencies when updating PyAEDT extensions. This was because old extensions were not replaced until panels were reset, at which point the extension were copied from the virtual environment back into the _PersonalLib_ folder. Now, Extensions are loaded directly from the virtual environment, ensuring they remain up to date when PyAEDT is updated.
@@ -275,3 +274,53 @@ If issues occur with the extensions, follow these steps:
 - Delete the virtual environment folder. On Windows: located in your APPDATA directory. On Linux: located in your HOME directory.
 - Delete the Toolkits directory in your PersonalLib folder.
 - Reinstall PyAEDT from scratch, following the instructions in the `Installation <../Getting_started/Installation.rst>`_ section.
+
+Error with uv-created virtual environments
+-------------------------------------------
+When using `uv <https://github.com/astral-sh/uv>`_ to create virtual environments, you may encounter
+SSL-related errors when importing PyAEDT or PyEDB:
+
+.. code:: text
+
+    legacy Provider loading failed
+    EVP_DecryptInit. could not load the shared library
+
+**Root cause**
+
+This issue stems from a DLL naming conflict in OpenSSL libraries on Windows. When CPython distributes
+OpenSSL 3.0.X using the DLL name ``libssl-3.dll``, and a CPython extension module (such as PyAEDT or
+PyEDB) links against OpenSSL 3.0.Y using a different DLL name ``libssl-3-x64.dll``, both versions
+coexist without conflict because they have different names.
+
+However, when using ``uv`` created virtual environments with Python from
+`python-build-standalone <https://github.com/astral-sh/python-build-standalone>`_, the Python distribution
+uses the same DLL name ``libssl-3-x64.dll`` as the extension modules. This creates a conflict in Windows:
+only one version of ``libssl-3-x64.dll`` can be loaded into the process at a time.
+
+For more details, see `python-build-standalone #596 <https://github.com/astral-sh/python-build-standalone/issues/596>`_
+
+**Workaround**
+
+To avoid this issue, create the virtual environment manually using the standard Python ``venv`` module
+instead of ``uv venv``. You can then install ``uv`` inside the environment and continue using it for
+package management.
+
+**Windows:**
+
+.. code:: bash
+
+    # Create virtual environment with standard Python
+    python -m venv .venv
+
+    # Activate the virtual environment
+    .venv\Scripts\activate
+
+    # Install uv inside the environment
+    pip install uv
+
+    # Now you can use uv for package management
+    uv pip install pyaedt
+
+This approach ensures that the virtual environment uses the system Python's OpenSSL libraries,
+which are compatible with PyAEDT and PyEDB, while still allowing you to benefit from ``uv``'s
+fast package installation for subsequent operations.
