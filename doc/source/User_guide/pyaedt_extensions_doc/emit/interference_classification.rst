@@ -1,7 +1,7 @@
-Interference Classification
+Interference classification
 ==============
 
-The **Interference Classification** to classify simulation results based on radio protection level and interference types.
+The **Interference classification** to classify simulation results based on radio protection level and interference types.
 
 The extension provides a graphical user interface (GUI) for configuration.
 
@@ -24,7 +24,7 @@ Using the extension
 -------------------
 
 1. Open the **Automation** tab in the EMIT interface.
-2. Locate and click the **Interference Classification** icon under the Extension Manager.
+2. Locate and click the **Interference classification** icon under the Extension Manager.
 3. In the GUI, users can interact with the following options:
    - Adjust global radio protection levels in the protection legend.
    - Specify radio specific protection levels using the radio dropdown.
