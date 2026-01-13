@@ -99,4 +99,3 @@ class CustomCouplingNode(EmitNode):
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
         self._set_property("Antenna B", f"{value}")
-
