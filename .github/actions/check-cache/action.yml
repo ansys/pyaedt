@@ -11,7 +11,7 @@ runs:
         echo "Checking if main cache update is running..."
 
         # First check if the workflow file exists on the main branch
-        if ! gh api repos/${{ github.repository }}/actions/workflows/update-testmondata-cache.yml --silent 2>/dev/null; then
+        if ! gh api repos/${GITHUB_REPOSITORY}/actions/workflows/update-testmondata-cache.yml --silent 2>/dev/null; then
           echo "::notice::Cache update workflow (update-testmondata-cache.yml) not found on main branch yet."
           echo "::notice::This is expected before the workflow is merged. Skip from now"
           exit 0
@@ -57,5 +57,6 @@ runs:
           echo "::warning::Timeout waiting for cache update. Proceeding anyway..."
         fi
       env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
         GH_TOKEN: ${{ github.token }}
