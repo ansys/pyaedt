@@ -60,3 +60,17 @@ repos:
       args:
       - --custom_template=mit_license.jinja2
       - --start_year=2021
+
+repos:
+  - repo: local
+    hooks:
+      - id: docstring-check
+        name: Check for Logic vs Docstrings
+        entry: python scripts/docstring_checker.py
+        language: python
+        # Only trigger on python files
+        files: \.py$
+        # Run on every file that pre-commit sees as "changed"
+        pass_filenames: true
+        # Force output to show in terminal even if exit code is 0
+        verbose: true
