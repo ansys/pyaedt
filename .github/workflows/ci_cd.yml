@@ -893,7 +893,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args -n 4 --dist loadfile --timeout=600 -m icepak -x
+          pytest @args --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -954,14 +954,10 @@ jobs:
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
-
-
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
-
-
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -971,15 +967,13 @@ jobs:
             kill -9 "$pid"
           done
 
-
-
       - name: Run tests marked with 'icepak'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
