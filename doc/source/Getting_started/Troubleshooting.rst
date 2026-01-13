@@ -278,7 +278,7 @@ If issues occur with the extensions, follow these steps:
 Error with uv-created virtual environments
 -------------------------------------------
 When using `uv <https://github.com/astral-sh/uv>`_ to create virtual environments, you may encounter
-SSL-related errors when importing PyAEDT or PyEDB:
+SSL-related errors when using PyAEDT or PyEDB:
 
 .. code:: text
 
