@@ -1,14 +1,21 @@
-name: 'Wait for Master Cache Update'
-description: 'Waits for the master cache update workflow to complete before proceeding with tests'
+name: 'Wait for main Cache Update'
+description: 'Waits for the main cache update workflow to complete before proceeding with tests'
 
 runs:
   using: 'composite'
   steps:
-    - name: Wait for master cache update
+    - name: Wait for main cache update
       if: github.event_name == 'pull_request'
       shell: bash
       run: |
-        echo "Checking if master cache update is running..."
+        echo "Checking if main cache update is running..."
+
+        # First check if the workflow file exists on the main branch
+        if ! gh api repos/${{ github.repository }}/actions/workflows/update-testmondata-cache.yml --silent 2>/dev/null; then
+          echo "::notice::Cache update workflow (update-testmondata-cache.yml) not found on main branch yet."
+          echo "::notice::This is expected before the workflow is merged. Skip from now"
+          exit 0
+        fi
 
         max_attempts=60
         attempt=0
@@ -22,10 +29,10 @@ runs:
             --jq ".[] | select(.headSha == \"$BASE_SHA\") | .conclusion")
 
           if [ "$WORKFLOW_CONCLUSION" == "success" ]; then
-            echo "::notice::Master cache update completed successfully"
+            echo "::notice::main cache update completed successfully"
             break
           elif [ "$WORKFLOW_CONCLUSION" == "failure" ] || [ "$WORKFLOW_CONCLUSION" == "cancelled" ]; then
-            echo "::warning::Master cache update workflow failed or was cancelled"
+            echo "::warning::main cache update workflow failed or was cancelled"
             break
           elif [ -z "$WORKFLOW_CONCLUSION" ]; then
             # Check if workflow exists but hasn't completed
