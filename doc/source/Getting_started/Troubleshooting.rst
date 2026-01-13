@@ -317,7 +317,3 @@ package management:
 
     # Now you can use uv for package management
     uv pip install pyaedt
-
-This approach ensures that the virtual environment uses the system Python's OpenSSL libraries,
-which are compatible with PyAEDT and PyEDB, while still allowing you to benefit from ``uv``'s
-fast package installation for subsequent operations.
