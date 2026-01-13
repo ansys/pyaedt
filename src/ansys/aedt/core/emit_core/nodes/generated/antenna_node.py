@@ -46,10 +46,6 @@ class AntennaNode(EmitNode):
         """Add a New Passband to this Antenna"""
         return self._add_child_node("Antenna Passband")
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
@@ -627,3 +623,4 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
+

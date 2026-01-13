@@ -43,10 +43,6 @@ class RadioNode(EmitNode):
         """Create a New Folder to Organize Bands"""
         return self._add_child_node("Band Folder")
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)

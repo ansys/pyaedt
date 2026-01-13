@@ -40,10 +40,6 @@ class TxMeasNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def delete(self):
         """Delete this node"""
         self._delete()
@@ -85,3 +81,4 @@ class TxMeasNode(EmitNode):
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
+

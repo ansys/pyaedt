@@ -50,10 +50,6 @@ class Waveform(EmitNode):
         """Delete this node"""
         self._delete()
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def import_tx_measurement(self, file_name):
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
@@ -403,3 +399,4 @@ class Waveform(EmitNode):
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
         self._set_property("Min Pts/Null", f"{value}")
+
