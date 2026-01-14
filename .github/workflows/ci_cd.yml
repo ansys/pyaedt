@@ -93,7 +93,6 @@ jobs:
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
 
-
   vulnerabilities:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
@@ -210,6 +209,7 @@ jobs:
         run: |
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
   unit-tests:
     name: Unit tests
     needs: [smoke-tests]
@@ -336,12 +336,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -352,7 +350,6 @@ jobs:
             Write-Output "Killing $($_.Name) (PID: $($_.Id))"
             Stop-Process -Id $_.Id -Force
           }
-
 
       - name: Run tests marked with 'solvers'
         env:
@@ -422,12 +419,10 @@ jobs:
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -436,7 +431,6 @@ jobs:
             echo "Killing PID $pid"
             kill -9 "$pid"
           done
-
 
       - name: Run tests marked with 'solvers'
         env:
@@ -505,12 +499,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -521,7 +513,6 @@ jobs:
             Write-Output "Killing $($_.Name) (PID: $($_.Id))"
             Stop-Process -Id $_.Id -Force
           }
-
 
       - name: Run tests marked with 'general'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -599,12 +590,10 @@ jobs:
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -613,7 +602,6 @@ jobs:
             echo "Killing PID $pid"
             kill -9 "$pid"
           done
-
 
       - name: Run tests marked with 'general'
         env:
@@ -688,12 +676,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -704,7 +690,6 @@ jobs:
             Write-Output "Killing $($_.Name) (PID: $($_.Id))"
             Stop-Process -Id $_.Id -Force
           }
-
 
       - name: Run tests marked with 'visualization'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -783,14 +768,10 @@ jobs:
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
-
-
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
-
-
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -799,7 +780,6 @@ jobs:
             echo "Killing PID $pid"
             kill -9 "$pid"
           done
-
 
       - name: Run tests marked with 'visualization'
         env:
@@ -1029,12 +1009,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1045,7 +1023,6 @@ jobs:
             Write-Output "Killing $($_.Name) (PID: $($_.Id))"
             Stop-Process -Id $_.Id -Force
           }
-
 
       - name: Run tests marked with 'layout'
         env:
@@ -1115,12 +1092,10 @@ jobs:
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1129,7 +1104,6 @@ jobs:
             echo "Killing PID $pid"
             kill -9 "$pid"
           done
-
 
       - name: Run tests marked with 'layout'
         env:
@@ -1198,12 +1172,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1214,7 +1186,6 @@ jobs:
             Write-Output "Killing $($_.Name) (PID: $($_.Id))"
             Stop-Process -Id $_.Id -Force
           }
-
 
       - name: Run tests marked with 'extensions'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
