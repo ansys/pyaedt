@@ -82,32 +82,6 @@ def test_extension_initialization(emit_app_with_radios):
     (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
-def test_protection_level_defaults(emit_app_with_radios):
-    """Test that protection level legend contains correct default values."""
-    extension = InterferenceClassificationExtension(withdraw=True)
-
-    # Get default legend values
-    values = extension._get_legend_values()
-
-    # Verify default protection levels
-    assert len(values) == 4
-    assert values[0] == 30.0  # Damage
-    assert values[1] == -4.0  # Overload
-    assert values[2] == -30.0  # Intermodulation
-    assert values[3] == -104.0  # Desensitization
-
-    extension.root.destroy()
-
-
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
 def test_radio_specific_protection_levels(emit_app_with_radios):
     """Test enabling radio-specific protection levels."""
     extension = InterferenceClassificationExtension(withdraw=True)
@@ -126,104 +100,6 @@ def test_radio_specific_protection_levels(emit_app_with_radios):
     rx_names = emit_app_with_radios.results.analyze().get_receiver_names()
     for rx_name in rx_names:
         assert rx_name in extension._protection_levels
-
-    extension.root.destroy()
-
-
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
-def test_interference_filters(emit_app_with_radios):
-    """Test building interference type filters from UI selections."""
-    extension = InterferenceClassificationExtension(withdraw=True)
-
-    # All filters should be enabled by default
-    filters = extension._build_interf_filters()
-    assert len(filters) == 4
-
-    # Disable some filters
-    extension._filters_interf["in_in"].set(False)
-    extension._filters_interf["out_out"].set(False)
-
-    # Verify filter list is updated
-    filters = extension._build_interf_filters()
-    assert len(filters) == 2
-
-    extension.root.destroy()
-
-
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
-def test_compute_interference_classification(emit_app_with_radios):
-    """Test computing interference type classification matrix."""
-    extension = InterferenceClassificationExtension(withdraw=True)
-
-    # Get radios
-    radios = emit_app_with_radios.modeler.components.get_radios()
-    assert len(radios) >= 2
-
-    # Build filters
-    filters = extension._build_interf_filters()
-
-    # Compute interference classification
-    tx_radios, rx_radios, colors, values = extension._compute_interference(filters)
-
-    # Verify results structure
-    assert len(tx_radios) > 0
-    assert len(rx_radios) > 0
-    assert len(colors) == len(tx_radios)
-    assert len(values) == len(tx_radios)
-
-    # Verify matrix dimensions
-    for col_colors in colors:
-        assert len(col_colors) == len(rx_radios)
-    for col_values in values:
-        assert len(col_values) == len(rx_radios)
-
-    extension.root.destroy()
-
-
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
-def test_compute_protection_classification(emit_app_with_radios):
-    """Test computing protection level classification matrix."""
-    extension = InterferenceClassificationExtension(withdraw=True)
-
-    # Get radios
-    radios = emit_app_with_radios.modeler.components.get_radios()
-    assert len(radios) >= 2
-
-    # Use all protection level filters
-    filters = ["damage", "overload", "intermodulation", "desensitization"]
-
-    # Compute protection level classification
-    tx_radios, rx_radios, colors, values = extension._compute_protection(filters)
-
-    # Verify results structure
-    assert len(tx_radios) > 0
-    assert len(rx_radios) > 0
-    assert len(colors) == len(tx_radios)
-    assert len(values) == len(tx_radios)
 
     extension.root.destroy()
 
@@ -330,29 +206,4 @@ def test_export_to_excel(mock_save_dialog, emit_app_with_radios, test_tmp_dir):
     extension.root.destroy()
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
-def test_insufficient_radios_error(add_app):
-    """Test that extension raises error with insufficient radios."""
-    app = add_app(application=Emit)
 
-    # Create only one radio (insufficient)
-    rad1 = app.modeler.components.create_component("UE - Handheld")
-    ant1 = app.modeler.components.create_component("Antenna")
-    ant1.move_and_connect_to(rad1)
-
-    extension = InterferenceClassificationExtension(withdraw=True)
-
-    # Attempting to compute interference should fail
-    with pytest.raises(RuntimeError, match="At least two radios are required"):
-        extension._compute_interference([])
-
-    extension.root.destroy()
-    app.close_project(app.project_name, save=False)

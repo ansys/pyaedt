@@ -74,10 +74,16 @@ def test_interference_classification_widgets_created(mock_emit_environment):
     # Check that key widgets exist
     assert "canvas_prot" in extension._widgets
     assert "canvas_int" in extension._widgets
-    assert "tv_prot_legend" in extension._widgets
-    assert "tv_int_legend" in extension._widgets
+    assert "prot_legend_entries" in extension._widgets
     assert "radio_specific_toggle" in extension._widgets
     assert "radio_dropdown" in extension._widgets
+    
+    # Check that legend entries dictionary has all required keys
+    legend_entries = extension._widgets["prot_legend_entries"]
+    assert "Damage" in legend_entries
+    assert "Overload" in legend_entries
+    assert "Intermodulation" in legend_entries
+    assert "Desensitization" in legend_entries
 
     # Check filter variables are initialized
     assert "in_in" in extension._filters_interf
@@ -171,18 +177,29 @@ def test_radio_dropdown_changed(mock_emit_environment):
 
     extension = InterferenceClassificationExtension(withdraw=True)
 
-    # Enable radio-specific mode
+    # Enable radio-specific mode (this initializes protection levels for both radios)
     extension._radio_specific_var.set(True)
     extension._on_radio_specific_toggle()
 
-    # Set custom values for Radio1
-    extension._protection_levels["Radio1"] = [40.0, -5.0, -25.0, -100.0]
+    # Manually update Entry widgets for Radio1 to simulate user input
+    entries = extension._widgets["prot_legend_entries"]
+    entries["Damage"].delete(0, "end")
+    entries["Damage"].insert(0, "40.0")
+    entries["Overload"].delete(0, "end")
+    entries["Overload"].insert(0, "-5.0")
+    entries["Intermodulation"].delete(0, "end")
+    entries["Intermodulation"].insert(0, "-25.0")
+    entries["Desensitization"].delete(0, "end")
+    entries["Desensitization"].insert(0, "-100.0")
 
-    # Select Radio1
+    # Switch to Radio2 and back to Radio1 to test value persistence
+    extension._radio_dropdown.set("Radio2")
+    extension._on_radio_dropdown_changed()
+    
     extension._radio_dropdown.set("Radio1")
     extension._on_radio_dropdown_changed()
 
-    # Verify legend values updated
+    # Verify legend Entry widgets were updated with Radio1's saved values
     values = extension._get_legend_values()
     assert values == [40.0, -5.0, -25.0, -100.0]
 
@@ -433,6 +450,28 @@ def test_export_excel_with_data(mock_asksaveasfilename, mock_emit_environment):
 
     # Verify file dialog was shown
     assert mock_asksaveasfilename.called
+
+    extension.root.destroy()
+
+
+@patch("tkinter.messagebox.showerror")
+def test_on_run_protection_error_handling(mock_showerror, mock_emit_environment):
+    """Test error handling in protection level results generation."""
+    mock_aedt_app = mock_emit_environment["emit_app"]
+    mock_modeler = MagicMock()
+    mock_components = MagicMock()
+
+    # Mock insufficient radios to trigger error
+    mock_components.get_radios.return_value = ["Radio1"]
+    mock_modeler.components = mock_components
+    mock_aedt_app.modeler = mock_modeler
+
+    extension = InterferenceClassificationExtension(withdraw=True)
+
+    extension._on_run_protection()
+
+    # Verify error dialog was shown
+    assert mock_showerror.called
 
     extension.root.destroy()
 
