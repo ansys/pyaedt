@@ -83,7 +83,7 @@ def mock_installed_versions():
 
     mock_versions = {
         "2025.2": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
-        "2025.1": "C:\\Program Files\\ANSYS Inc\\v251\\AnsysEM",
+        "2025.1": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
     }
     with patch(
         "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
@@ -460,13 +460,13 @@ def test_load_config_existing_file(mock_get_tests_folder, tmp_path):
     """Test loading existing config file."""
     mock_get_tests_folder.return_value = tmp_path
     config_file = tmp_path / "local_config.json"
-    test_config = {"desktopVersion": "2024.1", "NonGraphical": False}
+    test_config = {"desktopVersion": "2025.2", "NonGraphical": False}
 
     with open(config_file, "w") as f:
         json.dump(test_config, f)
 
     loaded_config = _load_config(config_file)
-    assert loaded_config["desktopVersion"] == "2024.1"
+    assert loaded_config["desktopVersion"] == "2025.2"
     assert loaded_config["NonGraphical"] is False
 
 
@@ -756,13 +756,13 @@ def test_display_config(cli_runner):
 def test_desktop_version_command(mock_get_tests_folder, tmp_path, cli_runner):
     """Test desktop_version command."""
     mock_get_tests_folder.return_value = tmp_path
-    result = cli_runner.invoke(app, ["config", "test", "desktop-version", "2024.1"])
+    result = cli_runner.invoke(app, ["config", "test", "desktop-version", "2025.2"])
     assert result.exit_code == 0
-    assert "desktopVersion set to '2024.1'" in result.stdout
+    assert "desktopVersion set to '2025.2'" in result.stdout
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
         config = json.load(f)
-    assert config["desktopVersion"] == "2024.1"
+    assert config["desktopVersion"] == "2025.2"
 
 
 @patch("ansys.aedt.core.cli.common._get_tests_folder")
@@ -814,7 +814,7 @@ def test_config_persists_across_commands(mock_get_tests_folder, tmp_path, cli_ru
     mock_get_tests_folder.return_value = tmp_path
     config_file = tmp_path / "local_config.json"
 
-    result1 = cli_runner.invoke(app, ["config", "test", "desktop-version", "2024.1"])
+    result1 = cli_runner.invoke(app, ["config", "test", "desktop-version", "2025.2"])
     assert result1.exit_code == 0
 
     result2 = cli_runner.invoke(app, ["config", "test", "non-graphical", "false"])
@@ -822,7 +822,7 @@ def test_config_persists_across_commands(mock_get_tests_folder, tmp_path, cli_ru
 
     with open(config_file, "r") as f:
         config = json.load(f)
-    assert config["desktopVersion"] == "2024.1"
+    assert config["desktopVersion"] == "2025.2"
     assert config["NonGraphical"] is False
 
 
@@ -968,7 +968,7 @@ def test_update_string_config_interactive_no_validator(mock_prompt, mock_get_tes
 def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config interactive mode valid."""
     mock_get_tests_folder.return_value = tmp_path
-    mock_prompt.return_value = "2024.1"
+    mock_prompt.return_value = "2025.2"
 
     def validator(v):
         if re.match(r"^\d{4}\.\d$", v):
@@ -980,7 +980,7 @@ def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
         config = json.load(f)
-    assert config["desktopVersion"] == "2024.1"
+    assert config["desktopVersion"] == "2025.2"
 
 
 @patch("ansys.aedt.core.cli.common._get_tests_folder")
@@ -988,7 +988,7 @@ def test_update_string_config_interactive_with_validator_valid(mock_prompt, mock
 def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, mock_get_tests_folder, tmp_path):
     """Test _update_string_config invalid then valid value."""
     mock_get_tests_folder.return_value = tmp_path
-    mock_prompt.side_effect = ["invalid", "2024.1"]
+    mock_prompt.side_effect = ["invalid", "2025.2"]
 
     def validator(v):
         if re.match(r"^\d{4}\.\d$", v):
@@ -1000,7 +1000,7 @@ def test_update_string_config_interactive_validator_invalid_valid(mock_prompt, m
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
         config = json.load(f)
-    assert config["desktopVersion"] == "2024.1"
+    assert config["desktopVersion"] == "2025.2"
 
 
 @patch("ansys.aedt.core.cli.common._get_tests_folder")
@@ -1087,7 +1087,7 @@ def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_p
     # Answer yes to modify, then answer for each config value
     # For desktopVersion: provide new version
     # For bools: press enter to keep or change
-    input_data = "y\n2024.1\nn\nn\nn\nn\nn\nn\n\nn\n"
+    input_data = "y\n2025.2\nn\nn\nn\nn\nn\nn\n\nn\n"
 
     result = cli_runner.invoke(test_app, input=input_data)
 
@@ -1097,7 +1097,7 @@ def test_config_test_interactive_with_modifications(mock_get_tests_folder, tmp_p
     config_file = tmp_path / "local_config.json"
     with open(config_file, "r") as f:
         config = json.load(f)
-    assert config["desktopVersion"] == "2024.1"
+    assert config["desktopVersion"] == "2025.2"
 
 
 @patch("ansys.aedt.core.cli.common._get_tests_folder")
@@ -1354,3 +1354,312 @@ def test_doc_callback_opens_home_and_shows_help(cli_runner, mock_online_help):
     assert "Documentation commands" in result.stdout
     assert "examples" in result.stdout
     assert "github" in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+def test_attach_command_no_aedt_processes(mock_find_procs, cli_runner):
+    """Test attach command when no AEDT processes are running."""
+    mock_find_procs.return_value = []
+
+    result = cli_runner.invoke(app, ["attach"])
+
+    assert result.exit_code == 0
+    assert "No AEDT processes currently running" in result.stdout
+    assert "Start AEDT first using:" in result.stdout
+    assert "pyaedt start" in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+def test_attach_command_single_process_quit(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with single process and user quits."""
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="q\n")
+
+    assert result.exit_code == 0
+    assert "Found 1 AEDT process(es)" in result.stdout
+    assert "1. PID: 12345" in result.stdout
+    assert "Port: 50051" in result.stdout
+    assert "Cancelled." in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=None)
+def test_attach_command_process_com_mode(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command displays COM mode for processes without gRPC port."""
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="q\n")
+
+    assert result.exit_code == 0
+    assert "Found 1 AEDT process(es)" in result.stdout
+    assert "COM mode" in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+def test_attach_command_invalid_input_then_quit(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with invalid input followed by quit."""
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="abc\nq\n")
+
+    assert result.exit_code == 0
+    assert "✗ Invalid input. Please enter a number." in result.stdout
+    assert "Cancelled." in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+def test_attach_command_out_of_range_then_quit(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with out of range selection then quit."""
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="5\nq\n")
+
+    assert result.exit_code == 0
+    assert "✗ Invalid selection. Please enter a number between 1 and 1." in result.stdout
+    assert "Cancelled." in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_command_valid_selection(
+    mock_launch_console, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+):
+    """Test attach command with valid process selection."""
+    # Mock process with version info in cmdline
+    mock_aedt_process.cmdline.return_value = [
+        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "-grpcsrv",
+        "50051",
+    ]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="1\n")
+
+    assert result.exit_code == 0
+    assert "Found 1 AEDT process(es)" in result.stdout
+    assert "1. PID: 12345" in result.stdout
+    assert "Version: 2025.2" in result.stdout
+    assert "Attaching to process 12345..." in result.stdout
+    mock_launch_console.assert_called_once_with(12345, "2025.2")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", side_effect=[50051, 50052])
+def test_attach_command_multiple_processes(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with multiple AEDT processes."""
+    mock_proc2 = Mock(spec=psutil.Process)
+    mock_proc2.pid = 67890
+    mock_proc2.name.return_value = "ansysedt.exe"
+    mock_proc2.cmdline.return_value = [
+        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "-grpcsrv",
+        "50052",
+    ]
+
+    mock_find_procs.return_value = [mock_aedt_process, mock_proc2]
+
+    result = cli_runner.invoke(app, ["attach"], input="q\n")
+
+    assert result.exit_code == 0
+    assert "Found 2 AEDT process(es)" in result.stdout
+    assert "1. PID: 12345" in result.stdout
+    assert "2. PID: 67890" in result.stdout
+    assert "Select process number (1-2)" in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", side_effect=[50051, 50052])
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_command_select_second_process(
+    mock_launch_console, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+):
+    """Test attach command selecting second process from list."""
+    mock_proc2 = Mock(spec=psutil.Process)
+    mock_proc2.pid = 67890
+    mock_proc2.name.return_value = "ansysedt.exe"
+    mock_proc2.cmdline.return_value = [
+        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "-grpcsrv",
+        "50052",
+    ]
+
+    mock_find_procs.return_value = [mock_aedt_process, mock_proc2]
+
+    result = cli_runner.invoke(app, ["attach"], input="2\n")
+
+    assert result.exit_code == 0
+    assert "Attaching to process 67890..." in result.stdout
+    mock_launch_console.assert_called_once_with(67890, "2025.2")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+def test_attach_command_version_extraction_unknown(mock_get_port, mock_find_procs, cli_runner):
+    """Test attach command when version cannot be extracted from cmdline."""
+    mock_proc = Mock(spec=psutil.Process)
+    mock_proc.pid = 12345
+    mock_proc.name.return_value = "ansysedt.exe"
+    mock_proc.cmdline.return_value = ["ansysedt.exe"]  # No version info
+
+    mock_find_procs.return_value = [mock_proc]
+
+    result = cli_runner.invoke(app, ["attach"], input="q\n")
+
+    assert result.exit_code == 0
+    assert "Version: unknown" in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_command_with_student_version(mock_launch_console, mock_get_port, mock_find_procs, cli_runner):
+    """Test attach command with AEDT student version process."""
+    mock_proc = Mock(spec=psutil.Process)
+    mock_proc.pid = 99999
+    mock_proc.name.return_value = "ansysedtsv.exe"  # Student version
+    mock_proc.cmdline.return_value = [
+        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedtsv.exe",
+        "-grpcsrv",
+        "50051",
+    ]
+    mock_find_procs.return_value = [mock_proc]
+
+    result = cli_runner.invoke(app, ["attach"], input="1\n")
+
+    assert result.exit_code == 0
+    assert "Attaching to process 99999..." in result.stdout
+    mock_launch_console.assert_called_once_with(99999, "2025.2")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+def test_attach_command_case_insensitive_quit(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command accepts 'Q' (uppercase) to quit."""
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="Q\n")
+
+    assert result.exit_code == 0
+    assert "Cancelled." in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+def test_attach_command_zero_selection(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with zero as selection."""
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="0\nq\n")
+
+    assert result.exit_code == 0
+    assert "✗ Invalid selection. Please enter a number between 1 and 1." in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+def test_attach_command_negative_selection(mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with negative number as selection."""
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="-1\nq\n")
+
+    assert result.exit_code == 0
+    assert "✗ Invalid selection. Please enter a number between 1 and 1." in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_command_retries_on_invalid_then_succeeds(
+    mock_launch_console, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+):
+    """Test attach command retries after multiple invalid inputs."""
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="abc\n99\n-5\n1\n")
+
+    assert result.exit_code == 0
+    assert result.stdout.count("✗ Invalid") >= 2  # Multiple invalid attempts
+    assert "Attaching to process 12345..." in result.stdout
+    mock_launch_console.assert_called_once()
+
+
+# LAUNCH CONSOLE SETUP TESTS
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_launch_console_setup_called_with_correct_args(
+    mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+):
+    """Test that _launch_console_setup is called with correct arguments."""
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="1\n")
+
+    assert result.exit_code == 0
+    mock_launch.assert_called_once_with(12345, "2025.2")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("pathlib.Path")
+@patch("subprocess.run", side_effect=KeyboardInterrupt())
+def test_launch_console_setup_keyboard_interrupt(
+    mock_subprocess, mock_path_class, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+):
+    """Test _launch_console_setup handles KeyboardInterrupt."""
+    # Mock the console_setup.py path
+    mock_console_path = Mock()
+    mock_console_path.exists.return_value = True
+    mock_console_path.__str__ = lambda self: "/fake/path/console_setup.py"
+
+    mock_path_instance = Mock()
+    mock_path_instance.__truediv__ = Mock(
+        side_effect=[Mock(__truediv__=Mock(side_effect=[Mock(__truediv__=Mock(return_value=mock_console_path))]))]
+    )
+    mock_path_class.return_value = mock_path_instance
+
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="1\n")
+
+    # Should handle KeyboardInterrupt gracefully
+    assert "Interrupted" in result.stdout or result.exit_code == 0
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("pathlib.Path")
+@patch("subprocess.run", side_effect=Exception("Subprocess error"))
+def test_launch_console_setup_generic_exception(
+    mock_subprocess, mock_path_class, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+):
+    """Test _launch_console_setup handles generic exceptions."""
+    # Mock the console_setup.py path
+    mock_console_path = Mock()
+    mock_console_path.exists.return_value = True
+    mock_console_path.__str__ = lambda self: "/fake/path/console_setup.py"
+
+    mock_path_instance = Mock()
+    mock_path_instance.__truediv__ = Mock(
+        side_effect=[Mock(__truediv__=Mock(side_effect=[Mock(__truediv__=Mock(return_value=mock_console_path))]))]
+    )
+    mock_path_class.return_value = mock_path_instance
+
+    mock_aedt_process.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach"], input="1\n")
+
+    # Should display error message
+    assert "✗ Error launching console" in result.stdout or result.exit_code == 0

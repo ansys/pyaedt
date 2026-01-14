@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 import sys
 import threading
 import time
@@ -242,3 +243,137 @@ def stop(
             typer.secho(f"✗ Error stopping process {target_proc.pid}.", fg="red")
 
     return
+
+
+@app.command()
+def attach():
+    """Attach to a running AEDT process and launch an interactive PyAEDT console."""
+    aedt_procs: list[psutil.Process] = _find_aedt_processes()
+
+    if not aedt_procs:
+        typer.secho("No AEDT processes currently running.", fg="yellow")
+        typer.echo("Start AEDT first using: ", nl=False)
+        typer.secho("pyaedt start", fg="cyan")
+        return
+
+    # Display available processes
+    typer.echo("Found ", nl=False)
+    typer.secho(f"{len(aedt_procs)}", fg="green", nl=False)
+    typer.echo(" AEDT process(es):\n")
+
+    # Build list of process info for display and selection
+    process_info = []
+    for idx, proc in enumerate(aedt_procs, 1):
+        port = _get_port(proc)
+        cmd_line = proc.cmdline()
+
+        # Extract version from command line
+        version = "unknown"
+        if cmd_line:
+            for part in cmd_line:
+                if "\\v" in part or "/v" in part:
+                    version_parts = part.split("\\v" if "\\" in part else "/v")
+                    if len(version_parts) > 1:
+                        version = version_parts[1][:3] if len(version_parts[1]) >= 3 else version_parts[1]
+                        if len(version) == 3 and version.isdigit():
+                            version = f"20{version[0:2]}.{version[2]}"
+                    break
+
+        process_info.append({"idx": idx, "proc": proc, "pid": proc.pid, "port": port, "version": version})
+
+        typer.secho(f"  {idx}", fg="yellow", nl=False)
+        typer.echo(". PID: ", nl=False)
+        typer.secho(f"{proc.pid}", fg="cyan", nl=False)
+        typer.echo(" | Version: ", nl=False)
+        typer.secho(f"{version}", fg="blue", nl=False)
+        typer.echo(" | Port: ", nl=False)
+        if port:
+            typer.secho(f"{port}", fg="green")
+        else:
+            typer.secho("COM mode", fg="yellow")
+
+    typer.echo("")
+    choice_idx = None
+    while choice_idx is None:
+        typer.echo("Select process number (1-", nl=False)
+        typer.secho(f"{len(process_info)}", fg="yellow", nl=False)
+        typer.echo(") or '", nl=False)
+        typer.secho("q", fg="red", nl=False)
+        typer.echo("' to quit: ", nl=False)
+        choice = input().strip()
+
+        if choice.lower() == "q":
+            typer.echo("Cancelled.")
+            return
+
+        try:
+            choice_idx = int(choice)
+            if choice_idx < 1 or choice_idx > len(process_info):
+                typer.secho(f"✗ Invalid selection. Please enter a number between 1 and {len(process_info)}.", fg="red")
+                choice_idx = None
+        except ValueError:
+            typer.secho("✗ Invalid input. Please enter a number.", fg="red")
+
+    selected = process_info[choice_idx - 1]
+    selected_pid = selected["pid"]
+    selected_version = selected["version"]
+
+    typer.echo("\nAttaching to process ", nl=False)
+    typer.secho(f"{selected_pid}", fg="cyan", nl=False)
+    typer.echo("...")
+
+    _launch_console_setup(selected_pid, selected_version)
+
+
+def _launch_console_setup(pid: int, version: str):
+    """Launch console_setup.py script to attach to an AEDT process.
+
+    Parameters
+    ----------
+    pid : int
+        Process ID of the AEDT instance
+    version : str
+        AEDT version string
+    """
+    from pathlib import Path
+    import subprocess
+
+    env = os.environ.copy()
+    # Set environment variables
+    env["PYAEDT_PROCESS_ID"] = str(pid)
+    env["PYAEDT_DESKTOP_VERSION"] = version
+
+    try:
+        import ansys.aedt.core
+
+        package_dir = Path(ansys.aedt.core.__file__).parent
+        console_setup_path = package_dir / "extensions" / "installer" / "console_setup.py"
+
+        if not console_setup_path.exists():
+            typer.secho(f"✗ Error: console_setup.py not found at {console_setup_path}", fg="red")
+            return
+    except Exception as e:
+        typer.secho(f"✗ Error locating console_setup.py: {str(e)}", fg="red")
+        return
+
+    # Check for IPython
+    try:  # pragma: no cover
+        import IPython
+    except ImportError:  # pragma: no cover
+        typer.secho("✗ IPython is required for the interactive console.", fg="red")
+        typer.echo("Install it with: ", nl=False)
+        typer.secho("pip install ipython", fg="cyan")
+        return
+
+    # Get Python executable
+    python_exe = sys.executable
+
+    typer.echo("")
+
+    # Launch console_setup.py in interactive mode using subprocess.Popen
+    try:  # pragma: no cover
+        subprocess.run([python_exe, "-i", str(console_setup_path)], env=env, check=False)
+    except KeyboardInterrupt:  # pragma: no cover
+        typer.echo("\n\nInterrupted.")
+    except Exception as e:  # pragma: no cover
+        typer.secho(f"✗ Error launching console: {str(e)}", fg="red")
