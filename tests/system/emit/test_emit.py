@@ -2418,7 +2418,7 @@ def test_emitters_radios(emit_app):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
 
-        band.rename("Test 2")
+        band._rename("Test 2")
         if w:
             assert str(w[0].message) == "This property is deprecated in 0.21.3. Use the name property instead."
     assert band.name == "Test 2"
