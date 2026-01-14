@@ -105,7 +105,7 @@ def start(
         args = {
             "version": version,
             "non_graphical": non_graphical,
-            "new_desktop_session": True,
+            "new_desktop": True,
             "student_version": student_version,
             "close_on_exit": False,
         }
@@ -142,7 +142,6 @@ def start(
         _ = Desktop(**args)
 
         progress_running = False
-        time.sleep(0.2)  # Give time for thread to finish
 
         typer.secho("✓ AEDT started successfully", fg="green")
         return
