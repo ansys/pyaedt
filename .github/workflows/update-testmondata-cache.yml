@@ -13,6 +13,8 @@ concurrency:
 permissions: {}
 
 env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  ON_CI: True
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
@@ -43,7 +45,6 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
-
       TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
@@ -140,7 +141,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -177,8 +177,19 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
       - name: Run tests marked with 'solvers'
         env:
+          PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
@@ -252,6 +263,14 @@ jobs:
           source .venv/bin/activate
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
       - name: Run tests marked with 'solvers'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
@@ -289,7 +308,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -329,13 +347,29 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
-      - name: Run tests marked with 'general'
-        env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+      - name: Remove Ansys processes (if any)
+        shell: powershell
         run: |
-          .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args -n 4 --dist loadfile --timeout=600 -m general
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'general'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args -n 4 --dist loadfile --timeout=600 -m general
 
       - name: Prepare testmon data for caching
         run: |
@@ -407,13 +441,26 @@ jobs:
           source .venv/bin/activate
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
       - name: Run tests marked with 'general'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        run: |
-          source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            source .venv/bin/activate
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
 
       - name: Prepare testmon data for caching
         run: |
@@ -444,7 +491,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
       MPLBACKEND: 'Agg'
     steps:
       - name: Checkout repository
@@ -485,13 +531,27 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
-      - name: Run tests marked with 'visualization'
-        env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+      - name: Remove Ansys processes (if any)
+        shell: powershell
         run: |
-          .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'visualization'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
 
       - name: Prepare testmon data for caching
         run: |
@@ -564,13 +624,26 @@ jobs:
           source .venv/bin/activate
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
       - name: Run tests marked with 'visualization'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        run: |
-          source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            source .venv/bin/activate
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
 
       - name: Prepare testmon data for caching
         run: |
@@ -601,7 +674,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -638,13 +710,24 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
       - name: Run tests marked with 'icepak'
         env:
+          PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m icepak -x
+          pytest @args -n 4 --dist loadfile --timeout=600 -m icepak -x
 
       - name: Prepare testmon data for caching
         run: |
@@ -713,13 +796,21 @@ jobs:
           source .venv/bin/activate
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
       - name: Run tests marked with 'icepak'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak -x
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
 
       - name: Prepare testmon data for caching
         run: |
@@ -750,7 +841,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -787,8 +877,19 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
       - name: Run tests marked with 'layout'
         env:
+          PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
@@ -862,6 +963,14 @@ jobs:
           source .venv/bin/activate
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
       - name: Run tests marked with 'layout'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
@@ -899,7 +1008,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -939,13 +1047,29 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
-      - name: Run tests marked with 'extensions'
-        env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+      - name: Remove Ansys processes (if any)
+        shell: powershell
         run: |
-          .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m extensions
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'extensions'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m extensions
 
       - name: Prepare testmon data for caching
         run: |
@@ -1017,13 +1141,26 @@ jobs:
           source .venv/bin/activate
           uv pip install .[tests]
 
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
       - name: Run tests marked with 'extensions'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        run: |
-          source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
       - name: Prepare testmon data for caching
         run: |
@@ -1054,7 +1191,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -1091,13 +1227,29 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
-      - name: Run tests marked with 'filter_solutions'
-        env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+      - name: Remove Ansys processes (if any)
+        shell: powershell
         run: |
-          .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m filter_solutions
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'filter_solutions'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m filter_solutions
 
       - name: Prepare testmon data for caching
         run: |
@@ -1128,7 +1280,6 @@ jobs:
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
-      PYTHONMALLOC: malloc
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -1165,13 +1316,29 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
-      - name: Run tests marked with 'emit'
-        env:
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+      - name: Remove Ansys processes (if any)
+        shell: powershell
         run: |
-          .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -v -rA --color=yes -m emit
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'emit'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 30
+          command: |
+            .venv\Scripts\Activate.ps1
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -v -rA --color=yes -m emit
 
       - name: Prepare testmon data for caching
         run: |
