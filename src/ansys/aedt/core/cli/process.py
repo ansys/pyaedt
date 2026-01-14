@@ -357,9 +357,9 @@ def _launch_console_setup(pid: int, version: str):
         return
 
     # Check for IPython
-    try:  # pragma: no cover
-        import IPython
-    except ImportError:  # pragma: no cover
+    import importlib.util
+
+    if importlib.util.find_spec("IPython") is None:  # pragma: no cover
         typer.secho("✗ IPython is required for the interactive console.", fg="red")
         typer.echo("Install it with: ", nl=False)
         typer.secho("pip install ipython", fg="cyan")
