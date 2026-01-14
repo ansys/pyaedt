@@ -77,7 +77,7 @@ def test_interference_classification_widgets_created(mock_emit_environment):
     assert "prot_legend_entries" in extension._widgets
     assert "radio_specific_toggle" in extension._widgets
     assert "radio_dropdown" in extension._widgets
-    
+
     # Check that legend entries dictionary has all required keys
     legend_entries = extension._widgets["prot_legend_entries"]
     assert "Damage" in legend_entries
@@ -195,7 +195,7 @@ def test_radio_dropdown_changed(mock_emit_environment):
     # Switch to Radio2 and back to Radio1 to test value persistence
     extension._radio_dropdown.set("Radio2")
     extension._on_radio_dropdown_changed()
-    
+
     extension._radio_dropdown.set("Radio1")
     extension._on_radio_dropdown_changed()
 

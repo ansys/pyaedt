@@ -204,6 +204,3 @@ def test_export_to_excel(mock_save_dialog, emit_app_with_radios, test_tmp_dir):
         assert excel_path.stat().st_size > 0
 
     extension.root.destroy()
-
-
-
