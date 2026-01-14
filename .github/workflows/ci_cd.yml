@@ -8,8 +8,6 @@ on:
   push:
     tags:
       - "*"
-    branches:
-      - main
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
