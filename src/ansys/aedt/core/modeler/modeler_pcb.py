@@ -947,7 +947,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                 line = line.strip()
                 if line.startswith(("!", "#", "")):
                     if "Port" in line and "=" in line and "Impedance" not in line:
-                        port_names.append(line.split("=")[-1].strip().replace(" ", "_").strip("[]"))
+                        port_names.append(line.split("=")[-1].strip().replace(" ", "_"))
                 else:
                     break
         image_subcircuit_path = ""
