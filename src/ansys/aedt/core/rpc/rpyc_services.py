@@ -1171,7 +1171,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH")
             if ansysem_path and not os.path.exists(ansysem_path):
                 raise FileNotFoundError(f"The ANSYSEM path '{ansysem_path}' does not exist.")
-            else:
+            elif not ansysem_path:
                 version_list = aedt_versions.list_installed_ansysem
                 if version_list:
                     ansysem_path = os.environ[version_list[0]]

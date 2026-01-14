@@ -1,6 +1,6 @@
 Modeler
 =======
-The AEDT 3D and 2D Modelers use object-oriented programming to create and manage objects. 
+The AEDT 3D and 2D Modelers use object-oriented programming to create and manage objects.
 You can use getters and setters to create an object and change its properties.
 
 The following code creates a box and changes the color to red:
@@ -8,11 +8,11 @@ The following code creates a box and changes the color to red:
 .. code:: python
 
      from ansys.aedt.core.hfss import Hfss
+
      hfss = Hfss()
-     box = hfss.modeler.create_box(origin=[0, 0, 0],
-                                   sizes=[10, 10, 10],
-                                   name="mybox",
-                                   material="aluminum")
+     box = hfss.modeler.create_box(
+         origin=[0, 0, 0], sizes=[10, 10, 10], name="mybox", material="aluminum"
+     )
      print(box.faces)
      box.color = "Red"
 
@@ -42,13 +42,13 @@ This example shows how easily you can go deeper into edges and vertices of faces
 
      box = hfss.modeler["mybox"]
      for face in box.faces:
-        print(face.center)
-        for edge in face.edges:
-            print(edge.midpoint)
-            for vertice in edge.vertices:
-                print(vertice.position)
+         print(face.center)
+         for edge in face.edges:
+             print(edge.midpoint)
+             for vertice in edge.vertices:
+                 print(vertice.position)
      for vertice in box.vertices:
-        print(vertice.position)
+         print(vertice.position)
 
 
 All objects support executing any modeler operation, such as union or subtraction:
@@ -58,7 +58,7 @@ All objects support executing any modeler operation, such as union or subtractio
      box = hfss.modeler["mybox2"]
      cyl = hfss.modeler["mycyl"]
      box.unite(cyl)
-     box.subract(cyl)
+     box.subtract(cyl)
 
 
 .. only:: latex

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -31,20 +31,24 @@ This module provides all functionalities for common AEDT post processing.
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
-from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
 import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
 import ansys.aedt.core.visualization.report.standard
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.report.standard import Standard
 
 TEMPLATES_BY_NAME = {
     "Standard": ansys.aedt.core.visualization.report.standard.Standard,
@@ -95,11 +99,28 @@ class PostProcessorCommon(PyAedtBase):
     def __init__(self, app):
         self._app = app
         self._scratch = self._app.working_directory
-        self.plots = self._get_plot_inputs()
+        self.__plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @property
-    def available_report_types(self):
+    def plots(self) -> list[ansys.aedt.core.visualization.report.standard.Standard]:
+        """Plot list.
+
+        Returns
+        -------
+        list[ansys.aedt.core.visualization.report.standard.Standard]
+            List of reports created in active design.
+        """
+        if self.__plots is None:
+            self.__plots = self._get_plot_inputs()
+        return self.__plots
+
+    @plots.setter
+    def plots(self, value):
+        self.__plots = value
+
+    @property
+    def available_report_types(self) -> list[str]:
         """Report types.
 
         References
@@ -215,7 +236,7 @@ class PostProcessorCommon(PyAedtBase):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+        elif self._app.design_type in ["Maxwell 2D", DesignType.MAXWELL3D] and self._app.solution_type in [
             "EddyCurrent",
             "Electrostatic",
         ]:
@@ -412,7 +433,7 @@ class PostProcessorCommon(PyAedtBase):
                 ]
             else:
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+        elif self._app.design_type in [DesignType.MAXWELL2D, DesignType.MAXWELL3D] and self._app.solution_type in [
             "EddyCurrent",
             "AC Magnetic",
             "Electrostatic",
@@ -471,13 +492,13 @@ class PostProcessorCommon(PyAedtBase):
         """
         rep_quantities = {}
         if not context and self._app.design_type in [
-            "HFSS",
-            "Maxwell 3D",
-            "Maxwell 2D",
-            "Q3D Extractor",
-            "2D Extractor",
-            "Icepak",
-            "Mechanical",
+            DesignType.HFSS,
+            DesignType.MAXWELL3D,
+            DesignType.MAXWELL2D,
+            DesignType.Q3D,
+            DesignType.EXTRACTOR2D,
+            DesignType.ICEPAK,
+            DesignType.ICEPAKFEA,
         ]:
             if not context and "2D" in self._app.modeler.design_type:
                 if self._app.modeler.point_names:
@@ -564,6 +585,7 @@ class PostProcessorCommon(PyAedtBase):
                 plots[-1]._legacy_props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
+                plots[-1]._initialize_tree_node()
         return plots
 
     @property
@@ -632,7 +654,7 @@ class PostProcessorCommon(PyAedtBase):
         """
         return list(self.oreportsetup.GetAllReportNames())
 
-    @pyaedt_function_handler(PlotName="plot_name")
+    @pyaedt_function_handler()
     def copy_report_data(self, plot_name, paste=True):
         """Copy report data as static data.
 
@@ -734,7 +756,7 @@ class PostProcessorCommon(PyAedtBase):
         except Exception:
             return False
 
-    @pyaedt_function_handler(soltype="solution_type", ctxt="context", expression="expressions")
+    @pyaedt_function_handler()
     def get_solution_data_per_variation(
         self, solution_type="Far Fields", setup_sweep_name="", context=None, sweeps=None, expressions=""
     ):
@@ -952,7 +974,7 @@ class PostProcessorCommon(PyAedtBase):
             use_trace_number_format=use_trace_number_format,
         )
 
-    @pyaedt_function_handler(project_dir="project_path")
+    @pyaedt_function_handler()
     def export_report_to_jpg(self, project_path, plot_name, width=800, height=450, image_format="jpg"):
         """Export plot to an image file.
 
@@ -982,7 +1004,7 @@ class PostProcessorCommon(PyAedtBase):
         self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
-    @pyaedt_function_handler(plotname="plot_name")
+    @pyaedt_function_handler()
     def _get_report_inputs(
         self,
         expressions,
@@ -1019,7 +1041,7 @@ class PostProcessorCommon(PyAedtBase):
         else:
             families_input[primary_sweep_variable] = [variations[primary_sweep_variable]]
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
         for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
@@ -1086,7 +1108,7 @@ class PostProcessorCommon(PyAedtBase):
                     ctxt[2].append(el)
         elif context == "Differential Pairs":
             ctxt = ["Diff:=", "Differential Pairs", "Domain:=", domain]
-        elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"]:
+        elif self.post_solution_type in [DesignType.Q3D, DesignType.EXTRACTOR2D]:
             if not context:
                 ctxt = ["Context:=", "Original"]
             else:
@@ -1145,13 +1167,13 @@ class PostProcessorCommon(PyAedtBase):
     def _check_category_context(self, expression, report_category, context):
         field_ctx = context
         if self._app.design_type in [
-            "HFSS",
-            "Maxwell 3D",
-            "Maxwell 2D",
-            "Q3D Extractor",
-            "2D Extractor",
-            "Icepak",
-            "Mechanical",
+            DesignType.HFSS,
+            DesignType.MAXWELL3D,
+            DesignType.MAXWELL2D,
+            DesignType.Q3D,
+            DesignType.EXTRACTOR2D,
+            DesignType.ICEPAK,
+            DesignType.ICEPAKFEA,
         ]:
             if not field_ctx and "2D" in self._app.modeler.design_type:
                 if self._app.modeler.point_names:
@@ -1286,9 +1308,9 @@ class PostProcessorCommon(PyAedtBase):
         if not variations:
             variations = {}
         if not variations and domain == "Sweep":
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
         elif not variations and domain != "Sweep":
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
         if setup_name in self._app.design_setups:
             for v in self._app.design_setups[setup_name].default_intrinsics.keys():
                 if v not in variations:
@@ -1302,10 +1324,10 @@ class PostProcessorCommon(PyAedtBase):
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
-        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
+        elif self._app.design_type in [DesignType.Q3D, DesignType.EXTRACTOR2D] and context:
             report.matrix = context
         elif (
-            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            self._app.design_type in [DesignType.MAXWELL2D, DesignType.MAXWELL3D]
             and context
             and self._app.solution_type in ["EddyCurrent", "Electrostatic", "AC Magnetic"]
         ):
@@ -1370,7 +1392,7 @@ class PostProcessorCommon(PyAedtBase):
                 ].index(context)
         return report
 
-    @pyaedt_function_handler(plotname="plot_name")
+    @pyaedt_function_handler()
     def create_report(
         self,
         expressions=None,
@@ -1385,7 +1407,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         plot_name=None,
-    ):
+    ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
         Parameters
@@ -1435,7 +1457,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.visualization.report.standard.Standard`
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -1529,7 +1551,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         math_formula=None,
-    ):
+    ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
         Data to be retrieved from Electronics Desktop are any simulation results available in that
@@ -1589,7 +1611,7 @@ class PostProcessorCommon(PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.visualization.post.solution_data.SolutionData`
             Solution Data object.
 
         References
@@ -1674,9 +1696,9 @@ class PostProcessorCommon(PyAedtBase):
             report.expressions = expressions
         return report.get_solution_data()
 
-    @pyaedt_function_handler(input_dict="report_settings")
+    @pyaedt_function_handler()
     def create_report_from_configuration(
-        self, input_file=None, report_settings=None, solution_name=None, name=None, matplotlib=False
+        self, input_file=None, report_settings=None, solution_name=None, name=None, matplotlib=False, show=True
     ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
@@ -1690,6 +1712,9 @@ class PostProcessorCommon(PyAedtBase):
             Setup name to use.
         matplotlib : bool, optional
             Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+        show : bool, optional
+            Whether to show the plot when using ReportPlotter. The default is ``True``.
+            If matplotlib is ``False``, this parameter is ignored.
 
         Returns
         -------
@@ -1729,7 +1754,7 @@ class PostProcessorCommon(PyAedtBase):
                 new_expressions = [item for item in self.all_report_names if item not in old_expressions]
                 if new_expressions:
                     report_name = new_expressions[0]
-                    self.plots = self._get_plot_inputs()
+                    self.__plots = None
                     report = None
                     for plot in self.plots:
                         if plot.plot_name == report_name:
@@ -1795,7 +1820,8 @@ class PostProcessorCommon(PyAedtBase):
             ] and "Freq" in report._legacy_props.get("context", {}).get("variations", {}):
                 del report._legacy_props["context"]["variations"]["Freq"]
             _update_props(props, report._legacy_props)
-            for el, k in self._app.available_variations.nominal_w_values_dict.items():
+            nominal_values = self._app.available_variations.nominal_variation(dependent_params=False)
+            for el, k in nominal_values.items():
                 if (
                     report._legacy_props.get("context", None)
                     and report._legacy_props["context"].get("variations", None)
@@ -1807,7 +1833,7 @@ class PostProcessorCommon(PyAedtBase):
                 if props.get("report_type", "").lower() in ["eye diagram", "statistical eye"]:  # pragma: no cover
                     self.logger.warning("Eye Diagrams are not supported by Matplotlib.")
                 else:
-                    return self._report_plotter(report)
+                    return self._report_plotter(report, show=show)
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()
@@ -1818,7 +1844,16 @@ class PostProcessorCommon(PyAedtBase):
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _report_plotter(self, report):
+    def _report_plotter(self, report, show=True):
+        """Create a Matplotlib plot from a report.
+
+        Parameters
+        ----------
+        report : :class:`ansys.aedt.core.modules.report_templates.Standard`
+            Report object.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+        """
         from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
         sols = report.get_solution_data()
@@ -1846,10 +1881,6 @@ class PostProcessorCommon(PyAedtBase):
             pass
         try:
             report_plotter.grid_enable_major_y = report._legacy_props["general"]["grid"]["major_y"]
-        except KeyError:
-            pass
-        try:
-            report_plotter.grid_enable_minor_yi = report._legacy_props["general"]["grid"]["minor_y"]
         except KeyError:
             pass
         try:
@@ -1918,17 +1949,16 @@ class PostProcessorCommon(PyAedtBase):
             except KeyError:
                 self.logger.warning("Equation lines not supported yet.")
         if report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Plot":
-            _ = report_plotter.plot_2d()
-            return report_plotter
+            _ = report_plotter.plot_2d(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Polar Plot":
-            _ = report_plotter.plot_polar()
-            return report_plotter
+            _ = report_plotter.plot_polar(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") == "Rectangular Contour Plot":
-            _ = report_plotter.plot_contour()
-            return report_plotter
+            _ = report_plotter.plot_contour(show=show)
         elif report._legacy_props.get("report_type", "Rectangular Plot") in ["3D Polar Plot", "3D Spherical Plot"]:
-            _ = report_plotter.plot_3d()
-            return report_plotter
+            _ = report_plotter.plot_3d(show=show)
+        else:
+            self.logger.warning("Plot type not supported.")
+        return report_plotter
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1964,7 +1994,7 @@ class Reports(PyAedtBase):
     def __init__(self, post_app, design_type):
         self._post_app = post_app
         self._design_type = design_type
-        self._templates = TEMPLATES_BY_DESIGN.get(self._design_type, None)
+        self._templates = self._post_app._app._design_type.report_templates
 
     @pyaedt_function_handler()
     def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
@@ -1981,7 +2011,7 @@ class Reports(PyAedtBase):
             solution=setup_sweep_name, context=report._context, is_siwave_dc=is_siwave_dc
         )
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def standard(self, expressions=None, setup=None):
         """Create a standard or default report object.
 
@@ -2023,7 +2053,7 @@ class Reports(PyAedtBase):
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def monitor(self, expressions=None, setup=None):
         """Create an Icepak Monitor Report object.
 
@@ -2057,7 +2087,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def fields(self, expressions=None, setup=None, polyline=None):
         """Create a Field Report object.
 
@@ -2098,7 +2128,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def cg_fields(self, expressions=None, setup=None, polyline=None):
         """Create a CG Field Report object in Q3D and Q2D.
 
@@ -2138,7 +2168,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def dc_fields(self, expressions=None, setup=None, polyline=None):
         """Create a DC Field Report object in Q3D.
 
@@ -2178,7 +2208,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def rl_fields(self, expressions=None, setup=None, polyline=None):
         """Create an AC RL Field Report object in Q3D and Q2D.
 
@@ -2213,7 +2243,7 @@ class Reports(PyAedtBase):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "AC R/L Fields" in self._templates or "RL Fields" in self._templates:
-            if self._post_app._app.design_type == "Q3D Extractor":
+            if self._post_app._app.design_type == DesignType.Q3D:
                 rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "AC R/L Fields", setup)
             else:
                 rep = ansys.aedt.core.visualization.report.field.Fields(self._post_app, "RL Fields", setup)
@@ -2221,7 +2251,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
         """Create a Far Field Report object.
 
@@ -2271,7 +2301,7 @@ class Reports(PyAedtBase):
                 rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup", sphere_name="infinite_sphere")
+    @pyaedt_function_handler()
     def antenna_parameters(self, expressions=None, setup=None, infinite_sphere=None):
         """Create an Antenna Parameters Report object.
 
@@ -2310,7 +2340,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def near_field(self, expressions=None, setup=None):
         """Create a Field Report object.
 
@@ -2346,7 +2376,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def modal_solution(self, expressions=None, setup=None):
         """Create a Standard or Default Report object.
 
@@ -2381,7 +2411,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def terminal_solution(self, expressions=None, setup=None):
         """Create a Standard or Default Report object.
 
@@ -2418,7 +2448,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def eigenmode(self, expressions=None, setup=None):
         """Create a Standard or Default Report object.
 
@@ -2453,7 +2483,7 @@ class Reports(PyAedtBase):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def statistical_eye_contour(self, expressions=None, setup=None, quantity_type=3):
         """Create a standard statistical AMI contour plot.
 
@@ -2506,7 +2536,7 @@ class Reports(PyAedtBase):
 
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def eye_diagram(
         self, expressions=None, setup=None, quantity_type=3, statistical_analysis=True, unit_interval="1ns"
     ):
@@ -2566,7 +2596,7 @@ class Reports(PyAedtBase):
 
         return
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def spectral(self, expressions=None, setup=None):
         """Create a Spectral Report object.
 

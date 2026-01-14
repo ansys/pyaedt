@@ -7,7 +7,7 @@ HFSS 3D Layout extensions
             :link: parametrize_edb
             :link-type: doc
             :margin: 2 2 0 0
-            
+
             Learn how to parametrize a full aedb.
 
    .. grid-item-card:: Generate arbitrary wave ports

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,8 +29,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class TxNbEmissionNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -69,15 +68,15 @@ class TxNbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class NarrowbandBehaviorOption(Enum):
-        ABSOLUTE_FREQS_AND_POWER = "Absolute Freqs and Power"
-        RELATIVE_FREQS_AND_ATTENUATION = "Relative Freqs and Attenuation"
+        ABSOLUTE_FREQS_AND_POWER = "Absolute"
+        RELATIVE_FREQS_AND_ATTENUATION = "RelativeBandwidth"
 
     @property
     def narrowband_behavior(self) -> NarrowbandBehaviorOption:

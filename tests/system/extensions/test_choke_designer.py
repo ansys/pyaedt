@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,8 +34,8 @@ def test_choke_designer_main_function(add_app):
     # Create HFSS application for testing environment
     add_app(
         application=Hfss,
-        project_name="choke_test",
-        design_name="design1",
+        project="choke_test",
+        design="design1",
     )
 
     # Create extension with default choke
@@ -58,8 +58,8 @@ def test_choke_designer_custom_config(add_app):
     # Create HFSS application for testing environment
     add_app(
         application=Hfss,
-        project_name="choke_custom",
-        design_name="design1",
+        project="choke_custom",
+        design="design1",
     )
 
     # Create custom choke configuration

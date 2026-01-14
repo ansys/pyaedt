@@ -1,13 +1,13 @@
 Setup templates
 ===============
 
-This section lists all setup templates with their default values and keys. 
+This section lists all setup templates with their default values and keys.
 
 You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    Launch AEDT 2025 R1 in non-graphical mode
+    # Launch AEDT 2025 R1 in non-graphical mode
 
     from ansys.aedt.core import Hfss
 

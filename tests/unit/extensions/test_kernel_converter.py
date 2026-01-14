@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -207,7 +207,10 @@ def test_main_function_no_file_path():
 @patch("ansys.aedt.core.extensions.common.kernel_converter.search_files")
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_aedt")
-def test_main_function_with_directory(mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app):
+@patch("ansys.aedt.core.extensions.common.kernel_converter._convert_3d_component")
+def test_main_function_with_directory(
+    mock_convert_3d_component, mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app
+):
     """Test main function with directory path."""
     # Mock search_files to return test files
     mock_search_files.side_effect = [

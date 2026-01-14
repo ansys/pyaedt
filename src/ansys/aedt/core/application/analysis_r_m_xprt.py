@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -128,7 +128,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.design_type = "RMxprtSolution"
+        self.design_type = "RMxprt"
         self.solution_type = solution_type
         return True
 
@@ -174,15 +174,11 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         new_des_list = [i for i in self.design_list[::] if i not in des_list and "Maxwell" in i]
         if new_des_list:
             if maxwell_2d:
-                from ansys.aedt.core.maxwell import Maxwell2d
-
-                app = Maxwell2d(design=new_des_list[0])
-                return app
-            else:
-                from ansys.aedt.core import Maxwell3d
-
-                app = Maxwell3d(design=new_des_list[0])
-                return app
+                from ansys.aedt.core.maxwell import Maxwell2d as App
+            else:  # pragma: no cover
+                from ansys.aedt.core import Maxwell3d as App
+            app = App(design=new_des_list[0])
+            return app
         self.logger.error("Failed to generate the Maxwell project.")
         return False
 

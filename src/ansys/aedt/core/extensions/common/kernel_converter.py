@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -35,7 +35,6 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.application.design_solutions import solutions_types
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -44,6 +43,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
@@ -184,7 +184,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             style="PyAEDT.TCombobox",
             state="readonly",
         )
-        self.solution_combo["values"] = tuple(solutions_types["HFSS"].keys())
+        self.solution_combo["values"] = tuple(DesignType.HFSS.solution_types.keys())
         self.solution_combo.current(0)
         self.solution_combo.grid(row=3, column=1, **DEFAULT_PADDING)
 
@@ -232,9 +232,12 @@ class KernelConverterExtension(ExtensionProjectCommon):
     def _update_solutions(self, event=None):
         """Update solution options based on selected application."""
         app_name = self.application_combo.get()
-        if app_name in solutions_types:
-            self.solution_combo["values"] = tuple(solutions_types[app_name].keys())
-            self.solution_combo.current(0)
+        for k in dir(DesignType):
+            if k.startswith("_"):
+                continue
+            if getattr(DesignType, k) == app_name:
+                self.solution_combo["values"] = tuple(getattr(DesignType, k).solution_types.keys())
+                self.solution_combo.current(0)
 
 
 def _check_missing(input_object, output_object, file_path):
@@ -249,7 +252,7 @@ def _check_missing(input_object, output_object, file_path):
         "2D Extractor",
         "Maxwell 3D",
         "Maxwell 2D",
-        "Mechanical",
+        DesignType.ICEPAKFEA,
     ]:
         return
 

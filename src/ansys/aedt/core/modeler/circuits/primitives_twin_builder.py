@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -109,7 +109,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         """Simulation models manager object."""
         return self.o_definition_manager.GetManager("SimModel")
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
@@ -151,7 +151,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
@@ -192,7 +192,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         id.set_property("L", value)
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
@@ -234,7 +234,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         id.set_property("UseInitialConditions", True)
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_voltage_source(
         self, name=None, type="E", amplitude=326, freq=50, location=None, angle=0, use_instance_id_netlist=False
     ):
@@ -290,7 +290,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_diode(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
@@ -327,7 +327,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         )
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_npn(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
@@ -364,7 +364,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         )
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_pnp(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
@@ -402,7 +402,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
         return id
 
-    @pyaedt_function_handler(compname="name")
+    @pyaedt_function_handler()
     def create_periodic_waveform_source(
         self,
         name=None,

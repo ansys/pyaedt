@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -225,7 +225,7 @@ class SweepHFSS(SweepCommon):
                         count += 1
         return []
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
         """Add a range to the sweep.
 
@@ -434,7 +434,7 @@ class SweepHFSS3DLayout(SweepCommon):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
-    @pyaedt_function_handler(sweeptype="sweep_type")
+    @pyaedt_function_handler()
     def change_type(self, sweep_type):
         """Change the type of the sweep.
 
@@ -477,7 +477,7 @@ class SweepHFSS3DLayout(SweepCommon):
         self.props["SaveRadFieldsOnly"] = save_rad_fields
         return self.update()
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def add_subrange(self, range_type, start, end=None, count=None, unit="GHz"):
         """Add a subrange to the sweep.
 
@@ -527,7 +527,7 @@ class SweepHFSS3DLayout(SweepCommon):
         except Exception:
             return False
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def change_range(self, range_type, start, end=None, count=None, unit="GHz"):
         """Change the range of the sweep.
 
@@ -741,8 +741,8 @@ class SweepMatrix(SweepCommon):
                         count += 1
         return []
 
-    @pyaedt_function_handler(rangetype="range_type")
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False, **kwargs):
+    @pyaedt_function_handler()
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -768,9 +768,6 @@ class SweepMatrix(SweepCommon):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if "type" in kwargs:
-            warnings.warn("'type' has been deprecated. Use 'range_type' instead.", DeprecationWarning)
-            range_type = kwargs["type"]
         if clear:
             self.props["RangeType"] = range_type
             self.props["RangeStart"] = str(start) + unit
@@ -886,6 +883,11 @@ class SweepMaxwellEC(SweepCommon):
                 self.props["RangeSamples"] = "2"
             elif sweep_type == "SinglePoints":
                 self.props["RangeEnd"] = self.props["RangeStart"]
+
+    @property
+    def name(self):
+        """Setup name."""
+        return self.setup_name
 
     @property
     def is_solved(self):
