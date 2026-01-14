@@ -2646,6 +2646,22 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         return True
 
+    @pyaedt_function_handler
+    # NOTE: Extend Mixin behaviour to handle Maxwell parameters
+    def _create_boundary(self, name, props, boundary_type):
+        # Non Maxwell parameters cases
+        if boundary_type not in ("Force", "Torque", "Matrix", "LayoutForce"):
+            return super()._create_boundary(name, props, boundary_type)
+
+        # Maxwell parameters cases
+        bound = MaxwellParameters(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
+            self._boundaries[bound.name] = bound
+            self.logger.info(f"Boundary {boundary_type} {name} has been created.")
+            return bound
+        raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
+
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
     """Provides the Maxwell 3D app interface.
