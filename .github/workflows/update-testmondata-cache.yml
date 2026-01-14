@@ -135,7 +135,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-win:
     name: Update solvers test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -209,7 +209,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-linux:
     name: Update solvers test cache (Linux)
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -284,7 +284,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-win:
     name: Update general test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -361,7 +361,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-linux:
     name: Update general test cache (Linux)
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -439,7 +439,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-win:
     name: Update visualization test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -517,7 +517,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-linux:
     name: Update visualization test cache (Linux)
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -596,7 +596,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-win:
     name: Update icepak test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -670,7 +670,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-linux:
     name: Update icepak test cache (Linux)
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -745,7 +745,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-win:
     name: Update layout test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -819,7 +819,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-linux:
     name: Update layout test cache (Linux)
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -894,7 +894,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-win:
     name: Update extensions test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -971,7 +971,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-linux:
     name: Update extensions test cache (Linux)
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -1049,7 +1049,7 @@ jobs:
   # ------------------------------------------------------------------
   update-filter-win:
     name: Update filter test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
@@ -1123,7 +1123,7 @@ jobs:
   # ------------------------------------------------------------------
   update-emit-win:
     name: Update emit test cache (Windows)
-    runs-on: windows-latest
+    runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
     env:
