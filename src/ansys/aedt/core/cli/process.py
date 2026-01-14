@@ -336,7 +336,7 @@ def _launch_console_setup(pid: int, version: str):
         AEDT version string
     """
     from pathlib import Path
-    import subprocess
+    import subprocess  # nosec B404 - subprocess needed for launching interactive console
 
     env = os.environ.copy()
     # Set environment variables
@@ -372,7 +372,7 @@ def _launch_console_setup(pid: int, version: str):
 
     # Launch console_setup.py in interactive mode using subprocess.Popen
     try:  # pragma: no cover
-        subprocess.run([python_exe, "-i", str(console_setup_path)], env=env, check=False)
+        subprocess.run([python_exe, "-i", str(console_setup_path)], env=env, check=False)  # nosec B603 - trusted paths from sys.executable and package location
     except KeyboardInterrupt:  # pragma: no cover
         typer.echo("\n\nInterrupted.")
     except Exception as e:  # pragma: no cover
