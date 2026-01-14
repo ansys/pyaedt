@@ -22,6 +22,69 @@ permissions: {}
 
 jobs:
 
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run unit tests
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          pytest-postargs: 'tests/unit'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: unit-tests
+          requires-xvfb: true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-unit-tests
+          files: ./coverage.xml
+          flags: linux_unit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-unit
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+  integration-tests:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run integration tests
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          pytest-postargs: 'tests/integration'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: integration-tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-integration-tests
+          files: ./coverage.xml
+          flags: linux_integration
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-integration
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
