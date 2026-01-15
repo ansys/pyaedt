@@ -97,14 +97,14 @@ def get_ast_dump(source_code, filename="<unknown>"):
     return ast.dump(tree, include_attributes=False)
 
 
-def get_changed_files(base_ref: str = "HEAD"):
+def get_changed_files(base_ref: str = "origin/main"):
     """
     Get list of changed Python files from git.
 
     Parameters
     ----------
     base_ref : str, optional
-        The git reference to compare against. The default is ``"HEAD"``.
+        The git reference to compare against. The default is ``"origin/main"``.
 
     Returns
     -------
@@ -112,9 +112,25 @@ def get_changed_files(base_ref: str = "HEAD"):
         List of changed Python file paths.
     """
     try:
+        # Find merge base if comparing against a branch
+        if base_ref not in ["HEAD", "HEAD~1"] and "/" in base_ref:
+            try:
+                merge_base_result = subprocess.run(
+                    ["git", "merge-base", base_ref, "HEAD"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                merge_base = merge_base_result.stdout.strip()
+                if merge_base:
+                    base_ref = merge_base
+            except subprocess.CalledProcessError:
+                # Fall back to direct comparison if merge-base fails
+                pass
+        
         # Get list of changed files compared to base_ref
         result = subprocess.run(
-            ["git", "diff", "--name-only", base_ref],
+            ["git", "diff", "--name-only", base_ref, "HEAD"],
             capture_output=True,
             text=True,
             check=True,
@@ -127,7 +143,7 @@ def get_changed_files(base_ref: str = "HEAD"):
 
 
 def check_docstrings(
-    base_ref: str = typer.Option("HEAD", "--base", "-b", help="Git reference to compare against (e.g., HEAD, main)"),
+    base_ref: str = typer.Option("origin/main", "--base", "-b", help="Git reference to compare against (e.g., origin/main, HEAD, main)"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed information"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Save AST dumps for debugging"),
 ):
@@ -136,12 +152,13 @@ def check_docstrings(
 
     This command automatically detects changed Python files using git and analyzes
     whether the changes affect code logic or are limited to docstrings, comments,
-    and formatting.
+    and formatting. By default, compares current branch against origin/main.
 
     Examples
     --------
     >>> pyaedt check-docstrings
-    >>> pyaedt check-docstrings --base main
+    >>> pyaedt check-docstrings --base origin/main
+    >>> pyaedt check-docstrings --base HEAD
     >>> pyaedt check-docstrings --verbose --debug
     """
     if sys.stdout.encoding != "utf-8":
