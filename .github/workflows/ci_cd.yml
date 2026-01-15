@@ -86,7 +86,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-          
+
       - name: Run unit tests
         run:
           pytest tests/unit --testmon
