@@ -34,43 +34,40 @@ Because the members must be reassigned at runtime, the Enum class cannot be used
 class MutableEnum:
     @classmethod
     def members(cls):
+        """Return all enum members."""
         members = [
             getattr(cls, attr) for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("__")
         ]
-        if members[0] is None:
-            raise Exception(
-                f"Enum is uninitialized. Create a ansys.aedt.core.Emit() object before using {cls.__name__}."
-            )
         return members
 
 
 class ResultType(MutableEnum):
-    EMI = None
-    DESENSE = None
-    SENSITIVITY = None
-    POWER_AT_RX = None
+    EMI = 0
+    DESENSE = 1
+    SENSITIVITY = 2
+    POWER_AT_RX = 3
 
 
 class TxRxMode(MutableEnum):
-    TX = None
-    RX = None
-    BOTH = None
+    TX = 0
+    RX = 1
+    BOTH = 2
 
 
 class InterfererType(MutableEnum):
-    TRANSMITTERS = None
-    EMITTERS = None
-    TRANSMITTERS_AND_EMITTERS = None
+    TRANSMITTERS = 0
+    EMITTERS = 1
+    TRANSMITTERS_AND_EMITTERS = 2
 
 
 class UnitType(MutableEnum):
-    POWER = None
-    FREQUENCY = None
-    LENGTH = None
-    TIME = None
-    VOLTAGE = None
-    DATA_RATE = None
-    RESISTANCE = None
+    POWER = 0
+    FREQUENCY = 1
+    LENGTH = 2
+    TIME = 3
+    VOLTAGE = 4
+    DATA_RATE = 5
+    RESISTANCE = 6
 
 
 EMIT_VALID_UNITS = {
@@ -218,13 +215,14 @@ def emi_cat_enum_to_string(emi_cat_enum):
 
 
 class EmiCategoryFilter(MutableEnum):
-    IN_CHANNEL_TX_FUNDAMENTAL = None
-    IN_CHANNEL_TX_HARMONIC_SPURIOUS = None
-    IN_CHANNEL_TX_INTERMOD = None
-    IN_CHANNEL_TX_BROADBAND = None
-    OUT_OF_CHANNEL_TX_FUNDAMENTAL = None
-    OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = None
-    OUT_OF_CHANNEL_TX_INTERMOD = None
+    """EMI category filter from EmitDataTypes.h"""
+    IN_CHANNEL_TX_FUNDAMENTAL = 0
+    IN_CHANNEL_TX_HARMONIC_SPURIOUS = 1
+    IN_CHANNEL_TX_INTERMOD = 2
+    IN_CHANNEL_TX_BROADBAND = 3
+    OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
+    OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
+    OUT_OF_CHANNEL_TX_INTERMOD = 6
 
 
 if __name__ == "__main__":
