@@ -307,7 +307,7 @@ def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]):
         typer.secho(f"✗ No AEDT process found with PID {pid}.", fg="red")
         typer.echo("Available AEDT processes:")
         for proc in aedt_procs:
-            typer.echo(f"  • PID: ", nl=False)
+            typer.echo("  • PID: ", nl=False)
             typer.secho(f"{proc.pid}", fg="cyan")
         return
 

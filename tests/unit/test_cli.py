@@ -1787,4 +1787,3 @@ def test_attach_with_pid_multiple_processes(mock_launch, mock_get_port, mock_fin
     assert result.exit_code == 0
     assert "Attaching to process 67890" in result.stdout
     mock_launch.assert_called_once_with(67890, "2024.1")
-
