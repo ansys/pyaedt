@@ -130,7 +130,7 @@ def start(
             """Display animated progress indicator"""
             i = 0
             while progress_running:
-                sys.stdout.write(f"\r{progress_chars[i % len(progress_chars)]} Initializing AEDT...")
+                sys.stdout.write(f"\r{progress_chars[i % len(progress_chars)]} Initializing AEDT...\n")
                 sys.stdout.flush()
                 time.sleep(0.1)
                 i += 1
@@ -140,11 +140,11 @@ def start(
         progress_thread = threading.Thread(target=show_progress, daemon=True)
         progress_thread.start()
 
-        _ = Desktop(**args)
+        d = Desktop(**args)
 
         progress_running = False
 
-        typer.secho("✓ AEDT started successfully", fg="green")
+        typer.secho(f"✓ AEDT started successfully in port {d.port}", fg="green")
         return
     except Exception as e:
         typer.secho(f"✗ Error starting AEDT: {str(e)}", fg="red")
