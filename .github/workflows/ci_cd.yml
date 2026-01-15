@@ -65,13 +65,8 @@ jobs:
           cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
 
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          pytest-postargs: 'tests/unit'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.TESTS_VERSION }}
-          optional-dependencies-name: unit-tests
-          requires-xvfb: true
+        run:
+          pytest tests/unit --testmon
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
