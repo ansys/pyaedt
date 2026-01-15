@@ -44,10 +44,6 @@ class CustomCouplingNode(EmitNode):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)

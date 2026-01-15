@@ -44,10 +44,6 @@ class BandFolder(EmitNode):
         """Create a New Band"""
         return self._add_child_node("Band")
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)

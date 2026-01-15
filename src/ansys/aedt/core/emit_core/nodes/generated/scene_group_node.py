@@ -58,10 +58,6 @@ class SceneGroupNode(EmitNode):
         """Add a new antenna"""
         return self._add_child_node("Antenna")
 
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
-
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""
         return self._duplicate(new_name)
