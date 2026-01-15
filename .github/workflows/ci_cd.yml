@@ -79,14 +79,14 @@ jobs:
 
       - name: Upgrade wheel and setuptools
         run: |
-          .venv\Scripts\Activate.ps1
+          source .venv/bin/activate
           uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
         run: |
-          .venv\Scripts\Activate.ps1
+          source .venv/bin/activate
           uv pip install .[tests]
-          
+
       - name: Run unit tests
         run:
           pytest tests/unit --testmon
