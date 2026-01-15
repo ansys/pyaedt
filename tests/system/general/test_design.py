@@ -22,11 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from pathlib import Path
+import zipfile
 
 import pytest
-import os
-import zipfile
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
@@ -50,19 +50,21 @@ def coaxial(add_app_example):
     yield app
     app.close_project(save=False)
 
+
 @pytest.fixture
 def unzip_aedtz(test_tmp_dir):
     """Fixture to unzip .aedtz files into test_tmp_dir."""
+
     def _unzip_if_needed(example_name):
         if str(example_name).endswith(".aedtz"):
             # Extract to test_tmp_dir
             base_name = os.path.splitext(os.path.basename(example_name))[0]
             unzipped_name = test_tmp_dir / (base_name + ".aedt")
-            with zipfile.ZipFile(example_name, 'r') as zip_ref:
+            with zipfile.ZipFile(example_name, "r") as zip_ref:
                 zip_ref.extractall(test_tmp_dir)
             return str(unzipped_name)
         return example_name
-    
+
     return _unzip_if_needed
 
 
@@ -220,12 +222,12 @@ def test_copy_design_from(coaxial, test_tmp_dir):
     assert len(coaxial.design_list) == 1
 
 
-
 def test_copy_example(aedt_app, unzip_aedtz):
     example_name = aedt_app.desktop_class.get_example("5G_SIW_Aperture_Antenna")
     example_name_to_use = unzip_aedtz(example_name)
     design = get_design_list_from_aedt_file(example_name_to_use)[0]
     from ansys.aedt.core.generic.file_utils import remove_project_lock
+
     remove_project_lock(example_name_to_use)
     aedt_app.copy_design_from(example_name_to_use, design)
     assert aedt_app.design_name == design
