@@ -1663,3 +1663,128 @@ def test_launch_console_setup_generic_exception(
 
     # Should display error message
     assert "✗ Error launching console" in result.stdout or result.exit_code == 0
+
+
+# ATTACH WITH PID OPTION TESTS
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_with_pid_success(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with --pid option for successful attachment."""
+    mock_aedt_process.cmdline.return_value = [
+        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "-ng",
+        "-grpcsrv",
+        "50051",
+    ]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    assert "Attaching to process 12345" in result.stdout
+    mock_launch.assert_called_once_with(12345, "2025.2")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_with_pid_short_option(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with -p short option."""
+    mock_aedt_process.cmdline.return_value = [
+        "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
+        "-ng",
+        "-grpcsrv",
+        "50051",
+    ]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach", "-p", "12345"])
+
+    assert result.exit_code == 0
+    assert "Attaching to process 12345" in result.stdout
+    mock_launch.assert_called_once_with(12345, "2025.2")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+def test_attach_with_pid_not_found(mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command with --pid when process not found."""
+    mock_aedt_process.pid = 99999
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    assert "✗ No AEDT process found with PID 12345" in result.stdout
+    assert "Available AEDT processes:" in result.stdout
+    assert "PID: 99999" in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+def test_attach_with_pid_no_processes_running(mock_find_procs, cli_runner):
+    """Test attach command with --pid when no AEDT processes are running."""
+    mock_find_procs.return_value = []
+
+    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    assert "No AEDT processes currently running" in result.stdout
+    assert "pyaedt start" in result.stdout
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_with_pid_version_extraction(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command extracts version correctly from command line."""
+    mock_aedt_process.cmdline.return_value = [
+        "C:\\Program Files\\ANSYS Inc\\v241\\AnsysEM\\ansysedt.exe",
+        "-ng",
+    ]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    mock_launch.assert_called_once_with(12345, "2024.1")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_with_pid_unknown_version(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process):
+    """Test attach command handles unknown version."""
+    mock_aedt_process.cmdline.return_value = ["ansysedt.exe"]
+    mock_find_procs.return_value = [mock_aedt_process]
+
+    result = cli_runner.invoke(app, ["attach", "--pid", "12345"])
+
+    assert result.exit_code == 0
+    mock_launch.assert_called_once_with(12345, "unknown")
+
+
+@patch("ansys.aedt.core.cli.process._find_aedt_processes")
+@patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
+@patch("ansys.aedt.core.cli.process._launch_console_setup")
+def test_attach_with_pid_multiple_processes(mock_launch, mock_get_port, mock_find_procs, cli_runner):
+    """Test attach command with --pid when multiple processes exist."""
+    proc1 = Mock(spec=psutil.Process)
+    proc1.pid = 12345
+    proc1.name.return_value = "ansysedt.exe"
+    proc1.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe"]
+
+    proc2 = Mock(spec=psutil.Process)
+    proc2.pid = 67890
+    proc2.name.return_value = "ansysedt.exe"
+    proc2.cmdline.return_value = ["C:\\Program Files\\ANSYS Inc\\v241\\AnsysEM\\ansysedt.exe"]
+
+    mock_find_procs.return_value = [proc1, proc2]
+
+    result = cli_runner.invoke(app, ["attach", "--pid", "67890"])
+
+    assert result.exit_code == 0
+    assert "Attaching to process 67890" in result.stdout
+    mock_launch.assert_called_once_with(67890, "2024.1")
+

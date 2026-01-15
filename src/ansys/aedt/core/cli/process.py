@@ -246,7 +246,9 @@ def stop(
 
 
 @app.command()
-def attach():
+def attach(
+    pid: int = typer.Option(None, "--pid", "-p", help="Process ID to attach to directly"),
+):
     """Attach to a running AEDT process and launch an interactive PyAEDT console."""
     aedt_procs: list[psutil.Process] = _find_aedt_processes()
 
@@ -256,29 +258,83 @@ def attach():
         typer.secho("pyaedt start", fg="cyan")
         return
 
-    # Display available processes
+    if pid is not None:
+        _attach_to_pid(pid, aedt_procs)
+        return
+
+    _attach_interactive(aedt_procs)
+
+
+def _extract_version_from_cmdline(cmd_line: list) -> str:
+    """Extract AEDT version from command line arguments.
+
+    Parameters
+    ----------
+    cmd_line : list
+        Command line arguments
+
+    Returns
+    -------
+    str
+        Version string (e.g., "2025.2") or "unknown"
+    """
+    if not cmd_line:
+        return "unknown"
+
+    for part in cmd_line:
+        if "\\v" in part or "/v" in part:
+            version_parts = part.split("\\v" if "\\" in part else "/v")
+            if len(version_parts) > 1:
+                version = version_parts[1][:3] if len(version_parts[1]) >= 3 else version_parts[1]
+                if len(version) == 3 and version.isdigit():
+                    return f"20{version[0:2]}.{version[2]}"
+    return "unknown"
+
+
+def _attach_to_pid(pid: int, aedt_procs: list[psutil.Process]):
+    """Attach to a specific AEDT process by PID.
+
+    Parameters
+    ----------
+    pid : int
+        Process ID to attach to
+    aedt_procs : list[psutil.Process]
+        List of available AEDT processes
+    """
+    target_proc = next((proc for proc in aedt_procs if proc.pid == pid), None)
+
+    if target_proc is None:
+        typer.secho(f"✗ No AEDT process found with PID {pid}.", fg="red")
+        typer.echo("Available AEDT processes:")
+        for proc in aedt_procs:
+            typer.echo(f"  • PID: ", nl=False)
+            typer.secho(f"{proc.pid}", fg="cyan")
+        return
+
+    version = _extract_version_from_cmdline(target_proc.cmdline())
+    typer.echo("Attaching to process ", nl=False)
+    typer.secho(f"{pid}", fg="cyan", nl=False)
+    typer.echo("...")
+    _launch_console_setup(pid, version)
+
+
+def _attach_interactive(aedt_procs: list[psutil.Process]):
+    """Interactive mode to select and attach to an AEDT process.
+
+    Parameters
+    ----------
+    aedt_procs : list[psutil.Process]
+        List of available AEDT processes
+    """
     typer.echo("Found ", nl=False)
     typer.secho(f"{len(aedt_procs)}", fg="green", nl=False)
     typer.echo(" AEDT process(es):\n")
 
-    # Build list of process info for display and selection
+    # Build and display process info
     process_info = []
     for idx, proc in enumerate(aedt_procs, 1):
         port = _get_port(proc)
-        cmd_line = proc.cmdline()
-
-        # Extract version from command line
-        version = "unknown"
-        if cmd_line:
-            for part in cmd_line:
-                if "\\v" in part or "/v" in part:
-                    version_parts = part.split("\\v" if "\\" in part else "/v")
-                    if len(version_parts) > 1:
-                        version = version_parts[1][:3] if len(version_parts[1]) >= 3 else version_parts[1]
-                        if len(version) == 3 and version.isdigit():
-                            version = f"20{version[0:2]}.{version[2]}"
-                    break
-
+        version = _extract_version_from_cmdline(proc.cmdline())
         process_info.append({"idx": idx, "proc": proc, "pid": proc.pid, "port": port, "version": version})
 
         typer.secho(f"  {idx}", fg="yellow", nl=False)
@@ -314,15 +370,12 @@ def attach():
         except ValueError:
             typer.secho("✗ Invalid input. Please enter a number.", fg="red")
 
+    # Attach to selected process
     selected = process_info[choice_idx - 1]
-    selected_pid = selected["pid"]
-    selected_version = selected["version"]
-
     typer.echo("\nAttaching to process ", nl=False)
-    typer.secho(f"{selected_pid}", fg="cyan", nl=False)
+    typer.secho(f"{selected['pid']}", fg="cyan", nl=False)
     typer.echo("...")
-
-    _launch_console_setup(selected_pid, selected_version)
+    _launch_console_setup(selected["pid"], selected["version"])
 
 
 def _launch_console_setup(pid: int, version: str):
