@@ -83,7 +83,7 @@ def mock_installed_versions():
 
     mock_versions = {
         "2025.2": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
-        "2025.1": "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM",
+        "2025.1": "C:\\Program Files\\ANSYS Inc\\v251\\AnsysEM",
     }
     with patch(
         "ansys.aedt.core.internal.aedt_versions.AedtVersions.installed_versions",
