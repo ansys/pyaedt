@@ -323,8 +323,8 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
 
         References
         ----------
