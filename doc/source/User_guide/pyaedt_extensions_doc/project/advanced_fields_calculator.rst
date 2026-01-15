@@ -56,8 +56,8 @@ Finally, this code shows how you can use the Advanced Field Calculator:
     hfss = ansys.aedt.core.Hfss()
 
     # Specify the AEDT session to connect
-    os.environ["PYAEDT_SCRIPT_PORT"] = str(hfss.desktop_class.port)
-    os.environ["PYAEDT_SCRIPT_VERSION"] = hfss.desktop_class.aedt_version_id
+    os.environ["PYAEDT_DESKTOP_PORT"] = str(hfss.desktop_class.port)
+    os.environ["PYAEDT_DESKTOP_VERSION"] = hfss.desktop_class.aedt_version_id
 
     # Add an existing expression in the catalog
     name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")

@@ -553,9 +553,7 @@ class Desktop(PyAedtBase):
         self.__aedt_version_id = version
         self.__aedt_install_dir = None
         self.__aedt_process_id = (
-            int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
-            if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None)
-            else aedt_process_id
+            int(os.getenv("PYAEDT_PROCESS_ID")) if os.getenv("PYAEDT_PROCESS_ID", None) else aedt_process_id
         )
         self.__launched_by_pyaedt = False
         self.__non_graphical = (
@@ -572,8 +570,8 @@ class Desktop(PyAedtBase):
             True if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t") else new_desktop
         )
         self.aedt_version_id = (
-            str(os.getenv("PYAEDT_SCRIPT_VERSION"))
-            if os.getenv("PYAEDT_SCRIPT_VERSION", None)
+            str(os.getenv("PYAEDT_DESKTOP_VERSION"))
+            if os.getenv("PYAEDT_DESKTOP_VERSION", None)
             else version
             if version
             else list(_desktop_sessions.values())[-1].aedt_version_id
@@ -2531,9 +2529,12 @@ class Desktop(PyAedtBase):
             settings.use_multi_desktop
             or "PYTEST_CURRENT_TEST" in os.environ
             or (self.new_desktop and self.aedt_version_id < "2024.2")
+            or (is_linux and self.new_desktop)
         ):
             self.__port = _find_free_port()
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
+        elif self.new_desktop:
+            self.__port = 0
         else:
             sessions = grpc_active_sessions(
                 version=self.aedt_version_id, student_version=self.student_version, non_graphical=self.non_graphical
@@ -2546,7 +2547,7 @@ class Desktop(PyAedtBase):
                     self.logger.warning(
                         f"Multiple AEDT gRPC sessions are found. Setting the active session on port {self.port}."
                     )
-            elif self.aedt_version_id < "2024.2":
+            elif self.aedt_version_id < "2024.2" or is_linux:
                 self.__port = _find_free_port()
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True
@@ -2568,6 +2569,7 @@ class Desktop(PyAedtBase):
             or not settings.grpc_local
             or self.aedt_version_id < "2024.2"
             or settings.use_multi_desktop
+            or is_linux
         ):  # pragma: no cover
             self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
             installer = Path(self.aedt_install_dir) / "ansysedt"

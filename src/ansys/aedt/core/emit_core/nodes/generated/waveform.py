@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -50,10 +49,6 @@ class Waveform(EmitNode):
     def delete(self):
         """Delete this node"""
         self._delete()
-
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
 
     def import_tx_measurement(self, file_name):
         """Import a Measurement from a File..."""

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -58,10 +57,6 @@ class SceneGroupNode(EmitNode):
     def add_antenna(self):
         """Add a new antenna"""
         return self._add_child_node("Antenna")
-
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
 
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""

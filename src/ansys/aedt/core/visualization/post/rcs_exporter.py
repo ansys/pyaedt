@@ -94,7 +94,7 @@ class MonostaticRCSExporter(PyAedtBase):
             self.expression = "ComplexMonostaticRCSTheta"
 
         if not variations:
-            variations = app.available_variations.get_independent_nominal_values()
+            variations = app.available_variations.nominal_variation(dependent_params=False)
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():

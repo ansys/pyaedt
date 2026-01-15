@@ -590,7 +590,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
                     return False
 
         if variations is None:
-            nominal_values = self.available_variations.get_independent_nominal_values()
+            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
             if not nominal_values:
                 variations = ""
             else:
@@ -975,7 +975,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
-            nominal_values = self.available_variations.get_independent_nominal_values()
+            nominal_values = self.available_variations.nominal_variation(dependent_params=False)
 
             if not nominal_values:
                 variations = ""
