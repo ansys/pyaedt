@@ -85,7 +85,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          uv pip install .[unit-tests]
 
       - name: Run unit tests
         run:
