@@ -327,7 +327,7 @@ class TwinbuilderConstants(metaclass=DynamicMeta):
 
 
 class RmxprtConstants(metaclass=DynamicMeta):
-    NAME = "RMxprt"
+    NAME = "RMxprtSolution"
 
     model_name = "RMxprtDesign"
     solution_default = "GRM"
@@ -386,6 +386,14 @@ class Maxwell3dConstants(metaclass=DynamicMeta):
         },
         "AC Magnetic": {
             "name": "AC Magnetic",
+            "options": None,
+            "report_type": "AC Magnetic",
+            "default_setup": 7,
+            "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
+        },
+        "AC Magnetic APhi": {
+            "name": "AC Magnetic APhi",
             "options": None,
             "report_type": "AC Magnetic",
             "default_setup": 7,

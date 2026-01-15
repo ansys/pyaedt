@@ -275,7 +275,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -353,7 +353,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -388,7 +388,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m "solvers and not flaky_linux"
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -428,7 +428,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -514,7 +514,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -553,7 +553,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m "general and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
 
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -595,7 +595,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -682,7 +682,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -762,7 +762,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -775,18 +775,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
-
-
-
-
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-
-
-
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -798,10 +790,6 @@ jobs:
             Stop-Process -Id $_.Id -Force
           }
 
-
-
-
-
       - name: Run tests marked with 'icepak'
         env:
           PYTHONMALLOC: malloc
@@ -809,9 +797,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args -n 4 --dist loadfile --timeout=600 -m icepak -x
-
-
+          pytest @args --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -850,7 +836,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -863,14 +849,10 @@ jobs:
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
-
-
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
-
-
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -880,17 +862,13 @@ jobs:
             kill -9 "$pid"
           done
 
-
-
       - name: Run tests marked with 'icepak'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m icepak -x
-
-
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -926,7 +904,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1004,7 +982,7 @@ jobs:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1117,7 +1095,7 @@ jobs:
 
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1247,7 +1225,7 @@ jobs:
 
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1288,7 +1266,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         if: steps.changes.outputs.run_tests == 'true'
@@ -1361,7 +1339,7 @@ jobs:
 
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1480,7 +1458,7 @@ jobs:
 
       - name: Set up uv
         if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -1545,91 +1523,6 @@ jobs:
           name: pytest-emit-windows
           path: junit/test-results.xml
 
- # =================================================================================================
- # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
- # =================================================================================================
-
-  system-tests-flaky-linux:
-    name: Test flaky (linux)
-    if: github.event.pull_request.draft == false
-    needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt ]
-    env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-      ANS_NODEPCHECK: '1'
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.TESTS_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7.1.6
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
-
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
-
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
-
-
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
-
-
-      - name: Run tests marked with 'flaky'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m flaky_linux
-
-
-
-      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-system-flaky-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_flaky
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: pytest-flaky-linux
-          path: junit/test-results.xml
-
   package:
     name: Package library
     needs: [system-tests-solvers-windows,
@@ -1646,7 +1539,6 @@ jobs:
             system-tests-extensions-linux,
             system-tests-filter-windows,
             system-tests-emit-windows,
-            system-tests-flaky-linux,
             doc-build]
     runs-on: ubuntu-latest
     permissions:

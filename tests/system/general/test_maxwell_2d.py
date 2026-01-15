@@ -801,10 +801,6 @@ def test_eddy_current_sweep(m2d_setup):
 
 def test_export_c_matrix(test_tmp_dir, m2d_export_matrix):
     output_file = test_tmp_dir / "c_matrix.txt"
-    # invalid solution type
-    m2d_export_matrix.set_active_design("export_rl_magneto")
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_rl_matrix("Matrix1", output_file)
     # no matrix
     m2d_export_matrix.set_active_design("export_c_electrostatic_no_matrix")
     with pytest.raises(AEDTRuntimeError):
@@ -843,10 +839,6 @@ def test_export_rl_matrix(test_tmp_dir, m2d_export_matrix):
         m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
 
     export_path = test_tmp_dir / "export_rl_matrix.txt"
-    # invalid solution type
-    m2d_export_matrix.set_active_design("export_rl_magneto")
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
     # no matrix
     m2d_export_matrix.set_active_design("export_rl_eddycurrent_no_matrix")
     with pytest.raises(AEDTRuntimeError):
@@ -870,6 +862,31 @@ def test_export_rl_matrix(test_tmp_dir, m2d_export_matrix):
     export_path_2 = test_tmp_dir / "export_rl_matrix_2.txt"
     assert m2d_export_matrix.setups[0].export_matrix(matrix_type="RL", matrix_name="Matrix1", output_file=export_path_2)
     assert export_path_2.exists()
+
+
+def test_export_matrix(test_tmp_dir, m2d_export_matrix):
+    m2d_export_matrix.set_active_design("export_rl_magneto")
+    # invalid path
+    export_path = test_tmp_dir / "export_matrix.csv"
+    with pytest.raises(AEDTRuntimeError):
+        m2d_export_matrix.export_matrix("Matrix1", export_path)
+
+    export_path = test_tmp_dir / "export_matrix.txt"
+    # invalid matrix name
+    with pytest.raises(AEDTRuntimeError):
+        m2d_export_matrix.export_matrix("invalid", export_path)
+    assert m2d_export_matrix.export_matrix(
+        matrix_name="Matrix1",
+        output_file=export_path,
+        use_independent_nominal_values=False,
+        is_format_default=False,
+        width=8,
+        precision=2,
+        is_exponential=False,
+    )
+    assert m2d_export_matrix.export_matrix(
+        matrix_name="Matrix1", output_file=export_path, use_independent_nominal_values=True
+    )
 
 
 def test_analyze_from_zero(m2d_app):

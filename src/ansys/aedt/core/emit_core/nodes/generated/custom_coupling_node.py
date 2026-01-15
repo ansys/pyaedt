@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -44,10 +43,6 @@ class CustomCouplingNode(EmitNode):
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
-
-    def rename(self, new_name: str = ""):
-        """Rename this node"""
-        self._rename(new_name)
 
     def duplicate(self, new_name: str = ""):
         """Duplicate this node"""

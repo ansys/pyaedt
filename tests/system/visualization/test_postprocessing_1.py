@@ -316,7 +316,7 @@ def test_get_solution_data(aedt_app):
         for el2 in portnames:
             trace_names.append("S(" + el + "," + el2 + ")")
     families = {"Freq": ["All"]}
-    nominal_values = aedt_app.available_variations.get_independent_nominal_values()
+    nominal_values = aedt_app.available_variations.nominal_variation(dependent_params=False)
     for key, value in nominal_values.items():
         families[key] = value
 
@@ -336,7 +336,7 @@ def test_export_data_to_csv(aedt_app, test_tmp_dir):
         for el2 in portnames:
             trace_names.append("S(" + el + "," + el2 + ")")
     families = {"Freq": ["All"]}
-    nominal_values = aedt_app.available_variations.get_independent_nominal_values()
+    nominal_values = aedt_app.available_variations.nominal_variation(dependent_params=False)
     for key, value in nominal_values.items():
         families[key] = value
     my_data = aedt_app.post.get_solution_data(expressions=trace_names, variations=families)

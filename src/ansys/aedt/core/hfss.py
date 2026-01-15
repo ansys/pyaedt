@@ -2552,7 +2552,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not setup:
             setup = assignment.nominal_adaptive
         params = {}
-        pars = assignment.available_variations.get_independent_nominal_values()
+        pars = assignment.available_variations.nominal_variation(dependent_params=False)
 
         for el in pars:
             params[el] = pars[el]
@@ -5873,7 +5873,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
         if not variations:
-            variations = self.available_variations.get_independent_nominal_values()
+            variations = self.available_variations.nominal_variation(dependent_params=False)
         if not setup:
             setup = self.nominal_adaptive
 
@@ -6719,6 +6719,114 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         inc_wave_args.update(wave_type_props)
         inc_wave_args.update(props)
         return self._create_boundary(name, inc_wave_args, "Plane Incident Wave")
+
+    @pyaedt_function_handler()
+    def far_field_wave(
+        self,
+        assignment: Union[str, "Hfss"],
+        setup: Optional[str] = None,
+        simulate_source: bool = True,
+        preserve_source_solution: bool = True,
+        coordinate_system: str = "Global",
+        name: Optional[str] = None,
+    ) -> BoundaryObject:
+        """Create a far field wave excitation.
+
+        Parameters
+        ----------
+        assignment : ansys.aedt.core.Hfss or str
+            Source HFSS object from which to link the far field data, or path to an external
+            far field data file (.ffd file).
+        setup : optional
+            Name of the setup. The default is ``None``, in which
+            case a name is automatically assigned.
+            This parameter is only used when ``assignment`` is an HFSS object.
+        simulate_source : bool, optional
+            Whether to force the source design to solve. The default is ``True``.
+            This parameter is only used when ``assignment`` is an HFSS object.
+        preserve_source_solution : bool, optional
+            Whether to preserve the source solution. The default is ``True``.
+            This parameter is only used when ``assignment`` is an HFSS object.
+        coordinate_system : str, optional
+            Coordinate system to use for the source. The default is ``"Global"``.
+        name : str, optional
+            Name of the excitation. The default is ``None``, in which
+            case a name is automatically assigned.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Far field boundary object.
+
+        References
+        ----------
+        >>> oModule.AssignFarFieldWave
+
+        Examples
+        --------
+        Create a far field wave excitation from another design in the same project.
+
+        >>> from ansys.aedt.core import Hfss
+        >>> target = Hfss(project="target_project.aedt")
+        >>> source = Hfss(project="target_project.aedt", design="Source_Design")
+        >>> setup = source.create_setup("Setup1", Frequency="10GHz")
+        >>> far_field_wave_src = target.far_field_wave(assignment=source, setup=setup)
+
+        Create a far field wave excitation from an external project.
+
+        >>> target = Hfss(project="target_project.aedt")
+        >>> source = Hfss(project="source_project.aedt", design="Array_Design")
+        >>> setup = source.create_setup("Setup1", Frequency="10GHz")
+        >>> far_field_wave_src = target.far_field_wave(assignment=source, setup=setup)
+
+        Create a far field wave excitation from an external data file.
+
+        >>> target = Hfss(project="target_project.aedt")
+        >>> far_field_wave_src = target.far_field_wave(assignment="/path/to/farfield.ffd")
+        """
+        name = self._get_unique_source_name(name, "IncFFWave")
+
+        if isinstance(assignment, str):
+            # Use external data file
+            props = {
+                "IsFarField": True,
+                "UseDataLink": False,
+                "ExternalDataFile": assignment,
+                "SourceCoordSystem": coordinate_system,
+            }
+        else:
+            # Use data link to another design
+            if assignment.project_name == self.project_name:
+                project_name = "This Project*"
+            else:
+                project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
+
+            design_name = assignment.design_name
+
+            if not setup.get_sweep():
+                setup = assignment.nominal_adaptive
+
+            params = {}
+            pars = assignment.available_variations.nominal_variation(dependent_params=False)
+            for el in pars:
+                params[el] = pars[el]
+
+            props = {
+                "IsFarField": True,
+                "UseDataLink": True,
+                "ExternalDataFile": "",
+                "Project": str(project_name),
+                "Product": "HFSS",
+                "Design": design_name,
+                "Soln": setup,
+                "Params": params,
+                "ForceSourceToSolve": simulate_source,
+                "PreservePartnerSoln": preserve_source_solution,
+                "PathRelativeTo": "TargetProject",
+                "SourceCoordSystem": coordinate_system,
+            }
+
+        return self._create_boundary(name, props, "Far Field Wave")
 
     @pyaedt_function_handler()
     def hertzian_dipole_wave(
