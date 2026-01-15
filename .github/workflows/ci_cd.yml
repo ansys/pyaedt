@@ -63,7 +63,30 @@ jobs:
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+          
       - name: Run unit tests
         run:
           pytest tests/unit --testmon
