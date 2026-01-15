@@ -157,7 +157,7 @@ Attach to a running AEDT process and launch an interactive PyAEDT console:
     pyaedt attach
 
 This command detects all running AEDT processes and presents them in an interactive menu.
-You can select which process to attach to, and it will launch an IPython console with
+You can select which process to attach to; this launches an IPython console with
 a PyAEDT Desktop instance already connected to that process.
 
 **Direct Attachment by PID**
@@ -185,7 +185,7 @@ When you run ``pyaedt attach``, you'll see output like this:
     Select process number (1-2) or 'q' to quit:
 
 Simply enter the number of the process you want to attach to, and an interactive
-console will open with PyAEDT already initialized and connected.
+console opens with PyAEDT already initialized and connected.
 
 **Using the Interactive Console**
 
