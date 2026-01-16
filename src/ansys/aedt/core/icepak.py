@@ -1245,7 +1245,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         savedir=None,
         filename=None,
         sweep_name=None,
-        parameter_dict_with_values={},
+        parameter_dict_with_values=None,
     ):
         """Export the field surface output.
 
@@ -1267,7 +1267,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
         parameter_dict_with_values : dict, optional
-            Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
+            Dictionary of parameters defined for the specific setup with values.
+            The default is ``None``, in which case the nominal variation is used.
 
         Returns
         -------
@@ -1278,6 +1279,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.ExportFieldsSummary
         """
+        if parameter_dict_with_values is None:
+            parameter_dict_with_values = self.available_variations.nominal_values
+
         name = generate_unique_name(quantity_name)
         self.modeler.create_face_list(faces_list, name)
         if not savedir:
@@ -1339,7 +1343,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
         parameter_dict_with_values : dict, optional
-            Dictionary of parameters defined for the specific setup with values. The default is the nominal variation.
+            Dictionary of parameters defined for the specific setup with values.
+            The default is ``None``, in which case the nominal variation is used.
 
         Returns
         -------
@@ -1474,12 +1479,17 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                     ]
                 )
         else:
+            string = ""
+            parameter_dict_with_values = self.available_variations.nominal_values
+            for el in parameter_dict_with_values:
+                string += el + "='" + parameter_dict_with_values[el] + "' "
+
             self.osolution.ExportFieldsSummary(
                 [
                     "SolutionName:=",
                     solution_name,
                     "DesignVariationKey:=",
-                    "",
+                    string,
                     "ExportFileName:=",
                     str(Path(output_dir) / (filename + "_" + quantity + ".csv")),
                 ]
