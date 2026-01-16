@@ -46,7 +46,6 @@ def cleanup_files(*files):
             export_file.unlink()
 
 
-@pytest.mark.flaky_linux
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_all_options(add_app_example, test_tmp_dir):
     """Test successful execution of export layout with all options enabled."""
@@ -90,7 +89,6 @@ def test_export_layout_all_options(add_app_example, test_tmp_dir):
         assert isinstance(config_data, dict)
 
 
-@pytest.mark.flaky_linux
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_ipc_only(add_app_example, test_tmp_dir):
     """Test export layout with only IPC2581 option enabled."""
@@ -158,7 +156,6 @@ def test_export_layout_bom_only(add_app_example, test_tmp_dir):
     assert bom_file.stat().st_size > 0
 
 
-@pytest.mark.flaky_linux
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_config_only(add_app_example, test_tmp_dir):
     """Test export layout with only configuration option enabled."""
@@ -197,7 +194,6 @@ def test_export_layout_config_only(add_app_example, test_tmp_dir):
         assert isinstance(config_data, dict)
 
 
-@pytest.mark.flaky_linux
 @pytest.mark.skipif(is_linux, reason="Lead to Python fatal error on Linux machines.")
 def test_export_layout_no_options(add_app_example, test_tmp_dir):
     """Test export layout with all options disabled."""

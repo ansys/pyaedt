@@ -231,7 +231,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         """
         if not output_file:
             output_file = str(Path(self.working_directory) / "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variations, output_file)
+        self.odesign.ExportMeshStats(setup, variations, str(output_file))
         return output_file
 
     @property
