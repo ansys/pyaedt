@@ -100,4 +100,4 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m tests/integration
+          pytest ${PYTEST_ARGUMENTS} tests/integration
