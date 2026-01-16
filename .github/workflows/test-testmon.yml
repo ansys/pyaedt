@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  TESTS_VERSION: '3.10'
-  PYTEST_ARGUMENTS: -vvv --color=yes -ra --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
+  TESTS_VERSION: '3.12'
+  PYTEST_ARGUMENTS: --testmon
   TESTMON_DATAFILE: '.testmondata'
   TESTMON_CACHE_KEY: 'testmondata-unit-test'
 
@@ -29,6 +29,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Restore testmon cache
         id: cache-testmon
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -48,14 +53,14 @@ jobs:
             echo "::notice::No testmon cache found, will run all tests"
           fi
 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip uv
+          uv pip install --system .[unit-tests]
+
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          pytest-postargs: 'tests/unit'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.TESTS_VERSION }}
-          optional-dependencies-name: unit-tests
-          requires-xvfb: true
+        run: |
+           pytest ${{ env.PYTEST_ARGUMENTS }} tests/unit
 
       - name: Display testmon statistics
         if: always()
@@ -72,6 +77,7 @@ jobs:
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
+
 #  unit-tests-testmon:
 #    name: Unit tests with testmon
 #    runs-on: ubuntu-latest
