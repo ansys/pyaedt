@@ -53,7 +53,7 @@ PyAEDT exposes these behaviors through environment variables and runtime setting
    Secure connections (mTLS, WNUA, UDS) require specific service packs for each version.
    Versions without the required service pack only support insecure mode.
 
-Version and Service Pack Requirements
+Version and service pack requirements
 --------------------------------------
 
 .. list-table::
@@ -81,7 +81,7 @@ Version and Service Pack Requirements
      - insecure, **wnua**, mtls
      - insecure, **uds**, mtls
    * - 2026 R1+ (261+)
-     - All SPs
+     - All service packs
      - insecure, **wnua**, mtls
      - insecure, **uds**, mtls
 
