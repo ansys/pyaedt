@@ -236,7 +236,7 @@ Configuration summary
      - ``settings.grpc_secure_mode = False``
 
        Result: Insecure local connection
-   * - **Pre-service pack Compatibility**
+   * - **Pre-service pack compatibility**
      - ``PYAEDT_USE_PRE_GRPC_ARGS=True``
 
 Summary of gRPC transport mode selection
