@@ -174,7 +174,7 @@ mTLS is automatically selected when:
 **Enabling mTLS**
 
 Set the ``ANSYS_GRPC_CERTIFICATES`` environment variable on **both the client
-and the server**::
+and the server**:
 
     # Windows
     set ANSYS_GRPC_CERTIFICATES=C:\path\to\certificates
