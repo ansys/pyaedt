@@ -111,7 +111,10 @@ def test_assign_surface_mesh_manual(aedt_app):
 
 
 def test_assign_surface_priority(aedt_app):
-    surface = aedt_app.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)
+    box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
+    rect = aedt_app.modeler.create_rectangle(Plane.XY, [0, 0, 10], [10, 10])
+
+    surface = aedt_app.mesh.assign_surf_priority_for_tau([box.name, rect.name], 1)
     assert surface.props["SurfaceRepPriority"] == 1
     surface.props["SurfaceRepPriority"] = 0
     assert (
