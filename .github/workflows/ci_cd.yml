@@ -60,8 +60,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          git checkout main
-          git merge --no-ff ${{ github.sha }} -m "Merge changes for testing"
+          git checkout origin/main
+          git checkout -b test-branch
+          git cherry-pick ${{ github.sha }}
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
