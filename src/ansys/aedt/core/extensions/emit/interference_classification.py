@@ -562,8 +562,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         draw_table()
 
 
-
-
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
     ext = InterferenceClassificationExtension(withdraw=False)
