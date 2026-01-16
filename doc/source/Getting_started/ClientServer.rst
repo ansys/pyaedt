@@ -92,7 +92,7 @@ Version and Service Pack Requirements
    - To check your service pack version, look at the ``builddate.txt`` file in your
      Ansys installation directory.
 
-Default Configuration
+Default configuration
 ---------------------
 
 PyAEDT uses the following default settings::
@@ -102,14 +102,14 @@ PyAEDT uses the following default settings::
 
 These defaults enable secure, local communication using OS-native mechanisms.
 
-Local Mode
+Local mode
 ----------
 
 When ``grpc_local = True`` (default), PyAEDT uses local inter-process communication
 mechanisms optimized for same-machine connections.
 
-Windows - WNUA (Windows Named User Access)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WNUA (Windows named user access)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 On **Windows**, with default settings (``grpc_secure_mode = True`` and
 ``grpc_local = True``), PyAEDT uses **WNUA** (Windows Named User Access).
@@ -121,8 +121,8 @@ On **Windows**, with default settings (``grpc_secure_mode = True`` and
 - **Local connections only** (same machine).
 - Requires required service pack (see table above).
 
-Linux - UDS (Unix Domain Sockets)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UDS (Unix domain sockets)
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 On **Linux**, with default settings (``grpc_secure_mode = True`` and
 ``grpc_local = True``), PyAEDT uses **UDS** (Unix Domain Sockets).
@@ -134,7 +134,7 @@ On **Linux**, with default settings (``grpc_secure_mode = True`` and
 - **Local connections only** (same machine).
 - Requires required service pack (see table above).
 
-Disabling Secure Local Mode
+Disabling secure local mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To disable secure local mode and use insecure transport, set::
@@ -153,7 +153,7 @@ Client-server mode
 When ``grpc_local = False``, PyAEDT uses client-server architecture suitable
 for both local and remote connections over the network.
 
-Secure client-server: Mutual TLS (mTLS)
+Secure client-server: mutual TLS (mTLS)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PyAEDT supports **mutual TLS (mTLS)** for secure client–server communication.
@@ -193,7 +193,7 @@ To use insecure client-server mode (no encryption), set::
 
 This configuration uses standard gRPC without encryption.
 
-Pre-Service Pack compatibility
+Pre-service pack compatibility
 ------------------------------
 
 For Ansys versions **prior to the required Service Pack** that introduced
@@ -206,7 +206,7 @@ updated gRPC arguments, set this environment variable::
 - Connecting to Ansys installations that predate the updated gRPC interface.
 - Ensures compatibility with older gRPC startup arguments.
 
-Configuration Summary
+Configuration summary
 ---------------------
 
 .. list-table::
@@ -267,7 +267,7 @@ PyAEDT selects the gRPC transport mode based on this decision tree:
       → Uses **INSECURE** client-server mode
 
 
-PyAEDT Remote Service Manager
+PyAEDT remote service manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PyAEDT includes a service manager that can be run on the server machine and can be
