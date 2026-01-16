@@ -33,7 +33,7 @@ except ImportError:  # pragma: no cover
 
 from ansys.aedt.core.cli.config import config_app
 from ansys.aedt.core.cli.doc import doc_app
-from ansys.aedt.core.cli.docstring_check import check_docstrings
+from ansys.aedt.core.cli.docstring_check import analyze_changes
 from ansys.aedt.core.cli.panels import panels_app
 from ansys.aedt.core.cli.process import processes
 from ansys.aedt.core.cli.process import start
@@ -49,7 +49,7 @@ app.add_typer(doc_app, name="doc")
 
 # Register top-level commands
 app.command()(version)
-app.command(name="check-docstrings")(check_docstrings)
+app.command(name="analyze-changes")(analyze_changes)
 app.command()(processes)
 app.command()(start)
 app.command()(stop)

@@ -22,9 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""CLI command to check if changes are only docstrings/comments."""
+"""CLI command to analyze code changes and determine what jobs should run in CI/CD."""
 
 import ast
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -99,7 +100,7 @@ def get_ast_dump(source_code, filename="<unknown>"):
 
 def get_changed_files(base_ref: str = "origin/main"):
     """
-    Get list of changed Python files from git.
+    Get list of changed files from git.
 
     Parameters
     ----------
@@ -109,7 +110,7 @@ def get_changed_files(base_ref: str = "origin/main"):
     Returns
     -------
     list
-        List of changed Python file paths.
+        List of changed file paths.
     """
     try:
         # Find merge base if comparing against a branch
@@ -135,31 +136,73 @@ def get_changed_files(base_ref: str = "origin/main"):
             text=True,
             check=True,
         )
-        files = [f.strip() for f in result.stdout.strip().split("\n") if f.strip().endswith(".py")]
+        files = [f.strip() for f in result.stdout.strip().split("\n") if f.strip()]
         return files
     except subprocess.CalledProcessError as e:
         typer.echo(f"[ERR] Failed to get changed files from git: {e}", err=True)
         raise typer.Exit(code=1)
 
 
-def check_docstrings(
+def _set_ci_env(var_name: str, value: str):
+    """Set an environment variable for CI/CD.
+    
+    Parameters
+    ----------
+    var_name : str
+        Name of the environment variable.
+    value : str
+        Value to set.
+    """
+    os.environ[var_name] = value
+    typer.echo(f"[CI] Set {var_name}={value}")
+
+
+def _write_github_output(name: str, value: str):
+    """Write output for GitHub Actions.
+    
+    Parameters
+    ----------
+    name : str
+        Output name.
+    value : str
+        Output value.
+    """
+    github_output = os.getenv("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as f:
+            f.write(f"{name}={value}\n")
+        typer.echo(f"[CI] GitHub output: {name}={value}")
+
+
+def analyze_changes(
     base_ref: str = typer.Option("origin/main", "--base", "-b", help="Git reference to compare against (e.g., origin/main, HEAD, main)"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed information"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Save AST dumps for debugging"),
+    ci_mode: bool = typer.Option(False, "--ci", help="CI/CD mode: set environment variables and use exit codes"),
 ):
     """
-    Check if Python file changes are logic changes or just docstrings/comments.
+    Analyze code changes to determine what CI/CD jobs should run.
 
-    This command automatically detects changed Python files using git and analyzes
-    whether the changes affect code logic or are limited to docstrings, comments,
-    and formatting. By default, compares current branch against origin/main.
+    This command automatically detects changed files using git and analyzes
+    whether the changes affect code logic, are limited to docstrings/comments,
+    or only affect documentation. By default, compares current branch against origin/main.
+
+    Exit codes:
+    - 0: Success (analysis complete)
+    - 1: Error during analysis
+
+    In CI mode, sets environment variables:
+    - SKIP_CODE_TESTS=true (if only docstrings/comments changed)
+    - DOC_ONLY=true (if only /doc folder changed)
+    - RUN_ALL=true (if code logic or other files changed)
 
     Examples
     --------
-    >>> pyaedt check-docstrings
-    >>> pyaedt check-docstrings --base origin/main
-    >>> pyaedt check-docstrings --base HEAD
-    >>> pyaedt check-docstrings --verbose --debug
+    >>> pyaedt analyze-changes
+    >>> pyaedt analyze-changes --base origin/main
+    >>> pyaedt analyze-changes --base HEAD
+    >>> pyaedt analyze-changes --verbose --debug
+    >>> pyaedt analyze-changes --ci
     """
     if sys.stdout.encoding != "utf-8":
         try:
@@ -167,20 +210,57 @@ def check_docstrings(
         except AttributeError:
             pass
 
-    files = get_changed_files(base_ref)
+    all_files = get_changed_files(base_ref)
 
-    if not files:
-        typer.echo("No Python files changed.")
+    if not all_files:
+        typer.echo("No files changed.")
+        if ci_mode:
+            _set_ci_env("RUN_ALL", "true")
+        raise typer.Exit(code=0)
+
+    # Separate Python files and doc files
+    python_files = [f for f in all_files if f.endswith(".py")]
+    doc_files = [f for f in all_files if f.startswith("doc/") or f.startswith("doc\\")]
+    other_files = [f for f in all_files if f not in python_files and f not in doc_files]
+
+    # Check if ONLY doc files changed
+    if doc_files and not python_files and not other_files:
+        typer.echo(f"Only documentation files changed ({len(doc_files)} file(s)).")
+        if verbose:
+            for f in doc_files:
+                typer.echo(f"  [DOC] {f}")
+        typer.echo("-" * 40)
+        typer.echo("[OK] ONLY DOCUMENTATION CHANGED - Run only doc jobs")
+        typer.echo("-" * 40)
+        if ci_mode:
+            _set_ci_env("DOC_ONLY", "true")
+            _set_ci_env("SKIP_CODE_TESTS", "true")
+            _write_github_output("doc_only", "true")
+            _write_github_output("skip_tests", "true")
+        raise typer.Exit(code=0)
+
+    if not python_files:
+        typer.echo("No Python files changed, but non-doc files were modified.")
+        if verbose:
+            typer.echo(f"Changed files: {', '.join(all_files)}")
+        if ci_mode:
+            _set_ci_env("RUN_ALL", "true")
+            _write_github_output("run_all", "true")
         raise typer.Exit(code=0)
 
     logic_changed = False
 
-    typer.echo(f"Checking {len(files)} file(s)...")
+    typer.echo(f"Analyzing {len(python_files)} Python file(s)...")
     if verbose:
-        typer.echo("Verbose mode: ON")
+        typer.echo(f"Verbose mode: ON")
         typer.echo(f"Debug mode: {'ON' if debug else 'OFF'}")
+        typer.echo(f"CI mode: {'ON' if ci_mode else 'OFF'}")
+        if doc_files:
+            typer.echo(f"Documentation files changed: {len(doc_files)}")
+        if other_files:
+            typer.echo(f"Other files changed: {len(other_files)}")
 
-    for filename in files:
+    for filename in python_files:
         git_path = filename.replace("\\", "/")
 
         if verbose:
@@ -259,10 +339,23 @@ def check_docstrings(
                 typer.echo(f"  AST unchanged (both {len(old_ast)} chars)")
 
     typer.echo("-" * 40)
-    if logic_changed:
-        typer.echo("[!] COMMIT CONTAINS LOGIC CHANGES")
+    if logic_changed or other_files:
+        if logic_changed:
+            typer.echo("[!] CODE LOGIC CHANGES DETECTED")
+        if other_files:
+            typer.echo(f"[!] NON-PYTHON FILES CHANGED: {len(other_files)}")
+        typer.echo("Result: RUN ALL CI/CD JOBS")
+        if ci_mode:
+            _set_ci_env("RUN_ALL", "true")
+            _write_github_output("run_all", "true")
+            _write_github_output("skip_tests", "false")
     else:
-        typer.echo("[OK] ONLY DOCSTRINGS/COMMENTS! (Tests could be skipped)")
+        typer.echo("[OK] ONLY DOCSTRINGS/COMMENTS CHANGED")
+        typer.echo("Result: SKIP CODE TESTS")
+        if ci_mode:
+            _set_ci_env("SKIP_CODE_TESTS", "true")
+            _write_github_output("skip_tests", "true")
+            _write_github_output("doc_only", "false")
     typer.echo("-" * 40)
 
     raise typer.Exit(code=0)
