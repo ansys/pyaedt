@@ -29,11 +29,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.TESTS_VERSION }}
-
       - name: Restore testmon cache
         id: cache-testmon
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -53,14 +48,14 @@ jobs:
             echo "::notice::No testmon cache found, will run all tests"
           fi
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip uv
-          uv pip install --system .[unit-tests]
-
       - name: Run unit tests
-        run: |
-          pytest tests/unit --testmon
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          pytest-postargs: 'tests/unit'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.TESTS_VERSION }}
+          optional-dependencies-name: unit-tests
+          requires-xvfb: true
 
       - name: Display testmon statistics
         if: always()
@@ -69,11 +64,21 @@ jobs:
           if [ -f "${{ env.TESTMON_DATAFILE }}" ]; then
             echo "::notice::Testmon data file created/updated"
             ls -lah ${{ env.TESTMON_DATAFILE }}
-
-            if command -v testmon &> /dev/null; then
-              testmon --db ${{ env.TESTMON_DATAFILE }} || true
-            fi
           fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-unit-tests-testmon
+          files: ./coverage.xml
+          flags: linux_unit_testmon
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-unit-testmon
+          path: junit/test-results.xml
+        if: always()
 
       - name: Save testmon cache
         if: always()
@@ -81,3 +86,64 @@ jobs:
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
+#  unit-tests-testmon:
+#    name: Unit tests with testmon
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+#        with:
+#          persist-credentials: false
+#
+#      - name: Setup Python
+#        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+#        with:
+#          python-version: ${{ env.TESTS_VERSION }}
+#
+#      - name: Restore testmon cache
+#        id: cache-testmon
+#        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+#        with:
+#          path: ${{ env.TESTMON_DATAFILE }}
+#          key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
+#          restore-keys: |
+#            ${{ env.TESTMON_CACHE_KEY }}-
+#
+#      - name: Display testmon cache status
+#        shell: bash
+#        run: |
+#          if [ -f "${{ env.TESTMON_DATAFILE }}" ]; then
+#            echo "::notice::Testmon cache restored successfully"
+#            ls -lah ${{ env.TESTMON_DATAFILE }}
+#          else
+#            echo "::notice::No testmon cache found, will run all tests"
+#          fi
+#
+#      - name: Install dependencies
+#        run: |
+#          python -m pip install --upgrade pip uv
+#          uv pip install --system .[unit-tests]
+#
+#      - name: Run unit tests
+#        run: |
+#          pytest tests/unit --testmon
+#
+#      - name: Display testmon statistics
+#        if: always()
+#        shell: bash
+#        run: |
+#          if [ -f "${{ env.TESTMON_DATAFILE }}" ]; then
+#            echo "::notice::Testmon data file created/updated"
+#            ls -lah ${{ env.TESTMON_DATAFILE }}
+#
+#            if command -v testmon &> /dev/null; then
+#              testmon --db ${{ env.TESTMON_DATAFILE }} || true
+#            fi
+#          fi
+#
+#      - name: Save testmon cache
+#        if: always()
+#        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+#        with:
+#          path: ${{ env.TESTMON_DATAFILE }}
+#          key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
