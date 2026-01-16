@@ -160,7 +160,7 @@ PyAEDT supports **mutual Transport Layer Security (mTLS)** for secure client–s
 With mTLS, both the client and server authenticate each other using X.509
 certificates.
 
-**When mTLS is Used**
+**When mTLS is used**
 
 mTLS is automatically selected when:
 
