@@ -66,20 +66,6 @@ jobs:
             ls -lah ${{ env.TESTMON_DATAFILE }}
           fi
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        with:
-          name: codecov-unit-tests-testmon
-          files: ./coverage.xml
-          flags: linux_unit_testmon
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: pytest-unit-testmon
-          path: junit/test-results.xml
-        if: always()
-
       - name: Save testmon cache
         if: always()
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
