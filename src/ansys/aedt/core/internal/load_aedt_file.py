@@ -106,18 +106,21 @@ _len_all_lines = 0
 _count = 0
 
 
-def get_design_list_from_aedt_file(filename):
+def get_designs(filename: str | Path) -> list[str]:
     """Get the list of designs in an AEDT file.
 
     Parameters
     ----------
-    filename :
-        AEDT filename with path
+    filename : str or pathlib.Path
+        Path to the AEDT file.
 
     Returns
     -------
+    list of str
+        List of design names found in the AEDT file.
     """
-    designs = load_keyword_in_aedt_file(filename, "ProjectPreview")["ProjectPreview"]
+    filename = Path(filename)
+    designs = load_keyword_in_aedt_file(str(filename), "ProjectPreview")["ProjectPreview"]
     return [info["DesignName"] for info in designs["DesignInfo"]]
 
 
