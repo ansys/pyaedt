@@ -1317,7 +1317,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         savedir=None,
         filename=None,
         sweep_name=None,
-        parameter_dict_with_values={},
+        parameter_dict_with_values=None,
     ):
         """Export the field volume output.
 
@@ -1339,7 +1339,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``, in which case the active setup and active sweep are used.
         parameter_dict_with_values : dict, optional
-            Dictionary of parameters defined for the specific setup with values. The default is ``{}``
+            Dictionary of parameters defined for the specific setup with values. The default is the nominal variation.
 
         Returns
         -------
@@ -1350,6 +1350,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.ExportFieldsSummary
         """
+        if parameter_dict_with_values is None:
+            parameter_dict_with_values = self.available_variations.nominal_values
+
         if not savedir:
             savedir = self.working_directory
         if not filename:
