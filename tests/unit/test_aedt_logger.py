@@ -48,6 +48,7 @@ def test_formatter(test_tmp_dir):
 
 
 def test_output_file_with_app_filter(test_tmp_dir):
+    """check1"""
     settings.enable_debug_logger = True
     path = test_tmp_dir / "test02.txt"
     logger = AedtLogger(filename=str(path))
@@ -98,6 +99,7 @@ def test_output_file_with_app_filter(test_tmp_dir):
 
 
 def test_stdout_with_app_filter():
+    """check2"""
     capture = CaptureStdOut()
     settings.logger_file_path = ""
     with capture:
