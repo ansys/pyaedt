@@ -215,7 +215,7 @@ Configuration summary
 
    * - Mode
      - Configuration
-   * - **Local secure (Default)**
+   * - **Local secure (default)**
      - ``settings.grpc_secure_mode = True``
 
        ``settings.grpc_local = True``
