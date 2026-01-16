@@ -105,7 +105,7 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS}
+            pytest ${PYTEST_ARGUMENTS} tests/system
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
