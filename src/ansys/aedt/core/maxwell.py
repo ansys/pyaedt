@@ -490,35 +490,29 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             raise AEDTRuntimeError("Solution type does not have matrix parameters")
 
     @pyaedt_function_handler()
-    def assign_matrix_1(
+    def assign_matrix_electric_solvers(
         self,
+        signal_sources,
+        ground_sources,
+        matrix_name=None,
     ):
         """Assign a matrix to the source selection.
 
         Matrix assignment can be performed based upon the solver type.
-        For 2D/3D solvers the available solution types are: ``Magnetostatic``,
-        ``Electrostatic``, ``AC Magnetic T-Omega``,``AC Magnetic APhi``,
-        ``DC Conduction`` and ``AC Conduction``.
+        For 2D/3D solvers the available solution types are:
+        ``Electrostatic``,``DC Conduction`` and ``AC Conduction``.
 
 
         Parameters
         ----------
-        assignment : list, str
-            List of sources to assign the matrix to.
+        signal_sources : list, str
+            List of signal sources to assign the matrix to.
+        ground_sources : list, str
+            List of ground sources to assign the matrix to.
+            For Maxwell 2d only.
         matrix_name : str, optional
             Name of the matrix.
             The default is ``None``.
-        turns : list, int, optional
-            Number of turns.
-            The default is 1.
-        return_path : list, str, optional
-            Return path. The default is ``infinite``
-        group_sources : dict, list optional
-            Dictionary consisting of ``{Group Name: list of source names}`` to add
-            multiple groups. You can also define a list of strings. The default is ``None``.
-        branches : : list, int, optional
-            Number of branches. The default is ``None``, which indicates that only one
-            branch exists.
 
         Returns
         -------
@@ -530,6 +524,180 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> oModule.AssignMatrix
 
         """
+        if not matrix_name:
+            matrix_name = generate_unique_name("Matrix")
+
+        signal_sources = self.modeler.convert_to_selections(signal_sources, True)
+        ground_sources = self.modeler.convert_to_selections(ground_sources, True)
+
+        if self.solution_type in (
+            SolutionsMaxwell3D.ElectroStatic,
+            SolutionsMaxwell3D.ACConduction,
+            SolutionsMaxwell3D.DCConduction,
+        ):
+            props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
+            for el in signal_sources:
+                prop = {"Source": el, "NumberOfTurns": "1"}
+                props["MatrixEntry"]["MatrixEntry"].append(prop)
+            for el in ground_sources:
+                props["GroundSources"] += el + ","
+        return self._create_boundary(matrix_name, props, "Matrix")
+
+    @pyaedt_function_handler()
+    def assign_matrix_ac_magnetic(
+        self,
+        sources,
+        matrix_name,
+    ):
+        """Assign a matrix to the source selection.
+
+        Matrix assignment can be performed based upon the solver type.
+        For 2D/3D solvers the available solution types are: ``Magnetostatic`` and ``AC Magnetic``.
+
+
+        Parameters
+        ----------
+        sources : dict, list
+            For Maxwell 2d designs, sources have to be provided as a dict
+            where the key is the source name and the value is the return path.
+            For Maxwell 3d designs, sources have to be provided as a list.
+        matrix_name : str, optional
+            Name of the matrix.
+            The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+
+        """
+        if not matrix_name:
+            matrix_name = generate_unique_name("Matrix")
+
+        if self.solution_type == SolutionsMaxwell3D.ACMagnetic:
+            props = {"MatrixEntry": {"MatrixEntry": []}}
+            if self.design_type == "Maxwell 2D":
+                if not isinstance(sources, dict):
+                    raise AEDTRuntimeError("For Maxwell 2d designs, sources have to be provided as a dict.")
+                for k, v in sources:
+                    prop = {"Source": k, "ReturnPath": v}
+                    props["MatrixEntry"]["MatrixEntry"].append(prop)
+            else:
+                if not isinstance(sources, list):
+                    raise AEDTRuntimeError("For Maxwell 3d designs, sources have to be provided as a list.")
+                for source in sources:
+                    prop = {"Source": source}
+                    props["MatrixEntry"]["MatrixEntry"].append(prop)
+        return self._create_boundary(matrix_name, props, "Matrix")
+
+    @pyaedt_function_handler()
+    def assign_matrix_ac_magnetic_aphi(
+        self,
+        rl_sources,
+        gc_sources,
+        matrix_name,
+    ):
+        """Assign a matrix to the source selection.
+
+        Matrix assignment can be performed based upon the solver type.
+        For 2D/3D solvers the available solution types are:``AC Magnetic APhi``.
+
+
+        Parameters
+        ----------
+        rl_sources : dict
+        gc_sources : dict
+        matrix_name : str, optional
+            Name of the matrix.
+            The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+
+        """
+        if not matrix_name:
+            matrix_name = generate_unique_name("Matrix")
+        # 3D only!
+        props = []
+        if self.solution_type == SolutionsMaxwell3D.ACMagneticAPhi:
+            rl_props = {"RLMatrix": {"MatrixEntry": []}, "GroundSources": ""}
+            for source, ground in rl_sources.items():
+                prop = {"Source": source, "NumberOfTurns": "1"}
+                rl_props["MatrixEntry"]["MatrixEntry"].append(prop)
+                rl_props["GroundSources"] += ground + ","
+            gc_props = {"GCMatrix": {"MatrixEntry": []}, "GroundSources": ""}
+            for source, ground in gc_sources:
+                prop = {"Source": source, "NumberOfTurns": "1"}
+                gc_props["MatrixEntry"]["MatrixEntry"].append(prop)
+                gc_props["GroundSources"] += ground + ","
+            props = {**rl_props, **gc_props}
+        return self._create_boundary(matrix_name, props, "Matrix")
+
+    @pyaedt_function_handler()
+    def assign_matrix_magnetostatic(
+        self,
+        sources,
+        group_sources,
+        branches_number,
+        matrix_name,
+    ):
+        """Assign a matrix to the source selection.
+
+        Matrix assignment can be performed based upon the solver type.
+        For 2D/3D solvers the available solution types are:``Magnetostatic``.
+
+
+        Parameters
+        ----------
+        sources : dict
+            {source: [return_path, number_of_turns]}
+        group_sources : dict
+            {group_name: ([source1, source2, ...], number_of_branches)}
+        matrix_name : str, optional
+            Name of the matrix.
+            The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+
+        """
+        if not matrix_name:
+            matrix_name = generate_unique_name("Matrix")
+        if self.solution_type == SolutionsMaxwell3D.Magnetostatic:
+            props = {"MatrixEntry": {"MatrixEntry": []}, "MatrixGroup": []}
+            if self.design_type == "Maxwell 2D":
+                for source, val in sources.items():
+                    prop = {"Source": source, "NumberOfTurns": val[1], "ReturnPath": val[0]}
+                    props["MatrixEntry"]["MatrixEntry"].append(prop)
+                for group_name, group in group_sources.items():
+                    sources_str = ",".join(group[0])
+                    prop = {"GroupName": group_name, "NumberOfBranches": group[1], "Sources": sources_str}
+                    props["MatrixGroup"].append(prop)
+            else:
+                for source, val in sources.items():
+                    prop = {"Source": source, "NumberOfTurns": val[1]}
+                    props["MatrixEntry"]["MatrixEntry"].append(prop)
+                for group_name, group in group_sources.items():
+                    sources_str = ",".join(group[0])
+                    prop = {"GroupName": group_name, "NumberOfBranches": group[1], "Sources": sources_str}
+                    props["MatrixGroup"].append(prop)
+        return self._create_boundary(matrix_name, props, "Matrix")
 
     @pyaedt_function_handler()
     def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
