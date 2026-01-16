@@ -37,7 +37,7 @@ jobs:
 
       - name: Restore testmon cache
         id: cache-testmon
-        uses: actions/cache/restore@1ee71ac180565f85e7b7b721eea3f5a8e8c098b4 # v4.2.2
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
@@ -78,7 +78,7 @@ jobs:
 
       - name: Save testmon cache
         if: always()
-        uses: actions/cache/save@1ee71ac180565f85e7b7b721eea3f5a8e8c098b4 # v4.2.2
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
           key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
