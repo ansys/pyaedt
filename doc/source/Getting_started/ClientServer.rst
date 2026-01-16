@@ -13,10 +13,10 @@ Secure gRPC connections
 PyAEDT supports secure gRPC connections using different transport modes:
 **WNUA** (Windows), **UDS** (Linux), **mTLS**, or **insecure** modes.
 
-The transport mode depends on whether you're using:
+The transport mode depends on whether you are using:
 
-- **Local mode**: Same-machine connections using OS-native secure mechanisms
-- **Client-server mode**: Network connections for local or remote scenarios
+- **Local mode**: Same-machine connections using OS-native secure mechanisms.
+- **Client-server mode**: Network connections for local or remote scenarios.
 
 PyAEDT exposes these behaviors through environment variables and runtime settings.
 
@@ -48,7 +48,7 @@ Version and Service Pack Requirements
      - insecure, **wnua**, mtls
      - insecure, **uds**, mtls
    * - 2025 R2 (252)
-     - **SP03+**
+     - **SP04+**
      - insecure, **wnua**, mtls
      - insecure, **uds**, mtls
    * - 2026 R1+ (261+)
@@ -73,37 +73,37 @@ PyAEDT uses the following default settings::
 
 These defaults enable secure, local communication using OS-native mechanisms.
 
-Local Mode (Same-Machine Communication)
-----------------------------------------
+Local Mode
+----------
 
 When ``grpc_local = True`` (default), PyAEDT uses local inter-process communication
 mechanisms optimized for same-machine connections.
 
 Windows - WNUA (Windows Named User Access)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 On **Windows**, with default settings (``grpc_secure_mode = True`` and
 ``grpc_local = True``), PyAEDT uses **WNUA** (Windows Named User Access).
 
 **Characteristics:**
 
-- Enabled by default
-- No additional user configuration required
-- **Local connections only** (same machine)
-- Requires required service pack (see table above)
+- Enabled by default.
+- No additional user configuration required.
+- **Local connections only** (same machine).
+- Requires required service pack (see table above).
 
 Linux - UDS (Unix Domain Sockets)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 On **Linux**, with default settings (``grpc_secure_mode = True`` and
 ``grpc_local = True``), PyAEDT uses **UDS** (Unix Domain Sockets).
 
 **Characteristics:**
 
-- Enabled by default
-- No additional user configuration required
-- **Local connections only** (same machine)
-- Requires required service pack (see table above)
+- Enabled by default.
+- No additional user configuration required.
+- **Local connections only** (same machine).
+- Requires required service pack (see table above).
 
 Disabling Secure Local Mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -114,17 +114,17 @@ To disable secure local mode and use insecure transport, set::
 
 This may be needed for:
 
-- Debugging purposes
-- Compatibility with older service packs
-- Specific network configurations
+- Debugging purposes.
+- Compatibility with older service packs.
+- Specific network configurations.
 
-Client-Server Mode (Network Communication)
-------------------------------------------
+Client-server mode
+------------------
 
 When ``grpc_local = False``, PyAEDT uses client-server architecture suitable
 for both local and remote connections over the network.
 
-Secure Client-Server: Mutual TLS (mTLS)
+Secure client-server: Mutual TLS (mTLS)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PyAEDT supports **mutual TLS (mTLS)** for secure client–server communication.
@@ -154,7 +154,7 @@ and the server**::
     export ANSYS_GRPC_CERTIFICATES=/path/to/certificates
 
 
-Insecure Client-Server Mode
+Insecure client-server mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To use insecure client-server mode (no encryption), set::
@@ -164,26 +164,7 @@ To use insecure client-server mode (no encryption), set::
 
 This configuration uses standard gRPC without encryption.
 
-Switching Between Local and Client-Server
-------------------------------------------
-
-**Use Local Mode When:**
-
-- Running PyAEDT and AEDT on the same machine
-- Maximum performance is needed
-- Default secure communication is acceptable
-
-**Use Client-Server Mode When:**
-
-- Connecting to a remote AEDT instance
-- Explicit network communication is required
-- Custom certificate-based authentication is needed
-
-To switch to client-server mode::
-
-    settings.grpc_local = False
-
-Pre-Service Pack Compatibility
+Pre-Service Pack compatibility
 ------------------------------
 
 For Ansys versions **prior to the required Service Pack** that introduced
@@ -193,8 +174,8 @@ updated gRPC arguments, set this environment variable::
 
 **When to Use:**
 
-- Connecting to Ansys installations that predate the updated gRPC interface
-- Ensures compatibility with older gRPC startup arguments
+- Connecting to Ansys installations that predate the updated gRPC interface.
+- Ensures compatibility with older gRPC startup arguments.
 
 Configuration Summary
 ---------------------
@@ -205,29 +186,28 @@ Configuration Summary
 
    * - Mode
      - Configuration
-   * - **Local Secure (Default)**
+   * - **Local secure (Default)**
      - ``settings.grpc_secure_mode = True``
 
        ``settings.grpc_local = True``
 
-       Result: WNUA (Windows) or UDS (Linux)
-   * - **Client-Server Secure (mTLS)**
+   * - **Client-server secure**
      - ``settings.grpc_secure_mode = True``
 
        ``ANSYS_GRPC_CERTIFICATES=<path>``
 
-       Result: mTLS with certificates
-   * - **Client-Server Insecure**
+       ``settings.grpc_local = False``
+
+   * - **Client-Server insecure**
      - ``settings.grpc_secure_mode = False``
 
        ``settings.grpc_local = False``
 
-       Result: Insecure gRPC
-   * - **Local Insecure**
+   * - **Local insecure**
      - ``settings.grpc_secure_mode = False``
 
        Result: Insecure local connection
-   * - **Pre-SP Compatibility**
+   * - **Pre-service pack Compatibility**
      - ``PYAEDT_USE_PRE_GRPC_ARGS=True``
 
 Summary of gRPC transport mode selection
