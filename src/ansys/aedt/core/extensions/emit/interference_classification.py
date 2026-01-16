@@ -47,7 +47,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
     """Interactive EMIT extension for Protection Level and Interference Type classification."""
 
     def __init__(self, withdraw: bool = False):
-        self._widgets = {}
         self._matrix: Optional[_MatrixData] = None
         self._filters_interf = {}
         self._filters_prot = {}
@@ -563,14 +562,9 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         draw_table()
 
 
-def main(_):  # batch mode not used for this interactive extension
-    return True
 
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
-    if not args.get("is_batch"):
-        ext = InterferenceClassificationExtension(withdraw=False)
-        tkinter.mainloop()
-    else:
-        main(args)
+    ext = InterferenceClassificationExtension(withdraw=False)
+    tkinter.mainloop()

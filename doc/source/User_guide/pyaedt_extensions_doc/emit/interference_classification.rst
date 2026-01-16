@@ -1,9 +1,9 @@
 Interference classification
-==============
+===========================
 
-The **Interference classification** to classify simulation results based on radio protection level and interference types.
+The **Interference classification** extension allows users to classify simulation results based on radio protection level and interference types.
 
-The extension provides a graphical user interface (GUI) for configuration.
+The extension provides a Graphical User Interface (GUI) for configuration.
 
 The following image shows the extension GUI:
 
