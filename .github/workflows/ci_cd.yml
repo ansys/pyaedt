@@ -50,18 +50,15 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout main branch
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          ref: main
           persist-credentials: false
 
-      - name: Merge changes to main locally
+      - name: Apply current changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout origin/main
-          git checkout -b test-branch
+          git fetch origin ${{ github.sha }}
           git cherry-pick ${{ github.sha }}
 
       - name: Wait for master cache update
