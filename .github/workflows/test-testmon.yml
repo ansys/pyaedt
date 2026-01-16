@@ -1,0 +1,84 @@
+name: Test Testmon Cache
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  TESTS_VERSION: '3.10'
+  PYTEST_ARGUMENTS: -vvv --color=yes -ra --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
+  TESTMON_DATAFILE: '.testmondata'
+  TESTMON_CACHE_KEY: 'testmondata-unit-test'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests-testmon:
+    name: Unit tests with testmon
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Restore testmon cache
+        id: cache-testmon
+        uses: actions/cache/restore@1ee71ac180565f85e7b7b721eea3f5a8e8c098b4 # v4.2.2
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ env.TESTMON_CACHE_KEY }}-
+
+      - name: Display testmon cache status
+        shell: bash
+        run: |
+          if [ -f "${{ env.TESTMON_DATAFILE }}" ]; then
+            echo "::notice::Testmon cache restored successfully"
+            ls -lah ${{ env.TESTMON_DATAFILE }}
+          else
+            echo "::notice::No testmon cache found, will run all tests"
+          fi
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip uv
+          uv pip install --system .[unit-tests]
+
+      - name: Run unit tests
+        run: |
+          pytest ${{ env.PYTEST_ARGUMENTS }} tests/unit
+
+      - name: Display testmon statistics
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "${{ env.TESTMON_DATAFILE }}" ]; then
+            echo "::notice::Testmon data file created/updated"
+            ls -lah ${{ env.TESTMON_DATAFILE }}
+
+            if command -v testmon &> /dev/null; then
+              testmon --db ${{ env.TESTMON_DATAFILE }} || true
+            fi
+          fi
+
+      - name: Save testmon cache
+        if: always()
+        uses: actions/cache/save@1ee71ac180565f85e7b7b721eea3f5a8e8c098b4 # v4.2.2
+        with:
+          path: ${{ env.TESTMON_DATAFILE }}
+          key: ${{ env.TESTMON_CACHE_KEY }}-${{ github.run_id }}
