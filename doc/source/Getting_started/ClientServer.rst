@@ -197,7 +197,7 @@ Pre-service pack compatibility
 ------------------------------
 
 For Ansys versions **prior to the required Service Pack** that introduced
-updated gRPC arguments, set this environment variable::
+updated gRPC arguments, set this environment variable:
 
     PYAEDT_USE_PRE_GRPC_ARGS=True
 
