@@ -168,7 +168,7 @@ mTLS is automatically selected when:
 - ``ANSYS_GRPC_CERTIFICATES`` environment variable is set to a valid certificate directory
 
 .. note::
-   Setting ``ANSYS_GRPC_CERTIFICATES`` forces mTLS mode regardless of the
+   Setting ``ANSYS_GRPC_CERTIFICATES`` and ``settings.grpc_secure_mode = True`` forces mTLS mode regardless of the
    ``grpc_local`` setting.
 
 **Enabling mTLS**
