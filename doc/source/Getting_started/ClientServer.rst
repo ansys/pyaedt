@@ -201,7 +201,7 @@ updated gRPC arguments, set this environment variable::
 
     PYAEDT_USE_PRE_GRPC_ARGS=True
 
-**When to Use:**
+**When to use:**
 
 - Connecting to Ansys installations that predate the updated gRPC interface.
 - Ensures compatibility with older gRPC startup arguments.
