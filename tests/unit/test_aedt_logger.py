@@ -38,6 +38,7 @@ settings.enable_local_log_file = True
 
 
 def test_formatter(test_tmp_dir):
+    """Test"""
     settings.formatter = logging.Formatter(fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S")
     path = test_tmp_dir / "test01.txt"
     logger = AedtLogger(filename=str(path))
