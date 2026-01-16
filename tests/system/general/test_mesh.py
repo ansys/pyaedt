@@ -142,7 +142,8 @@ def test_delete_mesh_ops(aedt_app):
 
 def test_curvature_extraction(aedt_app):
     aedt_app.solution_type = "SBR+"
-    curv = aedt_app.mesh.assign_curvature_extraction("inner")
+    box = aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10])
+    curv = aedt_app.mesh.assign_curvature_extraction(box.name)
     assert curv.props["DisableForFacetedSurfaces"]
     curv.props["DisableForFacetedSurfaces"] = False
     assert (
