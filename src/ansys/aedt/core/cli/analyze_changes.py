@@ -200,11 +200,11 @@ def analyze_changes(
 
     Examples
     --------
-    >>> pyaedt analyze-changes
-    >>> pyaedt analyze-changes --base origin/main
-    >>> pyaedt analyze-changes --base HEAD
-    >>> pyaedt analyze-changes --verbose --debug
-    >>> pyaedt analyze-changes --ci
+    >>> pyaedt ci analyze-changes
+    >>> pyaedt ci analyze-changes --base origin/main
+    >>> pyaedt ci analyze-changes --base HEAD
+    >>> pyaedt ci analyze-changes --verbose --debug
+    >>> pyaedt ci analyze-changes --ci
     """
     if sys.stdout.encoding != "utf-8":
         try:

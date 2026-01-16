@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""PyAEDT CLI based on typer."""
+"""CLI commands for CI/CD operations."""
 
 try:
     import typer
@@ -31,28 +31,9 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
-from ansys.aedt.core.cli.ci import ci_app
-from ansys.aedt.core.cli.config import config_app
-from ansys.aedt.core.cli.doc import doc_app
-from ansys.aedt.core.cli.panels import panels_app
-from ansys.aedt.core.cli.process import processes
-from ansys.aedt.core.cli.process import start
-from ansys.aedt.core.cli.process import stop
-from ansys.aedt.core.cli.process import version
+from ansys.aedt.core.cli.analyze_changes import analyze_changes
 
-app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
+ci_app = typer.Typer(help="CI/CD commands")
 
-# Register sub-apps
-app.add_typer(ci_app, name="ci")
-app.add_typer(config_app, name="config")
-app.add_typer(panels_app, name="panels")
-app.add_typer(doc_app, name="doc")
-
-# Register top-level commands
-app.command()(version)
-app.command()(processes)
-app.command()(start)
-app.command()(stop)
-
-if __name__ == "__main__":
-    app()
+# Register commands
+ci_app.command(name="analyze-changes")(analyze_changes)
