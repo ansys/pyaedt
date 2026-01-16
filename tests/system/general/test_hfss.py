@@ -202,40 +202,9 @@ def test_create_wave_port_from_sheets_terminal(aedt_app):
     assert bottom_port.name == "bottom_probe_port"
     pec_objects = aedt_app.modeler.get_objects_by_material("pec")
     assert len(pec_objects) == 2  # PEC cap created.
-    aedt_app.solution_type = "Modal"
-
-    assert len(aedt_app.boundaries) == 4
-    udp = aedt_app.modeler.Position(200, 0, 0)
-    o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
-    port = aedt_app.wave_port(
-        assignment=o6,
-        integration_line=aedt_app.axis_directions.XPos,
-        modes=2,
-        impedance=40,
-        name="sheet2_Port",
-        renormalize=True,
-        deembed=5,
-    )
-    assert port.name == "sheet2_Port"
-    assert port.name in [i.name for i in aedt_app.boundaries]
-    assert port.props["RenormalizeAllTerminals"] is True
-
-    aedt_app.modeler.create_box([20, 20, 20], [10, 10, 2], name="My_Box", material="Copper")
-    aedt_app.modeler.create_box([20, 25, 30], [10, 2, 2], material="Copper")
-    rect = aedt_app.modeler.create_rectangle(Plane.YZ, [20, 25, 20], [2, 10])
-    port3 = aedt_app.wave_port(
-        assignment=rect,
-        integration_line=aedt_app.axis_directions.ZNeg,
-        modes=1,
-        impedance=30,
-        name="sheet3_Port",
-        renormalize=False,
-        deembed=5,
-    )
-    assert port3.name in [i.name for i in aedt_app.boundaries]
 
 
-def test_create_wave_port_from_sheets_moda(aedt_app):
+def test_create_wave_port_from_sheets_modal(aedt_app):
     aedt_app.solution_type = "Modal"
 
     assert len(aedt_app.boundaries) == 4
@@ -621,6 +590,8 @@ def test_set_power(aedt_app):
 
 
 def test_create_circuit_port_from_edges(aedt_app):
+    aedt_app.solution_type = "Modal"
+
     coax1_len = 200
     r1 = 3.0
     r2 = 10.0
@@ -650,7 +621,6 @@ def test_create_circuit_port_from_edges(aedt_app):
     edges2 = aedt_app.modeler.get_object_edges(rect_2.id)
     e2 = edges2[0]
 
-    aedt_app.solution_type = "Modal"
     assert aedt_app.composite is False
     aedt_app.composite = True
     assert aedt_app.composite is True
@@ -689,7 +659,6 @@ def test_create_circuit_port_from_edges(aedt_app):
     assert bound
     bound.name = "port21"
     assert bound.update()
-    aedt_app.solution_type = "Modal"
 
 
 def test_create_waveport_on_objects(aedt_app):
