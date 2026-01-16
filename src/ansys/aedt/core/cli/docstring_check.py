@@ -128,7 +128,7 @@ def get_changed_files(base_ref: str = "origin/main"):
             except subprocess.CalledProcessError:
                 # Fall back to direct comparison if merge-base fails
                 pass
-        
+
         # Get list of changed files compared to base_ref
         result = subprocess.run(
             ["git", "diff", "--name-only", base_ref, "HEAD"],
@@ -145,7 +145,7 @@ def get_changed_files(base_ref: str = "origin/main"):
 
 def _set_ci_env(var_name: str, value: str):
     """Set an environment variable for CI/CD.
-    
+
     Parameters
     ----------
     var_name : str
@@ -159,7 +159,7 @@ def _set_ci_env(var_name: str, value: str):
 
 def _write_github_output(name: str, value: str):
     """Write output for GitHub Actions.
-    
+
     Parameters
     ----------
     name : str
@@ -175,7 +175,9 @@ def _write_github_output(name: str, value: str):
 
 
 def analyze_changes(
-    base_ref: str = typer.Option("origin/main", "--base", "-b", help="Git reference to compare against (e.g., origin/main, HEAD, main)"),
+    base_ref: str = typer.Option(
+        "origin/main", "--base", "-b", help="Git reference to compare against (e.g., origin/main, HEAD, main)"
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed information"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Save AST dumps for debugging"),
     ci_mode: bool = typer.Option(False, "--ci", help="CI/CD mode: set environment variables and use exit codes"),
@@ -252,7 +254,7 @@ def analyze_changes(
 
     typer.echo(f"Analyzing {len(python_files)} Python file(s)...")
     if verbose:
-        typer.echo(f"Verbose mode: ON")
+        typer.echo("Verbose mode: ON")
         typer.echo(f"Debug mode: {'ON' if debug else 'OFF'}")
         typer.echo(f"CI mode: {'ON' if ci_mode else 'OFF'}")
         if doc_files:
