@@ -139,7 +139,8 @@ def test_assign_material(aedt_app):
     assert cyl_1.material_name == "teflon_based"
 
 
-def test_create_wave_port_from_sheets(aedt_app):
+def test_create_wave_port_from_sheets_terminal(aedt_app):
+    aedt_app.solution_type = "Terminal"
     udp = aedt_app.modeler.Position(0, 0, 0)
     coax_length = 80
     # Create inner conductor cylinder (smaller radius)
@@ -155,7 +156,6 @@ def test_create_wave_port_from_sheets(aedt_app):
     coax1_origin = aedt_app.modeler.Position(0, 0, 0)
     outer_1 = aedt_app.modeler.create_cylinder(Axis.X, coax1_origin, r2, coax1_len, 0, "outer_1")
     o5 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet1")
-    aedt_app.solution_type = "Terminal"
 
     port = aedt_app.wave_port(
         assignment=o5,
@@ -203,6 +203,41 @@ def test_create_wave_port_from_sheets(aedt_app):
     pec_objects = aedt_app.modeler.get_objects_by_material("pec")
     assert len(pec_objects) == 2  # PEC cap created.
     aedt_app.solution_type = "Modal"
+
+    assert len(aedt_app.boundaries) == 4
+    udp = aedt_app.modeler.Position(200, 0, 0)
+    o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
+    port = aedt_app.wave_port(
+        assignment=o6,
+        integration_line=aedt_app.axis_directions.XPos,
+        modes=2,
+        impedance=40,
+        name="sheet2_Port",
+        renormalize=True,
+        deembed=5,
+    )
+    assert port.name == "sheet2_Port"
+    assert port.name in [i.name for i in aedt_app.boundaries]
+    assert port.props["RenormalizeAllTerminals"] is True
+
+    aedt_app.modeler.create_box([20, 20, 20], [10, 10, 2], name="My_Box", material="Copper")
+    aedt_app.modeler.create_box([20, 25, 30], [10, 2, 2], material="Copper")
+    rect = aedt_app.modeler.create_rectangle(Plane.YZ, [20, 25, 20], [2, 10])
+    port3 = aedt_app.wave_port(
+        assignment=rect,
+        integration_line=aedt_app.axis_directions.ZNeg,
+        modes=1,
+        impedance=30,
+        name="sheet3_Port",
+        renormalize=False,
+        deembed=5,
+    )
+    assert port3.name in [i.name for i in aedt_app.boundaries]
+
+
+def test_create_wave_port_from_sheets_moda(aedt_app):
+    aedt_app.solution_type = "Modal"
+
     assert len(aedt_app.boundaries) == 4
     udp = aedt_app.modeler.Position(200, 0, 0)
     o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
