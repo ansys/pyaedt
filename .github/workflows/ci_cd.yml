@@ -59,7 +59,7 @@ jobs:
       - name: Apply current changes
         run: |
           git fetch origin ${{ github.sha }}
-          git cherry-pick ${{ github.sha }}
+          git merge --allow-unrelated-histories --no-edit ${{ github.sha }}
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
