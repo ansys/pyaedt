@@ -57,16 +57,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip uv
-          uv pip install --system .[unit-tests]
-
-      - name: Install xvfb
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
+          uv pip install .[unit-tests]
 
       - name: Run unit tests
         run: |
-          xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} tests/unit
+          pytest tests/unit --testmon
 
       - name: Display testmon statistics
         if: always()
