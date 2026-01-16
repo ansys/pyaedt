@@ -137,7 +137,7 @@ On **Linux**, with default settings (``grpc_secure_mode = True`` and
 Disabling secure local mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To disable secure local mode and use insecure transport, set::
+To disable secure local mode and use insecure transport, set:
 
     settings.grpc_secure_mode = False
 
