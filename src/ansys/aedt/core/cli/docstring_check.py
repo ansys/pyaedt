@@ -89,7 +89,7 @@ def get_ast_dump(source_code, filename="<unknown>"):
             value = first_stmt.value
             if isinstance(value, ast.Constant) and isinstance(value.value, str):
                 node.body = node.body[1:]
-            elif isinstance(value, ast.Str):
+            elif isinstance(value, ast.Constant):
                 node.body = node.body[1:]
 
             return node
