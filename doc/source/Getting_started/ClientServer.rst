@@ -153,8 +153,8 @@ Client-server mode
 When ``grpc_local = False``, PyAEDT uses client-server architecture suitable
 for both local and remote connections over the network.
 
-Secure client-server: mutual TLS (mTLS)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Secure client-server: mutual Transport Layer Security (mTLS)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PyAEDT supports **mutual TLS (mTLS)** for secure client–server communication.
 With mTLS, both the client and server authenticate each other using X.509
