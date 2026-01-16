@@ -4953,10 +4953,16 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             props["Faces"] = [f.id for f in faces]
         if not isinstance(inlet_face, list):
             inlet_face = [inlet_face]
-        if not isinstance(inlet_face[0], int):
-            props["InletFace"] = [f.id for f in inlet_face]
-        else:
-            props["InletFace"] = inlet_face
+
+        inlet_faces = []
+        for f in inlet_face:
+            if isinstance(f, int):
+                inlet_faces.append(f)
+            elif hasattr(f, "id"):
+                inlet_faces.append(f.id)
+
+        props["InletFace"] = inlet_faces
+
         props["Blower Power"] = blower_power
         props["DimUnits"] = [fan_curve_flow_unit, fan_curve_pressure_unit]
         if len(fan_curve_flow) != len(fan_curve_pressure):
