@@ -311,15 +311,20 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         matrix_name : str, optional
             Name of the matrix. The default is ``None``.
         turns : list, int, optional
-            Number of turns. The default is 1.
+            For Magnetostatic solver only.
+            Number of turns per each selected source.
+            The default is 1.
         return_path : list, str, optional
-            Return path. The default is ``infinite``
+            Return path.
+            The default is ``infinite``
         group_sources : dict, list optional
+            For Magnetostatic solver only.
             Dictionary consisting of ``{Group Name: list of source names}`` to add
             multiple groups. You can also define a list of strings. The default is ``None``.
         branches : : list, int, optional
-            Number of branches. The default is ``None``, which indicates that only one
-            branch exists.
+            For Magnetostatic solver only.
+            Number of branches the winding should be divided into.
+            The default is 1.
 
         Returns
         -------
@@ -483,6 +488,48 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             return self._create_boundary(matrix_name, props, "Matrix")
         else:
             raise AEDTRuntimeError("Solution type does not have matrix parameters")
+
+    @pyaedt_function_handler()
+    def assign_matrix_1(
+        self,
+    ):
+        """Assign a matrix to the source selection.
+
+        Matrix assignment can be performed based upon the solver type.
+        For 2D/3D solvers the available solution types are: ``Magnetostatic``,
+        ``Electrostatic``, ``AC Magnetic T-Omega``,``AC Magnetic APhi``,
+        ``DC Conduction`` and ``AC Conduction``.
+
+
+        Parameters
+        ----------
+        assignment : list, str
+            List of sources to assign the matrix to.
+        matrix_name : str, optional
+            Name of the matrix.
+            The default is ``None``.
+        turns : list, int, optional
+            Number of turns.
+            The default is 1.
+        return_path : list, str, optional
+            Return path. The default is ``infinite``
+        group_sources : dict, list optional
+            Dictionary consisting of ``{Group Name: list of source names}`` to add
+            multiple groups. You can also define a list of strings. The default is ``None``.
+        branches : : list, int, optional
+            Number of branches. The default is ``None``, which indicates that only one
+            branch exists.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+
+        """
 
     @pyaedt_function_handler()
     def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
@@ -2592,6 +2639,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         is_post_processed : bool, optional
             Boolean to check if it is post processed.
             The default value is ``False``.
+        use_independent_nominal_values : bool, optional
+            Whether to use independent nominal values when retrieving variations.
+            The default value is ``True``.
 
         Returns
         -------
