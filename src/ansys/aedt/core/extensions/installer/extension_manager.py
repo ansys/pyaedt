@@ -83,7 +83,7 @@ AEDT_EXTENSION_APPLICATIONS = [
     "Maxwell2D",
     "Q2D",
     "HFSS3DLayout",
-    DesignType.ICEPAKFEA,
+    DesignType.ICEPAKFEA.NAME,
     "Circuit",
     "EMIT",
     "TwinBuilder",
