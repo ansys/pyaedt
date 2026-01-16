@@ -967,7 +967,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
             time.sleep(1)
 
         process.terminate()
-        logger.error(f"Service did not start within the timeout of 60 seconds.")
+        logger.error("Service did not start within the timeout of 60 seconds.")
         return False
 
     @property
