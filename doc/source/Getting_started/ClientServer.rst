@@ -7,6 +7,35 @@ You can launch PyAEDT on a remote machine if these conditions are met:
   is embedded in the AEDT installation.)
 
 
+gRPC connections
+~~~~~~~~~~~~~~~~
+
+In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):
+
+.. code:: python
+
+    # Launch the latest installed version of AEDT in graphical mode.
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.generic.settings import settings
+
+    settings.use_grpc_api = True
+    hfss = Hfss(machine="fullmachinename", port=portnumber)
+
+If the ``machine`` argument is provided and the machine is a remote machine, AEDT
+must be up and running on the remote server listening on the specified port ``portnumber``.
+
+To start AEDT in listening mode on the remote machine:
+
+.. code::
+
+   path/to/ANSYSEM/v222/Win64/ansysedt.exe -grpcsrv portnumber  #windows
+   path/to/ANSYSEM/v222/Lin64/ansysedt -grpcsrv portnumber   #linux
+
+If the connection is local, the ``machine`` argument must be left empty. PyAEDT then
+starts the AEDT session automatically. Machine and port arguments are available to
+all applications except EDB.
+
+
 Secure gRPC connections
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -237,34 +266,6 @@ PyAEDT selects the gRPC transport mode based on this decision tree:
 
       → Uses **INSECURE** client-server mode
 
-
-gRPC Connection in AEDT 2022 R2 and later
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):
-
-.. code:: python
-
-    # Launch the latest installed version of AEDT in graphical mode.
-    from ansys.aedt.core import Hfss
-    from ansys.aedt.core.generic.settings import settings
-
-    settings.use_grpc_api = True
-    hfss = Hfss(machine="fullmachinename", port=portnumber)
-
-If the ``machine`` argument is provided and the machine is a remote machine, AEDT
-must be up and running on the remote server listening on the specified port ``portnumber``.
-
-To start AEDT in listening mode on the remote machine:
-
-.. code::
-
-   path/to/ANSYSEM/v222/Win64/ansysedt.exe -grpcsrv portnumber  #windows
-   path/to/ANSYSEM/v222/Lin64/ansysedt -grpcsrv portnumber   #linux
-
-If the connection is local, the ``machine`` argument must be left empty. PyAEDT then
-starts the AEDT session automatically. Machine and port arguments are available to
-all applications except EDB.
 
 PyAEDT Remote Service Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
