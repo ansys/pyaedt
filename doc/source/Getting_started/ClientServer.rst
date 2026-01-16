@@ -186,7 +186,7 @@ and the server**:
 Insecure client-server mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To use insecure client-server mode (no encryption), set::
+To use insecure client-server mode (no encryption), set:
 
     settings.grpc_secure_mode = False
     settings.grpc_local = False
