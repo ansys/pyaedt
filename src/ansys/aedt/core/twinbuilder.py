@@ -491,7 +491,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         if not component_name:
             component_name = generate_unique_name("SimpQ3DData")
 
-        var = app.available_variations.get_independent_nominal_values()
+        var = app.available_variations.nominal_variation(dependent_params=False)
 
         props = ["NAME:Properties"]
         for k, v in var.items():

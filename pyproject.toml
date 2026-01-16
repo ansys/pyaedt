@@ -48,6 +48,7 @@ dependencies = [
 unit-tests = [
     "pytest>=7.4.0,<9.1",
     "pytest-cov>=4.0.0,<7.1",
+    "pytest-testmon>=2.0.0,<3.0",
     "mock>=5.1.0,<5.3",
     "fpdf2",
     "requests",
@@ -56,6 +57,7 @@ unit-tests = [
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
+    "pytest-testmon>=2.0.0,<3.0",
     "pandas>=1.1.0,<2.4",
     "pyaedt[unit-tests]",
 ]
@@ -66,6 +68,7 @@ tests = [
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.9",
+    "pytest-testmon>=2.0.0,<3.0",
     "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.10",
     "tables",
@@ -275,8 +278,6 @@ markers = [
     "extensions: mark a test as related to extensions.",
     "filter_solutions: mark a test as related to filter solutions.",
     "emit: mark a test as related to EMIT features.",
-    "flaky_linux: mark a test as flaky on Linux systems.",
-    "flaky_windows: mark a test as flaky on Windows systems.",
     "avoid_ansys_load: mark a test that should avoid LD_LIBRARY_PATH modifications.",
 ]
 filterwarnings = [

@@ -1589,7 +1589,7 @@ class Design(AedtObjects, PyAedtBase):
             output_file = Path(self.working_directory) / (generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
-            nominal_variation = self.available_variations.get_independent_nominal_values()
+            nominal_variation = self.available_variations.nominal_variation()
             for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             if self.design_type == "HFSS 3D Layout Design":
