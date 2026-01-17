@@ -53,6 +53,7 @@ class CircuitPins(PyAedtBase):
     @property
     def total_angle(self):
         """Return the pin orientation in the schematic."""
+        tol = 1e-9
         loc = self.location[::]
         bounding = self._circuit_comp.bounding_box
         left = abs(loc[0] - bounding[0])
@@ -60,13 +61,13 @@ class CircuitPins(PyAedtBase):
         top = abs(loc[1] - bounding[1])
         bottom = abs(loc[1] - bounding[3])
         min_val = min(left, right, top, bottom)
-        if min_val == left:
+        if abs(left - min_val) < tol:
             return 0
-        if min_val == right:
+        if abs(right - min_val) < tol:
             return 180
-        if min_val == top:
+        if abs(top - min_val) < tol:
             return 90
-        if min_val == bottom:
+        if abs(bottom - min_val) < tol:
             return 270
         angle = int(self.angle + self._circuit_comp.angle)
         return angle
