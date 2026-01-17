@@ -9,6 +9,74 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.24.1 <https://github.com/ansys/pyaedt/releases/tag/v0.24.1>`_ - January 13, 2026
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Refactored environment variables for panel scripts
+          - `#6981 <https://github.com/ansys/pyaedt/pull/6981>`_
+
+        * - Add fields calc expressions and update fields distribution extension
+          - `#6996 <https://github.com/ansys/pyaedt/pull/6996>`_
+
+        * - Update_get_coupling_in_range
+          - `#7061 <https://github.com/ansys/pyaedt/pull/7061>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump astral-sh/setup-uv from 7.1.6 to 7.2.0
+          - `#7074 <https://github.com/ansys/pyaedt/pull/7074>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix version in cheatsheet
+          - `#7078 <https://github.com/ansys/pyaedt/pull/7078>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - 6744-Update analysis.py
+          - `#6770 <https://github.com/ansys/pyaedt/pull/6770>`_
+
+        * - Update a couple emit tests
+          - `#7073 <https://github.com/ansys/pyaedt/pull/7073>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.24.0
+          - `#7072 <https://github.com/ansys/pyaedt/pull/7072>`_
+
+        * - Bump 0.25.dev0
+          - `#7076 <https://github.com/ansys/pyaedt/pull/7076>`_
+
+
 `0.24.0 <https://github.com/ansys/pyaedt/releases/tag/v0.24.0>`_ - January 09, 2026
 ===================================================================================
 
