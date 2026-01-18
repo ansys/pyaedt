@@ -1628,19 +1628,19 @@ class PostProcessorCommon(PyAedtBase):
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
         >>> data1 = hfss.post.get_solution_data(
-        ...    "GainTotal",
-        ...    hfss.nominal_adaptive,
-        ...    variations=variations,
-        ...    primary_sweep_variable="Phi",
-        ...    secondary_sweep_variable="Theta",
-        ...    context="3D",
-        ...    report_category="Far Fields",
+        ...     "GainTotal",
+        ...     hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Phi",
+        ...     secondary_sweep_variable="Theta",
+        ...     context="3D",
+        ...     report_category="Far Fields",
         ... )
 
-        >>> data2 =hfss.post.get_solution_data(
-        ...    "S(1,1)",
-        ...    hfss.nominal_sweep,
-        ...    variations=variations,
+        >>> data2 = hfss.post.get_solution_data(
+        ...     "S(1,1)",
+        ...     hfss.nominal_sweep,
+        ...     variations=variations,
         ... )
         >>> data2.plot()
         >>> hfss.desktop_class.release_desktop(False, False)
