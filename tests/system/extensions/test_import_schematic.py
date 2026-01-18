@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,11 +23,13 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
 import tkinter
 
 import pytest
 
+from ansys.aedt.core import Circuit
 from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
 from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
 from ansys.aedt.core.extensions.circuit.import_schematic import main
@@ -40,17 +42,21 @@ def create_temp_file(suffix, content="*"):
     return path
 
 
-def test_import_schematic_nonexistent_file():
+def test_import_schematic_nonexistent_file(add_app):
     """Test import_schematic main with a non-existent file."""
+    app = add_app(application=Circuit)
     data = ImportSchematicData(file_extension="/nonexistent/file.asc")
     with pytest.raises(FileNotFoundError):
         main(data)
+    app.close_project(app.project_name, save=False)
 
 
-def test_import_schematic_generate_button_with_circuit(add_app):
+def test_import_schematic_generate_button_with_circuit(add_app, test_tmp_dir):
     """Test pressing the Import button and running main with a real Circuit instance."""
+    app = add_app(application=Circuit)
     # Create a temp file to simulate user input
-    path = create_temp_file(".asc")
+    path = test_tmp_dir / "test_schematic.asc"
+    path.write_text("*")
 
     # Insert the file path into the text widget as a user would
     extension = ImportSchematicExtension(withdraw=True)
@@ -59,7 +65,7 @@ def test_import_schematic_generate_button_with_circuit(add_app):
     import_button.invoke()
     data = extension.data
     assert isinstance(data, ImportSchematicData)
-    assert data.file_extension == path
+    assert Path(data.file_extension) == path
     # Now run the main logic with the data and the Circuit instance
     assert main(data) is True
-    os.remove(path)
+    app.close_project(app.project_name, save=False)

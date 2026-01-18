@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,6 +23,9 @@
 # SOFTWARE.
 
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
+
+from pathlib import Path
+from typing import Union
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.base import PyAedtBase
@@ -215,13 +218,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     >>> app = Rmxprt("myfile.aedt")
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -241,7 +238,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     ):
         FieldAnalysisRMxprt.__init__(
             self,
-            "RMxprtSolution",
+            "RMXPRT",
             project,
             design,
             solution_type,
@@ -273,13 +270,13 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     @property
     def design_type(self):
         """Machine design type."""
-        return self.design_solutions.design_type
+        return str(self.design_solutions._design_type)
 
     @design_type.setter
     def design_type(self, value):
-        self.design_solutions.design_type = value
+        self.design_solutions._design_type = value
 
-    @pyaedt_function_handler(name="name", setuptype="setup_type")
+    @pyaedt_function_handler()
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for RmXport.
 
@@ -332,12 +329,12 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def export_configuration(self, output_file):
+    def export_configuration(self, output_file: Union[str, Path]) -> str:
         """Export Rmxprt project to config file.
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`, optional
             Full path to json file to be created.
 
         Returns

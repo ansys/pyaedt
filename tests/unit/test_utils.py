@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,6 @@
 
 """Test utility functions of PyAEDT."""
 
-import logging
 import os
 import time
 from unittest.mock import MagicMock
@@ -36,6 +35,7 @@ import pytest
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_GRPC_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LOG_SETTINGS
 from ansys.aedt.core.generic.settings import ALLOWED_LSF_SETTINGS
 from ansys.aedt.core.generic.settings import Settings
@@ -59,7 +59,7 @@ def desktop():
     return
 
 
-@pyaedt_function_handler(deprecated_arg="trigger_exception")
+@pyaedt_function_handler()
 def foo(trigger_exception=True):
     """Some dummy function used for testing."""
     if trigger_exception:
@@ -119,42 +119,36 @@ def test_handler_enable_error_handler(mock_logger):
     settings.enable_error_handler = SETTINGS_ENABLE_ERROR_HANDLER
 
 
-def test_handler_deprecation_log_warning(caplog):
+def test_handler_deprecation_log_warning():
     """Test handler deprecation argument mechanism."""
-    EXPECTED_ARGUMENT = "Argument `deprecated_arg` is deprecated for method `foo`; use `trigger_exception` instead."
-
-    with caplog.at_level(logging.WARNING, logger="Global"):
-        foo(deprecated_arg=False)
-    assert len(caplog.records) == 1
-    assert "WARNING" == caplog.records[0].levelname
-    assert EXPECTED_ARGUMENT == caplog.records[0].message
-
-    foo(trigger_exception=False)
-    assert len(caplog.records) == 1
+    with pytest.raises(Exception, match=ERROR_MESSAGE):
+        foo(trigger_exception=True)
 
 
-def test_settings_load_yaml(tmp_path):
+def test_settings_load_yaml(test_tmp_dir):
     """Test loading a configure file with correct input."""
     default_settings = Settings()
 
     # Create temporary YAML configuration file
-    yaml_path = tmp_path / "pyaedt_settings.yaml"
+    yaml_path = test_tmp_dir / "pyaedt_settings.yaml"
     yaml_path.write_text(
         """
     log:
         global_log_file_name: 'dummy'
     lsf:
-        lsf_num_cores: 12
+        lsf_ram : 50
     general:
         desktop_launch_timeout: 12
+        num_cores: 12
     """
     )
 
     default_settings.load_yaml_configuration(str(yaml_path))
 
     assert default_settings.global_log_file_name == "dummy"
-    assert default_settings.lsf_num_cores == 12
+    assert default_settings.num_cores == 12
     assert default_settings.desktop_launch_timeout == 12
+    assert default_settings.lsf_ram == 50
 
 
 def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path):
@@ -226,7 +220,11 @@ def test_settings_check_allowed_properties():
     default_settings = Settings()
     # All allowed attributes
     allowed_properties_expected = (
-        ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS + ["aedt_environment_variables"]
+        ALLOWED_LOG_SETTINGS
+        + ALLOWED_GENERAL_SETTINGS
+        + ALLOWED_LSF_SETTINGS
+        + ALLOWED_GRPC_SETTINGS
+        + ["aedt_environment_variables"]
     )
     # Check attributes that are not related to Python objects (otherwise they are not 'allowed')
     properties_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick", "public_dir"]
@@ -237,7 +235,7 @@ def test_settings_check_allowed_properties():
     settings_properties = get_properties(default_settings)
     settings_properties = filter(lambda attr: attr not in properties_ignored, settings_properties)
 
-    assert sorted(allowed_properties_expected) == sorted(settings_properties)
+    assert sorted(set(allowed_properties_expected)) == sorted(settings_properties)
 
 
 def test_settings_check_allowed_env_variables():

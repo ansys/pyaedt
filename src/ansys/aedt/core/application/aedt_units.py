@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -75,7 +75,7 @@ class AedtUnits(PyAedtBase):
     def _get_model_unit(self, unit_system):
         if self.__app:
             try:
-                return self.__app._odesktop.GetDefaultUnit(unit_system)
+                return self.__app.odesktop.GetDefaultUnit(unit_system)
             except Exception:
                 return
 

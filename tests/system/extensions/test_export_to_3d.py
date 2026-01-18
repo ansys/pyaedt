@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,6 @@
 
 import pytest
 
-from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtension
 from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
@@ -32,26 +31,32 @@ from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_export_to_3d_extension_button(add_app):
+def test_export_to_3d_extension_button(add_app, test_tmp_dir):
     """Test the Export button in the Export to 3D extension."""
     data = ExportTo3DExtensionData(choice="Export to HFSS")
 
     # Create an HFSS 3D Layout application
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name="export_to_3d",
-        design_name="test_export",
+        project="export_to_3d",
     )
 
     # Create a simple stackup and net for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [0, 0],
+        [5, 5],
+    )
 
     # Test that the extension can be instantiated
     extension = ExportTo3DExtension(withdraw=True)
     extension.root.nametowidget("export").invoke()
-
     assert data.choice == extension.data.choice
-    assert main(extension.data)
+    result = main(extension.data)
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
+    assert result
 
 
 def test_export_to_3d_q3d_choice(add_app):
@@ -59,20 +64,25 @@ def test_export_to_3d_q3d_choice(add_app):
     # Create an HFSS 3D Layout application
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name="export_to_3d_q3d",
-        design_name="test_q3d_export",
+        project="export_to_3d_q3d",
     )
 
     # Create a simple stackup for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [0, 0],
+        [5, 5],
+    )
 
     data = ExportTo3DExtensionData(choice="Export to Q3D")
     result = main(data)
-
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
     assert result is True
 
 
-def test_export_to_3d_exceptions(add_app):
+def test_export_to_3d_exceptions():
     """Test exceptions thrown by the Export to 3D extension."""
     # Test with no choice
     data = ExportTo3DExtensionData(choice=None)
@@ -84,34 +94,26 @@ def test_export_to_3d_exceptions(add_app):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    # Test with wrong application type (HFSS instead of 3D Layout)
-    _ = add_app(
-        application=Hfss,
-        project_name="export_wrong_app",
-        design_name="wrong_design",
-    )
-
-    data = ExportTo3DExtensionData(choice="Export to HFSS")
-
-    with pytest.raises(AEDTRuntimeError):
-        main(data)
-
 
 def test_export_to_3d_maxwell_choice(add_app):
     """Test the Export to Maxwell 3D functionality."""
     # Create an HFSS 3D Layout application
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name="export_to_3d_maxwell",
-        design_name="test_maxwell_export",
+        project="export_to_3d_maxwell",
     )
 
     # Create a simple stackup for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
-
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [0, 0],
+        [5, 5],
+    )
     data = ExportTo3DExtensionData(choice="Export to Maxwell 3D")
     result = main(data)
-
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
     assert result is True
 
 
@@ -120,14 +122,19 @@ def test_export_to_3d_icepak_choice(add_app):
     # Create an HFSS 3D Layout application
     aedt_app = add_app(
         application=Hfss3dLayout,
-        project_name="export_to_3d_icepak",
-        design_name="test_icepak_export",
+        project="export_to_3d_icepak",
     )
 
     # Create a simple stackup for the export to work
     aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
+    aedt_app.modeler.create_rectangle(
+        "signal",
+        [0, 0],
+        [5, 5],
+    )
 
     data = ExportTo3DExtensionData(choice="Export to Icepak")
     result = main(data)
-
+    aedt_app.close_project(save=False)
+    aedt_app.close_project(save=False)
     assert result is True

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,7 +43,7 @@ class EMIReceiver(CommonReport):
         self.domain = "EMI Receiver"
         self.available_nets = []
         self._net = ""
-        for comp in app._app.modeler.components.components.values():
+        for comp in app._app.modeler.schematic.components.values():
             if comp.name == "CompInst@EMI_RCVR":
                 self.available_nets.append(comp.pins[0].net)
 

@@ -75,14 +75,17 @@ This code shows how you can get the farfield data and perform some post-processi
 
     import ansys.aedt.core
     from ansys.aedt.core.generic.farfield_visualization import FfdSolutionDataExporter
+
     app = ansys.aedt.core.Hfss()
-    ffdata = app.get_antenna_data(frequencies=None,
-                                  setup="Setup1 : Sweep",
-                                  sphere="3D",
-                                  variations=None,
-                                  overwrite=False,
-                                  link_to_hfss=True,
-                                  export_touchstone=True)
+    ffdata = app.get_antenna_data(
+        frequencies=None,
+        setup="Setup1 : Sweep",
+        sphere="3D",
+        variations=None,
+        overwrite=False,
+        link_to_hfss=True,
+        export_touchstone=True,
+    )
     incident_power = ffdata.incident_power
     ffdata.plot_cut(primary_sweep="Theta", theta=0)
     ffdata.plot_contour(polar=True)
@@ -94,6 +97,7 @@ If you exported the farfield data previously, you can directly get the farfield 
 .. code:: python
 
     from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
+
     input_file = r"path_to_ffd\pyaedt_antenna_metadata.json"
     ffdata = FfdSolutionData(input_file)
     incident_power = ffdata.incident_power
@@ -144,7 +148,10 @@ This code shows how you can get the RCS data and perform some post-processing:
 .. code:: python
 
     from ansys.aedt.core import Hfss
-    from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
+    from ansys.aedt.core.visualization.advanced.rcs_visualization import (
+        MonostaticRCSPlotter,
+    )
+
     app = Hfss()
     rcs_object = app.get_rcs_data()
     rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_object.rcs_data)
@@ -154,8 +161,11 @@ If you exported the RCS data previously, you can directly get the RCS data:
 
 .. code:: python
 
-    from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
+    from ansys.aedt.core.visualization.advanced.rcs_visualization import (
+        MonostaticRCSPlotter,
+    )
     from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+
     input_file = r"path_to_data\pyaedt_rcs_metadata.json"
     rcs_data = MonostaticRCSData(input_file)
     rcs_plotter = MonostaticRCSPlotter(rcs_data)
@@ -195,6 +205,7 @@ This code shows how you can get the FRTM data:
 
     from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
     from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+
     input_dir = r"path_to_data"
 
     doppler_data_frames = {}

@@ -15,7 +15,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions: {} # Disable default permissions
+# Disable all default permissions at workflow level for security (least privilege principle)
+# Individual jobs will explicitly request only the permissions they need
+permissions: {}
 
 jobs:
 
@@ -23,7 +25,7 @@ jobs:
     name: Syncer
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
       - uses: micnncim/action-label-syncer@3abd5ab72fda571e69fffd97bd4e0033dd5f495c # v1.3.0
@@ -34,8 +36,8 @@ jobs:
     name: Set labels
     needs: [label-syncer]
     permissions:
-      contents: read
-      pull-requests: write
+      contents: read        # Required to read repository files and .github/labeler.yml configuration
+      pull-requests: write  # Required to add/modify labels on pull requests
     runs-on: ubuntu-latest
     steps:
 
@@ -48,7 +50,7 @@ jobs:
     # Label based on branch name
     - uses: actions-ecosystem/action-add-labels@18f1af5e3544586314bbe15c0273249c770b2daf # v1.1.3
       if: |
-        startsWith(github.event.pull_request.head.ref, 'doc') || 
+        startsWith(github.event.pull_request.head.ref, 'doc') ||
         startsWith(github.event.pull_request.head.ref, 'docs')
       with:
         labels: documentation
@@ -85,13 +87,13 @@ jobs:
         contains(github.event.pull_request.title, 'extensions')
       with:
         labels: extensions
-        
+
   commenter:
     name: Suggest labels if none assigned
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: write
+      contents: read        # Required to read PR metadata
+      pull-requests: write  # Required to post comments on pull requests
     steps:
     - name: Suggest to add labels
       uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
@@ -113,11 +115,11 @@ jobs:
     name: "Create changelog fragment"
     needs: [labeler]
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write       # Required to commit changelog fragments to the repository
+      pull-requests: write  # Required to update PR with changelog information
     runs-on: ubuntu-latest
     steps:
-    - uses: ansys/actions/doc-changelog@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
+    - uses: ansys/actions/doc-changelog@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
       with:
         token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
         use-conventional-commits: true

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,18 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 import pytest
 
-components_flatten = "components_flatten_231"
-test_subfolder = "flatten_component"
+TEST_SUBFOLDER = "flatten_component"
+COMPONENTS_FLATTEN = "components_flatten_231"
 
 
-@pytest.fixture(scope="class")
-def flatten(add_app):
-    app = add_app(project_name=components_flatten, subfolder=test_subfolder)
-    return app
+@pytest.fixture
+def flatten(add_app_example):
+    app = add_app_example(project=COMPONENTS_FLATTEN, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(save=False)
 
 
-class TestClass:
-    def test_flatten_3d_components(self, flatten):
-        assert flatten.flatten_3d_components()
+def test_flatten_3d_components(flatten):
+    assert flatten.flatten_3d_components()

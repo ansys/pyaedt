@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,7 +38,6 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
@@ -63,6 +62,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         Type of the optimization. Available options are: ``"OptiParametric"``, ``"OptiDesignExplorer"`,
         ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
     """
+
+    def __repr__(self):
+        return self.name
 
     def __init__(self, p_app, name, dictinputs, optimtype):
         self.auto_update = False
@@ -417,8 +419,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
             maxwell_solutions.Magnetostatic,
             maxwell_solutions.ElectroStatic,
@@ -492,7 +493,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
 
-    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
+    @pyaedt_function_handler()
     def analyze(
         self,
         cores: int = 1,
@@ -803,7 +804,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         self._app.parametrics.setups.remove(self)
         return True
 
-    @pyaedt_function_handler(sweep_var="sweep_variable", unit="units")
+    @pyaedt_function_handler()
     def add_variation(
         self, sweep_variable, start_point, end_point=None, step=100, units=None, variation_type="LinearCount"
     ):
@@ -934,7 +935,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         self.auto_update = legacy_update
         return True
 
-    @pyaedt_function_handler(filename="output_file")
+    @pyaedt_function_handler()
     def export_to_csv(self, output_file):
         """Export the current Parametric Setup to csv.
 
@@ -1002,7 +1003,7 @@ class ParametricSetups(PyAedtBase):
         """
         return self._app.ooptimetrics
 
-    @pyaedt_function_handler(sweep_var="variable", parametricname="name")
+    @pyaedt_function_handler()
     def add(
         self,
         variable,
@@ -1070,7 +1071,7 @@ class ParametricSetups(PyAedtBase):
         self.setups.append(setup)
         return setup
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def delete(self, name):
         """Delete a defined Parametric Setup.
 
@@ -1090,7 +1091,7 @@ class ParametricSetups(PyAedtBase):
                 return True
         return False
 
-    @pyaedt_function_handler(filename="input_file", parametricname="name")
+    @pyaedt_function_handler()
     def add_from_file(self, input_file, name=None):
         """Add a Parametric setup from either a csv or txt file.
 
@@ -1204,7 +1205,7 @@ class OptimizationSetups(PyAedtBase):
         """
         return self._app.ooptimetrics
 
-    @pyaedt_function_handler(setup_name="name")
+    @pyaedt_function_handler()
     def delete(self, name):
         """Delete a defined Optimetrics Setup.
 
@@ -1224,7 +1225,7 @@ class OptimizationSetups(PyAedtBase):
                 return True
         return False
 
-    @pyaedt_function_handler(optim_type="optimization_type", parametricname="name")
+    @pyaedt_function_handler()
     def add(
         self,
         calculation=None,

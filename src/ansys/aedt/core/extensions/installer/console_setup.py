@@ -33,40 +33,50 @@ This file can also serve as a template to modify PyAEDT scripts to take advantag
 provided by the launcher
 """
 
-import atexit
 import os
+import atexit
+from pathlib import Path
 import sys
+from IPython import get_ipython
+import tempfile
 
-aedt_process_id = int(sys.argv[1])
-version = sys.argv[2]
+aedt_process_id = int(os.environ.get("PYAEDT_PROCESS_ID", None)) # pragma: no cover
+version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) # pragma: no cover
 print("Loading the PyAEDT Console.")
 
-try:
+try:  # pragma: no cover
     if version <= "2023.1":
         from pyaedt import Desktop
         from pyaedt.generic.general_methods import active_sessions
         from pyaedt.generic.general_methods import is_windows
     else:
+        from ansys.aedt.core import *
+        import ansys.aedt.core  # noqa: F401
         from ansys.aedt.core import Desktop
         from ansys.aedt.core.generic.general_methods import active_sessions
         from ansys.aedt.core.generic.general_methods import is_windows
-except ImportError:
+        from ansys.aedt.core.generic.file_utils import available_file_name
+
+except ImportError:  # pragma: no cover
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
-    console_setup_dir = os.path.dirname(__file__)
-    if "PersonalLib" in console_setup_dir:
-        sys.path.append(os.path.join(console_setup_dir, "../..", "..", ".."))
+    console_setup_dir = Path(__file__).resolve().parent
+    if "PersonalLib" in console_setup_dir.parts:
+        sys.path.append(str(console_setup_dir / ".." / ".." / ".."))
     if version <= "2023.1":
         from pyaedt import Desktop
         from pyaedt.generic.general_methods import active_sessions
         from pyaedt.generic.general_methods import is_windows
     else:
+        from ansys.aedt.core import *  # noqa: F401
+        import ansys.aedt.core  # noqa: F401
         from ansys.aedt.core import Desktop
         from ansys.aedt.core.generic.general_methods import active_sessions
         from ansys.aedt.core.generic.general_methods import is_windows
+        from ansys.aedt.core.generic.file_utils import available_file_name
 
 
-def release(d):
+def release(d):  # pragma: no cover
     d.logger.info("Exiting the PyAEDT Console.")
 
     d.release_desktop(False, False)
@@ -78,11 +88,11 @@ student_version = False
 
 
 sessions = active_sessions(version=version, student_version=False)
-if aedt_process_id in sessions:
+if aedt_process_id in sessions:  # pragma: no cover
     session_found = True
     if sessions[aedt_process_id] != -1:
         port = sessions[aedt_process_id]
-if not session_found:
+if not session_found:  # pragma: no cover
     sessions = active_sessions(version=version, student_version=True)
     if aedt_process_id in sessions:
         session_found = True
@@ -91,7 +101,7 @@ if not session_found:
             port = sessions[aedt_process_id]
 
 error = False
-if port:
+if port:  # pragma: no cover
     desktop = Desktop(
         version=version,
         port=port,
@@ -100,7 +110,7 @@ if port:
         close_on_exit=False,
         student_version=student_version,
     )
-elif is_windows:
+elif is_windows:  # pragma: no cover
     desktop = Desktop(
         version=version,
         aedt_process_id=aedt_process_id,
@@ -109,26 +119,25 @@ elif is_windows:
         close_on_exit=False,
         student_version=student_version,
     )
-else:
+else:  # pragma: no cover
     print("Error. AEDT should be started in gRPC mode in Linux to connect to PyAEDT")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
-if not error: # pragma: no cover
+
+if not error:  # pragma: no cover
     print(" ")
 
     print("\033[92m****************************************************************")
     print(f"*  ElectronicsDesktop {version} Process ID {aedt_process_id}")
     print(f"*  CPython {sys.version.split(' ')[0]}")
     print("*---------------------------------------------------------------")
-    print("*  Example: \033[94m hfss = ansys.aedt.core.Hfss() \033[92m")
-    print("*  Example: \033[94m m2d = ansys.aedt.core.Maxwell2d() \033[92m")
+    print("*  Example: \033[94m hfss = Hfss() \033[92m")
+    print("*  Example: \033[94m m2d = Maxwell2d() \033[92m")
+    print("*  Desktop object is initialized: \033[94mdesktop.logger.info('Hello world')\033[92m")
     print("*  \033[31mType exit() to close the console and release the desktop.  \033[92m ")
-    print("*  desktop object is initialized and available. Example: ")
-    print("*  \033[94mdesktop.logger.info('Hello world')\033[92m")
     print("****************************************************************\033[0m")
     print(" ")
-    print(" ")
-    print(" ")
+
     if is_windows:
         try:
             import win32api
@@ -156,3 +165,44 @@ if not error: # pragma: no cover
         except ImportError:
             pass
         atexit.register(release, desktop)
+
+if version > "2023.1":  # pragma: no cover
+
+    log_file = Path(tempfile.gettempdir()) / "pyaedt_script.py"
+    log_file = available_file_name(log_file)
+
+    with open(log_file, 'a', encoding='utf-8') as f:
+        f.write("# PyAEDT script recorded from PyAEDT Console:\n\n")
+        f.write("import ansys.aedt.core\n")
+        f.write("from ansys.aedt.core import *\n")
+
+    def log_successful_command(result):
+        """
+        IPython Hook: Executes after every command (cell).
+        Logs the input command only if 'result.error_in_exec' is False (no exception).
+        """
+        # Check for execution error
+        if not result.error_in_exec:
+            command = result.info.raw_cell.strip()
+
+            # Avoid logging empty lines, comments, or the hook code itself
+            if command and not command.startswith('#') and "log_successful_command" not in command:
+                try:
+                    # Append the successful command to the log file
+                    with open(log_file, 'a', encoding='utf-8') as f:
+                        f.write(command + "\n")
+                except Exception as e:
+                    # Handle potential file writing errors
+                    print(f"ERROR: Failed to write to log file: {e}")
+
+
+    # Register the Hook
+    ip = get_ipython()
+    if ip:
+        # Register the function to run after every command execution
+        ip.events.register('post_run_cell', log_successful_command)
+        # Inform the user that logging is active
+        print(f"Successful commands will be saved to: \033[94m'{log_file}'\033[92m")
+        print(" ")
+        print(" ")
+        print(" ")

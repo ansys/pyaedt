@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -36,6 +36,7 @@ import sys
 import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
+import traceback
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -68,19 +69,19 @@ DEFAULT_BORDERWIDTH: int = 1
 
 def get_process_id():
     """Get process ID from environment variable."""
-    value = os.getenv("PYAEDT_SCRIPT_PROCESS_ID")
+    value = os.getenv("PYAEDT_PROCESS_ID")
     return int(value) if value is not None else None
 
 
 def get_port():
     """Get gRPC port from environment variable."""
-    res = int(os.getenv("PYAEDT_SCRIPT_PORT", 0))
+    res = int(os.getenv("PYAEDT_DESKTOP_PORT", 0))
     return res
 
 
 def get_aedt_version():
     """Get AEDT release from environment variable."""
-    res = os.getenv("PYAEDT_SCRIPT_VERSION", aedt_versions.current_version)
+    res = os.getenv("PYAEDT_DESKTOP_VERSION", aedt_versions.current_version)
     return res
 
 
@@ -375,11 +376,52 @@ class ExtensionCommon(PyAedtBase):
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Init Tk root window with error handling and icon."""
 
-        def report_callback_exception(self, exc, val, tb):
-            """Custom exception showing an error message."""
-            if not val:
-                val = "An error occurred when using the extension."
-            showerror("Error", message=f"{val}")
+        def show_error_with_details(self, exc, val, tb):  # pragma: no cover
+            """Custom exception showing an error message with details button."""
+            win = tkinter.Toplevel()
+            win.title("Error")
+            win.resizable(False, False)
+            win.grab_set()
+
+            label = tkinter.Label(win, text=val, justify="left")
+            label.grid(row=0, column=0, columnspan=2, **DEFAULT_PADDING)
+
+            details_frame = ttk.Frame(win)
+            details_shown = False
+
+            tb_str = "".join(traceback.format_exception(exc, val, tb))
+
+            text = tkinter.Text(details_frame, width=80, height=20, wrap="none")
+            text.insert("1.0", tb_str)
+            text.configure(state="disabled")
+            text.grid(row=0, column=0, sticky="nsew")
+
+            scrollbar = ttk.Scrollbar(details_frame, orient="vertical", command=text.yview)
+            scrollbar.grid(row=0, column=1, sticky="ns")
+            text.configure(yscrollcommand=scrollbar.set)
+
+            details_frame.grid_columnconfigure(0, weight=1)
+            details_frame.grid_rowconfigure(0, weight=1)
+
+            def toggle_details():
+                nonlocal details_shown
+                details_shown = not details_shown
+                if details_shown:
+                    details_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", **DEFAULT_PADDING)
+                    button_details.config(text="Hide Traceback")
+                    win.resizable(True, True)
+                else:
+                    details_frame.grid_remove()
+                    button_details.config(text="Show Traceback")
+                    win.resizable(False, False)
+
+            button_details = ttk.Button(win, text="Show Traceback", command=toggle_details)
+            button_details.grid(row=1, column=0, sticky="w", **DEFAULT_PADDING)
+
+            button_ok = ttk.Button(win, text="OK", command=win.destroy)
+            button_ok.grid(row=1, column=1, sticky="e", **DEFAULT_PADDING)
+
+            details_frame.grid_remove()
 
         def report_callback_exception_withdraw(self, exc, val, tb):
             """Custom exception that raises the error without showing a message box."""
@@ -388,7 +430,7 @@ class ExtensionCommon(PyAedtBase):
         if withdraw:
             tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
         else:
-            tkinter.Tk.report_callback_exception = report_callback_exception
+            tkinter.Tk.report_callback_exception = show_error_with_details
 
         root = tkinter.Tk()
         root.title(title)
@@ -676,7 +718,6 @@ class ExtensionProjectCommon(ExtensionCommon):
 def create_default_ui(title, withdraw=False):
     import tkinter
     from tkinter import ttk
-    from tkinter.messagebox import showerror
 
     import PIL.Image
     import PIL.ImageTk

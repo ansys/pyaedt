@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1594,7 +1594,7 @@ class UpdateBeamForm(PyAedtBase):
             and ``"real"``.
     """
 
-    @pyaedt_function_handler(farfield_quantity="quantity")
+    @pyaedt_function_handler()
     def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
         self.output = ff._mesh
         self.__phi = 0

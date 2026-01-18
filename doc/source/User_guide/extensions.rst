@@ -243,7 +243,7 @@ They are small automated workflows with a simple GUI.
 
             Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
-   .. grid-item-card:: Vertical and flat coil geometries
+   .. grid-item-card:: Coil Design
             :link: pyaedt_extensions_doc/maxwell/create_coil
             :link-type: doc
             :margin: 2 2 0 0
@@ -325,21 +325,25 @@ The Python script requires a common initial part to define the port and the vers
     import os
 
     # common part
-    if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-        port = os.environ["PYAEDT_SCRIPT_PORT"]
-        version = os.environ["PYAEDT_SCRIPT_VERSION"]
+    if "PYAEDT_DESKTOP_PORT" in os.environ and "PYAEDT_DESKTOP_VERSION" in os.environ:
+        port = os.environ["PYAEDT_DESKTOP_PORT"]
+        version = os.environ["PYAEDT_DESKTOP_VERSION"]
     else:
         port = 0
         version = "2025.2"
 
     # your pyaedt script
-    app = ansys.aedt.core.Desktop(new_desktop_session=False, specified_version=version, port=port)
+    app = ansys.aedt.core.Desktop(
+        new_desktop_session=False, specified_version=version, port=port
+    )
 
     active_project = app.active_project()
     active_design = app.active_design(active_project)
 
     # no need to hardcode your application since get_pyaedt_app detects it for you
-    aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
+    aedtapp = ansys.aedt.core.get_pyaedt_app(
+        design_name=active_design.GetName(), desktop=app
+    )
 
     # your workflow
     aedtapp.modeler.create_sphere([0, 0, 0], 20)

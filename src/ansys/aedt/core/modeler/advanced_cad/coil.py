@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,33 +27,27 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 
-COIL_TYPE_PARAMETERS = {
-    "vertical": {
-        "centre_x",
-        "centre_y",
-        "centre_z",
-        "pitch",
-        "direction",
-        "turns",
-        "inner_distance",
-        "inner_width",
-        "inner_length",
-        "wire_radius",
-        "arc_segmentation",
-        "section_segmentation",
+COIL_PARAMETERS = {
+    "Common": {
+        "name": "",
+        "centre_x": 0.0,
+        "centre_y": 0.0,
+        "turns": 5,
+        "inner_distance": 2.0,
+        "inner_width": 12.0,
+        "inner_length": 6.0,
+        "wire_radius": 1.0,
+        "arc_segmentation": 4,
+        "section_segmentation": 6,
     },
-    "flat": {
-        "centre_x",
-        "centre_y",
-        "looping_position",
-        "distance_turns",
-        "turns",
-        "inner_distance",
-        "inner_width",
-        "inner_length",
-        "wire_radius",
-        "arc_segmentation",
-        "section_segmentation",
+    "Vertical": {
+        "centre_z": 0.0,
+        "pitch": 3.0,
+        "direction": 1,
+    },
+    "Flat": {
+        "looping_position": 0.5,
+        "distance_turns": 3.0,
     },
 }
 
@@ -63,54 +57,47 @@ class Coil(PyAedtBase):
 
     Parameters
     ----------
-    name : str, optional
-        Name of the coil. The default is ``"Coil"``.
-    coil_type : str, optional
-        Type of the coil. Options are ``"vertical"`` or ``"flat"``. The default is ``"vertical"``.
-    coil_parameters : dict, optional
-        Dictionary of coil parameters. The default is ``None``.
+    app:
+        An AEDT application object.
+    is_vertical : bool, optional
+        Whether the coil is vertical or flat. The default is ``True``.
     """
 
-    def __init__(self, app, name: str = "coil", coil_type: str = "vertical", coil_parameters: dict = None):
+    def __init__(self, app, is_vertical: bool = True):
         self._app = app
-        self.name = name
-        self.coil_type = coil_type
-        if coil_parameters is None:
-            coil_parameters = {}
-        for key, value in coil_parameters.items():
+        self._values = {}
+        self.is_vertical = is_vertical
+
+        for key, value in COIL_PARAMETERS["Common"].items():
             if key in ["arc_segmentation", "section_segmentation", "wire_radius"]:
+                if key == "wire_radius":
+                    value = Quantity(value, self._app.modeler.model_units)
                 self._app[key] = value
-            try:
-                setattr(self, key, int(value) if key == "turns" else float(value))
-            except ValueError:
-                try:
-                    setattr(self, key, Quantity(value).value)
-                except ValueError:
-                    setattr(self, key, value)
-            for attr in ["arc_segmentation", "section_segmentation", "wire_radius"]:
-                if hasattr(self, attr):
-                    if attr != "wire_radius":
-                        value = int(getattr(self, attr))
-                        if value == 1:
-                            self._app[attr] = 0
-                        else:
-                            self._app[attr] = value
-                    else:
-                        self._app[attr] = Quantity(getattr(self, attr), self._app.modeler.model_units)
+            self._values[key] = value
+        mode = "Vertical" if is_vertical else "Flat"
+        for key, value in COIL_PARAMETERS[mode].items():
+            self._values[key] = value
 
-    @pyaedt_function_handler()
-    def validate_coil_arguments(self, parameters: dict, coil_type: str):
-        required = COIL_TYPE_PARAMETERS.get(coil_type)
-        if required is None:
-            raise ValueError(f"Unknown coil type: {coil_type}")
+    def __getattr__(self, name):
+        if name in self._values:
+            return self._values[name]
+        raise AttributeError(name)
 
-        provided = set(parameters.keys())
-        missing = required - provided
+    def __setattr__(self, name, value):
+        if name in {"_app", "_values", "is_vertical"}:
+            object.__setattr__(self, name, value)
+            return
 
-        if missing:
-            raise ValueError(f"Missing required arguments for {coil_type}: {', '.join(missing)}")
+        if "_values" in self.__dict__ and name in self._values:
+            self._values[name] = value
 
-        return True
+            if name in ["arc_segmentation", "section_segmentation", "wire_radius"]:
+                if name == "wire_radius":
+                    value = Quantity(value, self._app.modeler.model_units)
+                self._app[name] = value
+            return
+
+        object.__setattr__(self, name, value)
 
     @pyaedt_function_handler()
     def create_flat_path(self):
@@ -383,7 +370,6 @@ class Coil(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_sweep_profile(self, start_point, polyline):
-        profile = self._app.modeler.create_circle(
-            "YZ", start_point, "wire_radius", name=self.name, num_sides="section_segmentation"
-        )
+        profile = self._app.modeler.create_circle("YZ", start_point, "wire_radius", num_sides="section_segmentation")
         self._app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
+        return profile.name

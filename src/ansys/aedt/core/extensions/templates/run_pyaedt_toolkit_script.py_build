@@ -68,7 +68,6 @@ def aedt_script():
         # Add environment variables
         pyaedt_utils.environment_variables(oDesktop)
         # Run workflow
-        pyaedt_utils.set_ansys_em_environment(oDesktop)
         my_env = dict(os.environ.copy())
         command = [python_exe, extension_pyaedt_script]
         subprocess.Popen(command, env=my_env)

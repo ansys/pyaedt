@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -242,7 +242,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return intrinsics_list
         return intrinsics
 
-    @pyaedt_function_handler(list_objs="assignment")
+    @pyaedt_function_handler()
     def _get_volume_objects(self, assignment):
         obj_list = []
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -255,7 +255,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         else:
             return assignment
 
-    @pyaedt_function_handler(list_objs="assignment")
+    @pyaedt_function_handler()
     def _get_surface_objects(self, assignment):
         faces = [int(i) for i in assignment]
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -350,7 +350,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
                     )  # pragma: no cover
         return plots
 
-    @pyaedt_function_handler(plotname="plot_name", propertyname="property_name", propertyval="property_value")
+    @pyaedt_function_handler()
     def change_field_property(self, plot_name, property_name, property_value):
         """Modify a field plot property.
 
@@ -383,7 +383,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             ]
         )
 
-    @pyaedt_function_handler(quantity_name="quantity", variation_dict="variations", isvector="is_vector")
+    @pyaedt_function_handler()
     def get_scalar_field_value(
         self,
         quantity,
@@ -506,7 +506,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             self.ofieldsreporter.CalcOp(scalar_function)
 
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
 
         variation = []
         for el, value in variations.items():
@@ -528,13 +528,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         self.ofieldsreporter.CalcStack("clear")
         return float(value)
 
-    @pyaedt_function_handler(
-        quantity_name="quantity",
-        variation_dict="variations",
-        filename="file_name",
-        gridtype="grid_type",
-        isvector="is_vector",
-    )
+    @pyaedt_function_handler()
     def export_field_file_on_grid(
         self,
         quantity,
@@ -684,7 +678,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return False
 
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
 
         variation = []
         for el, value in variations.items():
@@ -721,14 +715,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return str(file_name)
         return False  # pragma: no cover
 
-    @pyaedt_function_handler(
-        quantity_name="quantity",
-        variation_dict="variations",
-        filename="output_file",
-        obj_list="assignment",
-        obj_type="objects_type",
-        sample_points_lists="sample_points",
-    )
+    @pyaedt_function_handler()
     def export_field_file(
         self,
         quantity,
@@ -851,7 +838,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             self.ofieldsreporter.CopyNamedExprToStack(quantity)
 
         if not variations:
-            variations = self._app.available_variations.get_independent_nominal_values()
+            variations = self._app.available_variations.nominal_variation(dependent_params=False)
 
         variation = []
         for el, value in variations.items():
@@ -924,7 +911,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return output_file
         return False  # pragma: no cover
 
-    @pyaedt_function_handler(plotname="plot_name", filepath="output_dir", filename="file_name")
+    @pyaedt_function_handler()
     def export_field_plot(self, plot_name, output_dir, file_name="", file_format="aedtplt"):
         """Export a field plot.
 
@@ -965,73 +952,6 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_field_plot_scale(
-        self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None
-    ):
-        """Change Field Plot Scale.
-
-        .. deprecated:: 0.10.1
-           Use :class:`FieldPlot.folder_settings` methods instead.
-
-        Parameters
-        ----------
-        plot_name : str
-            Name of the Plot Folder to update.
-        minimum_value : str, float
-            Minimum value of the scale.
-        maximum_value : str, float
-            Maximum value of the scale.
-        is_log : bool, optional
-            Set to ``True`` if Log Scale is setup.
-        is_db : bool, optional
-            Set to ``True`` if dB Scale is setup.
-        scale_levels : int, optional
-            Set number of color levels. The default is ``None``, in which case the
-            setting is not changed.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful.
-
-        References
-        ----------
-        >>> oModule.SetPlotFolderSettings
-        """
-        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
-        args += [
-            [
-                "NAME:ColorMaPSettings",
-                "ColorMapType:=",
-                "Spectrum",
-                "SpectrumType:=",
-                "Rainbow",
-                "UniformColor:=",
-                [127, 255, 255],
-                "RampColor:=",
-                [255, 127, 127],
-            ]
-        ]
-        scale_args = [
-            "NAME:Scale3DSettings",
-            "minvalue:=",
-            minimum_value,
-            "maxvalue:=",
-            maximum_value,
-            "log:=",
-            is_log,
-            "dB:=",
-            is_db,
-            "ScaleType:=",
-            1,
-        ]
-        if scale_levels is not None:
-            scale_args += ["m_nLevels:=", scale_levels]
-        args += [scale_args]
-        self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
-        return True
-
-    @pyaedt_function_handler(objlist="assignment", quantityName="quantity", listtype="list_type", setup_name="setup")
     def _create_fieldplot(
         self,
         assignment,
@@ -1092,7 +1012,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
                 return False
         return plot
 
-    @pyaedt_function_handler(objlist="assignment", quantityName="quantity", setup_name="setup")
+    @pyaedt_function_handler()
     def create_fieldplot_line(
         self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
@@ -1158,9 +1078,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return self.field_plots[plot_name]
         return self._create_fieldplot(assignment, quantity, setup, intrinsics, "Line", plot_name, field_type=field_type)
 
-    @pyaedt_function_handler(
-        objlist="assignment", quantityName="quantity", IntrinsincDict="intrinsics", setup_name="setup"
-    )
+    @pyaedt_function_handler()
     def create_fieldplot_surface(
         self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
@@ -1216,9 +1134,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             new_obj_list, quantity, setup, intrinsics, "FacesList", plot_name, field_type=field_type
         )
 
-    @pyaedt_function_handler(
-        objlist="assignment", quantityName="quantity", IntrinsincDict="intrinsics", setup_name="setup"
-    )
+    @pyaedt_function_handler()
     def create_fieldplot_cutplane(
         self,
         assignment,
@@ -1307,9 +1223,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             field_type=field_type,
         )
 
-    @pyaedt_function_handler(
-        objlist="assignment", quantityName="quantity", IntrinsincDict="intrinsics", setup_name="setup"
-    )
+    @pyaedt_function_handler()
     def create_fieldplot_volume(
         self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type="DC R/L Fields"
     ):
@@ -1374,7 +1288,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             obj_list, quantity, setup, intrinsics, list_type, plot_name, field_type=field_type
         )
 
-    @pyaedt_function_handler(fileName="file_name", plotName="plot_name", foldername="folder_name")
+    @pyaedt_function_handler()
     def export_field_jpg(
         self,
         file_name,
@@ -1616,7 +1530,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             self.oeditor.ExportModelImageToFile(str(full_name), width, height, arg)
         return full_name
 
-    @pyaedt_function_handler(obj_list="assignment", export_as_single_objects="export_as_multiple_objects")
+    @pyaedt_function_handler()
     @min_aedt_version("2021.2")
     def export_model_obj(self, assignment=None, export_path=None, export_as_multiple_objects=False, air_objects=False):
         """Export the model.
@@ -1690,7 +1604,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             self._app.modeler.oeditor.ExportModelMeshToFile(str(fname), assignment)
             return [[str(fname), "aquamarine", 0.3]]
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects=False, on_surfaces=True):
         """Export the mesh in AEDTPLT format.
 
@@ -2015,7 +1929,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             model.clean_cache_and_files(clean_cache=False)
         return model
 
-    @pyaedt_function_handler(plotname="plot_name", meshplot="mesh_plot", imageformat="image_format")
+    @pyaedt_function_handler()
     def plot_field_from_fieldplot(
         self,
         plot_name,
@@ -2146,7 +2060,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             model.plot()
         return model
 
-    @pyaedt_function_handler(object_list="assignment", imageformat="image_format", setup_name="setup")
+    @pyaedt_function_handler()
     def plot_field(
         self,
         quantity,
@@ -2289,7 +2203,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             plotf.delete()
         return model
 
-    @pyaedt_function_handler(object_list="assignment", variation_list="variations", setup_name="setup")
+    @pyaedt_function_handler()
     def plot_animated_field(
         self,
         quantity,
@@ -2450,7 +2364,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             model.animate(show=show)
         return model
 
-    @pyaedt_function_handler(plotname="plot_name", variation_list="variations")
+    @pyaedt_function_handler()
     def animate_fields_from_aedtplt(
         self,
         plot_name,
@@ -2588,10 +2502,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         if nominal_value:
             solution_data.primary_sweep = primary_sweep
         return solution_data.plot_3d(
-            x_axis=primary_sweep, y_axis=secondary_sweep, snapshot_path=snapshot_path, show=show
+            primary_sweep=primary_sweep, secondary_sweep=secondary_sweep, snapshot_path=snapshot_path, show=show
         )
 
-    @pyaedt_function_handler(frames_list="frames", output_gif_path="gif_path")
+    @pyaedt_function_handler()
     def plot_scene(
         self,
         frames,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -120,13 +120,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     >>> app = TwinBuilder("myfile.aedt")
     """
 
-    @pyaedt_function_handler(
-        designname="design",
-        projectname="project",
-        specified_version="version",
-        setup_name="setup",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -146,7 +140,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
             self,
-            "Twin Builder",
+            "TWINBUILDER",
             project,
             design,
             solution_type,
@@ -165,7 +159,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler(file_to_import="input_file")
+    @pyaedt_function_handler()
     def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
 
@@ -306,7 +300,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         self.set_sim_setup_parameter("Hmax", expression)
         return True
 
-    @pyaedt_function_handler(var_str="variable")
+    @pyaedt_function_handler()
     def set_sim_setup_parameter(self, variable, expression, analysis_name="TR"):
         """Set simulation setup parameters.
 
@@ -382,7 +376,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             self.logger.warning(f"The Subsheet {name} has not been created.")
             return False
 
-    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
+    @pyaedt_function_handler()
     def add_q3d_dynamic_component(
         self,
         source_project,
@@ -497,7 +491,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         if not component_name:
             component_name = generate_unique_name("SimpQ3DData")
 
-        var = app.available_variations.get_independent_nominal_values()
+        var = app.available_variations.nominal_variation(dependent_params=False)
 
         props = ["NAME:Properties"]
         for k, v in var.items():
@@ -527,7 +521,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             is_3d = True
             design_type = "Q3D"
             is_depth_needed = False
-            for net in app.nets:
+            for net in app.net_names:
                 sources = app.net_sources(net)
                 sinks = app.net_sinks(net)
                 if sources:

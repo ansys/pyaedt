@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -143,6 +143,12 @@ EMIT_TO_AEDT_UNITS = {
     "Mbps": "Mbps",
     "Gbps": "Gbps",
 }
+
+EMIT_FN_ALLOWED_VARS = {"RF", "IF", "LO"}
+
+EMIT_FN_ALLOWED_FUNCS = {"abs", "trunc"}
+
+EMIT_FN_ALLOWED_OPS = {"+", "-", "*", "/"}
 
 
 def data_rate_conv(value: float, units: str, to_internal: bool = True):

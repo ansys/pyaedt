@@ -3,6 +3,7 @@ ignore:
   - "src/ansys/aedt/core/misc/*.py"
   - "src/ansys/aedt/core/visualization/advanced/sbrplus/hdm_utils.py"
   - "src/ansys/aedt/core/extensions/templates"
+  - "src/ansys/aedt/core/extensions/installer/console_setup.py"
   - "src/ansys/aedt/core/common_rpc.py"
   - "src/ansys/aedt/core/internal/grpc_plugin_dll_class.py"
   - "src/ansys/aedt/core/edb.py"
