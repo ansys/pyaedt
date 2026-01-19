@@ -1110,6 +1110,7 @@ def test_update_source(ipk_app):
 
 
 def test_assign_hollow_block(ipk_app):
+    settings.enable_desktop_logs = True
     ipk_app.solution_type = "Transient"
     box = ipk_app.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
     ipk_app.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5_1", "copper")

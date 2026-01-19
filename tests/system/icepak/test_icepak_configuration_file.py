@@ -29,6 +29,7 @@ import pytest
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.generic.settings import settings
 
 
 @pytest.fixture
@@ -55,6 +56,7 @@ def test_00_logger_diagnostic(icepak_a):
 
 
 def test_configuration_file_1(icepak_a, add_app):
+    settings.enable_desktop_logs = True
     box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
     icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
     box1.surface_material_name = "Shellac-Dull-surface"
@@ -140,6 +142,7 @@ def test_configuration_file_1(icepak_a, add_app):
 
 
 def test_configuration_file_2(icepak_b, add_app):
+    settings.enable_desktop_logs = True
     box1 = icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
     box1.surface_material_name = "Shellac-Dull-surface"
     region = icepak_b.modeler["Region"]
