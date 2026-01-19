@@ -207,10 +207,9 @@ def analyze_changes(
     >>> pyaedt ci analyze-changes --ci
     """
     if sys.stdout.encoding != "utf-8":
-        try:
-            sys.stdout.reconfigure(encoding="utf-8")
-        except AttributeError:
-            pass
+        reconfigure = getattr(sys.stdout, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8")
 
     all_files = get_changed_files(base_ref)
 
