@@ -27,7 +27,9 @@
 import ast
 import os
 from pathlib import Path
-import subprocess
+import re
+import shutil
+import subprocess  # nosec B404 - validated git calls only
 import sys
 
 try:
@@ -98,6 +100,22 @@ def get_ast_dump(source_code, filename="<unknown>"):
     return ast.dump(tree, include_attributes=False)
 
 
+def _get_git_executable():
+    git_executable = shutil.which("git")
+    if not git_executable:
+        typer.echo("[ERR] Git executable not found in PATH.", err=True)
+        raise typer.Exit(code=1)
+    return git_executable
+
+
+def _validate_git_ref(ref: str) -> bool:
+    return bool(re.fullmatch(r"[A-Za-z0-9._/\-~^:]+", ref))
+
+
+def _validate_git_path(path: str) -> bool:
+    return bool(re.fullmatch(r"[A-Za-z0-9._/\-]+", path))
+
+
 def get_changed_files(base_ref: str = "origin/main"):
     """
     Get list of changed files from git.
@@ -113,11 +131,17 @@ def get_changed_files(base_ref: str = "origin/main"):
         List of changed file paths.
     """
     try:
+        if not _validate_git_ref(base_ref):
+            typer.echo(f"[ERR] Invalid git reference: {base_ref}", err=True)
+            raise typer.Exit(code=1)
+
+        git_executable = _get_git_executable()
+
         # Find merge base if comparing against a branch
         if base_ref not in ["HEAD", "HEAD~1"] and "/" in base_ref:
             try:
-                merge_base_result = subprocess.run(
-                    ["git", "merge-base", base_ref, "HEAD"],
+                merge_base_result = subprocess.run(  # nosec B603 - controlled git args
+                    [git_executable, "merge-base", base_ref, "HEAD"],
                     capture_output=True,
                     text=True,
                     check=True,
@@ -130,8 +154,8 @@ def get_changed_files(base_ref: str = "origin/main"):
                 pass
 
         # Get list of changed files compared to base_ref
-        result = subprocess.run(
-            ["git", "diff", "--name-only", base_ref, "HEAD"],
+        result = subprocess.run(  # nosec B603 - controlled git args
+            [git_executable, "diff", "--name-only", base_ref, "HEAD"],
             capture_output=True,
             text=True,
             check=True,
@@ -268,12 +292,22 @@ def analyze_changes(
             typer.echo(f"\nProcessing: {filename}")
 
         try:
-            old_code = subprocess.check_output(
-                ["git", "show", f"{base_ref}:{git_path}"],
-                stderr=subprocess.DEVNULL,
+            if not _validate_git_ref(base_ref):
+                typer.echo(f"[ERR] Invalid git reference: {base_ref}", err=True)
+                raise typer.Exit(code=1)
+            if not _validate_git_path(git_path):
+                typer.echo(f"[ERR] Invalid git path: {git_path}", err=True)
+                raise typer.Exit(code=1)
+
+            git_executable = _get_git_executable()
+            old_code = subprocess.run(  # nosec B603 - controlled git args
+                [git_executable, "show", f"{base_ref}:{git_path}"],
+                capture_output=True,
+                text=True,
+                check=True,
                 encoding="utf-8",
                 errors="replace",
-            )
+            ).stdout
             if verbose:
                 typer.echo(f"  Retrieved {base_ref} version ({len(old_code)} chars)")
         except subprocess.CalledProcessError:
