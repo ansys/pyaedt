@@ -812,7 +812,7 @@ jobs:
 
   system-tests-icepak-windows:
     name: Test icepak (windows)
-    needs: [integration-tests]
+#    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
