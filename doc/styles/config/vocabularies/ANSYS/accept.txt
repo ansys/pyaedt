@@ -137,3 +137,11 @@ venv
 subprocess
 PID
 [Pp]rocesses
+[Ww][Nn][Uu][Aa]
+[Uu][Dd][Ss]
+[Mm][Tt][Ll][Ss]
+TLS
+Unix
+Transport
+Layer
+Security
