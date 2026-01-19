@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -291,6 +293,38 @@ class MaxwellMatrix(PyAedtBase):
         self.parent_matrix = parent_name
         self.name = reduced_name
         self.__sources = None
+
+    @dataclass
+    class MatrixElectric:
+        """Matrix assignment for electric solvers."""
+
+        signal_sources: list
+        ground_sources: list
+        matrix_name: str = None
+
+    @dataclass
+    class MatrixMagnetostatic:
+        """Matrix assignment for magnetostatic solver."""
+
+        sources: dict
+        group_sources: dict
+        branches_number: int = 0
+        matrix_name: str = None
+
+    @dataclass
+    class MatrixACMagnetic:
+        """Matrix assignment for AC Magnetic solver."""
+
+        sources: dict
+        matrix_name: str = None
+
+    @dataclass
+    class MatrixACMagneticAPhi:
+        """Matrix assignment for AC Magnetic A-Phi solver."""
+
+        rl_sources: dict
+        gc_sources: dict
+        matrix_name: str = None
 
     @property
     def sources(self):
