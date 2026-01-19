@@ -417,7 +417,7 @@ class NativeComponentPCB(NativeComponentObject):
     Parameters
     ----------
     app : object
-        AEDT application from the ``pyaedt.application`` class.
+        AEDT application from the ``ansys.aedt.core.application`` class.
     component_type : str
         Type of the component.
     component_name : str
@@ -877,7 +877,7 @@ class PCBSettingsPackageParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : :class:`pyaedt.Icepak`
+    app : :class:`ansys.aedt.core.Icepak`
             Inherited application object.
     """
 
@@ -1008,7 +1008,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : :class:`pyaedt.Icepak`
+    app : :class:`ansys.aedt.core.Icepak`
             Inherited application object.
     """
 
