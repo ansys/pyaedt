@@ -65,20 +65,21 @@ class TestClass:
             "1",
             "Y",
         ]
-        assert lumped_design.optimization_goals_table.row(1) == [
+        row_1 = lumped_design.optimization_goals_table.row(1)
+        assert row_1[:5] == [
             "1.5849 GHz",
             "1.9019 GHz",
             "-23.01",
             "<=",
             "dB(S(Port2,Port1))",
-            "0.5",
-            "Y",
         ]
+        assert row_1[5] in ["0.5", "0,5"]
+        assert row_1[6] == "Y"
         assert (
             lumped_design.optimization_goals_table.row(0)[OptimizationGoalParameter.PARAMETER_NAME.value]
             == "dB(S(Port1,Port1))"
         )
-        assert lumped_design.optimization_goals_table.row(1)[OptimizationGoalParameter.WEIGHT.value] == "0.5"
+        assert lumped_design.optimization_goals_table.row(1)[OptimizationGoalParameter.WEIGHT.value] in ["0.5", "0,5"]
         with pytest.raises(RuntimeError) as info:
             lumped_design.optimization_goals_table.row(5)
         assert info.value.args[0] == "The rowIndex is greater than row count or less than zero"
@@ -215,15 +216,16 @@ class TestClass:
             "1",
             "Y",
         ]
-        assert lumped_design.optimization_goals_table.row(1) == [
+        row_1 = lumped_design.optimization_goals_table.row(1)
+        assert row_1[:5] == [
             "1.5849 GHz",
             "1.9019 GHz",
             "-23.01",
             "<=",
             "dB(S(Port2,Port1))",
-            "0.5",
-            "Y",
         ]
+        assert row_1[5] in ["0.5", "0,5"]
+        assert row_1[6] == "Y"
         os.remove(temp_save_path)
 
     def test_clear_goal_entries(self, lumped_design):
