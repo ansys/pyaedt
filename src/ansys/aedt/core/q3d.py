@@ -1955,12 +1955,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.SolutionData` or bool
+        :class:`ansys.aedt.core.modules.solutions.SolutionData` or bool
             Solution Data object if successful, ``False`` otherwise.
 
         Examples
         --------
-        >>> from pyaedt import Q3d
+        >>> from ansys.aedt.core import Q3d
         >>> aedtapp = Q3d()
         >>> data = aedtapp.modeler.get_mutual_coupling("a1", "a2", "b1", "b2", calculation="DCL")
         """

@@ -35,6 +35,7 @@ from ansys.aedt.core.cli.ci import ci_app
 from ansys.aedt.core.cli.config import config_app
 from ansys.aedt.core.cli.doc import doc_app
 from ansys.aedt.core.cli.panels import panels_app
+from ansys.aedt.core.cli.process import attach
 from ansys.aedt.core.cli.process import processes
 from ansys.aedt.core.cli.process import start
 from ansys.aedt.core.cli.process import stop
@@ -53,6 +54,7 @@ app.command()(version)
 app.command()(processes)
 app.command()(start)
 app.command()(stop)
+app.command()(attach)
 
 if __name__ == "__main__":
     app()
