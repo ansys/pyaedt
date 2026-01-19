@@ -47,6 +47,13 @@ def icepak_b(add_app):
     app.close_project(save=False, name=project_name)
 
 
+def test_00_logger_diagnostic(icepak_a):
+    """Verify logger has suspend_logging method."""
+    assert hasattr(icepak_a.logger, "suspend_logging"), (
+        f"Logger type: {type(icepak_a.logger)}, has suspend_logging: {hasattr(icepak_a.logger, 'suspend_logging')}"
+    )
+
+
 def test_configuration_file_1(icepak_a, add_app):
     box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
     icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
