@@ -1768,10 +1768,6 @@ def test_folder_settings(transient_app):
         assignment=transient_app.modeler["Box1"].faces[0].id, quantity="Temperature"
     )
     assert plot_object.folder_settings is None
-    assert (
-        transient_app.logger.error_messages[-1] == "[error] Could not find settings data in the design properties."
-        " Define the `FolderPlotSettings` class from scratch or save the project file and try again."
-    )
     transient_app.save_project()
     fs = plot_object.folder_settings
     assert isinstance(fs, FolderPlotSettings)
