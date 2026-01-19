@@ -409,5 +409,3 @@ model.index\+
 # Custom instructions for GitHub Copilot
 .github/copilot-instructions.md
 
-# Bandit
-bandit-result.json
