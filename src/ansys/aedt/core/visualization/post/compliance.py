@@ -379,7 +379,7 @@ class VirtualComplianceGenerator(PyAedtBase):
             "type": report_type,
             "config": str(config_file),
             "traces": traces,
-            "pass_fail": True,
+            "pass_fail": True,  # nosec: B105
             "pass_fail_criteria": pass_fail_criteria,
             "parameter_name": parameter,
         }
