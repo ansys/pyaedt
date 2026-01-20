@@ -190,7 +190,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     def _init_from_design(self, *args: Any, **kwargs: Any) -> None:
         self.__init__(*args, **kwargs)
 
-    def _get_number_from_string(self, stringval: str) -> str:
+    @staticmethod
+    def _get_number_from_string(stringval: str) -> str:
         value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")
         value = value.replace("µ", "u")
         try:
