@@ -65,7 +65,7 @@ IS_STUDENT = is_student()
 
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {
-    "password": "",
+    "password": "",  # nosec B105
     "application": "HFSS",
     "solution": "Modal",
     "file_path": "",

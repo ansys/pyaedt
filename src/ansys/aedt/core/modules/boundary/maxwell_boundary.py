@@ -280,7 +280,7 @@ class MaxwellMatrix(PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisMaxwell`
+    app : :class:`ansys.aedt.core.application.AnalysisMaxwell`
         Parent Maxwell application instance.
     parent_name : str
         Name of the parent matrix.
