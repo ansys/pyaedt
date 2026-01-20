@@ -316,7 +316,12 @@ class CommonRegion(PyAedtBase):
 
     def _update_region_data(self):
         region = self.object
-        with self._app.logger.suspend_logging():
+        if (
+            hasattr(self._app, "logger") and self._app.logger and hasattr(self._app.logger, "suspend_logic")
+        ):  # pragma: no cover
+            with self._app.logger.suspend_logging():
+                create_region = region.history()
+        else:
             create_region = region.history()
         self._padding_type = []
         self._padding_value = []
