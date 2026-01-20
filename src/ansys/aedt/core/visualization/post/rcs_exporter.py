@@ -42,16 +42,17 @@ class MonostaticRCSExporter(PyAedtBase):
     """Class to enable export of radar cross-section (RCS) data from HFSS.
 
     An instance of this class is returned from the
-    :meth:`pyaedt.Hfss.get_monostatic_rcs` method. This class creates a
+    :meth:`ansys.aedt.core.Hfss.get_monostatic_rcs` method. This class creates a
     ``metadata_file`` that can be passed as argument to instantiate an instance of the
-    :class:`pyaedt.generic.rcs_visualization.MonostaticRCSData` class for subsequent analysis and postprocessing.
+    :class:`ansys.aedt.core.generic.rcs_visualization.MonostaticRCSData` class for subsequent analysis and
+     postprocessing.
 
     Note that this class is derived from the :class:`MonostaticRCSData` class and can be used directly for
-    RCS postprocessing, but it remains as a property of the :class:`pyaedt.Hfss` application.
+    RCS postprocessing, but it remains as a property of the :class:`ansys.aedt.core.Hfss` application.
 
     Parameters
     ----------
-    app : :class:`pyaedt.Hfss`
+    app : :class:`ansys.aedt.core.Hfss`
         HFSS application instance.
     setup_name : str, optional
         Name of the setup. Make sure to build a setup string in the form of ``"SetupName : SetupSweep"``.
