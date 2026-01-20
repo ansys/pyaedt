@@ -22,10 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import Union
+from __future__ import annotations
+
+from collections.abc import Iterable
 from urllib.parse import quote_plus
 import webbrowser
 
@@ -53,7 +52,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     def __init__(
         self,
-        version: Optional[str] = None,
+        version: str | None = None,
         browser: str = "default",
         silent: bool = False,
     ) -> None:
@@ -122,7 +121,7 @@ class Help(PyAedtBase):  # pragma: no cover
         if value != "default":
             try:
                 webbrowser.get(value)
-            except webbrowser.Error as exc:  # type: ignore[attr-defined]
+            except webbrowser.Error as exc:
                 raise ValueError(f"Invalid browser: {value!r}") from exc
         self._browser = value
 
@@ -167,7 +166,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     @staticmethod
     def _build_search_query(
-        keywords: Union[str, Iterable[str]],
+        keywords: str | Iterable[str],
     ) -> str:
         """Build a Sphinx-style search query string.
 
@@ -179,10 +178,18 @@ class Help(PyAedtBase):  # pragma: no cover
         Returns
         -------
         str
-            Search query.
+            Search query string.
+
+        Examples
+        --------
+        >>> Help._build_search_query("HFSS")
+        'HFSS'
+        >>> Help._build_search_query(["HFSS", "antenna"])
+        'HFSS+antenna'
+
         """
         if isinstance(keywords, str):
-            keywords_list: List[str] = [keywords]
+            keywords_list: list[str] = [keywords]
         else:
             keywords_list = list(keywords)
 
@@ -196,7 +203,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     def search(
         self,
-        keywords: Union[str, Iterable[str]],
+        keywords: str | Iterable[str],
     ) -> str:
         """Search the PyAEDT documentation.
 
@@ -209,6 +216,13 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             The constructed search URL.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.search("HFSS")
+        >>> url2 = help_obj.search(["Maxwell", "3D"])
+
         """
         query = self._build_search_query(keywords=keywords)
         url = f"{self.base_path}/search.html?q={query}"
@@ -223,6 +237,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the page.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.home()
+
         """
         url = f"{self.base_path}/index.html"
         if not self.silent:
@@ -236,6 +256,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the User Guide.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.user_guide()
+
         """
         url = f"{self.base_path}/User_guide/index.html"
         if not self.silent:
@@ -249,6 +275,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the Getting Started guide.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.getting_started()
+
         """
         url = f"{self.base_path}/Getting_started/index.html"
         if not self.silent:
@@ -262,6 +294,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the Installation Guide.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.installation_guide()
+
         """
         url = f"{self.base_path}/Getting_started/Installation.html"
         if not self.silent:
@@ -275,6 +313,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the API Reference.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.api_reference()
+
         """
         url = f"{self.base_path}/API/index.html"
         if not self.silent:
@@ -288,6 +332,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the release notes page.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.release_notes()
+
         """
         url = f"{self.base_path}/changelog.html"
         if not self.silent:
@@ -301,6 +351,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the examples site.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.examples()
+
         """
         url = self.examples_base
         if not self.silent:
@@ -314,6 +370,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the GitHub repository.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.github()
+
         """
         url = self._GITHUB_ROOT
         if not self.silent:
@@ -322,7 +384,7 @@ class Help(PyAedtBase):  # pragma: no cover
 
     def changelog(
         self,
-        release: Optional[str] = None,
+        release: str | None = None,
     ) -> str:
         """Open the GitHub changelog page for a specific release.
 
@@ -335,6 +397,15 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the release notes page for the specified version.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> # Open changelog for current version
+        >>> url1 = help_obj.changelog()
+        >>> # Open changelog for specific version
+        >>> url2 = help_obj.changelog("0.8.0")
+
         """
         if release is None:
             from ansys.aedt.core import __version__ as release
@@ -351,6 +422,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the issues page.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.issues()
+
         """
         url = f"{self._GITHUB_ROOT}/issues"
         if not self.silent:
@@ -364,6 +441,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the forum page.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.ansys_forum()
+
         """
         url = "https://discuss.ansys.com/discussions/tagged/pyaedt"
         if not self.silent:
@@ -377,6 +460,12 @@ class Help(PyAedtBase):  # pragma: no cover
         -------
         str
             URL of the developer portal.
+
+        Examples
+        --------
+        >>> help_obj = Help()
+        >>> url1 = help_obj.developer_forum()
+
         """
         url = "https://developer.ansys.com/"
         if not self.silent:
