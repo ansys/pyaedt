@@ -54,44 +54,6 @@ def emit_api_python():
         raise Exception("A ansys.aedt.core.Emit() object must be initialized before using the EMIT API.")
     return EMIT_API_PYTHON
 
-
-def _init_enums(aedt_version):
-    """Initialize enums with their values from EmitDataTypes.h."""
-    # ResultType enum values 
-    ResultType.EMI = 0
-    ResultType.DESENSE = 1
-    ResultType.SENSITIVITY = 2
-    ResultType.POWER_AT_RX = 3
-
-    # TxRxMode enum values 
-    TxRxMode.TX = 0
-    TxRxMode.RX = 1
-    TxRxMode.BOTH = 2
-
-    # InterfererType enum values
-    InterfererType.TRANSMITTERS = 0
-    InterfererType.EMITTERS = 1
-    InterfererType.TRANSMITTERS_AND_EMITTERS = 2
-
-    # UnitTypes enum values
-    UnitType.POWER = 0
-    UnitType.FREQUENCY = 1
-    UnitType.LENGTH = 2
-    UnitType.TIME = 3
-    UnitType.VOLTAGE = 4
-    UnitType.DATA_RATE = 5
-    UnitType.RESISTANCE = 6
-
-    # EmiCategoryFilter enum values 
-    EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = 0
-    EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = 1
-    EmiCategoryFilter.IN_CHANNEL_TX_INTERMOD = 2
-    EmiCategoryFilter.IN_CHANNEL_TX_BROADBAND = 3
-    EmiCategoryFilter.OUT_OF_CHANNEL_TX_FUNDAMENTAL = 4
-    EmiCategoryFilter.OUT_OF_CHANNEL_TX_HARMONIC_SPURIOUS = 5
-    EmiCategoryFilter.OUT_OF_CHANNEL_TX_INTERMOD = 6
-
-
 # need this as a function so that it can be set
 # for the correct aedt version that the user is running
 def _set_api(aedt_version):
@@ -117,4 +79,3 @@ def _set_api(aedt_version):
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info(f"Loaded {EMIT_API_PYTHON.EmitApi().get_version(True)}")
-        _init_enums(aedt_version)

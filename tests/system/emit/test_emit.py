@@ -890,14 +890,14 @@ def test_static_type_generation(emit_app):
     assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
 
     # assert str(type(TxRxMode)) == "<class '{}.tx_rx_mode'>".format(py_version)
-    assert str(type(TxRxMode.RX)) == f"<class '{py_version}.tx_rx_mode'>"
-    assert str(type(TxRxMode.TX)) == f"<class '{py_version}.tx_rx_mode'>"
-    assert str(type(TxRxMode.BOTH)) == f"<class '{py_version}.tx_rx_mode'>"
+    assert str(type(TxRxMode.RX)) == f"<class 'int'>"
+    assert str(type(TxRxMode.TX)) == f"<class 'int'>"
+    assert str(type(TxRxMode.BOTH)) == f"<class 'int'>"
     # assert str(type(ResultType)) == "<class '{}.result_type'>".format(py_version)
-    assert str(type(ResultType.SENSITIVITY)) == f"<class '{py_version}.result_type'>"
-    assert str(type(ResultType.EMI)) == f"<class '{py_version}.result_type'>"
-    assert str(type(ResultType.DESENSE)) == f"<class '{py_version}.result_type'>"
-    assert str(type(ResultType.POWER_AT_RX)) == f"<class '{py_version}.result_type'>"
+    assert str(type(ResultType.SENSITIVITY)) == f"<class 'int'>"
+    assert str(type(ResultType.EMI)) == f"<class 'int'>"
+    assert str(type(ResultType.DESENSE)) == f"<class 'int'>"
+    assert str(type(ResultType.POWER_AT_RX)) == f"<class 'int'>"
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2023.1", reason="Skipped on versions earlier than 2023.2")
