@@ -251,12 +251,12 @@ def format_decimals(el):
 
 
 @pyaedt_function_handler()
-def random_string(length=6, only_digits=False, char_set=None):
+def random_string(length: int = 6, only_digits: bool = False, char_set: str = None) -> str:
     """Generate a random string.
 
     Parameters
     ----------
-    length :
+    length : int
         length of the random string (Default value = 6)
     only_digits : bool, optional
         ``True`` if only digits are to be included.
@@ -266,7 +266,7 @@ def random_string(length=6, only_digits=False, char_set=None):
 
     Returns
     -------
-    type
+    str
         random string
 
     """

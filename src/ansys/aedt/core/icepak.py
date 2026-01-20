@@ -164,20 +164,20 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        setup=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        setup: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool = False,
+    ) -> None:
         FieldAnalysisIcepak.__init__(
             self,
             "ICEPAK",
@@ -196,19 +196,25 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
-    def problem_type(self):
+    def problem_type(self) -> str:
         """Problem type of the Icepak design.
 
         Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``, and ``"FlowOnly"``.
+
+        Returns
+        -------
+        str
+            Problem type.
         """
         return self.design_solutions.problem_type
 
     @problem_type.setter
-    def problem_type(self, value="TemperatureAndFlow"):
+    def problem_type(self, value: str = "TemperatureAndFlow") -> None:
+        """Set problem type."""
         self.design_solutions.problem_type = value
 
     @property
@@ -236,8 +242,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         free_area_ratio=0.8,
         external_temp="AmbientTemp",
         expternal_pressure="AmbientPressure",
-        x_curve=["0", "1", "2"],
-        y_curve=["0", "1", "2"],
+        x_curve=None,
+        y_curve=None,
         boundary_name=None,
     ):
         """Assign grille to a face or list of faces.
@@ -272,6 +278,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.AssignGrilleBoundary
         """
+        if y_curve is None:
+            y_curve = ["0", "1", "2"]
+        if x_curve is None:
+            x_curve = ["0", "1", "2"]
         if boundary_name is None:
             boundary_name = generate_unique_name("Grille")
 
@@ -589,7 +599,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
                     object_name = "COMP_" + component_data["Ref Des"][i]
                 else:
                     object_name = component_data["Ref Des"][i]
-                status = self.create_source_block(object_name, str(power) + "W", assign_material=False)
+                status = self.create_source_block(object_name, str(power) + "W", assign_material=False)  # type: ignore[attr-defined]
 
                 if not status:
                     self.logger.warning(
@@ -1245,7 +1255,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         savedir=None,
         filename=None,
         sweep_name=None,
-        parameter_dict_with_values={},
+        parameter_dict_with_values=None,
     ):
         """Export the field surface output.
 
@@ -1278,11 +1288,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.ExportFieldsSummary
         """
+        if parameter_dict_with_values is None:
+            parameter_dict_with_values = {}
         name = generate_unique_name(quantity_name)
         self.modeler.create_face_list(faces_list, name)
         if not savedir:
             savedir = self.working_directory
         if not filename:
+            if not self.project_name:  # pragma: no cover
+                raise ValueError("Project name is not defined. Cannot generate filename.")
             filename = generate_unique_name(self.project_name + quantity_name)
         if not sweep_name:
             sweep_name = self.nominal_sweep
@@ -1317,7 +1331,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         savedir=None,
         filename=None,
         sweep_name=None,
-        parameter_dict_with_values={},
+        parameter_dict_with_values=None,
     ):
         """Export the field volume output.
 
@@ -1350,9 +1364,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         ----------
         >>> oModule.ExportFieldsSummary
         """
+        if parameter_dict_with_values is None:
+            parameter_dict_with_values = {}
         if not savedir:
             savedir = self.working_directory
         if not filename:
+            if not self.project_name:  # pragma: no cover
+                raise ValueError("Project name is not defined. Cannot generate filename.")
             filename = generate_unique_name(self.project_name + quantity_name)
         if not sweep_name:
             sweep_name = self.nominal_sweep
@@ -1426,9 +1444,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
-        if type not in ("Object", "Boundary"):
-            raise ValueError(("Entity type " + type + " not supported."))
-
         if variation_list is None:
             variation_list = []
 
@@ -1440,6 +1455,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         elif type == "Boundary":
             all_elements = [b.name for b in self.boundaries]
             self.logger.info("Boundary lists " + str(all_elements))
+        else:  # pragma: no cover
+            raise ValueError(f"Entity type '{type}' not supported. Must be 'Object' or 'Boundary'.")
 
         arg = []
         for el in all_elements:
@@ -1514,6 +1531,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         elif radiation == "Both":
             low_side_radiation = True
             high_side_radiation = True
+        else:
+            raise ValueError(
+                f"Invalid radiation value '{radiation}'. Must be one of: 'Nothing', 'Low', 'High', 'Both'."
+            )
         return low_side_radiation, high_side_radiation
 
     @pyaedt_function_handler()
@@ -1844,8 +1865,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         custom_x_resolution=None,
         custom_y_resolution=None,
         power_in=0,
-        rad="Nothing",
-        **kwargs,  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
@@ -2277,7 +2296,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
         if mesh_file_pointer.exists():
             self.logger.info(f"'{mesh_file_pointer}' has been created.")
-            return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
+            return self.mesh.assign_mesh_from_file(object_lists, str(mesh_file_pointer))
 
         raise AEDTRuntimeError("Failed to create Fluent mesh file")
 
@@ -2585,35 +2604,65 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             )
 
             pcb_layers = [part_names[0], part_names[-1]]
+            pcb_handle = None
+            board_side = None
+            board_side_normal = None
             for layer in pcb_layers:
                 x = self.modeler.get_object_from_name(object_name).get_touching_faces(layer)
                 if x:
                     board_side = x[0]
                     board_side_normal = get_face_normal(board_side)
                     pcb_handle = self.modeler.get_object_from_name(layer)
+
+            if pcb_handle is None:  # pragma: no cover
+                raise ValueError(f"Could not find touching faces between '{object_name}' and PCB layers.")
+            if board_side_normal is None:  # pragma: no cover
+                raise ValueError(f"Could not determine board side normal for '{object_name}'.")
+
             pcb_faces = pcb_handle.faces_by_area(area=1e-5, area_filter=">=")
+            pcb_face = None
             for face in pcb_faces:
                 pcb_normal = get_face_normal(face)
                 dot_product = round(sum([x * y for x, y in zip(board_side_normal, pcb_normal)]))
                 if dot_product == -1:
                     pcb_face = face
+                    break
+
+            if pcb_face is None:  # pragma: no cover
+                raise ValueError(f"Could not find matching PCB face for '{object_name}'.")
+
             pcb_face_normal = get_face_normal(pcb_face)
         else:
             pcb_handle = self.modeler.get_object_from_name(pcb)
-            board_side = self.modeler.get_object_from_name(object_name).get_touching_faces(pcb)[0]
+            touching_faces = self.modeler.get_object_from_name(object_name).get_touching_faces(pcb)
+            if not touching_faces:
+                raise ValueError(f"No touching faces found between '{object_name}' and '{pcb}'.")
+
+            board_side = touching_faces[0]
             board_side_normal = get_face_normal(board_side)
+            pcb_face = None
             for face in pcb_handle.faces:
                 pcb_normal = get_face_normal(face)
                 dot_product = round(sum([x * y for x, y in zip(board_side_normal, pcb_normal)]))
                 if dot_product == -1:
                     pcb_face = face
+                    break
+
+            if pcb_face is None:
+                raise ValueError(f"Could not find matching PCB face for '{object_name}'.")
+
             pcb_face_normal = get_face_normal(pcb_face)
 
+        case_side = None
         for face in net_handle.faces:
             net_face_normal = get_face_normal(face)
             dot_product = round(sum([x * y for x, y in zip(net_face_normal, pcb_face_normal)]))
             if dot_product == 1:
                 case_side = face
+                break
+
+        if case_side is None:  # pragma: no cover
+            raise ValueError(f"Could not find case side face for network block '{object_name}'.")
 
         props = {
             "Faces": [board_side.id, case_side.id],
@@ -4214,15 +4263,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         fluid="air",
         laminar=False,
         loss_type="Device",
-        linear_loss=["1m_per_sec", "1m_per_sec", "1m_per_sec"],
-        quadratic_loss=[1, 1, 1],
-        linear_loss_free_area_ratio=[1, 1, 1],
-        quadratic_loss_free_area_ratio=[1, 1, 1],
+        linear_loss=None,
+        quadratic_loss=None,
+        linear_loss_free_area_ratio=None,
+        quadratic_loss_free_area_ratio=None,
         power_law_constant=1,
         power_law_exponent=1,
-        loss_curves_x=[[0, 1], [0, 1]],
-        loss_curves_y=[[0, 1], [0, 1]],
-        loss_curves_z=[[0, 1], [0, 1]],
+        loss_curves_x=None,
+        loss_curves_y=None,
+        loss_curves_z=None,
         loss_curve_flow_unit="m_per_sec",
         loss_curve_pressure_unit="n_per_meter_sq",
     ):
@@ -4314,6 +4363,20 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         Examples
         --------
         """
+        if loss_curves_y is None:
+            loss_curves_y = [[0, 1], [0, 1]]
+        if loss_curves_z is None:
+            loss_curves_z = [[0, 1], [0, 1]]
+        if loss_curves_x is None:
+            loss_curves_x = [[0, 1], [0, 1]]
+        if quadratic_loss_free_area_ratio is None:
+            quadratic_loss_free_area_ratio = [1, 1, 1]
+        if linear_loss_free_area_ratio is None:
+            linear_loss_free_area_ratio = [1, 1, 1]
+        if quadratic_loss is None:
+            quadratic_loss = [1, 1, 1]
+        if linear_loss is None:
+            linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"]
         props = {
             "Objects": objects if isinstance(objects, list) else [objects],
             "Fluid Material": fluid,
@@ -4449,9 +4512,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         total_power="0W",
         fluid="air",
         laminar=False,
-        loss_curves_x=[[0, 1], [0, 1]],
-        loss_curves_y=[[0, 1], [0, 1]],
-        loss_curves_z=[[0, 1], [0, 1]],
+        loss_curves_x=None,
+        loss_curves_y=None,
+        loss_curves_z=None,
         loss_curve_flow_unit="m_per_sec",
         loss_curve_pressure_unit="n_per_meter_sq",
     ):
@@ -4517,6 +4580,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         Examples
         --------
         """
+        if loss_curves_z is None:
+            loss_curves_z = [[0, 1], [0, 1]]
+        if loss_curves_y is None:
+            loss_curves_y = [[0, 1], [0, 1]]
+        if loss_curves_x is None:
+            loss_curves_x = [[0, 1], [0, 1]]
         return self.assign_resistance(
             objects,
             boundary_name=boundary_name,
@@ -4539,10 +4608,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         total_power="0W",
         fluid="air",
         laminar=False,
-        linear_loss=["1m_per_sec", "1m_per_sec", "1m_per_sec"],
-        quadratic_loss=[1, 1, 1],
-        linear_loss_free_area_ratio=[1, 1, 1],
-        quadratic_loss_free_area_ratio=[1, 1, 1],
+        linear_loss=None,
+        quadratic_loss=None,
+        linear_loss_free_area_ratio=None,
+        quadratic_loss_free_area_ratio=None,
     ):
         """
         Assign resistance boundary condition using the device/approach model.
@@ -4600,6 +4669,14 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         Examples
         --------
         """
+        if quadratic_loss_free_area_ratio is None:
+            quadratic_loss_free_area_ratio = [1, 1, 1]
+        if linear_loss_free_area_ratio is None:
+            linear_loss_free_area_ratio = [1, 1, 1]
+        if quadratic_loss is None:
+            quadratic_loss = [1, 1, 1]
+        if linear_loss is None:
+            linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"]
         return self.assign_resistance(
             objects,
             boundary_name=boundary_name,
@@ -5335,7 +5412,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         bool or :class:`ansys.aedt.core.modules.boundary.icepak_boundary.PieceWiseLinearDictionary`
             Created dataset condition assignments when successful, ``False`` when failed.
         """
-        ds = None
         try:
             if ds_name.startswith("$"):
                 raise ValueError("Only design datasets are supported.")
