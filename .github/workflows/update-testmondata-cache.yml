@@ -4,6 +4,8 @@ on:
   pull_request:
     types:
       - closed
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -41,6 +43,7 @@ jobs:
   # ------------------------------------------------------------------
   update-unit-linux:
     name: Update unit test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     permissions:
       contents: write # Needed to save cache
@@ -89,6 +92,7 @@ jobs:
   # ------------------------------------------------------------------
   update-integration-linux:
     name: Update integration test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     permissions:
       contents: write # Needed to save cache
@@ -136,6 +140,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-win:
     name: Update solvers test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -220,6 +225,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-linux:
     name: Update solvers test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -303,6 +309,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-win:
     name: Update general test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -395,6 +402,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-linux:
     name: Update general test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -485,6 +493,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-win:
     name: Update visualization test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -578,6 +587,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-linux:
     name: Update visualization test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -669,6 +679,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-win:
     name: Update icepak test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -753,6 +764,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-linux:
     name: Update icepak test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -836,6 +848,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-win:
     name: Update layout test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -920,6 +933,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-linux:
     name: Update layout test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -1003,6 +1017,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-win:
     name: Update extensions test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -1095,6 +1110,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-linux:
     name: Update extensions test cache (Linux)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -1185,6 +1201,7 @@ jobs:
   # ------------------------------------------------------------------
   update-filter-win:
     name: Update filter test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -1274,6 +1291,7 @@ jobs:
   # ------------------------------------------------------------------
   update-emit-win:
     name: Update emit test cache (Windows)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
@@ -1356,4 +1374,4 @@ jobs:
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main-${{ github.sha }}
+          key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main-${{ github.sha }}TESTMON_CACHE_KEY_EMIT_WIN
