@@ -27,6 +27,7 @@
 from pathlib import Path
 import re
 import time
+from typing import Optional
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
@@ -2378,17 +2379,17 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
     def export_matrix(
         self,
-        matrix_name,
-        output_file,
-        setup=None,
-        is_post_processed=False,
-        default_adaptive="LastAdaptive",
-        is_format_default=True,
-        width=12,
-        precision=6,
-        is_exponential=False,
-        use_independent_nominal_values=True,
-    ):
+        matrix_name: str,
+        output_file: str | Path,
+        setup: Optional[str] = None,
+        is_post_processed: Optional[bool] = False,
+        default_adaptive: Optional[str] = "LastAdaptive",
+        is_format_default: Optional[bool] = True,
+        width: Optional[int] = 12,
+        precision: Optional[int] = 6,
+        is_exponential: Optional[bool] = False,
+        use_independent_nominal_values: Optional[bool] = True,
+    ) -> bool:
         """Export matrix after solving.
 
         This method exports matrix data from the Matrix tab in the Solutions window to a .txt file.
