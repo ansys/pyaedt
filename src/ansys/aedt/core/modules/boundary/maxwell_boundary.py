@@ -21,8 +21,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
@@ -294,43 +296,136 @@ class MaxwellMatrix(PyAedtBase):
         self.name = reduced_name
         self.__sources = None
 
-    @dataclass
     class MatrixElectric:
         """Matrix assignment for electric solvers."""
 
-        signal_sources: list
-        ground_sources: list
-        matrix_name: str = None
+        def __init__(self, signal_sources: list, ground_sources: list, matrix_name: Optional[str] = None):
+            self.signal_sources = signal_sources
+            self.ground_sources = ground_sources
+            self.matrix_name = matrix_name
 
-    @dataclass
+    class SourceMagnetostatic:
+        """Source definition for magnetostatic solver.
+
+        Parameters
+        ----------
+        name : str
+            Name of the source.
+        return_path : str, optional
+            For Maxwell 2D design types, the `return_path` parameter can be provided.
+            If not the default value is "infinite".
+            For Maxwell 3D design types, this parameter is ignored.
+        turns_number : int, optional
+            Number of turns for the source. The default value is ``1``.
+        """
+
+        def __init__(self, name: str, return_path: Optional[str] = "infinite", turns_number: int = 1):
+            self.name = name
+            self.return_path = return_path
+            self.turns_number = turns_number
+
+    class GroupSourcesMagnetostatic:
+        """Group sources definition for magnetostatic solver.
+
+        Parameters
+        ----------
+        source_names : list
+            List of source names in the group.
+        branches_number : int, optional
+            Number of branches for the group source.
+            The default value is ``1``.
+        name : str
+            Name of the group source.
+            The default value is ``None``.
+        """
+
+        def __init__(self, source_names: list, branches_number: int = 1, name: Optional[str] = None):
+            self.source_names = source_names
+            self.branches_number = branches_number
+            self.name = name
+
     class MatrixMagnetostatic:
         """Matrix assignment for magnetostatic solver."""
 
-        sources: dict
-        group_sources: dict
-        branches_number: int = 0
-        matrix_name: str = None
+        def __init__(
+            self,
+            sources: list[MaxwellMatrix.SourceMagnetostatic],
+            group_sources: list[MaxwellMatrix.GroupSourcesMagnetostatic],
+            matrix_name=None,
+        ):
+            self.sources = sources
+            self.group_sources = group_sources
+            self.matrix_name = matrix_name
 
-    @dataclass
+    class SourceACMagnetic:
+        """Sources for AC Magnetic solver.
+
+        Parameters
+        ----------
+        name : str
+            Name of the source.
+        return_path : str, optional
+            For Maxwell 2D design types, the `return_path` parameter can be provided.
+            If not the default value is "infinite".
+            For Maxwell 3D design types, this parameter is ignored.
+        """
+
+        def __init__(self, name: str, return_path: Optional[str] = "infinite"):
+            self.name = name
+            self.return_path = return_path
+
     class MatrixACMagnetic:
         """Matrix assignment for AC Magnetic solver."""
 
-        sources: dict
-        matrix_name: str = None
+        def __init__(self, sources: list[MaxwellMatrix.SourceACMagnetic], matrix_name: Optional[str] = None):
+            self.sources = sources
+            self.matrix_name = matrix_name
+
+    class RLSourceACMagneticAPhi:
+        """Sources for AC Magnetic A-Phi solver."""
+
+        def __init__(
+            self,
+            rl_source_name: str,
+            rl_return_path: Optional[str] = "infinite",
+        ):
+            self.rl_source_name = rl_source_name
+            self.rl_return_path = rl_return_path
+
+    class GCSourceACMagneticAPhi:
+        """Sources for AC Magnetic A-Phi solver."""
+
+        def __init__(
+            self,
+            gc_source_name: str,
+            gc_return_path: Optional[str] = "infinite",
+        ):
+            self.gc_source_name = gc_source_name
+            self.gc_return_path = gc_return_path
 
     @dataclass
     class MatrixACMagneticAPhi:
         """Matrix assignment for AC Magnetic A-Phi solver."""
 
-        rl_sources: dict
-        gc_sources: dict
-        matrix_name: str = None
+        def __init__(
+            self,
+            rl_sources: MaxwellMatrix.RLSourceACMagneticAPhi,
+            gc_sources: MaxwellMatrix.GCSourceACMagneticAPhi,
+            matrix_name: Optional[str] = None,
+        ):
+            self.rl_sources = rl_sources
+            self.gc_sources: gc_sources
+            self.matrix_name: matrix_name
 
     @property
     def sources(self):
         """List of matrix sources."""
         maxwell_solutions = SolutionsMaxwell3D
-        if self._app.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
+        if self._app.solution_type in [
+            maxwell_solutions.EddyCurrent,
+            maxwell_solutions.ACMagnetic,
+            maxwell_solutions.ACMagneticAPhi,
+        ]:
             sources = (
                 self._app.odesign.GetChildObject("Parameters")
                 .GetChildObject(self.parent_matrix)
