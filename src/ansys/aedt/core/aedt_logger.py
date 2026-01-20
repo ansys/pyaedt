@@ -1023,7 +1023,7 @@ class AedtLogger:
 
         """
         if not settings.enable_logger:
-            return
+            return None
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
@@ -1064,7 +1064,7 @@ class AedtLogger:
 
         """
         if not settings.enable_logger:
-            return
+            return None
         if not start_time:
             start_time = self._timer
         td = time.time() - start_time
@@ -1108,7 +1108,7 @@ class AedtLogger:
 
         """
         if not settings.enable_logger:
-            return
+            return None
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
@@ -1174,7 +1174,7 @@ class AedtLogger:
 
         """
         if not (settings.enable_debug_logger or settings.enable_debug_grpc_api_logger) or not settings.enable_logger:
-            return
+            return None
         if args:
             try:
                 msg1 = msg % tuple(str(i) for i in args)
