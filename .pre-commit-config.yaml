@@ -56,6 +56,11 @@ repos:
   rev: v0.5.2
   hooks:
     - id: add-license-headers
+      exclude: |
+        (?x)^(
+            .*\.pyd |
+            .*\.py_build |
+        )$
       files: '(src|examples|tests)/.*\.(py)'
       args:
       - --custom_template=mit_license.jinja2
