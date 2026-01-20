@@ -24,8 +24,11 @@
 
 """This module contains the ``CircuitNetlist`` class."""
 
+from __future__ import annotations
+
 from pathlib import Path
 import shutil
+from typing import Any
 
 from ansys.aedt.core.application.analysis_circuit_netlist import AnalysisCircuitNetlist
 from ansys.aedt.core.base import PyAedtBase
@@ -123,18 +126,18 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool = False,
+    ) -> None:
         AnalysisCircuitNetlist.__init__(
             self,
             project,
@@ -150,22 +153,23 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
             remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):  # pragma: no cover
+    def _init_from_design(self, *args: Any, **kwargs: Any) -> None:  # pragma: no cover
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def browse_log_file(self, input_file=None):  # pragma: no cover
+    def browse_log_file(self, input_file: str | Path | None = None) -> Path | None:  # pragma: no cover
         """Save the most recent log file in a new directory.
 
         Parameters
         ----------
-        input_file : str or :class:'pathlib.Path', optional
-            File path to save the new log file to. The default is the ``pyaedt`` folder.
+        input_file : str or :class:`pathlib.Path`, optional
+            File path to save the new log file to. The default is ``None``,
+            in which case the ``pyaedt`` folder is used.
 
         Returns
         -------
-        str
-            File Path.
+        :class:`pathlib.Path` or None
+            File path to the saved log file, or ``None`` if the operation failed.
         """
         if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")
@@ -175,6 +179,12 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
             if not Path(input_file).exists():
                 Path(input_file).mkdir()
 
+        if not self.results_directory:
+            self.logger.error("Results directory not available.")
+            return None
+        if not self.design_name:  # pragma: no cover
+            self.logger.error("Design name not available.")
+            return None
         results_path = Path(self.results_directory) / self.design_name
         results_temp_path = Path(results_path) / "temp"
 
