@@ -35,11 +35,39 @@ class DirMixin:
 
     Examples
     --------
+    Create a simple class with the mixin:
+
+    >>> from ansys.aedt.core.base import DirMixin
     >>> class Example(DirMixin):
-    ...     def foo(self):
-    ...         pass
+    ...     def __init__(self):
+    ...         self.public_var = 42
+    ...         self._private_var = "hidden"
+    ...
+    ...     def public_method(self):
+    ...         return "visible"
+    ...
+    ...     def _private_method(self):
+    ...         return "internal"
     >>> e = Example()
-    >>> e.public_dir  # same as dir(e)
+    >>> e.public_dir  # Returns only public, non-deprecated attributes
+    ['public_method', 'public_var']
+
+    Compare with standard dir():
+
+    >>> e = Example()
+    >>> public_attrs = [a for a in dir(e) if not a.startswith("_")]
+    >>> # public_dir is cleaner and excludes internal attributes
+    >>> sorted(e.public_dir) == sorted(public_attrs[:-1])  # Excludes 'public_dir' itself
+    True
+
+    Use in an interactive session for exploration:
+
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> # Instead of dir(hfss), use:
+    >>> available_methods = hfss.public_dir
+    >>> # This gives you a clean list of public API methods and properties
+
     """
 
     def __dir__(self) -> list[str]:
@@ -51,6 +79,22 @@ class DirMixin:
         -------
         list of str
             List of attribute names, with public attributes first.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.base import DirMixin
+        >>> class MyClass(DirMixin):
+        ...     def __init__(self):
+        ...         self.value = 1
+        ...         self._internal = 2
+        >>> obj = MyClass()
+        >>> attrs = dir(obj)
+        >>> # Public attributes come first, private attributes at the end
+        >>> attrs[0].startswith("_")
+        False
+        >>> attrs[-1].startswith("_")
+        True
+
         """
         # Get default attribute list, there is a fallback for Python 2 or weird metaclasses
         attrs = super().__dir__() if hasattr(super(), "__dir__") else dir(type(self))
@@ -68,6 +112,45 @@ class DirMixin:
         -------
         list of str
             List of public, non-deprecated attribute names.
+
+        Examples
+        --------
+        Get only public attributes:
+
+        >>> from ansys.aedt.core.base import DirMixin
+        >>> class MyAPI(DirMixin):
+        ...     def __init__(self):
+        ...         self.setting = "value"
+        ...         self._cache = {}
+        ...
+        ...     def configure(self):
+        ...         '''Configure the API'''
+        ...         pass
+        ...
+        ...     def _internal_setup(self):
+        ...         '''Internal method'''
+        ...         pass
+        >>> api = MyAPI()
+        >>> api.public_dir
+        ['configure', 'setting']
+
+        Filter out deprecated methods:
+
+        >>> class APIWithDeprecated(DirMixin):
+        ...     def new_method(self):
+        ...         '''New recommended method'''
+        ...         pass
+        ...
+        ...     def old_method(self):
+        ...         '''.. deprecated:: 1.0
+        ...         Use new_method instead'''
+        ...         pass
+        >>> obj = APIWithDeprecated()
+        >>> "old_method" in obj.public_dir
+        False
+        >>> "new_method" in obj.public_dir
+        True
+
         """
         result = []
         for name in dir(self):
@@ -103,6 +186,55 @@ class PyAedtBase(DirMixin):
     - Python's method resolution order (MRO) ensures that if `PyAedtBase` is
       inherited multiple times through different paths, it will only appear
       once in the hierarchy.
+
+    Examples
+    --------
+    Create a custom class inheriting from PyAedtBase:
+
+    >>> from ansys.aedt.core.base import PyAedtBase
+    >>> class MyComponent(PyAedtBase):
+    ...     def __init__(self, name):
+    ...         self.name = name
+    ...
+    ...     def process(self):
+    ...         return f"Processing {self.name}"
+    >>> comp = MyComponent("Component1")
+    >>> str(comp)
+    'Class: __main__.MyComponent'
+    >>> comp.process()
+    'Processing Component1'
+
+    Use public_dir for API exploration:
+
+    >>> comp = MyComponent("Test")
+    >>> methods = comp.public_dir
+    >>> "process" in methods
+    True
+    >>> "_private" in methods  # Private attributes are excluded
+    False
+
+    Multiple inheritance with PyAedtBase:
+
+    >>> class Configurable:
+    ...     def configure(self):
+    ...         return "configured"
+    >>> class MyAdvancedComponent(Configurable, PyAedtBase):
+    ...     def __init__(self):
+    ...         self.value = 42
+    >>> adv = MyAdvancedComponent()
+    >>> adv.configure()
+    'configured'
+    >>> # PyAedtBase methods are available
+    >>> "configure" in adv.public_dir
+    True
+
+    String representation of objects:
+
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()  # doctest: +SKIP
+    >>> print(hfss)  # doctest: +SKIP
+    Class: ansys.aedt.core.hfss.Hfss
+
     """
 
     def __repr__(self) -> str:
@@ -112,6 +244,16 @@ class PyAedtBase(DirMixin):
         -------
         str
             String representation showing the module and class name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.base import PyAedtBase
+        >>> class MyClass(PyAedtBase):
+        ...     pass
+        >>> obj = MyClass()
+        >>> repr(obj)
+        'Class: __main__.MyClass'
+
         """
         return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
 
@@ -122,5 +264,18 @@ class PyAedtBase(DirMixin):
         -------
         str
             String representation showing the module and class name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.base import PyAedtBase
+        >>> class MyTool(PyAedtBase):
+        ...     def __init__(self, name):
+        ...         self.name = name
+        >>> tool = MyTool("Analyzer")
+        >>> print(tool)
+        Class: __main__.MyTool
+        >>> str(tool)
+        'Class: __main__.MyTool'
+
         """
         return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
