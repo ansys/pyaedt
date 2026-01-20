@@ -1513,8 +1513,8 @@ class Design(AedtObjects, PyAedtBase):
             return []
 
     @pyaedt_function_handler()
-    def get_oo_property_value(self, aedt_object, object_name, prop_name):
-        """Return the Object Oriented AEDT Object Properties.
+    def get_oo_property_value(self, aedt_object: Any, object_name: str, prop_name: str) -> Any:
+        """Return the Object-Oriented AEDT Object Properties.
 
         Parameters
         ----------
@@ -1527,8 +1527,15 @@ class Design(AedtObjects, PyAedtBase):
 
         Returns
         -------
-        str, float, bool
-            ``True`` when successful, ``False`` when failed.
+        Any
+            Property value of any type, or ``None`` if the property is not found.
+
+        Examples
+        --------
+        >>> value = design.get_oo_property_value(oDesign, "DesignSettings", "EnablePowerNets")
+        >>> print(value)
+        True
+
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
