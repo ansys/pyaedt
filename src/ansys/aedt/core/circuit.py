@@ -223,6 +223,22 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> netlist_path = "C:/netlists/my_circuit.sp"
+        >>> circuit.create_schematic_from_netlist(netlist_path)
+        True
+
+        Create a circuit and import a netlist with parameters:
+
+        >>> circuit = Circuit("MyCircuitProject")
+        >>> # Netlist file contains R, L, C components
+        >>> success = circuit.create_schematic_from_netlist("path/to/filter.cir")
+        >>> if success:
+        ...     circuit.analyze_setup("MySetup")
+
         """
         units = self.modeler.schematic_units
         self.modeler.schematic_units = "meter"
@@ -464,6 +480,29 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         -------
         :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             IBIS object exposing all data from the IBIS file.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> ibis_file = "C:/ibis_models/memory.ibs"
+        >>> ibis_model = circuit.get_ibis_model_from_file(ibis_file)
+        >>> # Access IBIS data
+        >>> print(ibis_model.components)
+
+        Import an IBIS AMI model:
+
+        >>> ami_file = "path/to/serdes.ami"
+        >>> ami_model = circuit.get_ibis_model_from_file(ami_file, is_ami=True)
+        >>> # Use the AMI model for high-speed simulations
+        >>> buffers = ami_model.buffers
+
+        Use with pathlib:
+
+        >>> from pathlib import Path
+        >>> ibis_path = Path("C:/models/ddr4.ibs")
+        >>> model = circuit.get_ibis_model_from_file(ibis_path)
+
         """
         if is_ami:
             reader = ibis_reader.AMIReader(str(input_file), self)
@@ -722,6 +761,30 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.ImportData
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> s4p_file = "C:/sparameters/filter.s4p"
+        >>> ports = circuit.import_touchstone_solution(s4p_file)
+        >>> print(f"Imported {len(ports)} ports: {ports}")
+        Imported 4 ports: ['Port1', 'Port2', 'Port3', 'Port4']
+
+        Import with custom solution name:
+
+        >>> circuit = Circuit("MyProject")
+        >>> touchstone = "path/to/amplifier.s2p"
+        >>> port_names = circuit.import_touchstone_solution(touchstone, solution="Amplifier_Data")
+        >>> # Create a report using the imported data
+        >>> circuit.create_touchstone_report("S21_Plot", ["dB(S(Port1,Port2))"])
+
+        Import a Touchstone TS file:
+
+        >>> ts_file = "measured_data.ts"
+        >>> ports = circuit.import_touchstone_solution(ts_file, solution="Measured")
+        >>> # The ports list contains the imported port names
+
         """
         if input_file[-2:] == "ts":
             with open_file(input_file, "r") as f:
@@ -1004,6 +1067,28 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> # Create a simple S-parameter plot
+        >>> curves = ["dB(S(Port1,Port1))", "dB(S(Port2,Port1))"]
+        >>> circuit.create_touchstone_report("S_Parameters", curves)
+        True
+
+        Create a differential pairs report:
+
+        >>> circuit = Circuit("Diff_Pairs_Design")
+        >>> diff_curves = ["dB(S(Diff1,Diff1))", "dB(S(Diff2,Diff1))"]
+        >>> circuit.create_touchstone_report(name="Differential_SParams", curves=diff_curves, differential_pairs=True)
+
+        Create a report with specific variations:
+
+        >>> variations = {"trace_width": "5mil", "trace_length": "1000mil"}
+        >>> curves = ["dB(S(1,1))", "dB(S(2,1))"]
+        >>> circuit.create_touchstone_report("Parametric_Study", curves, variations=variations, solution="MySetup")
+
         """
         if not solution:
             solution = self.nominal_sweep
@@ -1145,6 +1230,39 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.UpdateSources
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> # Create a sinusoidal voltage source
+        >>> vsource = circuit.create_source("VoltageSin", "V1")
+        >>> vsource.amplitude = "1V"
+        >>> vsource.frequency = "1GHz"
+
+        Create multiple sources:
+
+        >>> circuit = Circuit("RFDesign")
+        >>> # DC voltage source
+        >>> vdc = circuit.create_source("VoltageDC", "VDD")
+        >>> vdc.voltage = "3.3V"
+        >>> # Sinusoidal current source
+        >>> isrc = circuit.create_source("CurrentSin", "I_AC")
+        >>> isrc.amplitude = "10mA"
+        >>> isrc.frequency = "100MHz"
+
+        Create a power source:
+
+        >>> power_src = circuit.create_source("PowerSin", "PowerSource1")
+        >>> power_src.power = "1W"
+        >>> power_src.frequency = "2.4GHz"
+
+        Create an IQ source for modulated signals:
+
+        >>> iq_source = circuit.create_source("PowerIQ")
+        >>> # Configure IQ source parameters
+        >>> iq_source.carrier_frequency = "5GHz"
+
         """
         if not name:
             name = generate_unique_name("Source")
@@ -1322,6 +1440,36 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.SetDiffPairs
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> # Define a differential pair for high-speed signals
+        >>> circuit.set_differential_pair(
+        ...     assignment="Port1",
+        ...     reference="Port2",
+        ...     differential_mode="USB_DP",
+        ...     common_mode="USB_CM",
+        ...     differential_reference=90,
+        ...     common_reference=45,
+        ... )
+        True
+
+        Create multiple differential pairs:
+
+        >>> circuit = Circuit("DDR_Interface")
+        >>> # Data line differential pair
+        >>> circuit.set_differential_pair("DQ_P", "DQ_N", differential_mode="Data_Diff", differential_reference=100)
+        >>> # Clock differential pair
+        >>> circuit.set_differential_pair("CLK_P", "CLK_N", differential_mode="Clock_Diff", differential_reference=100)
+
+        Create a differential pair with default naming:
+
+        >>> # Let PyAEDT generate unique names
+        >>> success = circuit.set_differential_pair("TX_P", "TX_N")
+        >>> # Names will be auto-generated like "Diff_1" and "Comm_1"
+
         """
         if not differential_mode:
             differential_mode = generate_unique_name("Diff")
@@ -1414,6 +1562,30 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.LoadDiffPairsFromFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> # Load differential pairs from a configuration file
+        >>> diff_pairs_file = "C:/configs/diff_pairs.txt"
+        >>> circuit.load_diff_pairs_from_file(diff_pairs_file)
+        True
+
+        Load and verify differential pairs:
+
+        >>> circuit = Circuit("SerDes_Design")
+        >>> config_file = "differential_pairs_config.txt"
+        >>> success = circuit.load_diff_pairs_from_file(config_file)
+        >>> if success:
+        ...     print("Differential pairs loaded successfully")
+
+        Use with pathlib:
+
+        >>> from pathlib import Path
+        >>> config_path = Path("configs") / "diff_pairs.txt"
+        >>> circuit.load_diff_pairs_from_file(config_path)
+
         """
         if not Path(input_file).is_file():  # pragma: no cover
             raise ValueError(f"{input_file}: The specified file could not be found.")
@@ -1451,6 +1623,29 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         References
         ----------
         >>> oDesign.SaveDiffPairsToFile
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> circuit = Circuit()
+        >>> # Save current differential pair configuration
+        >>> output = "C:/backups/my_diff_pairs.txt"
+        >>> circuit.save_diff_pairs_to_file(output)
+        True
+
+        Save and reload differential pairs:
+
+        >>> circuit = Circuit("DDR_Project")
+        >>> # Define differential pairs
+        >>> circuit.set_differential_pair("DQ0_P", "DQ0_N")
+        >>> circuit.set_differential_pair("DQ1_P", "DQ1_N")
+        >>> # Save configuration
+        >>> config_file = "ddr_diff_pairs.txt"
+        >>> circuit.save_diff_pairs_to_file(config_file)
+        >>> # Later, load in another project
+        >>> new_circuit = Circuit("DDR_Project_V2")
+        >>> new_circuit.load_diff_pairs_from_file(config_file)
+
         """
         self.odesign.SaveDiffPairsToFile(str(output_file))
 
