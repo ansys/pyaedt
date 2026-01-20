@@ -32,7 +32,12 @@ from pathlib import Path
 import re
 import shutil
 import time
+from typing import TYPE_CHECKING
 from typing import Any
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.generic.ibis_reader import Ibis
+    from ansys.aedt.core.visualization.report.standard import Standard
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -465,7 +470,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, input_file: str | Path, is_ami: bool = False) -> Any:
+    def get_ibis_model_from_file(self, input_file: str | Path, is_ami: bool = False) -> Ibis:
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -1041,7 +1046,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         variations: dict[str, Any] | None = None,
         differential_pairs: bool = False,
         subdesign_id: int | None = None,
-    ) -> bool:
+    ) -> Standard:
         """Create a Touchstone plot.
 
         Parameters
@@ -1061,8 +1066,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        bool
-           ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.visualization.report.standard.Standard`
+            Report object when successful.
 
         References
         ----------
@@ -1074,20 +1079,28 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         >>> circuit = Circuit()
         >>> # Create a simple S-parameter plot
         >>> curves = ["dB(S(Port1,Port1))", "dB(S(Port2,Port1))"]
-        >>> circuit.create_touchstone_report("S_Parameters", curves)
-        True
+        >>> report = circuit.create_touchstone_report("S_Parameters", curves)
+        >>> # report is a Standard report object
 
         Create a differential pairs report:
 
         >>> circuit = Circuit("Diff_Pairs_Design")
         >>> diff_curves = ["dB(S(Diff1,Diff1))", "dB(S(Diff2,Diff1))"]
-        >>> circuit.create_touchstone_report(name="Differential_SParams", curves=diff_curves, differential_pairs=True)
+        >>> diff_report = circuit.create_touchstone_report(
+        ...     name="Differential_SParams", curves=diff_curves, differential_pairs=True
+        ... )
+        >>> # Access report properties
+        >>> print(diff_report.plot_name)
 
         Create a report with specific variations:
 
         >>> variations = {"trace_width": "5mil", "trace_length": "1000mil"}
         >>> curves = ["dB(S(1,1))", "dB(S(2,1))"]
-        >>> circuit.create_touchstone_report("Parametric_Study", curves, variations=variations, solution="MySetup")
+        >>> param_report = circuit.create_touchstone_report(
+        ...     "Parametric_Study", curves, variations=variations, solution="MySetup"
+        ... )
+        >>> # Export the report data if needed
+        >>> param_report.export_data_to_csv("results.csv")
 
         """
         if not solution:
