@@ -26,6 +26,7 @@
 
 import os
 import sys
+from typing import TextIO
 import warnings
 
 if os.name == "nt":
@@ -54,11 +55,18 @@ def deprecation_warning():
     existing_showwarning = warnings.showwarning
 
     # Define and use custom showwarning
-    def custom_show_warning(message, category, filename, lineno, file=None, line=None):
+    def custom_show_warning(
+        message: Warning | str,
+        category: type[Warning],
+        filename: str,
+        lineno: int,
+        file: TextIO | None = None,
+        line: str | None = None,
+    ) -> None:
         """Define and use custom warning to remove <stdin>:loc: pattern."""
         print(f"{category.__name__}: {message}")
 
-    warnings.showwarning = custom_show_warning
+    warnings.showwarning = custom_show_warning  # type: ignore[assignment]
 
     current_python_version = sys.version_info[:2]
     if current_python_version <= LATEST_DEPRECATED_PYTHON_VERSION:
