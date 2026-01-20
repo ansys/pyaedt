@@ -24,11 +24,14 @@
 
 """This module contains the ``Hfss3dLayout`` class."""
 
+from __future__ import annotations
+
 import fnmatch
 import io
 import os
 from pathlib import Path
 import re
+from typing import Any
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -135,10 +138,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     >>> import ansys.aedt.core
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=252)
+    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion="2025.2")
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
-    >>> edb.save_edb()
-    >>> edb.close_edb()
+    >>> edb.save()
+    >>> edb.close()
     >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=252, project=edb_path)
 
     """
@@ -146,21 +149,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        setup=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        ic_mode=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        setup: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int | None = None,
+        ic_mode: bool | None = None,
+        remove_lock: bool = False,
+    ) -> None:
         FieldAnalysis3DLayout.__init__(
             self,
             "HFSS3DLAYOUT",
@@ -181,37 +184,39 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         )
         ScatteringMethods.__init__(self, self)
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
-    def ic_mode(self):
+    def ic_mode(self) -> bool:
         """IC mode of current design.
 
         Returns
         -------
         bool
+            ``True`` when in IC mode, ``False`` otherwise.
+
         """
         return self.get_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC")
 
     @ic_mode.setter
-    def ic_mode(self, value):
+    def ic_mode(self, value: bool) -> None:
+        """Set IC mode."""
         self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", value)
 
     @pyaedt_function_handler()
     def create_edge_port(
         self,
-        assignment,
-        edge_number,
-        is_circuit_port=False,
-        is_wave_port=False,
-        wave_horizontal_extension=5,
-        wave_vertical_extension=3,
-        wave_launcher="1mm",
-        reference_primitive=None,
-        reference_edge_number=0,
-    ):
-        # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
+        assignment: str | object,
+        edge_number: int,
+        is_circuit_port: bool = False,
+        is_wave_port: bool = False,
+        wave_horizontal_extension: float = 5,
+        wave_vertical_extension: float = 3,
+        wave_launcher: str = "1mm",
+        reference_primitive: str | None = None,
+        reference_edge_number: str | int = 0,
+    ) -> BoundaryObject3dLayout | bool:
         """Create an edge port.
 
         Parameters
@@ -362,17 +367,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_wave_port_from_two_conductors(self, assignment=None, edge_numbers=None):
+    def create_wave_port_from_two_conductors(
+        self, assignment: list[str] | None = None, edge_numbers: list[int | str] | None = None
+    ) -> BoundaryObject3dLayout | bool:
         """Create a wave port.
 
         Parameters
         ----------
-        assignment : list, optional
+        assignment : list of str, optional
             List of the primitive names to create the wave port on.
             The list must have two entries, one entry for each of the two conductors,
             or the method is not executed.
 
-        edge_numbers : list, optional
+        edge_numbers : list of int or str, optional
             List of the edge number to create the wave port on.
             The list must have two entries, one entry for each of the two edges,
             or the method is not executed.
@@ -420,7 +427,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def dissolve_component(self, component):
+    def dissolve_component(self, component: str) -> bool:
         """Dissolve a component and remove it from 3D Layout.
 
         Parameters
@@ -548,7 +555,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_differential_port(self, via_signal, via_reference, name, deembed=True):
+    def create_differential_port(
+        self, via_signal: str, via_reference: str, name: str, deembed: bool = True
+    ) -> BoundaryObject3dLayout | bool:
         """Create a differential port.
 
         Parameters
@@ -596,7 +605,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, via, radial_extent=0.1, layer=None, alignment="lower"):
+    def create_coax_port(
+        self, via: str, radial_extent: float = 0.1, layer: str | None = None, alignment: str = "lower"
+    ) -> BoundaryObject3dLayout | bool:
         """Create a coax port.
 
         Parameters
@@ -642,7 +653,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_pin_port(self, name, x=0, y=0, rotation=0, top_layer=None, bottom_layer=None):
+    def create_pin_port(
+        self,
+        name: str,
+        x: float = 0,
+        y: float = 0,
+        rotation: float = 0,
+        top_layer: str | None = None,
+        bottom_layer: str | None = None,
+    ) -> BoundaryObject3dLayout | bool:
         """Create a pin port.
 
         Parameters
@@ -707,7 +726,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete_port(self, name, remove_geometry=True):
+    def delete_port(self, name: str, remove_geometry: bool = True) -> bool:
         """Delete a port.
 
         Parameters
@@ -738,7 +757,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_edb(self, input_folder):
+    def import_edb(self, input_folder: str | Path) -> bool:
         """Import EDB.
 
         Parameters
@@ -755,7 +774,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         ----------
         >>> oModule.ImportEDB
         """
-        if "edb.def" not in input_folder:
+        input_folder_str = str(input_folder)
+        if "edb.def" not in input_folder_str:
             input_folder = Path(input_folder) / "edb.def"
         self.oimport_export.ImportEDB(str(input_folder))
         self._close_edb()
@@ -765,7 +785,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def validate_full_design(self, name=None, output_dir=None, ports=None):
+    def validate_full_design(
+        self, name: str | None = None, output_dir: str | Path | None = None, ports: int | None = None
+    ) -> tuple[list, bool] | bool:
         """Validate the design based on the expected value and save the information in the log file.
 
         Parameters
@@ -805,7 +827,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         # The design validation inside HFSS outputs to a separate log file that is merged into this overall file
         #
         val_list = []
-        all_validate = output_dir + "\\all_validation.log"
+        output_dir_str = str(output_dir) if output_dir else "."
+        all_validate = output_dir_str + "\\all_validation.log"
         with open_file(all_validate, "w") as validation:
             # Desktop Messages
             msg = "Desktop Messages:"
@@ -822,7 +845,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
             # Run Design Validation and write out the lines to the logger
 
-            ret = self._odesign.ValidateCircuit()
+            if self._odesign:
+                ret = self._odesign.ValidateCircuit()
+            else:
+                self.logger.error("Design object not available for validation.")
+                return False
             msg = "Design Validation Messages:"
             validation.writelines(msg + "\n")
             val_list.append(msg)
@@ -893,9 +920,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         >>> oModule.CreateReport
         """
         solution_data = "Standard"
-        if "Modal" in self.solution_type:
+        if self.solution_type and "Modal" in self.solution_type:
             solution_data = "Modal Solution Data"
-        elif "Terminal" in self.solution_type:
+        elif self.solution_type and "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
         if not port_names:
             port_names = self.excitation_names
@@ -1035,7 +1062,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
+    def set_meshing_settings(
+        self, mesh_method: str = "Phi", enable_intersections_check: bool = True, use_alternative_fallback: bool = True
+    ) -> bool:
         """Define the settings of the mesh.
 
         Parameters
@@ -1058,15 +1087,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         ----------
         >>> oDesign.DesignOptions
         """
-        settings = []
-        settings.append("NAME:options")
-        settings.append("MeshingMethod:=")
-        settings.append(mesh_method)
-        settings.append("EnableDesignIntersectionCheck:=")
-        settings.append(enable_intersections_check)
-        settings.append("UseAlternativeMeshMethodsAsFallBack:=")
-        settings.append(use_alternative_fallback)
-        self.odesign.DesignOptions(settings, 0)
+        mesh_settings = []
+        mesh_settings.append("NAME:options")
+        mesh_settings.append("MeshingMethod:=")
+        mesh_settings.append(mesh_method)
+        mesh_settings.append("EnableDesignIntersectionCheck:=")
+        mesh_settings.append(enable_intersections_check)
+        mesh_settings.append("UseAlternativeMeshMethodsAsFallBack:=")
+        mesh_settings.append(use_alternative_fallback)
+        self.odesign.DesignOptions(mesh_settings, 0)
         return True
 
     @pyaedt_function_handler()
@@ -1375,6 +1404,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             method = self.oimport_export.ImportODB
         if not method:
             return False
+
+        # Assert method is callable at this point
+        assert callable(method), "Import method must be callable"
+
         active_project = self.project_name
         if not aedb_path:
             aedb_path = str(Path(cad_path).with_suffix(".aedb"))
@@ -1851,13 +1884,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_differential_pairs(self):
-        # type: () -> list
+    def get_differential_pairs(self) -> list[str]:
         """Get the list defined differential pairs.
 
         Returns
         -------
-        list
+        list of str
             List of differential pairs.
 
         Examples
@@ -1885,8 +1917,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, input_file):
-        # type: (str) -> bool
+    def load_diff_pairs_from_file(self, input_file: str | Path) -> bool:
         """Load differential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
@@ -1925,15 +1956,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def save_diff_pairs_to_file(self, output_file):
-        # type: (str) -> bool
-        """Save differtential pairs definition to a file.
+    @pyaedt_function_handler()
+    def save_diff_pairs_to_file(self, output_file: str | Path) -> bool:
+        """Save differential pairs definition to a file.
 
         If a file with the specified name already exists, it is overwritten.
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Full path to the differential pairs definition file.
 
         Returns
@@ -1967,6 +1998,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             File name if successful.
         """
         if not output_file:
+            if not self.design_name:  # pragma: no cover
+                self.logger.error("Design name is not available. Cannot generate output file name.")
+                raise ValueError("Design name is required to generate output file.")
             if settings.aedt_version > "2022.2":
                 output_file = Path(self.working_directory) / (self.design_name + ".x_t")
                 self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", str(output_file)])
@@ -1978,7 +2012,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def enable_rigid_flex(self):
+    def enable_rigid_flex(self) -> bool:
         """Turn on or off the rigid flex of a board with bending if available.
 
         This function is the same for both turning on and off rigid flex.
@@ -2071,7 +2105,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _update_port_info(self, port):
+    def _update_port_info(self, port: str) -> BoundaryObject3dLayout | None:
         propnames = self.oeditor.GetProperties("EM Design", f"Excitations:{port}")
         props = {}
         for prop in propnames:
@@ -2079,7 +2113,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return BoundaryObject3dLayout(self, port, props, "Port")
 
     @pyaedt_function_handler()
-    def get_model_from_mesh_results(self, binary=True):
+    def get_model_from_mesh_results(self, binary: bool = True) -> str | None:
         """Get the path for the parasolid file in the result folder.
 
         The parasolid file is generated after the mesh is created in 3D Layout.
@@ -2094,6 +2128,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         str
             Path for the parasolid file in the results folder.
         """
+        if not self.results_directory:  # pragma: no cover
+            self.logger.error("Results directory not available.")
+            return None
+        if not self.design_name:  # pragma: no cover
+            self.logger.error("Design name is not available.")
+            return None
         startpath = Path(self.results_directory) / self.design_name
         if not binary:
             model_name = "model_sm3.x_t"
@@ -2108,24 +2148,24 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         ]
         if out_files:
             out_files.sort(key=lambda x: Path(x).stat().st_mtime)
-            return out_files[0]
+            return str(out_files[0])
         return ""
 
     @pyaedt_function_handler()
     def edit_source_from_file(
         self,
-        source,
-        input_file,
-        is_time_domain=True,
-        x_scale=1,
-        y_scale=1,
-        impedance=50,
-        data_format="Power",
-        encoding="utf-8",
-        include_post_effects=True,
-        incident_voltage=True,
-        window="hamming",
-    ):
+        source: str,
+        input_file: str | Path,
+        is_time_domain: bool = True,
+        x_scale: float = 1,
+        y_scale: float = 1,
+        impedance: float = 50,
+        data_format: str = "Power",
+        encoding: str = "utf-8",
+        include_post_effects: bool = True,
+        incident_voltage: bool = True,
+        window: str = "hamming",
+    ) -> bool:
         """Edit a source from file data.
 
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -2260,7 +2300,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
+    def get_dcir_solution_data(self, setup: str, show: str = "RL", category: str = "Loop_Resistance") -> Any:
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
 
         Sources ["Voltage", "Current", "Power"]
@@ -2295,7 +2335,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
     @pyaedt_function_handler()
-    def get_dcir_element_data_loop_resistance(self, setup):
+    def get_dcir_element_data_loop_resistance(self, setup: str) -> Any:
         """Get dcir element data loop resistance.
 
         Parameters
@@ -2335,7 +2375,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return df
 
     @pyaedt_function_handler()
-    def get_dcir_element_data_current_source(self, setup):
+    def get_dcir_element_data_current_source(self, setup: str) -> Any:
         """Get dcir element data current source.
 
         Parameters
@@ -2345,7 +2385,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        pandas.Dataframe
+        pandas.DataFrame or bool
+            DataFrame with current source data, or ``False`` if failed.
+
         """
         import pandas as pd
 
@@ -2369,7 +2411,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return df
 
     @pyaedt_function_handler()
-    def get_dcir_element_data_via(self, setup):
+    def get_dcir_element_data_via(self, setup: str) -> Any:
         """Get dcir element data via.
 
         Parameters
@@ -2379,7 +2421,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        pandas.Dataframe
+        pandas.DataFrame or None
+            DataFrame with via data, or ``None`` if no data available.
+
         """
         import pandas as pd
 
@@ -2408,7 +2452,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return df
 
     @pyaedt_function_handler()
-    def show_extent(self, show=True):
+    def show_extent(self, show: bool = True) -> bool:
         """Show or hide extent in a HFSS3dLayout design.
 
         Parameters
@@ -2437,7 +2481,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_options(self, color_by_net=True):
+    def change_options(self, color_by_net: bool = True) -> bool:
         """Change options for an existing layout.
 
         It changes design visualization by color.
@@ -2470,7 +2514,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def export_touchstone_on_completion(self, export=True, output_dir=None):
+    def export_touchstone_on_completion(self, export: bool = True, output_dir: str | Path | None = None) -> bool:
         """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
 
         Parameters
@@ -2502,21 +2546,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def import_table(
         self,
-        input_file,
-        link=False,
-        header_rows=0,
-        rows_to_read=-1,
-        column_separator="Space",
-        data_type="real",
-        sweep_columns=0,
-        total_columns=-1,
-        real_columns=1,
-    ):
+        input_file: str | Path,
+        link: bool = False,
+        header_rows: int = 0,
+        rows_to_read: int = -1,
+        column_separator: str = "Space",
+        data_type: str = "real",
+        sweep_columns: int = 0,
+        total_columns: int = -1,
+        real_columns: int = 1,
+    ) -> bool:
         """Import a data table as a solution.
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the file.
         link : bool, optional
             Whether to link the file to the solution. The default is ``False``.
@@ -2525,21 +2569,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         rows_to_read : int, optional
             Rows to read. If ``-1``, then reads until end of file. The default is ``-1``.
         column_separator : str, optional
-            Column separator type. Available options are ``Space``, ``Tab``, ``Comma``, and ``Period``.
-            The default is ``Space``.
+            Column separator type. Available options are ``"Space"``, ``"Tab"``, ``"Comma"``, and ``"Period"``.
+            The default is ``"Space"``.
         data_type : str, optional
-            Data type. Available options are ``real``, ``real_imag``, ``mag_ang_deg``, and ``mag_ang_rad``.
-            The default is ``real``.
+            Data type. Available options are ``"real"``, ``"real_imag"``, ``"mag_ang_deg"``, and ``"mag_ang_rad"``.
+            The default is ``"real"``.
         sweep_columns : int, optional
             Sweep columns. The default is ``0``.
         total_columns : int, optional
             Total number of columns. If ``-1``, then reads the total number of columns. The default is ``-1``.
         real_columns : int, optional
-            Number of lefmotst real columns. The default is ``1``.
+            Number of leftmost real columns. The default is ``1``.
 
         Returns
         -------
-        str
+        bool
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -2599,7 +2643,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return new_sweep[0]
 
     @pyaedt_function_handler()
-    def delete_imported_data(self, name):
+    def delete_imported_data(self, name: str) -> bool:
         """Delete imported data.
 
         Parameters
@@ -2609,7 +2653,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
         Returns
         -------
-        str
+        bool
             ``True`` when successful, ``False`` when failed.
 
         References

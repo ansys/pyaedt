@@ -1536,7 +1536,7 @@ class Design(AedtObjects, PyAedtBase):
             return None
 
     @pyaedt_function_handler()
-    def set_oo_property_value(self, aedt_object, object_name, prop_name, value):
+    def set_oo_property_value(self, aedt_object: Any, object_name: str, prop_name: str, value: Any) -> bool:
         """Change the property value of the object-oriented AEDT object.
 
         Parameters
@@ -1547,13 +1547,19 @@ class Design(AedtObjects, PyAedtBase):
             Path to the object list. Example ``"DesignName\\Boundaries"``.
         prop_name : str
             Property name.
-        value : str
-            Property value.
+        value : Any
+            Property value. Can be of any type (str, int, float, bool, list, etc.).
 
         Returns
         -------
         bool
-            Values returned by method if any.
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> design.set_oo_property_value(oDesign, "DesignSettings", "EnablePowerNets", True)
+        True
+
         """
         try:
             aedt_object.GetChildObject(object_name).SetPropValue(prop_name, value)
