@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
 import signal
@@ -29,6 +31,7 @@ import socket
 import sys
 import tempfile
 import time
+from typing import Any
 
 import rpyc
 from rpyc.core import consts
@@ -46,7 +49,7 @@ from ansys.aedt.core.rpc.rpyc_services import ServiceManager
 from ansys.aedt.core.rpc.rpyc_services import check_port
 
 # Maximum Stream message size. Set to 256MB
-consts.STREAM_CHUNK = 256000000
+consts.STREAM_CHUNK = 256000000  # type: ignore[misc]
 
 
 safe_attrs = {
@@ -141,7 +144,9 @@ safe_attrs = {
 }
 
 
-def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
+def pyaedt_service_manager(
+    port: int = 17878, aedt_version: str | None = None, student_version: bool = False
+) -> bool | None:
     """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
@@ -151,11 +156,18 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     Parameters
     ----------
     port : int, optional
-        Port that the RPyC server is to listen on.
+        Port that the RPyC server is to listen on. The default is ``17878``.
     aedt_version : str, optional
-        Version of Aedt to instantiate with server. Default is latest available version installed on the machine.
+        Version of AEDT to instantiate with server. The default is ``None``,
+        in which case the latest available version installed on the machine is used.
     student_version : bool, optional
-        Either to initialize Student version AEDT or Commercial version.
+        Whether to initialize Student version AEDT or Commercial version.
+        The default is ``False``.
+
+    Returns
+    -------
+    bool or None
+        ``False`` when failed, ``None`` when server starts successfully.
 
     Examples
     --------
@@ -211,7 +223,9 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     t.start()
 
 
-def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=True):
+def launch_server(
+    port: int = 18000, ansysem_path: str | None = None, non_graphical: bool = False, threaded: bool = True
+) -> bool | None:
     """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
@@ -219,7 +233,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     Parameters
     ----------
     port : int, optional
-        Port that the RPyC server is to listen on.
+        Port that the RPyC server is to listen on. The default is ``18000``.
     ansysem_path : str, optional
         Full path to the AEDT installation directory. The default is
         ``None``. This parameter is needed for IronPython on Linux
@@ -229,6 +243,12 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
         which means AEDT starts in graphical mode. This parameter is needed
         for IronPython on Linux connections only.
     threaded : bool, optional
+        Whether to use a threaded server. The default is ``True``.
+
+    Returns
+    -------
+    bool or None
+        ``False`` when failed, ``None`` when server starts successfully.
 
     Examples
     --------
@@ -283,26 +303,41 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     t.start()
 
 
-def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=False):
-    """
-    Connect to an existing AEDT server session and create a new client session from it.
+def create_session(
+    server_name: str,
+    client_port: int | None = None,
+    launch_aedt_on_server: bool = False,
+    aedt_port: int | None = None,
+    non_graphical: bool = False,
+) -> Any | bool:
+    """Connect to an existing AEDT server session and create a new client session from it.
 
     Parameters
     ----------
     server_name : str
         Name of the remote machine to connect to.
-    client_port : int
-        Port that the RPyC server will run.
+    client_port : int, optional
+        Port that the RPyC server will run. The default is ``None``,
+        in which case an available port is automatically selected.
     launch_aedt_on_server : bool, optional
-        Either if the method has to start AEDT after the connection is established or not. Default is  `False`.
+        Whether the method has to start AEDT after the connection is established.
+        The default is ``False``.
     aedt_port : int, optional
-        Aedt Grpc port on server.
+        AEDT gRPC port on server. The default is ``None``.
     non_graphical : bool, optional
-        Aedt Non Graphical Flag.
+        AEDT non-graphical flag. The default is ``False``.
 
     Returns
     -------
-    RPyC client object.
+    Any or bool
+        RPyC client object if successful, ``False`` if failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.common_rpc import create_session
+    >>> cl1 = create_session("server_name")
+    >>> cl2 = create_session("server_name", launch_aedt_on_server=True)
+
     """
     try:
         client = rpyc.connect(
@@ -315,18 +350,20 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         port = client.root.start_service(client_port)
         time.sleep(1)
         cl = connect(server_name, port)
+        if cl is False:
+            return False
         logger.info("Created new session on port %s", port)
         if "server_name" not in dir(cl):
-            cl.server_name = server_name
+            cl.server_name = server_name  # type: ignore[attr-defined]
         if "aedt_port" not in dir(cl):
-            cl.aedt_port = None
+            cl.aedt_port = None  # type: ignore[attr-defined]
         if launch_aedt_on_server:
             if not aedt_port:
                 aedt_port = client.root.check_port()
-            cl.aedt(port=aedt_port, non_graphical=non_graphical)
+            cl.aedt(port=aedt_port, non_graphical=non_graphical)  # type: ignore[attr-defined]
             logger.info("Aedt started on port %s", aedt_port)
-            if not cl.aedt_port:
-                cl.aedt_port = aedt_port
+            if not cl.aedt_port:  # type: ignore[attr-defined]
+                cl.aedt_port = aedt_port  # type: ignore[attr-defined]
         return cl
     except Exception:
         msg = "Error. No connection exists."
@@ -335,9 +372,8 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         return False
 
 
-def connect(server_name, aedt_client_port):
-    """
-    Connect to an existing AEDT server session.
+def connect(server_name: str, aedt_client_port: int) -> Any | bool:
+    """Connect to an existing AEDT server session.
 
     Parameters
     ----------
@@ -348,7 +384,14 @@ def connect(server_name, aedt_client_port):
 
     Returns
     -------
-    RPyC client object.
+    Any or bool
+        RPyC client object if successful, ``False`` if failed.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.common_rpc import connect
+    >>> cl = connect("server_name", 18000)
+
     """
     try:
         client = rpyc.connect(
@@ -372,8 +415,8 @@ def connect(server_name, aedt_client_port):
         except AttributeError:
             pass
         settings.remote_rpc_session = client
-        settings.remote_rpc_session_temp_folder = Path(tempfile.gettempdir()) / str(
-            server_name + "_" + str(aedt_client_port)
+        settings.remote_rpc_session_temp_folder = str(
+            Path(tempfile.gettempdir()) / str(server_name + "_" + str(aedt_client_port))
         )
         if not Path(settings.remote_rpc_session_temp_folder).exists():
             os.makedirs(settings.remote_rpc_session_temp_folder)

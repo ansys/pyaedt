@@ -143,11 +143,10 @@ class AppFilter(logging.Filter):
 
 
 class AedtLogger:
-    """
-    Specifies the logger to use for each AEDT logger.
+    """Specifies the logger to use for each AEDT logger.
 
     This class allows you to add a handler to write messages to a file and to indicate
-    whether to write mnessages to the standard output (stdout).
+    whether to write messages to the standard output (stdout).
 
     Parameters
     ----------
@@ -158,6 +157,52 @@ class AedtLogger:
         Name of the file to write messages to. The default is ``None``.
     to_stdout : bool, optional
         Whether to write log messages to stdout. The default is ``False``.
+
+    Examples
+    --------
+    Create a basic logger with console output:
+
+    >>> from ansys.aedt.core.aedt_logger import AedtLogger
+    >>> import logging
+    >>> logger = AedtLogger(level=logging.INFO, to_stdout=True)
+    >>> logger.info("Application started")
+    >>> logger.warning("This is a warning")
+
+    Create a logger with file output:
+
+    >>> from pathlib import Path
+    >>> log_file = Path("my_application.log")
+    >>> logger = AedtLogger(level=logging.DEBUG, filename=str(log_file))
+    >>> logger.info("Logging to file")
+    >>> logger.debug("Debug information")
+
+    Use the logger with timing information:
+
+    >>> import time
+    >>> logger = AedtLogger(to_stdout=True)
+    >>> start_time = time.time()
+    >>> # Perform some operations
+    >>> time.sleep(1)
+    >>> logger.info_timer("Operation completed", start_time)
+
+    Add project and design loggers:
+
+    >>> logger = AedtLogger()
+    >>> logger._project_name = "MyProject"
+    >>> logger._design_name = "MyDesign"
+    >>> project_logger = logger.add_logger("Project", logging.INFO)
+    >>> design_logger = logger.add_logger("Design", logging.DEBUG)
+    >>> project_logger.info("Project-level message")
+    >>> design_logger.debug("Design-level debug message")
+
+    Disable and enable logging to desktop:
+
+    >>> logger = AedtLogger()
+    >>> logger.disable_desktop_log()
+    >>> # AEDT desktop logging is now disabled
+    >>> logger.enable_desktop_log()
+    >>> # AEDT desktop logging is now enabled
+
     """
 
     def __init__(
@@ -247,6 +292,15 @@ class AedtLogger:
         -------
         logging.Logger
             Logger object for the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> import logging
+        >>> logger = AedtLogger()
+        >>> project_logger = logger.add_file_logger("my_project.log", "MyProject", logging.INFO)
+        >>> project_logger.info("Project-specific log message")
+
         """
         # Ensure the directory exists
         log_path = Path(filename)
@@ -280,6 +334,14 @@ class AedtLogger:
         ----------
         project_name : str
             Name of the project.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> logger = AedtLogger()
+        >>> logger.add_file_logger("my_project.log", "MyProject")
+        >>> logger.remove_file_logger("MyProject")
+
         """
         handlers = [i for i in self._global.handlers]
         for handler in self._files_handlers:
@@ -832,6 +894,19 @@ class AedtLogger:
         -------
         logging.Logger
             Logger object for the specified destination.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> import logging
+        >>> logger = AedtLogger()
+        >>> logger.oproject = "MyProject"  # Set project reference
+        >>> logger.odesign = "MyDesign"  # Set design reference
+        >>> project_logger = logger.add_logger("Project", logging.INFO)
+        >>> design_logger = logger.add_logger("Design", logging.DEBUG)
+        >>> project_logger.info("Project-level message")
+        >>> design_logger.debug("Design-level debug message")
+
         """
         if destination == "Project":
             project_name = self._project_name
@@ -861,12 +936,28 @@ class AedtLogger:
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
     def disable_desktop_log(self) -> None:
-        """Disable the log in AEDT."""
+        """Disable the log in AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> logger = AedtLogger()
+        >>> logger.disable_desktop_log()
+
+        """
         self._log_on_desktop = False
         self.info("Log on AEDT is disabled.")
 
     def enable_desktop_log(self) -> None:
-        """Enable the log in AEDT."""
+        """Enable the log in AEDT.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> logger = AedtLogger()
+        >>> logger.enable_desktop_log()
+
+        """
         self._log_on_desktop = True
         self.info("Log on AEDT is enabled.")
 
@@ -921,6 +1012,15 @@ class AedtLogger:
             Additional positional arguments for string formatting.
         **kwargs : dict
             Additional keyword arguments for the logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> logger = AedtLogger()
+        >>> logger.info("Starting analysis")
+        >>> logger.info("Processing file: %s", "data.csv")
+        >>> logger.info("Progress: {0}%".format(75))
+
         """
         if not settings.enable_logger:
             return
@@ -950,6 +1050,18 @@ class AedtLogger:
             Additional positional arguments for string formatting.
         **kwargs : dict
             Additional keyword arguments for the logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> import time
+        >>> logger = AedtLogger()
+        >>> start = time.time()
+        >>> # Perform some operations
+        >>> time.sleep(2)
+        >>> logger.info_timer("Operation completed", start)
+        >>> # Output: "Operation completed Elapsed time: 0m 2sec"
+
         """
         if not settings.enable_logger:
             return
@@ -986,6 +1098,14 @@ class AedtLogger:
             Additional positional arguments for string formatting.
         **kwargs : dict
             Additional keyword arguments for the logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> logger = AedtLogger()
+        >>> logger.warning("This operation may take a long time")
+        >>> logger.warning("Invalid parameter value: %s, using default", "auto")
+
         """
         if not settings.enable_logger:
             return
@@ -1010,6 +1130,16 @@ class AedtLogger:
             Additional positional arguments for string formatting.
         **kwargs : dict
             Additional keyword arguments for the logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> logger = AedtLogger()
+        >>> try:
+        ...     result = 10 / 0
+        ... except ZeroDivisionError as e:
+        ...     logger.error("Division by zero error: %s", str(e))
+
         """
         if args:
             try:
@@ -1032,6 +1162,16 @@ class AedtLogger:
             Additional positional arguments for string formatting.
         **kwargs : dict
             Additional keyword arguments for the logger.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.aedt_logger import AedtLogger
+        >>> from ansys.aedt.core.generic.settings import settings
+        >>> logger = AedtLogger()
+        >>> settings.enable_debug_logger = True
+        >>> logger.debug("Variable x = %d", 42)
+        >>> logger.debug("Entering function: process_data()")
+
         """
         if not (settings.enable_debug_logger or settings.enable_debug_grpc_api_logger) or not settings.enable_logger:
             return
