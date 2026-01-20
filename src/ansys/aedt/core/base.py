@@ -22,19 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
 
 import inspect
 
 
 class DirMixin:
-    """
-    Mixin that adds a `.public_dir` property as a shorthand for the built-in `dir()` function.
+    """Mixin that adds a `.public_dir` property as a shorthand for the built-in `dir()` function.
 
     This is primarily intended to make interactive exploration and autocomplete faster.
     Instead of typing `dir(obj)`, you can type `obj.public_dir`.
 
-    Example
-    -------
+    Examples
+    --------
     >>> class Example(DirMixin):
     ...     def foo(self):
     ...         pass
@@ -42,18 +42,33 @@ class DirMixin:
     >>> e.public_dir  # same as dir(e)
     """
 
-    def __dir__(self):
+    def __dir__(self) -> list[str]:
+        """Return a list of attributes for this object.
+
+        Public attributes are listed first, followed by private attributes (starting with '_').
+
+        Returns
+        -------
+        list of str
+            List of attribute names, with public attributes first.
+        """
         # Get default attribute list, there is a fallback for Python 2 or weird metaclasses
         attrs = super().__dir__() if hasattr(super(), "__dir__") else dir(type(self))
         # Split public vs private
-        private = sorted((a for a in attrs if a.startswith("_")), key=str.lower)
-        public = sorted((a for a in attrs if not a.startswith("_")), key=str.lower)
+        private = sorted([a for a in attrs if a.startswith("_")], key=lambda x: x.lower())
+        public = sorted([a for a in attrs if not a.startswith("_")], key=lambda x: x.lower())
         # Return public first, private at the end
         return public + private
 
     @property
-    def public_dir(self):
-        """Shortcut for dir(self)."""
+    def public_dir(self) -> list[str]:
+        """Shortcut for dir(self) that excludes private and deprecated attributes.
+
+        Returns
+        -------
+        list of str
+            List of public, non-deprecated attribute names.
+        """
         result = []
         for name in dir(self):
             if name.startswith("_") or name == "public_dir":
@@ -75,8 +90,7 @@ class DirMixin:
 
 
 class PyAedtBase(DirMixin):
-    """
-    Common base class for all PyAEDT classes.
+    """Common base class for all PyAEDT classes.
 
     Inherits from `DirMixin` to provide the `.public_dir` property for quick
     interactive exploration. This class acts as a central place to
@@ -84,15 +98,29 @@ class PyAedtBase(DirMixin):
 
     Notes
     -----
-    - Prefer placing `Base` at the rightmost position in multiple inheritance
+    - Prefer placing `PyAedtBase` at the rightmost position in multiple inheritance
       to avoid unintentionally overriding behavior from other base classes.
-    - Python's method resolution order (MRO) ensures that if `Base` is
+    - Python's method resolution order (MRO) ensures that if `PyAedtBase` is
       inherited multiple times through different paths, it will only appear
       once in the hierarchy.
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return the string representation of the object.
+
+        Returns
+        -------
+        str
+            String representation showing the module and class name.
+        """
         return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return the string representation of the object.
+
+        Returns
+        -------
+        str
+            String representation showing the module and class name.
+        """
         return f"Class: {self.__class__.__module__}.{self.__class__.__name__}"
