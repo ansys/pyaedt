@@ -235,7 +235,7 @@ class AedtLogger:
 
         Parameters
         ----------
-        filename : str or pathlib.Path
+        filename : str or :class:`pathlib.Path`
             Path to the log file.
         project_name : str
             Name of the project.

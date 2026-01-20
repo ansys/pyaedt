@@ -24,12 +24,15 @@
 
 """This module contains the ``Circuit`` class."""
 
+from __future__ import annotations
+
 import io
 import math
 from pathlib import Path
 import re
 import shutil
 import time
+from typing import Any
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -151,20 +154,20 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        setup=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        project: str | None = None,
+        design: str | None = None,
+        solution_type: str | None = None,
+        setup: str | None = None,
+        version: str | int | float | None = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: int | None = None,
+        remove_lock: bool = False,
+    ) -> None:
         FieldAnalysisCircuit.__init__(
             self,
             "CIRCUIT",
@@ -184,10 +187,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
         ScatteringMethods.__init__(self, self)
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args: Any, **kwargs: Any) -> None:
         self.__init__(*args, **kwargs)
 
-    def _get_number_from_string(self, stringval):
+    def _get_number_from_string(self, stringval: str) -> str:
         value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")
         value = value.replace("µ", "u")
         try:
@@ -197,7 +200,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return from_rkm_to_aedt(value)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file):
+    def create_schematic_from_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from an HSpice netlist.
 
         Supported currently are:
@@ -445,7 +448,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, input_file, is_ami=False):
+    def get_ibis_model_from_file(self, input_file: str | Path, is_ami: bool = False) -> Any:
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -469,7 +472,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return reader.ibis_model
 
     @pyaedt_function_handler()
-    def create_schematic_from_mentor_netlist(self, input_file):
+    def create_schematic_from_mentor_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from a Mentor netlist.
 
         Supported currently are:
@@ -610,7 +613,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def retrieve_mentor_comp(self, reference_id):
+    def retrieve_mentor_comp(self, reference_id: list[str]) -> str:
         """Retrieve the type of the Mentor netlist component for a given reference ID.
 
         Parameters
@@ -639,8 +642,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_source_pin_names(
-        self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3
-    ):
+        self,
+        source_design_name: str,
+        source_project_name: str | None = None,
+        source_project_path: str | None = None,
+        port_selector: int = 3,
+    ) -> list[str] | bool:
         """Retrieve pin names.
 
         Parameters
@@ -696,7 +703,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return pins
 
     @pyaedt_function_handler()
-    def import_touchstone_solution(self, input_file, solution="Imported_Data"):
+    def import_touchstone_solution(self, input_file: str, solution: str = "Imported_Data") -> list[str]:
         """Import a Touchstone file as the solution.
 
         Parameters
@@ -727,6 +734,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         else:
             re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
             m = re_filename.search(input_file)
+            if not m:
+                self.logger.error("Invalid touchstone file format.")
+                return []
             ports = int(m.group("ports"))
             portnames = None
             with open_file(input_file, "r") as f:
@@ -833,17 +843,17 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def export_fullwave_spice(
         self,
-        design=None,
-        setup=None,
-        is_solution_file=False,
-        filename=None,
-        passivity=False,
-        causality=False,
-        renormalize=False,
-        impedance=50,
-        error=0.5,
-        poles=10000,
-    ):
+        design: str | None = None,
+        setup: str | None = None,
+        is_solution_file: bool = False,
+        filename: str | Path | None = None,
+        passivity: bool = False,
+        causality: bool = False,
+        renormalize: bool = False,
+        impedance: float = 50,
+        error: float = 0.5,
+        poles: int = 10000,
+    ) -> str:
         """
         Export a full wave HSpice file using NDE.
 
@@ -956,18 +966,18 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
         self.logger.info("FullWaveSpice correctly exported to %s", filename)
 
-        return filename
+        return str(filename)
 
     @pyaedt_function_handler()
     def create_touchstone_report(
         self,
-        name,
-        curves,
-        solution=None,
-        variations=None,
-        differential_pairs=False,
-        subdesign_id=None,
-    ):
+        name: str,
+        curves: list[str],
+        solution: str | None = None,
+        variations: dict[str, Any] | None = None,
+        differential_pairs: bool = False,
+        subdesign_id: int | None = None,
+    ) -> bool:
         """Create a Touchstone plot.
 
         Parameters
@@ -1008,7 +1018,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def push_excitations(self, instance, thevenin_calculation=False, setup="LinearFrequency"):
+    def push_excitations(
+        self, instance: str, thevenin_calculation: bool = False, setup: str = "LinearFrequency"
+    ) -> bool:
         """Push excitations for a linear frequency setup.
 
         Parameters
@@ -1037,16 +1049,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def push_time_excitations(
         self,
-        instance,
-        start=0.0,
-        stop=0.0,
-        harmonics=100,
-        window_type="Rectangular",
-        width_percentage=100.0,
-        kaiser=0.0,
-        correct_coherent_gain=True,
-        setup="NexximTransient",
-    ):
+        instance: str,
+        start: float = 0.0,
+        stop: float = 0.0,
+        harmonics: int = 100,
+        window_type: str = "Rectangular",
+        width_percentage: float = 100.0,
+        kaiser: float = 0.0,
+        correct_coherent_gain: bool = True,
+        setup: str = "NexximTransient",
+    ) -> bool:
         """Push excitations for a transient setup.
 
         Parameters
@@ -1106,7 +1118,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_source(self, source_type, name=None):
+    def create_source(self, source_type: str, name: str | None = None) -> Sources | bool:
         """Create a source in Circuit.
 
         Parameters
@@ -1163,7 +1175,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return new_source
 
     @pyaedt_function_handler()
-    def assign_voltage_sinusoidal_excitation_to_ports(self, ports):
+    def assign_voltage_sinusoidal_excitation_to_ports(self, ports: list[str]) -> Sources:
         """Assign a voltage sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1187,7 +1199,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_v
 
     @pyaedt_function_handler()
-    def assign_current_sinusoidal_excitation_to_ports(self, ports):
+    def assign_current_sinusoidal_excitation_to_ports(self, ports: list[str]) -> Sources:
         """Assign a current sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1211,7 +1223,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_i
 
     @pyaedt_function_handler()
-    def assign_power_sinusoidal_excitation_to_ports(self, ports):
+    def assign_power_sinusoidal_excitation_to_ports(self, ports: list[str]) -> Sources:
         """Assign a power sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1235,7 +1247,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_p
 
     @pyaedt_function_handler()
-    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, input_file):
+    def assign_voltage_frequency_dependent_excitation_to_ports(
+        self, ports: list[str], input_file: str | Path
+    ) -> Sources | bool:
         """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters
@@ -1272,14 +1286,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def set_differential_pair(
         self,
-        assignment,
-        reference,
-        common_mode=None,
-        differential_mode=None,
-        common_reference=25,
-        differential_reference=100,
-        active=True,
-    ):
+        assignment: str,
+        reference: str,
+        common_mode: str | None = None,
+        differential_mode: str | None = None,
+        common_reference: float = 25,
+        differential_reference: float = 100,
+        active: bool = True,
+    ) -> bool:
         """Add a differential pair definition.
 
         Parameters
@@ -1380,7 +1394,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, input_file):
+    def load_diff_pairs_from_file(self, input_file: str | Path) -> bool:
         """Load differtential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file()`` method to obtain the file format.
@@ -1418,7 +1432,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def save_diff_pairs_to_file(self, output_file):
+    def save_diff_pairs_to_file(self, output_file: str | Path) -> bool:
         """Save differential pairs definition to a file.
 
         If the file that is specified already exists, it is overwritten.
@@ -1442,7 +1456,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return Path(output_file).is_file()
 
     @pyaedt_function_handler()
-    def add_netlist_datablock(self, input_file, name=None):
+    def add_netlist_datablock(self, input_file: str | Path, name: str | None = None) -> bool:
         """Add a new netlist data block to the circuit schematic.
 
         Parameters
@@ -1450,7 +1464,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         input_file : str or :class:`pathlib.Path`
             Path to the netlist file.
         name : str, optional
-            Name of the data block.
+            Name of the data block. The default is ``None``, in which case
+            a unique name is assigned.
 
         Returns
         -------
@@ -1470,18 +1485,19 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def browse_log_file(self, input_file=None):
+    def browse_log_file(self, input_file: str | Path | None = None) -> Path | None:
         """Save the most recent log file in a new directory.
 
         Parameters
         ----------
         input_file : str or :class:`pathlib.Path`, optional
-            File path to save the new log file to. The default is the ``pyaedt`` folder.
+            File path to save the new log file to. The default is ``None``,
+            in which case the ``pyaedt`` folder is used.
 
         Returns
         -------
-        str
-            File Path.
+        :class:`pathlib.Path` or None
+            File path to the saved log file, or ``None`` if the operation failed.
         """
         if input_file and not Path(input_file).exists():
             self.logger.error("Path does not exist.")
@@ -1491,6 +1507,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             if not Path(input_file).exists():
                 Path(input_file).mkdir()
 
+        if not self.results_directory:
+            self.logger.error("Results directory not available.")
+            return None
+        if not self.design_name:  # pragma: no cover
+            self.logger.error("Design name not available.")
+            return None
         results_path = Path(self.results_directory) / self.design_name
         results_temp_path = Path(results_path) / "temp"
 
@@ -1583,19 +1605,20 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                         print("failed to get pin2")
                 if pin1 and pin2:
                     pin1.connect_to_component(assignment=pin2, use_wire=False)
-            for model_name, ports in ports.items():
-                if any(cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name):
-                    model = next(
-                        cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name
-                    )
-                    if model:
-                        for port_name in ports:
-                            try:
-                                model_pin = next(pin for pin in model.pins if pin.name == port_name)
-                            except StopIteration:
-                                model_pin = None
-                            if model_pin:
-                                self.modeler.schematic.create_interface_port(port_name, model_pin.location)
+            if ports:
+                for model_name, ports in ports.items():
+                    if any(cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name):
+                        model = next(
+                            cmp for cmp in list(self.modeler.schematic.components.values()) if model_name in cmp.name
+                        )
+                        if model:
+                            for port_name in ports:
+                                try:
+                                    model_pin = next(pin for pin in model.pins if pin.name == port_name)
+                                except StopIteration:
+                                    model_pin = None
+                                if model_pin:
+                                    self.modeler.schematic.create_interface_port(port_name, model_pin.location)
             self.save_project()
             return True
         return False
@@ -1713,11 +1736,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             try:
                 if isinstance(probe_pin, int):
                     p_pin = probe_pin
-                    if differential:
+                    if differential and tx_schematic_differential_pins:
                         n_pin = tx_schematic_differential_pins[i]
                 else:
                     p_pin = [k for k in sub.pins if k.name == probe_pin][0]
-                    if differential:
+                    if differential and tx_schematic_differential_pins:
                         n_pin = [k for k in sub.pins if k.name == tx_schematic_differential_pins[i]][0]
             except IndexError:
                 self.logger.error("Failed to retrieve the pins.")
@@ -2218,6 +2241,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         center_x_rx = subx.location[0]
         center_y_rx = subx.location[1]
         left = 0
+        if not tx_schematic_pins:
+            self.logger.error("tx_schematic_pins cannot be None.")
+            return False
         delta_y = center_y - 0.0508 - 0.00127 * len(tx_schematic_pins)
         delta_y_rx = center_y_rx - 0.0508 - 0.00127 * len(tx_schematic_pins)
         for el in self.modeler.schematic.components.values():
@@ -2243,9 +2269,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             )
 
             left += 1
+            if not rx_schematic_pins:
+                self.logger.error("rx_schematic_pins cannot be None.")
+                return False
             p_pin1 = sub[tx_schematic_pins[j]]
             p_pin2 = subx[rx_schematic_pins[j]]
             if differential:
+                if not tx_schematic_differential_pins or not rx_schematic_differential_pins:
+                    self.logger.error("Differential pins cannot be None when differential is True.")
+                    return False
                 n_pin1 = sub[tx_schematic_differential_pins[j]]
                 n_pin2 = subx[rx_schematic_differential_pins[j]]
 
@@ -2384,15 +2416,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             tmp = i.split("\n")[0].split()
             tmp[0] = tmp[0].lower()
             val = [k for k in i.split("\n") if "SYMATTR Value" in k]
+            value: str | list[str]
             if val:
                 if "(" in val[0].split("Value ")[-1]:
                     value = val[0].split("Value ")[-1]
                 else:
                     value = re.findall(r"[a-zA-Z]+|\d+", val[0].split("Value ")[-1])
             else:
-                value = [0]
+                value = ["0"]
             unit_dict = {"f": 1e-15, "p": 1e-12, "n": 1e-9, "u": 1e-6, "m": 1e-3, "k": 1e3, "meg": 1e6}
-            if len(value) > 1:
+            if isinstance(value, list) and len(value) > 1:
                 try:
                     val = float(".".join(value[:-1])) * unit_dict[value[-1].lower()]
                 except Exception:
@@ -2401,7 +2434,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
                     except Exception:
                         if tmp[0] not in ["voltage", "current"]:
                             val = 0
-                        elif "PULSE" in value:
+                        elif isinstance(value, list) and "PULSE" in value:
                             tmp[0] = f"{tmp[0]}_pulse"
                             val = value
                         else:
@@ -2409,37 +2442,40 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
             else:
                 try:
-                    val = float(".".join(value))
+                    if isinstance(value, list):
+                        val = float(".".join(value))
+                    else:
+                        val = float(value)
                 except Exception:
                     if tmp[0] not in ["voltage", "current"]:
                         val = 0
-                    elif "PULSE" in value:
+                    elif isinstance(value, str) and "PULSE" in value:
                         tmp[0] = f"{tmp[0]}_pulse"
                         val = value
                     else:
                         val = value
             if isinstance(val, list):
-                val = " ".join(val)
-            tmp[1] = (float(tmp[1])) * c_scale
-            tmp[2] = (-float(tmp[2])) * c_scale
-            tmp.append([])
-            tmp.append([])
-            tmp.append([])
+                val = " ".join(str(v) for v in val)
+            tmp[1] = (float(tmp[1])) * c_scale  # type: ignore[assignment]
+            tmp[2] = (-float(tmp[2])) * c_scale  # type: ignore[assignment]
+            tmp.append([])  # type: ignore[arg-type]
+            tmp.append([])  # type: ignore[arg-type]
+            tmp.append([])  # type: ignore[arg-type]
             if "R" in tmp[3]:
-                tmp[3] = int(tmp[3].replace("R", "")) - 90
+                tmp[3] = int(tmp[3].replace("R", "")) - 90  # type: ignore[assignment]
                 tmp[5] = "R"
             elif "M" in tmp[3]:
-                tmp[3] = int(tmp[3].replace("M", "")) - 90
+                tmp[3] = int(tmp[3].replace("M", "")) - 90  # type: ignore[assignment]
                 tmp[5] = "M"
             else:
-                tmp[3] = offset_angle
+                tmp[3] = offset_angle  # type: ignore[assignment]
 
             cname = [k for k in i.split("\n") if "SYMATTR InstName" in k][0].split(" ")[-1]
             tmp[4] = cname
             if val:
-                tmp[6] = val
+                tmp[6] = val  # type: ignore[assignment]
             else:
-                tmp[6] = None
+                tmp[6] = None  # type: ignore[assignment]
             symbol[j] = tmp
         self.logger.info("LTSpice file parsed correctly")
         return flag, wire_xy, symbol
