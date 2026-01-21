@@ -2564,13 +2564,14 @@ class Desktop(PyAedtBase):
             else:
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
-        elif self.new_desktop and (
-            "PYTEST_CURRENT_TEST" in os.environ
-            or not settings.grpc_local
-            or self.aedt_version_id < "2024.2"
-            or settings.use_multi_desktop
-            or is_linux
-        ):  # pragma: no cover
+        # elif self.new_desktop and (
+        #     "PYTEST_CURRENT_TEST" in os.environ
+        #     or not settings.grpc_local
+        #     or self.aedt_version_id < "2024.2"
+        #     or settings.use_multi_desktop
+        #     or is_linux
+        # ):  # pragma: no cover
+        else:
             self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
@@ -2587,16 +2588,16 @@ class Desktop(PyAedtBase):
             self.new_desktop = False
             self.launched_by_pyaedt = True
             result = self.__initialize()
-        else:
-            flag_new = False
-            if self.port == 0:
-                self.logger.info("Starting new AEDT gRPC session.")
-                flag_new = True
-            else:
-                self.logger.info(f"Connecting to AEDT gRPC session on port {self.port}.")
-            result = self.__initialize()
-            if flag_new:
-                self.logger.info(f"New AEDT gRPC session session started on port {self.port}.")
+        # else:
+        # flag_new = False
+        # if self.port == 0:
+        #     self.logger.info("Starting new AEDT gRPC session.")
+        #     flag_new = True
+        # else:
+        #     self.logger.info(f"Connecting to AEDT gRPC session on port {self.port}.")
+        # result = self.__initialize()
+        # if flag_new:
+        #     self.logger.info(f"New AEDT gRPC session session started on port {self.port}.")
         if result:
             if self.new_desktop:
                 message = (
