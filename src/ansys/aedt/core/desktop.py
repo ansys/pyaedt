@@ -999,6 +999,7 @@ class Desktop(PyAedtBase):
                     self.__desktop = self.grpc_plugin.odesktop
                     return self.__desktop
                 except Exception:
+                    self.grpc_plugin.recreate_application(True)
                     tries += 1
                     time.sleep(1)
         return self.__desktop
