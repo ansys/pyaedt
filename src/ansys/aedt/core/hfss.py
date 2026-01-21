@@ -6597,7 +6597,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Port object.
 
         References
@@ -6862,7 +6862,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Port object.
 
         References
