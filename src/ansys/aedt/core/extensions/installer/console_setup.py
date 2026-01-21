@@ -45,17 +45,12 @@ version = os.environ.get("PYAEDT_DESKTOP_VERSION", None) # pragma: no cover
 print("Loading the PyAEDT Console.")
 
 try:  # pragma: no cover
-    if version <= "2023.1":
-        from pyaedt import Desktop
-        from pyaedt.generic.general_methods import active_sessions
-        from pyaedt.generic.general_methods import is_windows
-    else:
-        from ansys.aedt.core import *
-        import ansys.aedt.core  # noqa: F401
-        from ansys.aedt.core import Desktop
-        from ansys.aedt.core.generic.general_methods import active_sessions
-        from ansys.aedt.core.generic.general_methods import is_windows
-        from ansys.aedt.core.generic.file_utils import available_file_name
+    from ansys.aedt.core import *
+    import ansys.aedt.core  # noqa: F401
+    from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.general_methods import active_sessions
+    from ansys.aedt.core.generic.general_methods import is_windows
+    from ansys.aedt.core.generic.file_utils import available_file_name
 
 except ImportError:  # pragma: no cover
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
@@ -63,17 +58,13 @@ except ImportError:  # pragma: no cover
     console_setup_dir = Path(__file__).resolve().parent
     if "PersonalLib" in console_setup_dir.parts:
         sys.path.append(str(console_setup_dir / ".." / ".." / ".."))
-    if version <= "2023.1":
-        from pyaedt import Desktop
-        from pyaedt.generic.general_methods import active_sessions
-        from pyaedt.generic.general_methods import is_windows
-    else:
-        from ansys.aedt.core import *  # noqa: F401
-        import ansys.aedt.core  # noqa: F401
-        from ansys.aedt.core import Desktop
-        from ansys.aedt.core.generic.general_methods import active_sessions
-        from ansys.aedt.core.generic.general_methods import is_windows
-        from ansys.aedt.core.generic.file_utils import available_file_name
+
+    from ansys.aedt.core import *  # noqa: F401
+    import ansys.aedt.core  # noqa: F401
+    from ansys.aedt.core import Desktop
+    from ansys.aedt.core.generic.general_methods import active_sessions
+    from ansys.aedt.core.generic.general_methods import is_windows
+    from ansys.aedt.core.generic.file_utils import available_file_name
 
 
 def release(d):  # pragma: no cover

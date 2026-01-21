@@ -1407,7 +1407,7 @@ def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
 
     Returns
     -------
-    :class:`pyaedt.modules.SolveSetup.SimulationProfile`
+    :class:`ansys.aedt.core.modules.SolveSetup.SimulationProfile`
         An instance of the SimulationProfile class.
 
     """

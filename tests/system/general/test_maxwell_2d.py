@@ -50,7 +50,7 @@ SINUSOIDAL_NAME = "Sinusoidal"
 
 M2D_TRANSIENT_EC = "Setup_Transient_EC"
 
-EXPORT_RLC_MATRIX = "export_matrix"
+EXPORT_MATRIX = "export_matrix"
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def m2d_ctrl_prg(add_app_example):
 
 @pytest.fixture
 def m2d_export_matrix(add_app_example):
-    app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=EXPORT_RLC_MATRIX, subfolder=TEST_SUBFOLDER)
+    app = add_app_example(application=ansys.aedt.core.Maxwell2d, project=EXPORT_MATRIX, subfolder=TEST_SUBFOLDER)
     yield app
     app.close_project(app.project_name, save=False)
 
@@ -797,71 +797,6 @@ def test_eddy_current_sweep(m2d_setup):
     assert setup.enable()
     assert not sweep.is_solved
     assert isinstance(sweep.frequencies, list)
-
-
-def test_export_c_matrix(test_tmp_dir, m2d_export_matrix):
-    output_file = test_tmp_dir / "c_matrix.txt"
-    # no matrix
-    m2d_export_matrix.set_active_design("export_c_electrostatic_no_matrix")
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-
-    m2d_export_matrix.set_active_design("export_c_electrostatic")
-    assert m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-    assert output_file.exists()
-
-    assert m2d_export_matrix.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
-    assert output_file.exists()
-
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_c_matrix(matrix_name="invalid", output_file=output_file)
-
-    m2d_export_matrix.set_active_design("export_c_electrostatic_param")
-
-    assert m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-    assert output_file.exists()
-
-    assert m2d_export_matrix.setups[0].export_matrix(matrix_type="C", matrix_name="Matrix1", output_file=output_file)
-    assert output_file.exists()
-
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.setups[0].export_matrix(matrix_type="invalid", matrix_name="Matrix1", output_file=output_file)
-
-    output_file = test_tmp_dir / "c_matrix.csv"
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-
-
-def test_export_rl_matrix(test_tmp_dir, m2d_export_matrix):
-    # invalid path
-    export_path = test_tmp_dir / "export_rl_matrix.csv"
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
-
-    export_path = test_tmp_dir / "export_rl_matrix.txt"
-    # no matrix
-    m2d_export_matrix.set_active_design("export_rl_eddycurrent_no_matrix")
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
-    # no setup
-    if DESKTOP_VERSION < "2025.2":  # AEDT API not raising exception
-        m2d_export_matrix.set_active_design("export_rl_eddycurrent_unsolved")
-        with pytest.raises(AEDTRuntimeError):
-            m2d_export_matrix.export_rl_matrix("Matrix1", export_path, False, 10, 3, True)
-    # EC
-    m2d_export_matrix.set_active_design("export_rl_eddycurrent")
-    assert m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
-    assert export_path.exists()
-    with pytest.raises(AEDTRuntimeError):
-        m2d_export_matrix.export_rl_matrix("invalid", export_path)
-    # EC param
-    m2d_export_matrix.set_active_design("export_rl_eddycurrent_param")
-    export_path_1 = test_tmp_dir / "export_rl_matrix_1.txt"
-    assert m2d_export_matrix.export_rl_matrix("Matrix1", export_path_1, False, 10, 3, True)
-    assert export_path_1.exists()
-    export_path_2 = test_tmp_dir / "export_rl_matrix_2.txt"
-    assert m2d_export_matrix.setups[0].export_matrix(matrix_type="RL", matrix_name="Matrix1", output_file=export_path_2)
-    assert export_path_2.exists()
 
 
 def test_export_matrix(test_tmp_dir, m2d_export_matrix):
