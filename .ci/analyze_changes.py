@@ -211,7 +211,7 @@ def analyze_changes(base_ref: str = "origin/main"):
 
     Examples
     --------
-    >>> python .ci/analyze_changes.py
+    >>> python.ci / analyze_changes.py
     >>> python .ci/analyze_changes.py --base origin/main
     >>> python .ci/analyze_changes.py --base HEAD
     """
