@@ -44,7 +44,6 @@ from ansys.aedt.core.cli.process import version
 app = typer.Typer(help="CLI for PyAEDT", no_args_is_help=True)
 
 # Register sub-apps
-app.add_typer(ci_app, name="ci")
 app.add_typer(config_app, name="config")
 app.add_typer(panels_app, name="panels")
 app.add_typer(doc_app, name="doc")

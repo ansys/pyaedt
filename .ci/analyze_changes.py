@@ -22,8 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""CLI command to analyze code changes and determine what jobs should run in CI/CD."""
+"""Script to analyze code changes and determine what jobs should run in CI/CD."""
 
+import argparse
 import ast
 import os
 from pathlib import Path
@@ -31,13 +32,6 @@ import re
 import shutil
 import subprocess  # nosec B404 - validated git calls only
 import sys
-
-try:
-    import typer
-except ImportError:  # pragma: no cover
-    raise ImportError(
-        "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
-    )
 
 
 def get_ast_dump(source_code, filename="<unknown>"):
@@ -59,7 +53,7 @@ def get_ast_dump(source_code, filename="<unknown>"):
     try:
         tree = ast.parse(source_code)
     except SyntaxError:
-        typer.echo(f"[WARN] Syntax Error parsing {filename}. Assuming logic change.", err=True)
+        print(f"[WARN] Syntax Error parsing {filename}. Assuming logic change.", file=sys.stderr)
         return "SYNTAX_ERROR"
 
     class DocstringRemover(ast.NodeTransformer):
@@ -103,8 +97,8 @@ def get_ast_dump(source_code, filename="<unknown>"):
 def _get_git_executable():
     git_executable = shutil.which("git")
     if not git_executable:
-        typer.echo("[ERR] Git executable not found in PATH.", err=True)
-        raise typer.Exit(code=1)
+        print("[ERR] Git executable not found in PATH.", file=sys.stderr)
+        raise SystemExit(1)
     return git_executable
 
 
@@ -132,8 +126,8 @@ def get_changed_files(base_ref: str = "origin/main"):
     """
     try:
         if not _validate_git_ref(base_ref):
-            typer.echo(f"[ERR] Invalid git reference: {base_ref}", err=True)
-            raise typer.Exit(code=1)
+            print(f"[ERR] Invalid git reference: {base_ref}", file=sys.stderr)
+            raise SystemExit(1)
 
         git_executable = _get_git_executable()
 
@@ -163,8 +157,8 @@ def get_changed_files(base_ref: str = "origin/main"):
         files = [f.strip() for f in result.stdout.strip().split("\n") if f.strip()]
         return files
     except subprocess.CalledProcessError as e:
-        typer.echo(f"[ERR] Failed to get changed files from git: {e}", err=True)
-        raise typer.Exit(code=1)
+        print(f"[ERR] Failed to get changed files from git: {e}", file=sys.stderr)
+        raise SystemExit(1)
 
 
 def _set_ci_env(var_name: str, value: str):
@@ -178,7 +172,7 @@ def _set_ci_env(var_name: str, value: str):
         Value to set.
     """
     os.environ[var_name] = value
-    typer.echo(f"[CI] Set {var_name}={value}")
+    print(f"[CI] Set {var_name}={value}")
 
 
 def _write_github_output(name: str, value: str):
@@ -195,17 +189,10 @@ def _write_github_output(name: str, value: str):
     if github_output:
         with open(github_output, "a", encoding="utf-8") as f:
             f.write(f"{name}={value}\n")
-        typer.echo(f"[CI] GitHub output: {name}={value}")
+        print(f"[CI] GitHub output: {name}={value}")
 
 
-def analyze_changes(
-    base_ref: str = typer.Option(
-        "origin/main", "--base", "-b", help="Git reference to compare against (e.g., origin/main, HEAD, main)"
-    ),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed information"),
-    debug: bool = typer.Option(False, "--debug", "-d", help="Save AST dumps for debugging"),
-    ci_mode: bool = typer.Option(False, "--ci", help="CI/CD mode: set environment variables and use exit codes"),
-):
+def analyze_changes(base_ref: str = "origin/main"):
     """
     Analyze code changes to determine what CI/CD jobs should run.
 
@@ -217,18 +204,16 @@ def analyze_changes(
     - 0: Success (analysis complete)
     - 1: Error during analysis
 
-    In CI mode, sets environment variables:
+    Always runs in CI mode and sets environment variables:
     - SKIP_CODE_TESTS=true (if only docstrings/comments changed)
     - DOC_ONLY=true (if only /doc folder changed)
     - RUN_ALL=true (if code logic or other files changed)
 
     Examples
     --------
-    >>> pyaedt ci analyze-changes
-    >>> pyaedt ci analyze-changes --base origin/main
-    >>> pyaedt ci analyze-changes --base HEAD
-    >>> pyaedt ci analyze-changes --verbose --debug
-    >>> pyaedt ci analyze-changes --ci
+    >>> python .ci/analyze_changes.py
+    >>> python .ci/analyze_changes.py --base origin/main
+    >>> python .ci/analyze_changes.py --base HEAD
     """
     if sys.stdout.encoding != "utf-8":
         reconfigure = getattr(sys.stdout, "reconfigure", None)
@@ -238,10 +223,9 @@ def analyze_changes(
     all_files = get_changed_files(base_ref)
 
     if not all_files:
-        typer.echo("No files changed.")
-        if ci_mode:
-            _set_ci_env("RUN_ALL", "true")
-        raise typer.Exit(code=0)
+        print("No files changed.")
+        _set_ci_env("RUN_ALL", "true")
+        raise SystemExit(0)
 
     # Separate Python files and doc files
     python_files = [f for f in all_files if f.endswith(".py")]
@@ -250,54 +234,45 @@ def analyze_changes(
 
     # Check if ONLY doc files changed
     if doc_files and not python_files and not other_files:
-        typer.echo(f"Only documentation files changed ({len(doc_files)} file(s)).")
-        if verbose:
-            for f in doc_files:
-                typer.echo(f"  [DOC] {f}")
-        typer.echo("-" * 40)
-        typer.echo("[OK] ONLY DOCUMENTATION CHANGED - Run only doc jobs")
-        typer.echo("-" * 40)
-        if ci_mode:
-            _set_ci_env("DOC_ONLY", "true")
-            _set_ci_env("SKIP_CODE_TESTS", "true")
-            _write_github_output("doc_only", "true")
-            _write_github_output("skip_tests", "true")
-        raise typer.Exit(code=0)
+        print(f"Only documentation files changed ({len(doc_files)} file(s)).")
+        for f in doc_files:
+            print(f"  [DOC] {f}")
+        print("-" * 40)
+        print("[OK] ONLY DOCUMENTATION CHANGED - Run only doc jobs")
+        print("-" * 40)
+        _set_ci_env("DOC_ONLY", "true")
+        _set_ci_env("SKIP_CODE_TESTS", "true")
+        _write_github_output("doc_only", "true")
+        _write_github_output("skip_tests", "true")
+        raise SystemExit(0)
 
     if not python_files:
-        typer.echo("No Python files changed, but non-doc files were modified.")
-        if verbose:
-            typer.echo(f"Changed files: {', '.join(all_files)}")
-        if ci_mode:
-            _set_ci_env("RUN_ALL", "true")
-            _write_github_output("run_all", "true")
-        raise typer.Exit(code=0)
+        print("No Python files changed, but non-doc files were modified.")
+        print(f"Changed files: {', '.join(all_files)}")
+        _set_ci_env("RUN_ALL", "true")
+        _write_github_output("run_all", "true")
+        raise SystemExit(0)
 
     logic_changed = False
 
-    typer.echo(f"Analyzing {len(python_files)} Python file(s)...")
-    if verbose:
-        typer.echo("Verbose mode: ON")
-        typer.echo(f"Debug mode: {'ON' if debug else 'OFF'}")
-        typer.echo(f"CI mode: {'ON' if ci_mode else 'OFF'}")
-        if doc_files:
-            typer.echo(f"Documentation files changed: {len(doc_files)}")
-        if other_files:
-            typer.echo(f"Other files changed: {len(other_files)}")
+    print(f"Analyzing {len(python_files)} Python file(s)...")
+    if doc_files:
+        print(f"Documentation files changed: {len(doc_files)}")
+    if other_files:
+        print(f"Other files changed: {len(other_files)}")
 
     for filename in python_files:
         git_path = filename.replace("\\", "/")
 
-        if verbose:
-            typer.echo(f"\nProcessing: {filename}")
+        print(f"\nProcessing: {filename}")
 
         try:
             if not _validate_git_ref(base_ref):
-                typer.echo(f"[ERR] Invalid git reference: {base_ref}", err=True)
-                raise typer.Exit(code=1)
+                print(f"[ERR] Invalid git reference: {base_ref}", file=sys.stderr)
+                raise SystemExit(1)
             if not _validate_git_path(git_path):
-                typer.echo(f"[ERR] Invalid git path: {git_path}", err=True)
-                raise typer.Exit(code=1)
+                print(f"[ERR] Invalid git path: {git_path}", file=sys.stderr)
+                raise SystemExit(1)
 
             git_executable = _get_git_executable()
             old_code = subprocess.run(  # nosec B603 - controlled git args
@@ -308,35 +283,33 @@ def analyze_changes(
                 encoding="utf-8",
                 errors="replace",
             ).stdout
-            if verbose:
-                typer.echo(f"  Retrieved {base_ref} version ({len(old_code)} chars)")
+            print(f"  Retrieved {base_ref} version ({len(old_code)} chars)")
         except subprocess.CalledProcessError:
             if Path(filename).exists():
-                typer.echo(f"[NEW] New file detected: {filename}")
+                print(f"[NEW] New file detected: {filename}")
             else:
-                typer.echo(f"[DEL] File deleted: {filename}")
+                print(f"[DEL] File deleted: {filename}")
             logic_changed = True
             continue
         except UnicodeDecodeError:
-            typer.echo(f"[ERR] Could not decode {base_ref} version of {filename}", err=True)
+            print(f"[ERR] Could not decode {base_ref} version of {filename}", file=sys.stderr)
             logic_changed = True
             continue
 
         try:
             with open(filename, "r", encoding="utf-8", errors="replace") as f:
                 new_code = f.read()
-            if verbose:
-                typer.echo(f"  Retrieved working version ({len(new_code)} chars)")
+            print(f"  Retrieved working version ({len(new_code)} chars)")
         except FileNotFoundError:
-            typer.echo(f"[DEL] File deleted: {filename}")
+            print(f"[DEL] File deleted: {filename}")
             logic_changed = True
             continue
         except UnicodeDecodeError:
-            typer.echo(f"[ERR] Could not decode local version of {filename}", err=True)
+            print(f"[ERR] Could not decode local version of {filename}", file=sys.stderr)
             logic_changed = True
             continue
         except Exception as e:
-            typer.echo(f"[ERR] Error reading {filename}: {e}", err=True)
+            print(f"[ERR] Error reading {filename}: {e}", file=sys.stderr)
             logic_changed = True
             continue
 
@@ -344,53 +317,53 @@ def analyze_changes(
         new_ast = get_ast_dump(new_code, filename)
 
         if old_ast == "SYNTAX_ERROR" or new_ast == "SYNTAX_ERROR":
-            typer.echo(f"[ERR] Syntax Error detected in: {filename}", err=True)
+            print(f"[ERR] Syntax Error detected in: {filename}", file=sys.stderr)
             logic_changed = True
             continue
 
-        if debug:
-            debug_dir = Path.cwd() / ".ast_debug"
-            debug_dir.mkdir(exist_ok=True)
-
-            safe_name = filename.replace("\\", "_").replace("/", "_").replace(":", "")
-            old_ast_file = debug_dir / f"{safe_name}.old.ast"
-            new_ast_file = debug_dir / f"{safe_name}.new.ast"
-
-            old_ast_file.write_text(old_ast, encoding="utf-8")
-            new_ast_file.write_text(new_ast, encoding="utf-8")
-
-            if verbose:
-                typer.echo(f"  Saved AST dumps to {debug_dir}")
-
         if old_ast != new_ast:
-            typer.echo(f"[MOD] Logic change detected in: {filename}")
-            if verbose:
-                if len(old_ast) != len(new_ast):
-                    typer.echo(f"  AST size: {len(old_ast)} -> {len(new_ast)} chars")
+            print(f"[MOD] Logic change detected in: {filename}")
+            if len(old_ast) != len(new_ast):
+                print(f"  AST size: {len(old_ast)} -> {len(new_ast)} chars")
             logic_changed = True
         else:
-            typer.echo(f"[OK]  Docstring/Comment/Style only: {filename}")
-            if verbose:
-                typer.echo(f"  AST unchanged (both {len(old_ast)} chars)")
+            print(f"[OK]  Docstring/Comment/Style only: {filename}")
+            print(f"  AST unchanged (both {len(old_ast)} chars)")
 
-    typer.echo("-" * 40)
+    print("-" * 40)
     if logic_changed or other_files:
         if logic_changed:
-            typer.echo("[!] CODE LOGIC CHANGES DETECTED")
+            print("[!] CODE LOGIC CHANGES DETECTED")
         if other_files:
-            typer.echo(f"[!] NON-PYTHON FILES CHANGED: {len(other_files)}")
-        typer.echo("Result: RUN ALL CI/CD JOBS")
-        if ci_mode:
-            _set_ci_env("RUN_ALL", "true")
-            _write_github_output("run_all", "true")
-            _write_github_output("skip_tests", "false")
+            print(f"[!] NON-PYTHON FILES CHANGED: {len(other_files)}")
+        print("Result: RUN ALL CI/CD JOBS")
+        _set_ci_env("RUN_ALL", "true")
+        _write_github_output("run_all", "true")
+        _write_github_output("skip_tests", "false")
     else:
-        typer.echo("[OK] ONLY DOCSTRINGS/COMMENTS CHANGED")
-        typer.echo("Result: SKIP CODE TESTS")
-        if ci_mode:
-            _set_ci_env("SKIP_CODE_TESTS", "true")
-            _write_github_output("skip_tests", "true")
-            _write_github_output("doc_only", "false")
-    typer.echo("-" * 40)
+        print("[OK] ONLY DOCSTRINGS/COMMENTS CHANGED")
+        print("Result: SKIP CODE TESTS")
+        _set_ci_env("SKIP_CODE_TESTS", "true")
+        _write_github_output("skip_tests", "true")
+        _write_github_output("doc_only", "false")
+    print("-" * 40)
 
-    raise typer.Exit(code=0)
+    raise SystemExit(0)
+
+
+def _parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Analyze code changes to determine what CI/CD jobs should run.",
+    )
+    parser.add_argument(
+        "--base",
+        "-b",
+        default="origin/main",
+        help="Git reference to compare against (e.g., origin/main, HEAD, main)",
+    )
+    return parser.parse_args(argv)
+
+
+if __name__ == "__main__":
+    args = _parse_args()
+    analyze_changes(base_ref=args.base)

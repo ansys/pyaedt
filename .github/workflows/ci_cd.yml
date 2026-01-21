@@ -181,8 +181,8 @@ jobs:
         shell: bash
         run: |
           source .venv/bin/activate
-          # Run the ci analyze-changes command in CI mode
-          pyaedt ci analyze-changes --ci --base origin/main --verbose
+          # Run the analyze-changes script in CI mode
+          python .ci/analyze_changes.py --ci --base origin/main --verbose
 
           # If no outputs were set, default to run_all=true
           if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests\|doc_only\|run_all" "$GITHUB_OUTPUT" 2>/dev/null; then
