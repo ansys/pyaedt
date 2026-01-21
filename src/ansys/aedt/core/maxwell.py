@@ -469,8 +469,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         for s in args.signal_sources:
             prop = {"Source": s, "NumberOfTurns": "1"}
             props["MatrixEntry"]["MatrixEntry"].append(prop)
-        for g in args.ground_sources:
-            props["GroundSources"] += g + ","
+        props["GroundSources"] = ",".join(args.ground_sources)
         return self._create_boundary(matrix_name, props, "Matrix", schema=args)
 
     @pyaedt_function_handler()
@@ -531,16 +530,20 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             for signal_source in rl_source.signal_sources:
                 prop = {"Source": signal_source, "NumberOfTurns": "1"}
                 rl_props["MatrixEntry"]["MatrixEntry"].append(prop)
+            rl_ground_sources = []
             for ground_source in rl_source.ground_sources:
-                rl_props["GroundSources"] += ground_source + ","
+                rl_ground_sources.append(ground_source)
+            rl_props["GroundSources"] = ",".join(rl_ground_sources)
         props["RLMatrix"] = rl_props
         gc_props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
         for gc_source in args.gc_sources:
             for signal_source in gc_source.signal_sources:
                 prop = {"Source": signal_source, "NumberOfTurns": "1"}
                 gc_props["MatrixEntry"]["MatrixEntry"].append(prop)
+            gc_ground_sources = []
             for ground_source in gc_source.ground_sources:
-                gc_props["GroundSources"] += ground_source + ","
+                gc_ground_sources.append(ground_source)
+            gc_props["GroundSources"] = ",".join(gc_ground_sources)
         props["GCMatrix"] = gc_props
         return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
@@ -567,21 +570,35 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         props = {"MatrixEntry": {"MatrixEntry": []}, "MatrixGroup": []}
         if self.design_type == "Maxwell 2D":
             for source in args.signal_sources:
-                prop = {"Source": source.name, "NumberOfTurns": source.turns_number, "ReturnPath": source.return_path}
+                prop = {
+                    "Source": source.name,
+                    "NumberOfTurns": str(source.turns_number),
+                    "ReturnPath": source.return_path,
+                }
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
             for group in args.group_sources:
                 sources_str = ",".join(group.source_names)
                 if not group.name:
                     group.name = generate_unique_name("Group_Sources")
-                prop = {"GroupName": group.name, "NumberOfBranches": group.branches_number, "Sources": sources_str}
+                prop = {
+                    "GroupName": group.name,
+                    "NumberOfBranches": str(group.branches_number),
+                    "Sources": sources_str,
+                }
                 props["MatrixGroup"].append(prop)
         else:
             for source in args.signal_sources:
-                prop = {"Source": source.name, "NumberOfTurns": source.turns_number}
+                prop = {"Source": source.name, "NumberOfTurns": str(source.turns_number)}
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
             for group in args.group_sources:
                 sources_str = ",".join(group.source_names)
-                prop = {"GroupName": group.name, "NumberOfBranches": group.branches_number, "Sources": sources_str}
+                if not group.name:
+                    group.name = generate_unique_name("Group_Sources")
+                prop = {
+                    "GroupName": group.name,
+                    "NumberOfBranches": str(group.branches_number),
+                    "Sources": sources_str,
+                }
                 props["MatrixGroup"].append(prop)
         return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
