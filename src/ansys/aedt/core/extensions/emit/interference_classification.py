@@ -47,25 +47,25 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
     """Interactive EMIT extension for Protection Level and Interference Type classification."""
 
     def __init__(self, withdraw: bool = False):
-        self._matrix: Optional[_MatrixData] = None
+        self._matrix = {"protection": None, "interference": None}
         self._filters_interf = {}
         self._filters_prot = {}
+        # Color mapping canvas/excel rendering
+        self._color_map = {
+            "green": "#90D890",
+            "yellow": "#FFEB80",
+            "orange": "#FFA860",
+            "red": "#FF8090",
+            "white": "#FFFFFF",
+        }
+        self._default_protection_labels = ["Damage", "Overload", "Intermodulation", "Desensitization"]
+        self._default_protection_levels = [30.0, -4.0, -30.0, -104.0]  # Damage, Overload, Intermod, Desensitization
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=True,
-            toggle_row=None,
-            toggle_column=None,
         )
-        # Color mapping canvas/excel rendering
-        self._color_map = {
-            "green": "#7D73CA",
-            "yellow": "#D359A2",
-            "orange": "#FF6361",
-            "red": "#FFA600",
-            "white": "#FFFFFF",
-        }
 
     def add_extension_content(self):
         root = self.root
@@ -77,10 +77,8 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             "out_out": tkinter.BooleanVar(master=root, value=True),
         }
         self._filters_prot = {
-            "damage": tkinter.BooleanVar(master=root, value=True),
-            "overload": tkinter.BooleanVar(master=root, value=True),
-            "intermodulation": tkinter.BooleanVar(master=root, value=True),
-            "desensitization": tkinter.BooleanVar(master=root, value=True),
+            label.lower(): tkinter.BooleanVar(master=root, value=True)
+            for label in self._default_protection_labels
         }
         # Header with project/design info
         info = ttk.Frame(root, style="PyAEDT.TFrame")
@@ -89,9 +87,6 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         lbl_proj.grid(row=0, column=0, sticky="w")
         lbl_design = ttk.Label(info, text=f"   Design: {self.active_design_name}", style="PyAEDT.TLabel")
         lbl_design.grid(row=0, column=1, sticky="w", padx=(10, 0))
-
-        # Place the theme toggle beside the Design label in the header
-        self.add_toggle_theme_button(info, toggle_row=0, toggle_column=2)
 
         # Notebook
         nb = ttk.Notebook(root, style="TNotebook")
@@ -112,12 +107,8 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         prot_left = ttk.LabelFrame(prot_top, text="Protection Level Thresholds", style="PyAEDT.TLabelframe")
         prot_left.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True, padx=(0, 6))
 
-        for k, label in (
-            ("damage", "Damage"),
-            ("overload", "Overload"),
-            ("intermodulation", "Intermodulation"),
-            ("desensitization", "Desensitization"),
-        ):
+        for label in self._default_protection_labels:
+            k = label.lower()
             ttk.Checkbutton(prot_left, text=label, variable=self._filters_prot[k], style="PyAEDT.TCheckbutton").pack(
                 anchor=tkinter.W
             )
@@ -137,11 +128,10 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         ttk.Label(header_frame, text="Protection Level (dBm)", style="PyAEDT.TLabel").pack()
 
         # Legend rows with Canvas for colors
+        legend_colors = [self._color_map["red"], self._color_map["orange"], self._color_map["yellow"], self._color_map["green"]]
         legend_rows = [
-            ("Damage", "30.0", "#FFA600"),
-            ("Overload", "-4.0", "#FF6361"),
-            ("Intermodulation", "-30.0", "#D359A2"),
-            ("Desensitization", "-104.0", "#7D73CA"),
+            (label, level, color)
+            for label, level, color in zip(self._default_protection_labels, self._default_protection_levels, legend_colors)
         ]
 
         prot_legend_entries = {}
@@ -193,14 +183,18 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
         prot_btns = ttk.Frame(prot_tab, style="PyAEDT.TFrame")
         prot_btns.pack(fill=tkinter.X, padx=6, pady=(0, 6))
+        prot_btns.grid_columnconfigure(2, weight=1)
         btn_prot_run = ttk.Button(
             prot_btns, text="Generate Results", command=self._on_run_protection, style="PyAEDT.TButton"
         )
         btn_prot_exp = ttk.Button(
             prot_btns, text="Export to Excel", command=self._on_export_excel, style="PyAEDT.TButton"
         )
-        btn_prot_run.pack(side=tkinter.LEFT)
-        btn_prot_exp.pack(side=tkinter.LEFT, padx=6)
+        btn_prot_run.grid(row=0, column=0, padx=(0, 6), sticky="w")
+        btn_prot_exp.grid(row=0, column=1, padx=(0, 6), sticky="w")
+        
+        # Add theme toggle button
+        self.add_toggle_theme_button(prot_btns, toggle_row=0, toggle_column=2)
 
         # Interference Type tab layout
         int_top = ttk.Frame(int_tab, style="PyAEDT.TFrame")
@@ -233,10 +227,10 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
         # Color-coded legend rows
         irows = [
-            ("Inband / Inband", "#FFA600"),
-            ("Out of Band / Inband", "#FF6361"),
-            ("Inband / Out of Band", "#D359A2"),
-            ("Out of Band / Out of Band", "#7D73CA"),
+            ("Inband / Inband", self._color_map["red"]),
+            ("Out of Band / Inband", self._color_map["orange"]),
+            ("Inband / Out of Band", self._color_map["yellow"]),
+            ("Out of Band / Out of Band", self._color_map["green"]),
         ]
 
         for text, color in irows:
@@ -257,14 +251,18 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
         int_btns = ttk.Frame(int_tab, style="PyAEDT.TFrame")
         int_btns.pack(fill=tkinter.X, padx=6, pady=(0, 6))
+        int_btns.grid_columnconfigure(2, weight=1)
         btn_int_run = ttk.Button(
             int_btns, text="Generate Results", command=self._on_run_interference, style="PyAEDT.TButton"
         )
         btn_int_exp = ttk.Button(
             int_btns, text="Export to Excel", command=self._on_export_excel, style="PyAEDT.TButton"
         )
-        btn_int_run.pack(side=tkinter.LEFT)
-        btn_int_exp.pack(side=tkinter.LEFT, padx=6)
+        btn_int_run.grid(row=0, column=0, padx=(0, 6), sticky="w")
+        btn_int_exp.grid(row=0, column=1, padx=(0, 6), sticky="w")
+        
+        # Add theme toggle button
+        self.add_toggle_theme_button(int_btns, toggle_row=0, toggle_column=2)
 
         # Matrix canvases: one per tab, color-coded like the Tk example
         canvas_prot = tkinter.Canvas(prot_matrix, highlightthickness=0, background="white")
@@ -280,7 +278,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         try:
             filters = self._build_interf_filters()
             tx_radios, rx_radios, colors, values = self._compute_interference(filters)
-            self._matrix = _MatrixData(tx_radios, rx_radios, colors, values)
+            self._matrix["interference"] = _MatrixData(tx_radios, rx_radios, colors, values)
             self._render_matrix(tab="interference")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate interference results: {e}")
@@ -290,7 +288,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         try:
             filters = [k for k, v in self._filters_prot.items() if bool(v.get())]
             tx_radios, rx_radios, colors, values = self._compute_protection(filters)
-            self._matrix = _MatrixData(tx_radios, rx_radios, colors, values)
+            self._matrix["protection"] = _MatrixData(tx_radios, rx_radios, colors, values)
             self._render_matrix(tab="protection")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate protection results: {e}")
@@ -300,8 +298,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         """Retrieve protection level values from the legend entry widgets."""
         vals = []
         entries = self._widgets.get("prot_legend_entries", {})
-        # Order: Damage, Overload, Intermodulation, Desensitization
-        for label in ["Damage", "Overload", "Intermodulation", "Desensitization"]:
+        for label in self._default_protection_labels:
             entry = entries.get(label)
             if entry:
                 try:
@@ -357,9 +354,8 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
 
         values = self._protection_levels[cur]
         entries = self._widgets.get("prot_legend_entries", {})
-        # Order: Damage, Overload, Intermodulation, Desensitization
-        labels = ["Damage", "Overload", "Intermodulation", "Desensitization"]
-        for i, label in enumerate(labels):
+
+        for i, label in enumerate(self._default_protection_labels):
             entry = entries.get(label)
             if entry and i < len(values):
                 entry.delete(0, tkinter.END)
@@ -372,7 +368,13 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         import openpyxl
         from openpyxl.styles import PatternFill
 
-        if not self._matrix:
+        # Determine which tab is active
+        notebook = self.root.nametowidget(".!notebook")
+        current_tab_index = notebook.index(notebook.select())
+        tab_key = "protection" if current_tab_index == 0 else "interference"
+        matrix = self._matrix.get(tab_key)
+        
+        if not matrix:
             messagebox.showwarning("No data", "Please generate results first.")
             return
         default_name = "Interference Classification"  # default; user can override
@@ -386,19 +388,19 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             return
         wb = openpyxl.Workbook()
         ws = wb.active
-        header = ["Tx/Rx"] + self._matrix.tx_radios
+        header = ["Tx/Rx"] + matrix.tx_radios
         ws.append(header)
         # rows
-        for r, rx in enumerate(self._matrix.rx_radios):
+        for r, rx in enumerate(matrix.rx_radios):
             row = [rx]
-            for c, _tx in enumerate(self._matrix.tx_radios):
-                val = self._matrix.values[c][r] if self._matrix.values else ""
+            for c, _tx in enumerate(matrix.tx_radios):
+                val = matrix.values[c][r] if matrix.values else ""
                 row.append(val)
             ws.append(row)
         # apply fills using color map
-        for c in range(len(self._matrix.tx_radios)):
-            for r in range(len(self._matrix.rx_radios)):
-                raw = self._matrix.colors[c][r]
+        for c in range(len(matrix.tx_radios)):
+            for r in range(len(matrix.rx_radios)):
+                raw = matrix.colors[c][r]
                 hexcol = self._color_map.get(str(raw).lower(), "#FFFFFF").lstrip("#")
                 cell = ws.cell(row=2 + r, column=2 + c)
                 cell.fill = PatternFill(start_color=hexcol, end_color=hexcol, fill_type="solid")
@@ -487,7 +489,8 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
     # --------------- UI rendering helpers ----------------
     def _render_matrix(self, tab: str):
         """Display the results matrix on the canvas for the given tab."""
-        if not self._matrix:
+        matrix = self._matrix.get(tab)
+        if not matrix:
             return
         # Choose the correct canvas for the tab
         cnv = self._widgets["canvas_int"] if tab == "interference" else self._widgets["canvas_prot"]
@@ -511,8 +514,8 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             cell_w = max(grid_x1 - cell_x0, 50)
             cell_h = max(grid_y1 - cell_y0, 50)
 
-            num_cols = len(self._matrix.tx_radios)
-            num_rows = len(self._matrix.rx_radios)
+            num_cols = len(matrix.tx_radios)
+            num_rows = len(matrix.rx_radios)
             if num_cols == 0 or num_rows == 0:
                 return
 
@@ -524,7 +527,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 y0 = cell_y0 + r * row_h
                 y1 = y0 + row_h
                 cnv.create_rectangle(grid_x0, y0, grid_x0 + header_w, y1, fill="#f2f2f2", outline="#cccccc")
-                cnv.create_text(grid_x0 + 6, (y0 + y1) / 2, text=str(self._matrix.rx_radios[r]), anchor="w")
+                cnv.create_text(grid_x0 + 6, (y0 + y1) / 2, text=str(matrix.rx_radios[r]), anchor="w")
 
             # Column headers (Tx)
             for c in range(num_cols):
@@ -532,7 +535,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 x1 = x0 + col_w
                 cnv.create_rectangle(x0, grid_y0, x1, grid_y0 + header_h, fill="#f2f2f2", outline="#cccccc")
                 cnv.create_text(
-                    (x0 + x1) / 2, grid_y0 + header_h / 2, text=str(self._matrix.tx_radios[c]), anchor="center"
+                    (x0 + x1) / 2, grid_y0 + header_h / 2, text=str(matrix.tx_radios[c]), anchor="center"
                 )
 
             # Cells
@@ -544,14 +547,14 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                     y1 = y0 + row_h
                     # Map EMIT color name to hex
                     try:
-                        raw = self._matrix.colors[c][r]
+                        raw = matrix.colors[c][r]
                     except Exception:
                         raw = None
                     hexcol = self._color_map.get(str(raw).lower(), "#FFFFFF")
                     cnv.create_rectangle(x0, y0, x1, y1, fill=hexcol, outline="#ffffff")
                     # Value text
                     try:
-                        val = self._matrix.values[c][r]
+                        val = matrix.values[c][r]
                     except Exception:
                         val = ""
                     cnv.create_text((x0 + x1) / 2, (y0 + y1) / 2, text=str(val), anchor="center")
