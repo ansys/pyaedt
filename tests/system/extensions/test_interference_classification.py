@@ -108,11 +108,11 @@ def test_generate_interference_results(emit_app_with_radios):
     extension._on_run_interference()
 
     # Verify that matrix data was populated
-    assert extension._matrix is not None
-    assert len(extension._matrix.tx_radios) > 0
-    assert len(extension._matrix.rx_radios) > 0
-    assert len(extension._matrix.colors) > 0
-    assert len(extension._matrix.values) > 0
+    assert extension._matrix["interference"] is not None
+    assert len(extension._matrix["interference"].tx_radios) > 0
+    assert len(extension._matrix["interference"].rx_radios) > 0
+    assert len(extension._matrix["interference"].colors) > 0
+    assert len(extension._matrix["interference"].values) > 0
 
     # Verify render was called
     assert extension._render_matrix.called
@@ -132,11 +132,11 @@ def test_generate_protection_results(emit_app_with_radios):
     extension._on_run_protection()
 
     # Verify that matrix data was populated
-    assert extension._matrix is not None
-    assert len(extension._matrix.tx_radios) > 0
-    assert len(extension._matrix.rx_radios) > 0
-    assert len(extension._matrix.colors) > 0
-    assert len(extension._matrix.values) > 0
+    assert extension._matrix["protection"] is not None
+    assert len(extension._matrix["protection"].tx_radios) > 0
+    assert len(extension._matrix["protection"].rx_radios) > 0
+    assert len(extension._matrix["protection"].colors) > 0
+    assert len(extension._matrix["protection"].values) > 0
 
     # Verify render was called
     assert extension._render_matrix.called
@@ -145,8 +145,7 @@ def test_generate_protection_results(emit_app_with_radios):
     extension.root.destroy()
 
 
-@patch("tkinter.filedialog.asksaveasfilename")
-def test_export_to_excel(mock_save_dialog, emit_app_with_radios, test_tmp_dir):
+def test_export_to_excel(emit_app_with_radios, test_tmp_dir):
     """Test exporting results matrix to Excel file."""
     extension = InterferenceClassificationExtension(withdraw=True)
 
@@ -154,19 +153,23 @@ def test_export_to_excel(mock_save_dialog, emit_app_with_radios, test_tmp_dir):
     extension._render_matrix = MagicMock()
     extension._on_run_interference()
 
-    # Set up mock to return a file path
+    # Set up file path
     excel_path = test_tmp_dir / "interference_results.xlsx"
-    mock_save_dialog.return_value = str(excel_path)
 
-    # Trigger export
-    extension._on_export_excel()
+    # Mock notebook and filedialog
+    with patch.object(extension.root, 'nametowidget') as mock_nametowidget:
+        mock_notebook = MagicMock()
+        mock_notebook.select.return_value = "tab_id"
+        mock_notebook.index.return_value = 1  # Interference tab
+        mock_nametowidget.return_value = mock_notebook
+        
+        with patch("tkinter.filedialog.asksaveasfilename", return_value=str(excel_path)):
+            # Trigger export
+            extension._on_export_excel()
 
-    # Verify file dialog was called
-    assert mock_save_dialog.called
-
-    # Verify file was created (if path was provided)
-    if excel_path.exists():
-        assert excel_path.suffix == ".xlsx"
-        assert excel_path.stat().st_size > 0
+    # Verify file was created
+    assert excel_path.exists()
+    assert excel_path.suffix == ".xlsx"
+    assert excel_path.stat().st_size > 0
 
     extension.root.destroy()
