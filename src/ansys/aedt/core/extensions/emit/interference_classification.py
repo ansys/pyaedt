@@ -25,7 +25,6 @@ from dataclasses import dataclass
 import tkinter
 from tkinter import messagebox
 from tkinter import ttk
-from typing import Optional
 
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
@@ -77,8 +76,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
             "out_out": tkinter.BooleanVar(master=root, value=True),
         }
         self._filters_prot = {
-            label.lower(): tkinter.BooleanVar(master=root, value=True)
-            for label in self._default_protection_labels
+            label.lower(): tkinter.BooleanVar(master=root, value=True) for label in self._default_protection_labels
         }
         # Header with project/design info
         info = ttk.Frame(root, style="PyAEDT.TFrame")
@@ -128,10 +126,17 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         ttk.Label(header_frame, text="Protection Level (dBm)", style="PyAEDT.TLabel").pack()
 
         # Legend rows with Canvas for colors
-        legend_colors = [self._color_map["red"], self._color_map["orange"], self._color_map["yellow"], self._color_map["green"]]
+        legend_colors = [
+            self._color_map["red"],
+            self._color_map["orange"],
+            self._color_map["yellow"],
+            self._color_map["green"],
+        ]
         legend_rows = [
             (label, level, color)
-            for label, level, color in zip(self._default_protection_labels, self._default_protection_levels, legend_colors)
+            for label, level, color in zip(
+                self._default_protection_labels, self._default_protection_levels, legend_colors
+            )
         ]
 
         prot_legend_entries = {}
@@ -192,7 +197,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         )
         btn_prot_run.grid(row=0, column=0, padx=(0, 6), sticky="w")
         btn_prot_exp.grid(row=0, column=1, padx=(0, 6), sticky="w")
-        
+
         # Add theme toggle button
         self.add_toggle_theme_button(prot_btns, toggle_row=0, toggle_column=2)
 
@@ -260,7 +265,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         )
         btn_int_run.grid(row=0, column=0, padx=(0, 6), sticky="w")
         btn_int_exp.grid(row=0, column=1, padx=(0, 6), sticky="w")
-        
+
         # Add theme toggle button
         self.add_toggle_theme_button(int_btns, toggle_row=0, toggle_column=2)
 
@@ -373,7 +378,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
         current_tab_index = notebook.index(notebook.select())
         tab_key = "protection" if current_tab_index == 0 else "interference"
         matrix = self._matrix.get(tab_key)
-        
+
         if not matrix:
             messagebox.showwarning("No data", "Please generate results first.")
             return
@@ -534,9 +539,7 @@ class InterferenceClassificationExtension(ExtensionEMITCommon):
                 x0 = cell_x0 + c * col_w
                 x1 = x0 + col_w
                 cnv.create_rectangle(x0, grid_y0, x1, grid_y0 + header_h, fill="#f2f2f2", outline="#cccccc")
-                cnv.create_text(
-                    (x0 + x1) / 2, grid_y0 + header_h / 2, text=str(matrix.tx_radios[c]), anchor="center"
-                )
+                cnv.create_text((x0 + x1) / 2, grid_y0 + header_h / 2, text=str(matrix.tx_radios[c]), anchor="center")
 
             # Cells
             for r in range(num_rows):
