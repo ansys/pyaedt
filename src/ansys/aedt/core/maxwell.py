@@ -530,20 +530,14 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             for signal_source in rl_source.signal_sources:
                 prop = {"Source": signal_source, "NumberOfTurns": "1"}
                 rl_props["MatrixEntry"]["MatrixEntry"].append(prop)
-            rl_ground_sources = []
-            for ground_source in rl_source.ground_sources:
-                rl_ground_sources.append(ground_source)
-            rl_props["GroundSources"] = ",".join(rl_ground_sources)
+            rl_props["GroundSources"] = ",".join(rl_source.ground_sources)
         props["RLMatrix"] = rl_props
         gc_props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
         for gc_source in args.gc_sources:
             for signal_source in gc_source.signal_sources:
                 prop = {"Source": signal_source, "NumberOfTurns": "1"}
                 gc_props["MatrixEntry"]["MatrixEntry"].append(prop)
-            gc_ground_sources = []
-            for ground_source in gc_source.ground_sources:
-                gc_ground_sources.append(ground_source)
-            gc_props["GroundSources"] = ",".join(gc_ground_sources)
+            gc_props["GroundSources"] = ",".join(gc_source.ground_sources)
         props["GCMatrix"] = gc_props
         return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
