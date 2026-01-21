@@ -78,7 +78,6 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     """
 
     def __init__(self, app, name, props=None, boundarytype=None):
-        super().__init__()
         self.auto_update = False
         self._app = app
         self._name = name

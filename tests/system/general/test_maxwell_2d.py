@@ -33,6 +33,8 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -498,6 +500,23 @@ def test_assign_floating(m2d_app):
         match="Assign floating excitation is only valid for electrostatic or electric transient solvers.",
     ):
         m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
+
+
+def test_assign_matrix_electrostatic(m2d_app):
+    m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    rectangle2 = m2d_app.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
+    rectangle3 = m2d_app.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    voltage1 = m2d_app.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
+    voltage2 = m2d_app.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
+    voltage3 = m2d_app.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[voltage1.name, voltage2.name],
+        ground_sources=[voltage3.name],
+        matrix_name="test_matrix",
+    )
+    matrix = m2d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellParameters)
 
 
 def test_matrix(m2d_app):
