@@ -34,11 +34,22 @@ from tests.conftest import DESKTOP_VERSION
 
 TEST_SUBFOLDER = TESTS_EMIT_PATH / "example_models/TEMIT"
 
-# Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
-# Starting with 2025R1, the Emit API supports Python 3.10,3.11,3.12
-if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") or (
-    (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
-):
+# Define skip conditions at module level
+SKIP_EMIT_PYTHON_VERSION = (
+    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1"
+) or ((sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2")
+
+# Apply markers to all tests in this module
+pytestmark = [
+    pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux."),
+    pytest.mark.skipif(
+        SKIP_EMIT_PYTHON_VERSION,
+        reason="Emit API version mismatch with Python version for this AEDT release.",
+    ),
+]
+
+# Conditional import
+if not SKIP_EMIT_PYTHON_VERSION:
     from ansys.aedt.core import Emit
     from ansys.aedt.core.extensions.emit.interference_classification import InterferenceClassificationExtension
 
@@ -51,15 +62,6 @@ def emit_app_with_radios(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
 def test_extension_initialization(emit_app_with_radios):
     """Test that extension initializes correctly with an active EMIT design."""
     extension = InterferenceClassificationExtension(withdraw=True)
@@ -73,15 +75,6 @@ def test_extension_initialization(emit_app_with_radios):
     extension.root.destroy()
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
 def test_radio_specific_protection_levels(emit_app_with_radios):
     """Test enabling radio-specific protection levels."""
     extension = InterferenceClassificationExtension(withdraw=True)
@@ -104,15 +97,6 @@ def test_radio_specific_protection_levels(emit_app_with_radios):
     extension.root.destroy()
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
 def test_generate_interference_results(emit_app_with_radios):
     """Test generating interference type classification results."""
     extension = InterferenceClassificationExtension(withdraw=True)
@@ -137,15 +121,6 @@ def test_generate_interference_results(emit_app_with_radios):
     extension.root.destroy()
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
 def test_generate_protection_results(emit_app_with_radios):
     """Test generating protection level classification results."""
     extension = InterferenceClassificationExtension(withdraw=True)
@@ -170,15 +145,6 @@ def test_generate_protection_results(emit_app_with_radios):
     extension.root.destroy()
 
 
-@pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
-@pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and DESKTOP_VERSION < "2025.1",
-    reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
-)
-@pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and DESKTOP_VERSION > "2024.2",
-    reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
-)
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_export_to_excel(mock_save_dialog, emit_app_with_radios, test_tmp_dir):
     """Test exporting results matrix to Excel file."""
