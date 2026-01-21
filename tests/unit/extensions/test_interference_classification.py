@@ -420,13 +420,13 @@ def test_export_excel_no_data(mock_showwarning, mock_emit_environment):
 
     # No matrix data - both tabs empty
     extension._matrix = {"protection": None, "interference": None}
-    
+
     # Mock notebook to simulate being on interference tab
-    with patch.object(extension.root, 'nametowidget') as mock_nametowidget:
+    with patch.object(extension.root, "nametowidget") as mock_nametowidget:
         mock_notebook = MagicMock()
         mock_notebook.index.return_value = 1  # Interference tab
         mock_nametowidget.return_value = mock_notebook
-        
+
         extension._on_export_excel()
 
     # Verify warning was shown
@@ -451,14 +451,14 @@ def test_export_excel_with_data(mock_asksaveasfilename, mock_emit_environment):
         colors=[["red", "green"], ["yellow", "orange"]],
         values=[["IB/IB", "OOB/IB"], ["IB/OOB", "OOB/OOB"]],
     )
-    
+
     # Mock notebook to simulate being on interference tab
-    with patch.object(extension.root, 'nametowidget') as mock_nametowidget:
+    with patch.object(extension.root, "nametowidget") as mock_nametowidget:
         mock_notebook = MagicMock()
         mock_notebook.select.return_value = "tab_id"  # Return a tab ID
         mock_notebook.index.return_value = 1  # Interference tab
         mock_nametowidget.return_value = mock_notebook
-        
+
         extension._on_export_excel()
 
     # Verify file dialog was shown
@@ -502,7 +502,7 @@ def test_render_matrix(mock_emit_environment):
         colors=[["red"]],
         values=[["IB/IB"]],
     )
-    
+
     extension._matrix["protection"] = _MatrixData(
         tx_radios=["Tx1"],
         rx_radios=["Rx1"],

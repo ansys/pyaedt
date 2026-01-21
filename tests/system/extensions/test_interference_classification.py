@@ -157,12 +157,12 @@ def test_export_to_excel(emit_app_with_radios, test_tmp_dir):
     excel_path = test_tmp_dir / "interference_results.xlsx"
 
     # Mock notebook and filedialog
-    with patch.object(extension.root, 'nametowidget') as mock_nametowidget:
+    with patch.object(extension.root, "nametowidget") as mock_nametowidget:
         mock_notebook = MagicMock()
         mock_notebook.select.return_value = "tab_id"
         mock_notebook.index.return_value = 1  # Interference tab
         mock_nametowidget.return_value = mock_notebook
-        
+
         with patch("tkinter.filedialog.asksaveasfilename", return_value=str(excel_path)):
             # Trigger export
             extension._on_export_excel()
