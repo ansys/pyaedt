@@ -27,6 +27,7 @@
 from pathlib import Path
 import re
 import time
+from typing import Optional
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
@@ -2451,193 +2452,19 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         setup.update()
         return setup
 
-    @pyaedt_function_handler()
-    def export_rl_matrix(
-        self,
-        matrix_name,
-        output_file,
-        is_format_default=True,
-        width=8,
-        precision=2,
-        is_exponential=False,
-        setup=None,
-        default_adaptive="LastAdaptive",
-        is_post_processed=False,
-    ):
-        """Export R/L matrix after solving.
-
-        This method allows to export in a .txt file Re(Z)/Im(Z), inductive Coupling Coefficient, R/L,
-        and flux linkage matrices for Eddy Current solutions.
-
-        .. deprecated:: 2.0
-           Use :func:`export_matrix` method instead.
-
-        Parameters
-        ----------
-        matrix_name : str
-            Matrix name to be exported.
-        output_file : or :class:`pathlib.Path`
-            Output file path to export R/L matrix file to.
-            Extension must be ``.txt``.
-        is_format_default : bool, optional
-            Whether the exported format is default or not.
-            If False the custom format is set (no exponential).
-        width : int, optional
-            Column width in exported .txt file.
-        precision : int, optional
-            Decimal precision number in exported \\*.txt file.
-        is_exponential : bool, optional
-            Whether the format number is exponential or not.
-        setup : str, optional
-            Name of the setup.
-            If not provided, the active setup is used.
-        default_adaptive : str, optional
-            Adaptive type.
-            The default is ``"LastAdaptive"``.
-        is_post_processed : bool, optional
-            Boolean to check if it is post processed. Default value is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oanalysis.ExportSolnData
-
-        Examples
-        --------
-        The following example shows how to export R/L matrix from an Eddy Current solution.
-
-        >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(solution_type="EddyCurrentZ")
-        >>> coil1 = m2d.modeler.create_circle(origin=[5, 0, 0], radius=3, material="copper")
-        >>> coil2 = m2d.modeler.create_circle(origin=[20, 0, 0], radius=3, material="copper")
-        >>> current1 = m2d.assign_current(assignment=coil1.name, amplitude="3A", name="current1")
-        >>> current2 = m2d.assign_current(assignment=coil2.name, amplitude="3A", name="current2")
-        >>> region = m2d.modeler.create_rectangle(origin=[0, 0, -12.5], sizes=[25, 30], name="region")
-        >>> edge_list = [region.top_edge_z, region.bottom_edge_y, region.top_edge_y]
-        >>> m2d.assign_balloon(assignment=edge_list)
-        >>> # Set matrix and analyze
-        >>> matrix = m2d.assign_matrix(assignment=[current1.name, current2.name], matrix_name="Matrix")
-        >>> setup = m2d.create_setup()
-        >>> setup.analyze()
-        >>> # Export R/L Matrix after solving
-        >>> m2d.export_rl_matrix(matrix_name=matrix.name, output_file=Path(m2d.working_directory) / "RL_matrix.txt")
-        >>> m2d.desktop_class.close_desktop()
-        """
-        return self.export_matrix(
-            matrix_name,
-            output_file,
-            setup=setup,
-            default_adaptive=default_adaptive,
-            is_post_processed=is_post_processed,
-            is_format_default=is_format_default,
-            width=width,
-            precision=precision,
-            is_exponential=is_exponential,
-        )
-
-    @pyaedt_function_handler()
-    def export_c_matrix(
-        self,
-        matrix_name,
-        output_file,
-        is_format_default=True,
-        width=8,
-        precision=2,
-        is_exponential=False,
-        setup=None,
-        default_adaptive="LastAdaptive",
-        is_post_processed=False,
-    ):
-        """Export Capacitance matrix after solving.
-
-        This method allows to export in a .txt file capacitance and capacitance coupling coefficient
-        matrices for Electrostatic solutions.
-
-        .. deprecated:: 2.0
-           Use :func:`export_matrix` method instead.
-
-        Parameters
-        ----------
-        matrix_name : str
-            Matrix name to be exported.
-        output_file : or :class:`pathlib.Path`
-            Output file path to export R/L matrix file to.
-            Extension must be ``.txt``.
-        is_format_default : bool, optional
-            Whether the exported format is default or not.
-            If False the custom format is set (no exponential).
-        width : int, optional
-            Column width in exported .txt file.
-        precision : int, optional
-            Decimal precision number in exported \\*.txt file.
-        is_exponential : bool, optional
-            Whether the format number is exponential or not.
-        setup : str, optional
-            Name of the setup.
-            If not provided, the active setup is used.
-        default_adaptive : str, optional
-            Adaptive type.
-            The default is ``"LastAdaptive"``.
-        is_post_processed : bool, optional
-            Boolean to check if it is post processed. Default value is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oanalysis.ExportSolnData
-
-        Examples
-        --------
-        The following example shows how to export capacitance matrix from an Electrostatic solution.
-
-        >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.2", solution_type="Electrostatic", new_desktop=False)
-        >>> up_plate = m3d.modeler.create_box(origin=[0, 0, 3], sizes=[25, 25, 2], material="pec")
-        >>> gap = m3d.modeler.create_box(origin=[0, 0, 2], sizes=[25, 25, 1], material="vacuum")
-        >>> down_plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2], material="pec")
-        >>> voltage1 = m3d.assign_voltage(assignment=down_plate.name, amplitude="0V", name="voltage1")
-        >>> voltage2 = m3d.assign_voltage(assignment=up_plate.name, amplitude="1V", name="voltage2")
-        >>> # set matrix and analyze
-        >>> matrix = m3d.assign_matrix(assignment=[voltage1.name, voltage2.name], matrix_name="Matrix")
-        >>> setup = m3d.create_setup()
-        >>> setup.analyze()
-        >>> # Export C Matrix after solving
-        >>> m3d.export_c_matrix(matrix_name=matrix.name, output_file=Path(m3d.working_directory) / "C_matrix.txt")
-        >>> m3d.desktop_class.close_desktop()
-        """
-        return self.export_matrix(
-            matrix_name,
-            output_file,
-            setup=setup,
-            default_adaptive=default_adaptive,
-            is_post_processed=is_post_processed,
-            is_format_default=is_format_default,
-            width=width,
-            precision=precision,
-            is_exponential=is_exponential,
-        )
-
     def export_matrix(
         self,
-        matrix_name,
-        output_file,
-        setup=None,
-        is_post_processed=False,
-        default_adaptive="LastAdaptive",
-        is_format_default=True,
-        width=12,
-        precision=6,
-        is_exponential=False,
-        use_independent_nominal_values=True,
-    ):
+        matrix_name: str,
+        output_file: str | Path,
+        setup: Optional[str] = None,
+        is_post_processed: Optional[bool] = False,
+        default_adaptive: Optional[str] = "LastAdaptive",
+        is_format_default: Optional[bool] = True,
+        width: Optional[int] = 12,
+        precision: Optional[int] = 6,
+        is_exponential: Optional[bool] = False,
+        use_independent_nominal_values: Optional[bool] = True,
+    ) -> bool:
         """Export matrix after solving.
 
         This method exports matrix data from the Matrix tab in the Solutions window to a .txt file.
@@ -2679,6 +2506,25 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         References
         ----------
         >>> oanalysis.ExportSolnData
+
+        Examples
+        --------
+        The following example shows how to export capacitance matrix from an Electrostatic solution.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2025.2", solution_type="Electrostatic", new_desktop=False)
+        >>> up_plate = m3d.modeler.create_box(origin=[0, 0, 3], sizes=[25, 25, 2], material="pec")
+        >>> gap = m3d.modeler.create_box(origin=[0, 0, 2], sizes=[25, 25, 1], material="vacuum")
+        >>> down_plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2], material="pec")
+        >>> voltage1 = m3d.assign_voltage(assignment=down_plate.name, amplitude="0V", name="voltage1")
+        >>> voltage2 = m3d.assign_voltage(assignment=up_plate.name, amplitude="1V", name="voltage2")
+        >>> # set matrix and analyze
+        >>> matrix = m3d.assign_matrix(assignment=[voltage1.name, voltage2.name], matrix_name="Matrix")
+        >>> setup = m3d.create_setup()
+        >>> setup.analyze()
+        >>> # Export C Matrix after solving
+        >>> m3d.export_matrix(matrix_name=matrix.name, output_file=Path(m3d.working_directory) / "C_matrix.txt")
+        >>> m3d.desktop_class.close_desktop()
         """
         matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
         if not matrix_names_list:
