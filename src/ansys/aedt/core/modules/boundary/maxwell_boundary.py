@@ -386,22 +386,22 @@ class MaxwellMatrix(PyAedtBase):
 
         def __init__(
             self,
-            rl_source_name: str,
-            rl_return_path: Optional[str] = "infinite",
+            signal_sources: list,
+            ground_sources: list,
         ):
-            self.rl_source_name = rl_source_name
-            self.rl_return_path = rl_return_path
+            self.signal_sources = signal_sources
+            self.ground_sources = ground_sources
 
     class GCSourceACMagneticAPhi:
         """Sources for AC Magnetic A-Phi solver."""
 
         def __init__(
             self,
-            gc_source_name: str,
-            gc_return_path: Optional[str] = "infinite",
+            signal_sources: list,
+            ground_sources: list,
         ):
-            self.gc_source_name = gc_source_name
-            self.gc_return_path = gc_return_path
+            self.signal_sources = signal_sources
+            self.ground_sources = ground_sources
 
     @dataclass
     class MatrixACMagneticAPhi:
@@ -409,13 +409,13 @@ class MaxwellMatrix(PyAedtBase):
 
         def __init__(
             self,
-            rl_sources: MaxwellMatrix.RLSourceACMagneticAPhi,
-            gc_sources: MaxwellMatrix.GCSourceACMagneticAPhi,
+            rl_sources: list[MaxwellMatrix.RLSourceACMagneticAPhi],
+            gc_sources: list[MaxwellMatrix.GCSourceACMagneticAPhi],
             matrix_name: Optional[str] = None,
         ):
             self.rl_sources = rl_sources
-            self.gc_sources: gc_sources
-            self.matrix_name: matrix_name
+            self.gc_sources = gc_sources
+            self.matrix_name = matrix_name
 
     @property
     def sources(self):

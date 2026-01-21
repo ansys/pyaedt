@@ -496,17 +496,24 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         """
         # 3D only
-        rl_props = {"RLMatrix": {"MatrixEntry": []}, "GroundSources": ""}
-        for source, ground in args.rl_sources.items():
-            prop = {"Source": source, "NumberOfTurns": "1"}
-            rl_props["MatrixEntry"]["MatrixEntry"].append(prop)
-            rl_props["GroundSources"] += ground + ","
-        gc_props = {"GCMatrix": {"MatrixEntry": []}, "GroundSources": ""}
-        for source, ground in args.gc_sources.items():
-            prop = {"Source": source, "NumberOfTurns": "1"}
-            gc_props["MatrixEntry"]["MatrixEntry"].append(prop)
-            gc_props["GroundSources"] += ground + ","
-        props = {**rl_props, **gc_props}
+        # CHECK!!!
+        props = {"RLMatrix": {}, "GCMatrix": {}}
+        rl_props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
+        for rl_source in args.rl_sources:
+            for signal_source in rl_source.signal_sources:
+                prop = {"Source": signal_source, "NumberOfTurns": "1"}
+                rl_props["MatrixEntry"]["MatrixEntry"].append(prop)
+            for ground_source in rl_source.ground_sources:
+                rl_props["GroundSources"] += ground_source + ","
+        props["RLMatrix"] = rl_props
+        gc_props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
+        for gc_source in args.gc_sources:
+            for signal_source in gc_source.signal_sources:
+                prop = {"Source": signal_source, "NumberOfTurns": "1"}
+                gc_props["MatrixEntry"]["MatrixEntry"].append(prop)
+            for ground_source in gc_source.ground_sources:
+                gc_props["GroundSources"] += ground_source + ","
+        props["GCMatrix"] = gc_props
         return self._create_boundary(args.matrix_name, props, "Matrix")
 
     @pyaedt_function_handler()
@@ -782,10 +789,12 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 maxwell_solutions.TransientAPhi,
             ):
                 props["Phase"] = phase
+            # TO CHECK FOR AC MAGNETIC A-PHI
             if self.solution_type not in (
                 maxwell_solutions.DCConduction,
                 maxwell_solutions.ElectricTransient,
                 maxwell_solutions.ElectroDCConduction,
+                maxwell_solutions.ACMagneticAPhi,
             ):
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
