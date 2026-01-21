@@ -61,6 +61,7 @@ from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import available_file_name
@@ -87,6 +88,7 @@ from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.profile import Profiles
 
@@ -512,8 +514,71 @@ class Design(AedtObjects, PyAedtBase):
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
-
-                self._boundaries[boundary] = MaxwellParameters(self, boundary, boundarytype=maxwell_parameter_type)
+                maxwell_parameter_name = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Name")
+                if self.solution_type != SolutionsMaxwell3D.ACMagneticAPhi:
+                    maxwell_parameter_selection = self.get_oo_property_value(
+                        self.odesign, f"Parameters\\{boundary}", "Selection"
+                    ).split(",")
+                    if self.solution_type in [
+                        SolutionsMaxwell3D.ElectroStatic,
+                        SolutionsMaxwell3D.ACConduction,
+                        SolutionsMaxwell3D.DCConduction,
+                    ]:
+                        schema = MaxwellMatrix.MatrixElectric(
+                            signal_sources=maxwell_parameter_selection,
+                            matrix_name=maxwell_parameter_name,
+                        )
+                    elif self.solution_type == SolutionsMaxwell3D.Magnetostatic:
+                        schema = MaxwellMatrix.MatrixMagnetostatic(
+                            signal_sources=[
+                                MaxwellMatrix.SourceMagnetostatic(
+                                    name=source,
+                                )
+                                for source in maxwell_parameter_selection
+                            ],
+                            group_sources=[],
+                            matrix_name=maxwell_parameter_name,
+                        )
+                    elif self.solution_type == SolutionsMaxwell3D.ACMagnetic:
+                        schema = MaxwellMatrix.MatrixACMagnetic(
+                            signal_sources=[
+                                MaxwellMatrix.SourceACMagnetic(
+                                    name=source,
+                                )
+                                for source in maxwell_parameter_selection
+                            ],
+                            matrix_name=maxwell_parameter_name,
+                        )
+                else:
+                    maxwell_parameter_rl_signal_selection = self.get_oo_property_value(
+                        self.odesign, f"Parameters\\{boundary}", "RL Matrix[Signal]"
+                    ).split(",")
+                    maxwell_parameter_rl_ground_selection = self.get_oo_property_value(
+                        self.odesign, f"Parameters\\{boundary}", "RL Matrix[Ground]"
+                    ).split(",")
+                    maxwell_parameter_gc_signal_selection = self.get_oo_property_value(
+                        self.odesign, f"Parameters\\{boundary}", "GC Matrix[Signal]"
+                    ).split(",")
+                    maxwell_parameter_gc_ground_selection = self.get_oo_property_value(
+                        self.odesign, f"Parameters\\{boundary}", "GC Matrix[Ground]"
+                    ).split(",")
+                    schema = MaxwellMatrix.MatrixACMagneticAPhi(
+                        rl_sources=[
+                            MaxwellMatrix.RLSourceACMagneticAPhi(
+                                signal_sources=maxwell_parameter_rl_signal_selection,
+                                ground_sources=maxwell_parameter_rl_ground_selection,
+                            ),
+                        ],
+                        gc_sources=[
+                            MaxwellMatrix.GCSourceACMagneticAPhi(
+                                signal_sources=maxwell_parameter_gc_signal_selection,
+                                ground_sources=maxwell_parameter_gc_ground_selection,
+                            ),
+                        ],
+                        matrix_name=maxwell_parameter_name,
+                    )
+                matrix = MaxwellParameters(self, boundary, boundarytype=maxwell_parameter_type, schema=schema)
+                self._boundaries[boundary] = matrix
             elif boundarytype == "MotionSetup":
                 maxwell_motion_type = self.get_oo_property_value(self.odesign, f"Model\\{boundary}", "Type")
 
