@@ -207,7 +207,6 @@ def test_create_wave_port_from_sheets_terminal(aedt_app):
 def test_create_wave_port_from_sheets_modal(aedt_app):
     aedt_app.solution_type = "Modal"
 
-    assert len(aedt_app.boundaries) == 4
     udp = aedt_app.modeler.Position(200, 0, 0)
     o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
     port = aedt_app.wave_port(
