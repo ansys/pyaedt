@@ -52,16 +52,33 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     Examples
     --------
-    Create a matrix in Maxwell3D return a ``ansys.aedt.core.modules.boundary.common.BoundaryObject``
+    Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
 
-    >>> from ansys.aedt.core import Maxwell2d
-    >>> maxwell_2d = Maxwell2d()
-    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_1", "vacuum")
-    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_2", "vacuum")
-    >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
+        >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> voltage1 = m2d.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
+        >>> voltage2 = m2d.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
+        >>> voltage3 = m2d.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
+
+        Define matrix assignments by instantiating the MaxwellElectric class.
+
+        >>> matrix_args = MaxwellMatrix.MatrixElectric(
+        >>>             signal_sources=[voltage1.name, voltage2.name],
+        >>>             ground_sources=[voltage3.name],
+        >>>             matrix_name="test_matrix",
+        >>>         )
+
+        Assign matrix. The method returns a MaxwellParameters object.
+
+        >>> matrix = m2d.assign_matrix(matrix_args)
+        >>> m2d.release_desktop(True, True)
     """
 
     def __init__(self, app, name, props=None, boundarytype=None):
+        super().__init__()
         self.auto_update = False
         self._app = app
         self._name = name

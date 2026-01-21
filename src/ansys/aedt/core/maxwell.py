@@ -365,7 +365,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(solution_type="Electrostatic", version="2025.2", close_on_exit=True)
+        >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
         >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
         >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
@@ -373,7 +373,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> voltage2 = m2d.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
         >>> voltage3 = m2d.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
 
-        Define matrix assignments as a data structure.
+        Define matrix assignments by instantiating the MaxwellElectric class.
 
         >>> matrix_args = MaxwellMatrix.MatrixElectric(
         >>>             signal_sources=[voltage1.name, voltage2.name],
@@ -385,7 +385,40 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         >>> matrix = m2d.assign_matrix(matrix_args)
         >>> m2d.release_desktop(True, True)
-        # TO ADD
+
+        Setup a Maxwell 3D model in AC Magnetic A-Phi.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
+        >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], name="Sheet1", material="copper")
+        >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], name="Sheet2", material="copper")
+        >>> box3 = m3d.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], name="Sheet3", material="copper")
+        >>> current1 = m3d.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+        >>> current2 = m3d.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+        >>> current3 = m3d.assign_current([box1.bottom_face_z], amplitude=1, name="Current3", swap_direction=True)
+        >>> current4 = m3d.assign_current([box2.bottom_face_z], amplitude=1, name="Current4", swap_direction=True)
+
+        Define matrix assignments by instantiating the MatrixACMagneticAPhi class.
+
+        >>> rl_source = MaxwellMatrix.RLSourceACMagneticAPhi(
+        >>>                 signal_sources=[current1.name],
+        >>>                 ground_sources=[current3.name],
+        >>>             )
+        >>> gc_source = MaxwellMatrix.GCSourceACMagneticAPhi(
+        >>>                 signal_sources=[current2.name],
+        >>>                 ground_sources=[current4.name],
+        >>>             )
+
+        >>> matrix_args = MaxwellMatrix.MatrixACMagneticAPhi(
+        >>>                 rl_sources=[rl_source],
+        >>>                 gc_sources=[gc_source],
+        >>>                 matrix_name="test_matrix",
+        >>>             )
+
+        Assign matrix. The method returns a MaxwellParameters object.
+
+        >>> matrix = m3d.assign_matrix(matrix_args)
+        >>> m3d.release_desktop(True, True)
         """
         dispatcher = {
             SolutionsMaxwell3D.ElectroStatic: (self.__assign_matrix_electric_solvers, MaxwellMatrix.MatrixElectric),
