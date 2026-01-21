@@ -433,12 +433,10 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         }
 
         if self.solution_type not in dispatcher:
-            raise AEDTRuntimeError(f"Matrix assignment for {self._app.solution_type} is not available.")
+            raise AEDTRuntimeError(f"Matrix assignment for {self.solution_type} is not available.")
 
         handler, schema = dispatcher[self.solution_type]
 
-        # Normalize input into the expected dataclass
-        # To test
         if not isinstance(args, schema):
             args = schema(args)
 
@@ -467,16 +465,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         >>> oModule.AssignMatrix
         """
         matrix_name = args.matrix_name
-        if not matrix_name:
-            matrix_name = generate_unique_name("Matrix")
-
         props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
         for s in args.signal_sources:
             prop = {"Source": s, "NumberOfTurns": "1"}
             props["MatrixEntry"]["MatrixEntry"].append(prop)
         for g in args.ground_sources:
             props["GroundSources"] += g + ","
-        return self._create_boundary(matrix_name, props, "Matrix")
+        return self._create_boundary(matrix_name, props, "Matrix", schema=args)
 
     @pyaedt_function_handler()
     def __assign_matrix_ac_magnetic(self, args: MaxwellMatrix.MatrixACMagnetic) -> MaxwellParameters:
@@ -500,14 +495,14 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         """
         props = {"MatrixEntry": {"MatrixEntry": []}}
         if self.design_type == "Maxwell 2D":
-            for source in args.sources:
+            for source in args.signal_sources:
                 prop = {"Source": source.name, "ReturnPath": source.return_path}
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
         else:
-            for source in args.sources:
-                prop = {"Source": source}
+            for source in args.signal_sources:
+                prop = {"Source": source.name}
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
-        return self._create_boundary(args.matrix_name, props, "Matrix")
+        return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
     def __assign_matrix_ac_magnetic_aphi(self, args: MaxwellMatrix.MatrixACMagneticAPhi) -> MaxwellParameters:
@@ -530,7 +525,6 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         """
         # 3D only
-        # CHECK!!!
         props = {"RLMatrix": {}, "GCMatrix": {}}
         rl_props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
         for rl_source in args.rl_sources:
@@ -548,7 +542,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             for ground_source in gc_source.ground_sources:
                 gc_props["GroundSources"] += ground_source + ","
         props["GCMatrix"] = gc_props
-        return self._create_boundary(args.matrix_name, props, "Matrix")
+        return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
     def __assign_matrix_magnetostatic(self, args: MaxwellMatrix.MatrixMagnetostatic) -> MaxwellParameters:
@@ -572,7 +566,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         """
         props = {"MatrixEntry": {"MatrixEntry": []}, "MatrixGroup": []}
         if self.design_type == "Maxwell 2D":
-            for source in args.sources:
+            for source in args.signal_sources:
                 prop = {"Source": source.name, "NumberOfTurns": source.turns_number, "ReturnPath": source.return_path}
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
             for group in args.group_sources:
@@ -582,14 +576,14 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 prop = {"GroupName": group.name, "NumberOfBranches": group.branches_number, "Sources": sources_str}
                 props["MatrixGroup"].append(prop)
         else:
-            for source in args.sources:
+            for source in args.signal_sources:
                 prop = {"Source": source.name, "NumberOfTurns": source.turns_number}
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
             for group in args.group_sources:
                 sources_str = ",".join(group.source_names)
                 prop = {"GroupName": group.name, "NumberOfBranches": group.branches_number, "Sources": sources_str}
                 props["MatrixGroup"].append(prop)
-        return self._create_boundary(args.matrix_name, props, "Matrix")
+        return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
     def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
@@ -2605,13 +2599,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle Maxwell parameters
-    def _create_boundary(self, name, props, boundary_type):
+    def _create_boundary(self, name, props, boundary_type, schema=None):
         # Non Maxwell parameters cases
         if boundary_type not in ("Force", "Torque", "Matrix", "LayoutForce"):
             return super()._create_boundary(name, props, boundary_type)
 
         # Maxwell parameters cases
-        bound = MaxwellParameters(self, name, props, boundary_type)
+        bound = MaxwellParameters(self, name, props, boundary_type, schema)
         result = bound.create()
         if result:
             self._boundaries[bound.name] = bound

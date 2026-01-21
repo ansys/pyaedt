@@ -77,7 +77,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         >>> m2d.release_desktop(True, True)
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None):
+    def __init__(self, app, name, props=None, boundarytype=None, schema=None):
         self.auto_update = False
         self._app = app
         self._name = name
@@ -87,6 +87,41 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         self.__reduced_matrices = None
         self.matrix_assignment = None
         self._initialize_tree_node()
+        self._schema = schema
+
+    @property
+    def signal_sources(self):
+        if (
+            isinstance(self._schema, MaxwellMatrix.MatrixElectric)
+            or isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic)
+            or isinstance(self._schema, MaxwellMatrix.MatrixACMagnetic)
+        ):
+            return self._schema.signal_sources
+        return None
+
+    @property
+    def ground_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixElectric):
+            return self._schema.ground_sources
+        return None
+
+    @property
+    def group_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic):
+            return self._schema.group_sources
+        return None
+
+    @property
+    def rl_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
+            return self._schema.rl_sources
+        return None
+
+    @property
+    def gc_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
+            return self._schema.gc_sources
+        return None
 
     @property
     def reduced_matrices(self):
@@ -315,7 +350,7 @@ class MaxwellMatrix(PyAedtBase):
     class MatrixElectric:
         """Matrix assignment for electric solvers."""
 
-        def __init__(self, signal_sources: list, ground_sources: list, matrix_name: Optional[str] = None):
+        def __init__(self, signal_sources: list, ground_sources: list = [], matrix_name: Optional[str] = None):
             self.signal_sources = signal_sources
             self.ground_sources = ground_sources
             self.matrix_name = matrix_name
@@ -365,11 +400,11 @@ class MaxwellMatrix(PyAedtBase):
 
         def __init__(
             self,
-            sources: list[MaxwellMatrix.SourceMagnetostatic],
+            signal_sources: list[MaxwellMatrix.SourceMagnetostatic],
             group_sources: list[MaxwellMatrix.GroupSourcesMagnetostatic],
             matrix_name=None,
         ):
-            self.sources = sources
+            self.signal_sources = signal_sources
             self.group_sources = group_sources
             self.matrix_name = matrix_name
 
@@ -393,8 +428,8 @@ class MaxwellMatrix(PyAedtBase):
     class MatrixACMagnetic:
         """Matrix assignment for AC Magnetic solver."""
 
-        def __init__(self, sources: list[MaxwellMatrix.SourceACMagnetic], matrix_name: Optional[str] = None):
-            self.sources = sources
+        def __init__(self, signal_sources: list[MaxwellMatrix.SourceACMagnetic], matrix_name: Optional[str] = None):
+            self.signal_sources = signal_sources
             self.matrix_name = matrix_name
 
     class RLSourceACMagneticAPhi:

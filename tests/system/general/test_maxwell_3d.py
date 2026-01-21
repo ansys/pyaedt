@@ -44,6 +44,8 @@ from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -423,45 +425,57 @@ def test_set_core_losses(m3d_app, maxwell_versioned):
     assert m3d_app.set_core_losses(["my_box"], True)
 
 
-def test_assign_matrix(m3d_app, maxwell_versioned):
-    m3d_app.solution_type = maxwell_versioned.ElectroStatic
+def test_assign_matrix_ac_magnetic_aphi(m3d_app):
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagneticAPhi
 
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-    rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-    rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5])
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5])
 
-    m3d_app.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
-    m3d_app.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
-    m3d_app.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
+    current1 = m3d_app.assign_current(box1.top_face_z, amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current(box2.top_face_z, amplitude=1, name="Current2")
+    current3 = m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
+    current4 = m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
 
-    setup = m3d_app.create_setup(MaximumPasses=2)
-    m3d_app.analyze(setup=setup.name)
+    rl_source = MaxwellMatrix.RLSourceACMagneticAPhi(
+        signal_sources=[current1.name],
+        ground_sources=[current3.name],
+    )
+    gc_source = MaxwellMatrix.GCSourceACMagneticAPhi(
+        signal_sources=[current2.name],
+        ground_sources=[current4.name],
+    )
 
-    matrix = m3d_app.assign_matrix(assignment="Voltage1")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
-    matrix = m3d_app.assign_matrix(assignment=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources="Voltage2")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["NumberOfTurns"] == "1"
-    m3d_app.solution_type = maxwell_versioned.Transient
-    m3d_app.assign_winding("Sheet1", name="Current1")
-    with pytest.raises(AEDTRuntimeError, match="Solution type does not have matrix parameters"):
-        m3d_app.assign_matrix(assignment="Current1")
+    args = MaxwellMatrix.MatrixACMagneticAPhi(
+        rl_sources=[rl_source],
+        gc_sources=[gc_source],
+        matrix_name="test_matrix",
+    )
+
+    matrix = m3d_app.assign_matrix(args)
+    assert isinstance(matrix, MaxwellParameters)
+    assert len(matrix.rl_sources) == 1
+    assert len(matrix.gc_sources) == 1
+    assert matrix.rl_sources[0].signal_sources == [current1.name]
+    assert matrix.rl_sources[0].ground_sources == [current3.name]
+    assert matrix.gc_sources[0].signal_sources == [current2.name]
+    assert matrix.gc_sources[0].ground_sources == [current4.name]
 
 
 def test_available_quantities_categories(m3d_app, maxwell_versioned):
     m3d_app.solution_type = maxwell_versioned.ElectroStatic
 
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-
-    m3d_app.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5])
+    voltage1 = m3d_app.assign_voltage(box1.top_face_z, amplitude=1, name="Voltage1")
 
     setup = m3d_app.create_setup(MaximumPasses=2)
     m3d_app.analyze(setup=setup.name)
 
-    matrix = m3d_app.assign_matrix(assignment="Voltage1")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[voltage1.name],
+        matrix_name="test_matrix",
+    )
+
+    matrix = m3d_app.assign_matrix(matrix_args)
     cat = m3d_app.post.available_quantities_categories(context=matrix.name)
     assert isinstance(cat, list)
     assert "C" in cat
@@ -470,16 +484,18 @@ def test_available_quantities_categories(m3d_app, maxwell_versioned):
 def test_available_report_quantities(m3d_app, maxwell_versioned):
     m3d_app.solution_type = maxwell_versioned.ElectroStatic
 
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-
-    m3d_app.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5])
+    voltage1 = m3d_app.assign_voltage(box1.top_face_z, amplitude=1, name="Voltage1")
 
     setup = m3d_app.create_setup(MaximumPasses=2)
     m3d_app.analyze(setup=setup.name)
 
-    matrix = m3d_app.assign_matrix(assignment="Voltage1")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == "1"
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[voltage1.name],
+        matrix_name="test_matrix",
+    )
+
+    matrix = m3d_app.assign_matrix(matrix_args)
     quantities = m3d_app.post.available_report_quantities(
         display_type="Data Table", quantities_category="C", context=matrix.name
     )
@@ -497,50 +513,59 @@ def test_available_report_quantities(m3d_app, maxwell_versioned):
 
 
 def test_reduced_matrix(m3d_app, maxwell_versioned):
-    m3d_app.solution_type = maxwell_versioned.EddyCurrent
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
 
-    m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
-    m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
-    m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
-    m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box3 = m3d_app.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
 
-    rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-    rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-    rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    current1 = m3d_app.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+    current3 = m3d_app.assign_current([box3.top_face_z], amplitude=1, name="Current3")
+    m3d_app.assign_current([box1.bottom_face_z], amplitude=1, name="Current4", swap_direction=True)
+    m3d_app.assign_current([box2.bottom_face_z], amplitude=1, name="Current5", swap_direction=True)
+    m3d_app.assign_current([box3.bottom_face_z], amplitude=1, name="Current6", swap_direction=True)
 
-    m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
-    m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
-    m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+    signal_source_3 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
 
-    matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+        signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        matrix_name="test_matrix",
+    )
+
+    matrix = m3d_app.assign_matrix(matrix_args)
     assert not matrix.reduced_matrices
-    m3d_app.solution_type = maxwell_versioned.Magnetostatic
-    out = matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix3")
+    m3d_app.solution_type = SolutionsMaxwell3D.Magnetostatic
+    out = matrix.join_series(sources=["Current1", "Current2"], matrix_name="ReducedMatrix3")
     assert not out[0]
     assert not out[1]
-    m3d_app.solution_type = maxwell_versioned.EddyCurrent
-    out = matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
+    out = matrix.join_series(sources=["Current1", "Current2", "Current3"], matrix_name="ReducedMatrix1")
     assert matrix.reduced_matrices
     assert matrix.reduced_matrices[0].name == "ReducedMatrix1"
-    assert matrix.reduced_matrices[0].parent_matrix == "Matrix1"
+    assert matrix.reduced_matrices[0].parent_matrix == matrix.name
     assert out[1] in matrix.reduced_matrices[0].sources.keys()
-    out = matrix.join_parallel(["Cur1", "Cur3"], matrix_name="ReducedMatrix2")
+    out = matrix.join_parallel(["Current1", "Current3"], matrix_name="ReducedMatrix2")
     assert matrix.reduced_matrices[1].name == "ReducedMatrix2"
-    assert matrix.reduced_matrices[1].parent_matrix == "Matrix1"
+    assert matrix.reduced_matrices[1].parent_matrix == matrix.name
     assert out[1] in matrix.reduced_matrices[1].sources.keys()
     reduced_matrix_1 = matrix.reduced_matrices[0]
     assert reduced_matrix_1.parent_matrix == matrix.name
     source_name = list(reduced_matrix_1.sources.keys())[0]
     assert reduced_matrix_1.update(old_source=source_name, source_type="series", new_source="new_series")
     assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Cur2, Cur3")
+    assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Current2, Current3")
     assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Cur2, Cur3")
-    assert not reduced_matrix_1.update(old_source="new_series", source_type="invalid", new_excitations="Cur2, Cur3")
+    assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Current2, Current3")
+    assert not reduced_matrix_1.update(
+        old_source="new_series", source_type="invalid", new_excitations="Current2, Current3"
+    )
     assert not reduced_matrix_1.delete(source="invalid")
     assert reduced_matrix_1.delete(source="new_series")
     assert len(matrix.reduced_matrices) == 1
-    out = matrix.join_parallel(["Cur5"])
+    out = matrix.join_parallel(["Current5"])
     assert not out[0]
 
 
