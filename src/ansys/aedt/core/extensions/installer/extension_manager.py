@@ -681,7 +681,6 @@ class ExtensionManager(ExtensionProjectCommon):
                     product=category,
                     executable_interpreter=sys.executable,
                     personal_lib=self.desktop.personallib,
-                    aedt_version=self.desktop.aedt_version_id,
                     copy_to_personal_lib=True,
                     icon_file=str(icon),
                     is_custom=True,
@@ -940,7 +939,6 @@ class ExtensionManager(ExtensionProjectCommon):
                     product=category,
                     executable_interpreter=sys.executable,
                     personal_lib=self.desktop.personallib,
-                    aedt_version=self.desktop.aedt_version_id,
                     copy_to_personal_lib=True,
                     icon_file=str(icon),
                     is_custom=True,
@@ -972,7 +970,6 @@ class ExtensionManager(ExtensionProjectCommon):
                     product=category,
                     executable_interpreter=sys.executable,
                     personal_lib=self.desktop.personallib,
-                    aedt_version=self.desktop.aedt_version_id,
                     copy_to_personal_lib=False,
                     icon_file=str(icon),
                 )

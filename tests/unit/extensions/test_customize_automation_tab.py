@@ -42,7 +42,6 @@ def mock_desktop_session():
     """Fixture for a mocked desktop session."""
     mock_desktop = MagicMock()
     mock_desktop.personallib = tempfile.gettempdir()
-    mock_desktop.aedt_version_id = "2024.1"
     return mock_desktop
 
 
@@ -330,7 +329,6 @@ def test_add_script_to_menu_success(
         f.write("print('Hello from test script')")
 
     personal_lib = mock_desktop_session.personallib
-    aedt_version = mock_desktop_session.aedt_version_id
 
     template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
     m = mock_open(read_data=template_content)
@@ -341,7 +339,6 @@ def test_add_script_to_menu_success(
             name=toolkit_name,
             script_file=str(script_file),
             personal_lib=personal_lib,
-            aedt_version=aedt_version,
         )
 
     # Assert
@@ -390,7 +387,6 @@ def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_sessio
                 script_file=__file__,
                 copy_to_personal_lib=False,
                 personal_lib=mock_desktop_session.personallib,
-                aedt_version=mock_desktop_session.aedt_version_id,
             )
         mock_copy.assert_not_called()
 
@@ -407,7 +403,6 @@ def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_d
             script_file=__file__,
             is_custom=True,
             personal_lib=mock_desktop_session.personallib,
-            aedt_version=mock_desktop_session.aedt_version_id,
         )
     mock_add_automation_tab.assert_called_with(
         "MyCustomToolkit",
