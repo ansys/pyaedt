@@ -350,9 +350,11 @@ class MaxwellMatrix(PyAedtBase):
     class MatrixElectric:
         """Matrix assignment for electric solvers."""
 
-        def __init__(self, signal_sources: list, ground_sources: list = [], matrix_name: Optional[str] = None):
+        def __init__(
+            self, signal_sources: list, ground_sources: Optional[list] = None, matrix_name: Optional[str] = None
+        ):
             self.signal_sources = signal_sources
-            self.ground_sources = ground_sources
+            self.ground_sources = ground_sources if ground_sources is not None else []
             self.matrix_name = matrix_name
 
     class SourceMagnetostatic:
@@ -370,7 +372,7 @@ class MaxwellMatrix(PyAedtBase):
             Number of turns for the source. The default value is ``1``.
         """
 
-        def __init__(self, name: str, return_path: Optional[str] = "infinite", turns_number: int = 1):
+        def __init__(self, name: str, return_path: Optional[str] = "infinite", turns_number: Optional[int] = 1):
             self.name = name
             self.return_path = return_path
             self.turns_number = turns_number
@@ -390,7 +392,7 @@ class MaxwellMatrix(PyAedtBase):
             The default value is ``None``.
         """
 
-        def __init__(self, source_names: list, branches_number: int = 1, name: Optional[str] = None):
+        def __init__(self, source_names: list, branches_number: Optional[int] = 1, name: Optional[str] = None):
             self.source_names = source_names
             self.branches_number = branches_number
             self.name = name
