@@ -358,7 +358,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -507,7 +507,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -660,7 +660,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -809,7 +809,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -955,7 +955,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1104,7 +1104,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1252,7 +1252,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
@@ -1325,7 +1325,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
