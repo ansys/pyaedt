@@ -26,6 +26,16 @@ import copy
 import json
 from pathlib import Path
 import shutil
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.hfss import Hfss
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
@@ -80,13 +90,13 @@ class MonostaticRCSExporter(PyAedtBase):
 
     def __init__(
         self,
-        app,
-        setup_name=None,
-        frequencies=None,
-        expression=None,
-        variations=None,
-        overwrite=True,
-    ):
+        app: "Hfss",
+        setup_name: Optional[str] = None,
+        frequencies: Optional[Union[List[Union[float, int, str]], float, int, str]] = None,
+        expression: Optional[str] = None,
+        variations: Optional[Dict[str, Any]] = None,
+        overwrite: bool = True,
+    ) -> None:
         # Public
         self.setup_name = setup_name
         self.solution = ""
@@ -121,32 +131,32 @@ class MonostaticRCSExporter(PyAedtBase):
         self.__column_name = copy.deepcopy(self.expression)
 
     @property
-    def model_info(self):
+    def model_info(self) -> Dict[str, Any]:
         """List of models."""
         return self.__model_info
 
     @property
-    def rcs_data(self):
+    def rcs_data(self) -> Optional[MonostaticRCSData]:
         """Monostatic RCS data."""
         return self.__rcs_data
 
     @property
-    def metadata_file(self):
+    def metadata_file(self) -> Union[str, Path]:
         """Metadata file."""
         return self.__metadata_file
 
     @property
-    def column_name(self):
+    def column_name(self) -> str:
         """Column name."""
         return self.__column_name
 
     @column_name.setter
-    def column_name(self, value):
+    def column_name(self, value: str) -> None:
         """Column name."""
         self.__column_name = value
 
     @pyaedt_function_handler()
-    def get_monostatic_rcs(self):
+    def get_monostatic_rcs(self) -> "SolutionData":
         """Get RCS solution data.
 
         Returns
@@ -176,7 +186,9 @@ class MonostaticRCSExporter(PyAedtBase):
         return solution_data
 
     @pyaedt_function_handler()
-    def export_rcs(self, name="rcs_data", metadata_name="pyaedt_rcs_metadata", only_geometry=False):
+    def export_rcs(
+        self, name: str = "rcs_data", metadata_name: str = "pyaedt_rcs_metadata", only_geometry: bool = False
+    ) -> Path:
         """Export RCS solution data.
 
         Parameters
@@ -296,7 +308,7 @@ class MonostaticRCSExporter(PyAedtBase):
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()
-    def __create_geometries(self, export_path):
+    def __create_geometries(self, export_path: Union[str, Path]) -> Dict[str, List[Any]]:
         """Export the geometry in OBJ format."""
         self.__app.logger.info("Exporting geometry...")
         export_path = Path(export_path).resolve()
