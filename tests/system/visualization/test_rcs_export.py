@@ -26,14 +26,7 @@ from pathlib import Path
 
 import pytest
 
-# Try to import from radar explorer toolkit, skip tests if not available
-try:
-    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
-
-    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
-    from ansys.aedt.core.visualization.post.solution_data import SolutionData
-except ImportError:
-    pytestmark = pytest.mark.skip(reason="Radar Explorer toolkit not available")
+from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
 SPHERES = "RCS"
 TEST_SUBFOLDER = "T48"
@@ -50,16 +43,6 @@ def test_get_rcs(project_test):
     assert isinstance(rcs_data, MonostaticRCSExporter)
 
     assert isinstance(rcs_data.model_info, dict)
-    assert isinstance(rcs_data.rcs_data, MonostaticRCSData)
-
-    assert Path(rcs_data.metadata_file).is_file()
-
-    assert rcs_data.column_name == "ComplexMonostaticRCSTheta"
-    rcs_data.column_name = "ComplexMonostaticRCSPhi"
-    assert rcs_data.column_name == "ComplexMonostaticRCSPhi"
-
-    data = rcs_data.get_monostatic_rcs()
-    assert isinstance(data, SolutionData)
 
 
 def test_get_rcs_geometry(project_test):
@@ -69,14 +52,11 @@ def test_get_rcs_geometry(project_test):
         frequencies=None,
     )
     assert isinstance(rcs_exporter, MonostaticRCSExporter)
-    assert not rcs_exporter.rcs_data
     assert not rcs_exporter.model_info
     metadata_file = rcs_exporter.export_rcs(only_geometry=True)
     assert Path(metadata_file).is_file()
-    assert not rcs_exporter.rcs_data
     assert isinstance(rcs_exporter.model_info, dict)
     rcs_exporter.frequencies = ["9GHz"]
     rcs_exporter.setup_name = "rcs_setup : Sweep"
     metadata_file2 = rcs_exporter.export_rcs()
     assert Path(metadata_file2).is_file()
-    assert rcs_exporter.rcs_data

@@ -44,16 +44,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-# Import MonostaticRCSData from radar_explorer toolkit (required)
-try:
-    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
-except ImportError as e:
-    raise ImportError(
-        "The Radar Explorer toolkit is required for RCS data analysis.\n"
-        "Install it with:\n"
-        "  pip install ansys-aedt-toolkits-radar-explorer\n"
-    ) from e
-
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
 
 
@@ -63,7 +53,7 @@ class MonostaticRCSExporter(PyAedtBase):
     An instance of this class is returned from the
     :meth:`ansys.aedt.core.Hfss.get_monostatic_rcs` method. This class creates a
     ``metadata_file`` that can be passed as argument to instantiate an instance of the
-    :class:`ansys.aedt.toolkits.radar_explorer.backend.api.MonostaticRCSData` class for subsequent analysis and
+    :class:`ansys.aedt.toolkits.radar_explorer.rcs_visualization.MonostaticRCSData` class for subsequent analysis and
     postprocessing.
 
     .. note::
@@ -134,7 +124,7 @@ class MonostaticRCSExporter(PyAedtBase):
         # Private
         self.__app = app
         self.__model_info = {}
-        self.__rcs_data = None
+
         self.__metadata_file = ""
         self.__frequency_unit = self.__app.units.frequency
 
@@ -144,11 +134,6 @@ class MonostaticRCSExporter(PyAedtBase):
     def model_info(self) -> Dict[str, Any]:
         """List of models."""
         return self.__model_info
-
-    @property
-    def rcs_data(self) -> Optional[MonostaticRCSData]:
-        """Monostatic RCS data."""
-        return self.__rcs_data
 
     @property
     def metadata_file(self) -> Union[str, Path]:
@@ -313,8 +298,7 @@ class MonostaticRCSExporter(PyAedtBase):
             raise AEDTRuntimeError("An error occurred when writing metadata") from e
 
         self.__metadata_file = pyaedt_metadata_file
-        if not only_geometry:
-            self.__rcs_data = MonostaticRCSData(str(pyaedt_metadata_file))
+
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()
