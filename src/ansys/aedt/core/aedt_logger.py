@@ -824,12 +824,12 @@ class AedtLogger:
     def disable_desktop_log(self):
         """Disable the log in AEDT."""
         self._log_on_desktop = False
-        self.info("Log on AEDT is disabled.")
+        self.debug("Log on AEDT is disabled.")
 
     def enable_desktop_log(self):
         """Enable the log in AEDT."""
         self._log_on_desktop = True
-        self.info("Log on AEDT is enabled.")
+        self.debug("Log on AEDT is enabled.")
 
     @property
     def log_on_stdout(self):
@@ -867,7 +867,7 @@ class AedtLogger:
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
         self._global.addHandler(self._std_out_handler)
-        self.info("Log on console is enabled.")
+        self.debug("Log on console is enabled.")
 
     @property
     def log_on_file(self):
@@ -898,7 +898,7 @@ class AedtLogger:
                     handler.close()
                     logger.removeHandler(handler)
 
-        self.info("Log on file is disabled.")
+        self.debug("Log on file is disabled.")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
@@ -907,7 +907,7 @@ class AedtLogger:
         for handler in self._files_handlers:
             self._global.addHandler(handler)
             if hasattr(handler, "baseFilename"):
-                self.info(f"Log on file {handler.baseFilename} is enabled.")
+                self.debug(f"Log on file {handler.baseFilename} is enabled.")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
