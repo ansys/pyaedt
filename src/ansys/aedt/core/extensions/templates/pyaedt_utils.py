@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,13 +38,6 @@ from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import MessageBoxIcon
 
 is_linux = os.name == "posix"
-
-
-def set_ansys_em_environment(oDesktop):
-    """Set the ANSYS_EM_ROOT environment variable."""
-    variable = "ANSYSEM_ROOT{}".format(oDesktop.GetVersion()[2:6].replace(".", ""))
-    if variable not in os.environ:
-        os.environ[variable] = oDesktop.GetExeDir()
 
 
 def sanitize_interpreter_path(interpreter_path, version):
@@ -121,17 +114,18 @@ def show_error(msg, oDesktop):
 
 def environment_variables(oDesktop):
     """Set environment variables for the AEDT process."""
-    os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
+    os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
-    os.environ["PYAEDT_SCRIPT_VERSION"] = version
+    os.environ["PYAEDT_DESKTOP_VERSION"] = version
     if version > "2023.1":
-        os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
+        os.environ["PYAEDT_DESKTOP_PORT"] = str(oDesktop.GetGrpcServerPort())
     else:
-        os.environ["PYAEDT_SCRIPT_PORT"] = str(0)
+        os.environ["PYAEDT_DESKTOP_PORT"] = str(0)
     if "Ansys Student" in str(oDesktop.GetExeDir()):
         os.environ["PYAEDT_STUDENT_VERSION"] = "True"
     else:
         os.environ["PYAEDT_STUDENT_VERSION"] = "False"
+    os.environ["PYAEDT_PERSONAL_LIB"] = str(oDesktop.GetPersonalLibDirectory())
     if is_linux:
         edt_root = os.path.normpath(oDesktop.GetExeDir())
         os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root

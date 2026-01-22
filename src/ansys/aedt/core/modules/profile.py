@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1407,7 +1407,7 @@ def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
 
     Returns
     -------
-    :class:`pyaedt.modules.SolveSetup.SimulationProfile`
+    :class:`ansys.aedt.core.modules.SolveSetup.SimulationProfile`
         An instance of the SimulationProfile class.
 
     """

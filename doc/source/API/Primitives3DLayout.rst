@@ -12,6 +12,7 @@ They are accessible through the ``modeler`` module and ``modeler.objects`` prope
 .. code:: python
 
     from ansys.aedt.core import Hfss3dLayout
+
     hfss = Hfss3dLayout()
     my_modeler = hfss.modeler
 
@@ -62,9 +63,14 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from ansys.aedt.core import Hfss3dLayout
-    app = Hfss3dLayout(specified_version="2025.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
+
+    app = Hfss3dLayout(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the Modeler3DLayout class
     modeler = app.modeler
@@ -73,7 +79,7 @@ They contain all getters and setters to simplify object manipulation.
     primitives = modeler
 
     # This call returns an Object3d object
-    my_rect = primitives.create_rectangle([0,0,0],[10,10])
+    my_rect = primitives.create_rectangle([0, 0, 0], [10, 10])
 
     # Getter and setter
     my_rect.material_name

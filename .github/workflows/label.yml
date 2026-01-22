@@ -50,7 +50,7 @@ jobs:
     # Label based on branch name
     - uses: actions-ecosystem/action-add-labels@18f1af5e3544586314bbe15c0273249c770b2daf # v1.1.3
       if: |
-        startsWith(github.event.pull_request.head.ref, 'doc') || 
+        startsWith(github.event.pull_request.head.ref, 'doc') ||
         startsWith(github.event.pull_request.head.ref, 'docs')
       with:
         labels: documentation
@@ -87,7 +87,7 @@ jobs:
         contains(github.event.pull_request.title, 'extensions')
       with:
         labels: extensions
-        
+
   commenter:
     name: Suggest labels if none assigned
     runs-on: ubuntu-latest
@@ -119,7 +119,7 @@ jobs:
       pull-requests: write  # Required to update PR with changelog information
     runs-on: ubuntu-latest
     steps:
-    - uses: ansys/actions/doc-changelog@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+    - uses: ansys/actions/doc-changelog@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
       with:
         token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
         use-conventional-commits: true

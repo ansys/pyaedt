@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -69,19 +69,19 @@ DEFAULT_BORDERWIDTH: int = 1
 
 def get_process_id():
     """Get process ID from environment variable."""
-    value = os.getenv("PYAEDT_SCRIPT_PROCESS_ID")
+    value = os.getenv("PYAEDT_PROCESS_ID")
     return int(value) if value is not None else None
 
 
 def get_port():
     """Get gRPC port from environment variable."""
-    res = int(os.getenv("PYAEDT_SCRIPT_PORT", 0))
+    res = int(os.getenv("PYAEDT_DESKTOP_PORT", 0))
     return res
 
 
 def get_aedt_version():
     """Get AEDT release from environment variable."""
-    res = os.getenv("PYAEDT_SCRIPT_VERSION", aedt_versions.current_version)
+    res = os.getenv("PYAEDT_DESKTOP_VERSION", aedt_versions.current_version)
     return res
 
 
@@ -702,6 +702,16 @@ class ExtensionTwinBuilderCommon(ExtensionCommon):
         if self.aedt_application.design_type != "Twin Builder":
             self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Twin Builder designs.")
+
+
+class ExtensionEMITCommon(ExtensionCommon):
+    """Common methods for EMIT extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an EMIT design."""
+        if self.aedt_application.design_type != "EMIT":
+            self.release_desktop()
+            raise AEDTRuntimeError("This extension can only be used with EMIT designs.")
 
 
 class ExtensionProjectCommon(ExtensionCommon):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -223,17 +223,17 @@ def launch_aedt(
     if is_windows:
         kwargs["creationflags"] = subprocess.DETACHED_PROCESS
 
-    settings.logger.info(f"Launching AEDT server with gRPC transport mode: {server_args.mode}")
-    settings.logger.debug(f"Launching AEDT server with command: {' '.join(command)}")
+    pyaedt_logger.info(f"Launching AEDT server with gRPC transport mode: {server_args.mode}")
+    pyaedt_logger.debug(f"Launching AEDT server with command: {' '.join(command)}")
     subprocess.Popen(command, **kwargs)  # nosec
 
     on_ci = os.getenv("ON_CI", "False")
     if not student_version and on_ci != "True" and not settings.skip_license_check:
         available_licenses = available_license_feature()
         if available_licenses > 0:
-            settings.logger.info("Electronics Desktop license available.")
+            pyaedt_logger.info("Electronics Desktop license available.")
         elif available_licenses == 0:  # pragma: no cover
-            settings.logger.warning("Electronics Desktop license not found on the default license server.")
+            pyaedt_logger.warning("Electronics Desktop license not found on the default license server.")
 
     timeout = settings.desktop_launch_timeout
     start = time.time()
@@ -245,11 +245,11 @@ def launch_aedt(
         time.sleep(1)
 
     if timeout == 0:
-        settings.logger.error(f"Failed to start on gRPC port: {port}.")
+        pyaedt_logger.error(f"Failed to start on gRPC port: {port}.")
         return False, 0
 
     end = round(time.time() - start, 1)
-    settings.logger.info(f"Electronics Desktop started on gRPC port {port} after {end} seconds.")
+    pyaedt_logger.info(f"Electronics Desktop started on gRPC port {port} after {end} seconds.")
     return True, port
 
 
@@ -281,7 +281,7 @@ def launch_aedt_in_lsf(non_graphical, port, host=None):  # pragma: no cover
         command = [
             "bsub",
             "-n",
-            str(settings.lsf_num_cores),
+            str(settings.num_cores),
             "-R",
             select_str,
             "-Is",
@@ -354,7 +354,7 @@ def _check_port(port):
 
 def _check_settings(settings: Settings):
     """Check settings."""
-    if not isinstance(settings.lsf_num_cores, int) or settings.lsf_num_cores <= 0:
+    if not isinstance(settings.num_cores, int) or settings.num_cores <= 0:
         raise ValueError("Invalid number of cores.")
     if not isinstance(settings.lsf_ram, int) or settings.lsf_ram <= 0:
         raise ValueError("Invalid memory value.")
@@ -530,10 +530,7 @@ class Desktop(PyAedtBase):
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
 
-    @pyaedt_function_handler(
-        specified_version="version",
-        new_desktop_session="new_desktop",
-    )
+    @pyaedt_function_handler()
     def __init__(
         self,
         version=None,
@@ -556,9 +553,7 @@ class Desktop(PyAedtBase):
         self.__aedt_version_id = version
         self.__aedt_install_dir = None
         self.__aedt_process_id = (
-            int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
-            if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None)
-            else aedt_process_id
+            int(os.getenv("PYAEDT_PROCESS_ID")) if os.getenv("PYAEDT_PROCESS_ID", None) else aedt_process_id
         )
         self.__launched_by_pyaedt = False
         self.__non_graphical = (
@@ -575,8 +570,8 @@ class Desktop(PyAedtBase):
             True if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t") else new_desktop
         )
         self.aedt_version_id = (
-            str(os.getenv("PYAEDT_SCRIPT_VERSION"))
-            if os.getenv("PYAEDT_SCRIPT_VERSION", None)
+            str(os.getenv("PYAEDT_DESKTOP_VERSION"))
+            if os.getenv("PYAEDT_DESKTOP_VERSION", None)
             else version
             if version
             else list(_desktop_sessions.values())[-1].aedt_version_id
@@ -1004,6 +999,7 @@ class Desktop(PyAedtBase):
                     self.__desktop = self.grpc_plugin.odesktop
                     return self.__desktop
                 except Exception:
+                    self.grpc_plugin.recreate_application(True)
                     tries += 1
                     time.sleep(1)
         return self.__desktop
@@ -1130,7 +1126,7 @@ class Desktop(PyAedtBase):
             time.sleep(1)
             self.close_windows()
         warning_msg = f"Active Design set to {active_design.GetName()}"
-        settings.logger.info(warning_msg)
+        pyaedt_logger.info(warning_msg)
         return active_design
 
     @pyaedt_function_handler()
@@ -1269,51 +1265,6 @@ class Desktop(PyAedtBase):
         else:
             oproject.Save()
         return True
-
-    @pyaedt_function_handler()
-    def copy_design(self, project_name=None, design_name=None, target_project=None):  # pragma: no cover
-        """Copy a design and paste it in an existing project or new project.
-
-        .. deprecated:: 0.6.31
-           Use :func:`copy_design_from` instead.
-
-        Parameters
-        ----------
-        project_name : str, optional
-            Project name. The default is ``None``, in which case the active project
-            is used.
-        design_name : str, optional
-            Design name. The default is ``None``.
-        target_project : str, optional
-            Target project. The default is ``None``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not project_name:
-            oproject = self.active_project()
-        else:
-            oproject = self.active_project(project_name)
-        if oproject:
-            if not design_name:
-                odesign = self.active_design(oproject)
-            else:
-                odesign = self.active_design(oproject, design_name)
-            if odesign:
-                oproject.CopyDesign(design_name)
-                if not target_project:
-                    oproject.Paste()
-                    return True
-                else:
-                    oproject_target = self.active_project(target_project)
-                    if not oproject_target:
-                        oproject_target = self.odesktop.NewProject(target_project)
-                        oproject_target.Paste()
-                        return True
-        else:
-            return False
 
     @pyaedt_function_handler()
     def project_path(self, project_name=None):
@@ -2533,7 +2484,7 @@ class Desktop(PyAedtBase):
             # NOTE: When working locally, machine is updated to an empty string to work with UDS.
             # This is necessary when working with UDS and also works for WNUA.
             elif settings.grpc_local and settings.grpc_secure_mode and "ANSYS_GRPC_CERTIFICATES" not in os.environ:
-                settings.logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
+                pyaedt_logger.debug("Setting machine to '' to work with UDS/WNUA connection mechanism.")
                 self.machine = ""
             # NOTE: Update command if PYAEDT_USE_PRE_GRPC_ARGS is set to allow working
             # with previous SP where grpc transport mode were not available
@@ -2579,9 +2530,12 @@ class Desktop(PyAedtBase):
             settings.use_multi_desktop
             or "PYTEST_CURRENT_TEST" in os.environ
             or (self.new_desktop and self.aedt_version_id < "2024.2")
+            or (is_linux and self.new_desktop)
         ):
             self.__port = _find_free_port()
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
+        elif self.new_desktop:
+            self.__port = 0
         else:
             sessions = grpc_active_sessions(
                 version=self.aedt_version_id, student_version=self.student_version, non_graphical=self.non_graphical
@@ -2594,7 +2548,7 @@ class Desktop(PyAedtBase):
                     self.logger.warning(
                         f"Multiple AEDT gRPC sessions are found. Setting the active session on port {self.port}."
                     )
-            elif self.aedt_version_id < "2024.2":
+            elif self.aedt_version_id < "2024.2" or is_linux:
                 self.__port = _find_free_port()
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True
@@ -2611,12 +2565,7 @@ class Desktop(PyAedtBase):
             else:
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
-        elif self.new_desktop and (
-            "PYTEST_CURRENT_TEST" in os.environ
-            or not settings.grpc_local
-            or self.aedt_version_id < "2024.2"
-            or settings.use_multi_desktop
-        ):  # pragma: no cover
+        else:
             self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
@@ -2626,6 +2575,25 @@ class Desktop(PyAedtBase):
                     installer = Path(self.aedt_install_dir) / "ansysedtsv.exe"
                 else:
                     installer = Path(self.aedt_install_dir) / "ansysedt.exe"
+
+            lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
+            start_time = time.time()
+            while lock_file.exists():
+                if time.time() - start_time > settings.desktop_launch_timeout:
+                    self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
+                    break
+                # If no active sessions,
+                # do not wait for the lock file to be released because it is from a previous job or crash.
+                # if not active_sessions():
+                #     break
+                time.sleep(1)
+
+            try:
+                lock_file.touch(exist_ok=True)
+                self.logger.debug(f"Lock file {lock_file}.")
+            except Exception:
+                self.logger.warning(f"Could not create lock file {lock_file}.")
+
             # Only provide host if user provided a machine name
             out, self.port = launch_aedt(
                 installer, self.non_graphical, self.port, self.student_version, host=self.machine
@@ -2633,16 +2601,13 @@ class Desktop(PyAedtBase):
             self.new_desktop = False
             self.launched_by_pyaedt = True
             result = self.__initialize()
-        else:
-            flag_new = False
-            if self.port == 0:
-                self.logger.info("Starting new AEDT gRPC session.")
-                flag_new = True
-            else:
-                self.logger.info(f"Connecting to AEDT gRPC session on port {self.port}.")
-            result = self.__initialize()
-            if flag_new:
-                self.logger.info(f"New AEDT gRPC session session started on port {self.port}.")
+
+            # Remove lock file
+            try:
+                lock_file.unlink()
+            except Exception:
+                self.logger.warning(f"Could not remove lock file {lock_file}.")
+
         if result:
             if self.new_desktop:
                 message = (

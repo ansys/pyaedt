@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -469,19 +469,26 @@ def test_update_pyaedt_flows(mock_showerror, mock_get_latest, mock_run, mock_ask
 def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_askyesno):
     manager = _make_vm()
 
-    # Decline
+    # User declines disclaimer
     mock_askyesno.return_value = False
+
+    def should_not_run(*a, **k):
+        raise AssertionError("Should not run")
+
+    mock_run.side_effect = should_not_run
     manager.update_pyedb()
 
-    # Accept but unknown
+    # User accepts but latest unknown -> showerror
     mock_askyesno.return_value = True
     mock_get_latest.return_value = vm.UNKNOWN_VERSION
+    mock_run.side_effect = lambda *a, **k: None
     manager.update_pyedb()
     assert mock_showerror.called
 
-    # Accept and update path
+    # User accepts and install path; test both branch comparisons
     mock_askyesno.return_value = True
     mock_get_latest.return_value = "1.0.0"
+    # Simulate installed version > latest to force pinned install
     manager.get_installed_version = lambda pkg: "2.0.0"
 
     # Reset the mock to capture calls
@@ -490,8 +497,18 @@ def test_update_pyedb_flows(mock_run, mock_showerror, mock_get_latest, mock_asky
 
     # Check that update_and_reload was called with correct pip_args
     assert manager.update_and_reload.called
-    pip_args = manager.update_and_reload.call_args[0][0]  # First positional argument
-    assert any("pyedb==1.0.0" in str(x) for x in pip_args) or any("-U" in str(x) for x in pip_args)
+    pip_args = manager.update_and_reload.call_args[0][0]
+    assert any("pyedb==1.0.0" in str(x) for x in pip_args)
+
+    # Simulate installed version <= latest to force upgrade
+    manager.get_installed_version = lambda pkg: "1.0.0"
+    manager.update_and_reload.reset_mock()
+    manager.update_pyedb()
+
+    # Check that update_and_reload was called with upgrade arguments
+    assert manager.update_and_reload.called
+    pip_args = manager.update_and_reload.call_args[0][0]
+    assert any("-U" in str(x) or "install" in str(x) for x in pip_args)
 
 
 @patch("ansys.aedt.core.extensions.installer.version_manager.messagebox.showinfo")

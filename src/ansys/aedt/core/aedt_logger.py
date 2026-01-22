@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from contextlib import contextmanager
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -222,6 +223,10 @@ class AedtLogger:
 
     def add_file_logger(self, filename, project_name, level=None):
         """Add a new file to the logger handlers list."""
+        # Ensure the directory exists
+        log_path = Path(filename)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
         _project = logging.getLogger(project_name)
         _project.setLevel(level if level else self.level)
         _project.addFilter(AppFilter("Project", project_name))
@@ -613,7 +618,7 @@ class AedtLogger:
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except Exception:  # pragma: no cover
-                self._global.info("Failed to add desktop message.")
+                self._log_on_handler(2, "Failed to add desktop message.")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         message_text = str(message_text)
@@ -629,14 +634,17 @@ class AedtLogger:
             return
         if len(message_text) > 250 and message_type < 3:
             message_text = message_text[:250] + "..."
-        if message_type == 0:
-            self._global.info(message_text, *args, **kwargs)
-        elif message_type == 1:
-            self._global.warning(message_text, *args, **kwargs)
-        elif message_type == 2:
-            self._global.error(message_text, *args, **kwargs)
-        elif message_type == 3:
-            self._global.debug(message_text, *args, **kwargs)
+        try:
+            if message_type == 0:
+                self._global.info(message_text, *args, **kwargs)
+            elif message_type == 1:
+                self._global.warning(message_text, *args, **kwargs)
+            elif message_type == 2:
+                self._global.error(message_text, *args, **kwargs)
+            elif message_type == 3:
+                self._global.debug(message_text, *args, **kwargs)
+        except Exception as e:
+            print(f"Logging error: {e}", file=sys.stderr)
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
@@ -794,6 +802,25 @@ class AedtLogger:
         else:
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
+    @property
+    def log_on_desktop(self):
+        """Status of the log in AEDT (Message Manager).
+
+        Returns
+        -------
+        bool
+            ``True`` if logging to AEDT is enabled, ``False`` otherwise.
+        """
+        return self._log_on_desktop
+
+    @log_on_desktop.setter
+    def log_on_desktop(self, value: bool):
+        """Enable or disable the log in AEDT."""
+        if value:
+            self.enable_desktop_log()
+        else:
+            self.disable_desktop_log()
+
     def disable_desktop_log(self):
         """Disable the log in AEDT."""
         self._log_on_desktop = False
@@ -803,6 +830,25 @@ class AedtLogger:
         """Enable the log in AEDT."""
         self._log_on_desktop = True
         self.info("Log on AEDT is enabled.")
+
+    @property
+    def log_on_stdout(self):
+        """Status of printing log messages to stdout.
+
+        Returns
+        -------
+        bool
+            ``True`` if logging to stdout is enabled, ``False`` otherwise.
+        """
+        return self._log_on_screen
+
+    @log_on_stdout.setter
+    def log_on_stdout(self, value: bool):
+        """Enable or disable printing log messages to stdout."""
+        if value:
+            self.enable_stdout_log()
+        else:
+            self.disable_stdout_log()
 
     def disable_stdout_log(self):
         """Disable printing log messages to stdout."""
@@ -823,32 +869,45 @@ class AedtLogger:
         self._global.addHandler(self._std_out_handler)
         self.info("Log on console is enabled.")
 
+    @property
+    def log_on_file(self):
+        """Status of printing log messages to a file.
+
+        Returns
+        -------
+        bool
+            ``True`` if logging to file is enabled, ``False`` otherwise.
+        """
+        return self._log_on_file
+
+    @log_on_file.setter
+    def log_on_file(self, value: bool):
+        """Enable or disable printing log messages to a file."""
+        if value:
+            self.enable_log_on_file()
+        else:
+            self.disable_log_on_file()
+
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
-        from logging import FileHandler
-
         self._log_on_file = False
-        for _file_handler in self._global.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
-                self._global.removeHandler(_file_handler)
-        for _file_handler in self.design_logger.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
-                self.design_logger.removeHandler(_file_handler)
-        for _file_handler in self.project_logger.handlers:
-            if isinstance(_file_handler, FileHandler):
-                _file_handler.close()
-                self.project_logger.removeHandler(_file_handler)
+
+        for logger in (self._global, self.design_logger, self.project_logger):
+            for handler in list(logger.handlers):
+                if isinstance(handler, logging.FileHandler):
+                    handler.close()
+                    logger.removeHandler(handler)
+
         self.info("Log on file is disabled.")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
         self._log_on_file = True
-        for _file_handler in self._files_handlers:
-            self._global.addHandler(_file_handler)
-            if "baseFilename" in dir(_file_handler):
-                self.info(f"Log on file {_file_handler.baseFilename} is enabled.")
+
+        for handler in self._files_handlers:
+            self._global.addHandler(handler)
+            if hasattr(handler, "baseFilename"):
+                self.info(f"Log on file {handler.baseFilename} is enabled.")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
@@ -954,6 +1013,20 @@ class AedtLogger:
         if not self._design.handlers:
             self.add_logger("Design")
         return self._design
+
+    @contextmanager
+    def suspend_logging(self):
+        """Temporarily disable all logs and restore them afterwards."""
+        previous_state = (self.log_on_stdout, self.log_on_file, self.log_on_desktop)
+
+        self.log_on_stdout = False
+        self.log_on_file = False
+        self.log_on_desktop = False
+
+        try:
+            yield
+        finally:
+            self.log_on_stdout, self.log_on_file, self.log_on_desktop = previous_state
 
 
 pyaedt_logger = AedtLogger(to_stdout=settings.enable_screen_logs)

@@ -8,17 +8,33 @@ on:
   push:
     tags:
       - "*"
-    branches:
-      - main
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.10'
+  MAIN_PYTHON_VERSION: '3.13'
+  TESTS_VERSION: '3.10'
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
-  PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
+  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
+  TESTMON_DATAFILE: '.testmondata'
+  TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
+  TESTMON_CACHE_KEY_INTEGRATION_LINUX: 'testmondata-integration-linux'
+  TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
+  TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
+  TESTMON_CACHE_KEY_GENERAL_WIN: 'testmondata-general-win'
+  TESTMON_CACHE_KEY_GENERAL_LINUX: 'testmondata-general-linux'
+  TESTMON_CACHE_KEY_VISUALIZATION_WIN: 'testmondata-visualization-win'
+  TESTMON_CACHE_KEY_VISUALIZATION_LINUX: 'testmondata-visualization-linux'
+  TESTMON_CACHE_KEY_ICEPAK_WIN: 'testmondata-icepak-win'
+  TESTMON_CACHE_KEY_ICEPAK_LINUX: 'testmondata-icepak-linux'
+  TESTMON_CACHE_KEY_LAYOUT_WIN: 'testmondata-layout-win'
+  TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
+  TESTMON_CACHE_KEY_EXTENSIONS_WIN: 'testmondata-extensions-win'
+  TESTMON_CACHE_KEY_EXTENSIONS_LINUX: 'testmondata-extensions-linux'
+  TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
+  TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -38,38 +54,12 @@ jobs:
       contents: write        # Required to commit and push changelog updates to the repository
       pull-requests: write   # Required to create pull requests with changelog updates
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+      - uses: ansys/actions/doc-deploy-changelog@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
           use-upper-case: true
-
-  vulnerabilities:
-    name: "Vulnerabilities"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read   # Required to read repository content for vulnerability scanning
-    steps:
-      - uses: ansys/actions/check-vulnerabilities@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          python-package-name: ${{ env.PACKAGE_NAME }}
-          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
-          dev-mode: ${{ github.ref != 'refs/heads/main' }}
-          extra-targets: 'all'
-
-  actions-security:
-    name: "Check actions security"
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read   # Required to read workflow files and check for security issues
-    steps:
-      - uses: ansys/actions/check-actions-security@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
-        with:
-          generate-summary: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          auditing-level: 'high'
 
   # NOTE: We do not allow dependabot to trigger the CI/CD pipeline automatically.
   # This is to mitigate supply chain attacks, where a malicious dependency update
@@ -91,6 +81,7 @@ jobs:
   # dependency update could execute arbitrary code in our build environment.
   # Dependabot PRs must be reviewed carefully and approved manually before
   # running the CI.
+
   block-pyansys-ci-bot:
     name: "Block PyAnsys-CI-bot (on dependabot PR)"
     needs: block-dependabot
@@ -102,6 +93,34 @@ jobs:
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
 
+  vulnerabilities:
+    name: "Vulnerabilities"
+    runs-on: ubuntu-latest
+    needs: [block-pyansys-ci-bot]
+    permissions:
+      contents: read   # Required to read repository content for vulnerability scanning
+    steps:
+      - uses: ansys/actions/check-vulnerabilities@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-package-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          dev-mode: ${{ github.ref != 'refs/heads/main' }}
+          extra-targets: 'all'
+
+  actions-security:
+    name: "Check actions security"
+    runs-on: ubuntu-latest
+    needs: [block-pyansys-ci-bot]
+    permissions:
+      contents: read   # Required to read workflow files and check for security issues
+    steps:
+      - uses: ansys/actions/check-actions-security@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          generate-summary: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          auditing-level: 'high'
+
   pr-title:
     name: Check the title of the PR (if needed)
     runs-on: ubuntu-latest
@@ -111,7 +130,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/check-pr-title@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -128,7 +147,7 @@ jobs:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/doc-style@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -146,11 +165,14 @@ jobs:
           sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/doc-build@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          skip-install: true
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
           sphinxopts: '-j auto --color -w build_errors.txt'
+          dependencies: "pandoc"
           check-links: false
           needs-quarto: true
 
@@ -170,7 +192,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/build-wheelhouse@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -193,24 +215,38 @@ jobs:
     needs: [smoke-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
+
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           pytest-postargs: 'tests/unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
           optional-dependencies-name: unit-tests
           requires-xvfb: true
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-unit-tests
           files: ./coverage.xml
           flags: linux_unit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-unit
           path: junit/test-results.xml
@@ -221,23 +257,37 @@ jobs:
     needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}
+
       - name: Run integration tests
-        uses: ansys/actions/tests-pytest@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           pytest-postargs: 'tests/integration'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
           optional-dependencies-name: integration-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-integration-tests
           files: ./coverage.xml
           flags: linux_integration
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-integration
           path: junit/test-results.xml
@@ -258,13 +308,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
+
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -298,16 +357,17 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           .venv\Scripts\Activate.ps1
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
           flags: windows_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
@@ -331,13 +391,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
+
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -371,14 +440,14 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
           flags: linux_system_solvers
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
@@ -399,16 +468,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -440,22 +518,24 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
           flags: windows_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
@@ -479,16 +559,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -521,24 +610,23 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 40
+          timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
           flags: linux_system_general
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
         if: ${{ always() }}
-
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -557,16 +645,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -598,22 +695,24 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m visualization -x
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
           flags: windows_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-visualization-windows
           path: junit/test-results.xml
@@ -638,16 +737,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
+
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -673,38 +781,26 @@ jobs:
             kill -9 "$pid"
           done
 
-      # NOTE: Run visualization tests in two separate steps to avoid conflicts when
-      # loading Ansys EM libraries and vtk osmesa backend.
-      - name: Run tests marked with 'visualization' and not 'avoid_ansys_load'
+      - name: Run tests marked with 'visualization'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 30
+          timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
 
-      - name: Run tests marked with 'visualization' and 'avoid_ansys_load'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 40
-          command: |
-            source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
-
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
           flags: linux_system_visualization
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-visualization-linux
           path: junit/test-results.xml
@@ -714,8 +810,8 @@ jobs:
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
 
-  system-tests-extensions-windows:
-    name: Test extensions - windows (if needed)
+  system-tests-icepak-windows:
+    name: Test icepak (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -724,75 +820,364 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
 
-      - name: Check for changes in extensions folder
-        id: changes
-        env:
-          GITHUB_REF: ${{ github.ref }}
-        shell: powershell
-        run: |
-          $GITHUB_REF = "${env:GITHUB_REF}"
-          $is_main_branch = $GITHUB_REF -eq "refs/heads/main"
-          $changed_files = git diff --name-only origin/main...HEAD
-          $run_tests = $false
-          foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/extensions/*" -or $file -eq "tests/system/extensions/*") {
-              $run_tests = $true
-              break
-            }
-          }
-          # Always run tests on main branch for code coverage
-          if ($is_main_branch) {
-            $run_tests = $true
-            echo "Running on main branch - all tests will be executed"
-          } elseif ($run_tests) {
-            echo "Changes detected in extensions folder"
-          } else {
-            echo "No changes in extensions folder"
-          }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-      - name: Skip extensions tests
-        if: steps.changes.outputs.run_tests == 'false'
-        shell: bash
-        run: echo "Skipped - No changes in src/ansys/aedt/core/extensions"
-
-      - name: Set up headless display
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
 
       - name: Setup Python
-        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
       - name: Create virtual environment
-        if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
       - name: Upgrade wheel and setuptools
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
-        if: steps.changes.outputs.run_tests == 'true'
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'icepak'
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m icepak
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-icepak-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_icepak
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-icepak-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
+
+  system-tests-icepak-linux:
+    name: Test icepak (linux)
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'icepak'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-icepak-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_icepak
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-icepak-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
+
+  system-tests-layout-windows:
+    name: Test layout (windows)
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'layout'
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m layout
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-layout-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_layout
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-layout-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
+
+  system-tests-layout-linux:
+    name: Test layout (linux)
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'layout'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-layout-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_layout
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-layout-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
+
+  system-tests-extensions-windows:
+    name: Test extensions (windows)
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
           Get-Process | Where-Object {
@@ -803,38 +1188,38 @@ jobs:
           }
 
       - name: Run tests marked with 'extensions'
-        if: steps.changes.outputs.run_tests == 'true'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        if: steps.changes.outputs.run_tests == 'true'
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
           flags: windows_system_extensions
 
       - name: Upload pytest test results
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
 
   system-tests-extensions-linux:
-    name: Test extensions - linux (if needed)
+    name: Test extensions (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -846,76 +1231,44 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
 
-      - name: Check for changes in extensions folder
-        id: changes
-        env:
-          GITHUB_REF: ${{ github.ref }}
-        shell: bash
-        run: |
-          is_main_branch=false
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            is_main_branch=true
-          fi
-          changed_files=$(git diff --name-only origin/main...HEAD)
-          run_tests=false
-          for file in $changed_files; do
-            if [[ $file == src/ansys/aedt/core/extensions/* ]] || [[ $file == tests/system/extensions/* ]]; then
-              run_tests=true
-              break
-            fi
-          done
-          # Always run tests on main branch for code coverage
-          if [ "$is_main_branch" = "true" ]; then
-            run_tests=true
-            echo "Running on main branch - all tests will be executed"
-          elif [ "$run_tests" = "true" ]; then
-            echo "Changes detected in extensions folder"
-          else
-            echo "No changes in extensions folder"
-          fi
-          echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-      - name: Skip extensions tests
-        if: steps.changes.outputs.run_tests == 'false'
-        run: echo "Skipped - No changes in src/ansys/aedt/core/extensions"
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
 
       - name: Set up headless display
-        if: steps.changes.outputs.run_tests == 'true'
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
       - name: Setup Python
-        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
       - name: Create virtual environment
-        if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
       - name: Upgrade wheel and setuptools
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           source .venv/bin/activate
           uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
-        if: steps.changes.outputs.run_tests == 'true'
         shell: bash
         run: |
           for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
@@ -924,7 +1277,6 @@ jobs:
           done
 
       - name: Run tests marked with 'extensions'
-        if: steps.changes.outputs.run_tests == 'true'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
@@ -934,28 +1286,27 @@ jobs:
           timeout_minutes: 120
           command: |
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        if: steps.changes.outputs.run_tests == 'true'
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
           flags: linux_system_extensions
 
       - name: Upload pytest test results
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
 
   system-tests-filter-windows:
-    name: Test filter solutions - windows (if needed)
+    name: Test filter solutions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -964,71 +1315,41 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
 
-      - name: Check for changes in filter solutions
-        id: changes
-        env:
-          GITHUB_REF: ${{ github.ref }}
-        shell: powershell
-        run: |
-          $github_ref = "${env:GITHUB_REF}"
-          $is_main_branch = $github_ref -eq "refs/heads/main"
-          $changed_files = git diff --name-only origin/main...HEAD
-          $run_tests = $false
-          foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/filtersolutions_core/*" -or $file -eq "src/ansys/aedt/core/filtersolutions.py" -or $file -eq "tests/system/filter_solutions/*") {
-              $run_tests = $true
-              break
-            }
-          }
-          # Always run tests on main branch for code coverage
-          if ($is_main_branch) {
-            $run_tests = $true
-            echo "Running on main branch - all tests will be executed"
-          } elseif ($run_tests) {
-            echo "Changes detected in filter solutions folder"
-          } else {
-            echo "No changes in filter solutions folder"
-          }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-      - name: Skip filter solutions tests
-        if: steps.changes.outputs.run_tests == 'false'
-        shell: bash
-        run: echo "Skipped - No changes in src/ansys/aedt/core/filtersolutions_core"
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
 
       - name: Setup Python
-        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
       - name: Create virtual environment
-        if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
       - name: Upgrade wheel and setuptools
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
-        if: steps.changes.outputs.run_tests == 'true'
         shell: powershell
         run: |
           Get-Process | Where-Object {
@@ -1039,38 +1360,38 @@ jobs:
           }
 
       - name: Run tests marked with 'filter_solutions'
-        if: steps.changes.outputs.run_tests == 'true'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m filter_solutions
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        if: steps.changes.outputs.run_tests == 'true'
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
           flags: windows_system_filter
 
       - name: Upload pytest test results
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
+        if: ${{ always() }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
 
   system-tests-emit-windows:
-    name: Test EMIT - windows (if needed)
+    name: Test EMIT (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -1079,71 +1400,41 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
 
-      - name: Check for changes in EMIT
-        id: changes
-        env:
-          GITHUB_REF: ${{ github.ref }}
-        shell: powershell
-        run: |
-          $github_ref = "${env:GITHUB_REF}"
-          $is_main_branch = $github_ref -eq "refs/heads/main"
-          $changed_files = git diff --name-only origin/main...HEAD
-          $run_tests = $false
-          foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/emit_core/*" -or $file -eq "src/ansys/aedt/core/emit.py" -or $file -eq "tests/system/emit/*") {
-              $run_tests = $true
-              break
-            }
-          }
-          # Always run tests on main branch for code coverage
-          if ($is_main_branch) {
-            $run_tests = $true
-            echo "Running on main branch - all tests will be executed"
-          } elseif ($run_tests) {
-            echo "Changes detected in EMIT folder"
-          } else {
-            echo "No changes in EMIT folder"
-          }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value 'run_tests=$run_tests'
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
 
-      - name: Skip EMIT tests
-        if: steps.changes.outputs.run_tests == 'false'
-        shell: bash
-        run: echo "Skipped - No changes in src/ansys/aedt/core/emit_core"
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
 
       - name: Setup Python
-        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
       - name: Create virtual environment
-        if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
       - name: Upgrade wheel and setuptools
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install -U wheel setuptools
 
       - name: Install pyaedt and tests dependencies
-        if: steps.changes.outputs.run_tests == 'true'
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
 
       - name: Remove Ansys processes (if any)
-        if: steps.changes.outputs.run_tests == 'true'
         shell: powershell
         run: |
           Get-Process | Where-Object {
@@ -1154,151 +1445,31 @@ jobs:
           }
 
       - name: Run tests marked with 'emit'
-        if: steps.changes.outputs.run_tests == 'true'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 30
+          timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -v -rA --color=yes -m emit
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        if: steps.changes.outputs.run_tests == 'true'
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
           flags: windows_system_emit
 
       - name: Upload pytest test results
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
-
- # =================================================================================================
- # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
- # =================================================================================================
-
-  system-tests-flaky-linux:
-    name: Test flaky (linux)
-    if: github.event.pull_request.draft == false
-    needs: [integration-tests]
-    runs-on: [ self-hosted, Linux, pyaedt ]
-    env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-      ANS_NODEPCHECK: '1'
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Check for changes in flaky test areas
-        id: changes
-        env:
-          GITHUB_REF: ${{ github.ref }}
-        shell: bash
-        run: |
-          is_main_branch=false
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            is_main_branch=true
-          fi
-          changed_files=$(git diff --name-only origin/main...HEAD)
-          run_tests=false
-          for file in $changed_files; do
-            if [[ $file == src/ansys/aedt/core/extensions/* ]] || [[ $file == tests/system/extensions/* ]]; then
-              run_tests=true
-              break
-            fi
-          done
-          # Always run tests on main branch for code coverage
-          if [ "$is_main_branch" = "true" ]; then
-            run_tests=true
-            echo "Running on main branch - all tests will be executed"
-          elif [ "$run_tests" = "true" ]; then
-            echo "Changes detected in extensions folder"
-          else
-            echo "No changes in extensions folder"
-          fi
-          echo "run_tests=$run_tests" >> $GITHUB_OUTPUT
-
-      - name: Skip flaky tests
-        if: steps.changes.outputs.run_tests == 'false'
-        run: echo "Skipped - No changes affecting flaky tests"
-
-      - name: Set up headless display
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Set up uv
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Create virtual environment
-        if: steps.changes.outputs.run_tests == 'true'
-        run: uv venv .venv
-
-      - name: Upgrade wheel and setuptools
-        if: steps.changes.outputs.run_tests == 'true'
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
-      - name: Install pyaedt and tests dependencies
-        if: steps.changes.outputs.run_tests == 'true'
-        run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
-
-      - name: Remove Ansys processes (if any)
-        if: steps.changes.outputs.run_tests == 'true'
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
-
-      - name: Run tests marked with 'flaky'
-        if: steps.changes.outputs.run_tests == 'true'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
-
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        if: steps.changes.outputs.run_tests == 'true'
-        with:
-          name: codecov-system-flaky-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_flaky
-
-      - name: Upload pytest test results
-        if: steps.changes.outputs.run_tests == 'true'
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
-        with:
-          name: pytest-flaky-linux
-          path: junit/test-results.xml
+        if: ${{ always() }}
 
   package:
     name: Package library
@@ -1308,11 +1479,14 @@ jobs:
             system-tests-general-linux,
             system-tests-visualization-windows,
             system-tests-visualization-linux,
+            system-tests-icepak-windows,
+            system-tests-icepak-linux,
+            system-tests-layout-windows,
+            system-tests-layout-linux,
             system-tests-extensions-windows,
             system-tests-extensions-linux,
             system-tests-filter-windows,
             system-tests-emit-windows,
-            system-tests-flaky-linux,
             doc-build]
     runs-on: ubuntu-latest
     permissions:
@@ -1321,13 +1495,13 @@ jobs:
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/build-library@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           attest-provenance: true
 
-  # TODO: Si if we can fix the PDF issue and leverage classic ansys/release-github
+  # TODO: If we can fix the PDF issue and leverage classic ansys/release-github
   release:
     name: Release project
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
@@ -1340,7 +1514,7 @@ jobs:
       contents: write   # Required to create GitHub releases and upload release assets
     steps:
       - name: Download the library artifacts from build-library step
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: ${{ env.PACKAGE_NAME }}-artifacts
           path: ${{ env.PACKAGE_NAME }}-artifacts
@@ -1354,11 +1528,11 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/release-github@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: false
+          generate-release-notes: false
           add-artifact-attestation-notes: true
 
   upload-release-doc:
@@ -1370,7 +1544,7 @@ jobs:
       contents: write   # Required to commit and push documentation to gh-pages branch
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@eb7d0fc873deeee6d4740774675ce1741cb6f154 # v10.2.2
+        uses: ansys/actions/doc-deploy-stable@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}

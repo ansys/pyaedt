@@ -22,6 +22,792 @@ permissions: {}
 
 jobs:
 
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run unit tests
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          pytest-postargs: 'tests/unit'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: unit-tests
+          requires-xvfb: true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-unit-tests
+          files: ./coverage.xml
+          flags: linux_unit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-unit
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+  integration-tests:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run integration tests
+        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          pytest-postargs: 'tests/integration'
+          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          optional-dependencies-name: integration-tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-integration-tests
+          files: ./coverage.xml
+          flags: linux_integration
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-integration
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-solvers-windows:
+    name: Test solvers (windows)
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'solvers'
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m solvers
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-solvers-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_solvers
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-solvers-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-solvers-linux:
+    name: Test solvers (linux)
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'solvers'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-solvers-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_solvers
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-solvers-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-general-windows:
+    name: Test general (windows)
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'general'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args -n 4 --dist loadfile --timeout=600 -m general
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-general-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_general
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-general-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-general-linux:
+    name: Test general (linux)
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'general'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            source .venv/bin/activate
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-general-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_general
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-general-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-visualization-windows:
+    name: Test visualization (windows)
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    env:
+      MPLBACKEND: 'Agg'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'visualization'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-visualization-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-visualization-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-visualization-linux:
+    name: Test visualization (linux)
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+      MPLBACKEND: 'Agg'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'visualization'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            source .venv/bin/activate
+            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-visualization-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-visualization-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-icepak-windows:
+    name: Test icepak (windows)
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'icepak'
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m icepak
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-icepak-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_icepak
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-icepak-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-icepak-linux:
+    name: Test icepak (linux)
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'icepak'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-icepak-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_icepak
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-icepak-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-layout-windows:
+    name: Test layout (windows)
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'layout'
+        env:
+          PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -m layout
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-layout-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_layout
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-layout-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-layout-linux:
+    name: Test layout (linux)
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'layout'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-layout-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_layout
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-layout-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
@@ -45,7 +831,7 @@ jobs:
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -77,25 +863,28 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
           flags: windows_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-extensions-windows
           path: junit/test-results.xml
+        if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -122,7 +911,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -151,27 +940,28 @@ jobs:
       - name: Run tests marked with 'extensions'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m "extensions and not flaky_linux"
+            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
           flags: linux_system_extensions
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-extensions-linux
           path: junit/test-results.xml
+        if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -193,7 +983,7 @@ jobs:
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -225,25 +1015,28 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -m filter_solutions
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-filter-tests-windows
           files: ./coverage.xml
           flags: windows_system_filter
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-filter_solutions-windows
           path: junit/test-results.xml
+        if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -265,7 +1058,7 @@ jobs:
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -297,98 +1090,24 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 30
+          timeout_minutes: 40
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
+            $args = $env:PYTEST_ARGUMENTS -split ' '
+            pytest @args --timeout=600 -v -rA --color=yes -m emit
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
           flags: windows_system_emit
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-emit-windows
-          path: junit/test-results.xml
-
- # =================================================================================================
- # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
- # =================================================================================================
-
-  system-tests-flaky-linux:
-    name: Test flaky (linux)
-    runs-on: [ self-hosted, Linux, pyaedt ]
-    env:
-      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
-      ANS_NODEPCHECK: '1'
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 # v7.1.4
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
-
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
-
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
-
-      - name: Run tests marked with 'flaky'
-        env:
-          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-            source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m flaky_linux
-
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
-        with:
-          name: codecov-system-flaky-tests-linux
-          files: ./coverage.xml
-          flags: linux_system_flaky
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
-        with:
-          name: pytest-flaky-linux
           path: junit/test-results.xml

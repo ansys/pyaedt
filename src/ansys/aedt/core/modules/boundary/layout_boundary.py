@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -417,7 +417,7 @@ class NativeComponentPCB(NativeComponentObject):
     Parameters
     ----------
     app : object
-        AEDT application from the ``pyaedt.application`` class.
+        AEDT application from the ``ansys.aedt.core.application`` class.
     component_type : str
         Type of the component.
     component_name : str
@@ -877,7 +877,7 @@ class PCBSettingsPackageParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : :class:`pyaedt.Icepak`
+    app : :class:`ansys.aedt.core.Icepak`
             Inherited application object.
     """
 
@@ -1008,7 +1008,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     ----------
     pcb_obj : :class:`ansys.aedt.core.modules.layout_boundary.NativeComponentPCB`
             Inherited pcb object.
-    app : :class:`pyaedt.Icepak`
+    app : :class:`ansys.aedt.core.Icepak`
             Inherited application object.
     """
 
@@ -1267,7 +1267,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
         return self.filters.get("Exclude2DObjects", False)
 
     @objects_2d_filter.setter
-    @pyaedt_function_handler(filter="enable")
+    @pyaedt_function_handler()
     @disable_auto_update
     def objects_2d_filter(self, enable):
         """Set whether 2d objects are filtered.

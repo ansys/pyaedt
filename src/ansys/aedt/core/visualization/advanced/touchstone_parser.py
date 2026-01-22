@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,6 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+import bisect
 from copy import copy
 import itertools
 import os
@@ -34,7 +36,6 @@ import warnings
 
 import numpy as np
 
-from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
@@ -180,104 +181,128 @@ class TouchstoneData(rf.Network, PyAedtBase):
     @pyaedt_function_handler()
     def get_coupling_in_range(
         self,
-        start_frequency=1e9,
-        low_loss=-40,
-        high_loss=-60,
-        frequency_sample=5,
-        output_file=None,
-        aedb_path=None,
-        design_name=None,
-    ):
+        start_frequency: float = 1e9,
+        stop_frequency: float = 10e9,
+        low_loss: float = -40.0,
+        high_loss: float = -60.0,
+        include_same_component: bool = True,
+        component_filter: Optional[List] = None,
+        include_filter: bool = True,
+        frequency_sample: int = 5,
+        output_file: Optional[Union[str, Path]] = None,
+    ) -> List[tuple]:
         """Get coupling losses, excluding return loss, that has at least one frequency point between a range of
         losses.
 
         Parameters
         ----------
         start_frequency : float, optional
-            Specify frequency value below which not check will be done. The default is ``1e9``.
+            Frequency value below which no check is done. The default is ``1e9``.
+        stop_frequency : float, optional
+            Frequency value above which no check is done. The default is ``10e9``.
         low_loss: float, optional
-            Specify range lower loss. The default is ``-40``.
+            Minimum loss threshold in dB. The default is ``-40.0``.
         high_loss: float, optional
-            Specify range higher loss. The default is ``-60``.
+            Maximum loss threshold in dB. The default is ``-60.0``.
+        include_same_component: bool, optional
+            Whether to include S-parameters between ports on the same component. The default is ``True``.
+        component_filter: list, optional
+            List of component names to filter. The default is ``None``.
+        include_filter: bool, optional
+            Whether to include or exclude components from `component_filter`.
+            When ``True``, only components in the filter list are scanned.
+            When ``False``, components in the filter list are excluded from the scan.
+            The default is ``True``.
         frequency_sample : integer, optional
-            Specify frequency sample at which coupling check will be done. The default is ``5``.
+            Frequency sample step at which coupling check is done. The default is ``5``.
         output_file : str, or :class:'pathlib.Path', optional
-            Output file path to save where identified coupling will be listed. The default is ``None``.
-        aedb_path : path, optional
-            Full path to the ``aedb`` folder. This project is used to identify ports location. The default is ``None``.
-        design_name : string, optional
-            Design name from the project where to identify ports location. The default is ``None``.
+            Output file path to save identified coupling information. The default is ``None``.
 
         Returns
         -------
-         list
-            List of S parameters in the range [high_loss, low_loss] to plot.
+         list:
+            List of tuples with S-parameter indices ``(i, j)`` in the range [high_loss, low_loss].
 
+        Examples
+        --------
+        >>> # Basic usage - scan all components in frequency range
+        >>> touchstone = TouchstoneData(touchstone_file="design.s16p")
+        >>> coupling = touchstone.get_coupling_in_range(
+        ...     start_frequency=2e9, stop_frequency=5e9, high_loss=-60.0, low_loss=-64.0
+        ... )
+
+        >>> # Include only specific components, returns S-parameters only between U1 and X1 ports
+        >>> coupling = touchstone.get_coupling_in_range(component_filter=["U1", "X1"], include_filter=True)
+
+        >>> # Exclude specific components from scan, returns S-parameters from all components except U9
+        >>> coupling = touchstone.get_coupling_in_range(component_filter=["U9"], include_filter=False)
+
+        >>> # Exclude same-component coupling, excludes S(U1_xxx, U1_yyy), S(X1_xxx, X1_yyy).
+        >>> coupling = touchstone.get_coupling_in_range(include_same_component=False)
+        >>>
+
+        >>> # Save results to file with custom frequency sampling
+        >>> coupling = touchstone.get_coupling_in_range(frequency_sample=10, output_file="coupling_results.txt")
+
+        For an S-parameter file with 16 ports on three components (U9, U1, X1):
+        - The full matrix is 16x16 = 256 S-parameters per frequency
+        - The diagonal S(i,i) is excluded from the scan
+        - Half the matrix is excluded assuming S(i,j) = S(j,i)
+        - Only the upper triangle above the diagonal is scanned
+
+        When `start_frequency=2e9` and `stop_frequency=5e9`, only S-parameters between these
+        frequencies are scanned, with sampling every `frequency_sample` points.
+
+        Output file format when a value is found in the [high_loss, low_loss] range:
+            S(U1_AU17,X1_B14) Loss= -50.61dB Freq= 1.007GHz
+            S(U1_AU17,X1_B15) Loss= -49.38dB Freq= 1.007GHz
+            S(U9_20,X1_A11) Loss= -45.19dB Freq= 1.374GHz
+
+        Usage of `include_same_component`:
+        - When `False`, excludes S-parameters between ports on the same component
+        - All S(U1_xxx, U1_yyy), S(X1_xxx, X1_yyy), S(U9_xxx, U9_yyy) are excluded
+
+        Usage of `component_filter` and `include_filter`:
+        - `component_filter=["U9"]` with `include_filter=False`: scan only U1 and X1 ports
+        - `component_filter=["X1", "U1"]` with `include_filter=True`: scan only U1↔other and X1↔other
         """
-        nb_freq = self.frequency.npoints
-        k = 0
-        k_start = 0
+        if component_filter is None:
+            component_filter = []
 
-        # identify frequency index at which to start the check
-        while k < nb_freq:
-            if self.frequency.f[k] >= start_frequency:
-                k_start = k
-                break
-            else:
-                k = k + 1
+        # identify frequency index at which to start and stop the check
+        k_start = bisect.bisect_left(self.frequency.f, start_frequency)
+        k_stop = bisect.bisect_right(self.frequency.f, stop_frequency)
 
         s_db = self.s_db[:, :, :]
         temp_list = []
         temp_file = []
-        if aedb_path is not None:
-            edbapp = Edb(edbpath=aedb_path, cellname=design_name, edbversion=aedt_versions.latest_version)
-            for i in range(self.number_of_ports):
-                for j in range(i, self.number_of_ports):
-                    if i == j:
+
+        for i in range(self.number_of_ports):
+            refdes1 = self.port_names[i].split("_")[0]
+            if len(component_filter) != 0:
+                if include_filter:
+                    if not any(refdes1.lower() in x.lower() for x in component_filter):
                         continue
-                    for k in range(k_start, nb_freq, frequency_sample):
-                        loss = s_db[k, i, j]
-                        if high_loss < loss < low_loss:
-                            temp_list.append((i, j))
-                            port1 = self.port_names[i]
-                            port2 = self.port_names[j]
-                            # This if statement is mandatory as the codeword to use is different with regard to
-                            # port type: Circuit(.location) or Gap(.position)
-                            if edbapp.ports[port1].hfss_type == "Circuit":
-                                loc_port_1 = edbapp.ports[port1].location
-                            else:
-                                loc_port_1 = edbapp.ports[port1].position
-                            if edbapp.ports[port2].hfss_type == "Circuit":
-                                loc_port_2 = edbapp.ports[port2].location
-                            else:
-                                loc_port_2 = edbapp.ports[port2].position
-                            # This if statement is mandatory as some port return None for port location which will
-                            # issue error on the formatting
-                            if loc_port_1 is not None:
-                                loc_port_1[0] = f"{loc_port_1[0]:.4f}"
-                                loc_port_1[1] = f"{loc_port_1[1]:.4f}"
-                            if loc_port_2 is not None:
-                                loc_port_2[0] = f"{loc_port_2[0]:.4f}"
-                                loc_port_2[1] = f"{loc_port_2[1]:.4f}"
-                            sxy = f"S({port1},{port2})"
-                            ports_location = f"{port1}: {loc_port_1}, {port2}: {loc_port_2}"
-                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz, {ports_location}\n"
-                            temp_file.append(line)
-                            break
-            edbapp.close()
-        else:
-            for i in range(self.number_of_ports):
-                for j in range(i, self.number_of_ports):
-                    if i == j:
+                else:
+                    if any(refdes1.lower() in x.lower() for x in component_filter):
                         continue
-                    for k in range(k_start, nb_freq, frequency_sample):
-                        loss = s_db[k, i, j]
-                        if high_loss < loss < low_loss:
-                            temp_list.append((i, j))
-                            sxy = f"S({self.port_names[i]},{self.port_names[j]})"
-                            line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
-                            temp_file.append(line)
-                            break
+            for j in range(i, self.number_of_ports):
+                if i == j:
+                    continue
+                refdes2 = self.port_names[j].split("_")[0]
+                if len(component_filter) != 0 and not include_filter:
+                    if any(refdes2.lower() in x.lower() for x in component_filter):
+                        continue
+                if refdes1.lower() == refdes2.lower() and not include_same_component:
+                    continue
+                for k in range(k_start, k_stop, frequency_sample):
+                    loss = s_db[k, i, j]
+                    if high_loss < loss < low_loss:
+                        temp_list.append((i, j))
+                        sxy = f"S({self.port_names[i]},{self.port_names[j]})"
+                        line = f"{sxy} Loss= {loss:.2f}dB Freq= {(self.f[k] * 1e-9):.3f}GHz\n"
+                        temp_file.append(line)
+                        break
         if output_file is not None:
             output_file = Path(output_file)
             if output_file.is_file():
@@ -657,7 +682,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return worst_el, dict_means
 
 
-@pyaedt_function_handler(file_path="input_file")
+@pyaedt_function_handler()
 def read_touchstone(input_file):
     """Load the contents of a Touchstone file into an NPort.
 
@@ -676,7 +701,7 @@ def read_touchstone(input_file):
     return data
 
 
-@pyaedt_function_handler(folder="input_dir")
+@pyaedt_function_handler()
 def check_touchstone_files(input_dir="", passivity=True, causality=True):
     """Check passivity and causality for all Touchstone files included in the folder.
 

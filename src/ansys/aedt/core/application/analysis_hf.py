@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -63,7 +63,7 @@ class ScatteringMethods(PyAedtBase):
                 k += 1
         return spar
 
-    @pyaedt_function_handler(excitation_names="excitations", net_list="nets")
+    @pyaedt_function_handler()
     def get_all_return_loss_list(self, excitations=None, excitation_name_prefix="", math_formula="", nets=None):
         """Get a list of all return losses for a list of excitations.
 
@@ -106,13 +106,7 @@ class ScatteringMethods(PyAedtBase):
                     spar.append(f"S({i},{i})")
         return spar
 
-    @pyaedt_function_handler(
-        trlist="drivers",
-        reclist="receivers",
-        tx_prefix="drivers_prefix_name",
-        rx_prefix="receivers_prefix_name",
-        net_list="nets",
-    )
+    @pyaedt_function_handler()
     def get_all_insertion_loss_list(
         self, drivers=None, receivers=None, drivers_prefix_name="", receivers_prefix_name="", math_formula="", nets=None
     ):
@@ -188,7 +182,7 @@ class ScatteringMethods(PyAedtBase):
                         spar.append(f"S({i},{j})")
         return spar
 
-    @pyaedt_function_handler(trlist="drivers", tx_prefix="drivers_prefix_name", net_list="nets")
+    @pyaedt_function_handler()
     def get_next_xtalk_list(self, drivers=None, drivers_prefix_name="", math_formula="", nets=None):
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
@@ -229,13 +223,7 @@ class ScatteringMethods(PyAedtBase):
                     k += 1
         return next_xtalks
 
-    @pyaedt_function_handler(
-        trlist="drivers",
-        reclist="receivers",
-        tx_prefix="drivers_prefix_name",
-        rx_prefix="receivers_prefix_name",
-        net_list="nets",
-    )
+    @pyaedt_function_handler()
     def get_fext_xtalk_list(
         self,
         drivers=None,
@@ -296,7 +284,7 @@ class ScatteringMethods(PyAedtBase):
                             fext.append(f"S({i},{k})")
         return fext
 
-    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
+    @pyaedt_function_handler()
     def get_touchstone_data(self, setup=None, sweep=None, variations=None):
         """
         Return a Touchstone data plot.
@@ -339,7 +327,7 @@ class ScatteringMethods(PyAedtBase):
             s_parameters.append(TouchstoneData(solution_data=sol_data))
         return s_parameters
 
-    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep", file_name="output_file")
+    @pyaedt_function_handler()
     def export_touchstone(
         self,
         setup=None,

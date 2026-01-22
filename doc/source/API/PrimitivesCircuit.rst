@@ -13,9 +13,14 @@ They are accessible through the ``modeler`` module and ``modeler.objects`` prope
 
 
     from ansys.aedt.core import TwinBuilder
-    app = TwinBuilder(specified_version="2025.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
+
+    app = TwinBuilder(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the Modeler class
     modeler = app.modeler
@@ -62,9 +67,14 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from ansys.aedt.core import Circuit
-    app = Circuit(specified_version="2025.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
+
+    app = Circuit(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns a Schematic object
     schematic = modeler.schematic
@@ -91,9 +101,14 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from ansys.aedt.core import Circuit
-    app = Circuit(specified_version="2025.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
+
+    app = Circuit(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the Modeler class
     modeler = app.modeler
@@ -106,7 +121,7 @@ They contain all getters and setters to simplify object manipulation.
 
     # Getter and setter
     my_res.location
-    my_res.parameters["R"]=100
+    my_res.parameters["R"] = 100
 
     ...
 
@@ -140,9 +155,14 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from ansys.aedt.core import TwinBuilder
-    app = TwinBuilder(specified_version="2025.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
+
+    app = TwinBuilder(
+        specified_version="2025.2",
+        non_graphical=False,
+        new_desktop_session=True,
+        close_on_exit=True,
+        student_version=False,
+    )
 
     # This call returns the Modeler class
     modeler = app.modeler
@@ -155,7 +175,7 @@ They contain all getters and setters to simplify object manipulation.
 
     # Getter and setter
     my_res.location
-    my_res.parameters["R"]=100
+    my_res.parameters["R"] = 100
 
     ...
 

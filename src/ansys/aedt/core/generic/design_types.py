@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -142,6 +142,7 @@ app_map = {
     "Q3D Extractor": Q3d,
     "HFSS": Hfss,
     "Mechanical": Mechanical,
+    "IcepakFEA": Mechanical,
     "Icepak": Icepak,
     "Rmxprt": Rmxprt,
     "HFSS 3D Layout Design": Hfss3dLayout,

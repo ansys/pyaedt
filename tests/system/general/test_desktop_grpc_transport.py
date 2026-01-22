@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -45,9 +45,11 @@ from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_LISTEN_ALL
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_LOCAL
 from ansys.aedt.core.generic.settings import DEFAULT_GRPC_SECURE_MODE
-from tests.conftest import desktop_version
+from tests.conftest import DESKTOP_VERSION
 
-pytestmark = pytest.mark.desktop_grpc_stransport
+pytestmark = pytest.mark.skipif(DESKTOP_VERSION < "2026.2", reason="To be moved in another test suite.")
+
+# pytestmark = pytest.mark.desktop_grpc_stransport
 
 
 # NOTE: Activating this environment variable forces PyAEDT to use the
@@ -55,7 +57,7 @@ pytestmark = pytest.mark.desktop_grpc_stransport
 # compatibility with previous SP of AEDT.
 # os.environ["PYAEDT_USE_PRE_GRPC_ARGS"] = "True"
 
-AEDT_VERSION = desktop_version
+AEDT_VERSION = DESKTOP_VERSION
 HOST_NAME = socket.gethostbyname(socket.gethostname())
 IS_WINDOWS = os.name == "nt"
 GRPC_CONNECTION_TIMEOUT = 30  # seconds
@@ -494,7 +496,7 @@ def test_desktop_default_to_uds_on_linux(monkeypatch):
 
 
 @pytest.mark.skipif(
-    desktop_version < "2026.1",
+    DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("missing_file", ("ca.crt", "client.crt", "client.key"))
@@ -518,7 +520,7 @@ def test_desktop_default_mtls_failure_due_to_missing_certificate(missing_file, m
 
 
 @pytest.mark.skipif(
-    desktop_version < "2026.1",
+    DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
 def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_path):
@@ -545,7 +547,7 @@ def test_desktop_default_mtls_failure_due_to_bad_certificate(monkeypatch, tmp_pa
 
 
 @pytest.mark.skipif(
-    desktop_version < "2026.1",
+    DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", LOCAL_HOSTS)
@@ -562,7 +564,7 @@ def test_desktop_local_insecure_success(machine, monkeypatch):
 
 
 @pytest.mark.skipif(
-    desktop_version < "2026.1",
+    DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", LOCAL_HOSTS)
@@ -582,7 +584,7 @@ def test_desktop_local_mtls_success(machine, monkeypatch, tmp_path):
 
 
 @pytest.mark.skipif(
-    desktop_version < "2026.1",
+    DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", REMOTE_HOSTS)
@@ -616,7 +618,7 @@ def test_desktop_remote_insecure_success(machine, monkeypatch):
 
 
 @pytest.mark.skipif(
-    desktop_version < "2026.1",
+    DESKTOP_VERSION < "2026.1",
     reason="Not working in versions without grpc patch",
 )
 @pytest.mark.parametrize("machine", REMOTE_HOSTS)

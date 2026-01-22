@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,8 +29,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class Band(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -43,10 +42,26 @@ class Band(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    def duplicate(self, new_name: str = ""):
+        """Duplicate this node"""
+        return self._duplicate(new_name)
+
+    def delete(self):
+        """Delete this node"""
+        self._delete()
+
+    def import_rx_measurement(self, file_name):
+        """Import a Measurement from a File..."""
+        return self._import(file_name, "RxMeasurement")
+
+    def import_tx_measurement(self, file_name):
+        """Import a Measurement from a File..."""
+        return self._import(file_name, "TxMeasurement")
+
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -241,10 +256,10 @@ class Band(EmitNode):
     class PSKTypeOption(Enum):
         BPSK = "BPSK"
         QPSK = "QPSK"
-        PSK_8 = "PSK-8"
-        PSK_16 = "PSK-16"
-        PSK_32 = "PSK-32"
-        PSK_64 = "PSK-64"
+        PSK_8 = "8-PSK"
+        PSK_16 = "16-PSK"
+        PSK_32 = "32-PSK"
+        PSK_64 = "64-PSK"
 
     @property
     def psk_type(self) -> PSKTypeOption:
@@ -258,9 +273,9 @@ class Band(EmitNode):
         self._set_property("PSK Type", f"{value.value}")
 
     class FSKTypeOption(Enum):
-        FSK_2 = "FSK-2"
-        FSK_4 = "FSK-4"
-        FSK_8 = "FSK-8"
+        FSK_2 = "2-FSK"
+        FSK_4 = "4-FSK"
+        FSK_8 = "8-FSK"
 
     @property
     def fsk_type(self) -> FSKTypeOption:
@@ -274,11 +289,11 @@ class Band(EmitNode):
         self._set_property("FSK Type", f"{value.value}")
 
     class QAMTypeOption(Enum):
-        QAM_4 = "QAM-4"
-        QAM_16 = "QAM-16"
-        QAM_64 = "QAM-64"
-        QAM_256 = "QAM-256"
-        QAM_1024 = "QAM-1024"
+        QAM_4 = "4-QAM"
+        QAM_16 = "16-QAM"
+        QAM_64 = "64-QAM"
+        QAM_256 = "256-QAM"
+        QAM_1024 = "1024-QAM"
 
     @property
     def qam_type(self) -> QAMTypeOption:
@@ -292,11 +307,11 @@ class Band(EmitNode):
         self._set_property("QAM Type", f"{value.value}")
 
     class APSKTypeOption(Enum):
-        APSK_4 = "APSK-4"
-        APSK_16 = "APSK-16"
-        APSK_64 = "APSK-64"
-        APSK_256 = "APSK-256"
-        APSK_1024 = "APSK-1024"
+        APSK_4 = "4-APSK"
+        APSK_16 = "16-APSK"
+        APSK_64 = "64-APSK"
+        APSK_256 = "256-APSK"
+        APSK_1024 = "1024-APSK"
 
     @property
     def apsk_type(self) -> APSKTypeOption:

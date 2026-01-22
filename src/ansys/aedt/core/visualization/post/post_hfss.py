@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -52,7 +52,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         PostProcessor3D.__init__(self, app)
         self.post_3dlayout = PostProcessor3DLayout(app)
 
-    @pyaedt_function_handler(expression="expressions", families_dict="sweeps")
+    @pyaedt_function_handler()
     def get_far_field_data(self, expressions="GainTotal", setup_sweep_name="", domain="Infinite Sphere1", sweeps=None):
         """Generate far field data using the ``GetSolutionDataPerVariation()`` method.
 

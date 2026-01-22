@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -373,7 +373,7 @@ def main(data: PostLayoutDesignExtensionData):
         raise AEDTRuntimeError("Active design is not HFSS 3D Layout Design.")
 
     try:
-        pedb = h3d.modeler.primitives.edb
+        pedb = h3d.modeler.edb
 
         if data.action == "antipad":
             if len(data.selections) != 2:
@@ -387,7 +387,8 @@ def main(data: PostLayoutDesignExtensionData):
             new_edb_path = _create_microvia(pedb, data.selections, data.signal_only, data.angle, data.split_via)
             # Open new project with micro vias
             new_h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
-            new_h3d.desktop_class.release_desktop(False, False)
+            if "PYTEST_CURRENT_TEST" not in os.environ:
+                new_h3d.desktop_class.release_desktop(False, False)
 
         else:
             raise AEDTRuntimeError(f"Unknown action: {data.action}")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -110,15 +110,18 @@ def test_desktop_odesktop_setter():
     desktop = Desktop()
     aedt_app = MagicMock()
 
+    desktop.grpc_plugin = MagicMock()
+    desktop.grpc_plugin.recreate_application = MagicMock()
+    desktop.grpc_plugin.odesktop = aedt_app
     desktop.odesktop = aedt_app
 
     assert desktop.odesktop == aedt_app
 
 
 def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings):
-    """Test _check_settings failure due to lsf_num_cores value."""
+    """Test _check_settings failure due to num_cores value."""
     settings = Settings()
-    settings.lsf_num_cores = -1
+    settings.num_cores = -1
 
     with pytest.raises(ValueError):
         _check_settings(settings)
@@ -127,7 +130,7 @@ def test_desktop_check_settings_failure_with_lsf_num_cores(mock_settings):
 def test_desktop_check_settings_failure_with_lsf_ram(mock_settings):
     """Test _check_settings failure due to lsf_ram value."""
     settings = Settings()
-    settings.lsf_num_cores = 1
+    settings.num_cores = 1
     settings.lsf_ram = -1
 
     with pytest.raises(ValueError):
@@ -137,7 +140,7 @@ def test_desktop_check_settings_failure_with_lsf_ram(mock_settings):
 def test_desktop_check_settings_failure_with_lsf_aedt_command(mock_settings):
     """Test _check_settings failure due to lsf_aedt_command value."""
     settings = Settings()
-    settings.lsf_num_cores = 1
+    settings.num_cores = 1
     settings.lsf_ram = 1
     settings.lsf_aedt_command = None
 

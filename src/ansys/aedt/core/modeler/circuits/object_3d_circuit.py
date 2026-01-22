@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -53,6 +53,7 @@ class CircuitPins(PyAedtBase):
     @property
     def total_angle(self):
         """Return the pin orientation in the schematic."""
+        tol = 1e-9
         loc = self.location[::]
         bounding = self._circuit_comp.bounding_box
         left = abs(loc[0] - bounding[0])
@@ -60,13 +61,13 @@ class CircuitPins(PyAedtBase):
         top = abs(loc[1] - bounding[1])
         bottom = abs(loc[1] - bounding[3])
         min_val = min(left, right, top, bottom)
-        if min_val == left:
+        if abs(left - min_val) < tol:
             return 0
-        if min_val == right:
+        if abs(right - min_val) < tol:
             return 180
-        if min_val == top:
+        if abs(top - min_val) < tol:
             return 90
-        if min_val == bottom:
+        if abs(bottom - min_val) < tol:
             return 270
         angle = int(self.angle + self._circuit_comp.angle)
         return angle
@@ -173,7 +174,7 @@ class CircuitPins(PyAedtBase):
             deltay = point[1]
         return deltax, deltay
 
-    @pyaedt_function_handler(component_pin="assignment")
+    @pyaedt_function_handler()
     def connect_to_component(
         self,
         assignment,
@@ -901,7 +902,7 @@ class CircuitComponent(PyAedtBase):
         vMaterial = ["NAME:Component Mirror", "Value:=", mirror_value]
         self.change_property(vMaterial)
 
-    @pyaedt_function_handler(symbol_color="color")
+    @pyaedt_function_handler()
     def set_use_symbol_color(self, color=None):
         """Set symbol color usage.
 
@@ -925,7 +926,7 @@ class CircuitComponent(PyAedtBase):
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler(R="red", G="green", B="blue")
+    @pyaedt_function_handler()
     def set_color(self, red=255, green=128, blue=0):
         """Set symbol color.
 
@@ -951,7 +952,7 @@ class CircuitComponent(PyAedtBase):
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler(property_name="name", property_value="value")
+    @pyaedt_function_handler()
     def set_property(self, name, value):
         """Set a part property.
 
@@ -1011,7 +1012,7 @@ class CircuitComponent(PyAedtBase):
         self.__dict__[property_name] = property_value
         return True
 
-    @pyaedt_function_handler(vPropChange="property", names_list="names")
+    @pyaedt_function_handler()
     def change_property(self, property_name, names=None):
         """Modify a property.
 
@@ -1240,7 +1241,7 @@ class CircuitComponent(PyAedtBase):
             return model_data[model_data.index("sssfilename:=") + 1]
         elif "filename:=" in model_data and model_data[model_data.index("filename:=") + 1]:
             return model_data[model_data.index("filename:=") + 1]
-        component_data = self._circuit_components.o_component_manager.GetData(component_definition)
+        component_data = self._circuit_components.ocomponent_manager.GetData(component_definition)
         if not component_data:
             # self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
             return None
@@ -1301,7 +1302,7 @@ class Wire(PyAedtBase):
                 wire_names.append(wire)
         return wire_names
 
-    @pyaedt_function_handler(wire_name="name")
+    @pyaedt_function_handler()
     def display_wire_properties(self, name="", property_to_display="NetName", visibility="Name", location="Top"):
         """
         Display wire properties.

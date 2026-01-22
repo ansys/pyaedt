@@ -7,7 +7,7 @@ Getting started
             :link: About
             :link-type: doc
             :margin: 2 2 0 0
-            
+
             Learn more about PyAnsys and AEDT.
 
    .. grid-item-card:: Installation
@@ -29,11 +29,10 @@ Getting started
             :link-type: doc
             :margin: 2 2 0 0
 
-            Launch PyAEDT on a client machine and control Electronics Desktop
-            on a remote server.
+            Launch PyAEDT on a client machine and control Electronics Desktop on a remote server.
 
-    .. grid-item-card:: Command line interface
-            :link: Cli
+   .. grid-item-card:: Command line interface
+            :link: cli
             :link-type: doc
             :margin: 2 2 0 0
 
@@ -133,6 +132,7 @@ page on the Ansys website.
    Troubleshooting
    ../User_guide/index
    ClientServer
+   cli
    versioning
    Contributing
    About

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,6 +40,7 @@ from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
 import ansys.aedt.core.extensions.templates
+from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
 
@@ -53,8 +54,8 @@ AEDT_APPLICATIONS = {
     "icepak": "Icepak",
     "maxwell2d": "Maxwell2D",
     "maxwell3d": "Maxwell3D",
-    "mechanical": "Mechanical",
-    "common": "Common",
+    "mechanical": DesignType.ICEPAKFEA.NAME,
+    "common": "Project",
     "q2d": "2DExtractor",
     "q3d": "Q3DExtractor",
     "twinbuilder": "TwinBuilder",
@@ -296,6 +297,11 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
         b = [button for button in buttons if button.attrib["label"] == name][0]
         panel_element.remove(b)
 
+    # If panel is now empty, remove it
+    remaining_buttons = panel_element.findall("./button")
+    if not remaining_buttons:
+        root.remove(panel_element)
+
     create_xml_tab(root, str(tab_config_file_path))
     return True
 
@@ -306,7 +312,7 @@ def available_toolkits():
         toml_file = Path(__file__).parent / product_extension / "toolkits_catalog.toml"
         if toml_file.is_file():
             toolkits_catalog = read_toml(str(toml_file))
-            product_toolkits[product_name] = toolkits_catalog
+            product_toolkits[str(product_name)] = toolkits_catalog
     return product_toolkits
 
 
@@ -373,7 +379,7 @@ def add_script_to_menu(
         aedt_version = d.aedt_version_id
 
     if script_file and not Path(script_file).exists():  # pragma: no cover
-        logger.error("Script does not exists.")
+        logger.error("Script does not exist.")
         return False
     toolkit_dir = Path(personal_lib) / "Toolkits"
     tool_map = tab_map(product)
@@ -468,6 +474,8 @@ def tab_map(product):  # pragma: no cover
         return "Q3DExtractor"
     elif product.lower() == "simplorer":
         return "TwinBuilder"
+    elif product.lower() == "common":
+        return "Project"
     else:
         return product
 
