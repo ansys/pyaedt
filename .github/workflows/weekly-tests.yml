@@ -44,20 +44,42 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Run unit tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+      - name: Install Xvfb
+        shell: bash
+        run: sudo apt-get install -y xvfb
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
-          pytest-postargs: 'tests/unit'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          optional-dependencies-name: unit-tests
-          requires-xvfb: true
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra unit-tests
+
+
+      - name: Run unit tests
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
 
       - name: Prepare testmon data for caching
         run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
@@ -81,19 +103,38 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Run integration tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
-          pytest-postargs: 'tests/integration'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          optional-dependencies-name: integration-tests
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra integration-tests
+
+
+      - name: Run integration tests
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} tests/integration
 
       - name: Prepare testmon data for caching
         run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
@@ -117,16 +158,13 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -137,15 +175,14 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -191,6 +228,7 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
+      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -198,11 +236,6 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -213,15 +246,14 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
+          .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -263,19 +295,13 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -283,18 +309,20 @@ jobs:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -307,18 +335,13 @@ jobs:
           }
 
       - name: Run tests marked with 'general'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args -n 4 --dist loadfile --timeout=600 -m general
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Prepare testmon data for caching
         run: |
@@ -345,6 +368,7 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
+      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -353,32 +377,26 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -391,14 +409,9 @@ jobs:
       - name: Run tests marked with 'general'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - name: Prepare testmon data for caching
         run: |
@@ -425,6 +438,7 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
+      TESTS_VERSION: '3.10'
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
@@ -432,32 +446,26 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -470,18 +478,13 @@ jobs:
           }
 
       - name: Run tests marked with 'visualization'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
       - name: Prepare testmon data for caching
         run: |
@@ -508,6 +511,7 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
+      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
@@ -517,32 +521,26 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -555,14 +553,9 @@ jobs:
       - name: Run tests marked with 'visualization'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - name: Prepare testmon data for caching
         run: |
@@ -588,16 +581,13 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -608,15 +598,14 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -635,7 +624,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m icepak
+          pytest @args --timeout=600 tests/system/icepak
 
       - name: Prepare testmon data for caching
         run: |
@@ -662,6 +651,7 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
+      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -669,11 +659,6 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -684,15 +669,14 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -708,7 +692,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - name: Prepare testmon data for caching
         run: |
@@ -734,16 +718,13 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -754,34 +735,30 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
-        shell: powershell
+        shell: bash
         run: |
-          Get-Process | Where-Object {
-            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
-          } | ForEach-Object {
-            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
-            Stop-Process -Id $_.Id -Force
-          }
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
 
       - name: Run tests marked with 'layout'
         env:
-          PYTHONMALLOC: malloc
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          .venv\Scripts\Activate.ps1
-          $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m layout
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Prepare testmon data for caching
         run: |
@@ -808,6 +785,7 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
+      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -815,11 +793,6 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -830,15 +803,14 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -854,7 +826,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - name: Prepare testmon data for caching
         run: |
@@ -880,39 +852,34 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -925,18 +892,13 @@ jobs:
           }
 
       - name: Run tests marked with 'extensions'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -m extensions
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 tests/system/extensions
 
       - name: Prepare testmon data for caching
         run: |
@@ -963,6 +925,7 @@ jobs:
     permissions:
       contents: write # Needed to save cache
     env:
+      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
@@ -971,32 +934,26 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1009,15 +966,9 @@ jobs:
       - name: Run tests marked with 'extensions'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
 
       - name: Prepare testmon data for caching
         run: |
@@ -1043,18 +994,14 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -1064,15 +1011,14 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1085,18 +1031,13 @@ jobs:
           }
 
       - name: Run tests marked with 'filter_solutions'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -m filter_solutions
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 tests/system/filter_solutions
 
       - name: Prepare testmon data for caching
         run: |
@@ -1122,18 +1063,14 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       contents: write # Needed to save cache
+    env:
+      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -1143,15 +1080,14 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1164,18 +1100,13 @@ jobs:
           }
 
       - name: Run tests marked with 'emit'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 40
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -v -rA --color=yes -m emit
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
       - name: Prepare testmon data for caching
         run: |
