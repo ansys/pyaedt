@@ -250,6 +250,21 @@ They are small automated workflows with a simple GUI.
 
             Automation of vertical and flat coil geometries.
 
+EMIT extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at EMIT level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Interference Classification
+            :link: pyaedt_extensions_doc/emit/interference_classification
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Classify results according to radio protection level or interference type.
+
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
