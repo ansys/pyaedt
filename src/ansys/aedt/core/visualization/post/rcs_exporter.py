@@ -43,7 +43,16 @@ from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+
+# Import MonostaticRCSData from radar_explorer toolkit (required)
+try:
+    from ansys.aedt.toolkits.radar_explorer.backend.api import MonostaticRCSData
+except ImportError as e:
+    raise ImportError(
+        "The Radar Explorer toolkit is required for RCS data analysis.\n"
+        "Install it with:\n"
+        "  pip install ansys-aedt-toolkits-radar-explorer\n"
+    ) from e
 
 DEFAULT_EXPRESSION = "ComplexMonostaticRCSTheta"
 
@@ -54,11 +63,12 @@ class MonostaticRCSExporter(PyAedtBase):
     An instance of this class is returned from the
     :meth:`ansys.aedt.core.Hfss.get_monostatic_rcs` method. This class creates a
     ``metadata_file`` that can be passed as argument to instantiate an instance of the
-    :class:`ansys.aedt.core.generic.rcs_visualization.MonostaticRCSData` class for subsequent analysis and
-     postprocessing.
+    :class:`ansys.aedt.toolkits.radar_explorer.backend.api.MonostaticRCSData` class for subsequent analysis and
+    postprocessing.
 
-    Note that this class is derived from the :class:`MonostaticRCSData` class and can be used directly for
-    RCS postprocessing, but it remains as a property of the :class:`ansys.aedt.core.Hfss` application.
+    .. note::
+        This class requires the Radar Explorer toolkit for RCS data analysis.
+        Install it with: ``pip install ansys-aedt-toolkits-radar-explorer``
 
     Parameters
     ----------
