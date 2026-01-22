@@ -101,3 +101,14 @@ def mock_circuit_app():
         mock_property.return_value = mock_instance
 
         yield mock_instance
+
+
+@pytest.fixture
+def mock_emit_app():
+    """Fixture to mock EMIT application."""
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
+        mock_instance = MagicMock()
+        mock_instance.design_type = "EMIT"
+        mock_property.return_value = mock_instance
+
+        yield mock_instance
