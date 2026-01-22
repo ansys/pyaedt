@@ -110,6 +110,9 @@ def test_desktop_odesktop_setter():
     desktop = Desktop()
     aedt_app = MagicMock()
 
+    desktop.grpc_plugin = MagicMock()
+    desktop.grpc_plugin.recreate_application = MagicMock()
+    desktop.grpc_plugin.odesktop = aedt_app
     desktop.odesktop = aedt_app
 
     assert desktop.odesktop == aedt_app
