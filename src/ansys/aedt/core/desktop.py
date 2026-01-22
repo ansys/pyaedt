@@ -2576,10 +2576,8 @@ class Desktop(PyAedtBase):
                 if time.time() - start_time > settings.desktop_launch_timeout:
                     self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
                     break
-                # If no active sessions,
-                # do not wait for the lock file to be released because it is from a previous job or crash.
-                # if not active_sessions():
-                #     break
+                if not active_sessions():
+                    break
                 time.sleep(1)
 
             try:
