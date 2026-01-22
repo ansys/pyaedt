@@ -199,6 +199,7 @@ def launch_aedt(
         "ansysedt.exe",
     }:
         raise ValueError(f"The path {full_path} is not a valid executable.")
+
     _check_port(port)
 
     server_args: _ServerArgs = _get_grpcsrv_args(host, port)
@@ -527,7 +528,8 @@ class Desktop(PyAedtBase):
                 pyaedt_logger.info("Initializing new Desktop session.")
                 return object.__new__(cls)
         else:
-            pyaedt_logger.info("Initializing new Desktop session.")
+            message = "Initializing new Desktop session." if new_desktop else "Initializing Desktop session."
+            pyaedt_logger.info(message)
             return object.__new__(cls)
 
     @pyaedt_function_handler()
@@ -2559,7 +2561,6 @@ class Desktop(PyAedtBase):
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
         else:
-            self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
                 installer = Path(self.aedt_install_dir) / "ansysedtsv"
@@ -2587,10 +2588,12 @@ class Desktop(PyAedtBase):
             except Exception:
                 self.logger.warning(f"Could not create lock file {lock_file}.")
 
-            # Only provide host if user provided a machine name
-            out, self.port = launch_aedt(
-                installer, self.non_graphical, self.port, self.student_version, host=self.machine
-            )
+            if self.new_desktop:
+                self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
+                # Only provide host if user provided a machine name
+                out, self.port = launch_aedt(
+                    installer, self.non_graphical, self.port, self.student_version, host=self.machine
+                )
             self.new_desktop = False
             self.launched_by_pyaedt = True
             result = self.__initialize()
@@ -2608,6 +2611,8 @@ class Desktop(PyAedtBase):
                     f"with process ID {self.aedt_process_id}."
                 )
                 self.logger.info(message)
+            else:
+                self.logger.info(f"Connected to AEDT gRPC session on port {self.port}.")
 
         else:
             self.logger.error("Failed to connect to AEDT using gRPC plugin.")
