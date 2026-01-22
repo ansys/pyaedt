@@ -21,10 +21,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Pruning testmon caches..."
-          
+
           # Get all caches that start with "testmondata-"
           cache_ids=$(gh cache list --repo ${{ github.repository }} --json id,key --jq '.[] | select(.key | startswith("testmondata-")) | .id' 2>/dev/null)
-          
+
           if [ -z "$cache_ids" ]; then
             echo "No testmon caches found"
           else
