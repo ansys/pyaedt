@@ -65,6 +65,13 @@ def aedt_app(add_app):
 
 
 @pytest.fixture
+def m3d_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture
 def icepak_app(add_app):
     app = add_app(application=Icepak)
     yield app
@@ -405,28 +412,31 @@ def test_get_coreloss_coefficients(aedt_app):
         )
 
 
-def test_set_core_loss(aedt_app):
-    aedt_app.materials.add_material("mat_test")
+def test_set_core_loss(m3d_app):
+    # Testing in time harmonic solver
+    m3d_app.solution_type = "AC Magnetic"
+
+    m3d_app.materials.add_material("mat_test")
     # Test points_list_at_freq
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+    assert m3d_app.materials["mat_test"].set_coreloss_at_frequency(
         points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}
     )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+    assert m3d_app.materials["mat_test"].set_coreloss_at_frequency(
         points_at_frequency={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
     )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+    assert m3d_app.materials["mat_test"].set_coreloss_at_frequency(
         points_at_frequency={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
     )
     with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(points_at_frequency=[[0, 0], [1, 3.5], [2, 7.4]])
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+        m3d_app.materials["mat_test"].set_coreloss_at_frequency(points_at_frequency=[[0, 0], [1, 3.5], [2, 7.4]])
+    assert m3d_app.materials["mat_test"].set_coreloss_at_frequency(
         points_at_frequency={
             60: [[0, 0], [1, 3.5], [2, 7.4]],
             100: [[0, 0], [1, 8], [2, 9]],
             150: [[0, 0], [1, 10], [2, 19]],
         }
     )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+    assert m3d_app.materials["mat_test"].set_coreloss_at_frequency(
         points_at_frequency={
             60: [[0, 0], [1, 3.5], [2, 7.4]],
             100: [[0, 0], [1, 8], [2, 9]],
@@ -435,19 +445,19 @@ def test_set_core_loss(aedt_app):
         core_loss_model_type="Power Ferrite",
     )
     with pytest.raises(ValueError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+        m3d_app.materials["mat_test"].set_coreloss_at_frequency(
             points_at_frequency={80: [[0, 0], [1, 3.5], [2, 7.4]]}, core_loss_model_type="Power Ferrite"
         )
     # Test thickness
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+    assert m3d_app.materials["mat_test"].set_coreloss_at_frequency(
         points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
     )
     with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+        m3d_app.materials["mat_test"].set_coreloss_at_frequency(
             points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
         )
     with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+        m3d_app.materials["mat_test"].set_coreloss_at_frequency(
             points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
         )
 
@@ -482,7 +492,7 @@ def test_set_core_loss(aedt_app):
         [0.17469, 353.101],
     ]
 
-    multiple_frequencies = aedt_app.materials.add_material(name="multiple_frequencies")
+    multiple_frequencies = m3d_app.materials.add_material(name="multiple_frequencies")
     multiple_frequencies.conductivity = 2000000
     multiple_frequencies.mass_density = 7850
 
@@ -503,42 +513,42 @@ def test_set_core_loss(aedt_app):
     assert round(float(multiple_frequencies.get_curve_coreloss_values()["core_loss_kdc"]) - 0.0, 4) < tol
 
     # save project before checking project properties
-    aedt_app.save_project()
+    m3d_app.save_project()
     assert (
         flattened_bh_multiple_25hz
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
             "AttachedData"
         ]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"][0]["Coordinates"]["Points"]
     )
     assert (
         "25Hz"
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
             "AttachedData"
         ]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"][0]["Frequency"]
     )
 
     assert (
         flattened_bh_multiple_50hz
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
             "AttachedData"
         ]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"][1]["Coordinates"]["Points"]
     )
     assert (
         "50Hz"
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
             "AttachedData"
         ]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"][1]["Frequency"]
     )
 
     assert (
         flattened_bh_multiple_100hz
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
             "AttachedData"
         ]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"][2]["Coordinates"]["Points"]
     )
     assert (
         "100Hz"
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["multiple_frequencies"][
             "AttachedData"
         ]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"][2]["Frequency"]
     )
@@ -546,7 +556,7 @@ def test_set_core_loss(aedt_app):
     # create single bh curves at a frequency and create a custom material
 
     bh_single_60hz = [[0, 0], [1, 3.5], [2, 7.4]]
-    single_frequency = aedt_app.materials.add_material(name="single_frequency")
+    single_frequency = m3d_app.materials.add_material(name="single_frequency")
     single_frequency.conductivity = 2000000
     single_frequency.mass_density = 7850
     single_frequency.set_coreloss_at_frequency(points_at_frequency={60: bh_single_60hz})
@@ -561,16 +571,16 @@ def test_set_core_loss(aedt_app):
     assert round(float(single_frequency.get_curve_coreloss_values()["core_loss_kdc"]) - 0, 4) < tol
 
     # save project before checking project properties
-    aedt_app.save_project()
+    m3d_app.save_project()
     assert (
         "60Hz"
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["single_frequency"]["AttachedData"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["single_frequency"]["AttachedData"][
             "CoefficientSetupData"
         ]["Frequency"]
     )
     assert (
         flattened_bh_single_60hz
-        == aedt_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["single_frequency"]["AttachedData"][
+        == m3d_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["single_frequency"]["AttachedData"][
             "CoefficientSetupData"
         ]["Coordinates"]["Points"]
     )
