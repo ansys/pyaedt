@@ -699,7 +699,7 @@ class Desktop(PyAedtBase):
     def port(self) -> int:
         """Port number."""
         if not self.__port:
-            self._validate_port()
+            self._assign_port()
         return self.__port
 
     @port.setter
@@ -2516,7 +2516,20 @@ class Desktop(PyAedtBase):
         self.machine = "127.0.0.1"
 
     @pyaedt_function_handler()
-    def _validate_port(self):
+    def _validate_port(self, port):
+        if port == 0:
+            return port
+        active_ports = grpc_active_sessions()
+        if self.new_desktop and port in active_ports:
+            self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
+            return _find_free_port()
+        elif not settings.remote_rpc_session and not self.new_desktop and port not in active_ports:
+            self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
+            self.new_desktop = True
+        return port
+
+    @pyaedt_function_handler()
+    def _assign_port(self):
         self.__port = 0
         if settings.remote_rpc_session:
             self.logger.warning(
@@ -2585,6 +2598,8 @@ class Desktop(PyAedtBase):
                 self.logger.debug(f"Lock file {lock_file}.")
             except Exception:
                 self.logger.warning(f"Could not create lock file {lock_file}.")
+
+            self.__port = self._validate_port(self.port)
 
             if self.new_desktop:
                 self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
