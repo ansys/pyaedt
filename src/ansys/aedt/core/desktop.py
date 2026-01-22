@@ -999,6 +999,7 @@ class Desktop(PyAedtBase):
                     self.__desktop = self.grpc_plugin.odesktop
                     return self.__desktop
                 except Exception:
+                    self.grpc_plugin.recreate_application(True)
                     tries += 1
                     time.sleep(1)
         return self.__desktop
@@ -2564,13 +2565,7 @@ class Desktop(PyAedtBase):
             else:
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
-        elif self.new_desktop and (
-            "PYTEST_CURRENT_TEST" in os.environ
-            or not settings.grpc_local
-            or self.aedt_version_id < "2024.2"
-            or settings.use_multi_desktop
-            or is_linux
-        ):  # pragma: no cover
+        else:
             self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
@@ -2580,6 +2575,25 @@ class Desktop(PyAedtBase):
                     installer = Path(self.aedt_install_dir) / "ansysedtsv.exe"
                 else:
                     installer = Path(self.aedt_install_dir) / "ansysedt.exe"
+
+            lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
+            start_time = time.time()
+            while lock_file.exists():
+                if time.time() - start_time > settings.desktop_launch_timeout:
+                    self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
+                    break
+                # If no active sessions,
+                # do not wait for the lock file to be released because it is from a previous job or crash.
+                # if not active_sessions():
+                #     break
+                time.sleep(1)
+
+            try:
+                lock_file.touch(exist_ok=True)
+                self.logger.debug(f"Lock file {lock_file}.")
+            except Exception:
+                self.logger.warning(f"Could not create lock file {lock_file}.")
+
             # Only provide host if user provided a machine name
             out, self.port = launch_aedt(
                 installer, self.non_graphical, self.port, self.student_version, host=self.machine
@@ -2587,16 +2601,13 @@ class Desktop(PyAedtBase):
             self.new_desktop = False
             self.launched_by_pyaedt = True
             result = self.__initialize()
-        else:
-            flag_new = False
-            if self.port == 0:
-                self.logger.info("Starting new AEDT gRPC session.")
-                flag_new = True
-            else:
-                self.logger.info(f"Connecting to AEDT gRPC session on port {self.port}.")
-            result = self.__initialize()
-            if flag_new:
-                self.logger.info(f"New AEDT gRPC session session started on port {self.port}.")
+
+            # Remove lock file
+            try:
+                lock_file.unlink()
+            except Exception:
+                self.logger.warning(f"Could not remove lock file {lock_file}.")
+
         if result:
             if self.new_desktop:
                 message = (
