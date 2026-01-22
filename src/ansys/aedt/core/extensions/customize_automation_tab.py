@@ -28,7 +28,6 @@ from pathlib import Path
 import re
 import shutil
 import subprocess  # nosec
-import sys
 from typing import List
 import warnings
 import xml.etree.ElementTree as ET  # nosec
