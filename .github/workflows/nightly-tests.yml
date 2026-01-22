@@ -7,7 +7,7 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.10'
+  TESTS_VERSION: '3.10'
   ON_CI: True
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
@@ -31,14 +31,33 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run unit tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+      - name: Install Xvfb
+        shell: bash
+        run: sudo apt-get install -y xvfb
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
-          pytest-postargs: 'tests/unit'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          optional-dependencies-name: unit-tests
-          requires-xvfb: true
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra unit-tests
+
+      - name: Run unit tests
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -63,13 +82,29 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run integration tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
-          pytest-postargs: 'tests/integration'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          optional-dependencies-name: integration-tests
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra integration-tests
+
+      - name: Run integration tests
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} tests/integration
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -98,11 +133,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -112,15 +142,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -139,7 +167,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m solvers
+          pytest @args --timeout=600 tests/system/solvers
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -170,11 +198,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -184,15 +207,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
+          .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -208,7 +229,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -239,11 +260,6 @@ jobs:
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -253,15 +269,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -274,18 +288,13 @@ jobs:
           }
 
       - name: Run tests marked with 'general'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args -n 4 --dist loadfile --timeout=600 -m general
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -319,11 +328,6 @@ jobs:
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -333,15 +337,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
+          .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -354,14 +356,10 @@ jobs:
       - name: Run tests marked with 'general'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -394,11 +392,6 @@ jobs:
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -408,15 +401,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -429,18 +420,13 @@ jobs:
           }
 
       - name: Run tests marked with 'visualization'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -475,11 +461,6 @@ jobs:
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -489,15 +470,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
+          .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -510,14 +489,10 @@ jobs:
       - name: Run tests marked with 'visualization'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -545,11 +520,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -559,15 +529,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -586,7 +554,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m icepak
+          pytest @args --timeout=600 tests/system/icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -617,11 +585,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -631,15 +594,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
+          .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -655,7 +616,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -683,11 +644,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -697,15 +653,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -724,7 +678,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m layout
+          pytest @args --timeout=600 tests/system/layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -755,11 +709,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -769,15 +718,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
+          .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -793,7 +740,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -824,11 +771,6 @@ jobs:
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -839,15 +781,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -860,18 +800,13 @@ jobs:
           }
 
       - name: Run tests marked with 'extensions'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -m extensions
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 tests/system/extensions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -905,11 +840,6 @@ jobs:
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -919,15 +849,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
+          .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -941,14 +869,9 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -976,11 +899,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -991,15 +909,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1012,18 +928,13 @@ jobs:
           }
 
       - name: Run tests marked with 'filter_solutions'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -m filter_solutions
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 tests/system/filter_solutions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1051,11 +962,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
@@ -1066,15 +972,13 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1087,18 +991,13 @@ jobs:
           }
 
       - name: Run tests marked with 'emit'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 40
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -v -rA --color=yes -m emit
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
