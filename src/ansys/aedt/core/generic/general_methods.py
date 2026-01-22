@@ -778,7 +778,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False) ->
                                     return_dict[pid] = 50051
                         else:
                             return_dict[pid] = -1
-                            for i in psutil.net_connections():
+                            for i in psutil.net_connections(kind="inet"):
                                 if i.pid == pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
                                     return_dict[pid] = i.laddr.port
                                     break
