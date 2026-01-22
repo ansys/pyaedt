@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.file_utils import read_toml
 
 def add_pyaedt_to_aedt(
     personal_lib,
+    executable_interpreter=None,
     skip_version_manager=False,
     odesktop=None,
 ):
@@ -59,10 +60,10 @@ def add_pyaedt_to_aedt(
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop)
+    __add_pyaedt_tabs(personal_lib, skip_version_manager, executable_interpreter, odesktop)
 
 
-def __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop=None):
+def __add_pyaedt_tabs(personal_lib, skip_version_manager, executable_interpreter=None, odesktop=None):
     """Add PyAEDT tabs in AEDT."""
     if skip_version_manager:
         pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
@@ -89,7 +90,7 @@ def __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop=None):
                 icon_file=icon_file,
                 product="Project",
                 copy_to_personal_lib=False,
-                executable_interpreter=None,
+                executable_interpreter=executable_interpreter,
                 panel="Panel_PyAEDT_Installer",
                 personal_lib=personal_lib,
                 odesktop=odesktop,

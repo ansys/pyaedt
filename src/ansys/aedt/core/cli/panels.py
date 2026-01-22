@@ -24,6 +24,7 @@
 
 from pathlib import Path
 import platform
+import sys
 
 try:
     import typer
@@ -137,6 +138,7 @@ def add_panels(
 
         result = add_pyaedt_to_aedt(
             personal_lib=str(personal_lib_path),
+            executable_interpreter=sys.executable,
             skip_version_manager=skip_version_manager,
         )
 
