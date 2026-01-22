@@ -2659,7 +2659,7 @@ class Desktop(PyAedtBase):
                             "Please download and install latest Service Pack to use connect to AEDT in Secure Mode."
                         )
         if settings.enable_debug_logger:
-            self.logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
+            self.logger.debug("Debug logger is enabled. PyAEDT methods will be logged.")
         else:
-            self.logger.info("Debug logger is disabled. PyAEDT methods will not be logged.")
+            self.logger.debug("Debug logger is disabled. PyAEDT methods will not be logged.")
         return True
