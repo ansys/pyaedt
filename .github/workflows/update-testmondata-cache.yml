@@ -302,14 +302,6 @@ jobs:
             kill -9 "$pid"
           done
 
-      - name: Remove Ansys processes (if any)
-        shell: bash
-        run: |
-          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
-            echo "Killing PID $pid"
-            kill -9 "$pid"
-          done
-
       - name: Run tests marked with 'solvers'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
