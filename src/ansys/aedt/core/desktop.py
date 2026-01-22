@@ -588,6 +588,8 @@ class Desktop(PyAedtBase):
         # Check version arguments and installed AEDT versions.
         self.__check_version(version, student_version)
 
+        self.logger.info(f"AEDT version {self.aedt_version_id}{' Student' if student_version else ''}.")
+
         # Starting AEDT
         if "console" in self.__starting_mode:  # pragma no cover
             # technically not a startup mode, we have just to load oDesktop
@@ -2395,7 +2397,7 @@ class Desktop(PyAedtBase):
         sys.path.insert(0, base_path)
         sys.path.insert(0, str(Path(base_path) / "PythonFiles" / "DesktopPlugin"))
         launch_msg = f"AEDT installation Path {base_path}."
-        self.logger.info(launch_msg)
+        self.logger.debug(launch_msg)
         processID = []
         if is_windows:
             processID = com_active_sessions(self.aedt_version_id, self.student_version, self.non_graphical)

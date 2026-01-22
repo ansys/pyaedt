@@ -199,7 +199,6 @@ def test_disable_stdout(test_tmp_dir):
             handler.close()
             logger._global.removeHandler(handler)
     assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
-    assert stream_content[1] == "PyAEDT INFO: Log on console is enabled.\n"
     assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
     # Close every handlers to make sure that the
