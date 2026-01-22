@@ -250,7 +250,7 @@ jobs:
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
-          .venv/bin/activate
+          source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --python "$TESTS_VERSION" --extra tests
 
