@@ -26,9 +26,14 @@ from pathlib import Path
 
 import pytest
 
-from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
-from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
-from ansys.aedt.core.visualization.post.solution_data import SolutionData
+# Try to import from radar explorer toolkit, skip tests if not available
+try:
+    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
+
+    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
+except ImportError:
+    pytestmark = pytest.mark.skip(reason="Radar Explorer toolkit not available")
 
 SPHERES = "RCS"
 TEST_SUBFOLDER = "T48"

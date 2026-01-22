@@ -46,7 +46,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 # Import MonostaticRCSData from radar_explorer toolkit (required)
 try:
-    from ansys.aedt.toolkits.radar_explorer.backend.api import MonostaticRCSData
+    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
 except ImportError as e:
     raise ImportError(
         "The Radar Explorer toolkit is required for RCS data analysis.\n"

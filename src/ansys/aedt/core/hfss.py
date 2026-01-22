@@ -5878,7 +5878,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> rcs_data = hfss.get_rcs_data()
         """
         try:
-            from ansys.aedt.toolkits.radar_explorer.backend.api import MonostaticRCSData
+            from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
         except ImportError as e:
             raise ImportError(
                 "The Radar Explorer toolkit is required for RCS data analysis.\n"
