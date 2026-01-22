@@ -417,7 +417,6 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           uv pip install .[tests]
-          uv pip install ansys-aedt-toolkits-radar-explorer
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -499,7 +498,6 @@ jobs:
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
-          uv pip install ansys-aedt-toolkits-radar-explorer
 
       - name: Remove Ansys processes (if any)
         shell: bash
