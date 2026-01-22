@@ -2527,15 +2527,15 @@ class Desktop(PyAedtBase):
                 raise Exception("Failed to retrieve port from RPyC connection")
 
         if (
-            settings.use_multi_desktop
-            or "PYTEST_CURRENT_TEST" in os.environ
-            or (self.new_desktop and self.aedt_version_id < "2024.2")
-            or (is_linux and self.new_desktop)
+            settings.use_multi_desktop or self.new_desktop
+            # or "PYTEST_CURRENT_TEST" in os.environ
+            # or (self.new_desktop and self.aedt_version_id < "2024.2")
+            # or (is_linux and self.new_desktop)
         ):
             self.__port = _find_free_port()
             self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
-        elif self.new_desktop:
-            self.__port = 0
+        # elif self.new_desktop:
+        #     self.__port = 0
         else:
             sessions = grpc_active_sessions(
                 version=self.aedt_version_id, student_version=self.student_version, non_graphical=self.non_graphical
