@@ -35,6 +35,11 @@ jobs:
         shell: bash
         run: sudo apt-get install -y xvfb
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -50,7 +55,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra unit-tests
+          uv sync --frozen --extra unit-tests
 
       - name: Run unit tests
         env:
@@ -82,6 +87,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -97,7 +107,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra integration-tests
+          uv sync --frozen --extra integration-tests
 
       - name: Run integration tests
         env:
@@ -133,6 +143,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -148,7 +163,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -198,6 +213,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -213,7 +233,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -257,6 +277,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -275,7 +300,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -325,6 +350,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -343,7 +373,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -388,6 +418,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -406,7 +441,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -457,6 +492,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -475,7 +515,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -518,6 +558,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -533,7 +578,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -583,6 +628,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -598,7 +648,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -642,6 +692,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -657,7 +712,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -707,6 +762,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -722,7 +782,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -767,6 +827,11 @@ jobs:
           persist-credentials: false
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -785,7 +850,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -835,6 +900,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -853,7 +923,7 @@ jobs:
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -897,6 +967,11 @@ jobs:
           persist-credentials: false
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -912,7 +987,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -960,6 +1035,11 @@ jobs:
           persist-credentials: false
 
       # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
@@ -975,7 +1055,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
-          uv sync --frozen --python "$env:TESTS_VERSION" --extra tests
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: powershell
