@@ -517,6 +517,9 @@ class Design(AedtObjects, PyAedtBase):
                 maxwell_parameter_name = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Name")
                 schema = None
                 if maxwell_parameter_type == "Matrix":
+                    # if aedt_version >= 2026.1 expose props otherwise not
+                    # oparameter = self.get_oo_object(self.odesign, f"Parameters\\{boundary}")
+                    # parameter_data = json.loads(oparameter.GetObjData())
                     if self.solution_type != SolutionsMaxwell3D.ACMagneticAPhi:
                         maxwell_parameter_selection = self.get_oo_property_value(
                             self.odesign, f"Parameters\\{boundary}", "Selection"
