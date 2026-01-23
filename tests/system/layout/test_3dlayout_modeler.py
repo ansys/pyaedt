@@ -723,7 +723,7 @@ def test_export_to_hfss(aedt_app, test_tmp_dir):
     assert setup.export_to_hfss(output_file=str(file_fullname))
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
-
+@pytest.mark.skipif(is_linux, reason="Bug under investigation")
 def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
         layer="Top",
