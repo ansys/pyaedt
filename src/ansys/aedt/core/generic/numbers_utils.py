@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import ast
+from pathlib import Path
 import re
 from typing import Any
 from typing import Dict
@@ -32,6 +33,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.constants import unit_system
+from ansys.aedt.core.generic.settings import settings
 
 
 class Quantity(float, PyAedtBase):
@@ -496,3 +498,18 @@ def _find_units_in_dependent_variables(variable_value, full_variables=None):
             if i in m and _find_units_in_dependent_variables(v):
                 return _find_units_in_dependent_variables(v)
     return ""
+
+
+def reference_check(var_test, reference, error, file):
+    """Check the reference value in PyAEDT examples throwing error in case of mismatch.
+
+    Parameters
+    ----------
+    var_test: scalar value of the quantity to test
+    reference: reference value of the testing quantity
+    error: percentage error
+    file: path of the texting example
+    """
+    settings.enable_error_handler = False
+    if is_close(var_test, reference, error) is False:
+        raise ValueError(f"Error value mismatch in example file: {Path(file).name}")
