@@ -1059,7 +1059,6 @@ jobs:
 #
   system-tests-layout-linux:
     name: Test layout (linux)
-#    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -1070,6 +1069,15 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
 
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
@@ -1085,22 +1093,15 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
+      - name: Upgrade wheel and setuptools
+        run: |
+          source .venv/bin/activate
+          uv pip install -U wheel setuptools
+
       - name: Install pyaedt and tests dependencies
-        env:
-          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
           uv pip install .[tests]
- #         cp .ci/uv.lock uv.lock
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1116,7 +1117,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
