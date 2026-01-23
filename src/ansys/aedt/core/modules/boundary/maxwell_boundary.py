@@ -507,11 +507,9 @@ class MaxwellReducedMatrix:
             raise AEDTRuntimeError("Join type not valid.")
         if name not in [op.name for op in self.operations_reduction]:
             raise AEDTRuntimeError("Reduction operation name not valid.")
+        operation = next(op for op in self.operations_reduction if op.name == name)
         if new_name:
-            operation = [op for op in self.operations_reduction if op.name == name][0]
             operation.name = new_name
-        else:
-            operation = [op for op in self.operations_reduction if op.name == name][0]
         if new_sources:
             operation.sources = new_sources
         args = [
