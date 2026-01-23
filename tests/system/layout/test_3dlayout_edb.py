@@ -247,7 +247,6 @@ def test_assign_spice_model(aedt_app, file_tmp_root):
     assert local_png1.is_file() """
 
 
-
 def test_nets_count(aedt_app):
     nets = aedt_app.modeler.nets
     power_nets = aedt_app.modeler.power_nets
@@ -489,4 +488,3 @@ def test_ports_on_nets(aedt_app):
     assert ports[0].props["Port"] == "port_test"
     ports[0].props["Port"] = "port_test2"
     assert ports[0].name == "port_test2"
-
