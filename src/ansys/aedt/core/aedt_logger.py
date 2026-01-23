@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from contextlib import contextmanager
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -801,15 +802,53 @@ class AedtLogger:
         else:
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
+    @property
+    def log_on_desktop(self):
+        """Status of the log in AEDT (Message Manager).
+
+        Returns
+        -------
+        bool
+            ``True`` if logging to AEDT is enabled, ``False`` otherwise.
+        """
+        return self._log_on_desktop
+
+    @log_on_desktop.setter
+    def log_on_desktop(self, value: bool):
+        """Enable or disable the log in AEDT."""
+        if value:
+            self.enable_desktop_log()
+        else:
+            self.disable_desktop_log()
+
     def disable_desktop_log(self):
         """Disable the log in AEDT."""
         self._log_on_desktop = False
-        self.info("Log on AEDT is disabled.")
+        self.debug("Log on AEDT is disabled.")
 
     def enable_desktop_log(self):
         """Enable the log in AEDT."""
         self._log_on_desktop = True
-        self.info("Log on AEDT is enabled.")
+        self.debug("Log on AEDT is enabled.")
+
+    @property
+    def log_on_stdout(self):
+        """Status of printing log messages to stdout.
+
+        Returns
+        -------
+        bool
+            ``True`` if logging to stdout is enabled, ``False`` otherwise.
+        """
+        return self._log_on_screen
+
+    @log_on_stdout.setter
+    def log_on_stdout(self, value: bool):
+        """Enable or disable printing log messages to stdout."""
+        if value:
+            self.enable_stdout_log()
+        else:
+            self.disable_stdout_log()
 
     def disable_stdout_log(self):
         """Disable printing log messages to stdout."""
@@ -828,7 +867,26 @@ class AedtLogger:
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
         self._global.addHandler(self._std_out_handler)
-        self.info("Log on console is enabled.")
+        self.debug("Log on console is enabled.")
+
+    @property
+    def log_on_file(self):
+        """Status of printing log messages to a file.
+
+        Returns
+        -------
+        bool
+            ``True`` if logging to file is enabled, ``False`` otherwise.
+        """
+        return self._log_on_file
+
+    @log_on_file.setter
+    def log_on_file(self, value: bool):
+        """Enable or disable printing log messages to a file."""
+        if value:
+            self.enable_log_on_file()
+        else:
+            self.disable_log_on_file()
 
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
@@ -840,7 +898,7 @@ class AedtLogger:
                     handler.close()
                     logger.removeHandler(handler)
 
-        self.info("Log on file is disabled.")
+        self.debug("Log on file is disabled.")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
@@ -849,7 +907,7 @@ class AedtLogger:
         for handler in self._files_handlers:
             self._global.addHandler(handler)
             if hasattr(handler, "baseFilename"):
-                self.info(f"Log on file {handler.baseFilename} is enabled.")
+                self.debug(f"Log on file {handler.baseFilename} is enabled.")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
@@ -955,6 +1013,20 @@ class AedtLogger:
         if not self._design.handlers:
             self.add_logger("Design")
         return self._design
+
+    @contextmanager
+    def suspend_logging(self):
+        """Temporarily disable all logs and restore them afterwards."""
+        previous_state = (self.log_on_stdout, self.log_on_file, self.log_on_desktop)
+
+        self.log_on_stdout = False
+        self.log_on_file = False
+        self.log_on_desktop = False
+
+        try:
+            yield
+        finally:
+            self.log_on_stdout, self.log_on_file, self.log_on_desktop = previous_state
 
 
 pyaedt_logger = AedtLogger(to_stdout=settings.enable_screen_logs)

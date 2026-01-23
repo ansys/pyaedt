@@ -343,7 +343,7 @@ class AEDT:
                     "Consider using a secure connection."
                 )
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
-            pyaedt_logger.info("Client application successfully started.")
+            pyaedt_logger.debug("Client application successfully started.")
         except Exception:
             pyaedt_logger.warning("Failed to create AedtApplication.")
             self.aedt = None
