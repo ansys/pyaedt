@@ -1059,6 +1059,7 @@ jobs:
 
   system-tests-layout-linux:
     name: Test layout (linux)
+    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
