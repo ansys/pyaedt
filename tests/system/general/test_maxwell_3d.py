@@ -538,35 +538,38 @@ def test_reduced_matrix(m3d_app, maxwell_versioned):
     matrix = m3d_app.assign_matrix(matrix_args)
     assert not matrix.reduced_matrices
     m3d_app.solution_type = SolutionsMaxwell3D.Magnetostatic
-    out = matrix.join_series(sources=["Current1", "Current2"], matrix_name="ReducedMatrix3")
-    assert not out[0]
-    assert not out[1]
+    with pytest.raises(AEDTRuntimeError):
+        matrix.join_series(sources=["Current1", "Current2"], matrix_name="ReducedMatrix3")
     m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
-    out = matrix.join_series(sources=["Current1", "Current2", "Current3"], matrix_name="ReducedMatrix1")
-    assert matrix.reduced_matrices
-    assert matrix.reduced_matrices[0].name == "ReducedMatrix1"
-    assert matrix.reduced_matrices[0].parent_matrix == matrix.name
-    assert out[1] in matrix.reduced_matrices[0].sources.keys()
-    out = matrix.join_parallel(["Current1", "Current3"], matrix_name="ReducedMatrix2")
-    assert matrix.reduced_matrices[1].name == "ReducedMatrix2"
-    assert matrix.reduced_matrices[1].parent_matrix == matrix.name
-    assert out[1] in matrix.reduced_matrices[1].sources.keys()
-    reduced_matrix_1 = matrix.reduced_matrices[0]
+    reduced_matrix = matrix.join_series(sources=["Current1", "Current2", "Current3"], matrix_name="ReducedMatrix1")
+    assert reduced_matrix.name == "ReducedMatrix1"
+    assert reduced_matrix.parent_matrix == matrix.name
+    assert "Current1" in reduced_matrix.operations_reduction[0].sources
+    reduced_matrix_1 = matrix.join_parallel(["Current1", "Current3"], matrix_name="ReducedMatrix2")
+    assert reduced_matrix_1.name == "ReducedMatrix2"
     assert reduced_matrix_1.parent_matrix == matrix.name
-    source_name = list(reduced_matrix_1.sources.keys())[0]
-    assert reduced_matrix_1.update(old_source=source_name, source_type="series", new_source="new_series")
-    assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Current2, Current3")
-    assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
-    assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Current2, Current3")
-    assert not reduced_matrix_1.update(
-        old_source="new_series", source_type="invalid", new_excitations="Current2, Current3"
+    sources = reduced_matrix_1.operations_reduction[0].sources
+    assert "Current1" in sources
+    # update name of join series operation
+    join_operation = reduced_matrix_1.update(
+        name=reduced_matrix_1.operations_reduction[0].name, operation_type="series", new_name="my_op"
     )
-    assert not reduced_matrix_1.delete(source="invalid")
-    assert reduced_matrix_1.delete(source="new_series")
+    assert join_operation.sources == sources
+    assert join_operation.name == "my_op"
+    # update sources of join series operation
+    new_sources = ["Current2", "Current3"]
+    join_operation_1 = reduced_matrix_1.update(
+        name=join_operation.name, operation_type="series", new_sources=new_sources
+    )
+    assert join_operation_1.sources == new_sources
+    with pytest.raises(AEDTRuntimeError):
+        reduced_matrix_1.update(name="invalid", operation_type="series")
+    with pytest.raises(AEDTRuntimeError):
+        reduced_matrix_1.update(name=join_operation.name, operation_type="invalid")
+    with pytest.raises(AEDTRuntimeError):
+        reduced_matrix_1.delete(name="invalid")
+    assert reduced_matrix_1.delete(name="new_series")
     assert len(matrix.reduced_matrices) == 1
-    out = matrix.join_parallel(["Current5"])
-    assert not out[0]
 
 
 def test_initial_mesh_settings(m3d_app):

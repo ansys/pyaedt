@@ -2604,8 +2604,11 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         if boundary_type not in ("Force", "Torque", "Matrix", "LayoutForce"):
             return super()._create_boundary(name, props, boundary_type)
 
-        # Maxwell parameters cases
-        bound = MaxwellParameters(self, name, props, boundary_type, schema)
+        if boundary_type == "Matrix":
+            bound = MaxwellMatrix(self, name, props, schema=schema)
+        else:
+            # Maxwell parameters Force and Torque
+            bound = MaxwellParameters(self, name, props, boundary_type, schema)
         result = bound.create()
         if result:
             self._boundaries[bound.name] = bound

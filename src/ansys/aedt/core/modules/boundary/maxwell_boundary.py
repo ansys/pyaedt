@@ -23,7 +23,6 @@
 # SOFTWARE.
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
@@ -31,6 +30,7 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
@@ -49,105 +49,15 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Properties of the boundary.
     boundarytype : str, optional
         Type of the boundary.
-
-    Examples
-    --------
-    Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
-
-        >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
-        >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-        >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
-        >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-        >>> voltage1 = m2d.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
-        >>> voltage2 = m2d.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
-        >>> voltage3 = m2d.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
-
-        Define matrix assignments by instantiating the MaxwellElectric class.
-
-        >>> matrix_args = MaxwellMatrix.MatrixElectric(
-        >>>             signal_sources=[voltage1.name, voltage2.name],
-        >>>             ground_sources=[voltage3.name],
-        >>>             matrix_name="test_matrix",
-        >>>         )
-
-        Assign matrix. The method returns a MaxwellParameters object.
-
-        >>> matrix = m2d.assign_matrix(matrix_args)
-        >>> m2d.release_desktop(True, True)
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None, schema=None):
-        self.auto_update = False
+    def __init__(self, app, name, props=None, boundarytype=None):
+        self.auto_update = True
         self._app = app
         self._name = name
         self.__props = BoundaryProps(self, props) if props else {}
         self.type = boundarytype
-        self.auto_update = True
-        self.__reduced_matrices = None
-        self.matrix_assignment = None
         self._initialize_tree_node()
-        self._schema = schema
-
-    @property
-    def signal_sources(self):
-        if (
-            isinstance(self._schema, MaxwellMatrix.MatrixElectric)
-            or isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic)
-            or isinstance(self._schema, MaxwellMatrix.MatrixACMagnetic)
-        ):
-            return self._schema.signal_sources
-        return None
-
-    @property
-    def ground_sources(self):
-        if isinstance(self._schema, MaxwellMatrix.MatrixElectric):
-            return self._schema.ground_sources
-        return None
-
-    @property
-    def group_sources(self):
-        if isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic):
-            return self._schema.group_sources
-        return None
-
-    @property
-    def rl_sources(self):
-        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
-            return self._schema.rl_sources
-        return None
-
-    @property
-    def gc_sources(self):
-        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
-            return self._schema.gc_sources
-        return None
-
-    @property
-    def reduced_matrices(self):
-        """List of reduced matrix groups for the parent matrix.
-
-        Returns
-        -------
-        dict
-            Dictionary of reduced matrices where the key is the name of the parent matrix
-            and the values are in a list of reduced matrix groups.
-        """
-        maxwell_solutions = SolutionsMaxwell3D
-        if self._app.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
-            self.__reduced_matrices = {}
-            cc = self._app.odesign.GetChildObject("Parameters")
-            parents = cc.GetChildNames()
-            if self.name in parents:
-                parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
-                parent_type = parent_object.GetPropValue("Type")
-                if parent_type == "Matrix":
-                    self.matrix_assignment = parent_object.GetPropValue("Selection").split(",")
-                    child_names = parent_object.GetChildNames()
-                    self.__reduced_matrices = []
-                    for r in child_names:
-                        self.__reduced_matrices.append(MaxwellMatrix(self._app, self.name, r))
-        return self.__reduced_matrices
 
     @property
     def _child_object(self):
@@ -255,75 +165,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return False
         return True
 
-    @pyaedt_function_handler()
-    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
-        maxwell_solutions = SolutionsMaxwell3D
-        if self._app.solution_type not in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
-            self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
-            return False, False
-        if not matrix_name:
-            matrix_name = generate_unique_name("ReducedMatrix", n=3)
-        if not join_name:
-            join_name = generate_unique_name("Join" + red_type, n=3)
-        try:
-            self._app.omaxwell_parameters.AddReduceOp(
-                self.name,
-                matrix_name,
-                ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
-            )
-            return matrix_name, join_name
-        except Exception:
-            self._app.logger.error("Failed to create Matrix Reduction")
-            return False, False
 
-    @pyaedt_function_handler()
-    def join_series(self, sources, matrix_name=None, join_name=None):
-        """Create matrix reduction by joining sources in series.
-
-        Parameters
-        ----------
-        sources : list
-            Sources to be included in matrix reduction.
-        matrix_name :  str, optional
-            Name of the string to create.
-        join_name : str, optional
-            Name of the Join operation.
-
-        Returns
-        -------
-        (str, str)
-            Matrix name and Joint name.
-
-        """
-        return self._create_matrix_reduction(
-            red_type="Series", sources=sources, matrix_name=matrix_name, join_name=join_name
-        )
-
-    @pyaedt_function_handler()
-    def join_parallel(self, sources, matrix_name=None, join_name=None):
-        """Create matrix reduction by joining sources in parallel.
-
-        Parameters
-        ----------
-        sources : list
-            Sources to be included in matrix reduction.
-        matrix_name :  str, optional
-            Name of the matrix to create.
-        join_name : str, optional
-            Name of the Join operation.
-
-        Returns
-        -------
-        (str, str)
-            Matrix name and Joint name.
-
-        """
-        return self._create_matrix_reduction(
-            red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
-        )
-
-
-class MaxwellMatrix(PyAedtBase):
+class MaxwellMatrix(MaxwellParameters):
     """
     Provides methods to interact with reduced matrices in Maxwell.
 
@@ -333,19 +176,103 @@ class MaxwellMatrix(PyAedtBase):
     ----------
     app : :class:`ansys.aedt.core.application.AnalysisMaxwell`
         Parent Maxwell application instance.
-    parent_name : str
-        Name of the parent matrix.
-    reduced_name : str
-        Name of the reduced matrix.
+    schema : MaxwellMatrix.MatrixElectric, MaxwellMatrix.MatrixMagnetostatic, MaxwellMatrix.MatrixACMagnetic,
+    MaxwellMatrix.MatrixACMagneticAPhi, optional
+        Schema defining the matrix assignment.
+        The default is ``None``.
+
+    Examples
+    --------
+    Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
+
+    >>> from ansys.aedt.core import Maxwell2d
+    >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
+    >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
+    >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    >>> voltage1 = m2d.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
+    >>> voltage2 = m2d.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
+    >>> voltage3 = m2d.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
+
+    Define matrix assignments by instantiating the MaxwellElectric class.
+
+    >>> matrix_args = MaxwellMatrix.MatrixElectric(
+    >>>             signal_sources=[voltage1.name, voltage2.name],
+    >>>             ground_sources=[voltage3.name],
+    >>>             matrix_name="test_matrix",
+    >>>         )
+
+    Assign matrix. The method returns a MaxwellParameters object.
+
+    >>> matrix = m2d.assign_matrix(matrix_args)
+    >>> m2d.release_desktop(True, True)
 
     """
 
-    def __init__(self, app, parent_name, reduced_name):
+    def __init__(self, app, name, props=None, schema=None):
         """Initialize Maxwell matrix."""
+        super().__init__(app, name, props=props, boundarytype="Matrix")
         self._app = app
-        self.parent_matrix = parent_name
-        self.name = reduced_name
-        self.__sources = None
+        self.__reduced_matrices = None
+        self._schema = schema
+
+    # check if solvers are still needed!
+    @property
+    def signal_sources(self):
+        if (
+            isinstance(self._schema, MaxwellMatrix.MatrixElectric)
+            or isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic)
+            or isinstance(self._schema, MaxwellMatrix.MatrixACMagnetic)
+        ):
+            return self._schema.signal_sources
+        return None
+
+    @property
+    def ground_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixElectric):
+            return self._schema.ground_sources
+        return None
+
+    @property
+    def group_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic):
+            return self._schema.group_sources
+        return None
+
+    @property
+    def rl_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
+            return self._schema.rl_sources
+        return None
+
+    @property
+    def gc_sources(self):
+        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
+            return self._schema.gc_sources
+        return None
+
+    @property
+    def reduced_matrices(self):
+        """List of reduced matrix groups for the parent matrix.
+
+        Returns
+        -------
+        list
+            List of reduced matrices for the parent matrix.
+        """
+        if self._app.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
+            self.__reduced_matrices = []
+            parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+            child_names = parent_object.GetChildNames()
+            for r in child_names:
+                reduced_matrix_object = parent_object.GetChildObject(r)
+                reduced_operations = reduced_matrix_object.GetChildNames()
+                operation_object = []
+                for operation_name in reduced_operations:
+                    sources = reduced_matrix_object.GetChildObject(operation_name).GetPropValue("Source").split(", ")
+                    operation_object.append(MaxwellReducedMatrixOperation(self.name, r, operation_name, sources))
+                    self.__reduced_matrices.append(MaxwellReducedMatrix(self._app, self.name, r, operation_object))
+        return self.__reduced_matrices
 
     class MatrixElectric:
         """Matrix assignment for electric solvers."""
@@ -456,7 +383,6 @@ class MaxwellMatrix(PyAedtBase):
             self.signal_sources = signal_sources
             self.ground_sources = ground_sources
 
-    @dataclass
     class MatrixACMagneticAPhi:
         """Matrix assignment for AC Magnetic A-Phi solver."""
 
@@ -470,85 +396,160 @@ class MaxwellMatrix(PyAedtBase):
             self.gc_sources = gc_sources
             self.matrix_name = matrix_name
 
-    @property
-    def sources(self):
-        """List of matrix sources."""
-        maxwell_solutions = SolutionsMaxwell3D
-        if self._app.solution_type in [
-            maxwell_solutions.EddyCurrent,
-            maxwell_solutions.ACMagnetic,
-            maxwell_solutions.ACMagneticAPhi,
-        ]:
-            sources = (
-                self._app.odesign.GetChildObject("Parameters")
-                .GetChildObject(self.parent_matrix)
-                .GetChildObject(self.name)
-                .GetChildNames()
-            )
-            self.__sources = {}
-            for s in sources:
-                excitations = (
-                    self._app.odesign.GetChildObject("Parameters")
-                    .GetChildObject(self.parent_matrix)
-                    .GetChildObject(self.name)
-                    .GetChildObject(s)
-                    .GetPropValue("Source")
-                )
-                self.__sources[s] = excitations
-        return self.__sources
+    @pyaedt_function_handler()
+    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if self._app.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
+            raise AEDTRuntimeError(r"Matrix reduction is available only in Eddy Current\AC Magnetic solver.")
+        if not matrix_name:
+            matrix_name = generate_unique_name("ReducedMatrix", n=3)
+        if not join_name:
+            join_name = generate_unique_name("Join" + red_type, n=3)
+        self._app.omaxwell_parameters.AddReduceOp(
+            self.name,
+            matrix_name,
+            ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
+        )
+        operation_reduction = MaxwellReducedMatrixOperation(self.name, matrix_name, join_name, sources)
+        return MaxwellReducedMatrix(self._app, self.name, matrix_name, operation_reduction)
 
     @pyaedt_function_handler()
-    def update(self, old_source, source_type, new_source=None, new_excitations=None):
+    def join_series(self, sources, matrix_name=None, join_name=None):
+        """Create matrix reduction by joining sources in series.
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            Name of the string to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Series", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
+
+    @pyaedt_function_handler()
+    def join_parallel(self, sources, matrix_name=None, join_name=None):
+        """Create matrix reduction by joining sources in parallel.
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            Name of the matrix to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
+
+
+class MaxwellReducedMatrix:
+    """Represent a reduced matrix in Maxwell (join or series)."""
+
+    def __init__(
+        self,
+        app,
+        parent_matrix: str,
+        name: str,
+        operations_reduction: list[MaxwellReducedMatrixOperation] | MaxwellReducedMatrixOperation | None = None,
+    ):
+        self._app = app
+        self.parent_matrix = parent_matrix
+        self.name = name
+        if operations_reduction is None:
+            self.operations_reduction: list[MaxwellReducedMatrixOperation] = []
+        elif isinstance(operations_reduction, MaxwellReducedMatrixOperation):
+            self.operations_reduction = [operations_reduction]
+        else:
+            self.operations_reduction = operations_reduction
+
+    @pyaedt_function_handler()
+    def update(
+        self, name: str, operation_type: str, new_name: Optional[str] = None, new_sources: Optional[list] = None
+    ):
         """Update the reduced matrix.
 
         Parameters
         ----------
-        old_source : str
-            Original name of the source to update.
-        source_type : str
+        name : str
+            Name of the reduced matrix operation.
+        operation_type : str
             Source type, which can be ``Series`` or ``Parallel``.
-        new_source : str, optional
-            New name of the source to update.
-            The default value is the old source name.
-        new_excitations : str, optional
-            List of excitations to include in the matrix reduction.
-            The default values are excitations included in the source to update.
+        new_name : str, optional
+            New name of the reduced matrix.
+            The default value is the current name.
+        new_sources : list, optional
+            List of sources to include in the matrix reduction.
+            The default values are the sources included already in the reduced matrix operation.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        MaxwellReducedMatrixOperation
+            Updated reduced matrix operation object.
         """
-        if old_source not in self.sources:
-            self._app.logger.error("Source does not exist.")
-            return False
+        if operation_type.lower() not in ["series", "parallel"]:
+            raise AEDTRuntimeError("Join type not valid.")
+        if name not in [op.name for op in self.operations_reduction]:
+            raise AEDTRuntimeError("Reduction operation name not valid.")
+        if new_name:
+            operation = [op for op in self.operations_reduction if op.name == name][0]
+            operation.name = new_name
         else:
-            new_excitations = self.sources[old_source] if not new_excitations else new_excitations
-        if source_type.lower() not in ["series", "parallel"]:
-            self._app.logger.error("Join type not valid.")
-            return False
-        if not new_source:
-            new_source = old_source
-        args = ["NAME:" + new_source, "Type:=", "Join in " + source_type, "Sources:=", new_excitations]
-        self._app.omaxwell_parameters.EditReduceOp(self.parent_matrix, self.name, old_source, args)
-        return True
+            operation = [op for op in self.operations_reduction if op.name == name][0]
+        if new_sources:
+            operation.sources = new_sources
+        args = [
+            "NAME:" + operation.name,
+            "Type:=",
+            "Join in " + operation_type,
+            "Sources:=",
+            ",".join(operation.sources) if not new_sources else ",".join(new_sources),
+        ]
+
+        self._app.omaxwell_parameters.EditReduceOp(self.parent_matrix, self.name, name, args)
+        return MaxwellReducedMatrixOperation(self.parent_matrix, self.name, operation.name, operation.sources)
 
     @pyaedt_function_handler()
-    def delete(self, source):
+    def delete(self, name):
         """Delete a specified source in a reduced matrix.
 
         Parameters
         ----------
-        source : string
-            Name of the source to delete.
+        name : string
+            Name of the operation to delete.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if source not in self.sources:
-            self._app.logger.error("Invalid source name.")
-            return False
-        self._app.omaxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, source)
+        if name not in [op.name for op in self.operations_reduction]:
+            raise AEDTRuntimeError("Reduction operation name not valid.")
+        self._app.omaxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, name)
         return True
+
+
+class MaxwellReducedMatrixOperation:
+    """Represent a reduced matrix operation in Maxwell (join in series or parallel)."""
+
+    def __init__(self, parent_matrix: str, reduced_matrix: str, name: str, sources: list[str]):
+        self.parent_matrix = parent_matrix
+        self.reduced_matrix = reduced_matrix
+        self.name = name
+        self.sources = sources
