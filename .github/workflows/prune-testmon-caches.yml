@@ -3,9 +3,11 @@ name: prune Testmon Caches
 on:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: prune-testmon-caches
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   prune-testmon-caches:
