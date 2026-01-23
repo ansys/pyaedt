@@ -101,6 +101,29 @@ def test_assign_single_signal_line(aedt_app):
     assert aedt_app.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
 
 
+@pytest.fixture
+def aedtapp_closed(add_app):
+    """Fixture for Q2D app with closed solution type for SurfaceGround testing as we cant apply SurfaceGround in open solution type."""
+    app = add_app(application=Q2d, solution_type="Closed")
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+def test_assign_surface_ground(aedtapp_closed):
+    region = aedtapp_closed.modeler.create_region(
+        pad_value=[100, 100, 100, 100],
+        pad_type="Percentage Offset",
+        name="VacuumRegion"
+    )
+    assert aedtapp_closed.assign_single_conductor(
+        assignment=region,
+        name="",
+        conductor_type="SurfaceGround",
+        solve_option="SolveInside",
+        thickness="",
+    )
+
+
 def test_assign_huray_finitecond_to_edges(aedt_app):
     rect = aedt_app.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
     aedt_app.assign_single_conductor(assignment=rect, solve_option="SolveOnBoundary")
