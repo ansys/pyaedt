@@ -1101,7 +1101,8 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
 
       - name: Remove Ansys processes (if any)
         shell: bash
