@@ -23,16 +23,10 @@
 # SOFTWARE.
 
 import os
-from pathlib import Path
-import shutil
 
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
-from tests import TESTS_LAYOUT_PATH
-from tests.conftest import DESKTOP_VERSION
-from tests.conftest import NON_GRAPHICAL
 
 TEST_SUBFOLDER = "layout_edb"
 ORIGINAL_PROJECT = "ANSYS-HSD_V1"
@@ -246,7 +240,8 @@ def test_nets(aedt_app, test_tmp_dir):
     nets["AVCC_1V3"].plot(save_plot=str(local_png1), show=False)
     assert local_png1.is_file()
 
-""" 
+
+"""
 def test_nets_count(aedt_app):
     nets = aedt_app.modeler.nets
     power_nets = aedt_app.modeler.power_nets
