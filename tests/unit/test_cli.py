@@ -28,6 +28,7 @@
 import json
 from pathlib import Path
 import re
+import sys
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -518,10 +519,9 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
     assert "Restart AEDT to see the new panels" in result.stdout
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
         personal_lib=str(temp_personal_lib),
+        executable_interpreter=sys.executable,
         skip_version_manager=False,
-        odesktop=None,
     )
 
 
@@ -547,10 +547,9 @@ def test_panels_add_with_skip_version_manager(
     assert "• Version Manager" not in result.stdout
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
         personal_lib=str(temp_personal_lib),
+        executable_interpreter=sys.executable,
         skip_version_manager=True,
-        odesktop=None,
     )
 
 
@@ -565,6 +564,12 @@ def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_pers
     assert result.exit_code == 0
     assert "Installing PyAEDT panels..." in result.stdout
     assert "✓ PyAEDT panels installed successfully." in result.stdout
+
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        personal_lib=str(temp_personal_lib),
+        executable_interpreter=sys.executable,
+        skip_version_manager=False,
+    )
 
 
 def test_panels_add_invalid_personal_lib_none(cli_runner, mock_installed_versions):
@@ -695,10 +700,9 @@ def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_
     assert "Installing PyAEDT panels..." in result.stdout
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
         personal_lib=str(temp_personal_lib),
+        executable_interpreter=sys.executable,
         skip_version_manager=False,
-        odesktop=None,
     )
 
 
