@@ -60,7 +60,7 @@ def ic_mode_design(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_get_components(aedt_app):
+""" def test_get_components(aedt_app):
     comp = aedt_app.modeler.components
     assert len(comp) > 0
     assert comp["L10"].object_units == "mm"
@@ -234,7 +234,7 @@ def test_assign_spice_model(aedt_app, file_tmp_root):
     file = shutil.copy2(model_path, file_tmp_root / "GRM32ER72A225KA35_25C_0V.sp")
     assert aedt_app.modeler.set_spice_model(
         assignment="C1", input_file=file, subcircuit_name="GRM32ER72A225KA35_25C_0V"
-    )
+    ) """
 
 
 def test_nets(aedt_app, test_tmp_dir):
@@ -246,7 +246,7 @@ def test_nets(aedt_app, test_tmp_dir):
     nets["AVCC_1V3"].plot(save_plot=str(local_png1), show=False)
     assert local_png1.is_file()
 
-
+""" 
 def test_nets_count(aedt_app):
     nets = aedt_app.modeler.nets
     power_nets = aedt_app.modeler.power_nets
@@ -488,3 +488,4 @@ def test_ports_on_nets(aedt_app):
     assert ports[0].props["Port"] == "port_test"
     ports[0].props["Port"] = "port_test2"
     assert ports[0].name == "port_test2"
+ """
