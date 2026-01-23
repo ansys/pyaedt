@@ -182,7 +182,7 @@ jobs:
         run: |
           source .venv/bin/activate
           # Run the analyze-changes script in CI mode
-          python .ci/analyze_changes.py --ci --base origin/main --verbose
+          python .ci/scripts/analyze_changes.py --base origin/main
 
           # If no outputs were set, default to run_all=true
           if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests\|doc_only\|run_all" "$GITHUB_OUTPUT" 2>/dev/null; then

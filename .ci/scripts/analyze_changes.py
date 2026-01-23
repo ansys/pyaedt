@@ -211,9 +211,9 @@ def analyze_changes(base_ref: str = "origin/main"):
 
     Examples
     --------
-    >>> python.ci / analyze_changes.py
-    >>> python .ci/analyze_changes.py --base origin/main
-    >>> python .ci/analyze_changes.py --base HEAD
+    >>> python .ci/scripts/analyze_changes.py
+    >>> python .ci/scripts/analyze_changes.py --base origin/main
+    >>> python .ci/scripts/analyze_changes.py --base HEAD
     """
     if sys.stdout.encoding != "utf-8":
         reconfigure = getattr(sys.stdout, "reconfigure", None)
