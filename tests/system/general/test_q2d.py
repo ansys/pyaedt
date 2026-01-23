@@ -111,9 +111,7 @@ def aedtapp_closed(add_app):
 
 def test_assign_surface_ground(aedtapp_closed):
     region = aedtapp_closed.modeler.create_region(
-        pad_value=[100, 100, 100, 100],
-        pad_type="Percentage Offset",
-        name="VacuumRegion"
+        pad_value=[100, 100, 100, 100], pad_type="Percentage Offset", name="VacuumRegion"
     )
     assert aedtapp_closed.assign_single_conductor(
         assignment=region,
