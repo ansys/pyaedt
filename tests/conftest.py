@@ -32,7 +32,7 @@ import sys
 import tempfile
 from typing import List
 from unittest.mock import MagicMock
-
+from ansys.aedt.core.edb import Edb
 import pytest
 
 from ansys.aedt.core import Desktop
