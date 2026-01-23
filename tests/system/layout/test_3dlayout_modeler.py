@@ -815,6 +815,7 @@ def test_export_to_q3d(aedt_app, test_tmp_dir):
     assert setup.export_to_q3d(str(file_fullname))
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
+
 @pytest.mark.skipif(is_linux, reason="Bug under investigation")
 def test_export_to_q3d_keep_net_non_unite(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
