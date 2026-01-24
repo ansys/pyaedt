@@ -562,7 +562,7 @@ class Desktop(PyAedtBase):
             True if os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t") else non_graphical
         )
         self.__close_on_exit = close_on_exit
-        self.__machine = machine
+        self.__machine = machine if machine else None
         self.__port = port
         self.__is_grpc_api = True
         self.__student_version = False
@@ -2558,7 +2558,7 @@ class Desktop(PyAedtBase):
                     self.logger.warning(
                         f"Multiple AEDT gRPC sessions are found. Setting the active session on port {self.port}."
                     )
-            elif self.aedt_version_id < "2024.2" or is_linux:
+            else:
                 self.__port = _find_free_port()
                 self.logger.info(f"New AEDT session is starting on gRPC port {self.port}.")
                 self.new_desktop = True

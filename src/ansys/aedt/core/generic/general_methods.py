@@ -27,13 +27,13 @@ import datetime
 import difflib
 import functools
 from functools import update_wrapper
-import getpass
 import inspect
 import itertools
 import logging
 import os
 import platform
 import re
+import subprocess
 import sys
 import time
 import traceback
@@ -728,9 +728,10 @@ def active_sessions(version=None, student_version=False, non_graphical=False) ->
     """
     return_dict = {}
     if student_version:
-        keys = ["ansysedtsv.exe", "ansysedtsv"]
+        target = ["ansysedtsv", "ansysedtsv.exe"] if is_linux else ["ansysedtsv.exe"]
     else:
-        keys = ["ansysedt.exe", "ansysedt"]
+        target = ["ansysedt", "ansysedt.exe"] if is_linux else ["ansysedt.exe"]
+
     if version and "." in version:
         version = version[-4:].replace(".", "")
     if version and version < "221":
@@ -742,53 +743,102 @@ def active_sessions(version=None, student_version=False, non_graphical=False) ->
         # drop domain like DOMAIN\user or any path parts, compare case-insensitive
         return str(u).split("\\")[-1].split("/")[-1].lower()
 
-    def _current_username():
-        try:
-            return _normalize_user(psutil.Process(os.getpid()).username())
-        except Exception:
-            # fallback
-            return _normalize_user(getpass.getuser())
+    def _run_ss_xlp():
+        proc = subprocess.run(
+            ["ss", "-xlp"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        if proc.returncode != 0:
+            raise RuntimeError(f"'ss -xlp' failed: {proc.stderr.strip()}")
 
-    current_user = _current_username()
+        lines = proc.stdout.splitlines()
 
-    for p in psutil.process_iter(attrs=("pid", "name", "username", "cmdline")):
-        try:
-            p_user = _normalize_user(p.info.get("username"))
-            if p_user != current_user:
-                continue  # skip processes from other users
-            # process belongs to current user — safe to use p.info or p
-            pid = p.info["pid"]
-            name = p.info["name"]
-            cmd = p.info.get("cmdline", [])
-            if cmd is None:
-                cmd = []
-            if name in keys:
-                if non_graphical and "-ng" in cmd or not non_graphical:
-                    if not version or (version and version in cmd[0]):
-                        if "-grpcsrv" in cmd:
-                            if not version or (version and version in cmd[0]):
-                                try:
-                                    options = cmd[cmd.index("-grpcsrv") + 1].split(":")
-                                    if len(options) > 1:
-                                        return_dict[pid] = int(options[1])
-                                    else:
-                                        return_dict[pid] = int(options[0])
-                                except (IndexError, ValueError):
-                                    # default desktop grpc port.
-                                    return_dict[pid] = 50051
-                        else:
-                            return_dict[pid] = -1
-                            for i in psutil.net_connections(kind="inet"):
-                                if i.pid == pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
-                                    return_dict[pid] = i.laddr.port
-                                    break
-        except psutil.NoSuchProcess as e:  # pragma: no cover
-            pyaedt_logger.debug(f"The process exited and cannot be an active session: {e}")
-        except Exception as e:  # pragma: no cover
-            pyaedt_logger.debug(
-                f"A(n) {type(e)} error occurred while retrieving information for the active AEDT sessions: {e}"
-            )
-            pyaedt_logger.debug(traceback.format_exc())
+        results = {}
+
+        for line in lines:
+            if "ansysedt.exe" not in line:
+                continue
+
+            # Extract PID
+            pid_match = re.search(r"pid=(\d+)", line)
+            pid = int(pid_match.group(1)) if pid_match else None
+
+            # Extract port number from filename (e.g. AnsysEMUDS-50051.sock)
+            port_match = re.search(r"-(\d+)\.sock", line)
+            port = int(port_match.group(1)) if port_match else None
+            if pid and port:
+                results[pid] = port
+        return results
+
+    def fast_get_target_commands(target_name):
+        system = platform.system()
+        found_data = []  # List di (pid, cmdline_list)
+
+        if system == "Linux":
+            # Usa pgrep per trovare i PID e legge direttamente /proc per i cmdline
+            try:
+                pids = []
+                for i in target_name:
+                    pids += subprocess.check_output(["pgrep", "-x", i]).decode().split()
+                for pid in pids:
+                    with open(f"/proc/{pid}/cmdline", "rb") as f:
+                        # I cmdline in /proc sono separati da null bytes (\0)
+                        cmdline = f.read().decode().split("\0")
+                        found_data.append((int(pid), [arg for arg in cmdline if arg]))
+            except subprocess.CalledProcessError:
+                pass
+
+        elif system == "Windows":
+            try:
+                cmd = f"wmic process where \"name='{target_name[0]}'\" get ProcessId,CommandLine /format:list"
+                output = subprocess.check_output(cmd, shell=True).decode(errors="ignore")
+
+                current_pid = None
+                for line in output.splitlines():
+                    line = line.strip()
+                    if line.startswith("CommandLine="):
+                        # Windows restituisce una stringa singola, la dividiamo approssimativamente
+                        cmdline_raw = line[len("CommandLine=") :]
+                        current_cmd = cmdline_raw.split()
+                    elif line.startswith("ProcessId="):
+                        current_pid = int(line[len("ProcessId=") :])
+                        if current_pid and current_cmd:
+                            found_data.append((current_pid, current_cmd))
+                            current_pid, current_cmd = None, None
+            except Exception:
+                pass
+
+        return found_data
+
+    target_processes = fast_get_target_commands(target)
+    for pid, cmd in target_processes:
+        if "-grpcsrv" in cmd:
+            if not version or (version and version in cmd[0]):
+                try:
+                    options = cmd[cmd.index("-grpcsrv") + 1].split(":")
+                    if len(options) > 1:
+                        return_dict[pid] = int(options[1])
+                    else:
+                        return_dict[pid] = int(options[0])
+                except (IndexError, ValueError):
+                    # default desktop grpc port.
+                    return_dict[pid] = 50051
+        else:
+            return_dict[pid] = -1
+    if is_linux and any([i for i in return_dict.values() if i == -1]):
+        sockets = _run_ss_xlp()
+        for i, p in sockets.items():
+            if i in return_dict and return_dict[i] == -1:
+                return_dict[pid] = p
+    if any([i for i in return_dict.values() if i == -1]):
+        for i in psutil.net_connections():
+            if i.pid in return_dict and (i.laddr.port > 50050 and i.laddr.port < 50200):
+                return_dict[i.pid] = i.laddr.port
+                if not any([i for i in return_dict.values() if i == -1]):
+                    break
     return return_dict
 
 
