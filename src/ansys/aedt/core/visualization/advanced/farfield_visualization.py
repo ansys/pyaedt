@@ -1612,13 +1612,13 @@ class UpdateBeamForm(PyAedtBase):
     @pyaedt_function_handler()
     def update_phi(self, phi):
         """Update the Phi value."""
-        self.__phi = phi
+        self.__phi = phi * np.pi / 180
         self.__update_both()
 
     @pyaedt_function_handler()
     def update_theta(self, theta):
         """Update the Theta value."""
-        self.__theta = theta
+        self.__theta = theta * np.pi / 180
         self.__update_both()
 
 
