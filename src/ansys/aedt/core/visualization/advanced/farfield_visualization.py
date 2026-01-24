@@ -821,7 +821,7 @@ class FfdSolutionData(PyAedtBase):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         max_theta : float or int, optional
-            Maximum theta angle for plotting far-ield data. The default value is ``180``, which
+            Maximum theta angle for plotting far-field data. The default value is ``180``, which
             plots all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
 
