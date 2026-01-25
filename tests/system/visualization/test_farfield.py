@@ -297,3 +297,67 @@ def test_farfield_exporter(array_test):
     )
     metadata2 = ffdata2.export_farfield()
     assert Path(metadata2).is_file()
+
+
+@pytest.mark.avoid_ansys_load
+def test_ffd_solution_data_plot_3d(test_tmp_dir):
+    """Test FfdSolutionData.plot_3d() method with various parameters."""
+    from pyvista.plotting.plotter import Plotter
+
+    pyaedt_metadata_dir_original = TESTS_VISUALIZATION_PATH / "example_models" / TEST_SUBFOLDER / "pyaedt_metadata"
+    pyaedt_metadata_dir = test_tmp_dir / "pyaedt_metadata_plot_3d"
+    shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir)
+    metadata_file = pyaedt_metadata_dir / "pyaedt_antenna_metadata.json"
+    ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
+
+    # Test with output_file and default parameters
+    img_default = test_tmp_dir / "plot_3d_default.jpg"
+    ffdata.plot_3d(output_file=img_default, show=False)
+    assert Path(img_default).is_file()
+
+    # Test different quantity values
+    img_theta = test_tmp_dir / "plot_3d_theta.jpg"
+    ffdata.plot_3d(quantity="rETheta", output_file=img_theta, show=False, show_geometry=False)
+    assert Path(img_theta).is_file()
+
+    img_phi = test_tmp_dir / "plot_3d_phi.jpg"
+    ffdata.plot_3d(quantity="rEPhi", output_file=img_phi, show=False, show_geometry=False)
+    assert Path(img_phi).is_file()
+
+    # Test different quantity_format values
+    img_db20 = test_tmp_dir / "plot_3d_db20.jpg"
+    ffdata.plot_3d(
+        quantity="RealizedGain", quantity_format="dB20", output_file=img_db20, show=False, show_geometry=False
+    )
+    assert Path(img_db20).is_file()
+
+    img_abs = test_tmp_dir / "plot_3d_abs.jpg"
+    ffdata.plot_3d(quantity="RealizedGain", quantity_format="abs", output_file=img_abs, show=False, show_geometry=False)
+    assert Path(img_abs).is_file()
+
+    # Test with rotation parameter
+    rotation_matrix = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    img_rotation = test_tmp_dir / "plot_3d_rotation.jpg"
+    ffdata.plot_3d(
+        quantity="RealizedGain",
+        rotation=rotation_matrix,
+        output_file=img_rotation,
+        show=False,
+        show_geometry=False,
+    )
+    assert Path(img_rotation).is_file()
+
+    # Test with show_beam_slider=False
+    img_no_slider = test_tmp_dir / "plot_3d_no_slider.jpg"
+    ffdata.plot_3d(
+        quantity="RealizedGain",
+        show_beam_slider=False,
+        output_file=img_no_slider,
+        show=False,
+        show_geometry=False,
+    )
+    assert Path(img_no_slider).is_file()
+
+    # Test returning Plotter object when show=False and no output_file
+    plotter = ffdata.plot_3d(quantity="RealizedGain", show=False, show_geometry=False)
+    assert isinstance(plotter, Plotter)
