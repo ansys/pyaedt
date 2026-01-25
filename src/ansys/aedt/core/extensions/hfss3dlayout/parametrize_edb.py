@@ -398,7 +398,7 @@ def main(data: ParametrizeEdbExtensionData):
     if "PYTEST_CURRENT_TEST" not in os.environ:
         h3d = Hfss3dLayout(str(new_project_aedb))
         h3d.logger.info("Parametric project generated successfully.")
-        h3d.desktop_class.release_desktop(False, False)
+        h3d.desktop.release_desktop(False, False)
 
     return True
 

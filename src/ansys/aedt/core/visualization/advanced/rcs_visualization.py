@@ -94,7 +94,7 @@ class MonostaticRCSData(PyAedtBase):
     >>> app = Hfss(version="2025.2", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
-    >>> app.desktop_class.close_desktop()
+    >>> app.desktop.close_desktop()
     >>> rcs_data = MonostaticRCSData(input_file=metadata_file)
     """
 
@@ -636,7 +636,7 @@ class MonostaticRCSPlotter(PyAedtBase):
     >>> app = Hfss(version="2025.2", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
-    >>> app.desktop_class.close_desktop()
+    >>> app.desktop.close_desktop()
     >>> rcs_data = MonostaticRCSData(input_file=metadata_file)
     >>> rcs_plotter = MonostaticRCSPlotter(rcs_data)
     """

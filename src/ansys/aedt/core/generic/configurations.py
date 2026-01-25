@@ -2123,7 +2123,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                     native = NativeComponentPCB(self._app, native_dict["Type"], native_name, nc_dict)
                 else:
                     native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
-                prj_list = set(self._app.desktop_class.project_list)
+                prj_list = set(self._app.desktop.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
                 instance_names = {
                     def_name: set(self._app.oeditor.Get3DComponentInstanceNames(def_name))
@@ -2152,7 +2152,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 if nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB" and nc_dict[
                     "NativeComponentDefinitionProvider"
                 ]["DefnLink"]["Project"] not in [self._app.project_file or "This Project*"]:
-                    prj = list(set(self._app.desktop_class.project_list) - prj_list)[0]
+                    prj = list(set(self._app.desktop.project_list) - prj_list)[0]
                     design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
                     from ansys.aedt.core.generic.design_types import get_pyaedt_app
 

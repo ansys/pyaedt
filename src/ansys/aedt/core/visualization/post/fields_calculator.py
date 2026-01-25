@@ -80,7 +80,7 @@ class FieldsCalculator(PyAedtBase):
     ...     "report": ["Data Table", "Rectangular Plot"],
     ... }
     >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
-    >>> hfss.desktop_class.release_desktop(False, False)
+    >>> hfss.desktop.release_desktop(False, False)
 
     or they can be added from the ``expression_catalog.toml``:
 
@@ -88,7 +88,7 @@ class FieldsCalculator(PyAedtBase):
     >>> hfss = Hfss()
     >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-    >>> hfss.desktop_class.release_desktop(False, False)
+    >>> hfss.desktop.release_desktop(False, False)
 
     """
 
@@ -163,7 +163,7 @@ class FieldsCalculator(PyAedtBase):
         ...     "report": ["Data Table", "Rectangular Plot"],
         ... }
         >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
@@ -309,7 +309,7 @@ class FieldsCalculator(PyAedtBase):
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> reports = hfss.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)
@@ -396,7 +396,7 @@ class FieldsCalculator(PyAedtBase):
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> hfss.post.fields_calculator.delete_expression(expr_name)
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if not name:
             self.ofieldsreporter.ClearAllNamedExpr()
@@ -469,7 +469,7 @@ class FieldsCalculator(PyAedtBase):
         >>> hfss = Hfss()
         >>> my_toml = str(Path("my_path_to_toml") / "my_toml.toml")
         >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if not Path(input_file).is_file():
             self.__app.logger.error("File does not exist.")
@@ -552,7 +552,7 @@ class FieldsCalculator(PyAedtBase):
         >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         >>> file_path = Path(hfss.working_directory) / "my_expr.fld"
         >>> hfss.post.fields_calculator.write("voltage_line", file_path, hfss.nominal_adaptive)
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         if not self.is_expression_defined(expression):
             self.__app.logger.error("Expression does not exist in current stack.")
@@ -838,7 +838,7 @@ class FieldsCalculator(PyAedtBase):
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> exprs = hfss.post.fields_calculator.get_expressions()
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
         """
         expressions = {}
         field_type = field_type or ""

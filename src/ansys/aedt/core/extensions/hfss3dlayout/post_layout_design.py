@@ -388,7 +388,7 @@ def main(data: PostLayoutDesignExtensionData):
             # Open new project with micro vias
             new_h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
             if "PYTEST_CURRENT_TEST" not in os.environ:
-                new_h3d.desktop_class.release_desktop(False, False)
+                new_h3d.desktop.release_desktop(False, False)
 
         else:
             raise AEDTRuntimeError(f"Unknown action: {data.action}")

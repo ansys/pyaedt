@@ -158,7 +158,7 @@ class AedtLogger:
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False, desktop=None):
-        self._desktop_class = desktop
+        self._desktop_instance = desktop
         self._oproject = None
         self._odesign = None
         self._project_name = ""
@@ -269,8 +269,8 @@ class AedtLogger:
 
     @property
     def _desktop(self):
-        if self._desktop_class:
-            return self._desktop_class.odesktop
+        if self._desktop_instance:
+            return self._desktop_instance.odesktop
         return None  # pragma: no cover
 
     @property

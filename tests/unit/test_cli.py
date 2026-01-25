@@ -362,7 +362,7 @@ def test_stop_command_by_port_no_port_info(mock_get_port, mock_process_iter, cli
 def mock_start_command():
     """Mock all dependencies for the start command tests."""
     with (
-        patch("ansys.aedt.core.desktop.Desktop") as mock_desktop_class,
+        patch("ansys.aedt.core.desktop.Desktop") as mock_desktop,
         patch("ansys.aedt.core.settings") as mock_settings,
         patch("threading.Thread") as mock_thread,
         patch("time.sleep") as mock_sleep,
@@ -372,10 +372,10 @@ def mock_start_command():
 
         # Configure mock Desktop class to return a mock instance
         mock_desktop_instance = Mock()
-        mock_desktop_class.return_value = mock_desktop_instance
+        mock_desktop.return_value = mock_desktop_instance
 
         yield {
-            "desktop_class": mock_desktop_class,
+            "desktop": mock_desktop,
             "desktop_instance": mock_desktop_instance,
             "settings": mock_settings,
             "thread": mock_thread,

@@ -169,7 +169,7 @@ def test_via_clustering_extension_add_layer_button(mock_hfss_3d_layout_app_with_
         # Verify that usp was set to True
         assert mock_layer.usp is True
         # Verify desktop was released
-        mock_hfss.desktop_class.release_desktop.assert_called_once_with(False, False)
+        mock_hfss.desktop.release_desktop.assert_called_once_with(False, False)
 
     extension.root.destroy()
 
@@ -221,7 +221,7 @@ def test_via_clustering_extension_merge_vias_button_with_primitives(mock_hfss_3d
         assert extension.data.contour_list == expected_contours
 
         # Verify desktop was released
-        mock_hfss.desktop_class.release_desktop.assert_called_once_with(False, False)
+        mock_hfss.desktop.release_desktop.assert_called_once_with(False, False)
 
 
 def test_via_clustering_extension_merge_vias_unsupported_primitive(mock_hfss_3d_layout_app_with_layers):
@@ -364,7 +364,7 @@ def test_main_function_without_pytest_env():
 
                     # Verify HFSS 3D Layout was instantiated and used
                     mock_logger.info.assert_called_once_with("Project generated correctly.")
-                    mock_h3d.desktop_class.release_desktop.assert_called_once_with(False, False)
+                    mock_h3d.desktop.release_desktop.assert_called_once_with(False, False)
 
 
 def test_via_clustering_extension_wrong_design_type():

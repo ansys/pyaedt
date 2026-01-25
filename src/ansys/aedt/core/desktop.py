@@ -1420,7 +1420,7 @@ class Desktop(PyAedtBase):
 
         Parameters
         ----------
-        desktop_class : :class:ansys.aedt.core.desktop.Desktop
+        desktop : :class:ansys.aedt.core.desktop.Desktop
             Desktop class.
         pid : int
             Process ID of the desktop app that is being closed.
@@ -1457,7 +1457,7 @@ class Desktop(PyAedtBase):
 
         Parameters
         ----------
-        desktop_class : :class:ansys.aedt.core.desktop.Desktop
+        desktop : :class:ansys.aedt.core.desktop.Desktop
             Desktop class.
         pid : int
             Process ID of the desktop app that is being closed.
@@ -1537,7 +1537,7 @@ class Desktop(PyAedtBase):
             return True
         if self.is_grpc_api:
             self.grpc_plugin.recreate_application(True)
-        self.logger._desktop_class = None
+        self.logger._desktop_instance = None
         self.logger._oproject = None
         self.logger._odesign = None
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
@@ -2646,7 +2646,7 @@ class Desktop(PyAedtBase):
             else:
                 project_dir = tempfile.gettempdir()
             self.__logfile = Path(project_dir) / f"pyaedt{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        self.logger._desktop_class = self
+        self.logger._desktop_instance = self
         if self.aedt_version_id >= "2024.2":
             messages = self.odesktop.GetMessages("", "", 0)
             check_message = f" {self.port}."

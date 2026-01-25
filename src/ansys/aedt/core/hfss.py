@@ -2675,7 +2675,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.create_sbr_custom_array_file()
-        >>> hfss.desktop_class.close_desktop()
+        >>> hfss.desktop.close_desktop()
         """
         if output_file is None:
             output_file = Path(self.working_directory) / "custom_array.sarr"
@@ -6050,7 +6050,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> hfss.set_phase_center_per_port(["Global", "Global"])
 
         """
-        if not self.desktop_class.is_grpc_api:  # pragma: no cover
+        if not self.desktop.is_grpc_api:  # pragma: no cover
             raise AEDTRuntimeError("Set phase center is not supported by AEDT COM API. Set phase center manually.")
 
         port_names = self.ports[::]
@@ -6310,7 +6310,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             self.solution_type == SolutionsHfss.DrivenModal
             or (
                 self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
-                and self.desktop_class.aedt_version_id >= "2024.1"
+                and self.desktop.aedt_version_id >= "2024.1"
             )
             and not reference
         ):
@@ -6516,7 +6516,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             self.solution_type == SolutionsHfss.DrivenModal
             or (
                 self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
-                and self.desktop_class.aedt_version_id >= "2024.1"
+                and self.desktop.aedt_version_id >= "2024.1"
             )
             and not reference
         ):

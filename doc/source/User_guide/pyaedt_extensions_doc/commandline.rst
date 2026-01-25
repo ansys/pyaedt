@@ -34,8 +34,8 @@ Finally, this code shows how you can run the extension directly from a Python sc
     file_path = "my_file.stl"
     hfss = ansys.aedt.core.Hfss()
     # Specify the AEDT session to connect
-    os.environ["PYAEDT_DESKTOP_PORT"] = str(hfss.desktop_class.port)
-    os.environ["PYAEDT_DESKTOP_VERSION"] = hfss.desktop_class.aedt_version_id
+    os.environ["PYAEDT_DESKTOP_PORT"] = str(hfss.desktop.port)
+    os.environ["PYAEDT_DESKTOP_VERSION"] = hfss.desktop.aedt_version_id
     # Launch extension
     main(
         {

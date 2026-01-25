@@ -1049,7 +1049,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         if save_only_stl:
             return output_stls, nas_to_dict
 
-        self._app.desktop_class.close_windows()
+        self._app.desktop.close_windows()
         self.logger.info("Importing STL in 3D Modeler")
         if output_stls:
             for output_stl in output_stls:

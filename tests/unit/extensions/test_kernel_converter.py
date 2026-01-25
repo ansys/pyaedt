@@ -42,12 +42,12 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 @pytest.fixture
 def desktop():
     """Fixture to mock Desktop."""
-    with patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop") as mock_desktop_class:
+    with patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop") as mock_desktop:
         mock_desktop_instance = MagicMock()
         mock_desktop_instance.aedt_process_id = 12345
         mock_desktop_instance.design_list.return_value = ["Design1", "Design2"]
         mock_desktop_instance.odesktop.NewProject.return_value = MagicMock()
-        mock_desktop_class.return_value = mock_desktop_instance
+        mock_desktop.return_value = mock_desktop_instance
         yield mock_desktop_instance
 
 
@@ -209,7 +209,7 @@ def test_main_function_no_file_path():
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_aedt")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_3d_component")
 def test_main_function_with_directory(
-    mock_convert_3d_component, mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app
+    mock_convert_3d_component, mock_convert_aedt, mock_desktop, mock_search_files, mock_app
 ):
     """Test main function with directory path."""
     # Mock search_files to return test files
@@ -220,7 +220,7 @@ def test_main_function_with_directory(
 
     # Mock Desktop
     mock_desktop_instance = MagicMock()
-    mock_desktop_class.return_value = mock_desktop_instance
+    mock_desktop.return_value = mock_desktop_instance
 
     data = KernelConverterExtensionData(file_path="/path/to/directory")
 
@@ -235,11 +235,11 @@ def test_main_function_with_directory(
 
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_aedt")
-def test_main_function_with_single_file(mock_convert_aedt, mock_desktop_class, mock_app):
+def test_main_function_with_single_file(mock_convert_aedt, mock_desktop, mock_app):
     """Test main function with single file path."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
-    mock_desktop_class.return_value = mock_desktop_instance
+    mock_desktop.return_value = mock_desktop_instance
 
     data = KernelConverterExtensionData(file_path="/path/to/test.aedt")
 
@@ -254,11 +254,11 @@ def test_main_function_with_single_file(mock_convert_aedt, mock_desktop_class, m
 
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
 @patch("ansys.aedt.core.extensions.common.kernel_converter._convert_3d_component")
-def test_main_function_with_3d_component(mock_convert_3d, mock_desktop_class, mock_app):
+def test_main_function_with_3d_component(mock_convert_3d, mock_desktop, mock_app):
     """Test main function with 3D component file."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
-    mock_desktop_class.return_value = mock_desktop_instance
+    mock_desktop.return_value = mock_desktop_instance
 
     data = KernelConverterExtensionData(file_path="/path/to/test.a3dcomp")
 
@@ -272,11 +272,11 @@ def test_main_function_with_3d_component(mock_convert_3d, mock_desktop_class, mo
 
 
 @patch("ansys.aedt.core.extensions.common.kernel_converter.Desktop")
-def test_main_function_with_exception_handling(mock_desktop_class, caplog):
+def test_main_function_with_exception_handling(mock_desktop, caplog):
     """Test main function exception handling."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
-    mock_desktop_class.return_value = mock_desktop_instance
+    mock_desktop.return_value = mock_desktop_instance
 
     data = KernelConverterExtensionData(file_path="/path/to/test.aedt")
 

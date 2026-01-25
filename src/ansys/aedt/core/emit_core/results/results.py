@@ -57,7 +57,7 @@ class Results:
         self.revisions = []
         """List of all result revisions. Only one loaded at a time"""
 
-        self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
+        self.design = emit_obj.desktop.active_design(emit_obj.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
@@ -271,9 +271,7 @@ class Results:
             # no changes since last created revision, load it
             elif (
                 self.revisions[-1].revision_number
-                == self.emit_project.desktop_class.active_design(
-                    self.emit_project.desktop_class.active_project()
-                ).GetRevision()
+                == self.emit_project.desktop.active_design(self.emit_project.desktop.active_project()).GetRevision()
             ):
                 self.get_revision(self.revisions[-1].name)
             else:

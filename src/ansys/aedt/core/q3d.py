@@ -1821,7 +1821,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             if not magnetic_threshold:
                 magnetic_threshold = 1.01
 
-            if not self.desktop_class.is_grpc_api:
+            if not self.desktop.is_grpc_api:
                 insulator_threshold = np.longdouble(insulator_threshold)
                 perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
                 magnetic_threshold = np.longdouble(magnetic_threshold)

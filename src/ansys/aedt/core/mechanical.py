@@ -667,7 +667,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         >>> mech = Mechanical()
         >>> setup = mech.create_setup()
         >>> mech.assign_2way_coupling(setup.name, 1)
-        >>> mech.desktop_class.close_desktop()
+        >>> mech.desktop.close_desktop()
 
         """
         if not setup:

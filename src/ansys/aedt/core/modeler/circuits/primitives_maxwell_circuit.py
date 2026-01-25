@@ -113,7 +113,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_resistor(value=10)
-        >>> circ.desktop_class.close_desktop()
+        >>> circ.desktop.close_desktop()
         """
         if location is None:
             location = []
@@ -164,7 +164,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_inductor(value=10)
-        >>> circ.desktop_class.close_desktop()
+        >>> circ.desktop.close_desktop()
         """
         if location is None:
             location = []
@@ -215,7 +215,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_capacitor(value=10)
-        >>> circ.desktop_class.close_desktop()
+        >>> circ.desktop.close_desktop()
         """
         if location is None:
             location = []
@@ -263,7 +263,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_diode()
-        >>> circ.desktop_class.close_desktop()
+        >>> circ.desktop.close_desktop()
         """
         if location is None:
             location = []
@@ -311,7 +311,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic.create_winding(name="winding")
-        >>> circ.desktop_class.close_desktop()
+        >>> circ.desktop.close_desktop()
         """
         if location is None:
             location = []

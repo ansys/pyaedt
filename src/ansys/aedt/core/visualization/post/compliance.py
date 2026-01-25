@@ -576,7 +576,7 @@ class VirtualCompliance(PyAedtBase):
         self._project_name = None
         self._output_folder = None
         self._parse_template()
-        self._desktop_class = desktop
+        self._desktop_instance = desktop
         self._dut = None
         self._summary = [["Test", "Results"]]
         self._summary_font = [["", None]]
@@ -627,10 +627,10 @@ class VirtualCompliance(PyAedtBase):
         bool
         """
         if not self._project_file:
-            self._desktop_class.logger.error("Project path has not been provided.")
+            self._desktop_instance.logger.error("Project path has not been provided.")
             return False
-        self._desktop_class.load_project(self._project_file)
-        project = self._desktop_class.active_project()
+        self._desktop_instance.load_project(self._project_file)
+        project = self._desktop_instance.active_project()
         self._project_name = project.GetName()
         self._output_folder = os.path.join(
             project.GetPath(), self._project_name + ".pyaedt", generate_unique_name(self._template_name)
@@ -754,7 +754,7 @@ class VirtualCompliance(PyAedtBase):
         name = report["name"]
 
         if name in self._reports.values():
-            self._desktop_class.logger.warning(f"{name} already exists. The name must be unique.")
+            self._desktop_instance.logger.warning(f"{name} already exists. The name must be unique.")
         else:
             if is_parameter:
                 self._parameters[report["name"]] = ParametersTemplate(report)
@@ -867,7 +867,7 @@ class VirtualCompliance(PyAedtBase):
         ]
         if not trace_data:  # pragma: no cover
             msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
-            self._desktop_class.logger.error(msg)
+            self._desktop_instance.logger.error(msg)
         else:
             units = trace_data.units_sweeps["Time"]
             pass_fail_table = [
@@ -949,13 +949,13 @@ class VirtualCompliance(PyAedtBase):
             return
         compliance_reports = self.report_data.add_chapter("Report Derived Parameters Results")
         for tpx, template_report in enumerate(self._reports_parameters.values()):
-            if self._desktop_class:
+            if self._desktop_instance:
                 time.sleep(1)
-                self._desktop_class.odesktop.CloseAllWindows()
+                self._desktop_instance.odesktop.CloseAllWindows()
             settings.logger.info(f"Adding report {template_report.name}.")
             config_file = template_report.config_file
             if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
-                self._desktop_class.logger.error(f"{config_file} is not found.")
+                self._desktop_instance.logger.error(f"{config_file} is not found.")
                 continue
             name = template_report.name
             traces = template_report.traces
@@ -963,16 +963,16 @@ class VirtualCompliance(PyAedtBase):
             design_name = template_report.design_name
             report_type = template_report.report_type
             if template_report.project_name:
-                if template_report.project_name not in self._desktop_class.project_list:
-                    self._desktop_class.load_project(template_report.project)
+                if template_report.project_name not in self._desktop_instance.project_list:
+                    self._desktop_instance.load_project(template_report.project)
             else:
                 template_report.project_name = self._project_name
             if _design and _design.design_name != design_name or _design is None:
                 try:
                     _design = get_pyaedt_app(template_report.project_name, design_name)
-                    self._desktop_class.odesktop.CloseAllWindows()
+                    self._desktop_instance.odesktop.CloseAllWindows()
                 except Exception:  # pragma: no cover
-                    self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
+                    self._desktop_instance.logger.error(f"Failed to retrieve design {design_name}")
                     continue
             if os.path.exists(os.path.join(self._template_folder, config_file)):
                 config_file = os.path.join(self._template_folder, config_file)
@@ -1044,16 +1044,16 @@ class VirtualCompliance(PyAedtBase):
             return False
         compliance_reports = self.report_data.add_chapter("Compliance Results")
         for tpx, template_report in enumerate(self._reports.values()):
-            if self._desktop_class:
+            if self._desktop_instance:
                 time.sleep(1)
-                self._desktop_class.odesktop.CloseAllWindows()
+                self._desktop_instance.odesktop.CloseAllWindows()
             try:
                 settings.logger.info(f"Adding report  {template_report.name}.")
                 config_file = template_report.config_file
                 if not os.path.exists(config_file) and not os.path.exists(
                     os.path.join(self._template_folder, config_file)
                 ):
-                    self._desktop_class.logger.error(f"{config_file} is not found.")
+                    self._desktop_instance.logger.error(f"{config_file} is not found.")
                     continue
                 name = template_report.name
                 traces = template_report.traces
@@ -1063,16 +1063,16 @@ class VirtualCompliance(PyAedtBase):
                 report_type = template_report.report_type
                 group = template_report.group_plots
                 if template_report.project_name:
-                    if template_report.project_name not in self._desktop_class.project_list:
-                        self._desktop_class.load_project(template_report.project)
+                    if template_report.project_name not in self._desktop_instance.project_list:
+                        self._desktop_instance.load_project(template_report.project)
                 else:
                     template_report.project_name = self._project_name
                 if _design and _design.design_name != design_name or _design is None:
                     try:
                         _design = get_pyaedt_app(template_report.project_name, design_name)
-                        self._desktop_class.odesktop.CloseAllWindows()
+                        self._desktop_instance.odesktop.CloseAllWindows()
                     except Exception:  # pragma: no cover
-                        self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
+                        self._desktop_instance.logger.error(f"Failed to retrieve design {design_name}")
                         continue
                 if os.path.exists(os.path.join(self._template_folder, config_file)):
                     config_file = os.path.join(self._template_folder, config_file)
@@ -1259,7 +1259,7 @@ class VirtualCompliance(PyAedtBase):
 
                         else:  # pragma: no cover
                             msg = f"Failed to create the report. Check {config_file} configuration file."
-                            self._desktop_class.logger.error(msg)
+                            self._desktop_instance.logger.error(msg)
                 settings.logger.info(f"Report {template_report.name} added to the pdf.")
             except Exception:
                 settings.logger.error(f"Failed to add {template_report.name} to the pdf.")
@@ -1276,7 +1276,7 @@ class VirtualCompliance(PyAedtBase):
             if not os.path.exists(config_file):
                 config_file = os.path.join(self._template_folder, config_file)
             if not os.path.exists(config_file):
-                self._desktop_class.logger.error(f"{config_file} not found.")
+                self._desktop_instance.logger.error(f"{config_file} not found.")
                 continue
             name = template_report.name
             pass_fail = template_report.pass_fail
@@ -1359,7 +1359,7 @@ class VirtualCompliance(PyAedtBase):
         sols = report.get_solution_data()
         if not sols:  # pragma: no cover
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
-            self._desktop_class.logger.error(msg)
+            self._desktop_instance.logger.error(msg)
             return
         mag_data_in = sols.get_expression_data(
             sols.expressions[0], formula="magnitude", sweeps=["__UnitInterval", "__Amplitude"]
@@ -1446,7 +1446,7 @@ class VirtualCompliance(PyAedtBase):
         sols = report.get_solution_data()
         if not sols:  # pragma: no cover
             msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
-            self._desktop_class.logger.error(msg)
+            self._desktop_instance.logger.error(msg)
             return
         bit_error_rates = [1e-3, 1e-6, 1e-9, 1e-12]
         font_table = [["", None]]
@@ -1499,7 +1499,7 @@ class VirtualCompliance(PyAedtBase):
         ]
         if not trace_data:  # pragma: no cover
             msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
-            self._desktop_class.logger.error(msg)
+            self._desktop_instance.logger.error(msg)
             return pass_fail_table
         for trace_name in trace_data.expressions:
             trace_values = trace_data.get_expression_data(trace_name)
@@ -1649,7 +1649,7 @@ class VirtualCompliance(PyAedtBase):
             report.add_empty_line(3)
 
             if _design.design_type == "Circuit Design":
-                if not self._desktop_class.non_graphical:
+                if not self._desktop_instance.non_graphical:
                     for page in range(1, _design.modeler.pages + 1):
                         name = os.path.join(self._output_folder, f"{_design.design_name}_{page}.jpg")
                         image = _design.post.export_model_picture(name, page)
@@ -1754,7 +1754,7 @@ class VirtualCompliance(PyAedtBase):
         if not self.report_data.chapters:
             self.create_compliance_report()
         report = AnsysReport()
-        report.aedt_version = self._desktop_class.aedt_version_id
+        report.aedt_version = self._desktop_instance.aedt_version_id
         report.design_name = self._template_name
         report.report_specs.table_font_size = 7
         report.report_specs.revision = f"Revision {self.revision}"
@@ -1786,7 +1786,7 @@ class VirtualCompliance(PyAedtBase):
         report.add_toc()
         output = report.save_pdf(self._output_folder, file_name=file_name)
         if close_project:
-            self._desktop_class.odesktop.CloseProject(self.project_name)
+            self._desktop_instance.odesktop.CloseProject(self.project_name)
         if output:
-            self._desktop_class.logger.info(f"Report has been saved in {output}")
+            self._desktop_instance.logger.info(f"Report has been saved in {output}")
         return output

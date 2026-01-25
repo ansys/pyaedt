@@ -201,8 +201,8 @@ class Design(AedtObjects, PyAedtBase):
         self._project_datasets: List = []
         self._design_datasets: List = []
         self.close_on_exit: bool = close_on_exit
-        self._desktop_class = None
-        self._desktop_class = self.__init_desktop_from_design(
+        self._desktop_instance = None
+        self._desktop_instance = self.__init_desktop_from_design(
             settings.aedt_version if settings.aedt_version else version,
             non_graphical,
             new_desktop,
@@ -215,16 +215,16 @@ class Design(AedtObjects, PyAedtBase):
         from ansys.aedt.core.generic.aedt_constants import DesignType
 
         self._design_type: str = getattr(DesignType, design_type)
-        self._global_logger = self._desktop_class.logger
-        self._logger = self._desktop_class.logger
+        self._global_logger = self._desktop_instance.logger
+        self._logger = self._desktop_instance.logger
 
-        self.student_version = self._desktop_class.student_version
+        self.student_version = self._desktop_instance.student_version
         if self.student_version:
             settings.disable_bounding_box_sat = True
 
         self._mttime: Optional[float] = None
-        self._desktop = self._desktop_class.odesktop
-        self._desktop_install_dir: Optional[str] = self._desktop_class.aedt_install_dir
+        self._desktop = self._desktop_instance.odesktop
+        self._desktop_install_dir: Optional[str] = self._desktop_instance.aedt_install_dir
         self._odesign: Optional[Any] = None
         self._oproject: Optional[Any] = None
 
@@ -252,7 +252,7 @@ class Design(AedtObjects, PyAedtBase):
 
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
-        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
+        AedtObjects.__init__(self, self._desktop_instance, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
         if is_windows and not self.__t and not settings.lazy_load and Path(self.project_file).exists():
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
@@ -291,8 +291,8 @@ class Design(AedtObjects, PyAedtBase):
             _p_dets["Project Path"] = self.project_file
         _p_dets["Platform"] = platform.platform()
         _p_dets["Python Version"] = platform.python_version()
-        _p_dets["AEDT Process ID"] = self.desktop_class.aedt_process_id
-        _p_dets["AEDT GRPC Port"] = self.desktop_class.port
+        _p_dets["AEDT Process ID"] = self.desktop.aedt_process_id
+        _p_dets["AEDT GRPC Port"] = self.desktop.port
         return _p_dets
 
     def __str__(self) -> str:
@@ -306,16 +306,16 @@ class Design(AedtObjects, PyAedtBase):
     def __exit__(self, ex_type, ex_value, ex_traceback) -> None:
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
-        if self._desktop_class._connected_app_instances > 0:  # pragma: no cover
-            self._desktop_class._connected_app_instances -= 1
-        if self._desktop_class._connected_app_instances <= 0 and self._desktop_class._initialized_from_design:
+        if self._desktop_instance._connected_app_instances > 0:  # pragma: no cover
+            self._desktop_instance._connected_app_instances -= 1
+        if self._desktop_instance._connected_app_instances <= 0 and self._desktop_instance._initialized_from_design:
             if self.close_on_exit:
-                self.desktop_class.close_desktop()
+                self.desktop.close_desktop()
             else:
-                self.desktop_class.release_desktop(False, False)
+                self.desktop.release_desktop(False, False)
 
     def __enter__(self):  # pragma: no cover
-        self._desktop_class._connected_app_instances += 1
+        self._desktop_instance._connected_app_instances += 1
         return self
 
     @pyaedt_function_handler()
@@ -357,23 +357,23 @@ class Design(AedtObjects, PyAedtBase):
             design=design_name,
             solution_type=solution_type,
             version=settings.aedt_version,
-            non_graphical=self._desktop_class.non_graphical,
+            non_graphical=self._desktop_instance.non_graphical,
             new_desktop=False,
             close_on_exit=self.close_on_exit,
             student_version=self.student_version,
-            machine=self._desktop_class.machine,
-            port=self._desktop_class.port,
+            machine=self._desktop_instance.machine,
+            port=self._desktop_instance.port,
         )
 
     @property
-    def desktop_class(self):
+    def desktop(self):
         """``Desktop`` class.
 
         Returns
         -------
         :class:`ansys.aedt.core.desktop.Desktop`
         """
-        return self._desktop_class
+        return self._desktop_instance
 
     @property
     def project_datasets(self) -> Dict[str, DataSet]:
@@ -594,7 +594,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> hfss.odesktop
         <class 'win32com.client.CDispatch'>
         """
-        return self.desktop_class.odesktop
+        return self.desktop.odesktop
 
     @pyaedt_function_handler()
     def __delitem__(self, key: str) -> None:
@@ -704,7 +704,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @property
     def _aedt_version(self) -> str:
-        return self.desktop_class.aedt_version_id
+        return self.desktop.aedt_version_id
 
     @property
     def design_name(self) -> Optional[str]:
@@ -813,7 +813,7 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oProject.GetName
         """
-        if self._project_name and self._project_name in self.desktop_class.project_list:
+        if self._project_name and self._project_name in self.desktop.project_list:
             return self._project_name
 
         if not self.oproject:
@@ -959,7 +959,7 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oDesktop.GetPersonalLibDirectory
         """
-        return self.desktop_class.personallib
+        return self.desktop.personallib
 
     @property
     def userlib(self) -> str:
@@ -974,7 +974,7 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oDesktop.GetUserLibDirectory
         """
-        return self.desktop_class.userlib
+        return self.desktop.userlib
 
     @property
     def syslib(self) -> str:
@@ -989,7 +989,7 @@ class Design(AedtObjects, PyAedtBase):
         ----------
         >>> oDesktop.GetLibraryDirectory
         """
-        return self.desktop_class.syslib
+        return self.desktop.syslib
 
     @property
     def src_dir(self) -> str:
@@ -1164,7 +1164,7 @@ class Design(AedtObjects, PyAedtBase):
             if not self._check_design_consistency():
                 count_consistent_designs = 0
                 for des in self.design_list:
-                    self._odesign = self.desktop_class.active_design(self.oproject, des, self.design_type)
+                    self._odesign = self.desktop.active_design(self.oproject, des, self.design_type)
                     if self._check_design_consistency():
                         count_consistent_designs += 1
                         activedes = des
@@ -1193,7 +1193,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> oProject.InsertDesign
         """
         if settings.use_multi_desktop:  # pragma: no cover
-            self._desktop_class.grpc_plugin.recreate_application(True)
+            self._desktop_instance.grpc_plugin.recreate_application(True)
             if self._design_name:
                 self._odesign = self.oproject.SetActiveDesign(self._design_name)
         return self._odesign
@@ -1209,7 +1209,7 @@ class Design(AedtObjects, PyAedtBase):
         else:
             activedes, warning_msg = self._find_design()
             if activedes:
-                self._odesign = self.desktop_class.active_design(self.oproject, activedes, self.design_type)
+                self._odesign = self.desktop.active_design(self.oproject, activedes, self.design_type)
                 self.logger.info(warning_msg)
                 self.design_solutions._odesign = self.odesign
 
@@ -1223,7 +1223,7 @@ class Design(AedtObjects, PyAedtBase):
             self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design"
         ):
             self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
-            self.desktop_class.active_design(self.oproject, des_name)
+            self.desktop.active_design(self.oproject, des_name)
         self._design_name = None
 
     @property
@@ -1241,19 +1241,19 @@ class Design(AedtObjects, PyAedtBase):
         >>> oDesktop.NewProject
         """
         if settings.use_multi_desktop:  # pragma: no cover
-            self._desktop_class.grpc_plugin.recreate_application(True)
+            self._desktop_instance.grpc_plugin.recreate_application(True)
         return self._oproject
 
     @oproject.setter
     def oproject(self, proj_name=None):
         if not proj_name:
-            self._oproject = self.desktop_class.active_project()
+            self._oproject = self.desktop.active_project()
             if self._oproject:
                 self.logger.info(f"No project is defined. Project {self._oproject.GetName()} exists and has been read.")
         else:
-            prj_list = self.desktop_class.project_list
+            prj_list = self.desktop.project_list
             if prj_list and proj_name in list(prj_list):
-                self._oproject = self.desktop_class.active_project(proj_name)
+                self._oproject = self.desktop.active_project(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
             elif Path(proj_name).exists() or (
@@ -1262,12 +1262,12 @@ class Design(AedtObjects, PyAedtBase):
                 if ".aedtz" in proj_name:
                     p = Path(proj_name)
                     save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
-                    if str(p.stem) in self.desktop_class.project_list:
+                    if str(p.stem) in self.desktop.project_list:
                         save_to_file = available_file_name(p.parent / f"{generate_unique_name(str(p.stem))}.aedt")
                     self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
                     proj_name = save_to_file.stem
-                    self._oproject = self.desktop_class.active_project(proj_name)
+                    self._oproject = self.desktop.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -1277,7 +1277,7 @@ class Design(AedtObjects, PyAedtBase):
                         project = proj_name[:-5] + ".aedt"
                     if Path(project).exists() and self.check_if_project_is_loaded(project):
                         pname = self.check_if_project_is_loaded(project)
-                        self._oproject = self.desktop_class.active_project(pname)
+                        self._oproject = self.desktop.active_project(pname)
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
                     elif Path(project).exists():
@@ -1298,7 +1298,7 @@ class Design(AedtObjects, PyAedtBase):
                             oTool.ImportEDB(proj_name)
                         else:
                             oTool.ImportEDB(str(Path(proj_name) / "edb.def"))
-                        self._oproject = self.desktop_class.active_project()
+                        self._oproject = self.desktop.active_project()
                         self._oproject.Save()
                         self._add_handler()
                         self.logger.info(
@@ -1306,7 +1306,7 @@ class Design(AedtObjects, PyAedtBase):
                         )
                 elif self.check_if_project_is_loaded(proj_name):
                     pname = self.check_if_project_is_loaded(proj_name)
-                    self._oproject = self.desktop_class.active_project(pname)
+                    self._oproject = self.desktop.active_project(pname)
                     self._add_handler()
                     self.logger.info("Project %s set to active.", pname)
                 else:
@@ -1319,19 +1319,19 @@ class Design(AedtObjects, PyAedtBase):
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     if not is_windows and settings.aedt_version:
                         time.sleep(1)
-                        self.desktop_class.close_windows()
+                        self.desktop.close_windows()
                     self._add_handler()
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exist. Check it and retry.")
             else:
-                project_list = self.desktop_class.project_list
+                project_list = self.desktop.project_list
                 self._oproject = self.odesktop.NewProject()
                 if not self._oproject:
-                    new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
+                    new_project_list = [i for i in self.desktop.project_list if i not in project_list]
                     if new_project_list:
-                        self._oproject = self.desktop_class.active_project(new_project_list[0])
+                        self._oproject = self.desktop.active_project(new_project_list[0])
                 if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
                 elif not proj_name.endswith(".aedtz"):
@@ -1339,12 +1339,12 @@ class Design(AedtObjects, PyAedtBase):
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
-            project_list = self.desktop_class.project_list
+            project_list = self.desktop.project_list
             self._oproject = self.odesktop.NewProject()
             if not self._oproject:
-                new_project_list = [i for i in self.desktop_class.project_list if i not in project_list]
+                new_project_list = [i for i in self.desktop.project_list if i not in project_list]
                 if new_project_list:
-                    self._oproject = self.desktop_class.active_project(new_project_list[0])
+                    self._oproject = self.desktop.active_project(new_project_list[0])
             self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
         self._project_name = None
@@ -2505,7 +2505,7 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def close_desktop(self):
         """Close AEDT and release it.
-        This is the same as calling, `design.desktop_class.close_desktop()`.
+        This is the same as calling, `design.desktop.close_desktop()`.
 
         Returns
         -------
@@ -2513,7 +2513,7 @@ class Design(AedtObjects, PyAedtBase):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.desktop_class.close_desktop()
+        self.desktop.close_desktop()
         return True
 
     @pyaedt_function_handler()
@@ -2569,14 +2569,14 @@ class Design(AedtObjects, PyAedtBase):
 
         """
         if close_desktop:
-            self.desktop_class.close_desktop()
+            self.desktop.close_desktop()
         else:
-            self.desktop_class.release_desktop(close_projects, False)
+            self.desktop.release_desktop(close_projects, False)
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
 
-        self._desktop_class = None
+        self._desktop_instance = None
         gc.collect()
         return True
 
@@ -3256,7 +3256,7 @@ class Design(AedtObjects, PyAedtBase):
         >>> oDesktop.CloseProject
         """
         legacy_name = self.project_name
-        if name and name not in self.desktop_class.project_list:
+        if name and name not in self.desktop.project_list:
             self.logger.warning("Project named '%s' was not found.", name)
             return False
         if not name:
@@ -3264,7 +3264,7 @@ class Design(AedtObjects, PyAedtBase):
             if self.design_type == "HFSS 3D Layout Design":
                 self._close_edb()
         self.logger.info(f"Closing the AEDT Project {name}")
-        oproj = self.desktop_class.active_project(name)
+        oproj = self.desktop.active_project(name)
         proj_path = oproj.GetPath()
         if not name:
             proj_path = oproj.GetName()
@@ -3283,9 +3283,9 @@ class Design(AedtObjects, PyAedtBase):
             self.logger.odesign = None
             self.logger.oproject = None
             self.design_solutions._odesign = None
-            AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
+            AedtObjects.__init__(self, self._desktop_instance, is_inherithed=True)
         else:
-            self.desktop_class.active_project(legacy_name)
+            self.desktop.active_project(legacy_name)
 
         i = 0
         timeout = 10
@@ -3342,7 +3342,7 @@ class Design(AedtObjects, PyAedtBase):
                 self._odesign = None
                 self.logger.odesign = None
                 self.design_solutions._odesign = None
-                AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
+                AedtObjects.__init__(self, self._desktop_instance, project=self.oproject, is_inherithed=True)
                 return False
         else:
             if is_windows:
@@ -3350,7 +3350,7 @@ class Design(AedtObjects, PyAedtBase):
             self._odesign = None
             self.logger.odesign = None
             self.design_solutions._odesign = None
-            AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
+            AedtObjects.__init__(self, self._desktop_instance, project=self.oproject, is_inherithed=True)
         return True
 
     @pyaedt_function_handler()
@@ -3464,9 +3464,9 @@ class Design(AedtObjects, PyAedtBase):
                 )
         if not is_windows and settings.aedt_version and self.design_type == DesignType.CIRCUIT.NAME:
             time.sleep(1)
-            self.desktop_class.close_windows()
+            self.desktop.close_windows()
         if new_design is None:  # pragma: no cover
-            new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
+            new_design = self.desktop.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:
                 self.logger.error("Failed to create design.")
                 return
@@ -3593,9 +3593,9 @@ class Design(AedtObjects, PyAedtBase):
         proj_from.CopyDesign(design)
         # paste in the destination project and get the name
         self._oproject.Paste()
-        new_designname = self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetName()
+        new_designname = self.desktop.active_design(self._oproject, design_type=self.design_type).GetName()
         if (
-            self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetDesignType()
+            self.desktop.active_design(self._oproject, design_type=self.design_type).GetDesignType()
             == "HFSS 3D Layout Design"
         ):
             new_designname = new_designname[2:]  # name is returned as '2;EMDesign3'
@@ -3649,7 +3649,7 @@ class Design(AedtObjects, PyAedtBase):
         self.odesign = actual_name[0]
         self.design_name = newname
         self._close_edb()
-        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
+        AedtObjects.__init__(self, self._desktop_instance, self.oproject, self.odesign, is_inherithed=True)
         if save_after_duplicate:
             self.oproject.Save()
             self._project_dictionary = None
@@ -4087,7 +4087,7 @@ class Design(AedtObjects, PyAedtBase):
     @pyaedt_function_handler()
     def _assert_consistent_design_type(self, des_name):
         if des_name in self.design_list:
-            self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
+            self._odesign = self.desktop.active_design(self.oproject, des_name, self.design_type)
             dtype = self._odesign.GetDesignType()
             if dtype not in ["RMxprt", "ModelCreation"]:
                 if dtype != self._design_type:
@@ -4098,7 +4098,7 @@ class Design(AedtObjects, PyAedtBase):
             return True
         elif ":" in des_name:
             try:
-                self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
+                self._odesign = self.desktop.active_design(self.oproject, des_name, self.design_type)
                 return True
             except Exception:
                 return des_name

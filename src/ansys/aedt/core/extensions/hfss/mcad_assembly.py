@@ -194,7 +194,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         del app
 
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            hfss.desktop_class.release_desktop(False, False)
+            hfss.desktop.release_desktop(False, False)
         else:
             hfss.close_project(save=False)
         return
