@@ -21,6 +21,7 @@
 * [Andrew Finney](https://github.com/ansAFinney)
 * [Ansys Korea Automation Group](https://github.com/ANSYS-KOREA)
 * [apollo-crum](https://github.com/apollo-crum)
+* [arsymbol](https://github.com/arsymbol)
 * [Bahram Sanadgol](https://github.com/58Bahram)
 * [boyang2022](https://github.com/boyang2022)
 * [Bryan Kaylor](https://github.com/bryankaylor)
