@@ -1841,7 +1841,7 @@ class Desktop(PyAedtBase):
         numcores=32,
         wait_for_license=True,
         setting_file=None,
-        overwrite=True,
+        overwrite=False,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
