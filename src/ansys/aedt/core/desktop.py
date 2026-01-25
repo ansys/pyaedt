@@ -1841,6 +1841,7 @@ class Desktop(PyAedtBase):
         numcores=32,
         wait_for_license=True,
         setting_file=None,
+        overwrite=True,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -1870,6 +1871,10 @@ class Desktop(PyAedtBase):
             If the "*.areg" file is on the client information from ``numcores`` and ``numnodes``
             will be added. If the "*.areg" file is on the server it
             will be applied without modifications.
+        overwrite : bool, optional
+            Whether to overwrite the project file if it already exists when extracting
+            from an archive. The default is ``True``. If ``False`` and the project file
+            exists, a ``FileExistsError`` is raised.
 
         Returns
         -------
@@ -1880,6 +1885,29 @@ class Desktop(PyAedtBase):
         ----------
         >>> oDesktop.SubmitJob
         """
+        # Handle .aedtz archive files
+        project_file = Path(project_file)
+        if project_file.suffix.lower() == ".aedtz":
+            extracted_aedt = project_file.parent / f"{project_file.stem}.aedt"
+            extracted_results = project_file.parent / f"{project_file.stem}.aedtresults"
+
+            if extracted_aedt.exists():
+                if not overwrite:
+                    raise FileExistsError(
+                        f"Project file '{extracted_aedt}' already exists. "
+                        f"Set overwrite=True to replace it or remove the existing file."
+                    )
+                # Remove existing project files
+                extracted_aedt.unlink()
+                if extracted_results.exists():
+                    shutil.rmtree(extracted_results)
+                self.logger.info(f"Removed existing project files for overwrite: {extracted_aedt}")
+
+            # Extract archive
+            self.odesktop.RestoreProjectArchive(str(project_file), str(extracted_aedt), True, True)
+            self.logger.info(f"Extracted archive {project_file} to {extracted_aedt}")
+            project_file = extracted_aedt
+
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
         if project_name in self.project_list:
