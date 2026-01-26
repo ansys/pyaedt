@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT EMI Waterfall Extension."""
+"""EMIT EMI Heatmap Extension."""
 
 from dataclasses import dataclass
 import os
@@ -34,19 +34,19 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import BoundaryNorm
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
 
-EXTENSION_TITLE = "EMIT EMI Waterfall"
+EXTENSION_TITLE = "EMIT EMI Heatmap"
 EXTENSION_DEFAULT_ARGUMENTS = {}
 
 
 @dataclass
-class EMIWaterfallExtensionData(ExtensionCommonData):
-    """Data class containing EMI waterfall analysis results."""
+class EMIHeatmapExtensionData(ExtensionCommonData):
+    """Data class containing EMI heatmap analysis results."""
 
     emi: Optional[np.ndarray] = None
     rx_power: Optional[np.ndarray] = None
@@ -58,8 +58,8 @@ class EMIWaterfallExtensionData(ExtensionCommonData):
     aggressor_band: str = ""
 
 
-class EMIWaterfallExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for EMI Waterfall analysis."""
+class EMIHeatmapExtension(ExtensionEMITCommon):
+    """Interactive EMIT extension for EMI Heatmap analysis."""
 
     def __init__(self, withdraw: bool = False):
         self._widgets = {}
@@ -88,7 +88,7 @@ class EMIWaterfallExtension(ExtensionEMITCommon):
         )
 
     def add_extension_content(self):
-        """Build the UI for the EMI Waterfall extension."""
+        """Build the UI for the EMI Heatmap extension."""
         root = self.root
 
         # Header with project/design info
@@ -179,14 +179,13 @@ class EMIWaterfallExtension(ExtensionEMITCommon):
         )
         btn_export.grid(row=0, column=0, padx=6)
 
-        btn_waterfall = ttk.Button(
+        btn_heatmap = ttk.Button(
             button_frame,
-            text="Generate Waterfall EMI Plot",
-            command=self._on_generate_waterfall,
+            text="Generate Heatmap EMI Plot",
+            command=self._on_generate_heatmap,
             style="PyAEDT.TButton",
         )
-        btn_waterfall.grid(row=0, column=1, padx=6)
-
+        btn_heatmap.grid(row=0, column=1, padx=6)
         # Add theme toggle button
         self.add_toggle_theme_button(button_frame, toggle_row=0, toggle_column=2)
 
@@ -338,7 +337,7 @@ class EMIWaterfallExtension(ExtensionEMITCommon):
 
     def _format_csv(self, filename):
         """Format CSV file to save."""
-        pivot_results = "Agressor_Radio,Aggressor_Band,Aggressor_Channel,Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity \n"
+        pivot_results = "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity \n"
 
         for aggressor_index in range(len(self._aggressor_frequencies)):
 
@@ -376,77 +375,112 @@ class EMIWaterfallExtension(ExtensionEMITCommon):
             messagebox.showerror("Export Error", f"Failed to export CSV: {e}")
     
     def _plot_matrix_heatmap(self, red_threshold=0, yellow_threshold=-10):
-        """Create a 2D heatmap visualization of a matrix using a rainbow color scale."""
+        """Create a 2D heatmap visualization of a matrix using green-yellow-red color scheme.
+        
+        Color mapping:
+        - Green: values <= yellow_threshold
+        - Yellow: yellow_threshold < values <= red_threshold
+        - Red: values > red_threshold
+        """
 
         # Create figure and axis
         plt.figure()
 
         # Plot formatting parameters
-        plt.title(f"EMI Waterfall - {self.active_project_name}")
+        plt.title(f"EMI Heatmap - {self.active_project_name}")
         plt.xlabel(f"Tx channels - {self._aggressor} | {self._aggressor_band}")
         plt.ylabel(f"Rx channels - {self._victim} | {self._victim_band}")
         plt.xticks(range(len(self._aggressor_frequencies)), self._aggressor_frequencies, rotation=45)
         plt.yticks(range(len(self._victim_frequencies)), self._victim_frequencies)
 
-        # If min_val and max_val aren't provided, use data bounds
+        # Transpose and prepare data
         data = np.array(np.transpose(self._emi))
+        
+        # Validate data
+        if data.size == 0:
+            messagebox.showerror("Error", "No data to plot")
+            return None
+        
+        # Check for NaN or infinite values
+        if not np.all(np.isfinite(data)):
+            messagebox.showerror("Error", "Data contains NaN or infinite values")
+            return None
+            
         min_val = np.min(data)
         max_val = np.max(data)
 
-        # Create custom colormap with green-yellow-red transitions
-        # Normalize threshold positions to [0, 1] range
-        v = max_val - min_val
-        # if v == 0:
-        #     v = 1e-6  # prevent division by zero
+        # Ensure thresholds are valid numbers
+        if not (np.isfinite(red_threshold) and np.isfinite(yellow_threshold)):
+            messagebox.showerror("Error", "Invalid threshold values (NaN or infinite)")
+            return None
         
-        # Calculate normalized positions (must be in increasing order)
-        # yellow_threshold should be less than red_threshold for proper color progression
-        # lower_threshold = min(yellow_threshold, red_threshold)
-        # upper_threshold = max(yellow_threshold, red_threshold)
+        # Ensure yellow threshold is less than red threshold (proper ordering)
+        if yellow_threshold > red_threshold:
+            yellow_threshold, red_threshold = red_threshold, yellow_threshold
         
-        y = (yellow_threshold - min_val) / v  # position of yellow transition
-        r = (red_threshold - min_val) / v  # position of red transition
+        # Ensure thresholds are distinct
+        if yellow_threshold == red_threshold:
+            messagebox.showerror("Error", "Yellow and red thresholds must be different values")
+            return None
         
-        # Clamp to valid range [0, 1]
-        # y = max(0.0, min(1.0, y))
-        # r = max(0.0, min(1.0, r))
-        
-        # Ensure strict increasing order for colormap
-        # if r <= y:
-        #     r = min(1.0, y + 0.01)
-            
-        cdict = {
-            'red': [(0.0, 0.0, 0.0),  # green
-                    (y, 0.0, 0.0),  # green up to yellow threshold
-                    (y, 1.0, 1.0),  # sharp transition to yellow
-                    (r, 1.0, 1.0),  # yellow up to red threshold
-                    (r, 1.0, 1.0),  # sharp transition to red
-                    (1.0, 1.0, 1.0)],  # red
+        # Handle edge cases based on data range relative to thresholds
+        if min_val == max_val:
+            # All values are identical - use single color based on value
+            constant_value = min_val
+            if constant_value > red_threshold:
+                colors = ['red']
+                boundaries = [constant_value - 0.01, constant_value + 0.01]
+            elif constant_value > yellow_threshold:
+                colors = ['yellow']
+                boundaries = [constant_value - 0.01, constant_value + 0.01]
+            else:
+                colors = ['green']
+                boundaries = [constant_value - 0.01, constant_value + 0.01]
+        elif max_val <= yellow_threshold:
+            # All values are in green range
+            colors = ['green']
+            boundaries = [min_val - 0.01, max_val + 0.01]
+        elif min_val > red_threshold:
+            # All values are in red range
+            colors = ['red']
+            boundaries = [min_val - 0.01, max_val + 0.01]
+        elif min_val > yellow_threshold and max_val <= red_threshold:
+            # All values are in yellow range
+            colors = ['yellow']
+            boundaries = [min_val - 0.01, max_val + 0.01]
+        elif min_val > yellow_threshold and min_val <= red_threshold and max_val > red_threshold:
+            # Data spans yellow and red ranges only
+            colors = ['yellow', 'red']
+            boundaries = [min_val - 0.01, red_threshold + 1e-10, max_val + 0.01]
+        elif min_val <= yellow_threshold and max_val > yellow_threshold and max_val <= red_threshold:
+            # Data spans green and yellow ranges only
+            colors = ['green', 'yellow']
+            boundaries = [min_val - 0.01, yellow_threshold + 1e-10, max_val + 0.01]
+        else:
+            # Data spans all three ranges (normal case)
+            colors = ['green', 'yellow', 'red']
+            boundaries = [min_val - 0.01, yellow_threshold + 1e-10, red_threshold + 1e-10, max_val + 0.01]
 
-            'green': [(0.0, 1.0, 1.0),  # green
-                    (y, 1.0, 1.0),  # green up to yellow threshold
-                    (y, 1.0, 1.0),  # sharp transition to yellow
-                    (r, 1.0, 1.0),  # yellow up to red threshold
-                    (r, 0.0, 0.0),  # sharp transition to red
-                    (1.0, 0.0, 0.0)],  # red
-
-            'blue': [(0.0, 0.0, 0.0),  # green
-                    (y, 0.0, 0.0),  # yellow threshold
-                    (r, 0.0, 0.0),  # red threshold
-                    (1.0, 0.0, 0.0)]  # red
-        }
-        custom_cmap = LinearSegmentedColormap('custom', cdict)
-
+        # Create colormap and normalization
+        from matplotlib.colors import ListedColormap
+        cmap = ListedColormap(colors)
+        norm = BoundaryNorm(boundaries, cmap.N)
+        
         # Plot the heatmap
-        im = plt.imshow(data, cmap=custom_cmap, vmin=min_val, vmax=max_val, aspect='auto')
-        # Add colorbar
-        plt.colorbar(im, label='Values')
+        im = plt.imshow(data, cmap=cmap, norm=norm, aspect='auto')
+
+        # Add colorbar showing the full color scale
+        cbar = plt.colorbar(im, label='EMI (dB)')
+        
+        # Set colorbar ticks to show the full scale
+        cbar.set_ticks(boundaries)
+        tick_labels = [f'{b:.1f}' for b in boundaries]
+        cbar.set_ticklabels(tick_labels)
 
         # Show numerical values in each cell
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                text_color = 'white' if im.norm(data[i, j]) > 0.5 else 'black'
-                plt.text(j, i, f'{data[i, j]:.1f}', ha='center', va='center', color=text_color)
+                plt.text(j, i, f'{data[i, j]:.1f}', ha='center', va='center')
 
         # Adjust layout to prevent cutting off labels
         plt.tight_layout()
@@ -456,11 +490,10 @@ class EMIWaterfallExtension(ExtensionEMITCommon):
         manager.window.state('zoomed')
         plt.show()
 
-    def _on_generate_waterfall(self):
-        """Generate and display EMI waterfall plot."""
+    def _on_generate_heatmap(self):
+        """Generate and display EMI heatmap plot."""
         if not self._emi:
-            if not self._extract_data():
-                return
+            self._extract_data()
 
         try:
             # Get EMI thresholds
@@ -485,9 +518,9 @@ class EMIWaterfallExtension(ExtensionEMITCommon):
                 pass
 
         except Exception as e:
-            messagebox.showerror("Waterfall Error", f"Failed to generate waterfall: {e}")
+            messagebox.showerror("Heatmap Error", f"Failed to generate heatmap: {e}")
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
-    ext = EMIWaterfallExtension(withdraw=False)
+    ext = EMIHeatmapExtension(withdraw=False)
     tkinter.mainloop()
