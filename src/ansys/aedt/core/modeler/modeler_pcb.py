@@ -131,12 +131,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             self._edb = None
             if Path(self._edb_file).exists() or inside_desktop_ironpython_console:
                 self._edb = Edb(
-                    self._edb_folder,
+                    str(self._edb_folder),
                     self._app.design_name,
                     True,
                     self._app._aedt_version,
                     isaedtowned=True,
                     oproject=self._app.oproject,
+                    grpc=True if settings.aedt_version > "2025.2" else False,
                 )
                 self.logger.info("EDB loaded.")
 
