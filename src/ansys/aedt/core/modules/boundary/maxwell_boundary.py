@@ -167,14 +167,13 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
 
 class MaxwellMatrix(MaxwellParameters):
-    """
-    Provides methods to interact with reduced matrices in Maxwell.
+    """Provides methods to interact with matrices in Maxwell.
 
     This class allows sources in a reduced matrix to be listed, updated, and deleted.
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisMaxwell`
+    app : :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.Maxwell2d`
         Parent Maxwell application instance.
     schema : MaxwellMatrix.MatrixElectric, MaxwellMatrix.MatrixMagnetostatic, MaxwellMatrix.MatrixACMagnetic,
     MaxwellMatrix.MatrixACMagneticAPhi, optional
@@ -206,7 +205,6 @@ class MaxwellMatrix(MaxwellParameters):
 
     >>> matrix = m2d.assign_matrix(matrix_args)
     >>> m2d.release_desktop(True, True)
-
     """
 
     def __init__(self, app, name, props=None, schema=None):
@@ -462,7 +460,63 @@ class MaxwellMatrix(MaxwellParameters):
 
 
 class MaxwellReducedMatrix:
-    """Represent a reduced matrix in Maxwell (join or series)."""
+    """Provides methods to interact with reduced matrices in Maxwell.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.Maxwell2d`
+        Parent Maxwell application instance.
+    parent_matrix : MaxwellMatrix
+        Parent matrix object.
+    name : str
+        Name of the reduced matrix.
+    operations_reduction : list[MaxwellReducedMatrixOperation], MaxwellReducedMatrixOperation, optional
+        List of reduced matrix operations or a single reduced matrix operation.
+        The default is ``None``.
+
+    Examples
+    --------
+    Create a Maxwell 3D model in AC Magnetic solver.
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+
+    >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+
+    >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    >>> box3 = m3d.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    >>> box4 = m3d.modeler.create_box([20, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+    >>> current1 = m3d.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+    >>> current2 = m3d.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+    >>> current3 = m3d.assign_current([box3.top_face_z], amplitude=1, name="Current3")
+    >>> current4 = m3d.assign_current([box4.top_face_z], amplitude=1, name="Current4")
+    >>> m3d.assign_current([box1.bottom_face_z], amplitude=1, name="Current5", swap_direction=True)
+    >>> m3d.assign_current([box2.bottom_face_z], amplitude=1, name="Current6", swap_direction=True)
+    >>> m3d.assign_current([box3.bottom_face_z], amplitude=1, name="Current7", swap_direction=True)
+    >>> m3d.assign_current([box4.bottom_face_z], amplitude=1, name="Current8", swap_direction=True)
+
+    Assign matrix.
+    >>> signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+    >>> signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+    >>> signal_source_3 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
+    >>> signal_source_4 = MaxwellMatrix.SourceACMagnetic(name=current4.name)
+
+    >>> matrix_args = MaxwellMatrix.MatrixACMagnetic(
+    >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3, signal_source_4],
+    >>>     matrix_name="test_matrix",
+    >>> )
+    >>> matrix = m3d.assign_matrix(matrix_args)
+
+    Join sources in series to create a reduced matrix.
+    >>> reduced_matrix = matrix.join_series(
+    >>>     sources=["Current1", "Current2"],
+    >>>     matrix_name="ReducedMatrix1",
+    >>>     join_name="JoinSeries1"
+    >>> )
+    >>> m3d.release_desktop(True, True)
+    """
 
     def __init__(
         self,
