@@ -707,8 +707,136 @@ def number_aware_string_key(s):
     return tuple(result)
 
 
+def _run_ss_xlp() -> dict[int, int]:
+    """Run 'ss -xlp' command on Linux to find Unix socket ports.
+
+    Returns
+    -------
+    dict[int, int]
+        Dictionary mapping process IDs to port numbers extracted from Unix socket names.
+    """
+    proc = subprocess.run(
+        ["ss", "-xlp"],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(f"'ss -xlp' failed: {proc.stderr.strip()}")
+
+    lines = proc.stdout.splitlines()
+    results = {}
+
+    for line in lines:
+        if "ansysedt.exe" not in line:
+            continue
+
+        # Extract PID from the line (format: "pid=12345")
+        pid_match = re.search(r"pid=(\d+)", line)
+        pid = int(pid_match.group(1)) if pid_match else None
+
+        # Extract port number from socket filename (e.g., "AnsysEMUDS-50051.sock")
+        port_match = re.search(r"-(\d+)\.sock", line)
+        port = int(port_match.group(1)) if port_match else None
+
+        if pid and port:
+            results[pid] = port
+
+    return results
+
+
+def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]:
+    """Get process IDs and command line arguments for target processes.
+
+    Parameters
+    ----------
+    target_name : list[str]
+        List of process names to search for.
+
+    Returns
+    -------
+    list[tuple[int, list[str]]]
+        List of tuples containing (process_id, command_line_arguments).
+    """
+    system = platform.system()
+    found_data = []
+
+    if system == "Linux":
+        # Use pgrep to find PIDs and read command lines from /proc
+        try:
+            pids = []
+            for process_name in target_name:
+                pids += subprocess.check_output(["pgrep", "-x", process_name]).decode().split()
+
+            for pid in pids:
+                with open(f"/proc/{pid}/cmdline", "rb") as f:
+                    # Command line arguments in /proc are null-byte separated
+                    cmdline = f.read().decode().split("\0")
+                    found_data.append((int(pid), [arg for arg in cmdline if arg]))
+        except subprocess.CalledProcessError:
+            pyaedt_logger.debug("No matching processes found.")
+
+    elif system == "Windows":
+        # Use WMIC to get process information
+        try:
+            for tgt in target_name:
+                cmd = f"wmic process where \"name='{tgt}'\" get ProcessId,CommandLine /format:list"
+                output = subprocess.check_output(cmd, shell=True).decode(errors="ignore")
+
+                current_cmd = []
+
+                for line in output.splitlines():
+                    line = line.strip()
+                    if line.startswith("CommandLine="):
+                        # Extract and parse command line
+                        cmdline_raw = line[len("CommandLine=") :]
+                        current_cmd = cmdline_raw.split()
+                    elif line.startswith("ProcessId="):
+                        current_pid = int(line[len("ProcessId=") :])
+                        if current_pid and current_cmd:
+                            found_data.append((current_pid, current_cmd))
+                            current_pid, current_cmd = None, []
+        except Exception as e:
+            pyaedt_logger.debug(f"Failed to query Windows processes with WMIC: {str(e)}")
+
+    return found_data
+
+
 @pyaedt_function_handler()
-def active_sessions(version: str = None, student_version: bool = False, non_graphical: bool = False) -> dict[int, int]:
+def is_grpc_session_active(port):
+    # On Linux, try to resolve unknown ports using Unix socket analysis
+    if is_linux:
+        try:
+            sockets = _run_ss_xlp()
+            for pid, socket_port in sockets.items():
+                if socket_port == port:
+                    return True
+        except Exception as e:
+            pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
+    target = (
+        ["ansysedtsv", "ansysedtsv.exe", "ansysedt", "ansysedt.exe"] if is_linux else ["ansysedtsv.exe", "ansysedt.exe"]
+    )
+
+    target_processes = _get_target_processes(target)
+    return_dict = {}
+    # Extract port information from process command lines
+    for pid, cmd in target_processes:
+        return_dict[pid] = -1
+
+    for conn in psutil.net_connections("inet"):
+        if (
+            conn.laddr.ip in ["127.0.0.1", "::"]
+            and conn.pid in return_dict
+            and conn.status == psutil.CONN_LISTEN
+            and conn.laddr.port == port
+        ):
+            return True
+    return False
+
+
+@pyaedt_function_handler()
+def active_sessions(version: str = None, student_version: bool = False, non_graphical: bool = None) -> dict[int, int]:
     """Get information for active AEDT sessions.
 
     This function detects running AEDT processes and identifies their gRPC ports or
@@ -751,105 +879,16 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
     if version and version < "221":
         version = version[:2] + "." + version[2]
 
-    def _run_ss_xlp() -> dict[int, int]:
-        """Run 'ss -xlp' command on Linux to find Unix socket ports.
-
-        Returns
-        -------
-        dict[int, int]
-            Dictionary mapping process IDs to port numbers extracted from Unix socket names.
-        """
-        proc = subprocess.run(
-            ["ss", "-xlp"],
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        if proc.returncode != 0:
-            raise RuntimeError(f"'ss -xlp' failed: {proc.stderr.strip()}")
-
-        lines = proc.stdout.splitlines()
-        results = {}
-
-        for line in lines:
-            if "ansysedt.exe" not in line:
-                continue
-
-            # Extract PID from the line (format: "pid=12345")
-            pid_match = re.search(r"pid=(\d+)", line)
-            pid = int(pid_match.group(1)) if pid_match else None
-
-            # Extract port number from socket filename (e.g., "AnsysEMUDS-50051.sock")
-            port_match = re.search(r"-(\d+)\.sock", line)
-            port = int(port_match.group(1)) if port_match else None
-
-            if pid and port:
-                results[pid] = port
-
-        return results
-
-    def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]:
-        """Get process IDs and command line arguments for target processes.
-
-        Parameters
-        ----------
-        target_name : list[str]
-            List of process names to search for.
-
-        Returns
-        -------
-        list[tuple[int, list[str]]]
-            List of tuples containing (process_id, command_line_arguments).
-        """
-        system = platform.system()
-        found_data = []
-
-        if system == "Linux":
-            # Use pgrep to find PIDs and read command lines from /proc
-            try:
-                pids = []
-                for process_name in target_name:
-                    pids += subprocess.check_output(["pgrep", "-x", process_name]).decode().split()
-
-                for pid in pids:
-                    with open(f"/proc/{pid}/cmdline", "rb") as f:
-                        # Command line arguments in /proc are null-byte separated
-                        cmdline = f.read().decode().split("\0")
-                        found_data.append((int(pid), [arg for arg in cmdline if arg]))
-            except subprocess.CalledProcessError:
-                pyaedt_logger.debug("No matching processes found.")
-
-        elif system == "Windows":
-            # Use WMIC to get process information
-            try:
-                cmd = f"wmic process where \"name='{target_name[0]}'\" get ProcessId,CommandLine /format:list"
-                output = subprocess.check_output(cmd, shell=True).decode(errors="ignore")
-
-                current_cmd = []
-
-                for line in output.splitlines():
-                    line = line.strip()
-                    if line.startswith("CommandLine="):
-                        # Extract and parse command line
-                        cmdline_raw = line[len("CommandLine=") :]
-                        current_cmd = cmdline_raw.split()
-                    elif line.startswith("ProcessId="):
-                        current_pid = int(line[len("ProcessId=") :])
-                        if current_pid and current_cmd:
-                            found_data.append((current_pid, current_cmd))
-                            current_pid, current_cmd = None, []
-            except Exception as e:
-                pyaedt_logger.debug(f"Failed to query Windows processes with WMIC: {str(e)}")
-
-        return found_data
-
     # Get all matching AEDT processes
     target_processes = _get_target_processes(target)
 
     # Extract port information from process command lines
     for pid, cmd in target_processes:
-        return_dict[pid] = -1
+        if (version and any([i for i in cmd if version in i])) or not version:
+            if non_graphical is None or non_graphical and "-ng" in cmd:
+                return_dict[pid] = -1
+            elif not non_graphical and "-ng" not in cmd:
+                return_dict[pid] = -1
 
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if is_linux and any(port == -1 for port in return_dict.values()):
