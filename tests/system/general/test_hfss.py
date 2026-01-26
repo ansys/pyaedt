@@ -1253,7 +1253,6 @@ def test_create_infinite_sphere(aedt_app):
     )
     assert bound.azimuth_start == "2deg"
 
-
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
     boundary_name = "TestSphere"
