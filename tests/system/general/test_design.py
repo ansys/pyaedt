@@ -61,13 +61,13 @@ def unzip_aedtz(test_tmp_dir):
             base_name = os.path.splitext(os.path.basename(example_name))[0]
             with zipfile.ZipFile(example_name, "r") as zip_ref:
                 zip_ref.extractall(test_tmp_dir)
-            
+
             # Find the extracted .aedt file (it might be in a subdirectory like $ProjectDir)
             for root, dirs, files in os.walk(test_tmp_dir):
                 for file in files:
                     if file.endswith(".aedt") and file.startswith(base_name):
                         return os.path.join(root, file)
-            
+
             # Fallback to expected location if not found
             unzipped_name = test_tmp_dir / (base_name + ".aedt")
             return str(unzipped_name)
