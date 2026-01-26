@@ -431,7 +431,7 @@ def test_force_project_path_disable(aedt_app):
 #     app.close_project(project_name)
 
 
-def test_toolkit(aedt_app, desktop, test_tmp_dir):
+def test_toolkit(aedt_app, test_tmp_dir):
     assert customize_automation_tab.available_toolkits()
     file = test_tmp_dir / "test.py"
     with open(file, "w") as f:

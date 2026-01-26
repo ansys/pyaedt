@@ -28,6 +28,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess  # nosec
+import sys
 from typing import List
 import warnings
 import xml.etree.ElementTree as ET  # nosec
@@ -393,6 +394,9 @@ def add_script_to_menu(
         shutil.copy2(script_file, str(dest_script_path))
 
     templates_dir = Path(ansys.aedt.core.extensions.templates.__file__).parent
+
+    if executable_interpreter is None:
+        executable_interpreter = sys.executable
 
     ipython_executable = re.sub(
         r"python" + __exe() + r"$",
