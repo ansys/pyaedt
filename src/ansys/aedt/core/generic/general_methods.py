@@ -814,24 +814,35 @@ def is_grpc_session_active(port):
                     return True
         except Exception as e:
             pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
-    target = (
-        ["ansysedtsv", "ansysedtsv.exe", "ansysedt", "ansysedt.exe"] if is_linux else ["ansysedtsv.exe", "ansysedt.exe"]
+    targets = (
+        [
+            "ansysedt",
+            "ansysedt.exe",
+            "ansysedtsv",
+            "ansysedtsv.exe",
+        ]
+        if is_linux
+        else [
+            "ansysedt.exe",
+            "ansysedtsv.exe",
+        ]
     )
 
-    target_processes = _get_target_processes(target)
-    return_dict = {}
-    # Extract port information from process command lines
-    for pid, cmd in target_processes:
-        return_dict[pid] = -1
+    for target in targets:
+        target_processes = _get_target_processes([target])
+        return_dict = {}
+        # Extract port information from process command lines
+        for pid, cmd in target_processes:
+            return_dict[pid] = -1
 
-    for conn in psutil.net_connections("inet"):
-        if (
-            conn.laddr.ip in ["127.0.0.1", "::"]
-            and conn.pid in return_dict
-            and conn.status == psutil.CONN_LISTEN
-            and conn.laddr.port == port
-        ):
-            return True
+        for conn in psutil.net_connections("inet"):
+            if (
+                conn.laddr.ip in ["127.0.0.1", "::"]
+                and conn.pid in return_dict
+                and conn.status == psutil.CONN_LISTEN
+                and conn.laddr.port == port
+            ):
+                return True
     return False
 
 

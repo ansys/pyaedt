@@ -63,6 +63,7 @@ from ansys.aedt.core.generic.general_methods import com_active_sessions
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import grpc_active_sessions
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
+from ansys.aedt.core.generic.general_methods import is_grpc_session_active
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -239,8 +240,7 @@ def launch_aedt(
     timeout = settings.desktop_launch_timeout
     start = time.time()
     while timeout > 0:
-        active_s = active_sessions(student_version=student_version)
-        if port in active_s.values():
+        if is_grpc_session_active(port):
             break
         timeout -= 1
         time.sleep(1)
@@ -388,7 +388,7 @@ def _find_free_port():
 
     while True:
         new_port = _find(host)
-        if new_port not in list(active_sessions().values()) and new_port not in range(50051, 50070, 1):
+        if not is_grpc_session_active(new_port):
             pyaedt_logger.debug(f"Port selected: {new_port}")
             return new_port
         time.sleep(0.1)
@@ -2521,11 +2521,11 @@ class Desktop(PyAedtBase):
     def _validate_port(self, port):
         if port == 0:
             return port
-        active_ports = grpc_active_sessions()
-        if self.new_desktop and port in active_ports:
+        active_ports = is_grpc_session_active(port)
+        if self.new_desktop and active_ports:
             self.logger.warning(f"Port {port} is already in use. Finding a new free port.")
             return _find_free_port()
-        elif not settings.remote_rpc_session and not self.new_desktop and port not in active_ports:
+        elif not settings.remote_rpc_session and not self.new_desktop and not active_ports:
             self.logger.warning(f"No active AEDT gRPC session found on port {port}. Opening a new AEDT session.")
             self.new_desktop = True
         return port
