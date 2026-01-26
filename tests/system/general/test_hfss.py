@@ -1254,33 +1254,24 @@ def test_create_infinite_sphere(aedt_app):
     assert bound.azimuth_start == "2deg"
 
 
-def test_create_infinite_sphere_duplicate_name(aedt_app):
     aedt_app.insert_design("InfSphereDuplicate")
     air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
     aedt_app.assign_radiation_boundary_to_objects(air)
+    boundary_name = "TestSphere"
 
-    # Create first infinite sphere with a specific name
-    sphere1 = aedt_app.insert_infinite_sphere(name="TestSphere")
-    assert sphere1
-    assert sphere1.name == "TestSphere"
+    # Create infinite spheres with a specific name
+    sphere = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_1 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_2 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    boundary_names = [fs.name for fs in aedt_app.field_setups]
 
-    # Try to create another sphere with the same name
-    # Should create with "_1" suffix and issue a warning
-    sphere2 = aedt_app.insert_infinite_sphere(name="TestSphere")
-    assert sphere2
-    assert sphere2.name == "TestSphere_1"
-
-    # Create a third one with the same original name
-    # Should create with "_2" suffix
-    sphere3 = aedt_app.insert_infinite_sphere(name="TestSphere")
-    assert sphere3
-    assert sphere3.name == "TestSphere_2"
-
-    # Verify all spheres exist in field_setups
-    sphere_names = [fs.name for fs in aedt_app.field_setups]
-    assert "TestSphere" in sphere_names
-    assert "TestSphere_1" in sphere_names
-    assert "TestSphere_2" in sphere_names
+    assert sphere
+    assert boundary_name == sphere.name
+    assert sphere_1
+    assert boundary_name + "_1" == sphere_1.name
+    assert sphere_2
+    assert boundary_name + "_2" == sphere_2.name
+    assert all(map(lambda boundary: boundary.name in boundary_names, [sphere, sphere_1, sphere_2]))
 
 
 def test_set_autoopen(aedt_app):
