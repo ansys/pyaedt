@@ -532,7 +532,6 @@ class Desktop(PyAedtBase):
             pyaedt_logger.info(message)
             return object.__new__(cls)
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         version=None,

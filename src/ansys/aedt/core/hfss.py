@@ -190,7 +190,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,

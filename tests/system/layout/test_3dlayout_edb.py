@@ -243,7 +243,7 @@ def test_nets(aedt_app, test_tmp_dir):
     assert len(nets) > 0
     assert len(nets["GND"].components) > 0
     local_png1 = test_tmp_dir / "test1.png"
-    nets["AVCC_1V3"].plot(save_plot=str(local_png1), show=False)
+    aedt_app.modeler.nets["AVCC_1V3"].plot(save_plot=str(local_png1), show=False)
     assert local_png1.is_file()
 
 
