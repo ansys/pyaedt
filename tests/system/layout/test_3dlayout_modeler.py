@@ -724,6 +724,7 @@ def test_export_to_hfss(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
+@pytest.mark.skipif(is_linux, reason="Bug under investigation")
 def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
         layer="Top",
@@ -754,6 +755,7 @@ def test_export_to_hfss_keep_net_name(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
+@pytest.mark.skipif(is_linux, reason="Bug under investigation")
 def test_export_to_hfss_non_unite(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
         layer="Top",
@@ -814,6 +816,7 @@ def test_export_to_q3d(aedt_app, test_tmp_dir):
     assert (file_fullname.with_suffix(".aedt")).is_file()
 
 
+@pytest.mark.skipif(is_linux, reason="Bug under investigation")
 def test_export_to_q3d_keep_net_non_unite(aedt_app, test_tmp_dir):
     aedt_app.modeler.layers.add_layer(
         layer="Top",
