@@ -2608,7 +2608,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             bound = MaxwellMatrix(self, name, props, schema=schema)
         else:
             # Maxwell parameters Force and Torque
-            bound = MaxwellParameters(self, name, props, boundary_type, schema)
+            bound = MaxwellParameters(self, name, props, boundary_type)
         result = bound.create()
         if result:
             self._boundaries[bound.name] = bound

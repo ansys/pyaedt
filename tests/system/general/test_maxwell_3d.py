@@ -543,11 +543,11 @@ def test_reduced_matrix(m3d_app, maxwell_versioned):
     m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
     reduced_matrix = matrix.join_series(sources=["Current1", "Current2", "Current3"], matrix_name="ReducedMatrix1")
     assert reduced_matrix.name == "ReducedMatrix1"
-    assert reduced_matrix.parent_matrix == matrix.name
+    assert reduced_matrix.parent_matrix.name == matrix.name
     assert "Current1" in reduced_matrix.operations_reduction[0].sources
     reduced_matrix_1 = matrix.join_parallel(["Current1", "Current3"], matrix_name="ReducedMatrix2")
     assert reduced_matrix_1.name == "ReducedMatrix2"
-    assert reduced_matrix_1.parent_matrix == matrix.name
+    assert reduced_matrix_1.parent_matrix.name == matrix.name
     sources = reduced_matrix_1.operations_reduction[0].sources
     assert "Current1" in sources
     # update name of join series operation
@@ -568,7 +568,7 @@ def test_reduced_matrix(m3d_app, maxwell_versioned):
         reduced_matrix_1.update(name=join_operation.name, operation_type="invalid")
     with pytest.raises(AEDTRuntimeError):
         reduced_matrix_1.delete(name="invalid")
-    assert reduced_matrix_1.delete(name="new_series")
+    assert reduced_matrix_1.delete(name="my_op")
     assert len(matrix.reduced_matrices) == 1
 
 
