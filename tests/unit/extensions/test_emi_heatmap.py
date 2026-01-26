@@ -165,7 +165,7 @@ def test_on_victim_changed(mock_emit_environment):
     mock_aedt_app.results = mock_results
 
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     # Change victim selection
     extension._victim_combo.set("RxRadio2")
     extension._on_victim_changed()
@@ -191,7 +191,7 @@ def test_on_victim_band_changed(mock_emit_environment):
     mock_aedt_app.results = mock_results
 
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim_band_combo.set("Band2")
     extension._on_victim_band_changed()
 
@@ -217,7 +217,7 @@ def test_on_aggressor_changed(mock_emit_environment):
     mock_aedt_app.results = mock_results
 
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     # Change aggressor selection
     extension._aggressor_combo.set("TxRadio2")
     extension._on_aggressor_changed()
@@ -245,17 +245,17 @@ def test_extract_data(mock_emit_environment):
     mock_analyze.run.return_value = mock_interaction
     mock_analyze.get_license_session.return_value.__enter__ = MagicMock()
     mock_analyze.get_license_session.return_value.__exit__ = MagicMock()
-    
+
     mock_instance.has_valid_values.return_value = True
     mock_instance.get_value.side_effect = lambda x: -20.0  # EMI, power, etc.
     mock_interaction.get_instance.return_value = mock_instance
-    
+
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = mock_domain
     mock_aedt_app.results = mock_results
 
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     # Set up frequencies
     extension._victim_frequencies = ["2400MHz", "2450MHz"]
     extension._aggressor_frequencies = ["2400MHz", "2450MHz"]
@@ -263,7 +263,7 @@ def test_extract_data(mock_emit_environment):
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
-    
+
     extension._extract_data()
 
     # Verify data was extracted
@@ -279,7 +279,7 @@ def test_extract_data(mock_emit_environment):
 def test_format_csv(mock_emit_environment):
     """Test CSV formatting."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     # Set up test data
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
@@ -294,14 +294,15 @@ def test_format_csv(mock_emit_environment):
 
     # Create temp file
     import tempfile
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as f:
         temp_path = f.name
-    
+
     try:
         extension._format_csv(temp_path)
-        
+
         # Verify file contents
-        with open(temp_path, 'r') as f:
+        with open(temp_path, "r") as f:
             content = f.read()
             assert "Aggressor_Radio" in content
             assert "RxRadio1" in content
@@ -309,6 +310,7 @@ def test_format_csv(mock_emit_environment):
             assert "-20.0" in content
     finally:
         import os
+
         os.unlink(temp_path)
 
     extension.root.destroy()
@@ -320,7 +322,7 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
-    
+
     # Setup basic mocks
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
@@ -331,7 +333,7 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
     mock_aedt_app.results = mock_results
 
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     # Set up test data
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
@@ -345,17 +347,19 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
     extension._sensitivity = [[-100.0]]
 
     import tempfile
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as f:
         temp_path = f.name
-    
+
     mock_filedialog.return_value = temp_path
-    
+
     try:
         with patch("tkinter.messagebox.showinfo") as mock_info:
             extension._on_export_csv()
             assert mock_info.called
     finally:
         import os
+
         if os.path.exists(temp_path):
             os.unlink(temp_path)
 
@@ -366,7 +370,7 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
 def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
     """Test heatmap plotting with normal data spanning all three color ranges."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     # Set up test data spanning all three ranges
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
@@ -378,7 +382,7 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
     extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-    
+
     # Function should complete without error
     assert mock_show.called
 
@@ -389,7 +393,7 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
 def test_plot_matrix_heatmap_single_color_green(mock_show, mock_emit_environment):
     """Test heatmap plotting when all values are in green range."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -400,7 +404,7 @@ def test_plot_matrix_heatmap_single_color_green(mock_show, mock_emit_environment
     extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-    
+
     assert mock_show.called
 
     extension.root.destroy()
@@ -410,7 +414,7 @@ def test_plot_matrix_heatmap_single_color_green(mock_show, mock_emit_environment
 def test_plot_matrix_heatmap_single_color_red(mock_show, mock_emit_environment):
     """Test heatmap plotting when all values are in red range."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -421,7 +425,7 @@ def test_plot_matrix_heatmap_single_color_red(mock_show, mock_emit_environment):
     extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-    
+
     assert mock_show.called
 
     extension.root.destroy()
@@ -431,7 +435,7 @@ def test_plot_matrix_heatmap_single_color_red(mock_show, mock_emit_environment):
 def test_plot_matrix_heatmap_constant_values(mock_show, mock_emit_environment):
     """Test heatmap plotting when all values are identical."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -442,7 +446,7 @@ def test_plot_matrix_heatmap_constant_values(mock_show, mock_emit_environment):
     extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-    
+
     assert mock_show.called
 
     extension.root.destroy()
@@ -452,7 +456,7 @@ def test_plot_matrix_heatmap_constant_values(mock_show, mock_emit_environment):
 def test_plot_matrix_heatmap_empty_data(mock_error, mock_emit_environment):
     """Test heatmap plotting with empty data."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -463,7 +467,7 @@ def test_plot_matrix_heatmap_empty_data(mock_error, mock_emit_environment):
     extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-    
+
     assert mock_error.called
     assert result is None
 
@@ -474,7 +478,7 @@ def test_plot_matrix_heatmap_empty_data(mock_error, mock_emit_environment):
 def test_plot_matrix_heatmap_nan_values(mock_error, mock_emit_environment):
     """Test heatmap plotting with NaN values."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -485,7 +489,7 @@ def test_plot_matrix_heatmap_nan_values(mock_error, mock_emit_environment):
     extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-    
+
     assert mock_error.called
     assert result is None
 
@@ -496,7 +500,7 @@ def test_plot_matrix_heatmap_nan_values(mock_error, mock_emit_environment):
 def test_plot_matrix_heatmap_invalid_thresholds(mock_error, mock_emit_environment):
     """Test heatmap plotting with invalid threshold values."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -518,7 +522,7 @@ def test_plot_matrix_heatmap_invalid_thresholds(mock_error, mock_emit_environmen
 def test_plot_matrix_heatmap_equal_thresholds(mock_error, mock_emit_environment):
     """Test heatmap plotting with equal threshold values."""
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -529,7 +533,7 @@ def test_plot_matrix_heatmap_equal_thresholds(mock_error, mock_emit_environment)
     extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=0)
-    
+
     assert mock_error.called
     assert result is None
 
@@ -543,7 +547,7 @@ def test_on_generate_heatmap(mock_show, mock_emit_environment):
     mock_results = MagicMock()
     mock_analyze = MagicMock()
     mock_category_node = MagicMock()
-    
+
     # Setup mocks
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
@@ -556,7 +560,7 @@ def test_on_generate_heatmap(mock_show, mock_emit_environment):
     mock_aedt_app.results = mock_results
 
     extension = EMIHeatmapExtension(withdraw=True)
-    
+
     # Set up test data
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
@@ -568,7 +572,7 @@ def test_on_generate_heatmap(mock_show, mock_emit_environment):
     extension.active_project_name = "TestProject"
 
     extension._on_generate_heatmap()
-    
+
     assert mock_show.called
 
     extension.root.destroy()

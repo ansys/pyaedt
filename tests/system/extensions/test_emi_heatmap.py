@@ -178,7 +178,7 @@ def test_export_to_csv(emit_app_with_radios, test_tmp_dir):
     assert csv_path.stat().st_size > 0
 
     # Verify CSV content
-    with open(csv_path, 'r') as f:
+    with open(csv_path, "r") as f:
         content = f.read()
         assert "Aggressor_Radio" in content
         assert "Victim_Radio" in content
@@ -223,7 +223,7 @@ def test_heatmap_with_custom_thresholds(mock_show, emit_app_with_radios):
 def test_emi_heatmap_extension_data_class():
     """Test EMIHeatmapExtensionData dataclass."""
     import numpy as np
-    
+
     data = EMIHeatmapExtensionData(
         emi=np.array([[1, 2], [3, 4]]),
         rx_power=np.array([[5, 6], [7, 8]]),
@@ -299,7 +299,7 @@ def test_heatmap_colorbar_labels(mock_show, emit_app_with_radios):
     # Generate heatmap
     if extension._emi:
         extension._plot_matrix_heatmap(red_threshold=0.0, yellow_threshold=-10.0)
-        
+
         # Verify matplotlib show was called
         assert mock_show.called
 

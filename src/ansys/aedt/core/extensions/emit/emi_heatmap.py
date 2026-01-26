@@ -25,17 +25,18 @@
 
 from dataclasses import dataclass
 import os
-from typing import Optional
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
+from typing import Optional
 
+from matplotlib.colors import BoundaryNorm
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.colors import BoundaryNorm
-from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
+from ansys.aedt.core.emit_core.emit_constants import ResultType
+from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -191,7 +192,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         # Populate combos
         self._populate_dropdowns()
-    
+
     def _get_radios(self):
         """Get aggressor and victim radios from the project."""
         try:
@@ -209,10 +210,10 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
     def _populate_dropdowns(self):
         """Populate victim and aggressor combo boxes with available radios."""
         try:
-            # Get design information 
+            # Get design information
             self._get_radios()
-            self._victim_combo['values'] = self._victims
-            self._aggressor_combo['values'] = self._aggressors
+            self._victim_combo["values"] = self._victims
+            self._aggressor_combo["values"] = self._aggressors
 
             if self._victims:
                 self._victim_combo.current(0)
@@ -248,7 +249,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
                 messagebox.showwarning("No Bands", f"No bands found for victim radio {self._victim}")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to get victim bands: {e}")
-    
+
     def _on_victim_band_changed(self, event=None):
         """Handle victim band selection change."""
         self._emi = []
@@ -288,9 +289,8 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         self._emi = []
         self._aggressor_band = self._aggressor_band_combo.get()
         self._aggressor_frequencies = self._revision.get_active_frequencies(
-            self._aggressor,
-            self._aggressor_band,
-            TxRxMode.TX)
+            self._aggressor, self._aggressor_band, TxRxMode.TX
+        )
 
     def _extract_data(self):
         """Extract EMI data for all channel combinations between selected bands."""
@@ -301,32 +301,30 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             # Checkout the license once for EMIT for all of the data extraction iterations
             interaction = self._revision.run(self._domain)
             with self._revision.get_license_session():
-                self._emi=[]
-                self._rx_power=[]
-                self._desense=[]
-                self._sensitivity=[]
+                self._emi = []
+                self._rx_power = []
+                self._desense = []
+                self._sensitivity = []
 
                 for aggressor_frequency in self._aggressor_frequencies:
-
-                    emi_line=[]
-                    rx_power_line=[]
-                    desense_line=[]
-                    sensitivity_line=[]
+                    emi_line = []
+                    rx_power_line = []
+                    desense_line = []
+                    sensitivity_line = []
                     self._domain.set_interferer(self._aggressor, self._aggressor_band, aggressor_frequency)
 
                     for victim_frequency in self._victim_frequencies:
-
                         self._domain.set_receiver(self._victim, self._victim_band, victim_frequency)
                         instance = interaction.get_instance(self._domain)
 
                         if instance.has_valid_values():
                             emi_line.append(instance.get_value(ResultType.EMI))  # dB
-                            rx_power_line.append(instance.get_value(ResultType.POWER_AT_RX)) # dBM
+                            rx_power_line.append(instance.get_value(ResultType.POWER_AT_RX))  # dBM
                             desense_line.append(instance.get_value(ResultType.DESENSE))
                             sensitivity_line.append(instance.get_value(ResultType.SENSITIVITY))
                         else:
                             warning = instance.get_result_warning()
-                            print(f'No valid values: {warning}')
+                            print(f"No valid values: {warning}")
 
                     self._emi.append(emi_line)
                     self._rx_power.append(rx_power_line)
@@ -340,20 +338,18 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         pivot_results = "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity \n"
 
         for aggressor_index in range(len(self._aggressor_frequencies)):
-
             aggressor_frequency = self._aggressor_frequencies[aggressor_index]
             for victim_index in range(len(self._victim_frequencies)):
+                victim_frequency = self._victim_frequencies[victim_index]
 
-                victim_frequency    = self._victim_frequencies[victim_index]
-
-                pivot_results += f'{self._aggressor},{self._aggressor_band},{aggressor_frequency},{self._victim},{self._victim_band},{victim_frequency},{self._emi[aggressor_index][victim_index]},{self._rx_power[aggressor_index][victim_index]},{self._desense[aggressor_index][victim_index]},{self._sensitivity[aggressor_index][victim_index]}\n'
+                pivot_results += f"{self._aggressor},{self._aggressor_band},{aggressor_frequency},{self._victim},{self._victim_band},{victim_frequency},{self._emi[aggressor_index][victim_index]},{self._rx_power[aggressor_index][victim_index]},{self._desense[aggressor_index][victim_index]},{self._sensitivity[aggressor_index][victim_index]}\n"
 
         print(pivot_results)
-        with open(filename, 'w') as file:
+        with open(filename, "w") as file:
             file.write(pivot_results)
 
         return
-         
+
     def _on_export_csv(self):
         """Export EMI data to CSV file."""
         if not self._emi:
@@ -373,16 +369,15 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             messagebox.showinfo("Export Complete", f"CSV exported to {filename}")
         except Exception as e:
             messagebox.showerror("Export Error", f"Failed to export CSV: {e}")
-    
+
     def _plot_matrix_heatmap(self, red_threshold=0, yellow_threshold=-10):
         """Create a 2D heatmap visualization of a matrix using green-yellow-red color scheme.
-        
+
         Color mapping:
         - Green: values <= yellow_threshold
         - Yellow: yellow_threshold < values <= red_threshold
         - Red: values > red_threshold
         """
-
         # Create figure and axis
         plt.figure()
 
@@ -395,17 +390,17 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         # Transpose and prepare data
         data = np.array(np.transpose(self._emi))
-        
+
         # Validate data
         if data.size == 0:
             messagebox.showerror("Error", "No data to plot")
             return None
-        
+
         # Check for NaN or infinite values
         if not np.all(np.isfinite(data)):
             messagebox.showerror("Error", "Data contains NaN or infinite values")
             return None
-            
+
         min_val = np.min(data)
         max_val = np.max(data)
 
@@ -413,81 +408,82 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         if not (np.isfinite(red_threshold) and np.isfinite(yellow_threshold)):
             messagebox.showerror("Error", "Invalid threshold values (NaN or infinite)")
             return None
-        
+
         # Ensure yellow threshold is less than red threshold (proper ordering)
         if yellow_threshold > red_threshold:
             yellow_threshold, red_threshold = red_threshold, yellow_threshold
-        
+
         # Ensure thresholds are distinct
         if yellow_threshold == red_threshold:
             messagebox.showerror("Error", "Yellow and red thresholds must be different values")
             return None
-        
+
         # Handle edge cases based on data range relative to thresholds
         if min_val == max_val:
             # All values are identical - use single color based on value
             constant_value = min_val
             if constant_value > red_threshold:
-                colors = ['red']
+                colors = ["red"]
                 boundaries = [constant_value - 0.01, constant_value + 0.01]
             elif constant_value > yellow_threshold:
-                colors = ['yellow']
+                colors = ["yellow"]
                 boundaries = [constant_value - 0.01, constant_value + 0.01]
             else:
-                colors = ['green']
+                colors = ["green"]
                 boundaries = [constant_value - 0.01, constant_value + 0.01]
         elif max_val <= yellow_threshold:
             # All values are in green range
-            colors = ['green']
+            colors = ["green"]
             boundaries = [min_val - 0.01, max_val + 0.01]
         elif min_val > red_threshold:
             # All values are in red range
-            colors = ['red']
+            colors = ["red"]
             boundaries = [min_val - 0.01, max_val + 0.01]
         elif min_val > yellow_threshold and max_val <= red_threshold:
             # All values are in yellow range
-            colors = ['yellow']
+            colors = ["yellow"]
             boundaries = [min_val - 0.01, max_val + 0.01]
         elif min_val > yellow_threshold and min_val <= red_threshold and max_val > red_threshold:
             # Data spans yellow and red ranges only
-            colors = ['yellow', 'red']
+            colors = ["yellow", "red"]
             boundaries = [min_val - 0.01, red_threshold + 1e-10, max_val + 0.01]
         elif min_val <= yellow_threshold and max_val > yellow_threshold and max_val <= red_threshold:
             # Data spans green and yellow ranges only
-            colors = ['green', 'yellow']
+            colors = ["green", "yellow"]
             boundaries = [min_val - 0.01, yellow_threshold + 1e-10, max_val + 0.01]
         else:
             # Data spans all three ranges (normal case)
-            colors = ['green', 'yellow', 'red']
+            colors = ["green", "yellow", "red"]
             boundaries = [min_val - 0.01, yellow_threshold + 1e-10, red_threshold + 1e-10, max_val + 0.01]
 
         # Create colormap and normalization
         from matplotlib.colors import ListedColormap
+
         cmap = ListedColormap(colors)
         norm = BoundaryNorm(boundaries, cmap.N)
-        
+
         # Plot the heatmap
-        im = plt.imshow(data, cmap=cmap, norm=norm, aspect='auto')
+        im = plt.imshow(data, cmap=cmap, norm=norm, aspect="auto")
 
         # Add colorbar showing the full color scale
-        cbar = plt.colorbar(im, label='EMI (dB)')
-        
+        cbar = plt.colorbar(im, label="EMI (dB)")
+
         # Set colorbar ticks to show the full scale
         cbar.set_ticks(boundaries)
-        tick_labels = [f'{b:.1f}' for b in boundaries]
+        tick_labels = [f"{b:.1f}" for b in boundaries]
         cbar.set_ticklabels(tick_labels)
 
         # Show numerical values in each cell
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                plt.text(j, i, f'{data[i, j]:.1f}', ha='center', va='center')
+                plt.text(j, i, f"{data[i, j]:.1f}", ha="center", va="center")
 
         # Adjust layout to prevent cutting off labels
         plt.tight_layout()
-        
+
         # Maximize the plot window
         manager = plt.get_current_fig_manager()
-        manager.window.state('zoomed')
+        manager.window.state("zoomed")
         plt.show()
 
     def _on_generate_heatmap(self):
@@ -519,6 +515,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         except Exception as e:
             messagebox.showerror("Heatmap Error", f"Failed to generate heatmap: {e}")
+
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)

@@ -264,7 +264,7 @@ They are small automated workflows with a simple GUI.
             :margin: 2 2 0 0
 
             Classify results according to radio protection level or interference type.
-   
+
    .. grid-item-card:: EMI Heatmap
             :link: pyaedt_extensions_doc/emit/emi_heatmap
             :link-type: doc
