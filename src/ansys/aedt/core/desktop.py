@@ -2585,21 +2585,21 @@ class Desktop(PyAedtBase):
                 else:
                     installer = Path(self.aedt_install_dir) / "ansysedt.exe"
 
-            lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
-            start_time = time.time()
-            while lock_file.exists():
-                if time.time() - start_time > settings.desktop_launch_timeout:
-                    self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
-                    break
-                if not active_sessions():
-                    break
-                time.sleep(1)
-
-            try:
-                lock_file.touch(exist_ok=True)
-                self.logger.debug(f"Lock file {lock_file}.")
-            except Exception:
-                self.logger.warning(f"Could not create lock file {lock_file}.")
+            # lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
+            # start_time = time.time()
+            # while lock_file.exists():
+            #     if time.time() - start_time > settings.desktop_launch_timeout:
+            #         self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
+            #         break
+            #     if not active_sessions():
+            #         break
+            #     time.sleep(1)
+            #
+            # try:
+            #     lock_file.touch(exist_ok=True)
+            #     self.logger.debug(f"Lock file {lock_file}.")
+            # except Exception:
+            #     self.logger.warning(f"Could not create lock file {lock_file}.")
 
             self.__port = self._validate_port(self.port)
 
@@ -2613,11 +2613,11 @@ class Desktop(PyAedtBase):
             self.launched_by_pyaedt = True
             result = self.__initialize()
 
-            # Remove lock file
-            try:
-                lock_file.unlink()
-            except Exception:
-                self.logger.warning(f"Could not remove lock file {lock_file}.")
+            # # Remove lock file
+            # try:
+            #     lock_file.unlink()
+            # except Exception:
+            #     self.logger.warning(f"Could not remove lock file {lock_file}.")
 
         if result:
             if self.new_desktop:

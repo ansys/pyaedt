@@ -849,23 +849,7 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
 
     # Extract port information from process command lines
     for pid, cmd in target_processes:
-        if "-grpcsrv" in cmd:
-            # Check if version filter matches
-            if not version or (version and version in cmd[0]):
-                try:
-                    # Parse gRPC server argument (format: "127.0.0.1:50051" or "50051")
-                    grpc_arg = cmd[cmd.index("-grpcsrv") + 1]
-                    options = grpc_arg.split(":")
-                    if len(options) > 1:
-                        return_dict[pid] = int(options[1])
-                    else:
-                        return_dict[pid] = int(options[0])
-                except (IndexError, ValueError):
-                    # Default desktop gRPC port
-                    return_dict[pid] = 50051
-        else:
-            # No gRPC server argument found - mark as COM session
-            return_dict[pid] = -1
+        return_dict[pid] = -1
 
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if is_linux and any(port == -1 for port in return_dict.values()):
@@ -879,8 +863,8 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
 
     # Fallback: Try to find ports by checking network connections for remaining unknown ports
     if any(port == -1 for port in return_dict.values()):
-        for conn in psutil.net_connections():
-            if conn.pid in return_dict and 50050 < conn.laddr.port < 50200:
+        for conn in psutil.net_connections("inet"):
+            if conn.laddr.ip in ["127.0.0.1", "::"] and conn.pid in return_dict and conn.status == psutil.CONN_LISTEN:
                 return_dict[conn.pid] = conn.laddr.port
                 # Stop if all ports are resolved
                 if not any(port == -1 for port in return_dict.values()):
