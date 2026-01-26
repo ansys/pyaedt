@@ -23,6 +23,29 @@ updates:
     commit-message:
       prefix: "BUILD(pip)"
 
+  - package-ecosystem: "uv"
+    directory: "/.ci" # Location of CI lockfile
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    cooldown:
+      default-days: 7
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys-sphinx-theme"
+        - "ansys-tools-visualization-interface"
+        - "ansys-pythonnet"
+    assignees:
+      - "pyansys-ci-bot"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    commit-message:
+      prefix: "BUILD(ci)"
+
   - package-ecosystem: "github-actions" # zizmor: ignore[dependabot-cooldown] cooldown feature is not available for github actions yet.
     directory: "/"
     schedule:
