@@ -214,7 +214,6 @@ class MaxwellMatrix(MaxwellParameters):
         self.__reduced_matrices = None
         self._schema = schema
 
-    # check if solvers are still needed!
     @property
     def signal_sources(self):
         if (
