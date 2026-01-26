@@ -66,9 +66,9 @@ def add_pyaedt_to_aedt(
 def __add_pyaedt_tabs(personal_lib, skip_version_manager, executable_interpreter=None, odesktop=None):
     """Add PyAEDT tabs in AEDT."""
     if skip_version_manager:
-        pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
+        pyaedt_tabs = ["Console", "Run_Script", "ExtensionManager"]
     else:
-        pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager", "VersionManager"]
+        pyaedt_tabs = ["Console", "Run_Script", "ExtensionManager", "VersionManager"]
 
     extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))
 

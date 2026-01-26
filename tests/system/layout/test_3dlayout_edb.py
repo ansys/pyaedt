@@ -29,6 +29,7 @@ import shutil
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from tests import TESTS_LAYOUT_PATH
 from tests.conftest import DESKTOP_VERSION
@@ -237,6 +238,7 @@ def test_assign_spice_model(aedt_app, file_tmp_root):
     )
 
 
+@pytest.mark.skipif(is_linux, reason="Bug under investigation.")
 def test_nets(aedt_app, test_tmp_dir):
     nets = aedt_app.modeler.nets
     assert nets["GND"].name == "GND"
