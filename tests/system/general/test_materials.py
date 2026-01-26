@@ -447,25 +447,19 @@ def test_set_core_loss(maxwell_app):
     assert mat_test.get_curve_coreloss_type() == "Power Ferrite"
 
     with pytest.raises(ValueError):
-        maxwell_app.materials["mat_test"].set_coreloss_at_frequency(
+        mat_test.set_coreloss_at_frequency(
             points_at_frequency={80: bh_mat_test_80hz}, core_loss_model_type="Power Ferrite"
         )
     # Test thickness
-    assert maxwell_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={60: bh_mat_test_60hz}, thickness="0.6mm"
-    )
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness="0.6mm")
     # check that if you modify set_coreloss_at_frequency, it defaults to Electrical steel, if loss model not provided
     # Note that prior to this step, it was set to Power Ferrite
     assert mat_test.get_curve_coreloss_type() == "Electrical Steel"
 
     with pytest.raises(TypeError):
-        maxwell_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={60: bh_mat_test_60hz}, thickness="invalid"
-        )
+        mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness="invalid")
     with pytest.raises(TypeError):
-        maxwell_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={60: bh_mat_test_60hz}, thickness=50
-        )
+        mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness=50)
 
     # flatten bh curves from list of lists to list as shown in native api
     flattened_bh_60hz = [item for sublist in bh_mat_test_60hz for item in sublist]
