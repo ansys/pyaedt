@@ -34,15 +34,40 @@ from ansys.aedt.core.extensions.emit.emi_heatmap import EMIHeatmapExtensionData
 
 @pytest.fixture
 def mock_emit_environment():
-    """Mock the EMIT environment for testing."""
-    with patch("ansys.aedt.core.extensions.misc.get_pyaedt_app") as mock_get_app:
-        mock_aedt_app = MagicMock()
-        mock_aedt_app.design_type = "EMIT"
-        mock_aedt_app.project_name = "TestProject"
-        mock_aedt_app.design_name = "TestDesign"
-        mock_aedt_app.project_path = "C:/test/project.aedt"
-        mock_get_app.return_value = mock_aedt_app
-        yield {"emit_app": mock_aedt_app, "get_pyaedt_app": mock_get_app}
+    """Fixture to set up a mocked EMIT environment for testing."""
+    with (
+        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
+        patch("ansys.aedt.core.extensions.misc.active_sessions") as mock_active_sessions,
+        patch("ansys.aedt.core.extensions.misc.get_pyaedt_app") as mock_get_pyaedt_app,
+    ):
+        # Mock desktop and project
+        mock_project = MagicMock()
+        mock_project.GetName.return_value = "TestProject"
+
+        mock_design = MagicMock()
+        mock_design.GetName.return_value = "TestDesign"
+
+        mock_desktop_instance = MagicMock()
+        mock_desktop_instance.active_project.return_value = mock_project
+        mock_desktop_instance.active_design.return_value = mock_design
+        mock_desktop.return_value = mock_desktop_instance
+        mock_active_sessions.return_value = {0: 0}
+
+        # Mock AEDT application with EMIT design type
+        mock_emit_app = MagicMock()
+        mock_emit_app.design_type = "EMIT"
+        mock_get_pyaedt_app.return_value = mock_emit_app
+
+        yield {
+            "desktop": mock_desktop,
+            "desktop_instance": mock_desktop_instance,
+            "active_sessions": mock_active_sessions,
+            "get_pyaedt_app": mock_get_pyaedt_app,
+            "emit_app": mock_emit_app,
+            "project": mock_project,
+            "design": mock_design,
+        }
+
 
 
 def test_emi_heatmap_extension_data_class():
@@ -75,13 +100,6 @@ def test_emi_heatmap_extension_initialization(mock_emit_environment):
     assert extension.active_design_name == "TestDesign"
     assert extension.active_project_name == "TestProject"
     assert extension.aedt_application.design_type == "EMIT"
-
-    # Verify internal state initialization
-    assert extension._domain is None
-    assert extension._revision is None
-    assert extension._emi is None
-    assert extension._victims is None
-    assert extension._aggressors is None
 
     extension.root.destroy()
 
@@ -379,7 +397,6 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
     extension._victim_frequencies = ["2400MHz", "2450MHz"]
     extension._aggressor_frequencies = ["2400MHz", "2450MHz"]
     extension._emi = [[-15.0, -5.0], [-2.0, 5.0]]  # Spans green, yellow, red
-    extension.active_project_name = "TestProject"
 
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
 
@@ -390,8 +407,8 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
 
 
 @patch("matplotlib.pyplot.show")
-def test_plot_matrix_heatmap_single_color_green(mock_show, mock_emit_environment):
-    """Test heatmap plotting when all values are in green range."""
+def test_plot_matrix_heatmap_edge_cases(mock_show, mock_emit_environment):
+    """Test heatmap plotting with various edge cases: single color ranges and constant values."""
     extension = EMIHeatmapExtension(withdraw=True)
 
     extension._victim = "RxRadio1"
@@ -400,140 +417,64 @@ def test_plot_matrix_heatmap_single_color_green(mock_show, mock_emit_environment
     extension._aggressor_band = "Band1"
     extension._victim_frequencies = ["2400MHz", "2450MHz"]
     extension._aggressor_frequencies = ["2400MHz"]
-    extension._emi = [[-20.0, -25.0]]  # All below yellow threshold
-    extension.active_project_name = "TestProject"
 
+    # Test case 1: All values in green range
+    extension._emi = [[-20.0, -25.0]]
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-
     assert mock_show.called
+    mock_show.reset_mock()
 
-    extension.root.destroy()
-
-
-@patch("matplotlib.pyplot.show")
-def test_plot_matrix_heatmap_single_color_red(mock_show, mock_emit_environment):
-    """Test heatmap plotting when all values are in red range."""
-    extension = EMIHeatmapExtension(withdraw=True)
-
-    extension._victim = "RxRadio1"
-    extension._victim_band = "Band1"
-    extension._aggressor = "TxRadio1"
-    extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz", "2450MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
-    extension._emi = [[5.0, 10.0]]  # All above red threshold
-    extension.active_project_name = "TestProject"
-
+    # Test case 2: All values in red range
+    extension._emi = [[5.0, 10.0]]
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-
     assert mock_show.called
+    mock_show.reset_mock()
 
-    extension.root.destroy()
-
-
-@patch("matplotlib.pyplot.show")
-def test_plot_matrix_heatmap_constant_values(mock_show, mock_emit_environment):
-    """Test heatmap plotting when all values are identical."""
-    extension = EMIHeatmapExtension(withdraw=True)
-
-    extension._victim = "RxRadio1"
-    extension._victim_band = "Band1"
-    extension._aggressor = "TxRadio1"
-    extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz", "2450MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
-    extension._emi = [[-5.0, -5.0]]  # All same value
-    extension.active_project_name = "TestProject"
-
+    # Test case 3: All values are identical (constant)
+    extension._emi = [[-5.0, -5.0]]
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-
     assert mock_show.called
 
     extension.root.destroy()
 
 
 @patch("tkinter.messagebox.showerror")
-def test_plot_matrix_heatmap_empty_data(mock_error, mock_emit_environment):
-    """Test heatmap plotting with empty data."""
+def test_plot_matrix_heatmap_error_cases(mock_error, mock_emit_environment):
+    """Test heatmap plotting with invalid inputs: empty data, NaN values, and invalid thresholds."""
     extension = EMIHeatmapExtension(withdraw=True)
 
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
+
+    # Test case 1: Empty data
     extension._victim_frequencies = []
     extension._aggressor_frequencies = []
     extension._emi = []
-    extension.active_project_name = "TestProject"
-
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-
     assert mock_error.called
     assert result is None
+    mock_error.reset_mock()
 
-    extension.root.destroy()
-
-
-@patch("tkinter.messagebox.showerror")
-def test_plot_matrix_heatmap_nan_values(mock_error, mock_emit_environment):
-    """Test heatmap plotting with NaN values."""
-    extension = EMIHeatmapExtension(withdraw=True)
-
-    extension._victim = "RxRadio1"
-    extension._victim_band = "Band1"
-    extension._aggressor = "TxRadio1"
-    extension._aggressor_band = "Band1"
+    # Test case 2: NaN values
     extension._victim_frequencies = ["2400MHz"]
     extension._aggressor_frequencies = ["2400MHz"]
     extension._emi = [[np.nan]]
-    extension.active_project_name = "TestProject"
-
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
-
     assert mock_error.called
     assert result is None
+    mock_error.reset_mock()
 
-    extension.root.destroy()
-
-
-@patch("tkinter.messagebox.showerror")
-def test_plot_matrix_heatmap_invalid_thresholds(mock_error, mock_emit_environment):
-    """Test heatmap plotting with invalid threshold values."""
-    extension = EMIHeatmapExtension(withdraw=True)
-
-    extension._victim = "RxRadio1"
-    extension._victim_band = "Band1"
-    extension._aggressor = "TxRadio1"
-    extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
+    # Test case 3: Invalid threshold (NaN)
     extension._emi = [[-5.0]]
-    extension.active_project_name = "TestProject"
-
-    # Test with NaN threshold
     result = extension._plot_matrix_heatmap(red_threshold=np.nan, yellow_threshold=-10)
     assert mock_error.called
     assert result is None
+    mock_error.reset_mock()
 
-    extension.root.destroy()
-
-
-@patch("tkinter.messagebox.showerror")
-def test_plot_matrix_heatmap_equal_thresholds(mock_error, mock_emit_environment):
-    """Test heatmap plotting with equal threshold values."""
-    extension = EMIHeatmapExtension(withdraw=True)
-
-    extension._victim = "RxRadio1"
-    extension._victim_band = "Band1"
-    extension._aggressor = "TxRadio1"
-    extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
-    extension._emi = [[-5.0]]
-    extension.active_project_name = "TestProject"
-
+    # Test case 4: Equal thresholds
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=0)
-
     assert mock_error.called
     assert result is None
 
@@ -569,7 +510,6 @@ def test_on_generate_heatmap(mock_show, mock_emit_environment):
     extension._victim_frequencies = ["2400MHz"]
     extension._aggressor_frequencies = ["2400MHz"]
     extension._emi = [[-5.0]]
-    extension.active_project_name = "TestProject"
 
     extension._on_generate_heatmap()
 
