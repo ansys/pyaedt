@@ -45,6 +45,7 @@ from ansys.aedt.core.visualization.post.solution_data import SolutionData
 import ansys.aedt.core.visualization.report.emi
 import ansys.aedt.core.visualization.report.eye
 import ansys.aedt.core.visualization.report.field
+import ansys.aedt.core.visualization.report.netlist
 import ansys.aedt.core.visualization.report.standard
 
 if TYPE_CHECKING:
@@ -70,6 +71,7 @@ TEMPLATES_BY_NAME = {
     "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.Standard,
     "Spectrum": ansys.aedt.core.visualization.report.standard.Spectral,
     "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
+    "Netlist": ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport,
 }
 
 
@@ -1249,7 +1251,10 @@ class PostProcessorCommon(PyAedtBase):
                     setup_sweep_name = f"{k} : {setup_sweep_name}"
                     break
         setup_name = setup_sweep_name.split(":")[0].strip()
-        if self._app.design_type != "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
+        if (
+            self._app.design_type not in ["Circuit Netlist", "Twin Builder"]
+            and setup_name not in self._app.setup_sweeps_names
+        ):
             raise KeyError(f"Setup {setup_name} not available in current design.")
         # Domain
         if not domain:
@@ -1281,7 +1286,9 @@ class PostProcessorCommon(PyAedtBase):
 
         # Report Class
         if report_category in TEMPLATES_BY_NAME:
-            report_class = TEMPLATES_BY_NAME[report_category]
+            report_class = TEMPLATES_BY_NAME[
+                "Netlist" if self._app.design_type == "Circuit Netlist" else report_category
+            ]
         elif "Fields" in report_category:
             report_class = TEMPLATES_BY_NAME["Fields"]
         else:
@@ -1407,6 +1414,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         plot_name=None,
+        solution=None,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
 
@@ -1454,6 +1462,14 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
+        solution : str, optional
+            For Circuit Netlist designs only, specify the solution name to create the report for.
+            Possible values are ``"NexximLNA"`` , ``"NexximDC"`` , ``"NexximTransient"``,
+            ``"NexximVerifEye"``, ``"NexximQuickEye"``, ``"NexximAMI"``, ``"NexximOscillatorRSF"``,
+            ``"NexximOscillator1T"``, ``"NexximOscillatorNT"``, ``"NexximHarmonicBalance1T"``,
+            ``"NexximHarmonicBalanceNT"``, ``"NexximSystem"``, ``"NexximTVNoise"``, ``"HSPICE"``
+            ``"TR"``.
+            The default is ``None``.
 
         Returns
         -------
@@ -1530,7 +1546,7 @@ class PostProcessorCommon(PyAedtBase):
             polyline_points=polyline_points,
         )
         report.report_type = plot_type
-        result = report.create(plot_name)
+        result = report.create(plot_name, solution)
         if result:
             if report.traces:
                 return report

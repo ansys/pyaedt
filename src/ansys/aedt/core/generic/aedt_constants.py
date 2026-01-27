@@ -808,25 +808,25 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
     NAME = "Circuit Netlist"
 
     model_name = "NexximNetlist"
-    solution_default = ""
+    solution_default = "NexximLNA"
     solution_types = {
         "NexximLNA": {
-            "name": None,
+            "name": "LNA",
             "options": None,
-            "report_type": "Standard",
+            "report_type": "CircuitNetlistReport",
             "default_setup": 15,
             "default_adaptive": None,
             "intrinsics": ["Freq"],
         },
         "NexximDC": {
-            "name": None,
+            "name": "DC",
             "options": None,
             "report_type": "Standard",
             "default_setup": 16,
             "default_adaptive": None,
         },
         "NexximTransient": {
-            "name": None,
+            "name": "Tran",
             "options": None,
             "report_type": "Standard",
             "default_setup": 17,
