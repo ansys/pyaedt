@@ -51,8 +51,9 @@ pytestmark = [
 
 # Conditional import
 if not SKIP_EMIT_PYTHON_VERSION:
-    from ansys.aedt.core import Emit
     from ansys.aedt.core.extensions.emit.emi_heatmap import EMIHeatmapExtension
+
+    from ansys.aedt.core import Emit
 
 
 @pytest.fixture

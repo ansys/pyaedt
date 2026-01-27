@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT EMI Heatmap Extension."""
+"""EMIT EMI Heat map Extension."""
 
 from dataclasses import dataclass
 import os
@@ -41,13 +41,13 @@ from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
 from ansys.aedt.core.extensions.misc import get_arguments
 
-EXTENSION_TITLE = "EMIT EMI Heatmap"
+EXTENSION_TITLE = "EMIT EMI Heat Map"
 EXTENSION_DEFAULT_ARGUMENTS = {}
 
 
 @dataclass
 class EMIHeatmapExtensionData(ExtensionCommonData):
-    """Data class containing EMI heatmap analysis results."""
+    """Data class containing EMI heat map analysis results."""
 
     emi: Optional[np.ndarray] = None
     rx_power: Optional[np.ndarray] = None
@@ -60,7 +60,7 @@ class EMIHeatmapExtensionData(ExtensionCommonData):
 
 
 class EMIHeatmapExtension(ExtensionEMITCommon):
-    """Interactive EMIT extension for EMI Heatmap analysis."""
+    """Interactive EMIT extension for EMI heat map analysis."""
 
     def __init__(self, withdraw: bool = False):
         self._widgets = {}
@@ -89,7 +89,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         )
 
     def add_extension_content(self):
-        """Build the UI for the EMI Heatmap extension."""
+        """Build the UI for the EMI heat map extension."""
         root = self.root
 
         # Header with project/design info
