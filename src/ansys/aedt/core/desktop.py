@@ -178,11 +178,72 @@ def launch_aedt(
 ):  # pragma: no cover
     """Launch AEDT in gRPC mode.
 
+    This function starts an AEDT session with gRPC communication enabled. It supports
+    multiple transport modes (INSECURE, UDS, MTLS, WNUA) based on the current settings
+    and environment configuration.
+
     .. warning::
 
         Do not execute this function with untrusted function argument, environment
         variables or pyaedt global settings.
         See the :ref:`security guide<security_launch_aedt>` for details.
+
+    Parameters
+    ----------
+    full_path : str or Path
+        Full path to the AEDT executable file.
+        The path must point to a valid AEDT executable.
+    non_graphical : bool
+        Whether to launch AEDT in non-graphical mode (``True``) or graphical mode (``False``).
+        Non-graphical mode is useful for batch processing and automation.
+    port : int
+        The port number on which the gRPC server will listen.
+    student_version : bool
+        Whether to launch the student version of AEDT (``True``) or the commercial version (``False``).
+    host : str, optional
+        The host address for the gRPC server. The default is ``None``, which uses ``"127.0.0.1"``.
+        For remote connections, specify the appropriate host address.
+
+    Returns
+    -------
+    tuple[bool, int]
+        A tuple containing:
+        - ``bool``: ``True`` if AEDT launched successfully, ``False`` otherwise.
+        - ``int``: The port number on which AEDT is listening, or ``0`` if launch failed.
+
+    Raises
+    ------
+    ValueError
+        If the provided ``full_path`` does not exist or is not a valid AEDT executable.
+    AEDTRuntimeError
+        If both ``settings.grpc_local`` and ``settings.grpc_listen_all`` are set to ``True``.
+
+    Notes
+    -----
+    - The function waits up to ``settings.desktop_launch_timeout`` seconds for AEDT to start.
+    - It checks for available licenses unless ``settings.skip_license_check`` is ``True``.
+    - Environment variables from ``settings.aedt_environment_variables`` are applied before launch.
+    - The gRPC transport mode is determined by ``settings.grpc_secure_mode`` and ``settings.grpc_local``.
+
+    Examples
+    --------
+    Launch AEDT 2025 R2 in non-graphical mode on port 50051:
+
+    >>> from ansys.aedt.core import desktop
+    >>> from pathlib import Path
+    >>> aedt_path = Path("C:/Program Files/AnsysEM/v252/Win64/ansysedt.exe")
+    >>> success, port = launch_aedt(full_path=aedt_path, non_graphical=True, port=50051, student_version=False)
+    >>> print(f"AEDT started: {success}, Port: {port}")
+    AEDT started: True, Port: 50051
+
+    Launch AEDT student version in graphical mode:
+
+    >>> success, port = launch_aedt(
+    ...     full_path="C:/Program Files/AnsysEM/v252/Win64/ansysedtsv.exe",
+    ...     non_graphical=False,
+    ...     port=50052,
+    ...     student_version=True,
+    ... )
     """
     if settings.grpc_local and settings.grpc_listen_all:
         raise AEDTRuntimeError(
@@ -333,7 +394,7 @@ def launch_aedt_in_lsf(non_graphical, port, host=None):  # pragma: no cover
             aedt_startup_timeout = 120
             k = 0
             # LSF resources are assigned. Make sure AEDT starts
-            while not _is_port_occupied(port, machine_name=m.group(1)):
+            while not _is_port_occupied(port, host=m.group(1)):
                 if k > aedt_startup_timeout:
                     pyaedt_logger.error("LSF allocated resources, but AEDT was unable to start due to a timeout.")
                     return False, err
@@ -2450,6 +2511,52 @@ class Desktop(PyAedtBase):
     def __initialize(
         self,
     ):
+        """Initialize connection to a new or existing AEDT desktop instance.
+
+        This internal method handles the initialization of AEDT desktop connections,
+        supporting both COM (Windows) and gRPC (cross-platform) modes. It manages:
+        - Creation of new AEDT instances via COM or gRPC
+        - Connection to existing AEDT sessions
+        - Process ID tracking and session management
+        - Desktop object retrieval and validation
+
+        The method's behavior depends on the connection mode:
+
+        **COM Mode (Windows only):**
+        - Uses .NET interop via ``StandalonePyScriptWrapper``
+        - Creates new COM instance (graphical or non-graphical)
+        - Attaches to existing COM sessions when available
+
+        **gRPC Mode (cross-platform):**
+        - Connects to gRPC server already launched by ``launch_aedt()``
+        - Retrieves desktop stub from gRPC channel
+        - Validates connection to AEDT instance
+
+        Returns
+        -------
+        object
+            Desktop object (COM or gRPC stub) representing the AEDT instance.
+            Returns ``None`` if initialization fails.
+
+        Notes
+        -----
+        - Sets ``launched_by_pyaedt`` to ``True`` when creating new instances
+        - Process ID tracking enables multi-session management
+        - For gRPC mode, the AEDT process must be launched before calling this method
+        - COM mode requires Windows and .NET runtime
+
+        Warnings
+        --------
+        This method should not be called directly. Use the ``Desktop`` constructor
+        or ``__init_grpc()`` method instead.
+
+        See Also
+        --------
+        __init_grpc : gRPC-specific initialization orchestrator
+        __init_dotnet : COM initialization for existing instances
+        __dispatch_win32 : Fallback COM dispatch method
+        launch_aedt : Function that spawns AEDT process with gRPC server
+        """
         if not self.is_grpc_api:  # pragma: no cover
             from ansys.aedt.core.internal.clr_module import _clr
 
@@ -2563,10 +2670,54 @@ class Desktop(PyAedtBase):
                 self.new_desktop = True
 
     def __init_grpc(self):
+        """Initialize AEDT connection using gRPC API.
+
+        This internal method manages the gRPC connection process, including:
+        - Starting a new AEDT instance with gRPC server (if needed)
+        - Connecting to an existing gRPC session (if available)
+        - Handling LSF scheduler on Linux systems
+        - Port validation and assignment
+
+        The method uses different connection strategies based on:
+        - Platform (Linux/Windows)
+        - Scheduler type (LSF/local)
+        - Desktop mode (new session vs. reuse existing)
+
+        Notes
+        -----
+        - On Linux with LSF: Launches AEDT via LSF job scheduler
+        - On other platforms: Uses direct process launch via ``launch_aedt()``
+        - Port selection priority:
+          1. User-specified port (validated)
+          2. Existing active gRPC session port
+          3. Auto-assigned free port
+
+        Raises
+        ------
+        AEDTRuntimeError
+            If gRPC server fails to start or connection cannot be established.
+
+        Warnings
+        --------
+        This method should not be called directly. It's invoked automatically by
+        the ``Desktop`` constructor when ``settings.use_grpc_api == True``.
+
+        See Also
+        --------
+        launch_aedt : Function that spawns the AEDT process with gRPC arguments
+        launch_aedt_in_lsf : LSF-specific AEDT launcher for Linux HPC clusters
+        _assign_port : Port selection and validation logic
+        """
         result = False
+
+        # Linux LSF cluster: Use job scheduler to launch AEDT
         if self.new_desktop and settings.use_lsf_scheduler and is_linux:  # pragma: no cover
             self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
+
+            # Submit LSF job and get remote machine hostname
             out, self.machine = launch_aedt_in_lsf(self.non_graphical, self.port)
+
+            # LSF handles the new instance
             self.new_desktop = False
             if out:
                 self.launched_by_pyaedt = True
@@ -2574,7 +2725,10 @@ class Desktop(PyAedtBase):
             else:
                 self.logger.error(f"Failed to start LSF job on machine: {self.machine}.")
                 return result
+
+        # Standard launch path (Windows or Linux without LSF)
         else:
+            # Determine AEDT installer path
             installer = Path(self.aedt_install_dir) / "ansysedt"
             if self.student_version:  # pragma: no cover
                 installer = Path(self.aedt_install_dir) / "ansysedtsv"
@@ -2584,39 +2738,20 @@ class Desktop(PyAedtBase):
                 else:
                     installer = Path(self.aedt_install_dir) / "ansysedt.exe"
 
-            # lock_file = Path(tempfile.gettempdir()) / "aedt_grpc.lock"
-            # start_time = time.time()
-            # while lock_file.exists():
-            #     if time.time() - start_time > settings.desktop_launch_timeout:
-            #         self.logger.debug(f"Lock file still exists after {settings.desktop_launch_timeout} seconds.")
-            #         break
-            #     if not active_sessions():
-            #         break
-            #     time.sleep(1)
-            #
-            # try:
-            #     lock_file.touch(exist_ok=True)
-            #     self.logger.debug(f"Lock file {lock_file}.")
-            # except Exception:
-            #     self.logger.warning(f"Could not create lock file {lock_file}.")
-
+            # Validate port availability/compatibility
             self.__port = self._validate_port(self.port)
 
+            # Launch new AEDT instance if needed
             if self.new_desktop:
                 self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
-                # Only provide host if user provided a machine name
+                # Spawn AEDT process with gRPC server arguments
                 out, self.port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
             self.new_desktop = False
             self.launched_by_pyaedt = True
+            # Establish gRPC connection (implementation details)
             result = self.__initialize()
-
-            # # Remove lock file
-            # try:
-            #     lock_file.unlink()
-            # except Exception:
-            #     self.logger.warning(f"Could not remove lock file {lock_file}.")
 
         if result:
             if self.new_desktop:
