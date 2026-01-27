@@ -46,6 +46,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -95,6 +96,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -143,6 +145,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -228,6 +231,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -312,6 +316,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -405,6 +410,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -496,6 +502,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -590,6 +597,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -682,6 +690,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -767,6 +776,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -851,6 +861,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -936,6 +947,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1020,6 +1032,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1113,6 +1126,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1204,6 +1218,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1294,6 +1309,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
