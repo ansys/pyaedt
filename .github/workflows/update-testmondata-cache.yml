@@ -43,7 +43,7 @@ jobs:
   # ------------------------------------------------------------------
   update-unit-linux:
     name: Update unit test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     permissions:
       actions: write # Needed to delete cache
@@ -119,7 +119,7 @@ jobs:
   # ------------------------------------------------------------------
   update-integration-linux:
     name: Update integration test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     permissions:
       actions: write # Needed to delete cache
@@ -191,7 +191,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-win:
     name: Update solvers test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -277,7 +277,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-linux:
     name: Update solvers test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -362,7 +362,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-win:
     name: Update general test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -451,7 +451,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-linux:
     name: Update general test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -538,7 +538,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-win:
     name: Update visualization test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -628,7 +628,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-linux:
     name: Update visualization test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -716,7 +716,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-win:
     name: Update icepak test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -802,7 +802,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-linux:
     name: Update icepak test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -887,7 +887,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-win:
     name: Update layout test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -972,7 +972,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-linux:
     name: Update layout test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1057,7 +1057,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-win:
     name: Update extensions test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1146,7 +1146,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-linux:
     name: Update extensions test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1233,7 +1233,7 @@ jobs:
   # ------------------------------------------------------------------
   update-filter-win:
     name: Update filter test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1319,7 +1319,7 @@ jobs:
   # ------------------------------------------------------------------
   update-emit-win:
     name: Update emit test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
