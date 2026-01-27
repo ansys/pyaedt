@@ -19,53 +19,50 @@ runs:
 
         max_attempts=60
         attempt=0
-        final_conclusion=""
 
         while [ $attempt -lt $max_attempts ]; do
-          # Check workflow conclusion for base commit
-          WORKFLOW_CONCLUSION=$(gh run list \
+          # Get all workflow runs and filter for base commit SHA
+          WORKFLOW_DATA=$(gh run list \
             --workflow=update-testmondata-cache.yml \
             --branch=main \
-            --json status,conclusion,headSha \
-            --jq ".[] | select(.headSha == \"$BASE_SHA\") | .conclusion")
+            --json status,conclusion,headSha)
 
-          if [ "$WORKFLOW_CONCLUSION" == "success" ]; then
-            echo "::notice::main cache update completed successfully"
-            final_conclusion="success"
-            break
-          elif [ "$WORKFLOW_CONCLUSION" == "failure" ] || [ "$WORKFLOW_CONCLUSION" == "cancelled" ]; then
-            echo "::warning::main cache update workflow failed or was cancelled"
-            final_conclusion="$WORKFLOW_CONCLUSION"
-            break
-          elif [ -z "$WORKFLOW_CONCLUSION" ]; then
-            # Check if workflow exists but hasn't completed
-            WORKFLOW_EXISTS=$(gh run list \
-              --workflow=update-testmondata-cache.yml \
-              --branch=main \
-              --json headSha \
-              --jq ".[] | select(.headSha == \"$BASE_SHA\") | .headSha")
+          # Filter for BASE_SHA and get the first (most recent) run
+          FILTERED_RUN=$(echo "$WORKFLOW_DATA" | jq -r "map(select(.headSha == \"$BASE_SHA\")) | first")
 
-            if [ -z "$WORKFLOW_EXISTS" ]; then
-              echo "::notice::No cache update workflow found for base commit (using existing cache)"
-              break
+          if [ "$FILTERED_RUN" == "null" ] || [ -z "$FILTERED_RUN" ]; then
+            echo "::notice::No cache update workflow found for base commit (using existing cache)"
+            exit 0
+          fi
+
+          # Extract status and conclusion
+          RUN_STATUS=$(echo "$FILTERED_RUN" | jq -r '.status')
+          RUN_CONCLUSION=$(echo "$FILTERED_RUN" | jq -r '.conclusion')
+
+          echo "::notice::Workflow status: $RUN_STATUS, conclusion: $RUN_CONCLUSION"
+
+          # Check if workflow is completed
+          if [ "$RUN_STATUS" == "completed" ]; then
+            if [ "$RUN_CONCLUSION" == "success" ]; then
+              echo "::notice::Cache update completed successfully. Proceeding with tests."
+              exit 0
+            elif [ "$RUN_CONCLUSION" == "failure" ] || [ "$RUN_CONCLUSION" == "cancelled" ]; then
+              echo "::error::Cache update workflow $RUN_CONCLUSION. Please retrigger the failed/cancelled workflow before running tests."
+              exit 1
+            else
+              echo "::error::Cache update workflow completed with unexpected conclusion: $RUN_CONCLUSION"
+              exit 1
             fi
           fi
 
+          # Workflow is still queued or in_progress
           attempt=$((attempt + 1))
-          echo "::notice::Attempt $attempt/$max_attempts: Cache update still running, waiting 10s..."
+          echo "::notice::Attempt $attempt/$max_attempts: Cache update workflow is $RUN_STATUS, waiting 10s..."
           sleep 10
         done
 
-        if [ $attempt -eq $max_attempts ]; then
-          echo "::error::Timeout waiting for cache update. Cannot proceed without verified cache."
-          exit 1
-        fi
-
-        # Verify the workflow completed successfully
-        if [ "$final_conclusion" == "failure" ] || [ "$final_conclusion" == "cancelled" ]; then
-          echo "::error::Cache update workflow did not complete successfully (status: $final_conclusion). Cannot proceed with tests."
-          exit 1
-        fi
+        echo "::error::Timeout waiting for cache update workflow to complete. Cannot proceed without verified cache."
+        exit 1
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
