@@ -25,11 +25,10 @@
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-import numpy as np
-import pytest
-
 from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
 from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtensionData
+import numpy as np
+import pytest
 
 
 @pytest.fixture
