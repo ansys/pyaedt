@@ -21,23 +21,36 @@ runs:
         attempt=0
 
         while [ $attempt -lt $max_attempts ]; do
-          # Get all workflow runs and filter for base commit SHA
-          WORKFLOW_DATA=$(gh run list \
+          # Get workflow run for the base commit SHA
+          RUN_DATA=$(gh run list \
             --workflow=update-testmondata-cache.yml \
             --branch=main \
-            --json status,conclusion,headSha)
+            --commit "$BASE_SHA" \
+            --limit 1 \
+            --json status,conclusion)
 
-          # Filter for BASE_SHA and get the first (most recent) run
-          FILTERED_RUN=$(echo "$WORKFLOW_DATA" | jq -r "map(select(.headSha == \"$BASE_SHA\")) | first")
-
-          if [ "$FILTERED_RUN" == "null" ] || [ -z "$FILTERED_RUN" ]; then
+          # Check if we got any results
+          if [ "$RUN_DATA" == "[]" ] || [ -z "$RUN_DATA" ]; then
             echo "::notice::No cache update workflow found for base commit (using existing cache)"
             exit 0
           fi
 
-          # Extract status and conclusion
-          RUN_STATUS=$(echo "$FILTERED_RUN" | jq -r '.status')
-          RUN_CONCLUSION=$(echo "$FILTERED_RUN" | jq -r '.conclusion')
+          # Extract status and conclusion using gh's JMESPath query
+          RUN_STATUS=$(gh run list \
+            --workflow=update-testmondata-cache.yml \
+            --branch=main \
+            --commit "$BASE_SHA" \
+            --limit 1 \
+            --json status \
+            --jq '.[0].status')
+          
+          RUN_CONCLUSION=$(gh run list \
+            --workflow=update-testmondata-cache.yml \
+            --branch=main \
+            --commit "$BASE_SHA" \
+            --limit 1 \
+            --json conclusion \
+            --jq '.[0].conclusion')
 
           echo "::notice::Workflow status: $RUN_STATUS, conclusion: $RUN_CONCLUSION"
 
