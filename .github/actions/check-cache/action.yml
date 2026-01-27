@@ -43,7 +43,7 @@ runs:
             --limit 1 \
             --json status \
             --jq '.[0].status')
-          
+
           RUN_CONCLUSION=$(gh run list \
             --workflow=update-testmondata-cache.yml \
             --branch=main \
