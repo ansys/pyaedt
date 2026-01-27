@@ -180,7 +180,7 @@ def test_full_workflow_integration(emit_app_with_radios, test_tmp_dir):
     extension._victim_combo.current(1)
     extension._on_victim_changed()
     assert extension._victim_band_combo["values"]
-    
+
     extension._victim_band_combo.current(0)
     extension._on_victim_band_changed()
     assert len(extension._victim_frequencies) > 0
@@ -188,7 +188,7 @@ def test_full_workflow_integration(emit_app_with_radios, test_tmp_dir):
     extension._aggressor_combo.current(1)
     extension._on_aggressor_changed()
     assert extension._aggressor_band_combo["values"]
-    
+
     extension._aggressor_band_combo.current(0)
     extension._on_aggressor_band_changed()
     assert len(extension._aggressor_frequencies) > 0

@@ -69,7 +69,6 @@ def mock_emit_environment():
         }
 
 
-
 def test_emi_heatmap_extension_data_class():
     """Test EMIHeatmapExtensionData class."""
     data = EMIHeatmapExtensionData(
