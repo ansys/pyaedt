@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import datetime
 import difflib
 import functools
@@ -33,7 +32,7 @@ import logging
 import os
 import platform
 import re
-import subprocess
+import subprocess  # nosec
 import sys
 import time
 import traceback
@@ -730,7 +729,7 @@ def _run_ss_xlp() -> dict[int, int]:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-    )
+    )  # nosec
     if proc.returncode != 0:
         raise RuntimeError(f"'ss -xlp' failed: {proc.stderr.strip()}")
 
@@ -792,7 +791,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
         try:
             pids = []
             for process_name in target_name:
-                pids += subprocess.check_output(["pgrep", "-x", process_name]).decode().split()
+                pids += subprocess.check_output(["pgrep", "-x", process_name]).decode().split()  # nosec
 
             for pid in pids:
                 with open(f"/proc/{pid}/cmdline", "rb") as f:
@@ -806,8 +805,8 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
         # Use WMIC to get process information
         try:
             for tgt in target_name:
-                cmd = f"wmic process where \"name='{tgt}'\" get ProcessId,CommandLine /format:list"
-                output = subprocess.check_output(cmd, shell=True).decode(errors="ignore")
+                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
+                output = subprocess.check_output(cmd).decode(errors="ignore")
 
                 current_cmd = []
 
@@ -891,10 +890,10 @@ def is_grpc_session_active(port):
 
     for target in targets:
         target_processes = _get_target_processes([target])
-        return_dict = {}
-        # Extract port information from process command lines
-        for pid, cmd in target_processes:
-            return_dict[pid] = -1
+
+        # Initialize all found AEDT processes with unknown port (-1)
+        # Port will be determined later through socket/connection analysis
+        return_dict = {pid: -1 for pid, _ in target_processes}
 
         for conn in psutil.net_connections("inet"):
             if (
