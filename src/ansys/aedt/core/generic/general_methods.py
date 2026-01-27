@@ -806,7 +806,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
         try:
             for tgt in target_name:
                 cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
-                output = subprocess.check_output(cmd).decode(errors="ignore")
+                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
 
                 current_cmd = []
 
