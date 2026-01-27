@@ -710,10 +710,19 @@ def number_aware_string_key(s):
 def _run_ss_xlp() -> dict[int, int]:
     """Run 'ss -xlp' command on Linux to find Unix socket ports.
 
+    This function executes the `ss -xlp` command to list Unix sockets and
+    extracts port numbers from AEDT socket filenames.
+
     Returns
     -------
     dict[int, int]
         Dictionary mapping process IDs to port numbers extracted from Unix socket names.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import _run_ss_xlp
+    >>> _run_ss_xlp()
+    {12345: 50051, 67890: 50052}
     """
     proc = subprocess.run(
         ["ss", "-xlp"],
@@ -729,6 +738,7 @@ def _run_ss_xlp() -> dict[int, int]:
     results = {}
 
     for line in lines:
+        # If the line does not contain "ansysedt.exe", skip it
         if "ansysedt.exe" not in line:
             continue
 
@@ -736,7 +746,7 @@ def _run_ss_xlp() -> dict[int, int]:
         pid_match = re.search(r"pid=(\d+)", line)
         pid = int(pid_match.group(1)) if pid_match else None
 
-        # Extract port number from socket filename (e.g., "AnsysEMUDS-50051.sock")
+        # Extract port number from socket filename (for example, "AnsysEMUDS-50051.sock")
         port_match = re.search(r"-(\d+)\.sock", line)
         port = int(port_match.group(1)) if port_match else None
 
@@ -749,20 +759,35 @@ def _run_ss_xlp() -> dict[int, int]:
 def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]:
     """Get process IDs and command line arguments for target processes.
 
+    This function searches for running processes matching the specified names
+    and retrieves their command line arguments.
+
     Parameters
     ----------
     target_name : list[str]
-        List of process names to search for.
+        List of process names to search for. For example, `["ansysedt.exe", "ansysedtsv.exe"]`.
 
     Returns
     -------
     list[tuple[int, list[str]]]
         List of tuples containing (process_id, command_line_arguments).
+        Command line arguments are split into individual strings.
+
+    Notes
+    -----
+    - On Linux: Uses `pgrep` and reads `/proc/{pid}/cmdline`
+    - On Windows: Uses WMIC to query process information
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import _get_target_processes
+    >>> _get_target_processes(["ansysedt.exe"])
+    [(12345, ['C:\\Program Files\\...\\ansysedt.exe', '-grpcsrv', '127.0.0.1:50051'])]
     """
-    system = platform.system()
+    platform_system = platform.system()
     found_data = []
 
-    if system == "Linux":
+    if platform_system == "Linux":
         # Use pgrep to find PIDs and read command lines from /proc
         try:
             pids = []
@@ -777,7 +802,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
         except subprocess.CalledProcessError:
             pyaedt_logger.debug("No matching processes found.")
 
-    elif system == "Windows":
+    elif platform_system == "Windows":
         # Use WMIC to get process information
         try:
             for tgt in target_name:
@@ -805,6 +830,42 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 @pyaedt_function_handler()
 def is_grpc_session_active(port):
+    """Check if a gRPC session is active on the specified port.
+
+    This function verifies whether an AEDT session is actively listening on
+    the specified gRPC port. It does not parse process command lines, instead,
+    it checks active TCP connections.
+
+    The function uses multiple detection strategies:
+    1. On Linux: Checks Unix sockets using `ss -xlp`
+    2. Searches for AEDT processes
+    3. Verifies TCP connections on localhost (127.0.0.1) for the specified port
+
+    Parameters
+    ----------
+    port : int
+        The gRPC port number to check.
+
+    Returns
+    -------
+    bool
+        ``True`` if an AEDT session is listening on the specified port, ``False`` otherwise.
+
+    Notes
+    -----
+    - This function is faster than `active_sessions()` but less comprehensive.
+    - It only checks if the port is in use, not which version of AEDT is using it.
+    - Does not distinguish between graphical and non-graphical sessions.
+
+    Examples
+    --------
+    Check if port 50051 is in use:
+    >>> from ansys.aedt.core.generic.general_methods import is_grpc_session_active
+    >>> if is_grpc_session_active(50051):
+    ...     print("Port 50051 is occupied.")
+    ... else:
+    ...     print("Port 50051 is available.")
+    """
     # On Linux, try to resolve unknown ports using Unix socket analysis
     if is_linux:
         try:
@@ -853,6 +914,12 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
     This function detects running AEDT processes and identifies their gRPC ports or
     marks them as COM sessions. It works on both Windows and Linux platforms.
 
+    The function uses multiple detection strategies:
+    1. Searches for AEDT processes (ansysedt.exe or ansysedtsv.exe).
+    2. Parses command-line arguments to find gRPC port specifications.
+    3. On Linux: Analyzes Unix sockets to detect ports.
+    4. Falls back to TCP connection analysis if ports are still unknown.
+
     Parameters
     ----------
     version : str, optional
@@ -862,7 +929,10 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
     student_version : bool, optional
         Whether to check for student version sessions. The default is ``False``.
     non_graphical : bool, optional
-        This parameter is not currently used. The default is ``False``.
+        Whether to filter by non-graphical sessions. The default is ``None``.
+        If ``True``, only non-graphical sessions are returned.
+        If ``False``, only graphical sessions are returned.
+        If ``None``, all sessions are returned regardless of mode.
 
     Returns
     -------
@@ -872,9 +942,20 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
 
     Examples
     --------
-    >>> sessions = active_sessions()
-    >>> print(sessions)
-    {12345: 50051, 67890: -1}
+    Get all active AEDT sessions:
+    >>> from ansys.aedt.core.generic.general_methods import active_sessions
+    >>> active_sessions()
+    {12345: 50051, 67890: -1}  # PID 12345 uses gRPC port 50051, PID 67890 uses COM
+
+    Get only AEDT 2023.2 sessions:
+
+    >>> active_sessions(version="2023.2")
+    {12345: 50051}
+
+    Get only non-graphical sessions:
+
+    >>> active_sessions(non_graphical=True)
+    {67890: 50052}
     """
     return_dict = {}
 
