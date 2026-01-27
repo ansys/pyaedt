@@ -47,7 +47,7 @@ runs:
               echo "::notice::Cache update completed successfully. Proceeding with tests."
               exit 0
             elif [ "$RUN_CONCLUSION" == "failure" ] || [ "$RUN_CONCLUSION" == "cancelled" ]; then
-              echo "::error::Cache update workflow $RUN_CONCLUSION. Please retrigger the failed/cancelled workflow before running tests."
+              echo "::error::Cache update workflow $RUN_CONCLUSION. Please retrigger the failed/cancelled workflow before running tests. Go to: https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml"
               exit 1
             else
               echo "::error::Cache update workflow completed with unexpected conclusion: $RUN_CONCLUSION"
