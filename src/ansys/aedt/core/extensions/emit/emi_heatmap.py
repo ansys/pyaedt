@@ -335,14 +335,24 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def _format_csv(self, filename):
         """Format CSV file to save."""
-        pivot_results = "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity \n"
+        pivot_results = (
+            "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,"
+            "Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity \n"
+        )
 
         for aggressor_index in range(len(self._aggressor_frequencies)):
             aggressor_frequency = self._aggressor_frequencies[aggressor_index]
             for victim_index in range(len(self._victim_frequencies)):
                 victim_frequency = self._victim_frequencies[victim_index]
 
-                pivot_results += f"{self._aggressor},{self._aggressor_band},{aggressor_frequency},{self._victim},{self._victim_band},{victim_frequency},{self._emi[aggressor_index][victim_index]},{self._rx_power[aggressor_index][victim_index]},{self._desense[aggressor_index][victim_index]},{self._sensitivity[aggressor_index][victim_index]}\n"
+                pivot_results += (
+                    f"{self._aggressor},{self._aggressor_band},{aggressor_frequency},"
+                    f"{self._victim},{self._victim_band},{victim_frequency},"
+                    f"{self._emi[aggressor_index][victim_index]},"
+                    f"{self._rx_power[aggressor_index][victim_index]},"
+                    f"{self._desense[aggressor_index][victim_index]},"
+                    f"{self._sensitivity[aggressor_index][victim_index]}\n"
+                )
 
         print(pivot_results)
         with open(filename, "w") as file:
@@ -502,16 +512,13 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
                 red = 0.0
                 yellow = -10.0
 
-            fig = self._plot_matrix_heatmap(red, yellow)
+            self._plot_matrix_heatmap(red, yellow)
 
             # Set save directory to project directory
-            try:
-                app = self.aedt_application
-                project_path = app.project_path
-                if project_path and os.path.exists(os.path.dirname(project_path)):
-                    plt.rcParams["savefig.directory"] = os.path.dirname(project_path)
-            except Exception:
-                pass
+            app = self.aedt_application
+            project_path = app.project_path
+            if project_path and os.path.exists(os.path.dirname(project_path)):
+                plt.rcParams["savefig.directory"] = os.path.dirname(project_path)
 
         except Exception as e:
             messagebox.showerror("Heatmap Error", f"Failed to generate heatmap: {e}")

@@ -397,7 +397,7 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
     extension._aggressor_frequencies = ["2400MHz", "2450MHz"]
     extension._emi = [[-15.0, -5.0], [-2.0, 5.0]]  # Spans green, yellow, red
 
-    result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
+    extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
 
     # Function should complete without error
     assert mock_show.called
@@ -419,19 +419,19 @@ def test_plot_matrix_heatmap_edge_cases(mock_show, mock_emit_environment):
 
     # Test case 1: All values in green range
     extension._emi = [[-20.0, -25.0]]
-    result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
+    extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
     assert mock_show.called
     mock_show.reset_mock()
 
     # Test case 2: All values in red range
     extension._emi = [[5.0, 10.0]]
-    result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
+    extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
     assert mock_show.called
     mock_show.reset_mock()
 
     # Test case 3: All values are identical (constant)
     extension._emi = [[-5.0, -5.0]]
-    result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
+    extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
     assert mock_show.called
 
     extension.root.destroy()
