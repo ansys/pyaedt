@@ -265,13 +265,12 @@ They are small automated workflows with a simple GUI.
 
             Classify results according to radio protection level or interference type.
 
-   .. grid-item-card:: EMI Heatmap
-            :link: pyaedt_extensions_doc/emit/emi_heatmap
+   .. grid-item-card:: EMI Heat Map
+            :link: pyaedt_extensions_doc/emit/emi_heat_map
             :link-type: doc
             :margin: 2 2 0 0
 
-            Generate a 2D heatmap of EMI results between two radio bands.
-
+            Generate a 2D heat map of EMI results between two radio bands.
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.

@@ -7,7 +7,7 @@ url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions
 
 [EMITHeatmap]
 icon = "images/large/emi_heatmap.png"
-name = "EMI Heatmap"
+name = "EMI Heat Map"
 script = "emi_heatmap.py"
 template = "run_pyaedt_toolkit_script"
-url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/emit/emi_heatmap.html"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/emit/emi_heat_map.html"
