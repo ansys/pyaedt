@@ -95,7 +95,7 @@ def test_emi_heatmap_extension_initialization(mock_emit_environment):
     extension = EMIHeatmapExtension(withdraw=True)
 
     # Verify extension properties
-    assert extension.root.title() == "EMIT EMI Heatmap"
+    assert extension.root.title() == "EMIT EMI Heat Map"
     assert extension.active_design_name == "TestDesign"
     assert extension.active_project_name == "TestProject"
     assert extension.aedt_application.design_type == "EMIT"

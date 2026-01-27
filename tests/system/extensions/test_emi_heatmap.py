@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""System tests for EMI Heatmap extension - integration tests with real EMIT projects."""
-
 import sys
 from unittest.mock import patch
 
@@ -51,9 +49,8 @@ pytestmark = [
 
 # Conditional import
 if not SKIP_EMIT_PYTHON_VERSION:
-    from ansys.aedt.core.extensions.emit.emi_heatmap import EMIHeatmapExtension
-
     from ansys.aedt.core import Emit
+    from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
 
 
 @pytest.fixture
