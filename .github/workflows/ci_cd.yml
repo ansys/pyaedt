@@ -274,6 +274,32 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install Xvfb
+        shell: bash
+        run: sudo apt-get install -y xvfb
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra unit-tests
+
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
 
@@ -284,13 +310,11 @@ jobs:
           cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
 
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          pytest-postargs: 'tests/unit'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.TESTS_VERSION }}
-          optional-dependencies-name: unit-tests
-          requires-xvfb: true
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -317,6 +341,28 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.TESTS_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
+        run: |
+          source .venv/bin/activate
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra integration-tests
+
       - name: Wait for master cache update
         uses: ./.github/actions/check-cache
 
@@ -327,12 +373,11 @@ jobs:
           cache-key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}
 
       - name: Run integration tests
-        uses: ansys/actions/tests-pytest@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
-        with:
-          pytest-postargs: 'tests/integration'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.TESTS_VERSION }}
-          optional-dependencies-name: integration-tests
+        env:
+          PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} tests/integration
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
@@ -363,15 +408,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -386,15 +422,22 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -413,7 +456,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m solvers
+          pytest @args --timeout=600 tests/system/solvers
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -446,15 +489,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -469,15 +503,22 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -493,7 +534,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m solvers
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -523,18 +564,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -546,18 +575,28 @@ jobs:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -570,18 +609,13 @@ jobs:
           }
 
       - name: Run tests marked with 'general'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args -n 4 --dist loadfile --timeout=600 -m general
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -614,18 +648,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -637,18 +659,28 @@ jobs:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -661,14 +693,9 @@ jobs:
       - name: Run tests marked with 'general'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 -m general
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -700,18 +727,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -723,18 +738,28 @@ jobs:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -747,18 +772,13 @@ jobs:
           }
 
       - name: Run tests marked with 'visualization'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args -n 4 --dist loadfile --timeout=600 -m visualization -x
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -792,18 +812,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -815,18 +823,28 @@ jobs:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -839,14 +857,9 @@ jobs:
       - name: Run tests marked with 'visualization'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 -m visualization -x
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -876,15 +889,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -899,15 +903,22 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -926,7 +937,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m icepak
+          pytest @args --timeout=600 tests/system/icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -959,15 +970,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -982,15 +984,22 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1006,7 +1015,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m icepak
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1036,15 +1045,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -1059,15 +1059,22 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1086,7 +1093,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           $args = $env:PYTEST_ARGUMENTS -split ' '
-          pytest @args --timeout=600 -m layout
+          pytest @args --timeout=600 tests/system/layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1119,15 +1126,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -1142,15 +1140,20 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1166,7 +1169,7 @@ jobs:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
           source .venv/bin/activate
-          pytest ${PYTEST_ARGUMENTS} --timeout=600 -m layout
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1181,9 +1184,9 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+ #=================================================================================================
+ #vvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+ #=================================================================================================
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
@@ -1196,18 +1199,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -1219,18 +1210,28 @@ jobs:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1243,18 +1244,13 @@ jobs:
           }
 
       - name: Run tests marked with 'extensions'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -m extensions
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 tests/system/extensions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1287,18 +1283,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
-
-      - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -1310,18 +1294,28 @@ jobs:
           enable-cache: false
           prune-cache: true
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          source .venv/bin/activate
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1334,14 +1328,9 @@ jobs:
       - name: Run tests marked with 'extensions'
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            source .venv/bin/activate
-            pytest ${PYTEST_ARGUMENTS} --timeout=600 -m extensions
+        run: |
+          source .venv/bin/activate
+          pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1371,15 +1360,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -1394,15 +1374,22 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1415,18 +1402,13 @@ jobs:
           }
 
       - name: Run tests marked with 'filter_solutions'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 120
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -m filter_solutions
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 tests/system/filter_solutions
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
@@ -1456,15 +1438,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
-
       - name: Setup Python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
@@ -1479,15 +1452,22 @@ jobs:
       - name: Create virtual environment
         run: uv venv .venv
 
-      - name: Upgrade wheel and setuptools
-        run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install -U wheel setuptools
-
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           .venv\Scripts\Activate.ps1
-          uv pip install .[tests]
+          cp .ci/uv.lock uv.lock
+          uv sync --frozen --extra tests
+
+      - name: Wait for master cache update
+        uses: ./.github/actions/check-cache
+
+      - name: Restore testmondata cache
+        uses: ./.github/actions/testmon-cache
+        with:
+          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1500,18 +1480,13 @@ jobs:
           }
 
       - name: Run tests marked with 'emit'
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 40
-          command: |
-            .venv\Scripts\Activate.ps1
-            $args = $env:PYTEST_ARGUMENTS -split ' '
-            pytest @args --timeout=600 -v -rA --color=yes -m emit
+        run: |
+          .venv\Scripts\Activate.ps1
+          $args = $env:PYTEST_ARGUMENTS -split ' '
+          pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:

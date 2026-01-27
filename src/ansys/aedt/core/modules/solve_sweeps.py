@@ -26,7 +26,6 @@ import copy
 from difflib import SequenceMatcher
 import json
 import os
-import sys
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -42,12 +41,6 @@ from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
-
-open3 = open
-if sys.version_info < (3, 0):
-    import io
-
-    open3 = io.open
 
 
 @pyaedt_function_handler()
@@ -1044,7 +1037,7 @@ class SetupProps(dict):
             settings.logger.warning("Unable to overwrite file: %s." % (file_path))
             return False
         else:
-            with open3(file_path, "w", encoding="utf-8") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
             return True
 
@@ -1068,7 +1061,7 @@ class SetupProps(dict):
                         target[k] = {}
                     set_props(target[k], v)
 
-        with open3(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
         return True
