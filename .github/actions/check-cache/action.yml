@@ -8,7 +8,11 @@ runs:
       if: github.event_name == 'pull_request'
       shell: bash
       run: |
-        echo "Checking if main cache update is running..."
+        echo "::group::Checking if main cache update is running..."
+        echo "Repository: ${GITHUB_REPOSITORY}"
+        echo "Base SHA: ${BASE_SHA}"
+        echo "Workflow: update-testmondata-cache.yml"
+        echo "::endgroup::"
 
         # First check if the workflow file exists on the main branch
         if ! gh api repos/${GITHUB_REPOSITORY}/actions/workflows/update-testmondata-cache.yml --silent 2>/dev/null; then
@@ -17,55 +21,60 @@ runs:
           exit 0
         fi
 
+        echo "::group::Checking for active workflows"
+        # Check if there are any running workflows for the base commit
+        RUNNING_WORKFLOWS=$(gh run list \
+          --workflow=update-testmondata-cache.yml \
+          --branch=main \
+          --json status,headSha,databaseId \
+          --jq "[.[] | select(.headSha == \"$BASE_SHA\" and (.status == \"in_progress\" or .status == \"queued\"))]")
+
+        RUNNING_COUNT=$(echo "$RUNNING_WORKFLOWS" | jq 'length')
+        echo "Found $RUNNING_COUNT active workflow(s) for base commit $BASE_SHA"
+
+        if [ "$RUNNING_COUNT" -gt 0 ]; then
+          echo "Active workflows:"
+          echo "$RUNNING_WORKFLOWS" | jq -r '.[] | "  - Run ID: \(.databaseId), Status: \(.status)"'
+        fi
+        echo "::endgroup::"
+
+        if [ "$RUNNING_COUNT" -eq 0 ]; then
+          echo "::notice::No cache update workflow running for base commit. Proceeding with existing cache."
+          exit 0
+        fi
+
+        echo "::notice::Waiting for $RUNNING_COUNT workflow(s) to complete..."
+
         max_attempts=60
         attempt=0
-        final_conclusion=""
 
         while [ $attempt -lt $max_attempts ]; do
-          # Check workflow conclusion for base commit
-          WORKFLOW_CONCLUSION=$(gh run list \
+          WORKFLOW_STATUS=$(gh run list \
             --workflow=update-testmondata-cache.yml \
             --branch=main \
-            --json status,conclusion,headSha \
-            --jq ".[] | select(.headSha == \"$BASE_SHA\") | .conclusion")
+            --json status,conclusion,headSha,databaseId \
+            --jq ".[] | select(.headSha == \"$BASE_SHA\")")
 
-          if [ "$WORKFLOW_CONCLUSION" == "success" ]; then
+          CURRENT_STATUS=$(echo "$WORKFLOW_STATUS" | jq -r '.status // "not_found"')
+          CURRENT_CONCLUSION=$(echo "$WORKFLOW_STATUS" | jq -r '.conclusion // "none"')
+          RUN_ID=$(echo "$WORKFLOW_STATUS" | jq -r '.databaseId // "unknown"')
+
+          echo "::notice::Attempt $attempt/$max_attempts - Run ID: $RUN_ID, Status: $CURRENT_STATUS, Conclusion: $CURRENT_CONCLUSION"
+
+          if [ "$CURRENT_CONCLUSION" == "success" ]; then
             echo "::notice::main cache update completed successfully"
-            final_conclusion="success"
-            break
-          elif [ "$WORKFLOW_CONCLUSION" == "failure" ] || [ "$WORKFLOW_CONCLUSION" == "cancelled" ]; then
-            echo "::warning::main cache update workflow failed or was cancelled"
-            final_conclusion="$WORKFLOW_CONCLUSION"
-            break
-          elif [ -z "$WORKFLOW_CONCLUSION" ]; then
-            # Check if workflow exists but hasn't completed
-            WORKFLOW_EXISTS=$(gh run list \
-              --workflow=update-testmondata-cache.yml \
-              --branch=main \
-              --json headSha \
-              --jq ".[] | select(.headSha == \"$BASE_SHA\") | .headSha")
-
-            if [ -z "$WORKFLOW_EXISTS" ]; then
-              echo "::notice::No cache update workflow found for base commit (using existing cache)"
-              break
-            fi
+            exit 0
+          elif [ "$CURRENT_CONCLUSION" == "failure" ] || [ "$CURRENT_CONCLUSION" == "cancelled" ]; then
+            echo "::error::Cache update workflow failed (conclusion: $CURRENT_CONCLUSION). Cannot proceed with tests."
+            exit 1
           fi
 
           attempt=$((attempt + 1))
-          echo "::notice::Attempt $attempt/$max_attempts: Cache update still running, waiting 10s..."
           sleep 10
         done
 
-        if [ $attempt -eq $max_attempts ]; then
-          echo "::error::Timeout waiting for cache update. Cannot proceed without verified cache."
-          exit 1
-        fi
-
-        # Verify the workflow completed successfully
-        if [ "$final_conclusion" == "failure" ] || [ "$final_conclusion" == "cancelled" ]; then
-          echo "::error::Cache update workflow did not complete successfully (status: $final_conclusion). Cannot proceed with tests."
-          exit 1
-        fi
+        echo "::error::Timeout waiting for cache update after $((max_attempts * 10)) seconds."
+        exit 1
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
