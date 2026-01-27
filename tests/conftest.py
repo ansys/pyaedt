@@ -70,6 +70,7 @@ DEFAULT_CONFIG = {
     "local_example_folder": None,
     "skip_circuits": False,
     "skip_modelithics": True,
+    "use_pyedb_grpc": True,
 }
 
 local_path = Path(__file__).parent
@@ -95,6 +96,7 @@ USE_LOCAL_EXAMPLE_DATA = config.get("use_local_example_data", DEFAULT_CONFIG.get
 USE_LOCAL_EXAMPLE_FOLDER = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
 SKIP_CIRCUITS = config.get("skip_circuits", DEFAULT_CONFIG.get("skip_circuits"))
 SKIP_MODELITHICS = config.get("skip_modelithics", DEFAULT_CONFIG.get("skip_modelithics"))
+settings.pyedb_use_grpc = config.get("use_pyedb_grpc", False)
 
 os.environ["PYAEDT_SCRIPT_VERSION"] = DESKTOP_VERSION
 

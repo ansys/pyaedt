@@ -107,11 +107,12 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-    # Use EDB legacy (default choice)
     from pyedb import Edb
 
+    use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2025.2" else False
+
     return Edb(
-        edbpath=edbpath,
+        edbpath=str(edbpath),
         cellname=cellname,
         isreadonly=isreadonly,
         edbversion=edbversion,
@@ -120,6 +121,7 @@ def Edb(
         student_version=student_version,
         use_ppe=use_ppe,
         technology_file=technology_file,
+        grpc=use_grpc,
     )
 
 
