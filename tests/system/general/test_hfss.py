@@ -1252,6 +1252,27 @@ def test_create_infinite_sphere(aedt_app):
         polarization_angle=30,
     )
     assert bound.azimuth_start == "2deg"
+    assert bound.delete()
+    # Test with default "Theta-Phi" definition
+    bound = aedt_app.insert_infinite_sphere(
+        definition="Theta-Phi",
+        phi_start=0,
+        phi_stop=180,
+        phi_step=10,
+        theta_start=-180,
+        theta_stop=180,
+        theta_step=10,
+        use_slant_polarization=False,
+        polarization_angle=0,
+    )
+    assert bound
+    assert bound.theta_start == "0deg"
+    assert bound.theta_stop == "180deg"
+    assert bound.theta_step == "10deg"
+    assert bound.phi_start == "-180deg"
+    assert bound.phi_stop == "180deg"
+    assert bound.phi_step == "10deg"
+    assert bound.polarization == "Linear"
 
 
 def test_set_autoopen(aedt_app):
