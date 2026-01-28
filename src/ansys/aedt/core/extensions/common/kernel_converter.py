@@ -64,8 +64,9 @@ AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
 # Extension batch arguments
+PASSWORD = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
 EXTENSION_DEFAULT_ARGUMENTS = {
-    "password": "",  # nosec B105
+    "password": PASSWORD,
     "application": "HFSS",
     "solution": "Modal",
     "file_path": "",

@@ -538,50 +538,45 @@ def test_validate_setup(aedt_app):
     assert ok
 
 
-def test_set_power(aedt_app):
-    coax1_len = 200
-    r1 = 3.0
-    r2 = 10.0
-    coax1_origin = aedt_app.modeler.Position(0, 0, 0)
-    # Create inner and outer conductors
-    aedt_app.modeler.create_cylinder(Axis.X, coax1_origin, r1, coax1_len, 0, "inner_1")
-    outer_1 = aedt_app.modeler.create_cylinder(Axis.X, coax1_origin, r2, coax1_len, 0, "outer_1")
-    udp = aedt_app.modeler.Position(0, 0, 0)
-    o5 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet1")
-    aedt_app.modeler["inner_1"].material_name = "Copper"
+def test_edit_sources_terminal(aedt_app):
+    aedt_app.solution_type = "Terminal"
+    inner, outer, _ = aedt_app.modeler.create_coaxial([0, 0, 0], Axis.X)
+    p1 = aedt_app.lumped_port(inner, outer, create_port_sheet=True)
 
-    aedt_app.wave_port(
-        assignment=o5,
-        reference=[outer_1.name],
-        integration_line=aedt_app.axis_directions.XNeg,
-        modes=2,
-        impedance=40,
-        name="sheet1_Port",
-        renormalize=False,
-        deembed=5,
-        terminals_rename=False,
-    )
-    udp = aedt_app.modeler.Position(200, 0, 0)
-    o6 = aedt_app.modeler.create_circle(Plane.YZ, udp, 10, name="sheet2")
-    aedt_app.wave_port(
-        assignment=o6,
-        integration_line=aedt_app.axis_directions.XPos,
-        modes=2,
-        impedance=40,
-        name="sheet2_Port",
-        renormalize=True,
-        deembed=5,
+    inner2, outer2, _ = aedt_app.modeler.create_coaxial([10, 10, 0], Axis.X)
+    p2 = aedt_app.wave_port(inner2, outer2, create_port_sheet=True)
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}": "10W", f"{p2.name}": ("20W", "0deg", True)},
+        include_port_post_processing=True,
+        use_incident_voltage=True,
     )
 
     assert aedt_app.edit_sources(
-        {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "20deg")},
+        {f"{p1.name}": "10V", f"{p2.name}": ("20V", "20deg", True)},
         include_port_post_processing=True,
         max_available_power="40W",
     )
+
+
+def test_edit_sources_modal(aedt_app):
+    aedt_app.solution_type = "Modal"
+    inner, outer, _ = aedt_app.modeler.create_coaxial([0, 0, 0], Axis.X)
+    p1 = aedt_app.lumped_port(inner, outer, create_port_sheet=True)
+
+    inner2, outer2, _ = aedt_app.modeler.create_coaxial([10, 10, 0], Axis.X)
+    p2 = aedt_app.wave_port(inner2, outer2, create_port_sheet=True)
+
     assert aedt_app.edit_sources(
-        {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "0deg", True)},
+        {f"{p1.name}:1": "10W", f"{p2.name}: 1": ("20W", "0deg", True)},
         include_port_post_processing=True,
         use_incident_voltage=True,
+    )
+
+    assert aedt_app.edit_sources(
+        {f"{p1.name}:1": "10W", f"{p2.name}:1": ("20W", "20deg")},
+        include_port_post_processing=True,
+        max_available_power="40W",
     )
 
 
@@ -1257,6 +1252,24 @@ def test_create_infinite_sphere(aedt_app):
         polarization_angle=30,
     )
     assert bound.azimuth_start == "2deg"
+
+    air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+    aedt_app.assign_radiation_boundary_to_objects(air)
+    boundary_name = "TestSphere"
+
+    # Create infinite spheres with a specific name
+    sphere = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_1 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_2 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    boundary_names = [fs.name for fs in aedt_app.field_setups]
+
+    assert sphere
+    assert boundary_name == sphere.name
+    assert sphere_1
+    assert boundary_name + "_1" == sphere_1.name
+    assert sphere_2
+    assert boundary_name + "_2" == sphere_2.name
+    assert all(map(lambda boundary: boundary.name in boundary_names, [sphere, sphere_1, sphere_2]))
 
 
 def test_set_autoopen(aedt_app):
