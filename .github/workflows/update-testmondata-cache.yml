@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check reference is main
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' }}
+        if: ${{ github.event_name != 'workflow_dispatch' || github.ref != 'refs/heads/main' }}
         run: |
           echo "This workflow can only run on main"
           exit 1
