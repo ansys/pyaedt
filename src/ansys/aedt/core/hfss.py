@@ -5163,12 +5163,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.hfss_boundary.FarFieldSetup`
+        :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup`
+            Far field setup object.
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Infinite")
+
+        # Check if name already exists and generate unique name with integer suffix if needed
+        existing_names = [fs.name for fs in self.field_setups]
+        if name in existing_names:
+            original_name = name
+            suffix = 1
+            while f"{original_name}_{suffix}" in existing_names:
+                suffix += 1
+            name = f"{original_name}_{suffix}"
+            self.logger.warning(
+                f"Infinite sphere '{original_name}' already exists. Creating with name '{name}' instead."
+            )
 
         props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
@@ -5200,10 +5213,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         else:
             props["CoordSystem"] = ""
         bound = FarFieldSetup(self, name, props, "FarFieldSphere", units)
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+        if not bound.create():
+            raise AEDTRuntimeError(f"Failed to create infinite sphere '{name}'.")
+        self.field_setups.append(bound)
+        return bound
 
     @pyaedt_function_handler()
     def insert_near_field_sphere(
