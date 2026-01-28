@@ -21,6 +21,29 @@ Ansys 2022 R2 and later support the latest gRPC interface, allowing
 for remote management of AEDT with rapid streaming of mesh, results,
 and files from the AEDT service.
 
+PyAEDT supports both secure and insecure gRPC connections. By default,
+secure connections are enabled using OS-native mechanisms (WNUA on Windows,
+UDS on Linux) for local connections, or mTLS for client-server scenarios.
+
+For detailed information about secure gRPC connections, transport modes,
+version requirements, and configuration options, see :ref:`Client-server <client_server>`.
+
+
+gRPC interface for EDB
+----------------------
+
+Starting with AEDT 2025 R2, PyEDB supports gRPC connections for database access.
+This can be enabled using the settings:
+
+.. code:: python
+
+    from ansys.aedt.core.generic.settings import settings
+
+    settings.pyedb_use_grpc = True  # Enable PyEDB with gRPC (AEDT 2025 R2+)
+
+.. note::
+   The ``pyedb_use_grpc`` setting requires AEDT 2025 R2 or later.
+
 
 Legacy interfaces
 =================
