@@ -7404,21 +7404,24 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         # Transmission variables only if there are two Floquet ports
         if not is_reflection:
             top, bot = floquet_ports[0], floquet_ports[1]
+            # renormalization factors for transfer coefficients
+            _create_var(f"renorm_t", f"sqrt(re(Zo({bot}:1))/re(Zo({top}:1)))")
+            _create_var(f"renorm_t_inv", f"sqrt(re(Zo({top}:1))/re(Zo({bot}:1)))")
             # Co-pol transmission
-            _create_var("t_te", f"S({bot}:1,{top}:1)")
-            _create_var("t_tm", f"S({bot}:2,{top}:2)")
+            _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
+            _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
             # Cross-pol transmission
-            _create_var("t_tm_te", f"S({bot}:2,{top}:1)")
-            _create_var("t_te_tm", f"S({bot}:1,{top}:2)")
+            _create_var("t_tm_te", f"S({bot}:2,{top}:1)*renorm_t")
+            _create_var("t_te_tm", f"S({bot}:1,{top}:2)*renorm_t")
             # "Inverse" (swap ports) — needed for anisotropic RT tables
             _create_var("r_te_inv", f"S({bot}:1,{bot}:1)")
             _create_var("r_tm_inv", f"-S({bot}:2,{bot}:2)")
             _create_var("r_tm_te_inv", f"-S({bot}:2,{bot}:1)")
             _create_var("r_te_tm_inv", f"S({bot}:1,{bot}:2)")
-            _create_var("t_te_inv", f"S({top}:1,{bot}:1)")
-            _create_var("t_tm_inv", f"S({top}:2,{bot}:2)")
-            _create_var("t_tm_te_inv", f"S({top}:2,{bot}:1)")
-            _create_var("t_te_tm_inv", f"S({top}:1,{bot}:2)")
+            _create_var("t_te_inv", f"S({top}:1,{bot}:1)*renorm_t_inv")
+            _create_var("t_tm_inv", f"S({top}:2,{bot}:2)*renorm_t_inv")
+            _create_var("t_tm_te_inv", f"S({top}:2,{bot}:1)*renorm_t_inv")
+            _create_var("t_te_tm_inv", f"S({top}:1,{bot}:2)*renorm_t_inv")
 
             # Port impedances (for scaling transmission)
             _create_var(f"Zo_{floquet_ports[0]}_1", f"Zo({floquet_ports[0]}:1)")
