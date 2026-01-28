@@ -821,8 +821,8 @@ class FfdSolutionData(PyAedtBase):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         max_theta : float or int, optional
-            Maximum theta angle for plotting. The default is ``180``, which plots the far-field data for
-            all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
+            Maximum theta angle for plotting far-field data. The default value is ``180``, which
+            plots all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
 
         Returns
@@ -874,7 +874,6 @@ class FfdSolutionData(PyAedtBase):
             trace=0,
             polar=polar,
             levels=levels,
-            max_theta=max_theta,
             color_bar=quantity_format,
             snapshot_path=output_file,
             show=show,
@@ -1613,13 +1612,13 @@ class UpdateBeamForm(PyAedtBase):
     @pyaedt_function_handler()
     def update_phi(self, phi):
         """Update the Phi value."""
-        self.__phi = phi
+        self.__phi = phi * np.pi / 180
         self.__update_both()
 
     @pyaedt_function_handler()
     def update_theta(self, theta):
         """Update the Theta value."""
-        self.__theta = theta
+        self.__theta = theta * np.pi / 180
         self.__update_both()
 
 
