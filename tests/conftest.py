@@ -96,7 +96,7 @@ USE_LOCAL_EXAMPLE_DATA = config.get("use_local_example_data", DEFAULT_CONFIG.get
 USE_LOCAL_EXAMPLE_FOLDER = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
 SKIP_CIRCUITS = config.get("skip_circuits", DEFAULT_CONFIG.get("skip_circuits"))
 SKIP_MODELITHICS = config.get("skip_modelithics", DEFAULT_CONFIG.get("skip_modelithics"))
-settings.pyedb_use_grpc = config.get("use_pyedb_grpc", False)
+USE_PYEDB_GRPC = config.get("use_pyedb_grpc", DEFAULT_CONFIG.get("use_pyedb_grpc"))
 
 os.environ["PYAEDT_SCRIPT_VERSION"] = DESKTOP_VERSION
 
@@ -105,6 +105,7 @@ os.environ["PYAEDT_SCRIPT_VERSION"] = DESKTOP_VERSION
 # ================================
 
 settings.use_grpc_api = USE_GRPC
+settings.pyedb_use_grpc = USE_PYEDB_GRPC
 settings.use_local_example_data = USE_LOCAL_EXAMPLE_DATA
 if settings.use_local_example_data and USE_LOCAL_EXAMPLE_FOLDER:
     settings.local_example_folder = USE_LOCAL_EXAMPLE_FOLDER
