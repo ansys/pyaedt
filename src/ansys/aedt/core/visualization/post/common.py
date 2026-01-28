@@ -2018,6 +2018,7 @@ class Reports(PyAedtBase):
         if expressions:
             return expressions
         if self._post_app._app.design_type == "Circuit Netlist":
+            solution = setup_sweep_name
             if not setup_sweep_name:
                 if not self._app.post.available_report_solutions()[0]:
                     raise IndexError("No solutions available.")
@@ -2705,12 +2706,17 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def circuit_netlist(self, expressions=None, setup=None):
+    def circuit_netlist(self, expressions=None, setup=None, domain=None):
         """Pass"""
         if not setup:
             setup = self._post_app._app.available_report_solutions()[0]
-        rep = ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport(
-            self._post_app._app, "Standard", expressions
-        )
+        else:
+            setup = CircuitNetlistConstants.solution_types[setup]["name"]
+        rep = ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport(self._post_app, "Standard", expressions)
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+        if not domain:
+            domain = "Sweep"
+            if setup == "Tran":
+                domain = "Time"
+        rep.domain = domain
         return rep
