@@ -7464,7 +7464,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         # Always create variables defining the direction of incidence
         _create_var("inc_T", f"abs({theta_name})")
-        _create_var("inc_P", f"ang_deg(exp(1i*({phi_name}+pi*if(scan_T < 0, 0, 1))))+360deg*if(arg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))<0,1,0)")
+        _create_var("inc_P", f"ang_deg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))+360deg*if(arg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))<0,1,0)")
 
         floquet_ports = self.get_fresnel_floquet_ports()
 
