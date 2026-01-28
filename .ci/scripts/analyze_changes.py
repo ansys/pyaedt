@@ -228,7 +228,11 @@ def analyze_changes(base_ref: str = "origin/main"):
         raise SystemExit(0)
 
     # Separate Python files and doc files
-    python_files = [f for f in all_files if f.endswith(".py")]
+    python_files = [
+        f
+        for f in all_files
+        if f.endswith(".py") and (f.startswith("tests/") or f.startswith("src/"))
+    ]
     doc_files = [f for f in all_files if f.startswith("doc/") or f.startswith("doc\\")]
     other_files = [f for f in all_files if f not in python_files and f not in doc_files]
 
