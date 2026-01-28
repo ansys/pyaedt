@@ -1380,7 +1380,7 @@ class ReportPlotter(PyAedtBase):
         trace=0,
         polar=False,
         levels=64,
-        max_theta=180,
+        max_theta=360,
         min_theta=0,
         color_bar=None,
         snapshot_path=None,
@@ -1399,14 +1399,12 @@ class ReportPlotter(PyAedtBase):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         levels : int, optional
-            Color map levels. The default is ``64``.
+            Number of color map levels. The default is ``64``.
         max_theta : float or int, optional
-            Maximum theta angle for plotting. It applies only for polar plots.
-            The default is ``180``, which plots the data for all angles.
-            Setting ``max_theta`` to 90 limits the displayed data to the upper
-            hemisphere, that is (0 < theta < 90).
+            Maximum theta angle for plotting polar data.
+            The default is ``360``.
         min_theta : float or int, optional
-            Minimum theta angle for plotting. It applies only for polar plots. The default is ``0``.
+            Minimum theta angle for plotting polar data. The default is ``0``.
         color_bar : str, optional
             Color bar title. The default is ``None`` in which case the color bar is not included.
         snapshot_path : str, optional

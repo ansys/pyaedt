@@ -1402,8 +1402,8 @@ class Variable(PyAedtBase):
     Define a variable defined by a numeric result and a unit string.
 
     >>> v = Variable(3.0 * 4.5, units="mm")
-    >>> assert v.numeric_value = 13.5
-    >>> assert v.units = "mm"
+    >>> assert v.numeric_value == 13.5
+    >>> assert v.units == "mm"
 
     """
 
