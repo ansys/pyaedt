@@ -168,6 +168,9 @@ jobs:
       skip_tests: ${{ steps.analyze.outputs.skip_tests }}
       doc_only: ${{ steps.analyze.outputs.doc_only }}
       run_all: ${{ steps.analyze.outputs.run_all }}
+      emit_changed: ${{ steps.analyze.outputs.emit_changed }}
+      extensions_changed: ${{ steps.analyze.outputs.extensions_changed }}
+      filter_solutions_changed: ${{ steps.analyze.outputs.filter_solutions_changed }}
     permissions:
       contents: read   # Required to read repository content and git history
     steps:
@@ -1212,7 +1215,7 @@ jobs:
   system-tests-extensions-windows:
     name: Test extensions (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.extensions_changed == 'true')
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1292,7 +1295,7 @@ jobs:
 
   system-tests-extensions-linux:
     name: Test extensions (linux)
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.extensions_changed == 'true')
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -1373,7 +1376,7 @@ jobs:
   system-tests-filter-windows:
     name: Test filter solutions (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.filter_solutions_changed == 'true')
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1451,7 +1454,7 @@ jobs:
   system-tests-emit-windows:
     name: Test EMIT (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.emit_changed == 'true')
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1459,58 +1462,21 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check for changes in EMIT
-        id: changes
-        env:
-          GITHUB_REF: ${{ github.ref }}
-        shell: powershell
-        run: |
-          $github_ref = "${env:GITHUB_REF}"
-          $is_main_branch = $github_ref -eq "refs/heads/main"
-          $changed_files = git diff --name-only origin/main...HEAD
-          $run_tests = $false
-          foreach ($file in $changed_files) {
-            if ($file -like "src/ansys/aedt/core/emit_core/*" -or $file -eq "src/ansys/aedt/core/emit.py" -or $file -eq "tests/system/emit/*") {
-              $run_tests = $true
-              break
-            }
-          }
-          # Always run tests on main branch for code coverage
-          if ($is_main_branch) {
-            $run_tests = $true
-            echo "Running on main branch - all tests will be executed"
-          } elseif ($run_tests) {
-            echo "Changes detected in EMIT folder"
-          } else {
-            echo "No changes in EMIT folder"
-          }
-          $run_tests_str = if ($run_tests) { "true" } else { "false" }
-          Add-Content -Path $env:GITHUB_OUTPUT -Value "run_tests=$run_tests_str"
-
-      - name: Skip EMIT tests
-        if: steps.changes.outputs.run_tests == 'false'
-        shell: bash
-        run: echo "Skipped - No changes in src/ansys/aedt/core/emit_core"
-
       - name: Setup Python
-        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
       - name: Set up uv
-        if: steps.changes.outputs.run_tests == 'true'
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
           enable-cache: false
           prune-cache: true
 
       - name: Create virtual environment
-        if: steps.changes.outputs.run_tests == 'true'
         run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
-        if: steps.changes.outputs.run_tests == 'true'
         env:
           TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
@@ -1519,18 +1485,15 @@ jobs:
           uv sync --frozen --extra tests
 
       - name: Wait for master cache update
-        if: steps.changes.outputs.run_tests == 'true'
         uses: ./.github/actions/check-cache
 
       - name: Restore testmondata cache
-        if: steps.changes.outputs.run_tests == 'true'
         uses: ./.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
           cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
 
       - name: Remove Ansys processes (if any)
-        if: steps.changes.outputs.run_tests == 'true'
         shell: powershell
         run: |
           Get-Process | Where-Object {
@@ -1541,7 +1504,6 @@ jobs:
           }
 
       - name: Run tests marked with 'emit'
-        if: steps.changes.outputs.run_tests == 'true'
         env:
           PYTHONMALLOC: malloc
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
@@ -1551,14 +1513,12 @@ jobs:
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
-        if: steps.changes.outputs.run_tests == 'true'
         with:
           name: codecov-system-emit-tests-windows
           files: ./coverage.xml
           flags: windows_system_emit
 
       - name: Upload pytest test results
-        if: steps.changes.outputs.run_tests == 'true'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-emit-windows
