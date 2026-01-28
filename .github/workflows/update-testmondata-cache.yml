@@ -78,7 +78,7 @@ jobs:
         id: analyze
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
             BASE_REF="HEAD~1"
           else
             BASE_REF="origin/main"
