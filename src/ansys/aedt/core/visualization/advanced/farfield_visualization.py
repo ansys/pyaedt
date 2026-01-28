@@ -81,7 +81,7 @@ class FfdSolutionData(PyAedtBase):
     --------
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-    >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+    >>> app = Hfss(version="2025.2", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
     >>> app.desktop_class.close_desktop()
@@ -821,8 +821,8 @@ class FfdSolutionData(PyAedtBase):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         max_theta : float or int, optional
-            Maximum theta angle for plotting. The default is ``180``, which plots the far-field data for
-            all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
+            Maximum theta angle for plotting far-field data. The default value is ``180``, which
+            plots all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
 
         Returns
@@ -832,8 +832,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -874,7 +874,6 @@ class FfdSolutionData(PyAedtBase):
             trace=0,
             polar=polar,
             levels=levels,
-            max_theta=max_theta,
             color_bar=quantity_format,
             snapshot_path=output_file,
             show=show,
@@ -938,8 +937,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1045,8 +1044,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1141,8 +1140,8 @@ class FfdSolutionData(PyAedtBase):
 
         Examples
         --------
-        >>> from ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss(version="2025.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1613,13 +1612,13 @@ class UpdateBeamForm(PyAedtBase):
     @pyaedt_function_handler()
     def update_phi(self, phi):
         """Update the Phi value."""
-        self.__phi = phi
+        self.__phi = phi * np.pi / 180
         self.__update_both()
 
     @pyaedt_function_handler()
     def update_theta(self, theta):
         """Update the Theta value."""
-        self.__theta = theta
+        self.__theta = theta * np.pi / 180
         self.__update_both()
 
 
