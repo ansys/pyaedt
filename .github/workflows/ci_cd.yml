@@ -76,21 +76,42 @@ jobs:
           echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
           exit 1
 
+  # NOTE: We do not allow the pre-commit-ci bot to trigger the CI/CD pipeline
+  # automatically on PR it creates.
+  # This is to mitigate supply chain attacks, where a malicious dependency update
+  # could execute arbitrary code in our build environment.
+  # PRs opened by the pre-commit-ci bot must be reviewed carefully and approved
+  # manually before running the CI.
+  block-pre-commit-ci-bot-PR:
+    name: "Block pre-commit-ci bot (on pre-commit-ci bot PR only)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exit if pre-commit-ci bot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if pre-commit-ci bot is triggering the action
+        if: github.triggering_actor == 'pre-commit-ci[bot]' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
+        run: |
+          echo "::warning::pre-commit-ci bot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
+          exit 1
+
   # NOTE: We do not allow pyansys-ci-bot to trigger the CI/CD pipeline automatically
-  # on dependabot's PR. This is to mitigate supply chain attacks, where a malicious
-  # dependency update could execute arbitrary code in our build environment.
-  # Dependabot PRs must be reviewed carefully and approved manually before
+  # on dependabot's and pre-commit-ci bot's PR. This is to mitigate supply chain attacks,
+  # where a malicious dependency update could execute arbitrary code in our build environment.
+  # Dependabot and pre-commit-ci bot PRs must be reviewed carefully and approved manually before
   # running the CI.
 
   block-pyansys-ci-bot:
-    name: "Block PyAnsys-CI-bot (on dependabot PR)"
-    needs: block-dependabot
+    name: "Block PyAnsys-CI-bot (on dependabot and pre-commit-ci bot PR)"
+    needs: [block-dependabot, block-pre-commit-ci-bot-PR]
     runs-on: ubuntu-latest
     steps:
       - name: Exit if pyansys-ci-bot triggered the workflow on dependabot's PR
         if: github.triggering_actor == 'pyansys-ci-bot' && startsWith(github.head_ref, 'dependabot')
         run: |
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
+          exit 1
+      - name: Exit if pyansys-ci-bot triggered the workflow on pre-commit-ci bot's PR
+        if: github.triggering_actor == 'pyansys-ci-bot' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
+        run: |
+          echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in pre-commit-ci bot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
 
   vulnerabilities:
