@@ -7405,8 +7405,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if not is_reflection:
             top, bot = floquet_ports[0], floquet_ports[1]
             # renormalization factors for transfer coefficients
-            _create_var(f"renorm_t", f"sqrt(re(Zo({bot}:1))/re(Zo({top}:1)))")
-            _create_var(f"renorm_t_inv", f"sqrt(re(Zo({top}:1))/re(Zo({bot}:1)))")
+            _create_var("renorm_t", f"sqrt(re(Zo({bot}:1))/re(Zo({top}:1)))")
+            _create_var("renorm_t_inv", f"sqrt(re(Zo({top}:1))/re(Zo({bot}:1)))")
             # Co-pol transmission
             _create_var("t_te", f"S({bot}:1,{top}:1)*renorm_t")
             _create_var("t_tm", f"S({bot}:2,{top}:2)*renorm_t")
@@ -7464,7 +7464,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         # Always create variables defining the direction of incidence
         _create_var("inc_T", f"abs({theta_name})")
-        _create_var("inc_P", f"ang_deg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))+360deg*if(arg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))<0,1,0)")
+        _create_var(
+            "inc_P",
+            f"ang_deg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))+360deg*if(arg(exp(1i*({phi_name}+pi*if({theta_name} < 0, 0, 1))))<0,1,0)",
+        )
 
         floquet_ports = self.get_fresnel_floquet_ports()
 

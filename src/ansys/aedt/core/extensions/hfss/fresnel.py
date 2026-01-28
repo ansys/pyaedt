@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -184,7 +184,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             15.0,
             18.0,
             22.5,
-            30.0
+            30.0,
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
