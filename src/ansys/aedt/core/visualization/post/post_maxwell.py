@@ -79,13 +79,13 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
             for i in self._app.setups:
                 if i.name == setup.split(" : ")[0]:
                     intrinsics = i.default_intrinsics
-        self._app.desktop_class.close_windows()
+        self._app.desktop.close_windows()
         try:
             self._app.modeler.fit_all()
         except Exception:  # pragma: no cover
             self.logger.debug("Something went wrong with `fit_all` while creating field plot with line traces.")
         self._desktop.TileWindows(0)
-        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
+        self._app.desktop.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -390,7 +390,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         Now the inception voltage evaluation can be performed on all (or a subset) of the
         created field line traces.
         >>> m2d.post.evaluate_inception_voltage(plot_name=plot.name, field_line_number=[1, 2, 4])
-        >>> m2d.desktop_class.release_desktop()
+        >>> m2d.desktop.release_desktop()
         """
         if self._app.solution_type != SolutionsMaxwell3D.ElectroStatic:
             raise AEDTRuntimeError("Field line traces is valid only for electrostatic solution")
@@ -453,7 +453,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         ...     output_file=str(Path(m2d.working_directory, "my_file.txt")),
         ...     field_line_number=[1, 2, 4],
         ... )
-        >>> m2d.desktop_class.release_desktop()
+        >>> m2d.desktop.release_desktop()
         """
         if self._app.solution_type != "Electrostatic":
             raise AEDTRuntimeError("Field line traces is valid only for Electrostatic solution.")
@@ -555,7 +555,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         The inception voltage evaluation can be performed on all (or a subset) of the
         created field line traces and inception voltage parameters can be edited
         >>> m2d.modify_inception_parameters()
-        >>> m2d.desktop_class.release_desktop()
+        >>> m2d.desktop.release_desktop()
         """
         if not ionization_dataset:
             ionization_dataset = [0]

@@ -213,14 +213,14 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self._app.desktop_class.close_windows()
+            self._app.desktop.close_windows()
         if nested_subcircuit_id:
             pname = f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}"
-            odes = self._app.desktop_class.active_design(self._app.oproject, pname)
+            odes = self._app.desktop.active_design(self._app.oproject, pname)
             oed = odes.SetActiveEditor("SchematicEditor")
             if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                 time.sleep(1)
-                self._app.desktop_class.close_windows()
+                self._app.desktop.close_windows()
             objs = oed.GetAllElements()
             match = [i for i in objs if name in i]
             o = CircuitComponent(self, tabname=self.tab_name, custom_editor=oed)
@@ -856,7 +856,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_voltage_probe(name="probe")
-        >>> cir.desktop_class.release_desktop(False, False)
+        >>> cir.desktop.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -899,7 +899,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit()
         >>> cir.modeler.components.create_current_probe(name="probe")
-        >>> cir.desktop_class.release_desktop(False, False)
+        >>> cir.desktop.release_desktop(False, False)
         """
         return self.__create_probe(
             name=name,
@@ -2123,7 +2123,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         >>> cir = Circuit(version="2025.2")
         >>> model = Path("Your path") / "test.lib"
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
-        >>> cir.desktop_class.release_desktop(False, False)
+        >>> cir.desktop.release_desktop(False, False)
         """
         if isinstance(input_file, str):
             input_file = Path(input_file)

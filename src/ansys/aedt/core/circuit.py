@@ -227,7 +227,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         delta = 0.0508
         use_instance = True
         model = []
-        self.desktop_class.close_windows()
+        self.desktop.close_windows()
         autosave = False
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
@@ -680,7 +680,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self.desktop_class.close_windows()
+            self.desktop.close_windows()
         tmp_oModule = oDesign.GetModule("BoundarySetup")
         port = None
         if port_selector == 1:
@@ -1624,9 +1624,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             self.logger.error(
                 "Failed to setup co-simulation settings, make sure the simulation setup is properly defined"
             )
-        active_project = hfss.desktop_class.active_project(hfss.project_name)
+        active_project = hfss.desktop.active_project(hfss.project_name)
         active_project.CopyDesign(hfss.design_name)
-        active_project = hfss.desktop_class.active_project(self.project_name)
+        active_project = hfss.desktop.active_project(self.project_name)
         active_project.Paste()
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
         hfss.close_project(save=False)

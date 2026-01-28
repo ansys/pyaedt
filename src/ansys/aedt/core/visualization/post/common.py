@@ -324,11 +324,11 @@ class PostProcessorCommon(PyAedtBase):
         >>> expressions = m3d.post.available_report_quantities(
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
-        >>> m3d.desktop_class.release_desktop(False, False)
+        >>> m3d.desktop.release_desktop(False, False)
         """
         if not report_category:
             report_category = self.available_report_types[0]
-        elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
+        elif self._app.desktop.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
             # From 2025R2, EddyCurrent category does not exist anymore, but old user code could still try to access
             # This check allows code back compatibility in the report
             self.logger.warning("Change the report category to AC Magnetic.")
@@ -572,7 +572,7 @@ class PostProcessorCommon(PyAedtBase):
         names = self._app.get_oo_name(self.oreportsetup)
         plots = []
         skip_plot = False
-        if self._app.design_type == "Circuit Netlist" and self._app.desktop_class.non_graphical:
+        if self._app.design_type == "Circuit Netlist" and self._app.desktop.non_graphical:
             skip_plot = True
         if names and not skip_plot:
             for name in names:
@@ -1484,7 +1484,7 @@ class PostProcessorCommon(PyAedtBase):
         ...     context="3D",
         ... )
         >>> hfss.post.create_report("S(1,1)", hfss.nominal_sweep, variations=variations, plot_type="Smith Chart")
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1494,7 +1494,7 @@ class PostProcessorCommon(PyAedtBase):
         ...     primary_sweep_variable="Time",
         ...     plot_name="Winding Plot 1",
         ... )
-        >>> m2d.desktop_class.release_desktop(False, False)
+        >>> m2d.desktop.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1515,7 +1515,7 @@ class PostProcessorCommon(PyAedtBase):
         ...     plot_type="Data Table",
         ...     plot_name="reduced_matrix",
         ... )
-        >>> m3d.desktop_class.release_desktop(False, False)
+        >>> m3d.desktop.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -1643,7 +1643,7 @@ class PostProcessorCommon(PyAedtBase):
         ...    variations=variations,
         ...)
         >>> data2.plot()
-        >>> hfss.desktop_class.release_desktop(False, False)
+        >>> hfss.desktop.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1653,7 +1653,7 @@ class PostProcessorCommon(PyAedtBase):
         ...     primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
-        >>> m2d.desktop_class.release_desktop(False, False)
+        >>> m2d.desktop.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
@@ -1661,7 +1661,7 @@ class PostProcessorCommon(PyAedtBase):
         >>> spectralPlotData = circuit.post.get_solution_data(
         ...     expressions="V(Vprobe1)", domain="Spectral", primary_sweep_variable="Spectrum", context=context
         ... )
-        >>> circuit.desktop_class.release_desktop(False, False)
+        >>> circuit.desktop.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
@@ -1677,7 +1677,7 @@ class PostProcessorCommon(PyAedtBase):
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
         >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-        >>> m3d.desktop_class.release_desktop(False, False)
+        >>> m3d.desktop.release_desktop(False, False)
         """
         report = self._get_report_object(
             expressions=expressions,
@@ -2661,7 +2661,7 @@ class Reports(PyAedtBase):
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
         rep = None
-        if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
+        if "EMIReceiver" in self._templates and self._post_app._app.desktop.aedt_version_id > "2023.2":
             rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self._post_app, "EMIReceiver", setup_name)
             if not expressions:
                 expressions = f"Average[{rep.net}]"

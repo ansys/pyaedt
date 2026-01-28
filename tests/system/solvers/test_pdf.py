@@ -179,7 +179,7 @@ def test_virtual_compliance(aedt_app, test_tmp_dir):
     )
     vc.save_configuration(compliance_folder / "main.json")
     assert (compliance_folder / "main.json").exists()
-    v = VirtualCompliance(aedt_app.desktop_class, compliance_folder / "main.json")
+    v = VirtualCompliance(aedt_app.desktop, compliance_folder / "main.json")
     assert v.create_compliance_report(close_project=False)
 
 

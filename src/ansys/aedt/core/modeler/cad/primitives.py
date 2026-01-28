@@ -9112,7 +9112,7 @@ class PrimitivesBuilder(PyAedtBase):
     >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
     >>> primitives_builder.create(),,
-    >>> aedtapp.desktop_class.close_desktop()
+    >>> aedtapp.desktop.close_desktop()
     """
 
     def __init__(self, app, input_file=None, input_dict=None):

@@ -242,13 +242,13 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         # (to finalize the service, if needed)
         if self.app:
             if not is_linux:
-                if self.app and "desktop_class" in dir(self.app[0]) and "close_desktop" in dir(self.app[0].desktop_class):
-                    self.app[0].desktop_class.close_desktop()
+                if self.app and "desktop" in dir(self.app[0]) and "close_desktop" in dir(self.app[0].desktop):
+                    self.app[0].desktop.close_desktop()
 
         pass
 
     def exposed_close_connection(self):
-        if self.app and "desktop_class" in dir(self.app[0]) and "close_desktop" in dir(self.app[0].desktop_class):
+        if self.app and "desktop" in dir(self.app[0]) and "close_desktop" in dir(self.app[0].desktop):
             self.app[0].close_desktop()
 
     def _beta(self):

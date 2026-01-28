@@ -214,7 +214,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             )
             layer = hfss.modeler.stackup.add_layer("via_merging")
             layer.usp = True
-            hfss.desktop_class.release_desktop(False, False)
+            hfss.desktop.release_desktop(False, False)
 
         def callback_merge_vias(extension: ViaClusteringExtension):
             """Callback for merging via instances."""
@@ -229,7 +229,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
             primitives = hfss.modeler.objects_by_layer(layer="via_merging")
             if not primitives:
                 messagebox.showwarning(message="No primitives found on layer defined for merging padstack instances.")
-                hfss.desktop_class.release_desktop(False, False)
+                hfss.desktop.release_desktop(False, False)
                 extension.release_desktop()
                 raise AEDTRuntimeError("No primitives found on layer defined for merging padstack instances.")
 
@@ -261,7 +261,7 @@ class ViaClusteringExtension(ExtensionHFSS3DLayoutCommon):
                 contour_list=contour_list,
             )
             extension.data = via_clustering_data
-            hfss.desktop_class.release_desktop(False, False)
+            hfss.desktop.release_desktop(False, False)
             extension.root.destroy()
 
         button_add_layer = ttk.Button(
@@ -327,7 +327,7 @@ def main(data: ViaClusteringExtensionData):
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         h3d = Hfss3dLayout(new_aedb_path)
         h3d.logger.info("Project generated correctly.")
-        h3d.desktop_class.release_desktop(False, False)
+        h3d.desktop.release_desktop(False, False)
 
     return True
 

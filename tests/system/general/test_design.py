@@ -72,7 +72,7 @@ def test_design_properties(aedt_app):
     assert aedt_app.aedt_version_id
     assert aedt_app.valid_design
     assert aedt_app.clean_proj_folder()
-    assert aedt_app.desktop_class.install_path
+    assert aedt_app.desktop.install_path
     assert Path(aedt_app.lock_file).is_file()
     assert aedt_app.design_type == "HFSS"
     mylist = aedt_app.design_list
@@ -91,15 +91,15 @@ def test_design_properties(aedt_app):
     assert aedt_app.omaterial_manager
 
 
-def test_desktop_class_path(aedt_app):
-    assert Path(aedt_app.desktop_class.project_path()).exists()
-    assert Path(aedt_app.desktop_class.project_path(aedt_app.project_name)).exists()
+def test_desktop_path(aedt_app):
+    assert Path(aedt_app.desktop.project_path()).exists()
+    assert Path(aedt_app.desktop.project_path(aedt_app.project_name)).exists()
 
-    assert len(aedt_app.desktop_class.design_list(aedt_app.project_name)) == 1
-    assert aedt_app.desktop_class.design_type() == "HFSS"
-    assert aedt_app.desktop_class.design_type(aedt_app.project_name, aedt_app.design_name) == "HFSS"
-    assert aedt_app.desktop_class.src_dir.exists()
-    assert aedt_app.desktop_class.pyaedt_dir.exists()
+    assert len(aedt_app.desktop.design_list(aedt_app.project_name)) == 1
+    assert aedt_app.desktop.design_type() == "HFSS"
+    assert aedt_app.desktop.design_type(aedt_app.project_name, aedt_app.design_name) == "HFSS"
+    assert aedt_app.desktop.src_dir.exists()
+    assert aedt_app.desktop.pyaedt_dir.exists()
 
 
 def test_copy_project(aedt_app, test_tmp_dir):
@@ -203,13 +203,13 @@ def test_copy_design_from(coaxial, test_tmp_dir):
 
 
 def test_copy_example(aedt_app):
-    example_name = aedt_app.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+    example_name = aedt_app.desktop.get_example("5G_SIW_Aperture_Antenna")
     from ansys.aedt.core.generic.file_utils import remove_project_lock
 
     remove_project_lock(example_name)
     aedt_app.copy_design_from(example_name, "0_5G Aperture Element")
     assert aedt_app.design_name == "0_5G Aperture Element"
-    assert not aedt_app.desktop_class.get_example("fake")
+    assert not aedt_app.desktop.get_example("fake")
 
 
 def test_design_name_setter(aedt_app):
@@ -393,7 +393,7 @@ def test_aedt_object(aedt_app):
     aedt_obj = AedtObjects()
     assert aedt_obj._odesign
     assert aedt_obj._oproject
-    aedt_obj = AedtObjects(aedt_app._desktop_class, aedt_app.oproject, aedt_app.odesign)
+    aedt_obj = AedtObjects(aedt_app._desktop, aedt_app.oproject, aedt_app.odesign)
     assert aedt_obj._odesign == aedt_app.odesign
 
 
@@ -437,14 +437,14 @@ def test_toolkit(aedt_app, desktop, test_tmp_dir):
     with open(file, "w") as f:
         f.write("import ansys.aedt.core\n")
     assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=str(file))
-    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
+    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop, name="test_toolkit")
     assert customize_automation_tab.add_script_to_menu(
         name="test_toolkit",
         script_file=str(file),
-        personal_lib=aedt_app.desktop_class.personallib,
-        aedt_version=aedt_app.desktop_class.aedt_version_id,
+        personal_lib=aedt_app.desktop.personallib,
+        aedt_version=aedt_app.desktop.aedt_version_id,
     )
-    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
+    assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop, name="test_toolkit")
 
 
 def test_load_project(aedt_app, desktop, test_tmp_dir):
@@ -501,24 +501,24 @@ def test_desktop_save_as(add_app, test_tmp_dir):
     app = add_app(application=Hfss)
     new_project = test_tmp_dir / "new.aedt"
     assert test_tmp_dir.exists()
-    assert app.desktop_class.save_project(project_path=str(new_project))
+    assert app.desktop.save_project(project_path=str(new_project))
     assert Path(new_project).is_file()
     assert app.project_name == "new"
 
     # Test using Path instead of string
     new_project_path = test_tmp_dir / "new_2.aedt"
-    assert app.desktop_class.save_project(project_path=new_project_path)
+    assert app.desktop.save_project(project_path=new_project_path)
     assert new_project_path.exists()
     assert app.project_name == "new_2"
     # Test using Path with only dir
     only_project_path = test_tmp_dir
-    assert app.desktop_class.save_project(project_path=only_project_path)
+    assert app.desktop.save_project(project_path=only_project_path)
     assert new_project_path.exists()
 
     # Test using Path and providing a project name
     new_project_path = test_tmp_dir / "new_3.aedt"
     project_name = app.project_name
-    assert app.desktop_class.save_project(project_name=project_name, project_path=new_project_path)
+    assert app.desktop.save_project(project_name=project_name, project_path=new_project_path)
     assert new_project_path.exists()
     assert app.project_name == "new_3"
     app.close_project(app.project_name, save=False)

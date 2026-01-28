@@ -1249,7 +1249,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         """
         input_file = Path(input_file)
-        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.2":  # pragma: no cover
+        if self.desktop.non_graphical and self.desktop.aedt_version_id < "2024.2":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         dxf_layers = get_dxf_layers(input_file)
@@ -1329,7 +1329,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
-        if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
+        if self.desktop.non_graphical and self.desktop.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False
         if not check_if_path_exists(input_file):

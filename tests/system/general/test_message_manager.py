@@ -143,5 +143,5 @@ def test_messaging(icepak_app):  # pragma: no cover
     assert len(msg.aedt_messages.design_level) >= 4
     settings.enable_desktop_logs = False
 
-    assert icepak_app.desktop_class.messenger
-    assert icepak_app.desktop_class.clear_messages()
+    assert icepak_app.desktop.messenger
+    assert icepak_app.desktop.clear_messages()

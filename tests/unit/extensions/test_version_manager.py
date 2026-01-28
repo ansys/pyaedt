@@ -902,17 +902,15 @@ def test_check_for_pyaedt_update_on_startup_exception_in_after(mock_get_logger, 
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_aedt_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_process_id")
 @patch("ansys.aedt.core.extensions.installer.version_manager.ansys.aedt.core.Desktop")
-def test_get_desktop_with_existing_process(
-    mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
-):
+def test_get_desktop_with_existing_process(mock_desktop, mock_get_process_id, mock_get_aedt_version, mock_get_port):
     """Test get_desktop when AEDT process already exists."""
     mock_get_port.return_value = 12345
     mock_get_aedt_version.return_value = "2024.1"
     mock_get_process_id.return_value = 9876
     mock_desktop_instance = MagicMock()
-    mock_desktop_class.return_value = mock_desktop_instance
+    mock_desktop.return_value = mock_desktop_instance
     result = vm.get_desktop()
-    mock_desktop_class.assert_called_once_with(new_desktop=False, version="2024.1", port=12345, non_graphical=False)
+    mock_desktop.assert_called_once_with(new_desktop=False, version="2024.1", port=12345, non_graphical=False)
     assert result == mock_desktop_instance
 
 
@@ -920,15 +918,13 @@ def test_get_desktop_with_existing_process(
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_aedt_version")
 @patch("ansys.aedt.core.extensions.installer.version_manager.get_process_id")
 @patch("ansys.aedt.core.extensions.installer.version_manager.ansys.aedt.core.Desktop")
-def test_get_desktop_without_existing_process(
-    mock_desktop_class, mock_get_process_id, mock_get_aedt_version, mock_get_port
-):
+def test_get_desktop_without_existing_process(mock_desktop, mock_get_process_id, mock_get_aedt_version, mock_get_port):
     """Test get_desktop when no AEDT process exists."""
     mock_get_port.return_value = 54321
     mock_get_aedt_version.return_value = "2023.2"
     mock_get_process_id.return_value = None
     mock_desktop_instance = MagicMock()
-    mock_desktop_class.return_value = mock_desktop_instance
+    mock_desktop.return_value = mock_desktop_instance
     result = vm.get_desktop()
-    mock_desktop_class.assert_called_once_with(new_desktop=True, version="2023.2", port=54321, non_graphical=True)
+    mock_desktop.assert_called_once_with(new_desktop=True, version="2023.2", port=54321, non_graphical=True)
     assert result == mock_desktop_instance

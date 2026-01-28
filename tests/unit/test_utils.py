@@ -308,14 +308,14 @@ def test_min_aedt_version_success_with_app_private_attribute():
     dummy.old_method()
 
 
-def test_min_aedt_version_success_with_desktop_class():
+def test_min_aedt_version_success_with_desktop():
     class Dummy:
         """Dummy class to test min version with __app attribute."""
 
         odesktop = MagicMock()
         odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
-        desktop_class = MagicMock()
-        desktop_class.odesktop = odesktop
+        desktop = MagicMock()
+        desktop.odesktop = odesktop
 
         @min_aedt_version(PREVIOUS_YEAR_VERSION)
         def old_method(self):

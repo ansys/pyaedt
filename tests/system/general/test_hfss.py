@@ -1751,7 +1751,7 @@ def test_set_phase_center_per_port(aedt_app):
         name="Wave2",
         renormalize=False,
     )
-    if aedt_app.desktop_class.is_grpc_api:
+    if aedt_app.desktop.is_grpc_api:
         assert aedt_app.set_phase_center_per_port()
         assert aedt_app.set_phase_center_per_port(["Global", "Global"])
     else:

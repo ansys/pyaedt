@@ -273,8 +273,8 @@ def test_run_desktop_rmxprt(desktop):
 
 def test_run_desktop_settings(desktop):
     aedtapp = Hfss()
-    assert aedtapp.desktop_class.disable_optimetrics()
+    assert aedtapp.desktop.disable_optimetrics()
     assert aedtapp.get_registry_key_int("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 0
-    assert aedtapp.desktop_class.enable_optimetrics()
+    assert aedtapp.desktop.enable_optimetrics()
     assert aedtapp.get_registry_key_int("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools") == 1
     aedtapp.close_project(save=False)

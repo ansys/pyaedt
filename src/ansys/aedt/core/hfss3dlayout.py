@@ -759,8 +759,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             input_folder = Path(input_folder) / "edb.def"
         self.oimport_export.ImportEDB(str(input_folder))
         self._close_edb()
-        project_name = self.desktop_class.active_project().GetName()
-        design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
+        project_name = self.desktop.active_project().GetName()
+        design_name = self.desktop.active_design(self.desktop.active_project()).GetName().split(";")[-1]
         self.__init__(project=project_name, design=design_name)
         return True
 
@@ -1991,7 +1991,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         """
         if settings.aedt_version >= "2022.2":
             self.modeler.oeditor.ProcessBentModelCmd()
-        if self.desktop_class.non_graphical:
+        if self.desktop.non_graphical:
             return True
         return True if self.variable_manager["BendModel"].expression == "1" else False
 
