@@ -5109,14 +5109,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         r.insert(self, abs(speed) > 0)
         return r
 
-    @pyaedt_function_handler(
-        x_start="phi_start",
-        x_stop="phi_stop",
-        x_step="phi_step",
-        y_start="theta_start",
-        y_stop="theta_stop",
-        y_step="theta_step",
-    )
+    @pyaedt_function_handler()
     def insert_infinite_sphere(
         self,
         definition=InfiniteSphereType.ThetaPhi,
@@ -5213,14 +5206,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             return bound
         return False
 
-    @pyaedt_function_handler(
-        x_start="phi_start",
-        x_stop="phi_stop",
-        x_step="phi_step",
-        y_start="theta_start",
-        y_stop="theta_stop",
-        y_step="theta_step",
-    )
+    @pyaedt_function_handler()
     def insert_near_field_sphere(
         self,
         radius: Union[float, int, str] = 20,
