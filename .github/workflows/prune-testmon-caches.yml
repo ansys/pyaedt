@@ -1,0 +1,44 @@
+name: prune Testmon Caches
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: prune-testmon-caches
+  cancel-in-progress: true
+
+jobs:
+  prune-testmon-caches:
+    name: prune all testmon caches
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write  # Required to delete workflow caches
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Delete testmon caches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Pruning testmon caches..."
+
+          # Get all caches that start with "testmondata-"
+          cache_ids=$(gh cache list --repo "$REPO" --json id,key --jq '.[] | select(.key | startswith("testmondata-")) | .id' 2>/dev/null)
+
+          if [ -z "$cache_ids" ]; then
+            echo "No testmon caches found"
+          else
+            total_deleted=0
+            for cache_id in $cache_ids; do
+              echo "Deleting cache ID: $cache_id"
+              gh cache delete "$cache_id" --repo "$REPO" && ((total_deleted++)) || echo "Failed to delete cache ID: $cache_id"
+            done
+            echo ""
+            echo "Testmon cache prune completed - deleted $total_deleted cache(s)"
+          fi
