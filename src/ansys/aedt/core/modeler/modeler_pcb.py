@@ -826,8 +826,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
-        >>> h3d.modeler.set_spice_model(assignment="A1", input_file="myfile", subcircuit_name="SUBCK1")
-
+        >>> h3d.modeler.set_spice_model(assignment="A1", input_file="path/to/your/model", subcircuit_name="SUBCK1")
         """
         input_file = Path(input_file)
         if not model_name:
