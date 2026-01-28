@@ -35,6 +35,7 @@ from typing import TYPE_CHECKING
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.aedt_constants import CircuitNetlistConstants
 from ansys.aedt.core.generic.aedt_constants import DesignType
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -2016,13 +2017,22 @@ class Reports(PyAedtBase):
     def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
         if expressions:
             return expressions
-        setup_only_name = setup_sweep_name.split(":")[0].strip()
-        get_setup = self._post_app._app.get_setup(setup_only_name)
-        is_siwave_dc = False
-        if (
-            "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR"
-        ):  # pragma: no cover
-            is_siwave_dc = True
+        if self._post_app._app.design_type == "Circuit Netlist":
+            if not setup_sweep_name:
+                if not self._app.post.available_report_solutions()[0]:
+                    raise IndexError("No solutions available.")
+                else:
+                    solution = self._app.post.available_report_solutions()[0]
+            setup_sweep_name = CircuitNetlistConstants.solution_types[solution]["name"]
+            is_siwave_dc = False
+        else:
+            setup_only_name = setup_sweep_name.split(":")[0].strip()
+            get_setup = self._post_app._app.get_setup(setup_only_name)
+            is_siwave_dc = False
+            if (
+                "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR"
+            ):  # pragma: no cover
+                is_siwave_dc = True
         return self._post_app.available_report_quantities(
             solution=setup_sweep_name, context=report._context, is_siwave_dc=is_siwave_dc
         )
@@ -2692,4 +2702,15 @@ class Reports(PyAedtBase):
                         rep.net = net_name
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
 
+        return rep
+
+    @pyaedt_function_handler()
+    def circuit_netlist(self, expressions=None, setup=None):
+        """Pass"""
+        if not setup:
+            setup = self._post_app._app.available_report_solutions()[0]
+        rep = ansys.aedt.core.visualization.report.netlist.CircuitNetlistReport(
+            self._post_app._app, "Standard", expressions
+        )
+        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep

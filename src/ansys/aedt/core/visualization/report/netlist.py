@@ -58,23 +58,6 @@ class CircuitNetlistReport(CommonReport):
         CommonReport.__init__(self, app, report_category, expressions)
 
     @property
-    def pulse_rise_time(self):
-        """Value of Pulse rise time for TDR plot.
-
-        Returns
-        -------
-        float
-            Pulse rise time.
-        """
-        return (
-            self._legacy_props["context"].get("pulse_rise_time", 1.66666666666667e-11) if self.domain == "Time" else 0
-        )
-
-    @pulse_rise_time.setter
-    def pulse_rise_time(self, val):
-        self._legacy_props["context"]["pulse_rise_time"] = val
-
-    @property
     def _did(self):
         if self.domain == "Sweep":
             return 3
@@ -88,47 +71,6 @@ class CircuitNetlistReport(CommonReport):
             return 55824
         else:
             return 1
-
-    @property
-    def time_windowing(self):
-        """Returns the TDR time windowing.
-
-        Options are:
-            * ``0`` : Rectangular
-            * ``1`` : Bartlett
-            * ``2`` : Blackman
-            * ``3`` : Hamming
-            * ``4`` : Hanning
-            * ``5`` : Kaiser
-            * ``6`` : Welch
-            * ``7`` : Weber
-            * ``8`` : Lanzcos.
-
-        Returns
-        -------
-        int
-            Time windowing.
-        """
-        _time_windowing = self._legacy_props["context"].get("time_windowing", 4)
-        return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
-
-    @time_windowing.setter
-    def time_windowing(self, val):
-        available_values = {
-            "rectangular": 0,
-            "bartlett": 1,
-            "blackman": 2,
-            "hamming": 3,
-            "hanning": 4,
-            "kaiser": 5,
-            "welch": 6,
-            "weber": 7,
-            "lanzcos": 8,
-        }
-        if isinstance(val, int):
-            self._legacy_props["context"]["time_windowing"] = val
-        elif isinstance(val, str) and val.lower in available_values:
-            self._legacy_props["context"]["time_windowing"] = available_values[val.lower()]
 
     @property
     def maximum_time(self):
@@ -258,17 +200,17 @@ class CircuitNetlistReport(CommonReport):
                     self._did,
                     0,
                     2,
-                    self.pulse_rise_time,
-                    self.use_pulse_in_tdr if self.pulse_rise_time else False,
+                    0,
+                    False,
                     False,
                     -1,
                     1,
-                    self.time_windowing,
+                    0,
                     1,
                     1,
                     "",
-                    (self.pulse_rise_time / 5) if not self.step_time else self.step_time,
-                    (self.pulse_rise_time * 100) if not self.maximum_time else self.maximum_time,
+                    0,
+                    0,
                 ],
             ]
             if self.sub_design_id:
@@ -359,6 +301,12 @@ class CircuitNetlistReport(CommonReport):
                         "WE",
                         False,
                         self.time_stop,
+                        "WM",
+                        False,
+                        self.time_stop,
+                        "WN",
+                        False,
+                        self.time_start,
                         "WS",
                         False,
                         self.time_start,
