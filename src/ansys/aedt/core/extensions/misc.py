@@ -92,6 +92,20 @@ def is_student():
     return res
 
 
+def get_aedt_non_graphical():
+    """Get non-graphical flag.
+
+    Returns
+    -------
+    bool
+        The value of the PYAEDT_NON_GRAPHICAL environment variable. The default is ``False``.
+    """
+    res = os.getenv("PYAEDT_NON_GRAPHICAL", False)
+    if res in ["true", "True", "1"]:
+        return True
+    return res
+
+
 def get_latest_version(package_name, timeout=3):
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
@@ -528,7 +542,12 @@ class ExtensionCommon(PyAedtBase):
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
-            non_graphical = True if ON_CI else False
+
+            # Get non-graphical flag
+            non_graphical = get_aedt_non_graphical()
+
+            # Force non-graphical to True on CI environments
+            non_graphical = True if ON_CI else non_graphical
 
             aedt_active_sessions = active_sessions(
                 version=version,
