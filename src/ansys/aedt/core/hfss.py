@@ -5113,12 +5113,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def insert_infinite_sphere(
         self,
         definition=InfiniteSphereType.ThetaPhi,
-        x_start=0,
-        x_stop=180,
-        x_step=10,
-        y_start=0,
-        y_stop=180,
-        y_step=10,
+        phi_start=0,
+        phi_stop=180,
+        phi_step=10,
+        theta_start=0,
+        theta_stop=180,
+        theta_step=10,
         units="deg",
         custom_radiation_faces=None,
         custom_coordinate_system=None,
@@ -5136,17 +5136,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         definition : str
             Coordinate definition type. The default is ``"Theta-Phi"``.
             It can be a ``ansys.aedt.core.generic.constants.InfiniteSphereType`` enumerator value.
-        x_start : float, str, optional
+        phi_start : float, str, optional
             First angle start value. The default is ``0``.
-        x_stop : float, str, optional
+        phi_stop : float, str, optional
             First angle stop value. The default is ``180``.
-        x_step : float, str, optional
+        phi_step : float, str, optional
             First angle step value. The default is ``10``.
-        y_start : float, str, optional
+        theta_start : float, str, optional
             Second angle start value. The default is ``0``.
-        y_stop : float, str, optional
+        theta_stop : float, str, optional
             Second angle stop value. The default is ``180``.
-        y_step : float, str, optional
+        theta_step : float, str, optional
             Second angle step value. The default is ``10``.
         units : str
             Angle units. The default is ``"deg"``.
@@ -5164,12 +5164,25 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.hfss_boundary.FarFieldSetup`
+        :class:`ansys.aedt.core.modules.boundary.hfss_boundary.FarFieldSetup`
+            Far field setup object.
         """
         if not self.oradfield:
             raise AEDTRuntimeError("Radiation Field not available in this solution.")
         if not name:
             name = generate_unique_name("Infinite")
+
+        # Check if name already exists and generate unique name with integer suffix if needed
+        existing_names = [fs.name for fs in self.field_setups]
+        if name in existing_names:
+            original_name = name
+            suffix = 1
+            while f"{original_name}_{suffix}" in existing_names:
+                suffix += 1
+            name = f"{original_name}_{suffix}"
+            self.logger.warning(
+                f"Infinite sphere '{original_name}' already exists. Creating with name '{name}' instead."
+            )
 
         props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
@@ -5189,34 +5202,34 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
         else:
             defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
-        props[defs[0]] = self.value_with_units(x_start, units)
-        props[defs[1]] = self.value_with_units(x_stop, units)
-        props[defs[2]] = self.value_with_units(x_step, units)
-        props[defs[3]] = self.value_with_units(y_start, units)
-        props[defs[4]] = self.value_with_units(y_stop, units)
-        props[defs[5]] = self.value_with_units(y_step, units)
+        props[defs[0]] = self.value_with_units(phi_start, units)
+        props[defs[1]] = self.value_with_units(phi_stop, units)
+        props[defs[2]] = self.value_with_units(phi_step, units)
+        props[defs[3]] = self.value_with_units(theta_start, units)
+        props[defs[4]] = self.value_with_units(theta_stop, units)
+        props[defs[5]] = self.value_with_units(theta_step, units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
         else:
             props["CoordSystem"] = ""
         bound = FarFieldSetup(self, name, props, "FarFieldSphere", units)
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+        if not bound.create():
+            raise AEDTRuntimeError(f"Failed to create infinite sphere '{name}'.")
+        self.field_setups.append(bound)
+        return bound
 
     @pyaedt_function_handler()
     def insert_near_field_sphere(
         self,
         radius: Union[float, int, str] = 20,
         radius_units="mm",
-        x_start: Union[float, int, str] = 0,
-        x_stop: Union[float, int, str] = 180,
-        x_step: Union[float, int, str] = 10,
-        y_start: Union[float, int, str] = 0,
-        y_stop: Union[float, int, str] = 180,
-        y_step: Union[float, int, str] = 10,
+        phi_start: Union[float, int, str] = 0,
+        phi_stop: Union[float, int, str] = 180,
+        phi_step: Union[float, int, str] = 10,
+        theta_start: Union[float, int, str] = 0,
+        theta_stop: Union[float, int, str] = 180,
+        theta_step: Union[float, int, str] = 10,
         angle_units: str = "deg",
         custom_radiation_faces: Optional[str] = None,
         custom_coordinate_system: Optional[str] = None,
@@ -5233,17 +5246,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             Sphere radius. The default is ``20``.
         radius_units : str
             Radius units. The default is ``"mm"``.
-        x_start : float, str, optional
+        phi_start : float, str, optional
             First angle start value. The default is ``0``.
-        x_stop : float, str, optional
+        phi_stop : float, str, optional
             First angle stop value. The default is ``180``.
-        x_step : float, str, optional
+        phi_step : float, str, optional
             First angle step value. The default is ``10``.
-        y_start : float, str, optional
+        theta_start : float, str, optional
             Second angle start value. The default is ``0``.
-        y_stop : float, str, optional
+        theta_stop : float, str, optional
             Second angle stop value. The default is ``180``.
-        y_step : float, str, optional
+        theta_step : float, str, optional
             Second angle step value. The default is ``10``.
         angle_units : str
             Angle units. The default is ``"deg"``.
@@ -5272,12 +5285,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         props["Radius"] = self.value_with_units(radius, radius_units)
 
         defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
-        props[defs[0]] = self.value_with_units(x_start, angle_units)
-        props[defs[1]] = self.value_with_units(x_stop, angle_units)
-        props[defs[2]] = self.value_with_units(x_step, angle_units)
-        props[defs[3]] = self.value_with_units(y_start, angle_units)
-        props[defs[4]] = self.value_with_units(y_stop, angle_units)
-        props[defs[5]] = self.value_with_units(y_step, angle_units)
+        props[defs[0]] = self.value_with_units(phi_start, angle_units)
+        props[defs[1]] = self.value_with_units(phi_stop, angle_units)
+        props[defs[2]] = self.value_with_units(phi_step, angle_units)
+        props[defs[3]] = self.value_with_units(theta_start, angle_units)
+        props[defs[4]] = self.value_with_units(theta_stop, angle_units)
+        props[defs[5]] = self.value_with_units(theta_step, angle_units)
         props["UseLocalCS"] = custom_coordinate_system is not None
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -5768,7 +5781,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
             else:
                 self.insert_infinite_sphere(
-                    x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere
+                    phi_start=0, phi_stop=180, phi_step=5, theta_start=-180, theta_stop=180, theta_step=5, name=sphere
                 )
                 self.logger.info("Far field sphere %s is created.", sphere)
         elif self.field_setups:
@@ -5777,7 +5790,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         else:
             sphere = "Infinite Sphere1"
             self.insert_infinite_sphere(
-                x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere
+                phi_start=0, phi_stop=180, phi_step=5, theta_start=-180, theta_stop=180, theta_step=5, name=sphere
             )
             self.logger.info("Far field sphere %s is created.", setup)
 

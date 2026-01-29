@@ -76,15 +76,32 @@ jobs:
           echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
           exit 1
 
-  # NOTE: We do not allow pyansys-ci-bot to trigger the CI/CD pipeline automatically
-  # on dependabot's PR. This is to mitigate supply chain attacks, where a malicious
-  # dependency update could execute arbitrary code in our build environment.
-  # Dependabot PRs must be reviewed carefully and approved manually before
-  # running the CI.
 
+  # NOTE: We do not allow the pre-commit-ci bot to trigger the CI/CD pipeline
+  # automatically on PR it creates.
+  # This is to mitigate supply chain attacks, where a malicious dependency update
+  # could execute arbitrary code in our build environment.
+  # PRs opened by the pre-commit-ci bot must be reviewed carefully and approved
+  # manually before running the CI.
+  block-pre-commit-ci-bot-PR:
+    name: "Block pre-commit-ci bot (on pre-commit-ci bot PR only)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exit if pre-commit-ci bot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if pre-commit-ci bot is triggering the action
+        if: github.triggering_actor == 'pre-commit-ci[bot]' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
+        run: |
+          echo "::warning::pre-commit-ci bot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
+          exit 1
+
+
+  # NOTE: We do not allow pyansys-ci-bot to trigger the CI/CD pipeline automatically
+  # on dependabot's and pre-commit-ci bot's PR. This is to mitigate supply chain attacks,
+  # where a malicious dependency update could execute arbitrary code in our build environment.
+  # Dependabot and pre-commit-ci bot PRs must be reviewed carefully and approved manually before
+  # running the CI.
   block-pyansys-ci-bot:
-    name: "Block PyAnsys-CI-bot (on dependabot PR)"
-    needs: block-dependabot
+    name: "Block PyAnsys-CI-bot (on dependabot and pre-commit-ci bot PR)"
+    needs: [block-dependabot, block-pre-commit-ci-bot-PR]
     runs-on: ubuntu-latest
     steps:
       - name: Exit if pyansys-ci-bot triggered the workflow on dependabot's PR
@@ -92,6 +109,12 @@ jobs:
         run: |
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
+      - name: Exit if pyansys-ci-bot triggered the workflow on pre-commit-ci bot's PR
+        if: github.triggering_actor == 'pyansys-ci-bot' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
+        run: |
+          echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in pre-commit-ci bot's PR. Please review carefully the changes before running the workflow manually."
+          exit 1
+
 
   vulnerabilities:
     name: "Vulnerabilities"
@@ -139,10 +162,65 @@ jobs:
         shell: bash
         run: echo "::notice::Skipping PR title check for non-PR events"
 
+  analyze-changes:
+    name: Analyze code changes
+    runs-on: ubuntu-latest
+    needs: [pr-title]
+    outputs:
+      skip_tests: ${{ steps.analyze.outputs.skip_tests }}
+      doc_only: ${{ steps.analyze.outputs.doc_only }}
+      run_all: ${{ steps.analyze.outputs.run_all }}
+      emit_changed: ${{ steps.analyze.outputs.emit_changed }}
+      extensions_changed: ${{ steps.analyze.outputs.extensions_changed }}
+      filter_solutions_changed: ${{ steps.analyze.outputs.filter_solutions_changed }}
+    permissions:
+      contents: read   # Required to read repository content and git history
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0  # Need full history for git diff
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install PyAEDT
+        shell: bash
+        run: |
+          source .venv/bin/activate
+          uv pip install .[tests]
+
+      - name: Analyze changes
+        id: analyze
+        shell: bash
+        run: |
+          source .venv/bin/activate
+          # Run the analyze-changes script in CI mode
+          python .ci/scripts/analyze_changes.py --base origin/main
+
+          # If no outputs were set, default to run_all=true
+          if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests\|doc_only\|run_all" "$GITHUB_OUTPUT" 2>/dev/null; then
+            echo "run_all=true" >> $GITHUB_OUTPUT
+            echo "skip_tests=false" >> $GITHUB_OUTPUT
+            echo "doc_only=false" >> $GITHUB_OUTPUT
+          fi
+
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
-    needs: [pr-title]
+    needs: [analyze-changes]
     permissions:
       contents: read   # Required to read documentation files for style checking
     steps:
@@ -179,11 +257,12 @@ jobs:
   smoke-tests:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
+    if: needs.analyze-changes.outputs.doc_only != 'true'
     permissions:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
       id-token: write       # Required for OIDC token generation (for provenance signing)
-    needs: [pr-title]
+    needs: [analyze-changes]
     strategy:
       fail-fast: false
       matrix:
@@ -210,9 +289,11 @@ jobs:
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
+
   unit-tests:
     name: Unit tests
-    needs: [smoke-tests]
+    needs: [smoke-tests, analyze-changes]
+    if: needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -278,7 +359,8 @@ jobs:
 
   integration-tests:
     name: Integration tests
-    needs: [unit-tests]
+    needs: [unit-tests, analyze-changes]
+    if: needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -344,8 +426,8 @@ jobs:
 
   system-tests-solvers-windows:
     name: Test solvers (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -422,8 +504,8 @@ jobs:
 
   system-tests-solvers-linux:
     name: Test solvers (linux)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -500,8 +582,8 @@ jobs:
 
   system-tests-general-windows:
     name: Test general (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -581,8 +663,8 @@ jobs:
 
   system-tests-general-linux:
     name: Test general (linux)
-    if: github.event.pull_request.draft == false
-    needs: [integration-tests]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -661,8 +743,8 @@ jobs:
 
   system-tests-visualization-windows:
     name: Test visualization (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     env:
       MPLBACKEND: 'Agg'
@@ -744,8 +826,8 @@ jobs:
 
   system-tests-visualization-linux:
     name: Test visualization (linux)
-    if: github.event.pull_request.draft == false
-    needs: [integration-tests]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -825,8 +907,8 @@ jobs:
 
   system-tests-icepak-windows:
     name: Test icepak (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -903,8 +985,8 @@ jobs:
 
   system-tests-icepak-linux:
     name: Test icepak (linux)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -981,8 +1063,8 @@ jobs:
 
   system-tests-layout-windows:
     name: Test layout (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1059,8 +1141,8 @@ jobs:
 
   system-tests-layout-linux:
     name: Test layout (linux)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -1135,8 +1217,8 @@ jobs:
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1216,8 +1298,8 @@ jobs:
 
   system-tests-extensions-linux:
     name: Test extensions (linux)
-    if: github.event.pull_request.draft == false
-    needs: [integration-tests]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
+    needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -1296,8 +1378,8 @@ jobs:
 
   system-tests-filter-windows:
     name: Test filter solutions (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.filter_solutions_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1374,8 +1456,8 @@ jobs:
 
   system-tests-emit-windows:
     name: Test EMIT (windows)
-    needs: [integration-tests]
-    if: github.event.pull_request.draft == false
+    needs: [integration-tests, analyze-changes]
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.emit_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1444,11 +1526,11 @@ jobs:
         with:
           name: pytest-emit-windows
           path: junit/test-results.xml
-        if: ${{ always() }}
 
   package:
     name: Package library
-    needs: [system-tests-solvers-windows,
+    needs: [analyze-changes,
+            system-tests-solvers-windows,
             system-tests-solvers-linux,
             system-tests-general-windows,
             system-tests-general-linux,
@@ -1464,6 +1546,10 @@ jobs:
             system-tests-emit-windows,
             doc-build]
     runs-on: ubuntu-latest
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     permissions:
       attestations: write   # Required to create and publish package attestations (SLSA provenance)
       contents: read        # Required to read repository content for packaging
