@@ -409,7 +409,9 @@ def test_import_model(aedt_app, test_tmp_dir):
     assert t2.model_data.update()
     touch_original2 = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "y4bm_rdl_dq_byte0.s26p"
     touch2 = shutil.copy2(touch_original2, test_tmp_dir / "y4bm_rdl_dq_byte0.s26p")
-    t1 = aedt_app.modeler.schematic.create_touchstone_component(touch2)
+    t1 = aedt_app.modeler.schematic.create_touchstone_component(
+        touch2, image_path=str(TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "pyansys-log.png")
+    )
     assert t1
     assert len(t1.pins) == 26
 
