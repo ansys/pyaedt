@@ -2481,6 +2481,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                             location=j["position"],
                             angle=j["angle"],
                             page=j.get("page", 1),
+                            image_path=value.get("image_path", None),
                         )
                         if value.get("pin_names", None):
                             for pin in new_comp.pins:
