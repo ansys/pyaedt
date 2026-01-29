@@ -475,7 +475,7 @@ class CircuitComponents(PyAedtBase):
             Show bitmap image of schematic component.
             The default value is ``True``.
         image_path : str, optional
-            Path to the bitmap image. The default is ``None``.
+            Path to the image. The default is ``None``.
 
         Returns
         -------
@@ -986,7 +986,7 @@ class CircuitComponents(PyAedtBase):
         page: int,  optional
             Schematic page number. The default value is ``1``.
         image_path : str, optional
-            Path to the bitmap image. The default is ``None``.
+            Path to the image. The default is ``None``.
 
         Returns
         -------
