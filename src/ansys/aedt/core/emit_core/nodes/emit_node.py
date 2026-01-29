@@ -462,31 +462,25 @@ class EmitNode:
         -------
         EmitNode
             The duplicated component node
+
+        Raises
+        -------
+        NotImplementedError 
+            when self is not a component.  Should avoid calls on BandNodes, SamplingNodes, etc.  
         """
-        OFFSET_Y = -0.01016 #meters, equivalent to -400mil (twice the height of a component)
+        if not self.get_is_component():
+            raise NotImplementedError("This method is not implemented yet.")
         emit_design = self._emit_obj
         oEditor = emit_design._oeditor
         
-        # Get all component locations to find the lowest y position
+        # Get all components before duplication
         all_components = oEditor.GetAllComponents()
-        min_y = float('inf')
-        for comp_name in all_components:
-            location = oEditor.GetComponentLocation(comp_name)
-            if location[1] < min_y:
-                min_y = location[1]
             
         # Get the original component location
         orig_location = oEditor.GetComponentLocation(self.name)
         
-        # Copy the component
-        oEditor.Copy(self.name)
-        
-        # Calculate paste position (using lowest y + offset)
-        paste_x = orig_location[0]
-        paste_y = min_y + OFFSET_Y
-        
         # Paste at new location
-        oEditor.Paste(paste_x, paste_y)
+        oEditor.Paste(*orig_location)
         
         # Get the new component node
         # The pasted component gets an auto-incremented name
@@ -497,6 +491,9 @@ class EmitNode:
         if new_name:
             oEditor.RenameComponent(new_comp_name, new_name)
             new_comp_name = new_name
+        
+        #move component to new row or available node
+        oEditor.PlaceComponent(new_comp_name)
         
         # Get the component node from revision
         revision = emit_design.results.get_revision()
