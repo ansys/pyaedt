@@ -251,6 +251,7 @@ def analyze_changes(base_ref: str = "origin/main"):
     }
 
     # Check for module-specific changes
+    print("Checking module-specific:")
     module_changes = {}
     for module_name, patterns in module_patterns.items():
         changed = any(
@@ -265,6 +266,8 @@ def analyze_changes(base_ref: str = "origin/main"):
         _write_github_output(f"{module_name}_changed", "true" if changed else "false")
         if changed:
             print(f"[MODULE] {module_name.upper()} module changed")
+        else:
+            print(f"[MODULE] {module_name.upper()} module NOT changed")
 
     # Check if ONLY doc files changed
     if doc_files and not python_files and not other_files:

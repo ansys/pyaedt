@@ -217,17 +217,6 @@ jobs:
             echo "doc_only=false" >> $GITHUB_OUTPUT
           fi
 
-          # Echo the analysis results for visibility
-          echo "::notice::Analysis Results:"
-          echo "::notice::  skip_tests=$(grep 'skip_tests=' $GITHUB_OUTPUT | cut -d'=' -f2)"
-          echo "::notice::  doc_only=$(grep 'doc_only=' $GITHUB_OUTPUT | cut -d'=' -f2)"
-          echo "::notice::  run_all=$(grep 'run_all=' $GITHUB_OUTPUT | cut -d'=' -f2)"
-          echo "::notice::  emit_changed=$(grep 'emit_changed=' $GITHUB_OUTPUT | cut -d'=' -f2)"
-          echo "::notice::  extensions_changed=$(grep 'extensions_changed=' $GITHUB_OUTPUT | cut -d'=' -f2)"
-          echo "::notice::  filter_solutions_changed=$(grep 'filter_solutions_changed=' $GITHUB_OUTPUT | cut -d'=' -f2)"
-
-
-
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
