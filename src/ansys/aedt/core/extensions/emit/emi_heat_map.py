@@ -482,6 +482,19 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         for j in range(data.shape[1] + 1):
             ax.axvline(j - 0.5, color='black', linewidth=1)
 
+        # Customize hover info to show frequency and EMI value
+        def format_coord(x, y):
+            col = int(x + 0.5)
+            row = int(y + 0.5)
+            if 0 <= col < len(self._aggressor_frequencies) and 0 <= row < len(self._victim_frequencies):
+                tx_freq = self._aggressor_frequencies[col]
+                rx_freq = self._victim_frequencies[row]
+                emi_val = data[row, col]
+                return f'Tx: {tx_freq:.2f} MHz, Rx: {rx_freq:.2f} MHz, EMI: {emi_val:.2f} dB'
+            return ''
+        
+        ax.format_coord = format_coord
+
         # Add colorbar showing the full color scale
         cbar = plt.colorbar(im, label="EMI (dB)")
 
@@ -493,7 +506,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         # Show numerical values in each cell
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                plt.text(j, i, f"{data[i, j]:.1f}", ha="center", va="center", fontsize=8, color="black")
+                plt.text(j, i, f"{data[i, j]:.1f}", ha="center", va="center", fontsize=7, color="black")
 
         # Adjust layout to prevent cutting off labels
         plt.tight_layout()
