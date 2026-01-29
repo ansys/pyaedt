@@ -209,6 +209,11 @@ def analyze_changes(base_ref: str = "origin/main"):
     - DOC_ONLY=true (if only /doc folder changed)
     - RUN_ALL=true (if code logic or other files changed)
 
+    Also sets module-specific outputs:
+    - emit_changed=true/false (if EMIT module changed)
+    - extensions_changed=true/false (if extensions module changed)
+    - filter_solutions_changed=true/false (if filter solutions module changed)
+
     Examples
     --------
     >>> python.ci / scripts / analyze_changes.py
@@ -231,6 +236,38 @@ def analyze_changes(base_ref: str = "origin/main"):
     python_files = [f for f in all_files if f.endswith(".py") and (f.startswith("tests/") or f.startswith("src/"))]
     doc_files = [f for f in all_files if f.startswith("doc/") or f.startswith("doc\\")]
     other_files = [f for f in all_files if f not in python_files and f not in doc_files]
+
+    # Define module patterns to check for changes
+    module_patterns = {
+        "emit": [
+            "src/ansys/aedt/core/emit_core/",
+        ],
+        "extensions": [
+            "tests/system/extensions/",
+        ],
+        "filter_solutions": [
+            "tests/system/filter_solutions/",
+        ],
+    }
+
+    # Check for module-specific changes
+    print("Checking module-specific:")
+    module_changes = {}
+    for module_name, patterns in module_patterns.items():
+        changed = any(
+            any(
+                f.replace("\\", "/").startswith(pattern.replace("\\", "/"))
+                or f.replace("\\", "/") == pattern.replace("\\", "/")
+                for pattern in patterns
+            )
+            for f in all_files
+        )
+        module_changes[module_name] = changed
+        _write_github_output(f"{module_name}_changed", "true" if changed else "false")
+        if changed:
+            print(f"[MODULE] {module_name.upper()} module changed")
+        else:
+            print(f"[MODULE] {module_name.upper()} module NOT changed")
 
     # Check if ONLY doc files changed
     if doc_files and not python_files and not other_files:
