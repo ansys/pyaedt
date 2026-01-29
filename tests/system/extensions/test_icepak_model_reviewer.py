@@ -23,13 +23,13 @@
 # SOFTWARE.
 from idlelib.browser import file_open
 from pathlib import Path
-import tempfile
+
 import pytest
-import json
+
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import IcepakModelReviewer
-from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file, import_config_file
+from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file
+from ansys.aedt.core.extensions.icepak.model_reviewer.backend import import_config_file
 from ansys.aedt.core.icepak import Icepak
-from tests.unit.extensions.test_mcad_assembly import local_scratch
 
 AEDT_FILENAME = "Graphics_Card"
 CONFIG_FILE = "Modified_Data.json"
@@ -47,6 +47,7 @@ def ipk(add_app, request):
     yield app
     app.close_project(app.project_name, False)
 
+
 @pytest.mark.parametrize("ipk", [AEDT_FILENAME], indirect=True)
 def test_successfull_json_export_import(ipk):
     # 1. Dump data to the file
@@ -55,6 +56,7 @@ def test_successfull_json_export_import(ipk):
     assert ipk.configurations.options.export_variables is False
     result = import_config_file(ipk, exported_data)
     assert result is True
+
 
 @pytest.mark.parametrize("ipk", [AEDT_FILENAME], indirect=True)
 def test_successfull_data_loading(ipk):
