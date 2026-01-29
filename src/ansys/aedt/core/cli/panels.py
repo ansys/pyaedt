@@ -24,7 +24,6 @@
 
 from pathlib import Path
 import platform
-import sys
 
 try:
     import typer

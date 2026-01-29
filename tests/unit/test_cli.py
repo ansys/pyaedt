@@ -28,7 +28,6 @@
 import json
 from pathlib import Path
 import re
-import sys
 from unittest.mock import Mock
 from unittest.mock import patch
 
