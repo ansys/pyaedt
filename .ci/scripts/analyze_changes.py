@@ -211,7 +211,8 @@ def analyze_changes(base_ref: str = "origin/main"):
 
     Also sets module-specific outputs:
     - emit_changed=true/false (if EMIT module changed)
-    - etc.
+    - extensions_changed=true/false (if extensions module changed)
+    - filter_solutions_changed=true/false (if filter solutions module changed)
 
     Examples
     --------
