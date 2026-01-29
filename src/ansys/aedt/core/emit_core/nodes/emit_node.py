@@ -447,8 +447,62 @@ class EmitNode:
 
         return self.name
 
-    def _duplicate(self, new_name):
-        raise NotImplementedError("This method is not implemented yet.")
+    def _duplicate(self, new_name:str = "")->'EmitNode':
+        """Duplicate component using oEditor's Copy/Paste.  
+        New component is placed under existing components in the schematic window.
+        
+        Parameters
+        ----------
+        self : EmitNode
+            The component node to duplicate
+        new_name : str, optional
+            Name for the duplicated component. If empty, AEDT auto-generates a name.
+            
+        Returns
+        -------
+        EmitNode
+            The duplicated component node
+        """
+        OFFSET_Y = -0.01016 #meters, equivalent to -400mil (twice the height of a component)
+        emit_design = self._emit_obj
+        oEditor = emit_design._oeditor
+        
+        # Get all component locations to find the lowest y position
+        all_components = oEditor.GetAllComponents()
+        min_y = float('inf')
+        for comp_name in all_components:
+            location = oEditor.GetComponentLocation(comp_name)
+            if location[1] < min_y:
+                min_y = location[1]
+            
+        # Get the original component location
+        orig_location = oEditor.GetComponentLocation(self.name)
+        
+        # Copy the component
+        oEditor.Copy(self.name)
+        
+        # Calculate paste position (using lowest y + offset)
+        paste_x = orig_location[0]
+        paste_y = min_y + OFFSET_Y
+        
+        # Paste at new location
+        oEditor.Paste(paste_x, paste_y)
+        
+        # Get the new component node
+        # The pasted component gets an auto-incremented name
+        all_components_after = oEditor.GetAllComponents()
+        new_comp_name = [c for c in all_components_after if c not in all_components][0]
+        
+        # Optionally rename if new_name provided
+        if new_name:
+            oEditor.RenameComponent(new_comp_name, new_name)
+            new_comp_name = new_name
+        
+        # Get the component node from revision
+        revision = emit_design.results.get_revision()
+        new_component = revision.get_component_node(new_comp_name)
+        
+        return new_component
 
     def _import(self, file_path: str, import_type: str):
         """Imports a file into an Emit node.
