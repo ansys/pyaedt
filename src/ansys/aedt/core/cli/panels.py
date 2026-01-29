@@ -60,7 +60,7 @@ def add_panels(
 ):
     """Add PyAEDT panels to AEDT installation.
 
-    This command installs PyAEDT tabs (Console, Jupyter, Run Script, Extension Manager,
+    TThis command installs PyAEDT tabs (Console, Jupyter, Run Script, Extension Manager,
     and optionally Version Manager) into your AEDT installation.
 
     Examples
