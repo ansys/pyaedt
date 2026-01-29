@@ -508,9 +508,6 @@ class EmitNode:
             oEditor.RenameComponent(new_comp_name, new_name)
             new_comp_name = new_name
         
-        #move component to new row or available node
-        oEditor.PlaceComponent(new_comp_name)
-        
         # Get the component EmitNode from revision
         revision = emit_design.results.get_revision()
         new_component = revision.get_component_node(new_comp_name)
