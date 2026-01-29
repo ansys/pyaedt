@@ -115,6 +115,12 @@ def tutorial(add_app_example):
     )
     yield app
     app.close_project(app.project_name, save=False)
+    
+@pytest.fixture
+def hfss_phased_array(add_app_example):
+    app = add_app_example(project="HfssPhasedArray", application=Emit, subfolder=TEST_SUBFOLDER)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.fixture
@@ -2564,6 +2570,14 @@ def test_units(emit_app):
     assert round(cable.length, 4) == 4.9890
 
 
+@pytest.mark.skipif(
+    DESKTOP_VERSION <= "2027.1",
+    reason="Skipped on versions earlier than 2027.1",
+)
+def test_hfss_phased_array_antennas(hfss_phased_array):
+    # TODO: implement test logic or remove placeholder
+    pass
+    
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
 def test_27_components_catalog(emit_app):
     comp_list = emit_app.modeler.components.components_catalog["LTE"]

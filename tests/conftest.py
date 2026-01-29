@@ -30,6 +30,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+import warnings
 from typing import List
 from unittest.mock import MagicMock
 
@@ -40,6 +41,18 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
+
+# Silence noisy upstream deprecation while defusedxml still emits cElementTree warnings
+warnings.filterwarnings(
+    "ignore",
+    message="defusedxml.cElementTree is deprecated",
+    category=DeprecationWarning,
+)
+warnings.filterwarnings(
+    "ignore",
+    message=".*defusedxml\.cElementTree is deprecated.*",
+    category=DeprecationWarning,
+)
 
 # ================================
 # Category prefixes
@@ -61,7 +74,7 @@ EMIT_TEST_PREFIX = "tests/system/emit"
 # ================================
 
 DEFAULT_CONFIG = {
-    "desktopVersion": "2025.2",
+    "desktopVersion": "2027.1",
     "NonGraphical": True,
     "NewThread": True,
     "use_grpc": True,
@@ -144,6 +157,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             item.add_marker(pytest.mark.filter_solutions)
         elif item.nodeid.startswith(EMIT_TEST_PREFIX):
             item.add_marker(pytest.mark.emit)
+            # Keep EMIT tests on a single xdist worker so they run serially
+            item.add_marker(pytest.mark.xdist_group("emit_serial"))
 
 
 # ================================
