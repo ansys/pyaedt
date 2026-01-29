@@ -383,9 +383,14 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
     extension.root.destroy()
 
 
+@patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
-def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
+def test_plot_matrix_heatmap_normal_case(mock_show, mock_fig_manager, mock_emit_environment):
     """Test heatmap plotting with normal data spanning all three color ranges."""
+    # Mock the figure manager to avoid backend-specific issues
+    mock_manager = MagicMock()
+    mock_fig_manager.return_value = mock_manager
+    
     extension = EMIHeatmapExtension(withdraw=True)
 
     # Set up test data spanning all three ranges
@@ -405,9 +410,14 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_emit_environment):
     extension.root.destroy()
 
 
+@patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
-def test_plot_matrix_heatmap_edge_cases(mock_show, mock_emit_environment):
+def test_plot_matrix_heatmap_edge_cases(mock_show, mock_fig_manager, mock_emit_environment):
     """Test heatmap plotting with various edge cases: single color ranges and constant values."""
+    # Mock the figure manager to avoid backend-specific issues
+    mock_manager = MagicMock()
+    mock_fig_manager.return_value = mock_manager
+    
     extension = EMIHeatmapExtension(withdraw=True)
 
     extension._victim = "RxRadio1"
@@ -480,9 +490,14 @@ def test_plot_matrix_heatmap_error_cases(mock_error, mock_emit_environment):
     extension.root.destroy()
 
 
+@patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
-def test_on_generate_heatmap(mock_show, mock_emit_environment):
+def test_on_generate_heatmap(mock_show, mock_fig_manager, mock_emit_environment):
     """Test generating heatmap plot."""
+    # Mock the figure manager to avoid backend-specific issues
+    mock_manager = MagicMock()
+    mock_fig_manager.return_value = mock_manager
+    
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()

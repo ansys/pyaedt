@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import sys
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
@@ -136,9 +137,14 @@ def test_export_to_csv(emit_app_with_radios, test_tmp_dir):
     extension.root.destroy()
 
 
+@patch("matplotlib.pyplot.get_current_fig_manager")
 @patch("matplotlib.pyplot.show")
-def test_generate_heatmap(mock_show, emit_app_with_radios):
+def test_generate_heatmap(mock_show, mock_fig_manager, emit_app_with_radios):
     """Test end-to-end heatmap generation with real EMIT project data."""
+    # Mock the figure manager to avoid backend-specific issues
+    mock_manager = MagicMock()
+    mock_fig_manager.return_value = mock_manager
+    
     extension = EMIHeatmapExtension(withdraw=True)
 
     extension._victim_combo.current(1)

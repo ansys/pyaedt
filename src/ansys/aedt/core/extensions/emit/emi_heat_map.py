@@ -395,8 +395,8 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         plt.title(f"EMI Heatmap - {self.active_project_name}")
         plt.xlabel(f"Tx channels - {self._aggressor} | {self._aggressor_band}")
         plt.ylabel(f"Rx channels - {self._victim} | {self._victim_band}")
-        plt.xticks(range(len(self._aggressor_frequencies)), self._aggressor_frequencies, rotation=45)
-        plt.yticks(range(len(self._victim_frequencies)), self._victim_frequencies)
+        plt.xticks(range(len(self._aggressor_frequencies)), np.round(self._aggressor_frequencies, 1), rotation=90)
+        plt.yticks(range(len(self._victim_frequencies)), np.round(self._victim_frequencies, 1))
 
         # Transpose and prepare data
         data = np.array(np.transpose(self._emi))
@@ -472,8 +472,15 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         cmap = ListedColormap(colors)
         norm = BoundaryNorm(boundaries, cmap.N)
 
-        # Plot the heatmap
+        # Plot the heatmap with black grid lines between cells
         im = plt.imshow(data, cmap=cmap, norm=norm, aspect="auto")
+
+        # Add black lines between cells
+        ax = plt.gca()
+        for i in range(data.shape[0] + 1):
+            ax.axhline(i - 0.5, color='black', linewidth=1)
+        for j in range(data.shape[1] + 1):
+            ax.axvline(j - 0.5, color='black', linewidth=1)
 
         # Add colorbar showing the full color scale
         cbar = plt.colorbar(im, label="EMI (dB)")
@@ -486,7 +493,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         # Show numerical values in each cell
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                plt.text(j, i, f"{data[i, j]:.1f}", ha="center", va="center")
+                plt.text(j, i, f"{data[i, j]:.1f}", ha="center", va="center", fontsize=8, color="black")
 
         # Adjust layout to prevent cutting off labels
         plt.tight_layout()
