@@ -190,8 +190,6 @@ def test_ui_edit_workflow(table_app):
     table.edit_cell(event)
     tree.update()
     # Verify the result (comma-separated string)
-    # Note: Ensure these expected values match your multi_select_options
-    # expected_val = f"{table.multi_select_options[table.headers[3]][0]}, {table.multi_select_options[table.headers[3]][1]}"
     assert tree.set(row_id, "#4") == "CPU, DDR"
 
 
