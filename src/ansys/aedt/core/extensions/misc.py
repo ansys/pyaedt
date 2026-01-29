@@ -65,6 +65,7 @@ DEFAULT_FOREGROUND: str = "white"
 DEFAULT_FOREGROUND_DARK: str = "black"
 DEFAULT_BD: int = 1
 DEFAULT_BORDERWIDTH: int = 1
+ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 
 
 def get_process_id():
@@ -527,15 +528,17 @@ class ExtensionCommon(PyAedtBase):
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
+            non_graphical = True if ON_CI else False
+
             aedt_active_sessions = active_sessions(
                 version=version,
                 student_version=False,
-                non_graphical=False,
+                non_graphical=non_graphical,
             )
             student_active_sessions = active_sessions(
                 version=version,
                 student_version=True,
-                non_graphical=False,
+                non_graphical=non_graphical,
             )
 
             if not aedt_active_sessions and not student_active_sessions:
