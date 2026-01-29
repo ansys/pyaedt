@@ -164,15 +164,15 @@ def run_pyinstaller_from_c_python(oDesktop):
         if version <= "231":
             f.write("from pyaedt.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                'add_pyaedt_to_aedt(personallib=r"{}", executable_interpreter=r"{}")\n'.format(
-                    oDesktop.GetPersonalLibDirectory(), python_exe
+                'add_pyaedt_to_aedt(personallib=r"{}")\n'.format(
+                    oDesktop.GetPersonalLibDirectory()
                 )
             )
         else:
             f.write("from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
-                'add_pyaedt_to_aedt(personal_lib=r"{}", executable_interpreter=r"{}")\n'.format(
-                    oDesktop.GetPersonalLibDirectory(), python_exe
+                'add_pyaedt_to_aedt(personal_lib=r"{}")\n'.format(
+                    oDesktop.GetPersonalLibDirectory()
                 )
             )
 

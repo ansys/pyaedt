@@ -519,7 +519,6 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
-        executable_interpreter=sys.executable,
         skip_version_manager=False,
     )
 
@@ -547,7 +546,6 @@ def test_panels_add_with_skip_version_manager(
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
-        executable_interpreter=sys.executable,
         skip_version_manager=True,
     )
 
@@ -566,7 +564,6 @@ def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_pers
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
-        executable_interpreter=sys.executable,
         skip_version_manager=False,
     )
 
@@ -700,7 +697,6 @@ def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
         personal_lib=str(temp_personal_lib),
-        executable_interpreter=sys.executable,
         skip_version_manager=False,
     )
 

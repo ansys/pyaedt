@@ -323,7 +323,6 @@ def add_script_to_menu(
     icon_file=None,
     product="Project",
     copy_to_personal_lib=True,
-    executable_interpreter=None,
     panel="Panel_PyAEDT_Extensions",
     personal_lib=None,
     is_custom=False,
@@ -352,8 +351,6 @@ def add_script_to_menu(
         it applies to all designs. You can also specify a product, such as ``"HFSS"``.
     copy_to_personal_lib : bool, optional
         Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
-    executable_interpreter : str, optional
-        Executable python path. The default is the one current interpreter.
     panel : str, optional
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     personal_lib : str, optional
@@ -395,8 +392,7 @@ def add_script_to_menu(
 
     templates_dir = Path(ansys.aedt.core.extensions.templates.__file__).parent
 
-    if executable_interpreter is None:
-        executable_interpreter = sys.executable
+    executable_interpreter = sys.executable
 
     ipython_executable = re.sub(
         r"python" + __exe() + r"$",
@@ -674,7 +670,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 product=product_name,
                 template_file=toolkit_info.get("template", "run_pyaedt_toolkit_script"),
                 copy_to_personal_lib=True,
-                executable_interpreter=str(python_exe),
                 personal_lib=desktop_object.personallib,
             )
             desktop_object.logger.info(f"{toolkit_info['name']} installed")

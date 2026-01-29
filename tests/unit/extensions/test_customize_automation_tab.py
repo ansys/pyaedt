@@ -339,7 +339,6 @@ def test_add_script_to_menu_success(
             name=toolkit_name,
             script_file=str(script_file),
             personal_lib=personal_lib,
-            executable_interpreter=sys.executable,
         )
 
         # Assert
@@ -388,7 +387,6 @@ def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_sessio
                 script_file=__file__,
                 copy_to_personal_lib=False,
                 personal_lib=mock_desktop_session.personallib,
-                executable_interpreter=sys.executable,
             )
         mock_copy.assert_not_called()
 
@@ -405,7 +403,6 @@ def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_d
             script_file=__file__,
             is_custom=True,
             personal_lib=mock_desktop_session.personallib,
-            executable_interpreter=sys.executable,
         )
     mock_add_automation_tab.assert_called_with(
         "MyCustomToolkit",
