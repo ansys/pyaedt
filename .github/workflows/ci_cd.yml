@@ -76,6 +76,7 @@ jobs:
           echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
           exit 1
 
+
   # NOTE: We do not allow the pre-commit-ci bot to trigger the CI/CD pipeline
   # automatically on PR it creates.
   # This is to mitigate supply chain attacks, where a malicious dependency update
@@ -92,12 +93,12 @@ jobs:
           echo "::warning::pre-commit-ci bot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
           exit 1
 
+
   # NOTE: We do not allow pyansys-ci-bot to trigger the CI/CD pipeline automatically
   # on dependabot's and pre-commit-ci bot's PR. This is to mitigate supply chain attacks,
   # where a malicious dependency update could execute arbitrary code in our build environment.
   # Dependabot and pre-commit-ci bot PRs must be reviewed carefully and approved manually before
   # running the CI.
-
   block-pyansys-ci-bot:
     name: "Block PyAnsys-CI-bot (on dependabot and pre-commit-ci bot PR)"
     needs: [block-dependabot, block-pre-commit-ci-bot-PR]
@@ -113,6 +114,7 @@ jobs:
         run: |
           echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in pre-commit-ci bot's PR. Please review carefully the changes before running the workflow manually."
           exit 1
+
 
   vulnerabilities:
     name: "Vulnerabilities"
@@ -215,6 +217,17 @@ jobs:
             echo "doc_only=false" >> $GITHUB_OUTPUT
           fi
 
+          # Echo the analysis results for visibility
+          echo "::notice::Analysis Results:"
+          echo "::notice::  skip_tests=$(grep 'skip_tests=' $GITHUB_OUTPUT | cut -d'=' -f2)"
+          echo "::notice::  doc_only=$(grep 'doc_only=' $GITHUB_OUTPUT | cut -d'=' -f2)"
+          echo "::notice::  run_all=$(grep 'run_all=' $GITHUB_OUTPUT | cut -d'=' -f2)"
+          echo "::notice::  emit_changed=$(grep 'emit_changed=' $GITHUB_OUTPUT | cut -d'=' -f2)"
+          echo "::notice::  extensions_changed=$(grep 'extensions_changed=' $GITHUB_OUTPUT | cut -d'=' -f2)"
+          echo "::notice::  filter_solutions_changed=$(grep 'filter_solutions_changed=' $GITHUB_OUTPUT | cut -d'=' -f2)"
+
+
+
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
@@ -286,6 +299,7 @@ jobs:
         run: |
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
 
   unit-tests:
     name: Unit tests
@@ -1215,7 +1229,7 @@ jobs:
   system-tests-extensions-windows:
     name: Test extensions (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.extensions_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1295,7 +1309,7 @@ jobs:
 
   system-tests-extensions-linux:
     name: Test extensions (linux)
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.extensions_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
     needs: [integration-tests, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -1376,7 +1390,7 @@ jobs:
   system-tests-filter-windows:
     name: Test filter solutions (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.filter_solutions_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.filter_solutions_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
@@ -1454,7 +1468,7 @@ jobs:
   system-tests-emit-windows:
     name: Test EMIT (windows)
     needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && (github.ref == 'refs/heads/main' || needs.analyze-changes.outputs.emit_changed == 'true')
+    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.emit_changed == 'true'
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
