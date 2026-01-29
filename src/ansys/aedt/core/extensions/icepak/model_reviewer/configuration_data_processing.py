@@ -75,7 +75,7 @@ def extract_boundary_data(data):
                     [boundary_name, boundary_type, selected_objects, bc_name1, value1, bc_name2, value2]
                 )
                 read_only_cols.append(cols)
-            if not( use_external_conditions or use_total_power):
+            if not (use_external_conditions or use_total_power):
                 bc_name1 = "Power Density"
                 bc_name2 = "N/A"
                 value2 = "0.0"

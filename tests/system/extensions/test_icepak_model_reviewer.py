@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from idlelib.browser import file_open
 from pathlib import Path
 
 import pytest
@@ -79,9 +78,9 @@ def test_successfull_data_loading(ipk):
     rows = materials_table.tree.get_children()
     assert materials_table.tree.item(rows[0])["values"][3] == 152
     assert materials_table.tree.item(rows[0])["values"][4] == 2000
-    assert materials_table.tree.item(rows[1])["values"][6] == '0.00333'
-    assert materials_table.tree.item(rows[1])["values"][7] == '2.88e-05'
-    assert materials_table.tree.item(rows[1])["values"][8] == '1.84e-05'
+    assert materials_table.tree.item(rows[1])["values"][6] == "0.00333"
+    assert materials_table.tree.item(rows[1])["values"][7] == "2.88e-05"
+    assert materials_table.tree.item(rows[1])["values"][8] == "1.84e-05"
     assert materials_table.tree.item(rows[2])["values"][5] == 2
 
     model_table = extension.root.models_tab.winfo_children()[0]
@@ -117,18 +116,18 @@ def test_successfull_data_modification(ipk):
     assert ipk.boundaries[7].properties["Surface Heat"] == "10kW_per_m2"
     materials_table = extension.root.materials_tab.winfo_children()[0]
     rows = materials_table.tree.get_children()
-    materials_table.tree.set(rows[0], column="Thermal Conductivity", value="200")# Al-Extruded
+    materials_table.tree.set(rows[0], column="Thermal Conductivity", value="200")  # Al-Extruded
     materials_table.tree.set(rows[0], column="Specific Heat", value="700")
-    materials_table.tree.set(rows[1], column="Viscosity", value="2e-06") # Air
+    materials_table.tree.set(rows[1], column="Viscosity", value="2e-06")  # Air
     materials_table.tree.set(rows[1], column="Diffusivity", value="2.5e-05")
     materials_table.tree.set(rows[1], column="Thermal Expansion Coefficient", value="0.005")
     materials_table.tree.set(rows[2], column="Mass Density", value="2")  # PCB_Material
     extension.update_button.invoke()
     assert ipk.materials.material_keys["al-extruded"].thermal_conductivity.value == "200"
-    assert ipk.materials.material_keys["al-extruded"].specific_heat.value == '700'
+    assert ipk.materials.material_keys["al-extruded"].specific_heat.value == "700"
     assert ipk.materials.material_keys["air"].viscosity.value == "2e-06"
     assert ipk.materials.material_keys["air"].diffusivity.value == "2.5e-05"
-    assert ipk.materials.material_keys["air"].thermal_expansion_coefficient.value == '0.005'
+    assert ipk.materials.material_keys["air"].thermal_expansion_coefficient.value == "0.005"
     assert ipk.materials.material_keys["pcb_material"].mass_density.value == "2"
     model_table = extension.root.models_tab.winfo_children()[0]
     row2 = model_table.tree.get_children()[1]  # SERIAL_PORT
