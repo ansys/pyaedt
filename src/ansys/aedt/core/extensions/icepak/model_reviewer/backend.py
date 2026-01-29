@@ -47,7 +47,7 @@ def import_config_file(aedtapp, json_data):
     out = aedtapp.configurations.import_config(full_path)
     result = aedtapp.configurations.validate(out)
     if result:
-        aedtapp.logger.info("Sucessfully imported configuration")
+        aedtapp.logger.info("Successfully imported configuration")
     else:
         aedtapp.logger.info("Import has issues")
     return result
