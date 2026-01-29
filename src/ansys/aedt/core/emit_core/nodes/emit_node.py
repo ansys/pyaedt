@@ -472,15 +472,31 @@ class EmitNode:
             raise NotImplementedError("This method is not implemented yet.")
         emit_design = self._emit_obj
         oEditor = emit_design._oeditor
+
+        OFFSET_Y = -0.01016 #meters, == -400mil (twice the height of a component)
         
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
             
         # Get the original component location
         orig_location = oEditor.GetComponentLocation(self.name)
+
+        #offset for paste
+        min_y = 0.0
+        for comp_name in all_components:
+            location = oEditor.GetComponentLocation(comp_name)
+            if location[1] < min_y:
+                min_y = location[1]
+
+        # Calculate paste position (using lowest y + offset)
+        paste_x = orig_location[0]
+        paste_y = min_y + OFFSET_Y
+
+        # Copy the component
+        oEditor.Copy(self.name)
         
         # Paste at new location
-        oEditor.Paste(*orig_location)
+        oEditor.Paste(paste_x,paste_y)
         
         # Get the new component node
         # The pasted component gets an auto-incremented name
@@ -495,7 +511,7 @@ class EmitNode:
         #move component to new row or available node
         oEditor.PlaceComponent(new_comp_name)
         
-        # Get the component node from revision
+        # Get the component EmitNode from revision
         revision = emit_design.results.get_revision()
         new_component = revision.get_component_node(new_comp_name)
         
