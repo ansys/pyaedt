@@ -133,7 +133,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,
-                    False,
+                    True,
                     self._app._aedt_version,
                     isaedtowned=True,
                     oproject=self._app.oproject,
