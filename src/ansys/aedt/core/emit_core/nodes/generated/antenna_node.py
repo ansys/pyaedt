@@ -179,6 +179,7 @@ class AntennaNode(EmitNode):
     class AntennaTypeOption(Enum):
         ISOTROPIC = "Isotropic"
         BY_FILE = "ByFile"
+        HFSS_PHASED_ARRAY = "HfssPhasedArray"
         HEMITROPIC = "Hemitropic"
         SHORT_DIPOLE = "ShortDipole"
         HALF_WAVE_DIPOLE = "HalfWaveDipole"
@@ -209,6 +210,19 @@ class AntennaNode(EmitNode):
     @antenna_file.setter
     def antenna_file(self, value: str):
         self._set_property("Antenna File", f"{value}")
+
+    @property
+    def antenna_metadata_file(self) -> str:
+        """Name of HFSS exported file with antenna metadata.
+
+        Value should be a full file path.
+        """
+        val = self._get_property("Antenna Metadata File")
+        return val
+
+    @antenna_metadata_file.setter
+    def antenna_metadata_file(self, value: str):
+        self._set_property("Antenna Metadata File", f"{value}")
 
     @property
     def project_name(self) -> str:
@@ -432,6 +446,107 @@ class AntennaNode(EmitNode):
         self._set_property("Height Flare Half-angle", f"{value}")
 
     @property
+    def elevation_angle(self) -> float:
+        """Beam steering angle in elevation.
+
+        Value should be between 0 and 360.
+        """
+        val = self._get_property("Elevation Angle")
+        return float(val)
+
+    @elevation_angle.setter
+    def elevation_angle(self, value: float):
+        self._set_property("Elevation Angle", f"{value}")
+
+    @property
+    def azimuth_angle(self) -> float:
+        """Beam steering angle in azimuth.
+
+        Value should be between 0 and 360.
+        """
+        val = self._get_property("Azimuth Angle")
+        return float(val)
+
+    @azimuth_angle.setter
+    def azimuth_angle(self, value: float):
+        self._set_property("Azimuth Angle", f"{value}")
+
+    class TaperingFunctionOption(Enum):
+        FLAT = "FlatTaper"
+        COSINE = "CosineTaper"
+        HAMMING = "HammingTaper"
+        TRIANGULAR = "TriangularTaper"
+
+    @property
+    def tapering_function(self) -> TaperingFunctionOption:
+        """Tapering function."""
+        val = self._get_property("Tapering Function")
+        val = self.TaperingFunctionOption[val.upper()]
+        return val
+
+    @tapering_function.setter
+    def tapering_function(self, value: TaperingFunctionOption):
+        self._set_property("Tapering Function", f"{value.value}")
+
+    @property
+    def max_taper_distance_x(self) -> float:
+        """Maximum distance for tapering calculation in x-direction.
+
+        Value should be between 0 and 100.
+        """
+        val = self._get_property("Max Taper Distance X")
+        val = self._convert_from_internal_units(float(val), "Length")
+        return float(val)
+
+    @max_taper_distance_x.setter
+    def max_taper_distance_x(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._set_property("Max Taper Distance X", f"{value}")
+
+    @property
+    def max_taper_distance_y(self) -> float:
+        """Maximum distance for tapering calculation in y-direction.
+
+        Value should be between 0 and 100.
+        """
+        val = self._get_property("Max Taper Distance Y")
+        val = self._convert_from_internal_units(float(val), "Length")
+        return float(val)
+
+    @max_taper_distance_y.setter
+    def max_taper_distance_y(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._set_property("Max Taper Distance Y", f"{value}")
+
+    @property
+    def cosine_power(self) -> float:
+        """Power for cosine tapering.
+
+        Value should be between 0 and 10000.
+        """
+        val = self._get_property("Cosine Power")
+        val = self._convert_from_internal_units(float(val), "Power")
+        return float(val)
+
+    @cosine_power.setter
+    def cosine_power(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Power")
+        self._set_property("Cosine Power", f"{value}")
+
+    @property
+    def edge_taper(self) -> float:
+        """Edge taper level in dB.
+
+        Value should be between -200 and 200.
+        """
+        val = self._get_property("Edge Taper")
+        return float(val)
+
+    @edge_taper.setter
+    def edge_taper(self, value: float):
+        self._set_property("Edge Taper", f"{value}")
+
+    @property
     def vswr(self) -> float:
         """VSWR.
 
@@ -623,3 +738,4 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
+

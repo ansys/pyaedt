@@ -1,0 +1,1589 @@
+$begin 'AnsoftProject'
+	Created='Wed Jan 28 11:04:35 2026'
+	Product='ElectronicsDesktop'
+	FileOwnedByWorkbench=false
+	$begin 'Desktop'
+		Version(2027, 1)
+		InfrastructureVersion(1, 0)
+		$begin 'FactoryHeader'
+			$begin 'geometry3deditor'
+				KernelVersion(2, 0)
+				ProjectContainsGeometry3D='0'
+			$end 'geometry3deditor'
+		$end 'FactoryHeader'
+	$end 'Desktop'
+	UsesAdvancedFeatures=false
+	PreviewImageDesignId=1
+	NextUniqueID=0
+	MoveBackwards=false
+	$begin 'HFSSEnvironment'
+		Version(1, 0)
+	$end 'HFSSEnvironment'
+	$begin 'PlanarEMEnvironment'
+		Version(1, 0)
+	$end 'PlanarEMEnvironment'
+	$begin 'Q3DEnvironment'
+		Version(1, 0)
+	$end 'Q3DEnvironment'
+	$begin '2DExtractorEnvironment'
+		Version(1, 0)
+	$end '2DExtractorEnvironment'
+	$begin 'NexximEnvironment'
+		Version(1, 0)
+	$end 'NexximEnvironment'
+	$begin 'NexximNetlistEnvironment'
+		Version(1, 0)
+	$end 'NexximNetlistEnvironment'
+	$begin 'EmitEnvironment'
+		Version(1, 0)
+	$end 'EmitEnvironment'
+	$begin 'Maxwell3DEnvironment'
+		Version(1, 0)
+	$end 'Maxwell3DEnvironment'
+	$begin 'Maxwell2DEnvironment'
+		Version(1, 0)
+	$end 'Maxwell2DEnvironment'
+	$begin 'RMxprtEnvironment'
+		Version(1, 0)
+	$end 'RMxprtEnvironment'
+	$begin 'MaxCirEnvironment'
+		Version(1, 0)
+	$end 'MaxCirEnvironment'
+	$begin 'SimplorerEnvironment'
+		Version(1, 0)
+	$end 'SimplorerEnvironment'
+	$begin 'IcepakEnvironment'
+		Version(1, 0)
+	$end 'IcepakEnvironment'
+	$begin 'IcepakFEAEnvironment'
+		Version(1, 0)
+	$end 'IcepakFEAEnvironment'
+	$begin 'SchematicEnvironment'
+		Version(1, 0)
+	$end 'SchematicEnvironment'
+	$begin 'geometry3deditor'
+		Version(1, 0)
+	$end 'geometry3deditor'
+	ReadVersion=12
+	$begin 'DesignMgrEnvironment'
+		CompInstCounter=8
+		GPortCounter=0
+		NetCounter=0
+		Alias('Ieee;Simplorer Elements\\Ieee', 'Std;Simplorer Elements\\Std', 'Basic_VHDLAMS;Simplorer Elements\\Basic Elements VHDLAMS\\Basic Elements VHDLAMS', 'Digital_Elements;Simplorer Elements\\Digital Elements\\Digital Elements', 'Transformations;Simplorer Elements\\Tools\\Transformations\\Transformations', 'HEV_VHDLAMS;Simplorer Elements\\HEV VHDLAMS\\HEV VHDLAMS', 'automotive_vda;Simplorer Elements\\VDALibs VHDLAMS\\automotive_vda', 'example_boardnet;Simplorer Elements\\VDALibs VHDLAMS\\example_boardnet', 'example_ecar;Simplorer Elements\\VDALibs VHDLAMS\\example_ecar', 'fundamentals_vda;Simplorer Elements\\VDALibs VHDLAMS\\fundamentals_vda', 'hybrid_emc_vda;Simplorer Elements\\VDALibs VHDLAMS\\hybrid_emc_vda', 'megma;Simplorer Elements\\VDALibs VHDLAMS\\megma', 'modelica_rotational;Simplorer Elements\\VDALibs VHDLAMS\\modelica_rotational', 'modelica_thermal;Simplorer Elements\\VDALibs VHDLAMS\\modelica_thermal', 'modelica_translational;Simplorer Elements\\VDALibs VHDLAMS\\modelica_translational', 'spice2vhd;Simplorer Elements\\VDALibs VHDLAMS\\spice2vhd', 'spice2vhd_devices;Simplorer Elements\\VDALibs VHDLAMS\\spice2vhd_devices', 'aircraft_electrical_vhdlams;Simplorer Elements\\Aircraft Electrical VHDLAMS\\Aircraft Electrical VHDLAMS', 'power_system_vhdlams;Simplorer Elements\\Power System VHDLAMS\\Power System VHDLAMS')
+	$end 'DesignMgrEnvironment'
+	$begin 'ProjectDatasets'
+		NextUniqueID=0
+		MoveBackwards=false
+		DatasetType='ProjectDatasetType'
+		$begin 'DatasetDefinitions'
+		$end 'DatasetDefinitions'
+	$end 'ProjectDatasets'
+	VariableOrders[0:]
+	$begin 'Definitions'
+		$begin 'Materials'
+		$end 'Materials'
+		$begin 'SurfaceMaterials'
+		$end 'SurfaceMaterials'
+		$begin 'Scripts'
+		$end 'Scripts'
+		$begin 'AnsysComponents'
+			NextUniqueID=0
+			MoveBackwards=false
+			$begin 'AnsysComponentDefinitions'
+			$end 'AnsysComponentDefinitions'
+		$end 'AnsysComponents'
+		$begin 'Symbols'
+			$begin 'radio'
+				ModTime=1511922184
+				Library='EMIT Elements\\Radios'
+				ModSinceLib=false
+				LibLocation='SysLibrary'
+				HighestLevel=1
+				Normalize=true
+				InitialLevels(0, 1)
+				$begin 'PinDef'
+					Pin('n1', 0.00508, 0, 3.14159, 'N', 0, 0, false, 0, true, '', false, false, 'Port 1', true)
+				$end 'PinDef'
+				$begin 'Graphics'
+					Text(-0.00125894, -0.000659604, 0, 4, 5, false, 'Arial', 12566272, 'Radio', false, false, ExtentRect(0, 0, 12566272, 0, -0.00125894, -0.000184270224969185, 0.00362982155478077, 0.00164206213192463, 12566272, 0, 0))
+					Rect(0, 0, 12566272, 0, -0.00127, 0, 0.00762, 0.00508, 12566272, 0, 0)
+					Line(0, 1, 12566272, 0.00254, 0, 0.00508, 0, 0.00508, 0, End=0, Join=0, LineStyle=0, BeginObj=0, EndObj=0)
+				$end 'Graphics'
+				$begin 'PropDisplayMap'
+					Name(2, 5, 1, Text(-0.00126999999999899, -0.0028328055555679, 0, 3, 5, false, 'Arial', 0, '[Name]', false, false, ExtentRect(0, 0, 0, 0, -0.00126999999999899, -0.00371566985837121, 0.0111586766519263, 0.00176572860560661, 0, 0, 0)))
+				$end 'PropDisplayMap'
+			$end 'radio'
+			$begin 'EMIT Design1'
+				ModTime=1769616048
+				CE=3
+				Library=''
+				ModSinceLib=false
+				LibLocation='Project'
+				HighestLevel=1
+				Normalize=true
+				InitialLevels(0, 1)
+				$begin 'Graphics'
+					Rect(0, 0, 0, 0, 0.00254, 0.00254, 0.00508, 0.00508, 0, 0, 0)
+					Rect(0, 1, 0, 0, 0.000423333333333333, 0.00254, 0.000423333333333333, 0.000423333333333334, 0, 0, 0)
+				$end 'Graphics'
+			$end 'EMIT Design1'
+			$begin 'antenna_emit'
+				ModTime=1506373418
+				Library='EMIT Elements\\Antennas'
+				ModSinceLib=false
+				LibLocation='SysLibrary'
+				HighestLevel=1
+				Normalize=false
+				InitialLevels(0, 1)
+				$begin 'PinDef'
+					Pin('in', -0.00508, -0.00508, 0, 'N', 0, 0, false, 0, true, '', false, false, 'in', true)
+				$end 'PinDef'
+				$begin 'Graphics'
+					Line(0, 1, 12566272, -0.00508, -0.00508, -8.67361737988404e-19, -0.00508, 0, 0, End=0, Join=0, LineStyle=0, BeginObj=0, EndObj=0)
+					$begin '1'
+						Polygon(0, 0, 12566272, -0.00254, 0, 0.00254, 0, 0, -0.004826, -0.001016, -0.002794, BorderCol=12566272, End=512, Join=8192)
+					$end '1'
+				$end 'Graphics'
+				$begin 'PropDisplayMap'
+					Name(2, 5, 1, Text(1.01524691431543e-15, -0.0058808055555679, 0, 3, 5, false, 'Arial', 0, '[Name]', false, false, ExtentRect(0, 0, 0, 0, 1.01524691431543e-15, -0.0067560751207853, 0.0110138086956522, 0.00175053913043478, 0, 0, 0)))
+				$end 'PropDisplayMap'
+			$end 'antenna_emit'
+		$end 'Symbols'
+		$begin 'DefInfo'
+			Antenna(1001, 3, 0, 1, '', 1506114676, '', 'EMIT Elements\\Antennas:antenna_emit', '', '', '', 'Antenna', 'EMITAntennas.htm', 'antenna.bmp', 'EMIT Elements\\Antennas', 'SysLibrary', '', '', 1487712789, '', 0)
+			'EMIT Design1'(1001, 3, 0, 0, '', 1769616048, '', 'EMIT Design1', '', '', '', '', '', 'Design.bmp', '', 'Project', '', '', 1769616048, '', 0)
+			'New Radio'(1001, 3, 0, 1, '', 1675981852, '', 'EMIT Elements\\Radios:radio', '', '', '', 'Radio', 'EMITRadios.htm', 'radio.bmp', 'EMIT Elements\\Radios', 'SysLibrary', '', '', 1487710769, '', 0)
+		$end 'DefInfo'
+		$begin 'Compdefs'
+			$begin 'Antenna'
+				Library='EMIT Elements\\Antennas'
+				CircuitEnv=3
+				Refbase='Antenna'
+				NumParts=1
+				ModSinceLib=false
+				Terminal('in', '', 'A', false, 0, 1, '', 'Electrical', '0')
+				CompExtID=7
+				$begin 'Parameters'
+					ButtonProp('Model', 'D', '', 'Configure...', '<Project>', 38050, ButtonPropClientData())
+					TextProp('EMIT_Key_Type', 'HD', '', 'AntennaNode')
+					TextProp('PrettyType', 'HD', '', 'Antenna')
+					VariableProp('Antenna Noise Temperature', 'HD', 'The antenna noise temperature (deg Kelvin)', '290kel')
+				$end 'Parameters'
+				$begin 'EmitCompExtension'
+					$begin 'node'
+						fullname='NODE-*-Scene-*-Antenna'
+						$begin 'properties'
+							AdjustSourceHeight='false'
+							AntennaPol='Vertical'
+							AntennaSidePorts=''
+							AntennaTemperature='290.0'
+							AntennaType='FFPatTable'
+							AutoAdjustSrcOrientation='true'
+							AutoAdjustmentType='None'
+							AutoScaled='true'
+							BacklobeDBDown='15'
+							BeamAxis='XAxis'
+							ClearDisplayList='true'
+							ClearDisplayList1='true'
+							ClearDisplayList2='true'
+							ClearDisplayList3='true'
+							Color='#8064A2'
+							CrossDipoleMode='Freestanding'
+							CrossDipolePol='RHCP'
+							DuplicateElement='false'
+							Filename=''
+							FirstSidelobeDBDown='10'
+							FirstSidelobeHorBW='10'
+							FirstSidelobeVertBW='30'
+							FlareAngle='20'
+							FreqList=''
+							Has1stSidelobe='false'
+							HeightFlareAngle='35'
+							HelpUrl='com.delcross.emit/doc/02 - User Guide/03 - Project Tree/01 - Scene/02 - Antenna/Antenna.htm'
+							Highlighted='true'
+							HorBW='60'
+							HornDiameter='0.3'
+							HornHeight='0.5'
+							HornWidth='0.3'
+							IconAlias=':Antenna'
+							Info_AzSample=''
+							Info_ElSample=''
+							Info_FreqDom=''
+							Info_HasFreqDom=''
+							Info_NumElectric=''
+							Info_NumImagedElec=''
+							Info_NumImagedMag=''
+							Info_NumMagnetic=''
+							Info_RenormFlag=''
+							Info_TE10CutoffFreq=''
+							Info_TE11CutoffFreq=''
+							Info_WaveguideHeight=''
+							LinkChildParameters='true'
+							Name='Antenna'
+							Notes=''
+							NumberOfPorts='2'
+							OffsetHeight='.1'
+							Orientation='0.0 0.0 0.0'
+							OrientationMode='rpyDeg'
+							OverrideOffset='false'
+							Parent='NODE-*-Scene'
+							PeakGainDBi='0'
+							PickPositionGbl=''
+							Position='0.0 0.0 0.0'
+							PositionDefined='false'
+							RadioSidePorts='in'
+							ReferencePlane='XY Plane'
+							RelativeOrientation='0.0 0.0 0.0'
+							RelativePosition='0.0 0.0 0.0'
+							ResonantFrequency='300e6'
+							Selected='true'
+							ShowAxes='true'
+							ShowIcon='true'
+							ShowRelativeCoords='false'
+							SizeScaler='0.1'
+							SlotLength='0.1'
+							SrcPosOffset='0.0 0.0 0.0'
+							SubType='Isotropic'
+							SweCustonNMode='50'
+							SweNModeTruncation='Dynamic'
+							Tags=''
+							Type='AntennaNode'
+							UseAntennaPattern='false'
+							VSWR='1.0'
+							VertBW='30'
+							Visible='false'
+							WaveguideWidth='0.15'
+							WidthFlareAngle='20'
+							WireLength='0.1'
+						$end 'properties'
+					$end 'node'
+				$end 'EmitCompExtension'
+			$end 'Antenna'
+			$begin 'EMIT Design1'
+				Library=''
+				CircuitEnv=3
+				Refbase='U'
+				NumParts=1
+				ModSinceLib=true
+				$begin 'Properties'
+					TextProp('Representation', 'SRD', '', 'EMIT Design1')
+					TextProp('Owner', 'SRD', '', 'EMIT')
+				$end 'Properties'
+				CompExtID=6
+			$end 'EMIT Design1'
+			$begin 'New Radio'
+				Library='EMIT Elements\\Radios'
+				CircuitEnv=3
+				Refbase='Radio'
+				NumParts=1
+				ModSinceLib=false
+				Terminal('n1', 'n1', 'A', false, 0, 1, '', 'Electrical', '0')
+				CompExtID=7
+				$begin 'Parameters'
+					ButtonProp('Model', 'D', '', 'Configure...', '<Project>', 38050, ButtonPropClientData())
+					TextProp('EMIT_Key_Type', 'HD', '', 'RadioNode')
+					TextProp('PrettyType', 'HD', '', 'Radio')
+					CheckboxProp('Disabled', 'D', 'Disabled', false)
+				$end 'Parameters'
+				$begin 'EmitCompExtension'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio'
+						$begin 'properties'
+							AntennaSidePorts='Port 1'
+							Name='Radio'
+							NodeOrder='0'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios'
+							PortTable='Port 1|Tx/Rx'
+							Type='RadioNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band'
+						$begin 'properties'
+							AmModIndex='0.9'
+							BitPeriod='0.8e-09'
+							BitRate='5.0e3'
+							ChannelBandwidth='25e3'
+							ChannelFreqParent='Channel Frequencies'
+							ChannelSpacing='1e6'
+							DD1494='false'
+							DelaySkew='2.0e-12'
+							DutyCycle='0.5'
+							EmDesigEnabled='false'
+							EmissionDesignator='25K0F1D'
+							EmissionDesignatorChBw='25e3'
+							EmissionDesignatorMod='FSK'
+							EmissionProfile='false'
+							Enabled='true'
+							FMChirp='3.5e-6'
+							FMFreqDev='5.0e3'
+							FMFreqDeviationBandwidth='3.5e3'
+							FMFrequencyDeviation='3.5e3'
+							FSKFreqDev='5.0e3'
+							FSKType='2-FSK'
+							HoppingMaxFreq='2.0e9'
+							HoppingMinFreq='1.0e9'
+							HoppingRadar='false'
+							MaxModFreq='5.0e3'
+							MaxTxFreq='100000000'
+							MinTxFreq='100000000'
+							ModulationType='Generic'
+							Name='Band'
+							NodeOrder='0'
+							NumSidelobes='3'
+							NumberOfBits='8'
+							NumberOfChips='1'
+							OverrideEmDesigBandwidth='false'
+							PSKType='BPSK'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio'
+							Port='Port 1'
+							ProcurementDate='false'
+							PulseCompressionRatio='1'
+							PulseDuration='3.5e-6'
+							PulseFallTime='1.0e-6'
+							PulseRepetitionRate='395'
+							PulseRiseTime='1.0e-6'
+							RadarType='CW'
+							RiseTime='0.1e-09'
+							RxEnabled='true'
+							SpreadPercentage='2'
+							SpreadingType='Center Spread'
+							StartFrequency='1e8'
+							StopFrequency='1e8'
+							TxEnabled='true'
+							TxOffset='0'
+							Type='Band'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band-*-Rx Spectral Profile'
+						$begin 'properties'
+							Dd1494SNR='10'
+							DoNonlinearAnalysis='false'
+							Enabled='true'
+							InBandSensitivity='-120'
+							Name='Rx Spectral Profile'
+							NodeOrder='1'
+							NumberOfPorts='2'
+							PGforNbOnly='false'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band'
+							PrGainSensitivity='10'
+							Rx1dBCompressionPt='0'
+							RxAmpSatLevel='0'
+							RxIIP3='10'
+							RxIntermodMaxOrder='5'
+							RxMaxAttenuation='0'
+							RxMinSensitivity='-120'
+							RxNoiseFigure='8'
+							SensitivityUnits='dBm'
+							SnrAtSensitivity='10'
+							Type='RxSusceptibilityProfNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band-*-Tx Spectral Profile'
+						$begin 'properties'
+							AnalysisType='Both'
+							AverageAmplitude='40'
+							BbPhaseNoise='false'
+							DigitalOutputVoltage='3.3'
+							DoNonlinearAnalysis='false'
+							Enabled='true'
+							FundamentalAmplitude='40'
+							Harmonic2Level='-60'
+							Harmonic3Level='-60'
+							HarmonicAmplitude='-60'
+							HarmonicOtherLevel='-60'
+							HideHarmonic2='false'
+							HideHarmonic3='false'
+							HideHarmonicOther='false'
+							Name='Tx Spectral Profile'
+							NodeOrder='0'
+							NoiseSource='false'
+							NumberOfPorts='2'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band'
+							RadarSource='false'
+							Tx1dBCompressionPt='0'
+							TxAmpGain='30'
+							TxAmpSatLevel='0'
+							TxHarmonicExpansion='false'
+							TxHarmonicIntercept='-30'
+							TxHarmonicSlope='-70'
+							TxHarmonicTaper='Constant'
+							TxIIP3='10'
+							TxMaxN='10'
+							TxMaxOrder='5'
+							TxNoiseFigure='5.0'
+							TxNoiseLevel='-174'
+							TxPowerMethod='Peak Power'
+							TxReverseIsolation='20'
+							Type='TxSpectralProfNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Sampling'
+						$begin 'properties'
+							Name='Sampling'
+							NumberChannels='1000'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio'
+							PercentageChannels='50'
+							RandomSeed='0'
+							SamplingType='UniformSampling'
+							SpecifyPercentage='false'
+							TotalRxChannels='1'
+							TotalTxChannels='1'
+							Type='SamplingNode'
+						$end 'properties'
+					$end 'node'
+				$end 'EmitCompExtension'
+			$end 'New Radio'
+		$end 'Compdefs'
+	$end 'Definitions'
+	DesignIDServer=3
+	MoveBackwards=false
+	$begin 'EMIT Design'
+		CirEnv=3
+		RepRewriteV2=true
+		Name='EMIT Design1'
+		DesignID=0
+		$begin 'Circuit'
+			ComponentName='EMIT Design1'
+			AutoFP=''
+			$begin 'DesignDatasets'
+				NextUniqueID=0
+				MoveBackwards=false
+				DatasetType='DesignDatasetType'
+				$begin 'DatasetDefinitions'
+				$end 'DatasetDefinitions'
+			$end 'DesignDatasets'
+			VariableOrders[0:]
+			$begin 'Compinst'
+				ID='1'
+				Status='Status'
+				CompName='EMIT Elements\\Radios:New Radio'
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '1')
+				$end 'Properties'
+				$begin 'Parameters'
+					ButtonProp('Model', 'OD', '', 'Configure...', '<Project>', 38050, ButtonPropClientData())
+					CheckboxProp('Disabled', 'OHD', '', false)
+					TextProp('Name', 'ID', '', 'Radio')
+				$end 'Parameters'
+				$begin 'EmitCompInstanceExtension'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio'
+						$begin 'properties'
+							AntennaSidePorts='Port 1'
+							Name='Radio'
+							NodeOrder='0'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios'
+							PortTable='Port 1|Tx/Rx'
+							Type='RadioNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band'
+						$begin 'properties'
+							AmModIndex='0.9'
+							BitPeriod='0.8e-09'
+							BitRate='5.0e3'
+							ChannelBandwidth='25e3'
+							ChannelFreqParent='Channel Frequencies'
+							ChannelSpacing='1e6'
+							DD1494='false'
+							DelaySkew='2.0e-12'
+							DutyCycle='0.5'
+							EmDesigEnabled='false'
+							EmissionDesignator='25K0F1D'
+							EmissionDesignatorChBw='25e3'
+							EmissionDesignatorMod='FSK'
+							EmissionProfile='false'
+							Enabled='true'
+							FMChirp='3.5e-6'
+							FMFreqDev='5.0e3'
+							FMFreqDeviationBandwidth='3.5e3'
+							FMFrequencyDeviation='3.5e3'
+							FSKFreqDev='5.0e3'
+							FSKType='2-FSK'
+							HoppingMaxFreq='2.0e9'
+							HoppingMinFreq='1.0e9'
+							HoppingRadar='false'
+							MaxModFreq='5.0e3'
+							MaxTxFreq='100000000'
+							MinTxFreq='100000000'
+							ModulationType='Generic'
+							Name='Band'
+							NodeOrder='0'
+							NumSidelobes='3'
+							NumberOfBits='8'
+							NumberOfChips='1'
+							OverrideEmDesigBandwidth='false'
+							PSKType='BPSK'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio'
+							Port='Port 1'
+							ProcurementDate='false'
+							PulseCompressionRatio='1'
+							PulseDuration='3.5e-6'
+							PulseFallTime='1.0e-6'
+							PulseRepetitionRate='395'
+							PulseRiseTime='1.0e-6'
+							RadarType='CW'
+							RiseTime='0.1e-09'
+							RxEnabled='true'
+							SpreadPercentage='2'
+							SpreadingType='Center Spread'
+							StartFrequency='3500000000.000000000000000000'
+							StopFrequency='3500000000'
+							TxEnabled='true'
+							TxOffset='0'
+							Type='Band'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band-*-Rx Spectral Profile'
+						$begin 'properties'
+							Dd1494SNR='10'
+							DoNonlinearAnalysis='false'
+							Enabled='true'
+							InBandSensitivity='-100.000000000000000000'
+							Name='Rx Spectral Profile'
+							NodeOrder='1'
+							NumberOfPorts='2'
+							PGforNbOnly='false'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band'
+							PrGainSensitivity='10'
+							Rx1dBCompressionPt='0'
+							RxAmpSatLevel='0'
+							RxIIP3='10'
+							RxIntermodMaxOrder='5'
+							RxMaxAttenuation='0'
+							RxMinSensitivity='-120'
+							RxNoiseFigure='8'
+							SensitivityUnits='dBm'
+							SnrAtSensitivity='0.000000000000000000'
+							Type='RxSusceptibilityProfNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band-*-Tx Spectral Profile'
+						$begin 'properties'
+							AnalysisType='Both'
+							AverageAmplitude='40'
+							BbPhaseNoise='false'
+							DigitalOutputVoltage='3.3'
+							DoNonlinearAnalysis='false'
+							Enabled='true'
+							FundamentalAmplitude='0.000000000000000000'
+							Harmonic2Level='-60'
+							Harmonic3Level='-60'
+							HarmonicAmplitude='-60'
+							HarmonicOtherLevel='-60'
+							HideHarmonic2='false'
+							HideHarmonic3='false'
+							HideHarmonicOther='false'
+							Name='Tx Spectral Profile'
+							NodeOrder='0'
+							NoiseSource='false'
+							NumberOfPorts='2'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Band'
+							RadarSource='false'
+							Tx1dBCompressionPt='0'
+							TxAmpGain='30'
+							TxAmpSatLevel='0'
+							TxHarmonicExpansion='false'
+							TxHarmonicIntercept='-30'
+							TxHarmonicSlope='-70'
+							TxHarmonicTaper='Constant'
+							TxIIP3='10'
+							TxMaxN='1'
+							TxMaxOrder='5'
+							TxNoiseFigure='5.0'
+							TxNoiseLevel='-174'
+							TxPowerMethod='Peak Power'
+							TxReverseIsolation='20'
+							Type='TxSpectralProfNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Sampling'
+						$begin 'properties'
+							Name='Sampling'
+							NumberChannels='1000'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio'
+							PercentageChannels='50'
+							RandomSeed='0'
+							SamplingType='UniformSampling'
+							SpecifyPercentage='false'
+							TotalRxChannels='1'
+							TotalTxChannels='1'
+							Type='SamplingNode'
+							Warning=''
+						$end 'properties'
+					$end 'node'
+				$end 'EmitCompInstanceExtension'
+			$end 'Compinst'
+			$begin 'Compinst'
+				ID='2'
+				Status='Status'
+				CompName='EMIT Elements\\Antennas:Antenna'
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '2')
+				$end 'Properties'
+				$begin 'Parameters'
+					ButtonProp('Model', 'OD', '', 'Configure...', '<Project>', 38050, ButtonPropClientData())
+					TextProp('Name', 'ID', '', 'Bowtie')
+				$end 'Parameters'
+				$begin 'EmitCompInstanceExtension'
+					$begin 'node'
+						fullname='NODE-*-Scene-*-Bowtie'
+						$begin 'properties'
+							AdjustSourceHeight='false'
+							AntennaTemperature='290.0'
+							AntennaType='FFPatTable'
+							ArrayFilename='C:\\Users\\jsalant\\Downloads\\BowtieRounded_Array_3x3.metadata\\Bowtie_Array_3x3.xml'
+							AutoAdjustSrcOrientation='true'
+							AutoAdjustmentType='None'
+							AutoScaled='true'
+							ClearDisplayList1='true'
+							ClearDisplayList2='true'
+							ClearDisplayList3='true'
+							Color='#8064A2'
+							CosineTaperPower='1.0'
+							EdgeTaperLevel='-200'
+							Frequency='1750000000'
+							LinkChildParameters='true'
+							MaxTaperDistanceX='0.0'
+							MaxTaperDistanceY='0.0'
+							Name='Bowtie'
+							NodeOrder='0'
+							NumberOfPorts='2'
+							Orientation='0.0 0.0 0.0'
+							OrientationMode='rpyDeg'
+							Parent='NODE-*-Scene'
+							PhaseCenterOrientation='0.0 0.0 0.0'
+							PhaseCenterPosition='0.0 0.0 0.0'
+							Position='0.000000000000000000 0.000000000000000000 10.000000000000000000'
+							PositionDefined='true'
+							RFSystem='NODE-*-RF Systems-*-Radio'
+							RadioSidePorts='in'
+							ReferencePlane='XY Plane'
+							RelativeOrientation='0.0 0.0 0.0'
+							RelativePosition='0.0 0.0 0.0'
+							ShowAxes='true'
+							ShowCompositePassbands='false'
+							ShowIcon='false'
+							ShowRelativeCoords='false'
+							SizeScaler='0.1'
+							SrcPosOffset='0.0 0.0 0.0'
+							SteeringAzimuth='0.0'
+							SteeringElevation='0.000000000000000000'
+							SubType='HfssPhasedArray'
+							SweCustonNMode='50'
+							SweNModeTruncation='Dynamic'
+							TaperingFunction='FlatTaper'
+							Type='AntennaNode'
+							UseAntennaPattern='false'
+							UsePhaseCenter='false'
+							VSWR='1.0'
+							Visible='true'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-Scene-*-Bowtie-*-Pattern'
+						$begin 'properties'
+							AutoScaled='true'
+							AxisLabelFont='Sans Serif,12,-1,5,75,0,0,0,0,0'
+							AxisTickLabelFont='Sans Serif,10,-1,5,50,0,0,0,0,0'
+							ColorByField='true'
+							ColorMapClipped='false'
+							ColorMapLabel='Normalized Field Density [Linear]'
+							ColorMapMax='1'
+							ColorMapMax_Locked='false'
+							ColorMapMin='0'
+							ColorMapMin_Locked='false'
+							ColorMapReversed='false'
+							ColorMapType='[Spectrum]'
+							DBCutoff='-30'
+							FillColor='#8064A2'
+							Name='Pattern'
+							NodeOrder='0'
+							Orientation='0 0 0'
+							Parent='NODE-*-Scene-*-Bowtie'
+							PolType='Composite'
+							Position='0 0 0'
+							RadPatRenderMode='Flat-shaded'
+							ScaleType='Linear'
+							SizeScaler='0.1'
+							Type='RadPatNode'
+							Visible='true'
+							WireColor='#8064A2'
+						$end 'properties'
+					$end 'node'
+				$end 'EmitCompInstanceExtension'
+			$end 'Compinst'
+			$begin 'Compinst'
+				ID='6'
+				Status='Status'
+				CompName='EMIT Elements\\Radios:New Radio'
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '6')
+				$end 'Properties'
+				$begin 'Parameters'
+					ButtonProp('Model', 'OD', '', 'Configure...', '<Project>', 38050, ButtonPropClientData())
+					CheckboxProp('Disabled', 'OHD', '', false)
+					TextProp('Name', 'ID', '', 'Radio 1')
+				$end 'Parameters'
+				$begin 'EmitCompInstanceExtension'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1'
+						$begin 'properties'
+							AntennaSidePorts='Port 1'
+							Name='Radio 1'
+							NodeOrder='0'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios'
+							PortTable='Port 1|Tx/Rx'
+							Type='RadioNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1-*-Band'
+						$begin 'properties'
+							AmModIndex='0.9'
+							BitPeriod='0.8e-09'
+							BitRate='5.0e3'
+							ChannelBandwidth='25e3'
+							ChannelFreqParent='Channel Frequencies'
+							ChannelSpacing='1e6'
+							DD1494='false'
+							DelaySkew='2.0e-12'
+							DutyCycle='0.5'
+							EmDesigEnabled='false'
+							EmissionDesignator='25K0F1D'
+							EmissionDesignatorChBw='25e3'
+							EmissionDesignatorMod='FSK'
+							EmissionProfile='false'
+							Enabled='true'
+							FMChirp='3.5e-6'
+							FMFreqDev='5.0e3'
+							FMFreqDeviationBandwidth='3.5e3'
+							FMFrequencyDeviation='3.5e3'
+							FSKFreqDev='5.0e3'
+							FSKType='2-FSK'
+							HoppingMaxFreq='2.0e9'
+							HoppingMinFreq='1.0e9'
+							HoppingRadar='false'
+							MaxModFreq='5.0e3'
+							MaxTxFreq='100000000'
+							MinTxFreq='100000000'
+							ModulationType='Generic'
+							Name='Band'
+							NodeOrder='0'
+							NumSidelobes='3'
+							NumberOfBits='8'
+							NumberOfChips='1'
+							OverrideEmDesigBandwidth='false'
+							PSKType='BPSK'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1'
+							Port='Port 1'
+							ProcurementDate='false'
+							PulseCompressionRatio='1'
+							PulseDuration='3.5e-6'
+							PulseFallTime='1.0e-6'
+							PulseRepetitionRate='395'
+							PulseRiseTime='1.0e-6'
+							RadarType='CW'
+							RiseTime='0.1e-09'
+							RxEnabled='true'
+							SpreadPercentage='2'
+							SpreadingType='Center Spread'
+							StartFrequency='3500000000.000000000000000000'
+							StopFrequency='3500000000'
+							TxEnabled='true'
+							TxOffset='0'
+							Type='Band'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1-*-Band-*-Rx Spectral Profile'
+						$begin 'properties'
+							Dd1494SNR='10'
+							DoNonlinearAnalysis='false'
+							Enabled='true'
+							InBandSensitivity='-100.000000000000000000'
+							Name='Rx Spectral Profile'
+							NodeOrder='1'
+							NumberOfPorts='2'
+							PGforNbOnly='false'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1-*-Band'
+							PrGainSensitivity='10'
+							Rx1dBCompressionPt='0'
+							RxAmpSatLevel='0'
+							RxIIP3='10'
+							RxIntermodMaxOrder='5'
+							RxMaxAttenuation='0'
+							RxMinSensitivity='-120'
+							RxNoiseFigure='8'
+							SensitivityUnits='dBm'
+							SnrAtSensitivity='0.000000000000000000'
+							Type='RxSusceptibilityProfNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1-*-Band-*-Tx Spectral Profile'
+						$begin 'properties'
+							AnalysisType='Both'
+							AverageAmplitude='40'
+							BbPhaseNoise='false'
+							DigitalOutputVoltage='3.3'
+							DoNonlinearAnalysis='false'
+							Enabled='true'
+							FundamentalAmplitude='0.000000000000000000'
+							Harmonic2Level='-60'
+							Harmonic3Level='-60'
+							HarmonicAmplitude='-60'
+							HarmonicOtherLevel='-60'
+							HideHarmonic2='false'
+							HideHarmonic3='false'
+							HideHarmonicOther='false'
+							Name='Tx Spectral Profile'
+							NodeOrder='0'
+							NoiseSource='false'
+							NumberOfPorts='2'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1-*-Band'
+							RadarSource='false'
+							Tx1dBCompressionPt='0'
+							TxAmpGain='30'
+							TxAmpSatLevel='0'
+							TxHarmonicExpansion='false'
+							TxHarmonicIntercept='-30'
+							TxHarmonicSlope='-70'
+							TxHarmonicTaper='Constant'
+							TxIIP3='10'
+							TxMaxN='1'
+							TxMaxOrder='5'
+							TxNoiseFigure='5.0'
+							TxNoiseLevel='-174'
+							TxPowerMethod='Peak Power'
+							TxReverseIsolation='20'
+							Type='TxSpectralProfNode'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1-*-Sampling'
+						$begin 'properties'
+							Name='Sampling'
+							NumberChannels='1000'
+							Parent='NODE-*-RF Systems-*-RF System-*-Radios-*-Radio 1'
+							PercentageChannels='50'
+							RandomSeed='0'
+							SamplingType='UniformSampling'
+							SpecifyPercentage='false'
+							TotalRxChannels='1'
+							TotalTxChannels='1'
+							Type='SamplingNode'
+							Warning=''
+						$end 'properties'
+					$end 'node'
+				$end 'EmitCompInstanceExtension'
+			$end 'Compinst'
+			$begin 'Compinst'
+				ID='7'
+				Status='Status'
+				CompName='EMIT Elements\\Antennas:Antenna'
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '7')
+				$end 'Properties'
+				$begin 'Parameters'
+					ButtonProp('Model', 'OD', '', 'Configure...', '<Project>', 38050, ButtonPropClientData())
+					TextProp('Name', 'ID', '', 'Iso')
+				$end 'Parameters'
+				$begin 'EmitCompInstanceExtension'
+					$begin 'node'
+						fullname='NODE-*-Scene-*-Iso'
+						$begin 'properties'
+							AdjustSourceHeight='false'
+							AntennaTemperature='290.0'
+							AntennaType='FFPatTable'
+							AutoAdjustSrcOrientation='true'
+							AutoAdjustmentType='None'
+							AutoScaled='true'
+							ClearDisplayList1='true'
+							ClearDisplayList2='true'
+							ClearDisplayList3='true'
+							Color='#8064A2'
+							CosineTaperPower='1.0'
+							EdgeTaperLevel='-200'
+							LinkChildParameters='true'
+							MaxTaperDistanceX='0.0'
+							MaxTaperDistanceY='0.0'
+							Name='Iso'
+							NodeOrder='1'
+							NumberOfPorts='2'
+							Orientation='0.0 0.0 0.0'
+							OrientationMode='rpyDeg'
+							Parent='NODE-*-Scene'
+							PeakGainDBi='0'
+							PhaseCenterOrientation='0.0 0.0 0.0'
+							PhaseCenterPosition='0.0 0.0 0.0'
+							Position='0.0 0.0 0.0'
+							PositionDefined='true'
+							RFSystem='NODE-*-RF Systems-*-Radio 1'
+							RadioSidePorts='in'
+							ReferencePlane='XY Plane'
+							RelativeOrientation='0.0 0.0 0.0'
+							RelativePosition='0.0 0.0 0.0'
+							ShowAxes='true'
+							ShowCompositePassbands='false'
+							ShowIcon='false'
+							ShowRelativeCoords='false'
+							SizeScaler='0.1'
+							SrcPosOffset='0.0 0.0 0.0'
+							SteeringAzimuth='0.0'
+							SteeringElevation='0.0'
+							SubType='Isotropic'
+							SweCustonNMode='50'
+							SweNModeTruncation='Dynamic'
+							TaperingFunction='FlatTaper'
+							Type='AntennaNode'
+							UseAntennaPattern='false'
+							UsePhaseCenter='false'
+							VSWR='1.0'
+							Visible='true'
+						$end 'properties'
+					$end 'node'
+					$begin 'node'
+						fullname='NODE-*-Scene-*-Iso-*-Pattern'
+						$begin 'properties'
+							AutoScaled='true'
+							AxisLabelFont='Sans Serif,12,-1,5,75,0,0,0,0,0'
+							AxisTickLabelFont='Sans Serif,10,-1,5,50,0,0,0,0,0'
+							ColorByField='true'
+							ColorMapClipped='false'
+							ColorMapLabel='Normalized Field Density [Linear]'
+							ColorMapMax='1'
+							ColorMapMax_Locked='false'
+							ColorMapMin='0'
+							ColorMapMin_Locked='false'
+							ColorMapReversed='false'
+							ColorMapType='[Spectrum]'
+							DBCutoff='-30'
+							FillColor='#8064A2'
+							Name='Pattern'
+							NodeOrder='0'
+							Orientation='0 0 0'
+							Parent='NODE-*-Scene-*-Iso'
+							PolType='Composite'
+							Position='0 0 0'
+							RadPatRenderMode='Flat-shaded'
+							ScaleType='Linear'
+							SizeScaler='0.1'
+							Type='RadPatNode'
+							Visible='true'
+							WireColor='#8064A2'
+						$end 'properties'
+					$end 'node'
+				$end 'EmitCompInstanceExtension'
+			$end 'Compinst'
+			$begin 'Net'
+				NetName='net_1'
+				NetPin('1', 0)
+				NetPin('2', 0)
+			$end 'Net'
+			$begin 'Net'
+				NetName='net_2'
+				NetPin('6', 0)
+				NetPin('7', 0)
+			$end 'Net'
+		$end 'Circuit'
+		$begin 'Schematic'
+			PPortCounter=0
+			BusEntryCounter=0
+			ShowVariableBlock=true
+			$begin 'Page'
+				PageSize('A')
+				PageData(Origin(0, 36, 0, 36), PageSize(0, 90, 0, 90), Margins(0, 90, 0, 90), 0, 0, 0)
+				PageNumber=1
+				$begin 'SchCompDef'
+					SchCompInst('EMIT Elements\\Radios:New Radio', 'A', '0', 1, '1', 'normal', -0.00508, -0.01016, 0, false, 4294967295, true)
+					Levels(0, 1)
+					$begin 'PropDisplayMap'
+						Name(2, 5, 1, Text(-0.00634999999999898, -0.0129928055555679, 0, 3, 5, false, 'Arial', 0, 'Radio', false, false, ExtentRect(0, 0, 0, 0, -0.00634999999999898, -0.0138138366215302, 0.00362982155478077, 0.00164206213192463, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchCompDef'
+				$begin 'SchCompDef'
+					SchCompInst('EMIT Elements\\Antennas:Antenna', 'A', '1', 3, '2', 'normal', 0.00508, -0.00508, 0, false, 4294967295, true)
+					Levels(0, 1)
+					$begin 'PropDisplayMap'
+						Name(2, 5, 1, Text(0.00508000000000101, -0.0109608055555679, 0, 3, 5, false, 'Arial', 0, 'Bowtie', false, false, ExtentRect(0, 0, 0, 0, 0.00508000000000101, -0.0117818366215302, 0.00414836749117802, 0.00164206213192463, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchCompDef'
+				$begin 'SchCompDef'
+					SchCompInst('EMIT Elements\\Radios:New Radio', 'A', '4', 9, '6', 'normal', -0.00508, -0.02032, 0, false, 4294967295, true)
+					Levels(0, 1)
+					$begin 'PropDisplayMap'
+						Name(2, 5, 1, Text(-0.00634999999999898, -0.0231528055555679, 0, 3, 5, false, 'Arial', 0, 'Radio 1', false, false, ExtentRect(0, 0, 0, 0, -0.00634999999999898, -0.0239738366215302, 0.00483976207304102, 0.00164206213192463, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchCompDef'
+				$begin 'SchCompDef'
+					SchCompInst('EMIT Elements\\Antennas:Antenna', 'A', '5', 11, '7', 'normal', 0.00508, -0.01524, 0, false, 4294967295, true)
+					Levels(0, 1)
+					$begin 'PropDisplayMap'
+						Name(2, 5, 1, Text(0.00508000000000101, -0.0211208055555679, 0, 3, 5, false, 'Arial', 0, 'Iso', false, false, ExtentRect(0, 0, 0, 0, 0.00508000000000101, -0.0219418366215302, 0.00190133510012326, 0.00164206213192463, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchCompDef'
+				$begin 'PageNet'
+					NetName='net_1'
+					ID=6
+					Color=16711680
+					PC('0', 'n1')
+					PC('1', 'in')
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='net_2'
+					ID=13
+					Color=16711680
+					PC('4', 'n1')
+					PC('5', 'in')
+				$end 'PageNet'
+				$begin 'Properties'
+					TextProp('Title', 'D', '', '')
+					TextProp('Author', 'D', '', '')
+					TextProp('Number', 'D', '', '1')
+					TextProp('Project', 'D', '', 'Project69')
+					TextProp('ProjectPath', 'D', '', 'C:/Users/jsalant/Documents/Ansoft/')
+					TextProp('Design', 'D', '', 'EMIT Design1')
+					TextProp('Date', 'D', '', '11:01:01 AM  Jan 28, 2026')
+				$end 'Properties'
+			$end 'Page'
+			GridSetup('1000mil', '100mil', '100mil', 16772075, 16774645, true, true, 16777215, Origin(0, 36, 0, 36), PageSize(0, 36, 0, 36), Margins(0, 36, 0, 36), 0, 0, 0)
+			NextUniqueID=0
+			MoveBackwards=false
+		$end 'Schematic'
+		Notes=$begin_cdata$ $end_cdata$
+	$end 'EMIT Design'
+	$begin 'DataInstances'
+		DesignEditor='TopLevel'
+		Refdes('0', 'U1')
+		$begin 'CompInstances'
+			$begin 'Compinst'
+				ID='0'
+				Status='Status'
+				CompName='EMIT Design1'
+				GatesInUse()
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '0')
+				$end 'Properties'
+			$end 'Compinst'
+		$end 'CompInstances'
+		$begin 'Instance'
+			DesignEditor='EMIT Design1'
+			ID='0'
+			Refdes('6', 'Radio2')
+			Refdes('1', 'Radio1')
+			Refdes('2', 'Antenna1')
+			Refdes('7', 'Antenna2')
+			$begin 'EMIT Design'
+				DesignInstanceID=1
+				$begin 'WindowPosition'
+					$begin 'EditorWindow'
+						Circuit(Schematic(View(WindowPos(3, -1, -1, -10, -33, 0, 0, 1478, 421), Extent(-0.507, -0.507, 1.015, 1.015, 3779.52755904, 3779.52755904, -0.0645452070084159, 0.0132697361111718, 0.119438414016834, 0.0489161666668075, 3.06144526179487), Pages(1, 1, -0.0739514343345445, -0.0394987638889127, 0.0642994343345466, 0.0171220694444488))))
+					$end 'EditorWindow'
+				$end 'WindowPosition'
+				EmitDesignDataVersion=2
+				ResultDirectory='EmitDesign1'
+				$begin 'CouplingFolderSettings'
+					NodeName='Coupling'
+					$begin 'NodeSettings'
+					$end 'NodeSettings'
+					$begin 'EmitCouplings'
+						$begin 'node'
+							fullname='NODE-*-Couplings'
+							$begin 'properties'
+								DisplayName='Coupling Data'
+								GlobalDefaultCoupling='0'
+								MinCouplingValue='-200'
+								Name='Couplings'
+								NodeOrder='0'
+								Parent='NODE'
+								Type='CouplingsNode'
+							$end 'properties'
+						$end 'node'
+						$begin 'node'
+							fullname='NODE-*-Couplings-*-Free Space Path Loss'
+							$begin 'properties'
+								AirTemperature='15.0'
+								CustomFadeMargin='0.0'
+								Enabled='true'
+								EnabledIsReadOnly='false'
+								FadingAvailability='90.0'
+								FadingModel='NoFading'
+								IncludeAtmosphericAbsorption='false'
+								IncludeRainAttenuation='false'
+								Name='Free Space Path Loss'
+								Parent='NODE-*-Couplings'
+								PointingErrorLoss='0.0'
+								PolarizationMismatch='0.0'
+								PolarizationTiltAngle='0.0'
+								Port1='(all)'
+								Port2='(all)'
+								RainAvailability='99.99'
+								RainRate='8.0'
+								RefineAdaptiveEnable='false'
+								RefineSamplingEnable='false'
+								RefineStartStopStep='1 10e9 1000'
+								RefinementFeatureVisible='false'
+								ShadowingStdDev='8.0'
+								TotalAirPressure='1013'
+								Type='PropagationLossCouplingNode'
+								Warning='No antenna model for Bowtie'
+								WaterVaporConcentration='7.5'
+							$end 'properties'
+						$end 'node'
+						$begin 'node'
+							fullname='NODE-*-Scene'
+							$begin 'properties'
+								DefaultFFVisualization='NODE-*-Analysis::CurrentFFObvDomainNode'
+								DefaultNFVisualization='NODE-*-Analysis::CurrentNFObvDomainNode'
+								DisplayName='Scene (Antennas/Emitters/Geometry)'
+								GroundPlaneNormal='ZAxis'
+								GroundPlanePosition='0.0'
+								Name='Scene'
+								NodeOrder='0'
+								Parent='NODE'
+								Type='EmitSceneNode'
+							$end 'properties'
+						$end 'node'
+					$end 'EmitCouplings'
+				$end 'CouplingFolderSettings'
+				$begin 'ResultFolderSettings'
+					NodeName='Results'
+					$begin 'NodeSettings'
+						KeptResultCount=0
+					$end 'NodeSettings'
+					$begin 'EmitResults'
+						$begin 'node'
+							fullname='NODE-*-Simulation'
+							$begin 'properties'
+								MaxRxBand=''
+								MaxRxChannel=''
+								MaxRxConfiguration=''
+								MaxTxBands=''
+								MaxTxChannels=''
+								MaxTxConfigurations=''
+								Name='Simulation'
+								Parent='NODE'
+								SelectedEmiValue=''
+								SelectedFrequency=''
+								SelectedType=''
+								SelectedValue='0'
+								Type='TopLevelSimulation'
+							$end 'properties'
+						$end 'node'
+					$end 'EmitResults'
+					$begin 'EmitCategorizationView'
+						$begin 'node'
+							fullname='NODE-*-Windows-*-Result Categorization'
+							$begin 'properties'
+								Name='Result Categorization'
+								Parent='NODE-*-Windows'
+								Type='CategoriesViewNode'
+							$end 'properties'
+						$end 'node'
+					$end 'EmitCategorizationView'
+				$end 'ResultFolderSettings'
+			$end 'EMIT Design'
+		$end 'Instance'
+		$begin 'SODInfo'
+		$end 'SODInfo'
+	$end 'DataInstances'
+	$begin 'WBSystemIDToDesignInstanceIDMap'
+	$end 'WBSystemIDToDesignInstanceIDMap'
+	$begin 'WBSysIDSysDetails'
+	$end 'WBSysIDSysDetails'
+	$begin 'WBConnIDConnDetails'
+	$end 'WBConnIDConnDetails'
+	$begin 'WBMaterialGuidDetails'
+		WBMaterialGuidMap()
+	$end 'WBMaterialGuidDetails'
+	$begin 'MinervaProjectSettingsBlk'
+		MinervaRemoteFilePath=''
+		FolderContainerString=''
+	$end 'MinervaProjectSettingsBlk'
+$end 'AnsoftProject'
+$begin 'AllReferencedFilesForProject'
+$end 'AllReferencedFilesForProject'
+$begin 'ProjectPreview'
+	ProductName='ElectronicsDesktop'
+	MajorVersion=2027
+	MinorVersion=1
+	IsEncrypted=false
+	Thumbnail64='/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE\
+BAQICAQECAQEBAgICAgICAgICAQICAgICAgICAgL/2wBDAQEBAQEBAQEBAQECAQEBAgICAgICAgICAg\
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgL/wAARCABgAGADASIAAhEBAxEB/\
+8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQR\
+BRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUp\
+TVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5us\
+LDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAA\
+AECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHB\
+CSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ\
+3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4u\
+Pk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigAooooAKKKKACiivJvjv4c+Kfi34N/En\
+w98D/H3/Cr/AIx6h4S1b/hV/jmWz8O6hp2h+O7SA33hj/hIbTxT4K8RWk3hK51a2tbPWMaPeXi6VqF4\
+2m/Z9SW0uoMsRVdChWrRozxEqMJSVOnyupUcU2oQUpQi5ytyx5pRjdq8krtehlOBp5pmuWZbWzLD5PR\
+zHEUaE8Xi3VjhcLGtUjTlicTKhSxFdYegpOrWdGhWqqnGTp0qk7Ql6zRX55/AjwH8YfjV8G/ht8Upv2\
+3P2s/CWreMvCWk6n4q8DS6D+wrq+o/Dfx3HALH4gfC7xDdv+w5Zyp4t8L+NrTX/D+sW9zZWN5Z6r4bv\
+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\
+ooAKKKKAP/2Q=='
+	$begin 'DesignInfo'
+		DesignName='EMIT Design1'
+		Notes=''
+		Factory='EMIT'
+		IsSolved=false
+		'Nominal Setups'[0:]
+		'Nominal Setup Types'[0:]
+		'Optimetrics Setups'[0:]
+		'Optimetrics Experiment Types'[0:]
+		Image64='/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE\
+BAQICAQECAQEBAgICAgICAgICAQICAgICAgICAgL/2wBDAQEBAQEBAQEBAQECAQEBAgICAgICAgICAg\
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgL/wAARCADIAMgDASIAAhEBAxEB/\
+8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQR\
+BRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUp\
+TVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5us\
+LDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAA\
+AECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHB\
+CSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ\
+3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4u\
+Pk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigAooooAKKKKACiiigAooooAKKKKACiii\
+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAPja\
+f9vb9nCP4j/Ev4R2Nz8cPEvxG+DurWGi/E7wt4I/ZJ/a08fXng281iK7uvD02rXHgr4IX9uuk6tp9jd\
+XmjahHNJYazYRi/0u5u7JknbW/wCG0/g9/wBCd+1n/wCID/t1f/Q5Vk/HnQNC+Amu6v8AtneEtF0nSJ\
+/DWkiP9qS10zTbPR4viV8D47zwTb+J/ix41vtFhjv/ABd8Q/hV4C8J6hrvhh7mHX7uTw5B4v8AA+haQ\
+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'
+	$end 'DesignInfo'
+$end 'ProjectPreview'
