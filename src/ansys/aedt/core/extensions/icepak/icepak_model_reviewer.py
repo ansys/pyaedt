@@ -212,6 +212,7 @@ class Table(ttk.Frame):
                 self.rows_data[idx][col] = new_value
 
     def edit_cell(self, event):
+
         region = self.tree.identify("region", event.x, event.y)
         if region != "cell":
             return

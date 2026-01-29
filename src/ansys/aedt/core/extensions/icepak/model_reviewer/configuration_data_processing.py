@@ -50,7 +50,8 @@ def extract_boundary_data(data):
         if boundary_type == "Block":
             use_total_power = boundary_details.get("Use Total Power", "")
             use_external_conditions = boundary_details.get("Use External Conditions", "")
-            if use_total_power:
+
+            if use_total_power and not use_external_conditions:
                 bc_name1 = "Total Power"
                 bc_name2 = "N/A"
                 value2 = "0.0"
@@ -62,7 +63,8 @@ def extract_boundary_data(data):
                 )
                 cols.append(7)
                 read_only_cols.append(cols)
-            elif use_external_conditions:
+
+            if use_external_conditions:
                 bc_name1 = "Heat Transfer Coefficient"
                 bc_name2 = "Temperature"
                 value1 = boundary_details.get("Heat Transfer Coefficient", "0w_per_m2k")
@@ -73,7 +75,7 @@ def extract_boundary_data(data):
                     [boundary_name, boundary_type, selected_objects, bc_name1, value1, bc_name2, value2]
                 )
                 read_only_cols.append(cols)
-            else:
+            if not( use_external_conditions or use_total_power):
                 bc_name1 = "Power Density"
                 bc_name2 = "N/A"
                 value2 = "0.0"
@@ -274,6 +276,9 @@ def compare_and_update_boundary_data(original_data, modified_object_data, object
                 differences.append(f"{boundary_name}: {bc_name1} selected objects changed  to '{selected_objects}'")
                 updated_data["boundaries"][boundary_name]["Objects"] = selected_object_ids
                 modified_boundary.add(boundary_name)
+
+        if bc_name1 == "Fixed Temperature":
+            bc_name1 = "Temperature"
 
         if original_obj.get(bc_name1, "") != value1:
             differences.append(
