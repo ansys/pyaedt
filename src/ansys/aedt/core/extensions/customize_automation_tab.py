@@ -543,7 +543,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             ".pyaedt_env",
             f"toolkits_{python_version_new}",
         )
-        python_exe = venv_dir.joinpath("Scripts", "python.exe")
         pip_exe = venv_dir.joinpath("Scripts", "pip.exe")
         package_dir = venv_dir.joinpath("Lib")
     else:
@@ -551,7 +550,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             ".pyaedt_env",
             f"toolkits_{python_version_new}",
         )
-        python_exe = venv_dir.joinpath("bin", "python")
         pip_exe = venv_dir.joinpath("bin", "pip")
         package_dir = venv_dir.joinpath("lib")
         edt_root = Path(desktop_object.odesktop.GetExeDir())
