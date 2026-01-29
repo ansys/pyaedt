@@ -510,6 +510,7 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
     assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
     assert "✓ PyAEDT panels installed successfully." in result.stdout
     assert "• Console" in result.stdout
+    assert "• Jupyter" in result.stdout
     assert "• Run Script" in result.stdout
     assert "• Extension Manager" in result.stdout
     assert "• Version Manager" in result.stdout
