@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -73,7 +73,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.22.dev0"
+__version__ = "0.25.dev0"
 version = __version__
 
 # isort: off
@@ -105,9 +105,9 @@ from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inside_desktop_ironpython_console
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import online_help
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.help import online_help
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.icepak import Icepak

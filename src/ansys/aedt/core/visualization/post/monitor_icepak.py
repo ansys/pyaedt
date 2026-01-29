@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -775,7 +775,7 @@ class ObjectMonitor(PyAedtBase):
         """
         return self._type
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
         """Get a list of values obtained from the monitor object.
 

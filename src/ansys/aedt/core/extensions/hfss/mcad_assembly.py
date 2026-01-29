@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -121,6 +121,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
     tab_frame_main = None
 
+    local_path = ""
     config_data: dict = dict()
 
     def __init__(self, withdraw: bool = False):
@@ -188,7 +189,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
     def run(self, config_data):
         hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
-        app = MCADAssemblyBackend.load(data=config_data)
+        app = MCADAssemblyBackend.load(data=config_data, cur_dir=self.local_path)
         app.run(hfss)
         del app
 
@@ -225,12 +226,7 @@ def load_dict(tree, master):
         with open(file_path, "r") as f:
             data = json.load(f)
             local_path = Path(file_path)
-            for name, file_path in data.get("component_models", {}).items():
-                if not Path(file_path).drive:
-                    data["component_models"][name] = str(local_path.parent / file_path)
-            for name, file_path in data.get("layout_component_models", {}).items():
-                if not Path(file_path).drive:
-                    data["layout_component_models"][name] = str(local_path.parent / file_path)
+            master.local_path = local_path.parent
             master.config_data = data
     tree.delete(*tree.get_children())  # clear everything
 
@@ -392,7 +388,16 @@ class MCADAssemblyBackend(BaseModel):
         extra = "forbid"
 
     @classmethod
-    def load(cls, data):
+    def load(cls, data, cur_dir):
+        cur_dir = Path(cur_dir)
+
+        for name, file_path in data.get("component_models", {}).items():
+            if not Path(file_path).drive:
+                data["component_models"][name] = str(cur_dir / file_path)
+        for name, file_path in data.get("layout_component_models", {}).items():
+            if not Path(file_path).drive:
+                data["layout_component_models"][name] = str(cur_dir / file_path)
+
         return cls(
             coordinate_system=data.get("coordinate_system", {}),
             component_models=data.get("component_models", {}),

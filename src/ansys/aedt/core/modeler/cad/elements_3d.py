@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,14 +28,21 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class EdgeTypePrimitive(PyAedtBase):
-    """Provides common methods for EdgePrimitive and FacePrimitive."""
+class ModifiablePrimitive(PyAedtBase):
+    """Base class for geometric primitives that support modification operations.
+
+    Provides fillet and chamfer operations for:
+    - EdgePrimitive (3D designs only)
+    - VertexPrimitive (2D designs only)
+
+    """
 
     @pyaedt_function_handler()
-    def fillet(self, radius=0.1, setback=0.0):
+    def fillet(self, radius: float = 0.1, setback: float = 0.0) -> bool:
         """Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -76,12 +83,13 @@ class EdgeTypePrimitive(PyAedtBase):
         self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
         if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
-            return False
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
         return True
 
     @pyaedt_function_handler()
-    def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
+    def chamfer(
+        self, left_distance: float = 1, right_distance: float | None = None, angle: float = 45, chamfer_type: int = 0
+    ) -> bool:
         """Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -179,7 +187,7 @@ class EdgeTypePrimitive(PyAedtBase):
         return True
 
 
-class VertexPrimitive(EdgeTypePrimitive, PyAedtBase):
+class VertexPrimitive(ModifiablePrimitive, PyAedtBase):
     """Contains the vertex object within the AEDT Desktop Modeler.
 
     Parameters
@@ -234,7 +242,7 @@ class VertexPrimitive(EdgeTypePrimitive, PyAedtBase):
         return str(self.id)
 
 
-class EdgePrimitive(EdgeTypePrimitive, PyAedtBase):
+class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
     """Contains the edge object within the AEDT Desktop Modeler.
 
     Parameters
@@ -250,6 +258,78 @@ class EdgePrimitive(EdgeTypePrimitive, PyAedtBase):
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
+
+    def __str__(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return str(self.id)
+
+    def __iter__(self):
+        """Return an iterator for the vertices of the edge.
+
+        Returns
+        -------
+        iterator
+            Iterator over the vertices of the edge.
+
+        Examples
+        --------
+        >>> for vertex in edge:
+        ...     print(f"Vertex ID: {vertex.id}, Position: {vertex.position}")
+        """
+        return iter(self.vertices)
+
+    def __getitem__(self, index):
+        """Get a vertex by index.
+
+        Parameters
+        ----------
+        index : int
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`
+            Vertex at the specified index.
+
+        Examples
+        --------
+        >>> first_vertex = edge[0]
+        >>> last_vertex = edge[-1]
+        """
+        return self.vertices[index]
+
+    def __contains__(self, item: int | VertexPrimitive) -> bool:
+        """Check if a vertex is contained in the edge.
+
+        Parameters
+        ----------
+        item : :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive` or int
+            Vertex object or vertex ID to check for containment.
+
+        Returns
+        -------
+        bool
+            ``True`` if the item is part of this edge, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> edge = obj.edges[0]
+        >>> vertex = obj.vertices[0]
+        >>> if vertex in edge:
+        ...     print("Vertex is part of this edge")
+
+        >>> # Check by vertex ID
+        >>> vertex_id = 123
+        >>> if vertex_id in edge:
+        ...     print("Vertex ID is part of this edge")
+        """
+        if isinstance(item, VertexPrimitive):
+            item_id = item.id
+            return any(v.id == item_id for v in self)
+        elif isinstance(item, int):
+            return any(v.id == item for v in self)
+        return False
 
     @property
     def name(self):
@@ -364,12 +444,6 @@ class EdgePrimitive(EdgeTypePrimitive, PyAedtBase):
         except Exception:
             return False
 
-    def __str__(self):
-        return str(self.id)
-
-    def __repr__(self):
-        return str(self.id)
-
     @pyaedt_function_handler()
     def create_object(self, non_model=False):
         """Return a new object from the selected edge.
@@ -411,6 +485,148 @@ class EdgePrimitive(EdgeTypePrimitive, PyAedtBase):
             self._object3d.logger.error("Edge Movement applies only to 2D objects.")
             return False
         return self._object3d._primitives.move_edge(self, offset)
+
+    @pyaedt_function_handler()
+    def fillet(self, radius=0.1, setback=0.0):
+        """Add a fillet to the selected edges in 3D/vertices in 2D.
+
+        Parameters
+        ----------
+        radius : float, optional
+            Radius of the fillet. The default is ``0.1``.
+        setback : float, optional
+            Setback value for the file. The default is ``0.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Fillet
+
+        """
+        edge_id_list = []
+        vertex_id_list = []
+
+        if isinstance(self, VertexPrimitive):
+            vertex_id_list = [self.id]
+        else:
+            if self._object3d.is3d:
+                edge_id_list = [self.id]
+            else:
+                raise AEDTRuntimeError("Fillet is possible only on a vertex in 2D designs.")
+
+        vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:FilletParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._app.value_with_units(radius))
+        vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._app.value_with_units(setback))
+        self._object3d._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
+            self._object3d._primitives._odesign.Undo()
+            raise AEDTRuntimeError("Operation failed, generating an unclassified object. Check and retry.")
+        return True
+
+    @pyaedt_function_handler()
+    def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
+        """Add a chamfer to the selected edges in 3D/vertices in 2D.
+
+        Parameters
+        ----------
+        left_distance : float, optional
+            Left distance from the edge. The default is ``1``.
+        right_distance : float, optional
+            Right distance from the edge. The default is ``None``.
+        angle : float, optional.
+            Angle value for chamfer types 2 and 3. The default is ``0``.
+        chamfer_type : int, optional
+            Type of the chamfer. Options are:
+                * 0 - Symmetric
+                * 1 - Left Distance-Right Distance
+                * 2 - Left Distance-Angle
+                * 3 - Right Distance-Angle
+
+            The default is ``0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Chamfer
+
+        """
+        edge_id_list = []
+        vertex_id_list = []
+
+        if isinstance(self, VertexPrimitive):
+            vertex_id_list = [self.id]
+        else:
+            if self._object3d.is3d:
+                edge_id_list = [self.id]
+            else:
+                self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")
+                return False
+        vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:ChamferParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        if right_distance is None:
+            right_distance = left_distance
+        if chamfer_type == 0:
+            if left_distance != right_distance:
+                self._object3d.logger.error(
+                    "Do not set right distance or ensure that left distance equals right distance."
+                )
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
+            )
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
+            )
+            vArg2.append("ChamferType:="), vArg2.append("Symmetric")
+        elif chamfer_type == 1:
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
+            )
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
+            )
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+        elif chamfer_type == 2:
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
+            )
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Angle")
+        elif chamfer_type == 3:
+            # NOTE: Seems like there is a bug in the API as Angle can't be used
+            vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
+            )
+            vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
+        else:
+            self._object3d.logger.error("Wrong chamfer_type provided. Value must be an integer from 0 to 3.")
+            return False
+        self._object3d._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self._object3d.name in list(self._object3d._oeditor.GetObjectsInGroup("UnClassified")):
+            self._object3d.odesign.Undo()
+            self._object3d.logger.error("Operation Failed generating Unclassified object. Check and retry")
+            return False
+        return True
 
 
 class FacePrimitive(PyAedtBase):
@@ -571,7 +787,8 @@ class FacePrimitive(PyAedtBase):
             self._is_planar = True
             return True
         except Exception:
-            self.logger.clear_messages()
+            if self.logger and hasattr(self.logger, "clear_messages"):
+                self.logger.clear_messages()
             self._is_planar = False
             return False
 
@@ -739,7 +956,7 @@ class FacePrimitive(PyAedtBase):
         except Exception:
             return None
 
-    @pyaedt_function_handler(tol="tolerance")
+    @pyaedt_function_handler()
     def is_on_bounding(self, tolerance=1e-9):
         """Check if the face is on bounding box or Not.
 

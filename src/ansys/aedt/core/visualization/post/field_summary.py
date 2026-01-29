@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -185,7 +185,7 @@ class FieldSummary(PyAedtBase):
         self.calculations.append(calc_args)
         return True
 
-    @pyaedt_function_handler(IntrinsincDict="intrinsics", setup_name="setup", design_variation="variation")
+    @pyaedt_function_handler()
     def get_field_summary_data(self, setup=None, variation=None, intrinsics="", pandas_output=False):
         """
         Get  field summary output computation.
@@ -235,7 +235,7 @@ class FieldSummary(PyAedtBase):
                 return df
         return out_dict
 
-    @pyaedt_function_handler(filename="output_file", design_variation="variations", setup_name="setup")
+    @pyaedt_function_handler()
     def export_csv(self, output_file, setup=None, variations=None, intrinsics=""):
         """
         Get the field summary output computation.

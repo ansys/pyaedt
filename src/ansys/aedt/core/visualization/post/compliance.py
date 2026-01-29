@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -379,7 +379,7 @@ class VirtualComplianceGenerator(PyAedtBase):
             "type": report_type,
             "config": str(config_file),
             "traces": traces,
-            "pass_fail": True,
+            "pass_fail": True,  # nosec B105
             "pass_fail_criteria": pass_fail_criteria,
             "parameter_name": parameter,
         }
@@ -1656,7 +1656,7 @@ class VirtualCompliance(PyAedtBase):
                         if os.path.exists(image):
                             report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
                 components = [["Reference Designator", "Parameters"]]
-                for element in _design.modeler.components.components.values():
+                for element in _design.modeler.schematic.components.values():
                     if "refdes" in dir(element):
                         pars = []
                         for el, val in element.parameters.items():

@@ -28,8 +28,8 @@ Here is an example of YAML file :download:`YAML configuration file <../Resources
 
 Below is the content that can be updated through the YAML file.
 
-.. code-block:: yaml  
-  
+.. code-block:: yaml
+
     # Settings related to logging
     log:
         # Enable or disable the logging of EDB API methods
@@ -76,7 +76,7 @@ Below is the content that can be updated through the YAML file.
         # Command to launch the task in the LSF Scheduler
         lsf_aedt_command: 'ansysedt'
         # Number of LSF cores
-        lsf_num_cores: 2
+        num_cores: 2
         # Operating system string
         lsf_osrel: null
         # LSF queue name

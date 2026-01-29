@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,48 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-TEMPLATES_BY_DESIGN = {
-    "HFSS": [
-        "Modal Solution Data",
-        "Terminal Solution Data",
-        "Eigenmode Parameters",
-        "Fields",
-        "Far Fields",
-        "Emissions",
-        "Near Fields",
-        "Antenna Parameters",
-    ],
-    "Maxwell 3D": [
-        "Transient",
-        "EddyCurrent",
-        "Magnetostatic",
-        "Electrostatic",
-        "DCConduction",
-        "ElectroDCConduction",
-        "ElectricTransient",
-        "Fields",
-        "Spectrum",
-    ],
-    "Maxwell 2D": [
-        "Transient",
-        "EddyCurrent",
-        "Magnetostatic",
-        "Electrostatic",
-        "ElectricTransient",
-        "ElectroDCConduction",
-        "Fields",
-        "Spectrum",
-    ],
-    "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum", "EMIReceiver"],
-    "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
-    "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
-    "Mechanical": ["Standard", "Fields"],
-    "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
-    "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
-    "Twin Builder": ["Standard", "Spectrum"],
-}
 
 ORIENTATION_TO_VIEW = {
     "isometric": "iso",

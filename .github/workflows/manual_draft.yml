@@ -4,30 +4,72 @@ on:
   workflow_dispatch:
     inputs:
       test-solvers-windows:
-        description: "Testing solvers and coverage (Windows)"
+        description: "Testing solvers (Windows)"
         default: 'no'
         type: choice
         options:
           - 'yes'
           - 'no'
       test-solvers-linux:
-        description: "Testing solvers and coverage (Linux)"
+        description: "Testing solvers (Linux)"
         default: 'no'
         type: choice
         options:
           - 'yes'
           - 'no'
       test-general-windows:
-        description: "Testing general and coverage (Windows)"
+        description: "Testing general (Windows)"
         default: 'no'
         type: choice
         options:
           - 'yes'
           - 'no'
       test-general-linux:
-        description: "Testing general and coverage (Linux)"
+        description: "Testing general (Linux)"
         type: choice
         default: 'no'
+        options:
+          - 'yes'
+          - 'no'
+      test-visualization-windows:
+        description: "Testing visualization (Windows)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      test-visualization-linux:
+        description: "Testing visualization (Linux)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      test-extensions-windows:
+        description: "Testing extensions (Windows)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      test-extensions-linux:
+        description: "Testing extensions (Linux)"
+        type: choice
+        default: 'no'
+        options:
+          - 'yes'
+          - 'no'
+      test-emit-windows:
+        description: "Testing Emit (Windows)"
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      test-filter-solutions-windows:
+        description: "Testing Filter Solutions (Windows)"
+        default: 'no'
+        type: choice
         options:
           - 'yes'
           - 'no'
@@ -36,8 +78,14 @@ env:
   MAIN_PYTHON_VERSION: '3.10'
   PYTEST_ARGUMENTS: '-vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml'
 
-permissions: {} # Disable default permissions
-  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Disable all default permissions at workflow level for security (least privilege principle)
+# Individual jobs will explicitly request only the permissions they need
+permissions: {}
+
 jobs:
 
   system-test-solvers-windows:
@@ -46,12 +94,12 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -68,13 +116,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
           pip install pytest-azurepipelines
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -94,14 +135,14 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${PYTEST_ARGUMENTS} -m solvers
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
           flags: system,solvers,windows
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-solvers-windows
           path: junit/test-results.xml
@@ -114,14 +155,14 @@ jobs:
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
-    steps:  
+    steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -129,7 +170,6 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -140,7 +180,6 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
@@ -158,18 +197,17 @@ jobs:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -m solvers
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
           flags: system,solver,linux
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-solvers-linux
           path: junit/test-results.xml
@@ -181,12 +219,12 @@ jobs:
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -203,13 +241,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install .[tests]
           pip install pytest-azurepipelines
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -233,14 +264,14 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
           flags: system,general,windows
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-general-windows
           path: junit/test-results.xml
@@ -255,12 +286,12 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -268,7 +299,6 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -279,7 +309,6 @@ jobs:
         env:
           ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
         run: |
-          export LD_LIBRARY_PATH=${ANSYSEM}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
@@ -306,19 +335,438 @@ jobs:
           retry_on: error
           timeout_minutes: 50
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile -m general
 
-      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           name: codecov-system-general-tests
           files: ./coverage.xml
           flags: system,solver,linux
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pytest-general-linux
           path: junit/test-results.xml
         if: ${{ always() }}
+
+  system-tests-visualization-windows:
+    name: Test visualization (windows)
+    if: github.event.inputs.test-visualization-windows == 'yes'
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    env:
+      MPLBACKEND: 'Agg'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'visualization'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 40
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization -x
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-visualization-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-visualization-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+  system-tests-visualization-linux:
+    name: Test visualization (linux)
+    if: github.event.inputs.test-visualization-linux == 'yes'
+
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+      MPLBACKEND: 'Agg'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          source .venv/bin/activate
+          pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      # NOTE: Run visualization tests in two separate steps to avoid conflicts when
+      # loading Ansys EM libraries and vtk osmesa backend.
+      - name: Run tests marked with 'visualization' and not 'avoid_ansys_load'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 30
+          command: |
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and not avoid_ansys_load" -x --cov-append
+
+      - name: Run tests marked with 'visualization' and 'avoid_ansys_load'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 40
+          command: |
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=300 -m "visualization and avoid_ansys_load" -x --cov-append
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-visualization-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-visualization-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+  system-tests-extensions-windows:
+    name: Test extensions (windows)
+    if: github.event.inputs.test-extensions-windows == 'yes'
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'extensions'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-extensions-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_extensions
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-extensions-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+  system-tests-extensions-linux:
+    name: Test extensions (linux)
+    if: github.event.inputs.test-extensions-linux == 'yes'
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        run: |
+          source .venv/bin/activate
+          pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: bash
+        run: |
+          for pid in $(ps -eo pid,comm,args | grep -iE "ansys.inc|ansysem" | grep -v grep | awk '{print $1}'); do
+            echo "Killing PID $pid"
+            kill -9 "$pid"
+          done
+
+      - name: Run tests marked with 'extensions'
+        env:
+          ANSYSEM: ${{ env.ANSYSEM_ROOT252 }}
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            export LD_LIBRARY_PATH="${ANSYSEM}/common/mono/Linux64/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            source .venv/bin/activate
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-extensions-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_extensions
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-extensions-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+
+  system-tests-emit-windows:
+    name: Test EMIT (windows)
+    if: github.event.inputs.test-emit-windows == 'yes'
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'emit'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 30
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-emit-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_emit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-emit-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+  system-tests-filter-solutions:
+    name: Test filter solutions (windows)
+    if: github.event.inputs.test-filter-solutions-windows == 'yes'
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
+
+      - name: Remove Ansys processes (if any)
+        shell: powershell
+        run: |
+          Get-Process | Where-Object {
+            $_.Path -like "*ansys inc*" -or $_.Path -like "*ansysem*"
+          } | ForEach-Object {
+            Write-Output "Killing $($_.Name) (PID: $($_.Id))"
+            Stop-Process -Id $_.Id -Force
+          }
+
+      - name: Run tests marked with 'filter_solutions'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 120
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m filter_solutions
+
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          name: codecov-system-filter-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_filter
+
+      - name: Upload pytest test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-filter_solutions-windows
+          path: junit/test-results.xml

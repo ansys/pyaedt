@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -24,7 +24,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import pytest
 
@@ -37,11 +37,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 def test_create_report_generate_button(add_app):
     """Test the Generate button in the Create Report extension."""
-    aedt_app = add_app(
-        application=Hfss,
-        project_name="create_report",
-        design_name="test",
-    )
+    aedt_app = add_app(application=Hfss)
 
     # Create a simple setup to have some reportable data
     aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
@@ -59,11 +55,11 @@ def test_create_report_generate_button(add_app):
     assert main(extension.data)
 
     # Check if report was generated
-    report_path = os.path.join(
-        aedt_app.working_directory,
-        f"{extension.data.report_name}.pdf",
-    )
-    assert os.path.exists(report_path)
+    file = f"{extension.data.report_name}.pdf"
+    report_path = Path(aedt_app.working_directory) / file
+    assert report_path.is_file()
+
+    aedt_app.close_project(save=False)
 
 
 def test_create_report_custom_name(add_app):
@@ -76,8 +72,8 @@ def test_create_report_custom_name(add_app):
 
     aedt_app = add_app(
         application=Hfss,
-        project_name="create_report_custom",
-        design_name="test_custom",
+        project="create_report_custom",
+        design="test_custom",
     )
 
     # Create a simple setup
@@ -87,9 +83,12 @@ def test_create_report_custom_name(add_app):
 
     assert main(data)
 
-    # Check if report was generated with custom name
-    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
-    assert os.path.exists(report_path)
+    # Check if report was generated
+    file = f"{data.report_name}.pdf"
+    report_path = Path(aedt_app.working_directory) / file
+    assert report_path.is_file()
+
+    aedt_app.close_project(save=False)
 
 
 def test_create_report_empty_name_exception():
@@ -110,8 +109,8 @@ def test_create_report_different_design_types(add_app):
     # Create mock design type for testing
     aedt_app = add_app(
         application=Hfss,
-        project_name="create_report_layout",
-        design_name="layout_test",
+        project="create_report_layout",
+        design="layout_test",
     )
 
     # Create a simple setup
@@ -122,8 +121,11 @@ def test_create_report_different_design_types(add_app):
     assert main(data)
 
     # Check if report was generated
-    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
-    assert os.path.exists(report_path)
+    file = f"{data.report_name}.pdf"
+    report_path = Path(aedt_app.working_directory) / file
+    assert report_path.is_file()
+
+    aedt_app.close_project(save=False)
 
 
 def test_create_report_with_plots(add_app):
@@ -132,8 +134,8 @@ def test_create_report_with_plots(add_app):
 
     aedt_app = add_app(
         application=Hfss,
-        project_name="create_report_plots",
-        design_name="plots_test",
+        project="create_report_plots",
+        design="plots_test",
     )
 
     # Create a simple setup
@@ -152,8 +154,11 @@ def test_create_report_with_plots(add_app):
     assert main(data)
 
     # Check if report was generated
-    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
-    assert os.path.exists(report_path)
+    file = f"{data.report_name}.pdf"
+    report_path = Path(aedt_app.working_directory) / file
+    assert report_path.is_file()
+
+    aedt_app.close_project(save=False)
 
 
 def test_create_report_open_report_false(add_app):
@@ -162,8 +167,8 @@ def test_create_report_open_report_false(add_app):
 
     aedt_app = add_app(
         application=Hfss,
-        project_name="create_report_no_open",
-        design_name="no_open_test",
+        project="create_report_no_open",
+        design="no_open_test",
     )
 
     # Create a simple setup
@@ -175,16 +180,19 @@ def test_create_report_open_report_false(add_app):
     assert main(data)
 
     # Check if report was generated
-    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
-    assert os.path.exists(report_path)
+    file = f"{data.report_name}.pdf"
+    report_path = Path(aedt_app.working_directory) / file
+    assert report_path.is_file()
+
+    aedt_app.close_project(save=False)
 
 
 def test_create_report_extension_ui_integration(add_app):
     """Test the full extension UI integration."""
     aedt_app = add_app(
         application=Hfss,
-        project_name="create_report_ui",
-        design_name="ui_test",
+        project="create_report_ui",
+        design="ui_test",
     )
 
     # Create a simple setup
@@ -211,16 +219,15 @@ def test_create_report_extension_ui_integration(add_app):
     assert "CustomReport" == extension.data.report_name
     assert extension.data.open_report
     assert "" == extension.data.save_path  # Default save path
+    aedt_app.close_project(save=False)
 
 
-def test_create_report_custom_save_path(add_app):
+def test_create_report_custom_save_path(add_app, test_tmp_dir):
     """Test creating a report with custom save path."""
-    import tempfile
-
     aedt_app = add_app(
         application=Hfss,
-        project_name="create_report_custom_path",
-        design_name="test_custom_path",
+        project="create_report_custom_path",
+        design="test_custom_path",
     )
 
     # Create a simple setup
@@ -228,27 +235,28 @@ def test_create_report_custom_save_path(add_app):
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
-    # Create a temporary directory for the test
-    with tempfile.TemporaryDirectory() as temp_dir:
-        data = CreateReportExtensionData(
-            report_name="CustomPathReport",
-            open_report=False,
-            save_path=temp_dir,
-        )
+    data = CreateReportExtensionData(
+        report_name="CustomPathReport",
+        open_report=False,
+        save_path=test_tmp_dir,
+    )
 
-        assert main(data)
+    assert main(data)
 
-        # Check if report was generated in the custom path
-        report_path = os.path.join(temp_dir, f"{data.report_name}.pdf")
-        assert os.path.exists(report_path)
+    # Check if report was generated
+    file = f"{data.report_name}.pdf"
+    report_path = test_tmp_dir / file
+    assert report_path.is_file()
+
+    aedt_app.close_project(save=False)
 
 
 def test_create_report_empty_save_path_default(add_app):
     """Test that empty save path defaults to working directory."""
     aedt_app = add_app(
         application=Hfss,
-        project_name="create_report_empty_path",
-        design_name="test_empty_path",
+        project="create_report_empty_path",
+        design="test_empty_path",
     )
 
     # Create a simple setup
@@ -264,6 +272,9 @@ def test_create_report_empty_save_path_default(add_app):
 
     assert main(data)
 
-    # Check if report was generated in working directory
-    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
-    assert os.path.exists(report_path)
+    # Check if report was generated
+    file = f"{data.report_name}.pdf"
+    report_path = Path(aedt_app.working_directory) / file
+    assert report_path.is_file()
+
+    aedt_app.close_project(save=False)

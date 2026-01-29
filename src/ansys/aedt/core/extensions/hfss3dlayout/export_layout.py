@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -183,7 +183,7 @@ def main(data: ExportLayoutExtensionData):
     try:
         if data.export_ipc:
             ipc_file = aedb_path.with_name(aedb_path.stem + "_ipc2581.xml")
-            edb.export_to_ipc2581(ipc_file)
+            edb.export_to_ipc2581(ipc_path=str(ipc_file))
 
         if data.export_bom:
             bom_file = aedb_path.with_name(aedb_path.stem + "_bom.csv")

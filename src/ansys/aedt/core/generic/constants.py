@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,13 +23,12 @@
 # SOFTWARE.
 from __future__ import absolute_import
 
-from enum import Enum
 from enum import IntEnum
 from enum import auto
-from enum import unique
 import math
-from typing import Type
 import warnings
+
+from ansys.aedt.core.generic.settings import settings
 
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180
@@ -721,8 +720,67 @@ def deprecate_enum(new_enum):
     return decorator
 
 
-@unique
-class InfiniteSphereType(str, Enum):
+class DynamicMeta(type):
+    def __hash__(cls):
+        return hash((cls.__module__, cls.__qualname__))
+
+    def __getitem__(cls, key):
+        # Route __getitem__ through __getattribute__ for consistency
+        return cls.__getattribute__(key)
+
+    def __call__(cls, value, *args, **kwargs):
+        # Case-insensitive value resolution
+        if isinstance(value, str):
+            for member in cls:
+                if member.value.lower() == value.lower():
+                    return member
+        return super().__call__(value, *args, **kwargs)
+
+    def __getattribute__(cls, name):
+        var = settings.aedt_version if settings.aedt_version else ""
+        clname = super().__getattribute__("__name__")
+        try:
+            ver_dict = dict(sorted(super().__getattribute__(f"_{clname}__versioned").items()))
+            versioned = {}
+            if var in ver_dict:
+                versioned = ver_dict[var]
+            elif ver_dict and var:
+                for k, v in ver_dict.items():
+                    if var <= k:
+                        versioned = v
+
+            if versioned and name in versioned:
+                return versioned[name]
+                # new_emum = Enum(cls.__name__, versioned, module=cls.__module__)
+                # return getattr(new_emum, name)
+        except AttributeError:
+            pass
+        return super().__getattribute__(name)
+
+    def __repr__(cls):
+        try:
+            return cls.NAME
+        except AttributeError:
+            return super().__getattribute__("__name__")
+
+    def __str__(cls):
+        try:
+            return cls.NAME
+        except AttributeError:
+            return super().__getattribute__("__name__")
+
+    def __contains__(cls, item):
+        try:
+            super().__getattribute__(item)
+            return True
+        except AttributeError:
+            return False
+
+    def __eq__(cls, other):
+        return True if str(cls) == other else False
+
+
+class InfiniteSphereType(metaclass=DynamicMeta):
     """Infinite sphere type enum class."""
 
     ThetaPhi = "Theta-Phi"
@@ -730,15 +788,13 @@ class InfiniteSphereType(str, Enum):
     ElOverAz = "El Over Az"
 
 
-@unique
-class Fillet(IntEnum):
+class Fillet(metaclass=DynamicMeta):
     """Fillet enum class."""
 
     (Round, Mitered) = range(2)
 
 
-@unique
-class Axis(IntEnum):
+class Axis(metaclass=DynamicMeta):
     """Coordinate system axis enum class.
 
     This static class defines integer constants corresponding to the
@@ -774,8 +830,7 @@ class Axis(IntEnum):
     (X, Y, Z) = range(3)
 
 
-@unique
-class Plane(IntEnum):
+class Plane(metaclass=DynamicMeta):
     """Coordinate system plane enum class.
 
     This static class defines integer constants corresponding to the
@@ -795,8 +850,7 @@ class Plane(IntEnum):
     (YZ, ZX, XY) = range(3)
 
 
-@unique
-class Gravity(IntEnum):
+class Gravity(metaclass=DynamicMeta):
     """Gravity direction enum class.
 
     This static class defines integer constants corresponding to the
@@ -821,8 +875,7 @@ class Gravity(IntEnum):
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(6)
 
 
-@unique
-class View(str, Enum):
+class View(metaclass=DynamicMeta):
     """View enum class.
 
     This static class defines integer constants corresponding to the
@@ -844,15 +897,13 @@ class View(str, Enum):
     (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
 
 
-@unique
-class GlobalCS(str, Enum):
+class GlobalCS(metaclass=DynamicMeta):
     """Global coordinate system enum class."""
 
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
 
-@unique
-class MatrixOperationsQ3D(str, Enum):
+class MatrixOperationsQ3D(metaclass=DynamicMeta):
     """Matrix operations for Q3D."""
 
     (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
@@ -868,8 +919,7 @@ class MatrixOperationsQ3D(str, Enum):
     )
 
 
-@unique
-class MatrixOperationsQ2D(str, Enum):
+class MatrixOperationsQ2D(metaclass=DynamicMeta):
     """Matrix operations for Q2D."""
 
     (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
@@ -881,15 +931,13 @@ class MatrixOperationsQ2D(str, Enum):
     )
 
 
-@unique
-class PlotCategoriesQ3D(str, Enum):
+class PlotCategoriesQ3D(metaclass=DynamicMeta):
     """Plot categories for Q3D."""
 
     (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
 
 
-@unique
-class PlotCategoriesQ2D(str, Enum):
+class PlotCategoriesQ2D(metaclass=DynamicMeta):
     """Plot categories for Q2D."""
 
     (
@@ -908,71 +956,61 @@ class PlotCategoriesQ2D(str, Enum):
     ) = ("C", "G", "R", "L", "lumpC", "lumpG", "lumpR", "lumpL", "Z0", "Kf", "lumpKf", "Kb")
 
 
-@unique
-class CSMode(str, Enum):
+class CSMode(metaclass=DynamicMeta):
     """Coordinate system mode enum class."""
 
     (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
 
 
-@unique
-class SegmentType(IntEnum):
+class SegmentType(metaclass=DynamicMeta):
     """Segment type enum class."""
 
     (Line, Arc, Spline, AngularArc) = range(0, 4)
 
 
-@unique
-class CrossSection(IntEnum):
+class CrossSection(metaclass=DynamicMeta):
     """Cross section enum class."""
 
     (NONE, Line, Circle, Rectangle, Trapezoid) = range(0, 5)
 
 
-@unique
-class SweepDraft(IntEnum):
+class SweepDraft(metaclass=DynamicMeta):
     """Sweep draft type enum class."""
 
     (Extended, Round, Natural, Mixed) = range(0, 4)
 
 
-@unique
-class FlipChipOrientation(IntEnum):
+class FlipChipOrientation(metaclass=DynamicMeta):
     """Flip chip orientation enum class."""
 
     (Up, Down) = range(0, 2)
 
 
-@unique
-class SolverType(IntEnum):
+class SolverType(metaclass=DynamicMeta):
     """Provides solver type classes."""
 
     (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
 
 
-@unique
-class CutoutSubdesignType(IntEnum):
+class CutoutSubdesignType(metaclass=DynamicMeta):
     """Cutout subdesign type enum class."""
 
     (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
 
 
-@unique
-class RadiationBoxType(IntEnum):
+class RadiationBoxType(metaclass=DynamicMeta):
     """Radiation box type enum class."""
 
     (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
 
 
-@unique
-class SweepType(IntEnum):
+class SweepType(metaclass=DynamicMeta):
     """Sweep type enum class."""
 
     (Linear, LogCount, Invalid) = range(0, 3)
 
 
-@unique
-class BasisOrder(IntEnum):
+class BasisOrder(metaclass=DynamicMeta):
     """HFSS basis order settings enum class.
 
     Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
@@ -982,22 +1020,19 @@ class BasisOrder(IntEnum):
     (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
 
 
-@unique
-class NodeType(IntEnum):
+class NodeType(metaclass=DynamicMeta):
     """Enum class on the type of node for source creation."""
 
     (Positive, Negative, Floating) = range(0, 3)
 
 
-@unique
-class SourceType(IntEnum):
+class SourceType(metaclass=DynamicMeta):
     """Type of excitation enum class."""
 
     (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc, DcTerminal) = range(0, 7)
 
 
-@unique
-class SolutionsHfss(str, Enum):
+class SolutionsHfss(metaclass=DynamicMeta):
     """HFSS solution types enum class."""
 
     (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, CharacteristicMode) = (
@@ -1010,7 +1045,7 @@ class SolutionsHfss(str, Enum):
     )
 
 
-class SolutionsMaxwell3D(str, Enum):
+class SolutionsMaxwell3D(metaclass=DynamicMeta):
     """Maxwell 3D solution types enum class."""
 
     (
@@ -1025,6 +1060,7 @@ class SolutionsMaxwell3D(str, Enum):
         TransientAPhiFormulation,
         DCBiasedEddyCurrent,
         ACMagnetic,
+        ACMagneticAPhi,
         TransientAPhi,
         ElectricDCConduction,
         ACMagneticwithDC,
@@ -1040,51 +1076,29 @@ class SolutionsMaxwell3D(str, Enum):
         "Transient APhi",
         "AC Magnetic with DC",
         "AC Magnetic",
+        "AC Magnetic APhi",
         "Transient APhi",
         "Electric DC Conduction",
         "AC Magnetic with DC",
     )
-
-    @classmethod
-    def versioned(cls, version: str) -> Type[Enum]:  # pragma: no cover
-        """
-        Return a new Enum subclass containing the members available for the given version.
-
-        The returned class has its own name based on the version,
-        and behaves like a normal Enum (including .name and .value).
-
-        Parameters
-        ----------
-        version : str
-            AEDT version.
-
-        Returns
-        -------
-        Enum
-            A new Enum subclass containing only the allowed members for
-            the given version, with updated values if applicable.
-        """
-        if version >= "2025.2":
-            return cls
-
-        names = {m.name: m.value for m in cls}
-        names["ACConduction"] = "ACConduction"
-        names["DCConduction"] = "DCConduction"
-        names["EddyCurrent"] = "EddyCurrent"
-        names["ACMagnetic"] = "EddyCurrent"
-        names["ElectroDCConduction"] = "ElectroDCConduction"
-        names["TransientAPhiFormulation"] = "TransientAPhiFormulation"
-        names["TransientAPhi"] = "TransientAPhiFormulation"
-        names["ElectricDCConduction"] = "ElectroDCConduction"
-        names["ACMagneticwithDC"] = "DCBiasedEddyCurrent"
-        names["ElectricTransient"] = "ElectricTransient"
-        names["DCBiasedEddyCurrent"] = "DCBiasedEddyCurrent"
-
-        new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
-        return new_enum
+    __versioned = {
+        "2025.1": {
+            "ACConduction": "ACConduction",
+            "DCConduction": "DCConduction",
+            "EddyCurrent": "EddyCurrent",
+            "ACMagnetic": "EddyCurrent",
+            "ElectroDCConduction": "ElectroDCConduction",
+            "TransientAPhiFormulation": "TransientAPhiFormulation",
+            "TransientAPhi": "TransientAPhiFormulation",
+            "ElectricDCConduction": "ElectroDCConduction",
+            "ACMagneticwithDC": "DCBiasedEddyCurrent",
+            "ElectricTransient": "ElectricTransient",
+            "DCBiasedEddyCurrent": "DCBiasedEddyCurrent",
+        }
+    }
 
 
-class SolutionsMaxwell2D(str, Enum):
+class SolutionsMaxwell2D(metaclass=DynamicMeta):
     """Maxwell 2D solution types enum class."""
 
     (
@@ -1132,49 +1146,25 @@ class SolutionsMaxwell2D(str, Enum):
         "AC ConductionZ",
         "AC Conduction",
     )
-
-    @classmethod
-    def versioned(cls, version: str) -> Type[Enum]:  # pragma: no cover
-        """
-        Return a new Enum subclass containing the members available for the given version.
-
-        The returned class has its own name based on the version,
-        and behaves like a normal Enum (including .name and .value).
-
-        Parameters
-        ----------
-        version : str
-            AEDT version.
-
-        Returns
-        -------
-        Enum
-            A new Enum subclass containing only the allowed members for
-            the given version, with updated values if applicable.
-        """
-        if version >= "2025.2":
-            return cls
-
-        names = {m.name: m.value for m in cls}
-        names["ACMagneticXY"] = "EddyCurrentXY"
-        names["ACMagneticZ"] = "EddyCurrentZ"
-        names["ACMagnetic"] = "EddyCurrent"
-        names["EddyCurrentXY"] = "EddyCurrentXY"
-        names["EddyCurrentZ"] = "EddyCurrentZ"
-        names["EddyCurrent"] = "EddyCurrent"
-        names["DCConductionXY"] = "DCConductionXY"
-        names["DCConductionZ"] = "DCConductionZ"
-        names["DCConduction"] = "DCConduction"
-        names["ACConductionXY"] = "ACConductionXY"
-        names["ACConductionZ"] = "ACConductionZ"
-        names["ACConduction"] = "ACConduction"
-
-        new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
-        return new_enum
+    __versioned = {
+        "2025.1": {
+            "ACMagneticXY": "EddyCurrentXY",
+            "ACMagneticZ": "EddyCurrentZ",
+            "ACMagnetic": "EddyCurrent",
+            "EddyCurrentXY": "EddyCurrentXY",
+            "EddyCurrentZ": "EddyCurrentZ",
+            "EddyCurrent": "EddyCurrent",
+            "DCConductionXY": "DCConductionXY",
+            "DCConductionZ": "DCConductionZ",
+            "DCConduction": "DCConduction",
+            "ACConductionXY": "ACConductionXY",
+            "ACConductionZ": "ACConductionZ",
+            "ACConduction": "ACConduction",
+        }
+    }
 
 
-@unique
-class SolutionsIcepak(str, Enum):
+class SolutionsIcepak(metaclass=DynamicMeta):
     """Icepak solution types enum class."""
 
     (SteadyState, Transient) = (
@@ -1183,8 +1173,7 @@ class SolutionsIcepak(str, Enum):
     )
 
 
-@unique
-class SolutionsCircuit(str, Enum):
+class SolutionsCircuit(metaclass=DynamicMeta):
     """Circuit solution types enum class."""
 
     (
@@ -1222,8 +1211,7 @@ class SolutionsCircuit(str, Enum):
     )
 
 
-@unique
-class SolutionsMechanical(str, Enum):
+class SolutionsMechanical(metaclass=DynamicMeta):
     """Mechanical solution types enum class."""
 
     (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
@@ -1235,8 +1223,7 @@ class SolutionsMechanical(str, Enum):
     )
 
 
-@unique
-class Setups(IntEnum):
+class Setups(metaclass=DynamicMeta):
     """Setup types enum class."""
 
     HFSSDrivenAuto = 0
@@ -1293,8 +1280,7 @@ class Setups(IntEnum):
     NSSM = 51
 
 
-@unique
-class LineStyle(str, Enum):
+class LineStyle(metaclass=DynamicMeta):
     """Line style enum class."""
 
     (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
@@ -1310,8 +1296,7 @@ class LineStyle(str, Enum):
     )
 
 
-@unique
-class TraceType(str, Enum):
+class TraceType(metaclass=DynamicMeta):
     """Trace type enum class."""
 
     (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
@@ -1328,8 +1313,7 @@ class TraceType(str, Enum):
     )
 
 
-@unique
-class SymbolStyle(str, Enum):
+class SymbolStyle(metaclass=DynamicMeta):
     """Symbol style enum class."""
 
     (
@@ -1353,8 +1337,15 @@ class SymbolStyle(str, Enum):
     )
 
 
-@unique
-class EnumUnits(IntEnum):
+class IntEnumProps(IntEnum):
+    def __repr__(self):
+        return str(self.value)
+
+    def __str__(self):
+        return str(self.value)
+
+
+class EnumUnits(IntEnumProps):
     # Frequency
     hz = 0
     khz = auto()
@@ -2490,8 +2481,7 @@ class EnumUnits(IntEnum):
     Nppermi = auto()
 
 
-@unique
-class AllowedMarkers(IntEnum):
+class AllowedMarkers(IntEnumProps):
     Octahedron = 12
     Tetrahedron = 11
     Sphere = 9
