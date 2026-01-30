@@ -887,14 +887,17 @@ def is_grpc_session_active(port):
         # Port will be determined later through socket/connection analysis
         return_dict = {pid: -1 for pid, _ in target_processes}
 
-        for conn in psutil.net_connections("inet"):
-            if (
-                conn.laddr.ip in ["127.0.0.1", "::"]
-                and conn.pid in return_dict
-                and conn.status == psutil.CONN_LISTEN
-                and conn.laddr.port == port
-            ):
-                return True
+        for conn in psutil.net_connections(kind="tcp"):
+            try:
+                if (
+                    conn.laddr.ip in ["127.0.0.1", "::"]
+                    and conn.pid in return_dict
+                    and conn.status == psutil.CONN_LISTEN
+                    and conn.laddr.port == port
+                ):
+                    return True
+            except Exception:
+                continue
     return False
 
 
@@ -996,17 +999,20 @@ def active_sessions(
 
     # Fallback: Try to find ports by checking network connections for remaining unknown ports
     if any(port == -1 for port in return_dict.values()):
-        for conn in psutil.net_connections("inet"):
-            if (
-                conn.laddr.ip in ["127.0.0.1", "::"]
-                and conn.pid in return_dict
-                and conn.status == psutil.CONN_LISTEN
-                and conn.laddr.port in available_ports
-            ):
-                return_dict[conn.pid] = conn.laddr.port
-                # Stop if all ports are resolved
-                if not any(port == -1 for port in return_dict.values()):
-                    break
+        for conn in psutil.net_connections(kind="tcp"):
+            try:
+                if (
+                    conn.laddr.ip in ["127.0.0.1", "::"]
+                    and conn.pid in return_dict
+                    and conn.status == psutil.CONN_LISTEN
+                    and conn.laddr.port in available_ports
+                ):
+                    return_dict[conn.pid] = conn.laddr.port
+                    # Stop if all ports are resolved
+                    if not any(port == -1 for port in return_dict.values()):
+                        break
+            except Exception:
+                continue
 
     return return_dict
 
