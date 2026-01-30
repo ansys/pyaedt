@@ -722,7 +722,7 @@ class Settings(PyAedtBase):
 
     @property
     def desktop_launch_timeout(self):
-        """Timeout in seconds for trying to launch AEDT. The default is ``120`` seconds."""
+        """Timeout in seconds for trying to launch AEDT. The default is ``240`` seconds."""
         return self.__desktop_launch_timeout
 
     @desktop_launch_timeout.setter
