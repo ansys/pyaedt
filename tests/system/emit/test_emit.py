@@ -81,6 +81,12 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
+    from ansys.aedt.core.emit_core.nodes.generated import Cable
+    from ansys.aedt.core.emit_core.nodes.generated import Circulator
+    from ansys.aedt.core.emit_core.nodes.generated import Isolator
+    from ansys.aedt.core.emit_core.nodes.generated import Multiplexer
+    from ansys.aedt.core.emit_core.nodes.generated import PowerDivider
+    from ansys.aedt.core.emit_core.nodes.generated import TR_Switch 
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -217,6 +223,129 @@ def test_create_components(emit_app):
     terminator = emit_app.modeler.components.create_component("Terminator", "TestTerminator")
     assert terminator.name == "TestTerminator"
     assert isinstance(terminator, EmitComponent)
+
+
+@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
+def test_duplicate_components(emit_app):
+    """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
+
+    # Test Radio duplication
+    radio: RadioNode = emit_app.schematic.create_component("New Radio", name="TestRadio")
+    dup_radio = radio.duplicate("DuplicatedRadio")
+    assert dup_radio is not None
+    assert dup_radio.name == "DuplicatedRadio"
+    assert isinstance(dup_radio, RadioNode)
+    assert dup_radio.node_type == "RadioNode"
+
+    # Test Antenna duplication
+    antenna: AntennaNode = emit_app.schematic.create_component("Antenna", name="TestAntenna")
+    dup_antenna = antenna.duplicate("DuplicatedAntenna")
+    assert dup_antenna is not None
+    assert dup_antenna.name == "DuplicatedAntenna"
+    assert isinstance(dup_antenna, AntennaNode)
+    assert dup_antenna.node_type == "AntennaNode"
+
+    # Test Amplifier duplication
+    amplifier: Amplifier = emit_app.schematic.create_component("Amplifier", name="TestAmplifier")
+    dup_amplifier = amplifier.duplicate("DuplicatedAmplifier")
+    assert dup_amplifier is not None
+    assert dup_amplifier.name == "DuplicatedAmplifier"
+    assert isinstance(dup_amplifier, Amplifier)
+    assert dup_amplifier.node_type == "Amplifier"
+
+    # Test Filter duplication
+    filter_bpf: Filter = emit_app.schematic.create_component("Band Pass", name="TestBPF")
+    dup_filter = filter_bpf.duplicate("DuplicatedBPF")
+    assert dup_filter is not None
+    assert dup_filter.name == "DuplicatedBPF"
+    assert isinstance(dup_filter, Filter)
+    assert dup_filter.node_type == "Filter"
+
+    # Test Terminator duplication
+    terminator: Terminator = emit_app.schematic.create_component("Terminator", name="TestTerminator")
+    dup_terminator = terminator.duplicate("DuplicatedTerminator")
+    assert dup_terminator is not None
+    assert dup_terminator.name == "DuplicatedTerminator"
+    assert isinstance(dup_terminator, Terminator)
+    assert dup_terminator.node_type == "Terminator"
+
+    # Test auto-generated name (no name parameter)
+    auto_named_dup = radio.duplicate()
+    assert auto_named_dup is not None
+    assert auto_named_dup.name != "TestRadio"
+    assert isinstance(auto_named_dup, RadioNode)
+    # Test Cable duplication
+    cable: Cable = emit_app.schematic.create_component("Cable", name="new Cable")
+    dup_cable = cable.duplicate("dup Cable")
+    assert dup_cable is not None
+    assert dup_cable.name == "dup Cable"
+    assert isinstance(dup_cable, Cable)
+    assert dup_cable.node_type == "Cable"
+
+    # Test Circulator duplication
+    circulator: Circulator = emit_app.schematic.create_component("Circulator", name="new Circulator")
+    dup_circulator = circulator.duplicate("dup Circulator")
+    assert dup_circulator is not None
+    assert dup_circulator.name == "dup Circulator"
+    assert isinstance(dup_circulator, Circulator)
+    assert dup_circulator.node_type == "Circulator"
+
+    # Test Isolator duplication
+    isolator: Isolator = emit_app.schematic.create_component("Isolator", name="new Isolator")
+    dup_isolator = isolator.duplicate("dup Isolator")
+    assert dup_isolator is not None
+    assert dup_isolator.name == "dup Isolator"
+    assert isinstance(dup_isolator, Isolator)
+    assert dup_isolator.node_type == "Isolator"
+
+    # Test Multiplexer duplication
+    multiplexer: Multiplexer = emit_app.schematic.create_component("3 Port", name="new 3 Port Multiplexer")
+    dup_multiplexer = multiplexer.duplicate("dup 3 Port Multiplexer")
+    assert dup_multiplexer is not None
+    assert dup_multiplexer.name == "dup 3 Port Multiplexer"
+    assert isinstance(dup_multiplexer, Multiplexer)
+    assert dup_multiplexer.node_type == "Multiplexer"
+
+    # Test 4 Port Multiplexer duplication
+    multiplexer4: Multiplexer = emit_app.schematic.create_component("4 Port", name="new 4 Port Multiplexer")
+    dup_multiplexer4 = multiplexer4.duplicate("dup 4 Port Multiplexer")
+    assert dup_multiplexer4 is not None
+    assert dup_multiplexer4.name == "dup 4 Port Multiplexer"
+    assert isinstance(dup_multiplexer4, Multiplexer)
+    assert dup_multiplexer4.node_type == "Multiplexer"
+
+    # Test 5 Port Multiplexer duplication
+    multiplexer5: Multiplexer = emit_app.schematic.create_component("5 Port", name="new 5 Port Multiplexer")
+    dup_multiplexer5 = multiplexer5.duplicate("dup 5 Port Multiplexer")
+    assert dup_multiplexer5 is not None
+    assert dup_multiplexer5.name == "dup 5 Port Multiplexer"
+    assert isinstance(dup_multiplexer5, Multiplexer)
+    assert dup_multiplexer5.node_type == "Multiplexer"
+
+    # Test 6 Port Multiplexer duplication
+    multiplexer6: Multiplexer = emit_app.schematic.create_component("6 Port", name="new 6 Port Multiplexer")
+    dup_multiplexer6 = multiplexer6.duplicate("dup 6 Port Multiplexer")
+    assert dup_multiplexer6 is not None
+    assert dup_multiplexer6.name == "dup 6 Port Multiplexer"
+    assert isinstance(dup_multiplexer6, Multiplexer)
+    assert dup_multiplexer6.node_type == "Multiplexer"
+
+    # Test PowerDivider duplication
+    power_divider: PowerDivider = emit_app.schematic.create_component("Divider", name="new Divider")
+    dup_power_divider = power_divider.duplicate("dup Divider")
+    assert dup_power_divider is not None
+    assert dup_power_divider.name == "dup Divider"
+    assert isinstance(dup_power_divider, PowerDivider)
+    assert dup_power_divider.node_type == "PowerDivider"
+
+    # Test TR_Switch duplication
+    # TODO enable once "TR Switch" correctly creates TR_Switch instead of EmitNode
+    # tr_switch: TR_Switch = emit_app.schematic.create_component("TR Switch", name="new TR Switch")
+    # dup_tr_switch = tr_switch.duplicate("dup TR Switch")
+    # assert dup_tr_switch is not None
+    # assert dup_tr_switch.name == "dup TR Switch"
+    # assert isinstance(dup_tr_switch, TR_Switch)
+    # assert dup_tr_switch.node_type == "TR Switch"
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")

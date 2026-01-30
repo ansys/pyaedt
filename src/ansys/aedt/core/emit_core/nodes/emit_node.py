@@ -473,13 +473,14 @@ class EmitNode:
         emit_design = self._emit_obj
         oEditor = emit_design._oeditor
 
-        OFFSET_Y = -0.01016 #meters, == -400mil (twice the height of a component)
+        self_bb = oEditor.GetComponentBoundingBox(self.name) #[[xBottom,yBottom],[width,height]] in meters
+        offset_y = -0.00508 - self_bb[1][1] #0.00508meters == 200mil wich is the height of a radio
         
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
             
         # Get the original component location
-        orig_location = oEditor.GetComponentLocation(self.name)
+        orig_location = self_bb[0]
 
         #offset for paste
         min_y = 0.0
@@ -490,7 +491,7 @@ class EmitNode:
 
         # Calculate paste position (using lowest y + offset)
         paste_x = orig_location[0]
-        paste_y = min_y + OFFSET_Y
+        paste_y = min_y + offset_y
 
         # Copy the component
         oEditor.Copy(self.name)
