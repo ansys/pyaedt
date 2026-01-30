@@ -19,6 +19,7 @@ env:
   PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
   TESTMON_DATAFILE: '.testmondata'
+  TESTMON_CACHE_KEY_UNIT_WIN: 'testmondata-unit-win'
   TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
   TESTMON_CACHE_KEY_INTEGRATION_LINUX: 'testmondata-integration-linux'
   TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
@@ -62,4 +63,4 @@ jobs:
         uses: ./.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_WIN }}
