@@ -76,7 +76,7 @@ PyAEDT has different compatibility requirements based on its version. Below is a
     - Compatible with Python 3.7 and versions up to Python 3.11.
   - AEDT Compatibility:
     - All tests were conducted using AEDT 2024 R1.
--  0.9.0 <= PyAEDT Version < 0.18.0:
+- 0.9.0 <= PyAEDT Version < 0.18.0:
   - Python Compatibility:
     - Dropped support for python 3.7 and below.
     - Compatible with Python 3.8 and versions up to Python 3.12.
@@ -338,3 +338,4 @@ page on the Ansys website.
 -  [Index](https://aedt.docs.pyansys.com/version/stable/genindex.html)
 -  [Module Index](https://aedt.docs.pyansys.com/version/stable/py-modindex.html)
 -  [Search Page](https://aedt.docs.pyansys.com/version/stable/search.html)
+

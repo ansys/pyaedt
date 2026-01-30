@@ -43,7 +43,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     --------
     Basic usage demonstrated with a Twin Builder design:
 
-    >>> from ansys.aedt.core import Twin Builder
+    >>> from ansys.aedt.core import TwinBuilder
     >>> aedtapp = TwinBuilder()
     >>> prim = aedtapp.modeler.schematic
     """
