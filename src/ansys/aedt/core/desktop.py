@@ -2719,11 +2719,11 @@ class Desktop(PyAedtBase):
             self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
 
             # Submit LSF job and get remote machine hostname
-            out, self.machine = launch_aedt_in_lsf(self.non_graphical, self.port)
+            is_launched, self.machine = launch_aedt_in_lsf(self.non_graphical, self.port)
 
             # LSF handles the new instance
             self.new_desktop = False
-            if out:
+            if is_launched:
                 self.launched_by_pyaedt = True
                 result = self.__initialize()
             else:
@@ -2760,15 +2760,15 @@ class Desktop(PyAedtBase):
 
             # Validate port availability/compatibility
             self.__port = self._validate_port(self.port)
-            out = True
+            is_launched = True
             # Launch new AEDT instance if needed
             if self.new_desktop:
                 self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
                 # Spawn AEDT process with gRPC server arguments
-                out, self.port = launch_aedt(
+                is_launched, self.port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
-            self.new_desktop = not out
+            self.new_desktop = not is_launched
             self.launched_by_pyaedt = True
             # Establish gRPC connection (implementation details)
             result = self.__initialize()
