@@ -707,11 +707,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def _check_if_initialized(self) -> bool:
-        if getattr(self, "_initialized", None) is not None and self._initialized:
-            try:
-                self.grpc_plugin.recreate_application(True)
-            except Exception:
-                pyaedt_logger.debug("Failed to recreate application.")
+        if getattr(self, "_initialized", None) is not None and self._initialized and self.odesktop:
             return True
         else:
             self._initialized = True
@@ -1496,7 +1492,8 @@ class Desktop(PyAedtBase):
         if settings.remote_rpc_session or (settings.aedt_version >= "2022.2" and is_grpc_api):
             for k, d in _desktop_sessions.items():
                 if k == pid:
-                    d.grpc_plugin.recreate_application(True)
+                    if settings.use_multi_desktop:
+                        d.grpc_plugin.recreate_application(True)
                     d.grpc_plugin.Release()
                     return True
         elif not inside_desktop_ironpython_console:  # pragma: no cover
@@ -1595,7 +1592,7 @@ class Desktop(PyAedtBase):
         # Handle case were the desktop has been released and properties have already been deleted
         if self.__closed is True:  # pragma no cover
             return True
-        if self.is_grpc_api:
+        if self.is_grpc_api and settings.use_multi_desktop:
             try:
                 self.grpc_plugin.recreate_application(True)
             except GrpcApiError:  # pragma no cover
