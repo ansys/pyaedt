@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,7 +27,6 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
@@ -79,8 +78,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             Dictionary of reduced matrices where the key is the name of the parent matrix
             and the values are in a list of reduced matrix groups.
         """
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self._app.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
             self.__reduced_matrices = {}
             cc = self._app.odesign.GetChildObject("Parameters")
@@ -204,8 +202,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self._app.solution_type not in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
             self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
             return False, False
@@ -279,7 +276,7 @@ class MaxwellMatrix(PyAedtBase):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisMaxwell`
+    app : :class:`ansys.aedt.core.application.AnalysisMaxwell`
         Parent Maxwell application instance.
     parent_name : str
         Name of the parent matrix.
@@ -298,8 +295,7 @@ class MaxwellMatrix(PyAedtBase):
     @property
     def sources(self):
         """List of matrix sources."""
-        aedt_version = settings.aedt_version
-        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D
         if self._app.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
             sources = (
                 self._app.odesign.GetChildObject("Parameters")

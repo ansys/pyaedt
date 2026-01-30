@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -183,7 +183,7 @@ def test_main_function_export_to_q3d(mock_hfss3dlayout_class, mock_desktop_class
         assert result is True
         mock_setup.export_to_q3d.assert_called_once()
         mock_h3d.delete_setup.assert_called_once_with("test_setup")
-        mock_h3d.save_project.assert_called_once()
+        assert 2 == mock_h3d.save_project.call_count
         mock_q3d.assert_called_once()
 
 
@@ -223,7 +223,7 @@ def test_main_function_export_to_hfss(mock_hfss_class, mock_hfss3dlayout_class, 
     assert result is True
     mock_setup.export_to_hfss.assert_called_once()
     mock_h3d.delete_setup.assert_called_once_with("test_setup")
-    mock_h3d.save_project.assert_called_once()
+    assert 2 == mock_h3d.save_project.call_count
     mock_hfss_class.assert_called_once()
 
 
@@ -274,7 +274,7 @@ def test_main_function_export_to_maxwell(
     assert result is True
     mock_setup.export_to_hfss.assert_called_once()
     mock_h3d.delete_setup.assert_called_once_with("test_setup")
-    mock_h3d.save_project.assert_called_once()
+    assert 2 == mock_h3d.save_project.call_count
     mock_hfss_class.assert_called_once()
     mock_maxwell3d_class.assert_called_once_with(project="test_project")
     mock_maxwell.copy_solid_bodies_from.assert_called_once()
@@ -329,7 +329,7 @@ def test_main_function_export_to_icepak(
     assert result is True
     mock_setup.export_to_hfss.assert_called_once()
     mock_h3d.delete_setup.assert_called_once_with("test_setup")
-    mock_h3d.save_project.assert_called_once()
+    assert 2 == mock_h3d.save_project.call_count
     mock_hfss_class.assert_called_once()
     mock_icepak_class.assert_called_once_with(project="test_project")
     mock_icepak.copy_solid_bodies_from.assert_called_once()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from collections import defaultdict
-import warnings
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
@@ -69,20 +68,6 @@ class EmitComponents(PyAedtBase):
         return self.modeler.omodel_manager
 
     @property
-    def o_model_manager(self):  # pragma: no cover
-        """AEDT model manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`omodel_manager` property instead.
-
-        """
-        warnings.warn(
-            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.omodel_manager
-
-    @property
     def o_definition_manager(self):
         """Aedt Definition Manager.
 
@@ -103,23 +88,6 @@ class EmitComponents(PyAedtBase):
         return self._parent.osymbol_manager
 
     @property
-    def o_symbol_manager(self):  # pragma: no cover
-        """AEDT Symbol Manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`osymbol_manager` property instead.
-
-        References
-        ----------
-        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
-        """
-        warnings.warn(
-            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.osymbol_manager
-
-    @property
     def ocomponent_manager(self):
         """AEDT Component Manager.
 
@@ -128,23 +96,6 @@ class EmitComponents(PyAedtBase):
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
         """
         return self._parent.ocomponent_manager
-
-    @property
-    def o_component_manager(self):  # pragma: no cover
-        """AEDT Component Manager.
-
-        .. deprecated:: 0.15.0
-           Use :func:`ocomponent_manager` property instead.
-
-        References
-        ----------
-        >>> oComponentManager = oDefinitionManager.GetManager("Component")
-        """
-        warnings.warn(
-            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
-            DeprecationWarning,
-        )
-        return self.ocomponent_manager
 
     @property
     def design_type(self):

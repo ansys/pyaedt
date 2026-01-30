@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,7 @@ class VRTFieldPlot(PyAedtBase):
 
     """
 
-    @pyaedt_function_handler(quantity_name="quantity")
+    @pyaedt_function_handler()
     def __init__(
         self,
         postprocessor,
@@ -261,7 +261,7 @@ class VRTFieldPlot(PyAedtBase):
         self._ofield.DeleteFieldPlot([self.name])
         return True
 
-    @pyaedt_function_handler(path_to_hdm_file="path")
+    @pyaedt_function_handler()
     def export(self, path=None):
         """Export the Visual Ray Tracing to ``hdm`` file.
 

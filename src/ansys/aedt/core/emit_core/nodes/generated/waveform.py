@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,8 +29,8 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 class Waveform(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
-        self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._is_component = False
 
     @property
     def parent(self):
@@ -43,10 +42,22 @@ class Waveform(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
+    def duplicate(self, new_name: str = ""):
+        """Duplicate this node"""
+        return self._duplicate(new_name)
+
+    def delete(self):
+        """Delete this node"""
+        self._delete()
+
+    def import_tx_measurement(self, file_name):
+        """Import a Measurement from a File..."""
+        return self._import(file_name, "TxMeasurement")
+
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("Enabled")
+        return self._get_property("Enabled") == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -54,7 +65,7 @@ class Waveform(EmitNode):
 
     class WaveformOption(Enum):
         PERIODIC_CLOCK = "Periodic Clock"
-        SPREAD_SPECTRUM_CLOCK = "Spread Spectrum Clock"
+        SPREAD_SPECTRUM_CLOCK = "Spread Spectrum"
         PRBS = "PRBS"
         PRBS_PERIODIC = "PRBS (Periodic)"
         IMPORTED = "Imported"
@@ -84,36 +95,6 @@ class Waveform(EmitNode):
     def start_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Start Frequency", f"{value}")
-
-    @property
-    def stop_frequency(self) -> float:
-        """Last frequency for this band.
-
-        Value should be between 1 and 100e9.
-        """
-        val = self._get_property("Stop Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
-        return float(val)
-
-    @stop_frequency.setter
-    def stop_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Stop Frequency", f"{value}")
-
-    @property
-    def channel_spacing(self) -> float:
-        """Spacing between channels within this band.
-
-        Value should be between 1 and 100e9.
-        """
-        val = self._get_property("Channel Spacing")
-        val = self._convert_from_internal_units(float(val), "Freq")
-        return float(val)
-
-    @channel_spacing.setter
-    def channel_spacing(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Channel Spacing", f"{value}")
 
     @property
     def clock_duty_cycle(self) -> float:
@@ -418,18 +399,3 @@ class Waveform(EmitNode):
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
         self._set_property("Min Pts/Null", f"{value}")
-
-    @property
-    def delay_skew(self) -> float:
-        """Delay Skew of the differential signal pairs.
-
-        Value should be greater than 0.0.
-        """
-        val = self._get_property("Delay Skew")
-        val = self._convert_from_internal_units(float(val), "Time")
-        return float(val)
-
-    @delay_skew.setter
-    def delay_skew(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Time")
-        self._set_property("Delay Skew", f"{value}")

@@ -895,7 +895,8 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @staticmethod
     def aedt_grpc(
-        port=None, beta_options: List[str] = None, use_aedt_relative_path=False, non_graphical=True, check_interval=2
+            port=None, beta_options: List[str] = None, use_aedt_relative_path=False, non_graphical=True,
+            check_interval=2
     ):
         """Start a new AEDT session on a specified gRPC port.
 
@@ -910,7 +911,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         port : int
             gRPC port on which the AEDT session has started.
         """
-        from ansys.aedt.core.generic.general_methods import grpc_active_sessions
+        from ansys.aedt.core.generic.general_methods import grpc_active_sessions, active_sessions
 
         sessions = grpc_active_sessions()
         if not port:
@@ -945,25 +946,28 @@ class GlobalService(rpyc.Service, PyAedtBase):
             for option in beta_options:
                 if option not in ng_feature:
                     ng_feature += f",{option}"
-        command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
+
+        certs_folder = os.environ.get("ANSYS_GRPC_CERTIFICATES")
+        secure_flag = "SecureMode" if certs_folder and os.path.exists(certs_folder) else "InSecureMode"
+        if os.environ.get("PYAEDT_USE_PRE_GRPC_ARGS", "False") == "True":
+            command = [aedt_exe, "-grpcsrv", f"{port}", ng_feature]
+        else:
+            command = [aedt_exe, "-grpcsrv", f"0.0.0.0:{str(port)}:{secure_flag}", ng_feature]
+
         if non_graphical:
             command.append("-ng")
 
         process = subprocess.Popen(command)  # nosec
         timeout = 60
         while timeout > 0:
-            with socket.socket() as s:
-                try:
-                    s.connect(("127.0.0.1", port))
-                    logger.info(f"Service accessible on port {port}")
-                    return port
-                except socket.error:
-                    logger.debug(f"Service not available yet, new try in {check_interval}s.")
-                    timeout -= 2
-                    time.sleep(check_interval)
+            active_s = active_sessions()
+            if port in active_s.values():
+                break
+            timeout -= 1
+            time.sleep(1)
 
         process.terminate()
-        logger.error(f"Service did not start within the timeout of {timeout} seconds.")
+        logger.error("Service did not start within the timeout of 60 seconds.")
         return False
 
     @property
@@ -1171,7 +1175,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH")
             if ansysem_path and not os.path.exists(ansysem_path):
                 raise FileNotFoundError(f"The ANSYSEM path '{ansysem_path}' does not exist.")
-            else:
+            elif not ansysem_path:
                 version_list = aedt_versions.list_installed_ansysem
                 if version_list:
                     ansysem_path = os.environ[version_list[0]]

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1380,7 +1380,7 @@ class ReportPlotter(PyAedtBase):
         trace=0,
         polar=False,
         levels=64,
-        max_theta=180,
+        max_theta=360,
         min_theta=0,
         color_bar=None,
         snapshot_path=None,
@@ -1399,14 +1399,12 @@ class ReportPlotter(PyAedtBase):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         levels : int, optional
-            Color map levels. The default is ``64``.
+            Number of color map levels. The default is ``64``.
         max_theta : float or int, optional
-            Maximum theta angle for plotting. It applies only for polar plots.
-            The default is ``180``, which plots the data for all angles.
-            Setting ``max_theta`` to 90 limits the displayed data to the upper
-            hemisphere, that is (0 < theta < 90).
+            Maximum theta angle for plotting polar data.
+            The default is ``360``.
         min_theta : float or int, optional
-            Minimum theta angle for plotting. It applies only for polar plots. The default is ``0``.
+            Minimum theta angle for plotting polar data. The default is ``0``.
         color_bar : str, optional
             Color bar title. The default is ``None`` in which case the color bar is not included.
         snapshot_path : str, optional
@@ -1663,156 +1661,6 @@ class ReportPlotter(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def plot_polar_chart(
-    plot_data, size=(1920, 1440), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
-):
-    """Create a Matplotlib polar plot based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of list
-        List of plot data. Every item has to be in the following format
-        ``[x points, y points, label]``.
-    size : tuple, optional
-        Image size in pixel (width, height).
-    show_legend : bool
-        Either to show legend or not.
-    xlabel : str
-        Plot X label.
-    ylabel : str
-        Plot Y label.
-    title : str
-        Plot title label.
-    snapshot_path : str
-        Full path to the image file if a snapshot is needed.
-    show : bool, optional
-        Whether to render the figure. The default is ``True``. If ``False``, the
-        figure is not drawn.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = show_legend
-    new.title = title
-    props = {"x_label": xlabel, "y_label": ylabel}
-    for pdata in plot_data:
-        name = pdata[2] if len(pdata) > 2 else "Trace"
-        new.add_trace(pdata[:2], 0, props, name=name)
-    _ = new.plot_polar(traces=None, snapshot_path=snapshot_path, show=show)
-    return new
-
-
-@pyaedt_function_handler()
-def plot_3d_chart(plot_data, size=(1920, 1440), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
-    """Create a Matplotlib 3D plot based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of list
-        List of plot data. Every item has to be in the following format
-        ``[x points, y points, z points, label]``.
-    size : tuple, optional
-        Image size in pixel (width, height).
-    xlabel : str, optional
-        Plot X label.
-    ylabel : str, optional
-        Plot Y label.
-    title : str, optional
-        Plot Title label.
-    snapshot_path : str, optional
-        Full path to image file if a snapshot is needed.
-    show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is `True`.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    warnings.warn(
-        "`plot_3d_chart` is deprecated. Use class `ReportPlotter` to initialize and `plot_3d` instead.",
-        DeprecationWarning,
-    )
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = False
-    new.title = title
-    props = {"x_label": xlabel, "y_label": ylabel}
-    name = plot_data[3] if len(plot_data) > 3 else "Trace"
-    new.add_trace(plot_data[:3], 2, props, name)
-    _ = new.plot_3d(trace=0, snapshot_path=snapshot_path, show=show)
-    return new
-
-
-@pyaedt_function_handler()
-def plot_2d_chart(
-    plot_data, size=(1920, 1440), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
-):
-    """Create a Matplotlib figure based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of list
-        List of plot data. Every item has to be in the following format
-        `[x points, y points, label]`.
-    size : tuple, optional
-        Image size in pixel (width, height). The default is `(1920,1440)`.
-    show_legend : bool, optional
-        Either to show legend or not. The default value is ``True``.
-    xlabel : str, optional
-        Plot X label. The default value is ``""``.
-    ylabel : str, optional
-        Plot Y label. The default value is ``""``.
-    title : str, optional
-        Plot Title label. The default value is ``""``.
-    snapshot_path : str, optional
-        Full path to image file if a snapshot is needed.
-        The default value is ``None``.
-    show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is `True`.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    warnings.warn(
-        "`plot_2d_chart` is deprecated. Use class `ReportPlotter` to initialize and `plot_2d` instead.",
-        DeprecationWarning,
-    )
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = show_legend
-    new.title = title
-    from ansys.aedt.core.generic.constants import CSS4_COLORS
-
-    k = 0
-    for data in plot_data:
-        label = f"{xlabel}_{data[2]}" if len(data) == 3 else xlabel
-        props = {"x_label": label, "y_label": ylabel, "line_color": list(CSS4_COLORS.keys())[k]}
-        k += 1
-        if k == len(list(CSS4_COLORS.keys())):
-            k = 0
-        name = data[2] if len(data) > 2 else "Trace"
-        new.add_trace(data[:2], 0, props, name)
-    _ = new.plot_2d(None, snapshot_path, show)
-    return new
-
-
-@pyaedt_function_handler()
 def plot_matplotlib(
     plot_data,
     size=(1920, 1440),
@@ -1924,84 +1772,3 @@ def plot_matplotlib(
     if show:  # pragma: no cover
         plt.show()
     return fig
-
-
-@pyaedt_function_handler()
-def plot_contour(
-    plot_data,
-    size=(2000, 1600),
-    xlabel="",
-    ylabel="",
-    title="",
-    polar=False,
-    levels=64,
-    max_theta=180,
-    color_bar=None,
-    snapshot_path=None,
-    show=True,
-):
-    """Create a Matplotlib figure contour based on a list of data.
-
-    .. deprecated:: 0.11.1
-        Use :class:`ReportPlotter` instead.
-
-    Parameters
-    ----------
-    plot_data : list of np.ndarray
-        List of plot data. Each item of the list a numpy array. The list has the following format:
-        ``[data, x points, y points]``.
-    size : tuple, list, optional
-        Image size in pixel (width, height). The default is ``(2000,1600)``.
-    xlabel : str, optional
-        Plot X label. The default value is ``""``.
-    ylabel : str, optional
-        Plot Y label. The default value is ``""``.
-    title : str, optional
-        Plot Title label. The default value is ``""``.
-    polar : bool, optional
-        Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
-        generated is rectangular.
-    levels : int, optional
-        Color map levels. The default is ``64``.
-    max_theta : float or int, optional
-        Maximum theta angle for plotting. It applies only for polar plots.
-        The default is ``180``, which plots the data for all angles.
-        Setting ``max_theta`` to 90 limits the displayed data to the upper
-        hemisphere, that is (0 < theta < 90).
-    color_bar : str, optional
-        Color bar title. The default is ``None`` in which case the color bar is not included.
-    snapshot_path : str, optional
-        Full path to image file if a snapshot is needed.
-        The default value is ``None``.
-    show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is ``True``.
-
-    Returns
-    -------
-    :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
-        Matplotlib class object.
-    """
-    warnings.warn(
-        "`plot_contour` is deprecated. Use class `ReportPlotter` to initialize and `plot_contour` instead.",
-        DeprecationWarning,
-    )
-    new = ReportPlotter()
-    new.size = size
-    new.show_legend = False
-    new.title = title
-    props = {
-        "x_label": xlabel,
-        "y_label": ylabel,
-    }
-
-    new.add_trace(plot_data, 2, props)
-    _ = new.plot_contour(
-        trace=0,
-        polar=polar,
-        levels=levels,
-        max_theta=max_theta,
-        color_bar=color_bar,
-        snapshot_path=snapshot_path,
-        show=show,
-    )
-    return new

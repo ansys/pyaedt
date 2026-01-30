@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,7 +26,6 @@ import copy
 from difflib import SequenceMatcher
 import json
 import os
-import sys
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -42,12 +41,6 @@ from ansys.aedt.core.modules.setup_templates import SweepEddyCurrent
 from ansys.aedt.core.modules.setup_templates import SweepHfss3D
 from ansys.aedt.core.modules.setup_templates import SweepQ3D
 from ansys.aedt.core.modules.setup_templates import SweepSiwave
-
-open3 = open
-if sys.version_info < (3, 0):
-    import io
-
-    open3 = io.open
 
 
 @pyaedt_function_handler()
@@ -225,7 +218,7 @@ class SweepHFSS(SweepCommon):
                         count += 1
         return []
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
         """Add a range to the sweep.
 
@@ -434,7 +427,7 @@ class SweepHFSS3DLayout(SweepCommon):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
-    @pyaedt_function_handler(sweeptype="sweep_type")
+    @pyaedt_function_handler()
     def change_type(self, sweep_type):
         """Change the type of the sweep.
 
@@ -477,7 +470,7 @@ class SweepHFSS3DLayout(SweepCommon):
         self.props["SaveRadFieldsOnly"] = save_rad_fields
         return self.update()
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def add_subrange(self, range_type, start, end=None, count=None, unit="GHz"):
         """Add a subrange to the sweep.
 
@@ -527,7 +520,7 @@ class SweepHFSS3DLayout(SweepCommon):
         except Exception:
             return False
 
-    @pyaedt_function_handler(rangetype="range_type")
+    @pyaedt_function_handler()
     def change_range(self, range_type, start, end=None, count=None, unit="GHz"):
         """Change the range of the sweep.
 
@@ -741,8 +734,8 @@ class SweepMatrix(SweepCommon):
                         count += 1
         return []
 
-    @pyaedt_function_handler(rangetype="range_type")
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False, **kwargs):
+    @pyaedt_function_handler()
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -768,9 +761,6 @@ class SweepMatrix(SweepCommon):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if "type" in kwargs:
-            warnings.warn("'type' has been deprecated. Use 'range_type' instead.", DeprecationWarning)
-            range_type = kwargs["type"]
         if clear:
             self.props["RangeType"] = range_type
             self.props["RangeStart"] = str(start) + unit
@@ -886,6 +876,11 @@ class SweepMaxwellEC(SweepCommon):
                 self.props["RangeSamples"] = "2"
             elif sweep_type == "SinglePoints":
                 self.props["RangeEnd"] = self.props["RangeStart"]
+
+    @property
+    def name(self):
+        """Setup name."""
+        return self.setup_name
 
     @property
     def is_solved(self):
@@ -1042,7 +1037,7 @@ class SetupProps(dict):
             settings.logger.warning("Unable to overwrite file: %s." % (file_path))
             return False
         else:
-            with open3(file_path, "w", encoding="utf-8") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
             return True
 
@@ -1066,7 +1061,7 @@ class SetupProps(dict):
                         target[k] = {}
                     set_props(target[k], v)
 
-        with open3(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
         return True

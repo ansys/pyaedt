@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -220,7 +220,6 @@ class MemoryGB(PyAedtBase):
         num, suffix = self._memory_str.split()
         return float(num) * self._convert_mem[suffix]
 
-    @pyaedt_function_handler()
     def __str__(self) -> str:
         """Return the canonical memory string.
 
@@ -261,7 +260,6 @@ class MemoryGB(PyAedtBase):
             return self.__add__(new_memory)
         return NotImplemented
 
-    @pyaedt_function_handler()
     def __repr__(self):
         """Unambiguous string representation."""
         return self._memory_str
@@ -1317,7 +1315,6 @@ class SimulationProfile(PyAedtBase):
         else:
             return self.num_adaptive_passes
 
-    @pyaedt_function_handler()
     def __str__(self):
         """Human-readable representation including elapsed time when present."""
         repr_str = self.__repr__()
@@ -1325,7 +1322,6 @@ class SimulationProfile(PyAedtBase):
             repr_str += f"Elapsed time: {str(self.elapsed_time)}"
         return repr_str
 
-    @pyaedt_function_handler()
     def __repr__(self):
         """Unambiguous representation including product and version."""
         repr_str = f"Instance of {self.__class__.__name__}\n"
@@ -1411,7 +1407,7 @@ def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
 
     Returns
     -------
-    :class:`pyaedt.modules.SolveSetup.SimulationProfile`
+    :class:`ansys.aedt.core.modules.SolveSetup.SimulationProfile`
         An instance of the SimulationProfile class.
 
     """
@@ -1510,10 +1506,9 @@ class Profiles(Mapping, PyAedtBase):
                 logging.warning(f"Error parsing profile: {e}")
                 return 0
 
-    @pyaedt_function_handler()
     def __repr__(self):
         """Unambiguous representation of the mapping."""
-        repr_str = f"{self.__class__.__name__}({dict(self)!r})"
+        repr_str = f"{self.__class__.__name__}"
         return str(repr_str)
 
     @pyaedt_function_handler()

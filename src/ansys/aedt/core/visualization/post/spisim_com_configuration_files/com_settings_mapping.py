@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -217,7 +217,7 @@ spimsim_matlab_keywords_mapping = {
     "HISTOGRAM_WINDOW_WEIGHT": "HISTOGRAM_WINDOW_WEIGHT",
     "OPTIMIZE_LOOP_SPEED_UP": "OPTIMIZE_LOOP_SPEED_UP",
     "EC_PULSE_TOL": "EC_PULSE_TOL",
-    "VEC_PASS_THRESHOLD": "VEC_PASS_THRESHOLD",
+    "VEC_PASS_THRESHOLD": "VEC_PASS_THRESHOLD",  # nosec B105
     "KAPPA1": "KAPPA1",
     "VERSION": "VERSION",
     "PDF_BIN_SIZE": "PDF_BIN_SIZE",

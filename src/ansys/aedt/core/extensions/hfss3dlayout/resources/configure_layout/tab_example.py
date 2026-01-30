@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -53,7 +53,7 @@ def create_tab_example(tab_frame, master):
     ).pack(expand=True, padx=5, pady=5, side="right", anchor="ne")
 
 
-def call_back_load_example_board(master, test_folder=None):
+def call_back_load_example_board(master, test_folder=None):  # pragma: no cover
     temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", dir=test_folder).name
     Path(temp_dir).mkdir()
     example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=temp_dir)

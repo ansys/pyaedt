@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -71,9 +71,7 @@ class AntennaParameters(Standard):
 class Fields(CommonReport):
     """Handler to manage fields."""
 
-    @pyaedt_function_handler(
-        app="post_app",
-    )
+    @pyaedt_function_handler()
     def __init__(self, post_app, report_category, setup_name, expressions=None):
         CommonReport.__init__(self, post_app, report_category, setup_name, expressions)
         self.domain = "Sweep"

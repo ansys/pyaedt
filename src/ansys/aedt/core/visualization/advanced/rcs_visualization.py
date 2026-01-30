@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -52,11 +52,10 @@ if current_python_version < (3, 10):  # pragma: no cover
 try:
     check_graphics_available()
 
-    import pyvista as pv
-
     from ansys.tools.visualization_interface import MeshObjectPlot
     from ansys.tools.visualization_interface import Plotter
     from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
+    import pyvista as pv
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 

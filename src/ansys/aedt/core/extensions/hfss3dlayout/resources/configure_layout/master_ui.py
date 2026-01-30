@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -91,6 +91,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
         self.export_options = ExportOptions()
+        self.export_option_vars = {}
 
         super().__init__(
             self.EXTENSION_TITLE,
@@ -173,14 +174,17 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         selected_edb = self.selected_edb
         settings.logger.info(f"target EDB: {selected_edb}")
         app = Edb(edbpath=str(selected_edb), edbversion=self.aedt_info.version)
-        app.configuration.load(config_path)
-        app.configuration.run()
 
-        temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
-        temp_dir.mkdir()
+        temp_dir = test_folder
+        if test_folder is None:
+            temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
+            temp_dir.mkdir()
 
         new_name = create_new_edb_name(Path(app.edbpath).stem) + ".aedb"
         app.save_as(str(temp_dir / new_name))
+        app.configuration.load(config_path)
+        app.configuration.run()
+        app.save()
         app.close()
         return app.edbpath
 
@@ -193,7 +197,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
     def load_edb_into_hfss3dlayout(self, edb_path: Union[str, Path]):
         app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            app.release_desktop(False, False)
+            app.desktop_class.release_desktop(False, False)
         else:
             app.close_project(save=False)
         return app

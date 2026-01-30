@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -106,7 +106,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         self.oeditor.ExportImage(output_file, page, width, height)
         return output_file
 
-    @pyaedt_function_handler(setupname="setup", plotname="plot_name")
+    @pyaedt_function_handler()
     def create_ami_initial_response_plot(
         self,
         setup,
@@ -220,7 +220,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         )
         return plot_name
 
-    @pyaedt_function_handler(setupname="setup", plotname="plot_name")
+    @pyaedt_function_handler()
     def create_ami_statistical_eye_plot(
         self, setup, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plot_name=None
     ):
@@ -333,7 +333,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         )
         return plot_name
 
-    @pyaedt_function_handler(setupname="setup", plotname="plot_name")
+    @pyaedt_function_handler()
     def create_statistical_eye_plot(self, setup, probe_names, variation_list_w_value, plot_name=None):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
@@ -514,7 +514,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
             return pd.Series(new_voltage, index=tic_in_s)
         return outputdata
 
-    @pyaedt_function_handler(setupname="setup", probe_name="probe", source_name="source")
+    @pyaedt_function_handler()
     def sample_ami_waveform(
         self,
         setup,

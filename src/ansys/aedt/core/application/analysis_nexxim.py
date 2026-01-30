@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import warnings
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -108,7 +107,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         """
         return self._configurations
 
-    @pyaedt_function_handler(setupname="name")
+    @pyaedt_function_handler()
     def delete_setup(self, name):
         """Delete a setup.
 
@@ -134,7 +133,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
             return True
         return False
 
-    @pyaedt_function_handler(component_name="component")
+    @pyaedt_function_handler()
     def push_down(self, component):
         """Push-down to the child component and reinitialize the Circuit object.
 
@@ -197,26 +196,6 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
 
             self._post = post_processor(self)
         return self._post
-
-    @property
-    def existing_analysis_setups(self):
-        """Existing analysis setups.
-
-        .. deprecated:: 0.15.0
-            Use :func:`setup_names` from setup object instead.
-
-        Returns
-        -------
-        list of str
-            List of all analysis setups in the design.
-
-        References
-        ----------
-        >>> oModule.GetSetups
-        """
-        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
-        warnings.warn(msg, DeprecationWarning)
-        return self.setup_names
 
     @property
     def modeler(self):
@@ -317,28 +296,6 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @property
-    def excitations(self):
-        """Get all excitation names.
-
-        .. deprecated:: 0.15.0
-           Use :func:`excitation_names` property instead.
-
-        Returns
-        -------
-        list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
-
-        References
-        ----------
-        >>> oModule.GetExcitations
-        """
-        mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
-        warnings.warn(mess, DeprecationWarning)
-        return self.excitation_names
-
-    @property
     def excitation_names(self):
         """Get all excitation names.
 
@@ -396,7 +353,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
                                 props[new_port] = Excitations(self, new_port)
         return props
 
-    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    @pyaedt_function_handler()
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 

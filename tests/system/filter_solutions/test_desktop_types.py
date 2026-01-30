@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -28,13 +28,14 @@ from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
-from tests.conftest import config
+from tests.conftest import DESKTOP_VERSION
+from tests.conftest import USE_GRPC
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
-# All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
-# A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
+@pytest.mark.skipif(
+    DESKTOP_VERSION < "2026.1" or USE_GRPC, reason="Skipped on versions earlier than 2026.1 or gRPC mode"
+)
 class TestClass:
     def test_lumped_exported_desktop(self, lumped_design):
         schem_name = lumped_design.export_to_aedt.schematic_name

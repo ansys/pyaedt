@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -627,7 +627,6 @@ NexximTransient = dict(
         "TransientData": ["0.1ns", "10ns"],
         "TransientNoiseData": [False, "", "", 0, 1, 0, False, 1],
         "TransientOtherData": ["default"],
-        "SweepDefinition": SweepDefinition,
     }
 )
 """Nexxim transient setup properties and default values."""

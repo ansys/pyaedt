@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -1317,7 +1317,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.boundaries:
             dict_out["boundaries"] = {}
@@ -1332,7 +1332,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_coordinate_systems(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.modeler.coordinate_systems:
             dict_out["coordinatesystems"] = {}
@@ -1355,7 +1355,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
@@ -1375,7 +1375,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
@@ -1407,7 +1407,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         dict_monitors = []
         native_parts = [
@@ -1448,7 +1448,7 @@ class Configurations(PyAedtBase):
 
     @pyaedt_function_handler()
     def _export_materials(self, dict_out):
-        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+        if self._app.design_type in ["Twin Builder", "RMxprt", "ModelCreation", "Circuit Design", "Circuit Netlist"]:
             return
         output_dict = {}
         for el, val in self._app.materials.material_keys.items():
@@ -1708,7 +1708,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 if mesh.name in ["Settings", "Global"]:
                     args = ["NAME:Settings"]
                 else:
-                    args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
+                    args = ["NAME:" + mesh.name, "Enable:=", mesh.enable]
                 args += mesh.settings.parse_settings_as_args()
                 if mesh.name not in ["Settings", "Global"]:
                     args += getattr(mesh, "_parse_assignment_value")()
@@ -2216,7 +2216,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
         for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
             if key.startswith("_export_") and value:
                 getattr(self, key)(dict_out)  # Call private export method to update dict_out.
-
+        dict_out["general"]["pages"] = copy.deepcopy(self._app.modeler.page_names)
         pin_mapping = defaultdict(list)
         data_instance = {}
         data_models = {}
@@ -2266,6 +2266,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             mirror = comp.mirror
             parameters = comp.parameters
             path = comp.component_path
+            page = comp.page
             pin_names = []
             if not path:
                 component_type = "Nexxim Component"
@@ -2310,6 +2311,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                     "position": position,
                     "angle": angle,
                     "mirror": mirror,
+                    "page": page,
                 }
             }
             data_instance.update(temp_dict2)
@@ -2414,19 +2416,27 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 self.results.import_postprocessing_variables = False
             else:
                 self.results.import_postprocessing_variables = True
-
+        if "pages" in data["general"]:
+            page_num = self._app.oeditor.GetNumPages()
+            for idx, page in enumerate(data["general"]["pages"]):
+                if idx < page_num:
+                    if page != f"Page{idx + 1}":
+                        self._app.modeler.rename_page(idx + 1, page)
+                else:
+                    self._app.modeler.add_page(page)
         for i, j in data["instance"].items():
             for key, value in data["models"].items():
                 if key == j["component"]:
                     component_type = value["component_type"]
                     new_comp = None
                     if component_type == "Nexxim Component":
-                        new_comp = self._app.modeler.components.create_component(
+                        new_comp = self._app.modeler.schematic.create_component(
                             name=i,
                             component_library="",
                             component_name=j["component"],
                             location=j["position"],
                             angle=j["angle"],
+                            page=j.get("page", 1),
                         )
                     elif component_type in ["ibis", "ami"]:
                         if component_type == "ami":
@@ -2435,30 +2445,52 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                             ami = False
                         ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         comp = j["properties"]["comp_name"] if "comp_name" in j["properties"] else j["component"]
-                        if "diff_pin_name" in j["properties"]:
+                        if "diff_pin_name" in j["properties"] and comp in ibis.components:
                             new_comp = (
                                 ibis.components[comp]
                                 .differential_pins[j["properties"]["diff_pin_name"]]
-                                .insert(j["position"][0], j["position"][1], j["angle"])
+                                .insert(
+                                    j["position"][0],
+                                    j["position"][1],
+                                    j["angle"],
+                                    page=j.get("page", 1),
+                                )
                             )
-                        elif comp in ibis.buffers:
-                            new_comp = ibis.buffers[comp].insert(j["position"][0], j["position"][1], j["angle"])
-                        else:
+                        elif comp in ibis.components and j["properties"].get("pin_name") in ibis.components[comp].pins:
                             new_comp = (
                                 ibis.components[comp]
                                 .pins[j["properties"]["pin_name"]]
-                                .insert(j["position"][0], j["position"][1], j["angle"])
+                                .insert(
+                                    j["position"][0],
+                                    j["position"][1],
+                                    j["angle"],
+                                    page=j.get("page", 1),
+                                )
                             )
+                        elif comp in ibis.buffers:
+                            new_comp = ibis.buffers[comp].insert(
+                                j["position"][0],
+                                j["position"][1],
+                                j["angle"],
+                                page=j.get("page", 1),
+                            )
+                        else:
+                            raise Exception("Component not found")
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
-                            value["file_path"], location=j["position"], angle=j["angle"]
+                            value["file_path"],
+                            location=j["position"],
+                            angle=j["angle"],
+                            page=j.get("page", 1),
                         )
                         if value.get("pin_names", None):
                             for pin in new_comp.pins:
                                 pin.name = value["pin_names"][pin.pin_number - 1]
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
-                            input_file=value["file_path"], location=j["position"]
+                            input_file=value["file_path"],
+                            location=j["position"],
+                            page=j.get("page", 1),
                         )
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
@@ -2467,6 +2499,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                             location=j["position"],
                             angle=j["angle"],
                             port_names=value.get("pin_names", []),
+                            page=j.get("page", 1),
                         )
                     if not new_comp:  # pragma: no cover
                         continue
@@ -2498,7 +2531,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
             if i == "gnd":
                 for gnd_pin in pins:
                     location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
-                    self._app.modeler.schematic.create_gnd(location, page=i)
+                    self._app.modeler.schematic.create_gnd(location, page=gnd_pin._circuit_comp.page)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
@@ -2512,14 +2545,18 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in value:
+                            if pin.name == value:
                                 location = [
                                     pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
                                     pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),
                                 ]
 
                                 if not created:
-                                    jj = self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    jj = self._app.modeler.schematic.create_interface_port(
+                                        name=i,
+                                        location=location,
+                                        page=j.get("page", 1),
+                                    )
                                     if "properties" in j:
                                         for k, v in j["properties"].items():
                                             jj._props[k] = v
@@ -2529,10 +2566,16 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                                     created = True
                                 else:
                                     self._app.modeler.schematic.create_page_port(
-                                        name=i, location=location, angle=pin.total_angle
+                                        name=i,
+                                        location=location,
+                                        angle=pin.total_angle,
+                                        page=j.get("page", 1),
                                     )
                                 if offset != 0:
-                                    self._app.modeler.schematic.create_wire([location, pin.location])
+                                    self._app.modeler.schematic.create_wire(
+                                        [location, pin.location],
+                                        page=j.get("page", 1),
+                                    )
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True
