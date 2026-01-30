@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from pathlib import Path
 from collections import defaultdict
 import copy
 from datetime import datetime
@@ -728,13 +729,13 @@ class Configurations(PyAedtBase):
         """
         if self._schema:
             return self._schema
-        pyaedt_installed_path = os.path.dirname(ansys.aedt.core.__file__)
+        pyaedt_installed_path = Path(ansys.aedt.core.__file__).parent
 
         schema_bytes = None
 
-        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+        config_schema_path = Path(pyaedt_installed_path) / "misc" / "config.schema.json"
 
-        if os.path.exists(config_schema_path):
+        if Path(config_schema_path).exists():
             with open(config_schema_path, "rb") as schema:
                 schema_bytes = schema.read()
 
