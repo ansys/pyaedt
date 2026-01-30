@@ -364,6 +364,12 @@ class AEDT:
 
     def recreate_application(self, force=False):
         def run():
+            from ansys.aedt.core.generic.general_methods import active_sessions
+
+            if self.machine.split(":")[0] in ["", "127.0.0.1", "0.0.0.0"]:
+                if self.port not in active_sessions().values():
+                    raise GrpcApiError(f"No active AEDT sessions found on the specified port {self.port}.")
+
             self.ReleaseAedtObject(self.aedt.objectID)
             port = self.port
             machine = self.machine

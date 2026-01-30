@@ -74,6 +74,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import GrpcApiError
 
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
 """Tuple of loopback host names."""
@@ -1594,8 +1595,13 @@ class Desktop(PyAedtBase):
         # Handle case were the desktop has been released and properties have already been deleted
         if self.__closed is True:  # pragma no cover
             return True
-        if self.is_grpc_api and settings.use_multi_desktop:
-            self.grpc_plugin.recreate_application(True)
+        if self.is_grpc_api:
+            try:
+                self.grpc_plugin.recreate_application(True)
+            except GrpcApiError:  # pragma no cover
+                self.logger.warning("Desktop is already closed.")
+                return False
+
         self.logger._desktop_class = None
         self.logger._oproject = None
         self.logger._odesign = None
