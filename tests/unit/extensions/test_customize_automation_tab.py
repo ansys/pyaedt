@@ -62,6 +62,7 @@ def sample_tabconfig_xml():
 
     yield temp_path
 
+
 @pytest.fixture
 def invalid_tabconfig_xml():
     """Create an invalid TabConfig.xml for testing error handling."""
@@ -76,6 +77,7 @@ def invalid_tabconfig_xml():
         temp_path = Path(f.name)
 
     yield temp_path
+
 
 def test_get_custom_extensions_from_tabconfig_success(
     sample_tabconfig_xml,
@@ -242,6 +244,7 @@ def test_get_custom_extension_image_missing_image_attribute():
 
     result = get_custom_extension_image(temp_path, "No Image Extension")
     assert result == ""
+
 
 def test_get_custom_extension_image_invalid_xml(
     invalid_tabconfig_xml,
