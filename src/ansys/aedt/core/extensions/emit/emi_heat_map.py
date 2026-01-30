@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""EMIT EMI Heat map Extension."""
+"""EMIT EMI Heat Map Extension."""
 
 from dataclasses import dataclass
 import os
@@ -35,6 +35,7 @@ from matplotlib.colors import BoundaryNorm
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
@@ -202,8 +203,12 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             self._domain = app.results.interaction_domain()
 
             # Extract and return the Transmit / Receive radio lists
-            self._aggressors = self._revision.get_interferer_names()
-            self._victims = self._revision.get_receiver_names()
+            if app._aedt_version > "2025.1":
+                self._aggressors = self._revision.get_interferer_names()
+                self._victims = self._revision.get_receiver_names()
+            else:
+                self._aggressors = app._emit_api.get_radio_names(TxRxMode.TX, InterfererType.TRANSMITTERS_AND_EMITTERS)
+                self._victims = app._emit_api.get_radio_names(TxRxMode.RX, InterfererType.TRANSMITTERS_AND_EMITTERS)
         except Exception as e:
             raise RuntimeError(f"Failed to get domain, revision, or radios: {e}") from e
 
@@ -237,10 +242,16 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             self._emi = []
-            victim_bands = self._revision.get_band_names(
-                radio_name=self._victim,
-                tx_rx_mode=TxRxMode.RX,
-            )
+            if self.aedt_application._aedt_version > "2025.1":
+                victim_bands = self._revision.get_band_names(
+                    radio_name=self._victim,
+                    tx_rx_mode=TxRxMode.RX,
+                )
+            else:
+                victim_bands = self.aedt_application._emit_api.get_band_names(
+                    self._victim,
+                    TxRxMode.RX,
+                )
             self._victim_band_combo["values"] = victim_bands
             if victim_bands:
                 self._victim_band_combo.current(0)
@@ -271,10 +282,16 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             self._emi = []
-            aggressor_bands = self._revision.get_band_names(
-                radio_name=self._aggressor,
-                tx_rx_mode=TxRxMode.TX,
-            )
+            if self.aedt_application._aedt_version > "2025.1":
+                aggressor_bands = self._revision.get_band_names(
+                    radio_name=self._aggressor,
+                    tx_rx_mode=TxRxMode.TX,
+                )
+            else:
+                aggressor_bands = self.aedt_application._emit_api.get_band_names(
+                    self._aggressor,
+                    TxRxMode.TX,
+                )
             self._aggressor_band_combo["values"] = aggressor_bands
             if aggressor_bands:
                 self._aggressor_band_combo.current(0)
@@ -369,6 +386,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             title="Save Results to CSV",
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+            initialdir=os.path.dirname(self.aedt_application.project_path),
         )
 
         if not filename:
@@ -478,9 +496,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         # Add black lines between cells
         ax = plt.gca()
         for i in range(data.shape[0] + 1):
-            ax.axhline(i - 0.5, color='black', linewidth=1)
+            ax.axhline(i - 0.5, color="black", linewidth=1)
         for j in range(data.shape[1] + 1):
-            ax.axvline(j - 0.5, color='black', linewidth=1)
+            ax.axvline(j - 0.5, color="black", linewidth=1)
 
         # Customize hover info to show frequency and EMI value
         def format_coord(x, y):
@@ -490,9 +508,9 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
                 tx_freq = self._aggressor_frequencies[col]
                 rx_freq = self._victim_frequencies[row]
                 emi_val = data[row, col]
-                return f'Tx: {tx_freq:.2f} MHz, Rx: {rx_freq:.2f} MHz, EMI: {emi_val:.2f} dB'
-            return ''
-        
+                return f"Tx: {tx_freq:.2f} MHz, Rx: {rx_freq:.2f} MHz, EMI: {emi_val:.2f} dB"
+            return ""
+
         ax.format_coord = format_coord
 
         # Add colorbar showing the full color scale
@@ -503,10 +521,10 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         tick_labels = [f"{b:.1f}" for b in boundaries]
         cbar.set_ticklabels(tick_labels)
 
-        # Show numerical values in each cell
+        # Show numerical values in each cell with clipping enabled
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                plt.text(j, i, f"{data[i, j]:.1f}", ha="center", va="center", fontsize=7, color="black")
+                plt.text(j, i, f"{data[i, j]:.1f}", ha="center", va="center", fontsize=7, color="black", clip_on=True)
 
         # Adjust layout to prevent cutting off labels
         plt.tight_layout()
@@ -523,11 +541,12 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             # Get EMI thresholds
-            category_node = self._revision.get_result_categorization_node()
-            props = category_node.properties.get("EmiThresholdList")
-            if props:
-                red = float(props.split(";")[0])
-                yellow = float(props.split(";")[1])
+            if self.aedt_application._aedt_version > "2025.1":
+                category_node = self._revision.get_result_categorization_node()
+                props = category_node.properties.get("EmiThresholdList")
+                if props:
+                    red = float(props.split(";")[0])
+                    yellow = float(props.split(";")[1])
             else:
                 red = 0.0
                 yellow = -10.0

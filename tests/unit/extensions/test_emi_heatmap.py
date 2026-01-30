@@ -390,7 +390,7 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_fig_manager, mock_emit_
     # Mock the figure manager to avoid backend-specific issues
     mock_manager = MagicMock()
     mock_fig_manager.return_value = mock_manager
-    
+
     extension = EMIHeatmapExtension(withdraw=True)
 
     # Set up test data spanning all three ranges
@@ -417,7 +417,7 @@ def test_plot_matrix_heatmap_edge_cases(mock_show, mock_fig_manager, mock_emit_e
     # Mock the figure manager to avoid backend-specific issues
     mock_manager = MagicMock()
     mock_fig_manager.return_value = mock_manager
-    
+
     extension = EMIHeatmapExtension(withdraw=True)
 
     extension._victim = "RxRadio1"
@@ -497,7 +497,7 @@ def test_on_generate_heatmap(mock_show, mock_fig_manager, mock_emit_environment)
     # Mock the figure manager to avoid backend-specific issues
     mock_manager = MagicMock()
     mock_fig_manager.return_value = mock_manager
-    
+
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()

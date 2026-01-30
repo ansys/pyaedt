@@ -144,7 +144,7 @@ def test_generate_heatmap(mock_show, mock_fig_manager, emit_app_with_radios):
     # Mock the figure manager to avoid backend-specific issues
     mock_manager = MagicMock()
     mock_fig_manager.return_value = mock_manager
-    
+
     extension = EMIHeatmapExtension(withdraw=True)
 
     extension._victim_combo.current(1)
