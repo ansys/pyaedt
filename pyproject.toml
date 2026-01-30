@@ -116,6 +116,7 @@ all = [
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.10",
+    "pyaedt[jupyter]",
     "requests",
     "typer>=0.20.0",
     "fpdf2",
