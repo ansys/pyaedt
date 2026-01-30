@@ -36,6 +36,7 @@ import subprocess  # nosec
 import sys
 import time
 import traceback
+from typing import Optional
 import warnings
 
 import psutil
