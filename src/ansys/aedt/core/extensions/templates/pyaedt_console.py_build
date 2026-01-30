@@ -48,7 +48,7 @@ def main():
     # Base extensions location
     base_extensions_loc = r"##BASE_EXTENSION_LOCATION##"
     # CPython interpreter
-    python_exe = r"##IPYTHON_EXE##" % version
+    python_exe = r"##IPYTHON_EXE##"
     # Check if CPython interpreter and AEDT release match
     python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
     # Console launcher
