@@ -1086,7 +1086,7 @@ class CircuitComponent(PyAedtBase):
         return self.model_data.update()
 
     @pyaedt_function_handler()
-    def change_symbol_pin_locations(self, pin_locations):
+    def change_symbol_pin_locations(self, pin_locations, keep_original_size=True):
         """Change the locations of symbol pins.
 
         Parameters
@@ -1095,6 +1095,9 @@ class CircuitComponent(PyAedtBase):
             A dictionary with two keys: "left" and "right",
             each containing a list of pin names to be placed on the left and
             right sides of the symbol, respectively.
+        keep_original_size : bool, optional
+            Whether if keep the original size and preserve images or ignore and write a new rectangle.
+            Default is True.
 
         Returns
         -------
@@ -1141,10 +1144,21 @@ class CircuitComponent(PyAedtBase):
         x2 = base_spacing * x_factor
         y1 = 0
         y2 = base_spacing * (max_pins_length + 1)
+        bounding = self.bounding_box
+        loc = self.location
 
-        pin_left_x = -base_spacing
+        def round_to_base(number, ceil=False):
+            return (
+                round(number / base_spacing) * base_spacing
+                if not ceil
+                else math.ceil(number / base_spacing) * base_spacing
+            )
+
+        pin_left_x = -base_spacing if not keep_original_size else round_to_base(bounding[0] - loc[0])
         pin_left_angle = 0
-        pin_right_x = base_spacing * (x_factor + 1)
+        pin_right_x = (
+            base_spacing * (x_factor + 1) if not keep_original_size else round_to_base(bounding[2] - loc[0], True)
+        )
         pin_right_angle = math.pi
 
         def create_pin_def(pin_name, x, y, angle):
@@ -1200,25 +1214,25 @@ class CircuitComponent(PyAedtBase):
         ]
         terminals_arg = ["NAME:Terminals"]
 
-        yp = base_spacing * max_pins_length
+        yp = base_spacing * max_pins_length if not keep_original_size else bounding[3] - loc[1] - base_spacing
         for pin_name in left_pins:
             args.append(create_pin_def(pin_name, pin_left_x, yp, pin_left_angle))
             yp -= base_spacing
 
-        yp = base_spacing * max_pins_length
+        yp = base_spacing * max_pins_length if not keep_original_size else bounding[3] - loc[1] - base_spacing
         for pin_name in right_pins:
             args.append(create_pin_def(pin_name, pin_right_x, yp, pin_right_angle))
             yp -= base_spacing
-
-        args.append(
-            [
-                "NAME:Graphics",
-                "Rect:=",
-                [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, 0, 0, 0],
-                "Rect:=",
-                [0, 1, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, 0.000423333333333333, 0.000423333333333333, 0, 0, 0],
-            ]
-        )
+        if not keep_original_size:
+            args.append(
+                [
+                    "NAME:Graphics",
+                    "Rect:=",
+                    [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, 0, 0, 0],
+                    "Rect:=",
+                    [0, 1, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, 0.000423333333333333, 0.000423333333333333, 0, 0, 0],
+                ]
+            )
 
         for pin_name in self.model_data.props.get("PortNames", []):
             terminals_arg.append("TermAttributes:=")
