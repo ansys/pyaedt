@@ -65,7 +65,6 @@ DEFAULT_FOREGROUND: str = "white"
 DEFAULT_FOREGROUND_DARK: str = "black"
 DEFAULT_BD: int = 1
 DEFAULT_BORDERWIDTH: int = 1
-ON_CI = os.getenv("ON_CI", "false").lower() == "true"
 
 
 def get_process_id():
@@ -547,7 +546,7 @@ class ExtensionCommon(PyAedtBase):
             non_graphical = get_aedt_non_graphical()
 
             # Force non-graphical to True on CI environments
-            non_graphical = True if ON_CI else non_graphical
+            non_graphical = True if "PYTEST_CURRENT_TEST" in os.environ else non_graphical
 
             aedt_active_sessions = active_sessions(
                 version=version,

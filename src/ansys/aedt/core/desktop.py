@@ -290,8 +290,7 @@ def launch_aedt(
     pyaedt_logger.debug(f"Launching AEDT server with command: {' '.join(command)}")
     subprocess.Popen(command, **kwargs)  # nosec
 
-    on_ci = os.getenv("ON_CI", "False")
-    if not student_version and on_ci != "True" and not settings.skip_license_check:
+    if not student_version and "PYTEST_CURRENT_TEST" not in os.environ and not settings.skip_license_check:
         available_licenses = available_license_feature()
         if available_licenses > 0:
             pyaedt_logger.info("Electronics Desktop license available.")
