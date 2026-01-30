@@ -112,7 +112,8 @@ def Edb(
     if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":
         settings.pyedb_use_grpc = True
     use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2025.2" else False
-
+    grpc_enabled = "Grpc enabled" if use_grpc else "Dotnet enabled"
+    settings.logger.info(f"Loading EDB with {grpc_enabled}.")
     return Edb(
         edbpath=str(edbpath),
         cellname=cellname,

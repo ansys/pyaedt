@@ -142,7 +142,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                     oproject=self._app.oproject,
                     grpc=use_grpc,
                 )
-                self.logger.info("EDB loaded.")
+                grpc_enabled = "grpc enabled" if use_grpc else "dotnet enabled"
+                self.logger.info(f"EDB loaded with {grpc_enabled}.")
 
         return self._edb
 
