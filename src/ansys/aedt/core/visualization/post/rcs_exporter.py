@@ -57,7 +57,7 @@ class MonostaticRCSExporter(PyAedtBase):
     postprocessing.
 
     .. note::
-        This class requires the Radar Explorer toolkit for RCS data analysis.
+        This class requires the Radar explorer toolkit for RCS data analysis.
         Install it with: ``pip install ansys-aedt-toolkits-radar-explorer``
 
     Parameters

@@ -5845,7 +5845,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         and returns a ``MonostaticRCSExporter`` object for further processing.
 
         .. note::
-           For advanced RCS analysis and visualization, install the Radar Explorer Toolkit:
+           For advanced RCS analysis and visualization, install the radar explorer toolkit:
 
            .. code-block:: bash
 
@@ -5918,7 +5918,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> metadata_path = hfss.get_rcs_data(frequencies=[77e9], link_to_hfss=False)
         >>> print(f"RCS data exported to: {metadata_path}")
 
-        Use with Radar Explorer Toolkit for advanced analysis:
+        Use with radar explorer toolkit for advanced analysis:
 
         >>> # Export RCS data from HFSS
         >>> rcs_exporter = hfss.get_rcs_data(frequencies=[77e9])
@@ -5927,7 +5927,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> # Close HFSS and use toolkit for offline analysis
         >>> hfss.close_project()
         >>>
-        >>> # Advanced analysis with Radar Explorer Toolkit
+        >>> # Advanced analysis with radar explorer toolkit
         >>> # pip install ansys-aedt-toolkits-radar-explorer
         >>> from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
         >>> rcs_data = MonostaticRCSData(str(metadata_file))

@@ -137,7 +137,7 @@ For advanced RCS post-processing, analysis, and visualization, use the **Radar E
        pip install ansys-aedt-toolkits-radar-explorer
 
 
-PyAEDT RCS Exporter
+PyAEDT RCS exporter
 ^^^^^^^^^^^^^^^^^^^
 
 The ``MonostaticRCSExporter`` class enables efficient export of RCS simulation data into a standardized
@@ -169,17 +169,17 @@ Export RCS data from HFSS:
     # Metadata file is created for use with Radar Explorer Toolkit
     metadata_file = rcs_exporter.metadata_file
 
-Radar Explorer Toolkit
+Radar explorer toolkit
 ^^^^^^^^^^^^^^^^^^^^^^
 
-For comprehensive RCS analysis and visualization, use the **Radar Explorer Toolkit**:
+For comprehensive RCS analysis and visualization, use the **radar explorer toolkit**:
 
 - **MonostaticRCSData**: Advanced processing of RCS solution data with support for range profiles,
   waterfall plots, and ISAR imaging.
 
 - **MonostaticRCSPlotter**: Interactive 3D visualization and post-processing of RCS data.
 
-Example using the Radar Explorer Toolkit:
+Example using the radar explorer toolkit:
 
 .. code:: python
 
@@ -202,7 +202,7 @@ Example using the Radar Explorer Toolkit:
 
 For complete documentation and API reference, see:
 
-- `Radar Explorer API <https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/toolkit/api.html>`_
+- `Radar explorer API <https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/toolkit/api.html>`_
 
 
 FRTM processing

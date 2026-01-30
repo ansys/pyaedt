@@ -26,16 +26,16 @@ import warnings
 
 # Issue deprecation warning
 _deprecation_message = (
-    "The 'rcs_visualization' module has been deprecated and moved to the Radar Explorer Toolkit. "
+    "The 'rcs_visualization' module has been deprecated and moved to the radar explorer toolkit. "
     "Advanced RCS features (MonostaticRCSData and MonostaticRCSPlotter) are now available in the "
     "'ansys-aedt-toolkits-radar-explorer' package.\n\n"
-    "To continue using RCS visualization features, please install the Radar Explorer Toolkit:\n"
+    "To continue using RCS visualization features, please install the radar explorer toolkit:\n"
     "    pip install ansys-aedt-toolkits-radar-explorer\n\n"
     "For RCS data export from PyAEDT, use the MonostaticRCSExporter class:\n"
     "    from ansys.aedt.core import Hfss\n"
     "    app = Hfss()\n"
     "    rcs_exporter = app.get_rcs_data(frequencies=frequencies, setup=setup_name)\n\n"
-    "For RCS analysis and visualization, use the Radar Explorer Toolkit:\n"
+    "For RCS analysis and visualization, use the radar explorer toolkit:\n"
     "    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData\n"
     "    from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSPlotter\n\n"
     "For complete documentation, visit:\n"

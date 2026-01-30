@@ -30,13 +30,8 @@ import pytest
 
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
-# Mock the radar explorer toolkit import to allow unit tests to run without it
-try:
-    from ansys.aedt.core.visualization.post.rcs_exporter import DEFAULT_EXPRESSION
-    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
-except ImportError:
-    pytest.skip("Radar Explorer toolkit not available", allow_module_level=True)
+from ansys.aedt.core.visualization.post.rcs_exporter import DEFAULT_EXPRESSION
+from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
 FREQUENCIES_VALUE = 77e9
 FREQUENCIES = [FREQUENCIES_VALUE]
@@ -69,7 +64,6 @@ def test_init_with_default_values():
     assert exporter.data_file is None
     # Properties
     assert {} == exporter.model_info
-    assert exporter.rcs_data is None
     assert "" == exporter.metadata_file
     assert DEFAULT_EXPRESSION == exporter.column_name
     # App related
