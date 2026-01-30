@@ -1,4 +1,4 @@
-Icepak Model Reviewer
+Icepak model reviewer
 =====================
 
 The Icepak Model Reviewer extension allows users to inspect and modify details of an Icepak project. It enables
