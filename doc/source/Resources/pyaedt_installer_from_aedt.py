@@ -163,18 +163,10 @@ def run_pyinstaller_from_c_python(oDesktop):
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
         if version <= "231":
             f.write("from pyaedt.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
-            f.write(
-                'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
-                )
-            )
+            f.write('add_pyaedt_to_aedt(personallib=r"{}")\n'.format(oDesktop.GetPersonalLibDirectory()))
         else:
             f.write("from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
-            f.write(
-                'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
-                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
-                )
-            )
+            f.write('add_pyaedt_to_aedt(personal_lib=r"{}")\n'.format(oDesktop.GetPersonalLibDirectory()))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
@@ -402,6 +394,7 @@ def install_pyaedt():
                 subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
                 if args.version <= "231":
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"], check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
                 else:
@@ -418,6 +411,9 @@ def install_pyaedt():
                         [str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all,dotnet]=='0.9.0'"],
                         check=True,
                         env=env,
+                    )  # nosec
+                    subprocess.run(
+                        [str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True, env=env
                     )  # nosec
                     subprocess.run(
                         [str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True, env=env
@@ -480,6 +476,7 @@ def install_pyaedt():
                 print("Installing PyAEDT using online sources with uv...")
                 if args.version <= "231":
                     subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"], check=True, env=env)  # nosec
+                    subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
                     subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
                 else:
@@ -495,6 +492,9 @@ def install_pyaedt():
                         [str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all,dotnet]=='0.9.0'"],
                         check=True,
                         env=env,
+                    )  # nosec
+                    subprocess.run(
+                        [str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True, env=env
                     )  # nosec
                     subprocess.run(
                         [str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True, env=env
