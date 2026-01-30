@@ -973,9 +973,18 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
 
     # Get all matching AEDT processes
     target_processes = _get_target_processes(target)
-
+    available_ports = [i for i in range(50051, 50100)]
     # Extract port information from process command lines
     for pid, cmd in target_processes:
+        if "-grpcsrv" in cmd:
+            try:
+                prt = cmd[cmd.index("-grpcsrv") + 1].split(":")
+                if len(prt) == 1:
+                    available_ports.append(int(prt[0]))
+                else:
+                    available_ports.append(int(prt[1]))
+            except IndexError:
+                pass
         if (version and any([i for i in cmd if version in i])) or not version:
             if non_graphical is None or non_graphical and "-ng" in cmd:
                 return_dict[pid] = -1
@@ -995,7 +1004,12 @@ def active_sessions(version: str = None, student_version: bool = False, non_grap
     # Fallback: Try to find ports by checking network connections for remaining unknown ports
     if any(port == -1 for port in return_dict.values()):
         for conn in psutil.net_connections("inet"):
-            if conn.laddr.ip in ["127.0.0.1", "::"] and conn.pid in return_dict and conn.status == psutil.CONN_LISTEN:
+            if (
+                conn.laddr.ip in ["127.0.0.1", "::"]
+                and conn.pid in return_dict
+                and conn.status == psutil.CONN_LISTEN
+                and conn.laddr.port in available_ports
+            ):
                 return_dict[conn.pid] = conn.laddr.port
                 # Stop if all ports are resolved
                 if not any(port == -1 for port in return_dict.values()):
