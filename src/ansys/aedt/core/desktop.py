@@ -2760,7 +2760,7 @@ class Desktop(PyAedtBase):
 
             # Validate port availability/compatibility
             self.__port = self._validate_port(self.port)
-
+            out = True
             # Launch new AEDT instance if needed
             if self.new_desktop:
                 self.logger.info(f"Starting new AEDT gRPC session on port {self.port}.")
@@ -2768,7 +2768,7 @@ class Desktop(PyAedtBase):
                 out, self.port = launch_aedt(
                     installer, self.non_graphical, self.port, self.student_version, host=self.machine
                 )
-            self.new_desktop = False
+            self.new_desktop = not out
             self.launched_by_pyaedt = True
             # Establish gRPC connection (implementation details)
             result = self.__initialize()
