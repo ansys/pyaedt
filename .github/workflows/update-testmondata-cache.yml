@@ -1,9 +1,7 @@
 name: Update Testmon Cache on Merge
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - main
   workflow_dispatch:
@@ -39,13 +37,69 @@ env:
 
 jobs:
   # ------------------------------------------------------------------
+  # WORKFLOW DISPATCH GUARD
+  # ------------------------------------------------------------------
+  check-reference:
+    name: Check reference is main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check reference is main
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' }}
+        run: |
+          echo "This workflow can only run on main"
+          exit 1
+
+  # ------------------------------------------------------------------
+  # ANALYZE CHANGES
+  # ------------------------------------------------------------------
+  analyze-changes:
+    name: Analyze code changes
+    runs-on: ubuntu-latest
+    needs: check-reference
+    outputs:
+      skip_tests: ${{ steps.analyze.outputs.skip_tests }}
+      doc_only: ${{ steps.analyze.outputs.doc_only }}
+      run_all: ${{ steps.analyze.outputs.run_all }}
+    permissions:
+      contents: read # Required to read repository content and git history
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0  # Need full history for git diff
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: '3.10'
+
+      - name: Analyze changes
+        id: analyze
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            BASE_REF="HEAD~1"
+          else
+            BASE_REF="origin/main"
+          fi
+          python .ci/scripts/analyze_changes.py --base "$BASE_REF"
+
+      - name: Exit when tests are skipped
+        if: ${{ steps.analyze.outputs.skip_tests == 'true' }}
+        run: |
+          echo "skip_tests=true; stopping workflow."
+          exit 1
+
+  # ------------------------------------------------------------------
   # UNIT TESTS CACHE UPDATE (LINUX)
   # ------------------------------------------------------------------
   update-unit-linux:
     name: Update unit test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: ubuntu-latest
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -118,9 +172,10 @@ jobs:
   # ------------------------------------------------------------------
   update-integration-linux:
     name: Update integration test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: ubuntu-latest
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -189,9 +244,10 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-win:
     name: Update solvers test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -274,9 +330,10 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-linux:
     name: Update solvers test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -358,9 +415,10 @@ jobs:
   # ------------------------------------------------------------------
   update-general-win:
     name: Update general test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -446,9 +504,10 @@ jobs:
   # ------------------------------------------------------------------
   update-general-linux:
     name: Update general test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -532,9 +591,10 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-win:
     name: Update visualization test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -621,9 +681,10 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-linux:
     name: Update visualization test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -708,9 +769,10 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-win:
     name: Update icepak test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -793,9 +855,10 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-linux:
     name: Update icepak test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -877,9 +940,10 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-win:
     name: Update layout test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -961,9 +1025,10 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-linux:
     name: Update layout test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1045,9 +1110,10 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-win:
     name: Update extensions test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1133,9 +1199,10 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-linux:
     name: Update extensions test cache (Linux)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1219,9 +1286,10 @@ jobs:
   # ------------------------------------------------------------------
   update-filter-win:
     name: Update filter test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
@@ -1304,9 +1372,10 @@ jobs:
   # ------------------------------------------------------------------
   update-emit-win:
     name: Update emit test cache (Windows)
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
+      actions: write # Needed to delete cache
       contents: write # Needed to save cache
     env:
       TESTS_VERSION: '3.10'
