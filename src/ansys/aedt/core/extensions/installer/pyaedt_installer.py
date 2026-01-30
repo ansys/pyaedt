@@ -31,7 +31,6 @@ from ansys.aedt.core.generic.file_utils import read_toml
 
 
 def add_pyaedt_to_aedt(
-    aedt_version,
     personal_lib,
     skip_version_manager=False,
     odesktop=None,
@@ -40,8 +39,6 @@ def add_pyaedt_to_aedt(
 
     Parameters
     ----------
-    aedt_version : str
-        AEDT release.
     personal_lib : str
         AEDT personal library folder.
     skip_version_manager : bool, optional
@@ -50,23 +47,22 @@ def add_pyaedt_to_aedt(
         Desktop session. The default is ``None``.
     """
     logger = logging.getLogger("Global")
-    if not personal_lib or not aedt_version:
+    if not personal_lib:
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:
-            logger.error("'personal_lib' or AEDT version is not provided. There is no available desktop session.")
+            logger.error("Personallib is not provided. There is no available desktop session.")
             return False
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib
-        aedt_version = d.aedt_version_id
 
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager, odesktop)
+    __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop)
 
 
-def __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager, odesktop=None):
+def __add_pyaedt_tabs(personal_lib, skip_version_manager, odesktop=None):
     """Add PyAEDT tabs in AEDT."""
     if skip_version_manager:
         pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
@@ -93,9 +89,7 @@ def __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager, odesktop
                 icon_file=icon_file,
                 product="Project",
                 copy_to_personal_lib=False,
-                executable_interpreter=None,
                 panel="Panel_PyAEDT_Installer",
                 personal_lib=personal_lib,
-                aedt_version=aedt_version,
                 odesktop=odesktop,
             )
