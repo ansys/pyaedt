@@ -63,4 +63,4 @@ jobs:
         uses: ./.github/actions/testmon-cache
         with:
           testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_WIN }}
+          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
