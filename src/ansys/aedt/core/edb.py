@@ -109,6 +109,8 @@ def Edb(
     """
     from pyedb import Edb
 
+    if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":
+        settings.pyedb_use_grpc = True
     use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2025.2" else False
 
     return Edb(

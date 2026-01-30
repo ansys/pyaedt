@@ -128,6 +128,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         if not self._edb:
             from pyedb import Edb
 
+            if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":
+                settings.pyedb_use_grpc = True
             use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2025.2" else False
             self._edb = None
             if Path(self._edb_file).exists() or inside_desktop_ironpython_console:
