@@ -1057,6 +1057,8 @@ class Desktop(PyAedtBase):
             while tries < 5:
                 try:
                     self.__desktop = self.grpc_plugin.odesktop
+                    if self.__desktop is None:
+                        raise Exception("No Desktop")
                     return self.__desktop
                 except Exception:
                     self.grpc_plugin.recreate_application(True)
