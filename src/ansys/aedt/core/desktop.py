@@ -1594,7 +1594,7 @@ class Desktop(PyAedtBase):
         # Handle case were the desktop has been released and properties have already been deleted
         if self.__closed is True:  # pragma no cover
             return True
-        if self.is_grpc_api:
+        if self.is_grpc_api and settings.use_multi_desktop:
             self.grpc_plugin.recreate_application(True)
         self.logger._desktop_class = None
         self.logger._oproject = None
