@@ -25,15 +25,12 @@
 import json
 import os
 from pathlib import Path
-import tkinter as tk
-from tkinter import ttk
 from unittest.mock import patch
 
 import pytest
 
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import EXTENSION_TITLE
 from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import IcepakModelReviewer
-from ansys.aedt.core.extensions.icepak.icepak_model_reviewer import add_table_to_tab
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from tests import TESTS_UNIT_PATH
 
@@ -84,7 +81,6 @@ def add_icon_to_cells(data, read_only):
 
 def flatten_list(data):
     return data
-
 
 
 def test_icepak_model_reviewer(mock_icepak_app):
