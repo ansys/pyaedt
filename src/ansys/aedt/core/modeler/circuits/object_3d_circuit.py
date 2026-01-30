@@ -1097,7 +1097,7 @@ class CircuitComponent(PyAedtBase):
             right sides of the symbol, respectively.
         keep_original_size : bool, optional
             Whether if keep the original size and preserve images or ignore and write a new rectangle.
-            Default is True.
+            Default is ``True`╞.
 
         Returns
         -------
