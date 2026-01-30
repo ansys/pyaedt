@@ -898,7 +898,9 @@ def is_grpc_session_active(port):
 
 
 @pyaedt_function_handler()
-def active_sessions(version: str = None, student_version: bool = False, non_graphical: Optional[bool] = None) -> dict[int, int]:
+def active_sessions(
+    version: str = None, student_version: bool = False, non_graphical: Optional[bool] = None
+) -> dict[int, int]:
     """Get information for active AEDT sessions.
 
     This function detects running AEDT processes and identifies their gRPC ports or
