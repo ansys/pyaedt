@@ -203,7 +203,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             self._domain = app.results.interaction_domain()
 
             # Extract and return the Transmit / Receive radio lists
-            if app._aedt_version > "2025.1":
+            if app.desktop_class.aedt_version_id > "2025.1":
                 self._aggressors = self._revision.get_interferer_names()
                 self._victims = self._revision.get_receiver_names()
             else:
@@ -242,7 +242,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             self._emi = []
-            if self.aedt_application._aedt_version > "2025.1":
+            if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
                 victim_bands = self._revision.get_band_names(
                     radio_name=self._victim,
                     tx_rx_mode=TxRxMode.RX,
@@ -282,7 +282,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             self._emi = []
-            if self.aedt_application._aedt_version > "2025.1":
+            if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
                 aggressor_bands = self._revision.get_band_names(
                     radio_name=self._aggressor,
                     tx_rx_mode=TxRxMode.TX,
@@ -541,7 +541,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
         try:
             # Get EMI thresholds
-            if self.aedt_application._aedt_version > "2025.1":
+            if self.aedt_application.desktop_class.aedt_version_id > "2025.1":
                 category_node = self._revision.get_result_categorization_node()
                 props = category_node.properties.get("EmiThresholdList")
                 if props:

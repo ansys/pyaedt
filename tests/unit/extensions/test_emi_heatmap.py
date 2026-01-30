@@ -30,6 +30,7 @@ import pytest
 
 from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtension
 from ansys.aedt.core.extensions.emit.emi_heat_map import EMIHeatmapExtensionData
+from tests.conftest import DESKTOP_VERSION
 
 
 @pytest.fixture
@@ -56,6 +57,7 @@ def mock_emit_environment():
         # Mock AEDT application with EMIT design type
         mock_emit_app = MagicMock()
         mock_emit_app.design_type = "EMIT"
+        mock_emit_app.desktop_class.aedt_version_id = DESKTOP_VERSION
         mock_get_pyaedt_app.return_value = mock_emit_app
 
         yield {
@@ -121,26 +123,45 @@ def test_emi_heatmap_widgets_created(mock_emit_environment):
 
 
 def test_get_radios(mock_emit_environment):
-    """Test getting aggressor and victim radios from the project."""
+    """Test getting aggressor and victim radios from the project for both new and old API."""
     mock_aedt_app = mock_emit_environment["emit_app"]
+
     mock_results = MagicMock()
     mock_analyze = MagicMock()
     mock_domain = MagicMock()
 
-    # Mock radio names
+    # Mock radio names for new API
     mock_analyze.get_interferer_names.return_value = ["TxRadio1", "TxRadio2"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1", "RxRadio2"]
+
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = mock_domain
     mock_aedt_app.results = mock_results
 
+    # Mock old API
+    mock_emit_api = MagicMock()
+    # Set up return values for sequential calls: first TX, then RX
+    mock_emit_api.get_radio_names.side_effect = [
+        ["OldTxRadio1", "OldTxRadio2"],  # First call for TX
+        ["OldRxRadio1", "OldRxRadio2"],  # Second call for RX
+    ]
+    mock_aedt_app._emit_api = mock_emit_api
+
+    # Test based on configured version
     extension = EMIHeatmapExtension(withdraw=True)
-    extension._get_radios()
 
     assert extension._revision == mock_analyze
     assert extension._domain == mock_domain
-    assert extension._aggressors == ["TxRadio1", "TxRadio2"]
-    assert extension._victims == ["RxRadio1", "RxRadio2"]
+
+    if DESKTOP_VERSION > "2025.1":
+        # New API should be used
+        assert extension._aggressors == ["TxRadio1", "TxRadio2"]
+        assert extension._victims == ["RxRadio1", "RxRadio2"]
+    else:
+        # Old API should be used
+        assert extension._aggressors == ["OldTxRadio1", "OldTxRadio2"]
+        assert extension._victims == ["OldRxRadio1", "OldRxRadio2"]
+        assert mock_emit_api.get_radio_names.call_count == 2
 
     extension.root.destroy()
 
@@ -154,7 +175,7 @@ def test_populate_dropdowns(mock_emit_environment):
     mock_analyze.get_interferer_names.return_value = ["TxRadio1", "TxRadio2"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1", "RxRadio2"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
-    mock_analyze.get_active_frequencies.return_value = ["2400MHz", "2450MHz"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0, 2450.0]
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
@@ -176,7 +197,7 @@ def test_on_victim_changed(mock_emit_environment):
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1", "RxRadio2"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
-    mock_analyze.get_active_frequencies.return_value = ["2400MHz", "2450MHz"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0, 2450.0]
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
@@ -202,7 +223,7 @@ def test_on_victim_band_changed(mock_emit_environment):
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
-    mock_analyze.get_active_frequencies.return_value = ["2400MHz", "2450MHz"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0, 2450.0]
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
@@ -228,7 +249,7 @@ def test_on_aggressor_changed(mock_emit_environment):
     mock_analyze.get_interferer_names.return_value = ["TxRadio1", "TxRadio2"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
-    mock_analyze.get_active_frequencies.return_value = ["2400MHz", "2450MHz"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0, 2450.0]
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
@@ -258,7 +279,7 @@ def test_extract_data(mock_emit_environment):
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
     mock_analyze.get_band_names.return_value = ["Band1"]
-    mock_analyze.get_active_frequencies.return_value = ["2400MHz", "2450MHz"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0, 2450.0]
     mock_analyze.run.return_value = mock_interaction
     mock_analyze.get_license_session.return_value.__enter__ = MagicMock()
     mock_analyze.get_license_session.return_value.__exit__ = MagicMock()
@@ -274,8 +295,8 @@ def test_extract_data(mock_emit_environment):
     extension = EMIHeatmapExtension(withdraw=True)
 
     # Set up frequencies
-    extension._victim_frequencies = ["2400MHz", "2450MHz"]
-    extension._aggressor_frequencies = ["2400MHz", "2450MHz"]
+    extension._victim_frequencies = [2400.0, 2450.0]
+    extension._aggressor_frequencies = [2400.0, 2450.0]
     extension._victim = "RxRadio1"
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
@@ -302,8 +323,8 @@ def test_format_csv(mock_emit_environment):
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz", "2450MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
+    extension._victim_frequencies = [2400.0, 2450.0]
+    extension._aggressor_frequencies = [2400.0]
     extension._emi = [[-20.0, -25.0]]
     extension._rx_power = [[-50.0, -55.0]]
     extension._desense = [[5.0, 3.0]]
@@ -344,7 +365,7 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
     mock_analyze.get_band_names.return_value = ["Band1"]
-    mock_analyze.get_active_frequencies.return_value = ["2400MHz"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0]
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
@@ -356,8 +377,8 @@ def test_on_export_csv(mock_filedialog, mock_emit_environment):
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
+    extension._victim_frequencies = [2400.0]
+    extension._aggressor_frequencies = [2400.0]
     extension._emi = [[-20.0]]
     extension._rx_power = [[-50.0]]
     extension._desense = [[5.0]]
@@ -398,8 +419,8 @@ def test_plot_matrix_heatmap_normal_case(mock_show, mock_fig_manager, mock_emit_
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz", "2450MHz"]
-    extension._aggressor_frequencies = ["2400MHz", "2450MHz"]
+    extension._victim_frequencies = [2400.0, 2450.0]
+    extension._aggressor_frequencies = [2400.0, 2450.0]
     extension._emi = [[-15.0, -5.0], [-2.0, 5.0]]  # Spans green, yellow, red
 
     extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
@@ -424,8 +445,8 @@ def test_plot_matrix_heatmap_edge_cases(mock_show, mock_fig_manager, mock_emit_e
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz", "2450MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
+    extension._victim_frequencies = [2400.0, 2450.0]
+    extension._aggressor_frequencies = [2400.0]
 
     # Test case 1: All values in green range
     extension._emi = [[-20.0, -25.0]]
@@ -467,8 +488,8 @@ def test_plot_matrix_heatmap_error_cases(mock_error, mock_emit_environment):
     mock_error.reset_mock()
 
     # Test case 2: NaN values
-    extension._victim_frequencies = ["2400MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
+    extension._victim_frequencies = [2400.0]
+    extension._aggressor_frequencies = [2400.0]
     extension._emi = [[np.nan]]
     result = extension._plot_matrix_heatmap(red_threshold=0, yellow_threshold=-10)
     assert mock_error.called
@@ -507,7 +528,7 @@ def test_on_generate_heatmap(mock_show, mock_fig_manager, mock_emit_environment)
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
     mock_analyze.get_band_names.return_value = ["Band1"]
-    mock_analyze.get_active_frequencies.return_value = ["2400MHz"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0]
     mock_category_node.properties = {"EmiThresholdList": "0.0;-10.0"}
     mock_analyze.get_result_categorization_node.return_value = mock_category_node
     mock_results.analyze.return_value = mock_analyze
@@ -521,8 +542,8 @@ def test_on_generate_heatmap(mock_show, mock_fig_manager, mock_emit_environment)
     extension._victim_band = "Band1"
     extension._aggressor = "TxRadio1"
     extension._aggressor_band = "Band1"
-    extension._victim_frequencies = ["2400MHz"]
-    extension._aggressor_frequencies = ["2400MHz"]
+    extension._victim_frequencies = [2400.0]
+    extension._aggressor_frequencies = [2400.0]
     extension._emi = [[-5.0]]
 
     extension._on_generate_heatmap()
