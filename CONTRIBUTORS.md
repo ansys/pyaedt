@@ -69,6 +69,7 @@
 * [Karan Bhagat](https://github.com/kbhagat2)
 * [Kathy Pippert](https://github.com/PipKat)
 * [kmahajan-cadfem](https://github.com/kmahajan-cadfem)
+* [LilianMJ](https://github.com/LilianMJ)
 * [lollipop](https://github.com/cutelolly)
 * [Lorenzo Vecchietti](https://github.com/lorenzovecchietti)
 * [Madeline Coleman](https://github.com/mcoleman-ansys)
