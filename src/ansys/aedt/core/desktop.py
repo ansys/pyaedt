@@ -2249,7 +2249,9 @@ class Desktop(PyAedtBase):
         return dict_out
 
     @pyaedt_function_handler()
-    def download_job_results(self, job_id, project_path, results_folder, file_type_filter: str = "*"):  # pragma: no cover
+    def download_job_results(
+        self, job_id, project_path, results_folder, file_type_filter: str = "*"
+    ):  # pragma: no cover
         """Download job results to a specific folder from Ansys Cloud.
 
         Parameters
