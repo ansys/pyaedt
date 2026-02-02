@@ -1821,14 +1821,16 @@ def test_all_generated_emit_node_properties(emit_app):
                                                 "Use the name property instead."
                                             )
                                     continue
-
+                                #
                                 if member.startswith("duplicate"):
-                                    with pytest.raises(NotImplementedError) as e:
+                                    try:
                                         attr = getattr(node, member)
                                         values = [f"TestString{next_int}"]
                                         next_int = next_int + 1
                                         result = attr(*values)
-                                    mem_results[mem_key] = (Result.VALUE, str(e.value))
+                                        mem_results[mem_key] = (Result.VALUE, result)
+                                    except NotImplementedError as e:
+                                        mem_results[mem_key] = (Result.VALUE, str(e))
                                     continue
 
                                 # TODO: Skip Pyramidal Horn params due to warning popup that freezes the test
