@@ -1172,7 +1172,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return len(self.objects)
 
     @pyaedt_function_handler()
-    def get_objects_by_material(self, material: Optional[str]=None):
+    def get_objects_by_material(self, material: Optional[str] = None):
         """Get a list of objects either of a specified material or classified by material.
 
         Parameters
@@ -6976,7 +6976,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         cover_surface: bool = False,
         close_surface: bool = False,
         name: Optional[str] = None,
-        material: Optional[str]=None,
+        material: Optional[str] = None,
         xsection_type=None,
         xsection_orient=None,
         xsection_width: int = 1,
@@ -8900,7 +8900,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o
 
     @pyaedt_function_handler()
-    def _default_object_attributes(self, name: Optional[str] = None, material: Optional[str]=None, flags: str = ""):
+    def _default_object_attributes(self, name: Optional[str] = None, material: Optional[str] = None, flags: str = ""):
         if not material:
             material = self.defaultmaterial
 

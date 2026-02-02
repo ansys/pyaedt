@@ -65,7 +65,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         num_sides: int = 0,
         is_covered: bool = True,
         name: Optional[str] = None,
-        material: Optional[str]=None,
+        material: Optional[str] = None,
         non_model: bool = False,
         **kwargs,
     ):

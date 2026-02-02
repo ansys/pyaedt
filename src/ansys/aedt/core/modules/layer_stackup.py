@@ -29,6 +29,7 @@ This module provides all layer stackup functionalities for the Circuit and HFSS 
 """
 
 from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import str_to_bool

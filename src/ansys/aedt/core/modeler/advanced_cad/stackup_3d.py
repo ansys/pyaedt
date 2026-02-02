@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pyparsing import Optional
+
 from ansys.aedt.core import constants
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -1625,7 +1626,12 @@ class Stackup3D(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_ground_layer(
-        self, name: str, material: Optional[str] = "copper", thickness: float = 0.035, fill_material: str = "air", frequency=None
+        self,
+        name: str,
+        material: Optional[str] = "copper",
+        thickness: float = 0.035,
+        fill_material: str = "air",
+        frequency=None,
     ):
         """Add a new ground layer to the stackup.
 

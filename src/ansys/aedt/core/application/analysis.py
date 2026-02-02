@@ -666,7 +666,7 @@ class Analysis(Design, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def list_of_variations(self, setup: Optional[str] = None, sweep: Optional[str]=None):
+    def list_of_variations(self, setup: Optional[str] = None, sweep: Optional[str] = None):
         """Retrieve a list of active variations for input setup.
 
         Parameters
@@ -2120,7 +2120,7 @@ class Analysis(Design, PyAedtBase):
         variations: Optional[list] = None,
         variations_value=None,
         renormalization: bool = False,
-        impedance: Optional[float]=None,
+        impedance: Optional[float] = None,
         comments: bool = False,
     ):
         """Export the Touchstone file to a local folder.

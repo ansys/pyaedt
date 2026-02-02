@@ -767,7 +767,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def validate_full_design(self, name: Optional[str] = None, output_dir=None, ports: Optional[list]=None):
+    def validate_full_design(self, name: Optional[str] = None, output_dir=None, ports: Optional[list] = None):
         """Validate the design based on the expected value and save the information in the log file.
 
         Parameters

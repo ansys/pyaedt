@@ -295,7 +295,9 @@ class ScatteringMethods(PyAedtBase):
         return fext
 
     @pyaedt_function_handler()
-    def get_touchstone_data(self, setup: Optional[str] = None, sweep: Optional[str]=None, variations: Optional[dict] = None):
+    def get_touchstone_data(
+        self, setup: Optional[str] = None, sweep: Optional[str] = None, variations: Optional[dict] = None
+    ):
         """
         Return a Touchstone data plot.
 
@@ -341,12 +343,12 @@ class ScatteringMethods(PyAedtBase):
     def export_touchstone(
         self,
         setup: Optional[str] = None,
-        sweep: Optional[str]=None,
+        sweep: Optional[str] = None,
         output_file=None,
         variations: Optional[list] = None,
         variations_value=None,
         renormalization: bool = False,
-        impedance: Optional[float]=None,
+        impedance: Optional[float] = None,
         gamma_impedance_comments: bool = False,
     ):
         """Export a Touchstone file.

@@ -28,8 +28,9 @@ import csv
 import os
 from pathlib import Path
 import re
-from typing import Literal, Union
+from typing import Literal
 from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
@@ -491,7 +492,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return self.monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
 
     @pyaedt_function_handler()
-    def assign_point_monitor(self, point_position, monitor_type: str = "Temperature", monitor_name: Optional[str] = None):
+    def assign_point_monitor(
+        self, point_position, monitor_type: str = "Temperature", monitor_name: Optional[str] = None
+    ):
         """Create and assign a point monitor.
 
         Parameters
@@ -526,7 +529,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def assign_point_monitor_in_object(self, name: str, monitor_type: str = "Temperature", monitor_name: Optional[str] = None):
+    def assign_point_monitor_in_object(
+        self, name: str, monitor_type: str = "Temperature", monitor_name: Optional[str] = None
+    ):
         """Assign a point monitor in the centroid of a specific object.
 
         Parameters
@@ -3379,7 +3384,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return bound
 
     @pyaedt_function_handler()
-    def create_resistor_network_from_matrix(self, sources_power, faces_ids, matrix, network_name: Optional[str] = None, node_names: Optional[list] = None):
+    def create_resistor_network_from_matrix(
+        self, sources_power, faces_ids, matrix, network_name: Optional[str] = None, node_names: Optional[list] = None
+    ):
         """Create a thermal network.
 
         Parameters
@@ -3448,7 +3455,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler
     def assign_solid_block(
-        self, object_name, power_assignment, boundary_name: Optional[str] = None, htc=None, ext_temperature: str = "AmbientTemp"
+        self,
+        object_name,
+        power_assignment,
+        boundary_name: Optional[str] = None,
+        htc=None,
+        ext_temperature: str = "AmbientTemp",
     ):
         """
         Assign block boundary for solid objects.
@@ -3687,7 +3699,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return bound
 
     @pyaedt_function_handler()
-    def get_fans_operating_point(self, export_file: Optional[str] = None, setup_name: Optional[str] = None, time_step: Optional[str] = None, design_variation: Optional[str] = None):
+    def get_fans_operating_point(
+        self,
+        export_file: Optional[str] = None,
+        setup_name: Optional[str] = None,
+        time_step: Optional[str] = None,
+        design_variation: Optional[str] = None,
+    ):
         """
         Get operating point of the fans in the design.
 
@@ -4156,7 +4174,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return bound
 
     @pyaedt_function_handler()
-    def assign_adiabatic_plate(self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name: Optional[str] = None):
+    def assign_adiabatic_plate(
+        self, assignment, high_radiation_dict=None, low_radiation_dict=None, boundary_name: Optional[str] = None
+    ):
         """
         Assign adiabatic plate boundary condition.
 
