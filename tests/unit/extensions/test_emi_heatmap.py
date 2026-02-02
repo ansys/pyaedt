@@ -168,10 +168,14 @@ def test_get_radios(mock_emit_environment):
 
 def test_populate_dropdowns(mock_emit_environment):
     """Test populating victim and aggressor combo boxes."""
+    from ansys.aedt.core.emit_core.emit_constants import InterfererType
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
 
+    # Mock for new API
     mock_analyze.get_interferer_names.return_value = ["TxRadio1", "TxRadio2"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1", "RxRadio2"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
@@ -179,6 +183,14 @@ def test_populate_dropdowns(mock_emit_environment):
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
+
+    # Mock for old API
+    mock_emit_api = MagicMock()
+    mock_emit_api.get_radio_names.side_effect = [
+        ["TxRadio1", "TxRadio2"],  # First call for TX
+        ["RxRadio1", "RxRadio2"],  # Second call for RX
+    ]
+    mock_aedt_app._emit_api = mock_emit_api
 
     extension = EMIHeatmapExtension(withdraw=True)
 
@@ -190,10 +202,14 @@ def test_populate_dropdowns(mock_emit_environment):
 
 def test_on_victim_changed(mock_emit_environment):
     """Test handling victim radio selection change."""
+    from ansys.aedt.core.emit_core.emit_constants import InterfererType
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
 
+    # Mock for new API
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1", "RxRadio2"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
@@ -201,6 +217,15 @@ def test_on_victim_changed(mock_emit_environment):
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
+
+    # Mock for old API
+    mock_emit_api = MagicMock()
+    mock_emit_api.get_radio_names.side_effect = [
+        ["TxRadio1"],  # First call for TX
+        ["RxRadio1", "RxRadio2"],  # Second call for RX
+    ]
+    mock_emit_api.get_band_names.return_value = ["Band1", "Band2"]
+    mock_aedt_app._emit_api = mock_emit_api
 
     extension = EMIHeatmapExtension(withdraw=True)
 
@@ -234,7 +259,46 @@ def test_on_victim_band_changed(mock_emit_environment):
     extension._on_victim_band_changed()
 
     assert extension._victim_band == "Band2"
-    assert extension._victim_frequencies == ["2400MHz", "2450MHz"]
+    assert extension._victim_frequencies == [2400, 2450]
+    assert extension._emi == []
+
+    extension.root.destroy()
+
+
+def test_on_aggressor_band_changed(mock_emit_environment):
+    """Test handling aggressor band selection change."""
+    from ansys.aedt.core.emit_core.emit_constants import InterfererType
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+
+    mock_aedt_app = mock_emit_environment["emit_app"]
+    mock_results = MagicMock()
+    mock_analyze = MagicMock()
+
+    # Mock for new API
+    mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
+    mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
+    mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0, 2450.0]
+    mock_results.analyze.return_value = mock_analyze
+    mock_results.interaction_domain.return_value = MagicMock()
+    mock_aedt_app.results = mock_results
+
+    # Mock for old API
+    mock_emit_api = MagicMock()
+    mock_emit_api.get_radio_names.side_effect = [
+        ["TxRadio1"],  # First call for TX
+        ["RxRadio1"],  # Second call for RX
+    ]
+    mock_emit_api.get_band_names.return_value = ["Band1", "Band2"]
+    mock_aedt_app._emit_api = mock_emit_api
+
+    extension = EMIHeatmapExtension(withdraw=True)
+
+    extension._aggressor_band_combo.set("Band2")
+    extension._on_aggressor_band_changed()
+
+    assert extension._aggressor_band == "Band2"
+    assert extension._aggressor_frequencies == [2400.0, 2450.0]
     assert extension._emi == []
 
     extension.root.destroy()
@@ -242,10 +306,14 @@ def test_on_victim_band_changed(mock_emit_environment):
 
 def test_on_aggressor_changed(mock_emit_environment):
     """Test handling aggressor radio selection change."""
+    from ansys.aedt.core.emit_core.emit_constants import InterfererType
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
 
+    # Mock for new API
     mock_analyze.get_interferer_names.return_value = ["TxRadio1", "TxRadio2"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
@@ -253,6 +321,15 @@ def test_on_aggressor_changed(mock_emit_environment):
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
+
+    # Mock for old API
+    mock_emit_api = MagicMock()
+    mock_emit_api.get_radio_names.side_effect = [
+        ["TxRadio1", "TxRadio2"],  # First call for TX
+        ["RxRadio1"],  # Second call for RX
+    ]
+    mock_emit_api.get_band_names.return_value = ["Band1", "Band2"]
+    mock_aedt_app._emit_api = mock_emit_api
 
     extension = EMIHeatmapExtension(withdraw=True)
 
