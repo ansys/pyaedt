@@ -38,6 +38,7 @@ import pytest
 from ansys.aedt.core import Desktop
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.file_utils import available_file_name
+from ansys.aedt.core.generic.file_utils import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
 
@@ -246,8 +247,10 @@ def desktop(tmp_path_factory, request):
     yield desktop_app
 
     try:
-        os.kill(pid, 9)
-        # desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
+        if is_linux:
+            desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
+        else:
+            os.kill(pid, 9)
     except Exception as e:
         raise Exception("Failed to close Desktop instance") from e
 
