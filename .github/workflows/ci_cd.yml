@@ -1596,6 +1596,14 @@ jobs:
           generate-release-notes: false
           add-artifact-attestation-notes: true
 
+      - name: Send dispatch to PyAEDT examples repo
+        uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f # v4
+        with:
+          token: ${{ secrets.PYAEDT_EXAMPLES_REPO_TOKEN }}
+          repository: ansys/pyaedt-examples
+          event-type: release_tag
+          client-payload: '{"tag": "${{ github.event.release.tag_name }}"}'
+
   upload-release-doc:
     name: Upload release documentation
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
