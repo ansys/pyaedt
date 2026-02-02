@@ -77,7 +77,13 @@ class ReportSpec(PyAedtBase):
 
 
 class AnsysReport(FPDF, PyAedtBase):
-    def __init__(self, version: str="2025R1", design_name: str="design1", project_name: str="AnsysProject", tempplate_json_file=None) -> None:
+    def __init__(
+        self,
+        version: str = "2025R1",
+        design_name: str = "design1",
+        project_name: str = "AnsysProject",
+        tempplate_json_file=None,
+    ) -> None:
         super().__init__()
         self.report_specs = ReportSpec()
         self.read_template(tempplate_json_file)
@@ -225,7 +231,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.cell(0, 10, self.report_specs.footer_text, 0, align="L")
         self.cell(0, 10, "Page " + str(self.page_no()) + "/{nb}", align="R")
 
-    def create(self, add_cover_page: bool=True, add_new_section_after: bool=True) -> bool:
+    def create(self, add_cover_page: bool = True, add_new_section_after: bool = True) -> bool:
         """Create a new report using ``report_specs`` properties.
 
         Parameters
@@ -365,7 +371,7 @@ class AnsysReport(FPDF, PyAedtBase):
     def aedt_version(self, value) -> None:
         self.report_specs.ansys_version = value
 
-    def add_section(self, portrait=None, page_format: str="a4") -> None:
+    def add_section(self, portrait=None, page_format: str = "a4") -> None:
         """Add a new section to Pdf.
 
         Parameters
@@ -442,9 +448,9 @@ class AnsysReport(FPDF, PyAedtBase):
     def add_image(
         self,
         path,
-        caption: str="",
-        width: int=0,
-        height: int=0,
+        caption: str = "",
+        width: int = 0,
+        height: int = 0,
     ) -> bool:
         """Add a new image.
 
@@ -469,7 +475,7 @@ class AnsysReport(FPDF, PyAedtBase):
             self.__figure_idx += 1
         return True
 
-    def add_image_with_aspect_ratio(self, path, caption: str="", max_width=None, max_height=None):
+    def add_image_with_aspect_ratio(self, path, caption: str = "", max_width=None, max_height=None):
         """
         Add an image to the PDF while maintaining its aspect ratio and fitting within the specified dimensions.
 
@@ -533,7 +539,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.set_font(self.report_specs.font.lower(), "I", self.report_specs.text_font_size)
         self.set_text_color(*self.report_specs.font_color)
 
-    def add_empty_line(self, num_lines: int=1) -> None:
+    def add_empty_line(self, num_lines: int = 1) -> None:
         """Add a new empty line.
 
         Parameters
@@ -602,7 +608,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.add_caption(f"Table {self.__table_idx}: {title}")
         self.__table_idx += 1
 
-    def add_text(self, content, bold: bool=False, italic: bool=False) -> None:
+    def add_text(self, content, bold: bool = False, italic: bool = False) -> None:
         """Add a new text.
 
         Parameters

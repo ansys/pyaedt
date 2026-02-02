@@ -195,7 +195,7 @@ def test_start_log_stream_threads_appends_stdout_and_stderr(mock_toolkits, mock_
 
     # Patch threading.Thread to run target synchronously on start
     class DummyThread:
-        def __init__(self, target=None, args=(), daemon: bool=False) -> None:
+        def __init__(self, target=None, args=(), daemon: bool = False) -> None:
             self._target = target
             self._args = args
             self._alive = False
@@ -410,7 +410,9 @@ def test_extension_manager_launch_extension(mock_desktop, mock_toolkits, mock_po
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
-def test_extension_manager_pin_custom_extension_no_script(mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app) -> None:
+def test_extension_manager_pin_custom_extension_no_script(
+    mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app
+) -> None:
     """Test pinning a custom extension when no script is selected."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
@@ -430,7 +432,9 @@ def test_extension_manager_pin_custom_extension_no_script(mock_add_script, mock_
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.installer.extension_manager.add_script_to_menu")
-def test_extension_manager_pin_custom_extension_success(mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app) -> None:
+def test_extension_manager_pin_custom_extension_success(
+    mock_add_script, mock_toolkits, mock_desktop, mock_aedt_app
+) -> None:
     """Test successfully pinning a custom extension."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
@@ -916,7 +920,9 @@ def test_extension_manager_launch_web_url_no_url(mock_toolkits, mock_desktop, mo
 @patch("webbrowser.open", side_effect=Exception("boom"))
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_extension_manager_launch_web_url_exception(mock_webbrowser, mock_toolkits, mock_desktop, mock_aedt_app) -> None:
+def test_extension_manager_launch_web_url_exception(
+    mock_webbrowser, mock_toolkits, mock_desktop, mock_aedt_app
+) -> None:
     """If opening the browser raises, show an error and return False."""
     mock_desktop.return_value = MagicMock()
     toolkit_data = {

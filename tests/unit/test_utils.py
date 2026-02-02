@@ -60,7 +60,7 @@ def desktop() -> None:
 
 
 @pyaedt_function_handler()
-def foo(trigger_exception: bool=True):
+def foo(trigger_exception: bool = True):
     """Some dummy function used for testing."""
     if trigger_exception:
         raise Exception(ERROR_MESSAGE)

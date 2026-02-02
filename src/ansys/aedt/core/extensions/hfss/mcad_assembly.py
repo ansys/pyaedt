@@ -303,7 +303,7 @@ class Component(BaseModel):
         data_["name"] = name
         return cls(**data_)
 
-    def assemble_sub_components(self, hfss, cs_prefix: str="") -> None:
+    def assemble_sub_components(self, hfss, cs_prefix: str = "") -> None:
         for name, comp in self.sub_components.items():
             comp.assemble(hfss, cs_prefix)
 

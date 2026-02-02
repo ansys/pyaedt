@@ -849,7 +849,9 @@ def test_check_for_pyaedt_update_on_startup_no_update(mock_check_update, mock_th
 @patch("ansys.aedt.core.extensions.installer.version_manager.threading.Thread")
 @patch("ansys.aedt.core.extensions.installer.version_manager.check_for_pyaedt_update")
 @patch("ansys.aedt.core.extensions.installer.version_manager.logging.getLogger")
-def test_check_for_pyaedt_update_on_startup_exception_in_worker(mock_get_logger, mock_check_update, mock_thread) -> None:
+def test_check_for_pyaedt_update_on_startup_exception_in_worker(
+    mock_get_logger, mock_check_update, mock_thread
+) -> None:
     """Test check_for_pyaedt_update_on_startup when worker encounters exception."""
     manager = _make_vm()
 

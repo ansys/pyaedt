@@ -134,14 +134,14 @@ class Emit(Design, PyAedtBase):
         design=None,
         solution_type=None,
         version=None,
-        non_graphical: bool=False,
-        new_desktop: bool=True,
-        close_on_exit: bool=True,
-        student_version: bool=False,
-        machine: str="",
-        port: int=0,
+        non_graphical: bool = False,
+        new_desktop: bool = True,
+        close_on_exit: bool = True,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id=None,
-        remove_lock: bool=False,
+        remove_lock: bool = False,
     ) -> None:
         self.__emit_api_enabled = False
         self.results = None
@@ -219,7 +219,7 @@ class Emit(Design, PyAedtBase):
         return self._schematic
 
     @pyaedt_function_handler()
-    def version(self, detailed: bool=False):
+    def version(self, detailed: bool = False):
         """
         Get version information.
 
@@ -298,7 +298,7 @@ class Emit(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_type: str=""):
+    def get_units(self, unit_type: str = ""):
         """Get units for the EMIT design.
 
         Parameters
@@ -325,7 +325,7 @@ class Emit(Design, PyAedtBase):
         return self._units[unit_type]
 
     @pyaedt_function_handler()
-    def save_project(self, file_name=None, overwrite: bool=True, refresh_ids: bool=False):
+    def save_project(self, file_name=None, overwrite: bool = True, refresh_ids: bool = False):
         """Save the AEDT project and the current EMIT revision.
 
         Parameters

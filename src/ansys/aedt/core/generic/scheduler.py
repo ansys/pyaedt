@@ -211,7 +211,7 @@ class _ResourcesConfiguration:
         self.__ram_limit = self.__validate_positive_int("ram_limit", ram_limit)
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", ram_per_core)
 
-    def __validate_positive_int(self, name, value, strict: bool=True):
+    def __validate_positive_int(self, name, value, strict: bool = True):
         """Validate that the value is an integer > 0 (strict) or >= 0 (non-strict)."""
         if not isinstance(value, int):
             raise ValueError(f"{name} must be an integer, got {type(value).__name__}.")
@@ -233,7 +233,7 @@ class _ResourcesConfiguration:
 
         return value
 
-    def __validate_optional_positive_int(self, name, value, strict: bool=True):
+    def __validate_optional_positive_int(self, name, value, strict: bool = True):
         """Validate that the value is either None or a valid integer.
 
         If strict is True, the value must be > 0; otherwise, it can be >= 0.

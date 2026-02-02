@@ -90,7 +90,7 @@ class ConfigurationsOptions(PyAedtBase):
     User can enable or disable import export components.
     """
 
-    def __init__(self, is_layout: bool=False) -> None:
+    def __init__(self, is_layout: bool = False) -> None:
         self._object_mapping_tolerance = 1e-9
         self._export_variables = True
         self._export_setups = True
@@ -1476,7 +1476,7 @@ class Configurations(PyAedtBase):
             dict_out["material datasets"] = datasets
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None, overwrite: bool=False):
+    def export_config(self, config_file=None, overwrite: bool = False):
         """Export current design properties to a JSON or TOML file.
 
         The sections to be exported are defined with ``configuration.options`` class.
@@ -2187,7 +2187,7 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
     """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None, overwrite: bool=False):
+    def export_config(self, config_file=None, overwrite: bool = False):
         """Export current design properties to a JSON or TOML file.
 
         Parameters

@@ -273,7 +273,7 @@ def add_app(test_tmp_dir, desktop, tmp_path_factory):
         design: str | None = None,
         solution_type: str | None = None,
         application=None,
-        close_projects: bool=True,
+        close_projects: bool = True,
     ):
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()
@@ -315,8 +315,8 @@ def add_app_example(test_tmp_dir, desktop, tmp_path_factory):
         design: str | None = None,
         solution_type: str | None = None,
         application=None,
-        is_edb: bool=False,
-        close_projects: bool=True,
+        is_edb: bool = False,
+        close_projects: bool = True,
     ):
         if close_projects and desktop and desktop.project_list:
             projects = desktop.project_list.copy()

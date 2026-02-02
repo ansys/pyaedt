@@ -331,7 +331,7 @@ class IdealResponse:
         y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
         minimum_frequency=None,
         maximum_frequency=None,
-        vsg_analysis_enabled: bool=False,
+        vsg_analysis_enabled: bool = False,
     ):
         """Get the ideal filter frequency response for the given parameters.
 
@@ -372,7 +372,7 @@ class IdealResponse:
         y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
         minimum_time=None,
         maximum_time=None,
-        vsg_analysis_enabled: bool=False,
+        vsg_analysis_enabled: bool = False,
     ):
         """Get the ideal filter time response for the given parameters.
 

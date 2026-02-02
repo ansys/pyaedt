@@ -152,7 +152,9 @@ def test_arbitrary_wave_port_browse_work_dir(mock_askdirectory, mock_hfss_3d_lay
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askdirectory")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askopenfilename")
-def test_arbitrary_wave_port_browse_source_file(mock_askopenfilename, mock_askdirectory, mock_hfss_3d_layout_app) -> None:
+def test_arbitrary_wave_port_browse_source_file(
+    mock_askopenfilename, mock_askdirectory, mock_hfss_3d_layout_app
+) -> None:
     """Test the browse source file function."""
     test_file_path = "/test/source/file.aedb"
     test_dir_path = "/test/source/folder.aedb"

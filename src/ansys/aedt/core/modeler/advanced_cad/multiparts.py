@@ -113,13 +113,13 @@ class MultiPartComponent(PyAedtBase):
         self,
         comp_folder,
         name=None,
-        use_relative_cs: bool=False,
+        use_relative_cs: bool = False,
         relative_cs_name=None,
-        motion: bool=False,
+        motion: bool = False,
         offset=("0", "0", "0"),
-        yaw: str="0deg",
-        pitch: str="0deg",
-        roll: str="0deg",
+        yaw: str = "0deg",
+        pitch: str = "0deg",
+        roll: str = "0deg",
     ) -> None:
         self.comp_folder = comp_folder  # Folder where the component is defined.
         # self._name = os.path.split(comp_folder)[-1]  # Base name of multipart component.
@@ -453,7 +453,7 @@ class MultiPartComponent(PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def _insert(self, app, motion: bool=False) -> bool:
+    def _insert(self, app, motion: bool = False) -> bool:
         """Insert the multi-part 3D component.
 
         Parameters
@@ -485,7 +485,7 @@ class MultiPartComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=False):
+    def insert(self, app, motion: bool = False):
         """Insert the object in HFSS SBR+.
 
         Returns
@@ -606,7 +606,7 @@ class Actor(MultiPartComponent, PyAedtBase):
         in which case the global coordinate system is used.
     """
 
-    def __init__(self, actor_folder, speed: str="0", relative_cs_name=None) -> None:
+    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.

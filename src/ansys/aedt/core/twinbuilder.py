@@ -128,14 +128,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical: bool=False,
-        new_desktop: bool=False,
-        close_on_exit: bool=False,
-        student_version: bool=False,
-        machine: str="",
-        port: int=0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id=None,
-        remove_lock: bool=False,
+        remove_lock: bool = False,
     ) -> None:
         """Constructor."""
         AnalysisTwinBuilder.__init__(
@@ -301,7 +301,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_sim_setup_parameter(self, variable, expression, analysis_name: str="TR") -> bool:
+    def set_sim_setup_parameter(self, variable, expression, analysis_name: str = "TR") -> bool:
         """Set simulation setup parameters.
 
         Parameters
@@ -384,13 +384,13 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         setup,
         sweep,
         coupling_matrix_name,
-        model_depth: str="1meter",
-        maximum_order: int=10000,
-        error_tolerance: float=0.005,
-        z_ref: int=50,
+        model_depth: str = "1meter",
+        maximum_order: int = 10000,
+        error_tolerance: float = 0.005,
+        z_ref: int = 50,
         state_space_dynamic_link_type=None,
         component_name=None,
-        save_project: bool=True,
+        save_project: bool = True,
     ):
         """Add a Q2D or Q3D dynamic component to a Twin Builder design.
 
@@ -645,12 +645,12 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         self,
         project,
         design,
-        use_default_values: bool=True,
+        use_default_values: bool = True,
         setup=None,
         start=None,
         stop=None,
-        export_uniform_points: bool=False,
-        export_uniform_points_step: float=1e-5,
+        export_uniform_points: bool = False,
+        export_uniform_points_step: float = 1e-5,
         excitations=None,
     ):
         """Use the excitation component to assign output quantities

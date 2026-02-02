@@ -53,7 +53,9 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         self.post_3dlayout = PostProcessor3DLayout(app)
 
     @pyaedt_function_handler()
-    def get_far_field_data(self, expressions: str="GainTotal", setup_sweep_name: str="", domain: str="Infinite Sphere1", sweeps=None):
+    def get_far_field_data(
+        self, expressions: str = "GainTotal", setup_sweep_name: str = "", domain: str = "Infinite Sphere1", sweeps=None
+    ):
         """Generate far field data using the ``GetSolutionDataPerVariation()`` method.
 
         This method returns the data ``solData``, ``ThetaVals``,
@@ -102,14 +104,14 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_creeping_plane_visual_ray_tracing(
         self,
-        max_frequency: str="1GHz",
-        ray_density: int=1,
-        sample_density: int=10,
-        ray_cutoff: int=40,
-        irregular_surface_tolerance: int=50,
-        incident_theta: int=0,
-        incident_phi: int=0,
-        is_vertical_polarization: bool=False,
+        max_frequency: str = "1GHz",
+        ray_density: int = 1,
+        sample_density: int = 10,
+        ray_cutoff: int = 40,
+        irregular_surface_tolerance: int = 50,
+        incident_theta: int = 0,
+        incident_phi: int = 0,
+        is_vertical_polarization: bool = False,
     ):
         """Create a Creeping Wave Plane Wave Visual Ray Tracing and return the class object.
 
@@ -152,11 +154,11 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_creeping_point_visual_ray_tracing(
         self,
-        max_frequency: str="1GHz",
-        ray_density: int=1,
-        sample_density: int=10,
-        ray_cutoff: int=40,
-        irregular_surface_tolerance: int=50,
+        max_frequency: str = "1GHz",
+        ray_density: int = 1,
+        sample_density: int = 10,
+        ray_cutoff: int = 40,
+        irregular_surface_tolerance: int = 50,
         custom_location=None,
     ):
         """Create a Creeping Wave Point Source Visual Ray Tracing and return the class object.
@@ -196,19 +198,19 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_sbr_plane_visual_ray_tracing(
         self,
-        max_frequency: str="1GHz",
-        ray_density: int=2,
-        number_of_bounces: int=5,
-        multi_bounce: bool=False,
-        mbrd_max_sub_division: int=2,
-        shoot_utd: bool=False,
-        incident_theta: int=0,
-        incident_phi: int=0,
-        is_vertical_polarization: bool=False,
-        shoot_filter_type: str="All Rays",
-        ray_index_start: int=0,
-        ray_index_stop: int=1,
-        ray_index_step: int=1,
+        max_frequency: str = "1GHz",
+        ray_density: int = 2,
+        number_of_bounces: int = 5,
+        multi_bounce: bool = False,
+        mbrd_max_sub_division: int = 2,
+        shoot_utd: bool = False,
+        incident_theta: int = 0,
+        incident_phi: int = 0,
+        is_vertical_polarization: bool = False,
+        shoot_filter_type: str = "All Rays",
+        ray_index_start: int = 0,
+        ray_index_stop: int = 1,
+        ray_index_step: int = 1,
         ray_box=None,
     ):
         """Create an SBR Plane Wave Visual Ray Tracing and return the class object.
@@ -270,17 +272,17 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_sbr_point_visual_ray_tracing(
         self,
-        max_frequency: str="1GHz",
-        ray_density: int=2,
-        number_of_bounces: int=5,
-        multi_bounce: bool=False,
-        mbrd_max_sub_division: int=2,
-        shoot_utd: bool=False,
+        max_frequency: str = "1GHz",
+        ray_density: int = 2,
+        number_of_bounces: int = 5,
+        multi_bounce: bool = False,
+        mbrd_max_sub_division: int = 2,
+        shoot_utd: bool = False,
         custom_location=None,
-        shoot_filter_type: str="All Rays",
-        ray_index_start: int=0,
-        ray_index_stop: int=1,
-        ray_index_step: int=1,
+        shoot_filter_type: str = "All Rays",
+        ray_index_start: int = 0,
+        ray_index_stop: int = 1,
+        ray_index_step: int = 1,
         ray_box=None,
     ):
         """Create an SBR Point Source Visual Ray Tracing and return the class object.
@@ -359,7 +361,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup=None, nets=None, plot_on_surface: bool=True, intrinsics=None, name=None
+        self, layers, quantity, setup=None, nets=None, plot_on_surface: bool = True, intrinsics=None, name=None
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -416,7 +418,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface: bool=True, plot_name=None
+        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface: bool = True, plot_name=None
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

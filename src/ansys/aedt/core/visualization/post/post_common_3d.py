@@ -196,7 +196,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return intr_dict  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list: bool=False):
+    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list: bool = False):
         intrinsics = {}
         if input_data is None:
             if setup is None:
@@ -387,15 +387,15 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def get_scalar_field_value(
         self,
         quantity,
-        scalar_function: str="Maximum",
+        scalar_function: str = "Maximum",
         solution=None,
         variations=None,
-        is_vector: bool=False,
+        is_vector: bool = False,
         intrinsics=None,
         phase=None,
-        object_name: str="AllObjects",
-        object_type: str="volume",
-        adjacent_side: bool=False,
+        object_name: str = "AllObjects",
+        object_type: str = "volume",
+        adjacent_side: bool = False,
     ):
         """Use the field calculator to Compute Scalar of a Field.
 
@@ -535,18 +535,18 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         solution=None,
         variations=None,
         file_name=None,
-        grid_type: str="Cartesian",
+        grid_type: str = "Cartesian",
         grid_center=None,
         grid_start=None,
         grid_stop=None,
         grid_step=None,
-        is_vector: bool=False,
+        is_vector: bool = False,
         intrinsics=None,
         phase=None,
-        export_with_sample_points: bool=True,
-        reference_coordinate_system: str="Global",
-        export_in_si_system: bool=True,
-        export_field_in_reference: bool=True,
+        export_with_sample_points: bool = True,
+        reference_coordinate_system: str = "Global",
+        export_in_si_system: bool = True,
+        export_field_in_reference: bool = True,
     ):
         """Use the field calculator to create a field file on a grid based on a solution and variation.
 
@@ -722,16 +722,16 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         solution=None,
         variations=None,
         output_file=None,
-        assignment: str="AllObjects",
-        objects_type: str="Vol",
+        assignment: str = "AllObjects",
+        objects_type: str = "Vol",
         intrinsics=None,
         phase=None,
         sample_points_file=None,
         sample_points=None,
-        export_with_sample_points: bool=True,
-        reference_coordinate_system: str="Global",
-        export_in_si_system: bool=True,
-        export_field_in_reference: bool=True,
+        export_with_sample_points: bool = True,
+        reference_coordinate_system: str = "Global",
+        export_in_si_system: bool = True,
+        export_field_in_reference: bool = True,
     ):
         """Use the field calculator to create a field file based on a solution and variation.
 
@@ -912,7 +912,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
-    def export_field_plot(self, plot_name, output_dir, file_name: str="", file_format: str="aedtplt"):
+    def export_field_plot(self, plot_name, output_dir, file_name: str = "", file_format: str = "aedtplt"):
         """Export a field plot.
 
         .. note:
@@ -962,7 +962,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         plot_name=None,
         filter_boxes=None,
         field_type=None,
-        create_plot: bool=True,
+        create_plot: bool = True,
     ):
         intrinsics = self._check_intrinsics(intrinsics, None, setup)
         if not list_type.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
@@ -1014,7 +1014,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_line(
-        self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type: str="DC R/L Fields"
+        self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type: str = "DC R/L Fields"
     ):
         """Create a field plot of the line.
 
@@ -1080,7 +1080,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_surface(
-        self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type: str="DC R/L Fields"
+        self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type: str = "DC R/L Fields"
     ):
         """Create a field plot of surfaces.
 
@@ -1143,7 +1143,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         intrinsics=None,
         plot_name=None,
         filter_objects=None,
-        field_type: str="DC R/L Fields",
+        field_type: str = "DC R/L Fields",
     ):
         """Create a field plot of cut planes.
 
@@ -1225,7 +1225,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_volume(
-        self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type: str="DC R/L Fields"
+        self, assignment, quantity, setup=None, intrinsics=None, plot_name=None, field_type: str = "DC R/L Fields"
     ):
         """Create a field plot of volumes.
 
@@ -1294,15 +1294,15 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         file_name,
         plot_name,
         folder_name,
-        orientation: str="isometric",
-        width: int=1920,
-        height: int=1080,
-        display_wireframe: bool=True,
+        orientation: str = "isometric",
+        width: int = 1920,
+        height: int = 1080,
+        display_wireframe: bool = True,
         selections=None,
-        show_axis: bool=True,
-        show_grid: bool=True,
-        show_ruler: bool=True,
-        show_region: str="Default",
+        show_axis: bool = True,
+        show_grid: bool = True,
+        show_ruler: bool = True,
+        show_region: str = "Default",
     ) -> bool:
         """Export a field plot and coordinate system to a JPG file.
 
@@ -1415,15 +1415,15 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def export_model_picture(
         self,
         full_name=None,
-        show_axis: bool=True,
-        show_grid: bool=True,
-        show_ruler: bool=True,
-        show_region: str="Default",
+        show_axis: bool = True,
+        show_grid: bool = True,
+        show_ruler: bool = True,
+        show_region: str = "Default",
         selections=None,
         field_selections=None,
-        orientation: str="isometric",
-        width: int=0,
-        height: int=0,
+        orientation: str = "isometric",
+        width: int = 0,
+        height: int = 0,
     ):
         """Export a snapshot of the model to a ``JPG`` file.
 
@@ -1532,7 +1532,9 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2021.2")
-    def export_model_obj(self, assignment=None, export_path=None, export_as_multiple_objects: bool=False, air_objects: bool=False):
+    def export_model_obj(
+        self, assignment=None, export_path=None, export_as_multiple_objects: bool = False, air_objects: bool = False
+    ):
         """Export the model.
 
         Parameters
@@ -1605,7 +1607,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             return [[str(fname), "aquamarine", 0.3]]
 
     @pyaedt_function_handler()
-    def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects: bool=False, on_surfaces: bool=True):
+    def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects: bool = False, on_surfaces: bool = True):
         """Export the mesh in AEDTPLT format.
 
         The mesh has to be available in the selected setup.
@@ -1680,7 +1682,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def nb_display(self, show_axis: bool=True, show_grid: bool=True, show_ruler: bool=True):
+    def nb_display(self, show_axis: bool = True, show_grid: bool = True, show_ruler: bool = True):
         """Show the Jupyter Notebook display.
 
           .. note::
@@ -1714,7 +1716,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
             warnings.warn("The Ipython package is missing and must be installed.")
 
     @pyaedt_function_handler()
-    def get_efields_data(self, setup_sweep_name: str="", ff_setup: str="Infinite Sphere1"):
+    def get_efields_data(self, setup_sweep_name: str = "", ff_setup: str = "Infinite Sphere1"):
         """Compute Etheta and EPhi.
 
         .. warning::
@@ -1788,12 +1790,12 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def get_model_plotter_geometries(
         self,
         objects=None,
-        plot_as_separate_objects: bool=True,
-        plot_air_objects: bool=False,
+        plot_as_separate_objects: bool = True,
+        plot_air_objects: bool = False,
         force_opacity_value=None,
         array_coordinates=None,
-        generate_mesh: bool=True,
-        get_objects_from_aedt: bool=True,
+        generate_mesh: bool = True,
+        get_objects_from_aedt: bool = True,
     ):
         """Initialize the Model Plotter object with actual modeler objects and return it.
 
@@ -1849,18 +1851,18 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def plot_model_obj(
         self,
         objects=None,
-        show: bool=True,
+        show: bool = True,
         export_path=None,
-        plot_as_separate_objects: bool=True,
-        plot_air_objects: bool=False,
+        plot_as_separate_objects: bool = True,
+        plot_air_objects: bool = False,
         force_opacity_value=None,
-        clean_files: bool=False,
+        clean_files: bool = False,
         array_coordinates=None,
-        view: str="isometric",
-        show_legend: bool=True,
-        dark_mode: bool=False,
-        show_bounding: bool=False,
-        show_grid: bool=False,
+        view: str = "isometric",
+        show_legend: bool = True,
+        dark_mode: bool = False,
+        show_bounding: bool = False,
+        show_grid: bool = False,
     ):
         """Plot the model or a substet of objects.
 
@@ -1933,23 +1935,23 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     def plot_field_from_fieldplot(
         self,
         plot_name,
-        project_path: str="",
-        mesh_plot: bool=False,
-        image_format: str="jpg",
-        view: str="isometric",
-        plot_label: str="Temperature",
+        project_path: str = "",
+        mesh_plot: bool = False,
+        image_format: str = "jpg",
+        view: str = "isometric",
+        plot_label: str = "Temperature",
         plot_folder=None,
-        show: bool=True,
+        show: bool = True,
         scale_min=None,
         scale_max=None,
-        plot_cad_objs: bool=True,
-        log_scale: bool=True,
-        dark_mode: bool=False,
-        show_grid: bool=False,
-        show_bounding: bool=False,
-        show_legend: bool=True,
-        plot_as_separate_objects: bool=True,
-        file_format: str="case",
+        plot_cad_objs: bool = True,
+        log_scale: bool = True,
+        dark_mode: bool = False,
+        show_grid: bool = False,
+        show_bounding: bool = False,
+        show_legend: bool = True,
+        plot_as_separate_objects: bool = True,
+        file_format: str = "case",
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -2065,27 +2067,27 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         self,
         quantity,
         assignment,
-        plot_type: str="Surface",
+        plot_type: str = "Surface",
         setup=None,
         intrinsics=None,
-        mesh_on_fields: bool=False,
-        view: str="isometric",
+        mesh_on_fields: bool = False,
+        view: str = "isometric",
         plot_label=None,
-        show: bool=True,
+        show: bool = True,
         scale_min=None,
         scale_max=None,
-        plot_cad_objs: bool=True,
-        log_scale: bool=False,
-        export_path: str="",
-        image_format: str="jpg",
-        keep_plot_after_generation: bool=False,
-        dark_mode: bool=False,
-        show_bounding: bool=False,
-        show_grid: bool=False,
-        show_legend: bool=True,
+        plot_cad_objs: bool = True,
+        log_scale: bool = False,
+        export_path: str = "",
+        image_format: str = "jpg",
+        keep_plot_after_generation: bool = False,
+        dark_mode: bool = False,
+        show_bounding: bool = False,
+        show_grid: bool = False,
+        show_legend: bool = True,
         filter_objects=None,
-        plot_as_separate_objects: bool=True,
-        file_format: str="case",
+        plot_as_separate_objects: bool = True,
+        file_format: str = "case",
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -2208,27 +2210,27 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         self,
         quantity,
         assignment,
-        plot_type: str="Surface",
+        plot_type: str = "Surface",
         setup=None,
         intrinsics=None,
-        variation_variable: str="Phi",
+        variation_variable: str = "Phi",
         variations=None,
-        view: str="isometric",
-        show: bool=True,
+        view: str = "isometric",
+        show: bool = True,
         scale_min=None,
         scale_max=None,
-        plot_cad_objs: bool=True,
-        log_scale: bool=True,
+        plot_cad_objs: bool = True,
+        log_scale: bool = True,
         zoom=None,
-        export_gif: bool=False,
-        export_path: str="",
-        force_opacity_value: float=0.1,
-        dark_mode: bool=False,
-        show_grid: bool=False,
-        show_bounding: bool=False,
-        show_legend: bool=True,
+        export_gif: bool = False,
+        export_path: str = "",
+        force_opacity_value: float = 0.1,
+        dark_mode: bool = False,
+        show_grid: bool = False,
+        show_bounding: bool = False,
+        show_legend: bool = True,
         filter_objects=None,
-        file_format: str="case",
+        file_format: str = "case",
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -2369,14 +2371,14 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         self,
         plot_name,
         plot_folder=None,
-        variation_variable: str="Phase",
+        variation_variable: str = "Phase",
         variations=["0deg"],
-        project_path: str="",
-        export_gif: bool=False,
-        show: bool=True,
-        dark_mode: bool=False,
-        show_bounding: bool=False,
-        show_grid: bool=False,
+        project_path: str = "",
+        export_gif: bool = False,
+        show: bool = True,
+        dark_mode: bool = False,
+        show_bounding: bool = False,
+        show_grid: bool = False,
     ):
         """Generate a field plot to an image file (JPG or PNG) using PyVista.
 
@@ -2467,10 +2469,10 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         solution_data,
         nominal_sweep=None,
         nominal_value=None,
-        primary_sweep: str="Theta",
-        secondary_sweep: str="Phi",
+        primary_sweep: str = "Theta",
+        secondary_sweep: str = "Phi",
         snapshot_path=None,
-        show: bool=True,
+        show: bool = True,
     ):
         """Create a 3D plot using Matplotlib.
 
@@ -2510,14 +2512,14 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         self,
         frames,
         gif_path,
-        norm_index: int=0,
-        dy_rng: int=0,
-        fps: int=30,
-        show: bool=True,
-        view: str="yz",
-        zoom: float=2.0,
-        convert_fields_in_db: bool=False,
-        log_multiplier: float=10.0,
+        norm_index: int = 0,
+        dy_rng: int = 0,
+        fps: int = 30,
+        show: bool = True,
+        view: str = "yz",
+        zoom: float = 2.0,
+        convert_fields_in_db: bool = False,
+        log_multiplier: float = 10.0,
     ) -> bool:
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 

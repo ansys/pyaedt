@@ -50,14 +50,14 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         solution_type,
         setup_name=None,
         version=None,
-        non_graphical: bool=False,
-        new_desktop: bool=False,
-        close_on_exit: bool=False,
-        student_version: bool=False,
-        machine: str="",
-        port: int=0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id=None,
-        remove_lock: bool=False,
+        remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(
             self,
@@ -152,7 +152,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_maxwell_design(self, setup_name, variation: str="", maxwell_2d: bool=True):
+    def create_maxwell_design(self, setup_name, variation: str = "", maxwell_2d: bool = True):
         """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
 
         Parameters
@@ -183,7 +183,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def set_material_threshold(self, conductivity: int=100000, permeability: int=100) -> bool:
+    def set_material_threshold(self, conductivity: int = 100000, permeability: int = 100) -> bool:
         """Set material threshold.
 
         Parameters

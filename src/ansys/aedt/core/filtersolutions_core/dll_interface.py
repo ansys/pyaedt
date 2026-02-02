@@ -36,7 +36,7 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
-    def __init__(self, show_gui: bool=False, version=None) -> None:
+    def __init__(self, show_gui: bool = False, version=None) -> None:
         self._init_dll_path(version)
         self._init_dll(show_gui)
 
@@ -99,7 +99,7 @@ class DllInterface:
         self._dll.getVersion.argtypes = [ctypes.c_char_p, ctypes.c_int]
         self._dll.getVersion.restype = ctypes.c_int
 
-    def get_string(self, dll_function: Callable, max_size: int=100) -> str:
+    def get_string(self, dll_function: Callable, max_size: int = 100) -> str:
         """Call a DLL function that returns a string.
 
         Parameters

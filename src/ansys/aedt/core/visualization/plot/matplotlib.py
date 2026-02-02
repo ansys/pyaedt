@@ -370,7 +370,7 @@ class Trace(PyAedtBase):
         self.spherical2car()
 
     @pyaedt_function_handler()
-    def car2polar(self, x, y, is_degree: bool=False):
+    def car2polar(self, x, y, is_degree: bool = False):
         """Convert cartesian data to polar.
 
         Parameters
@@ -793,10 +793,10 @@ class ReportPlotter(PyAedtBase):
         back_color=None,
         background_visibility=None,
         border_width=None,
-        font: str="Arial",
-        font_size: int=12,
-        italic: bool=False,
-        bold: bool=False,
+        font: str = "Arial",
+        font_size: int = 12,
+        italic: bool = False,
+        bold: bool = False,
         color=(0.2, 0.2, 0.2),
     ) -> None:
         """Add a note to the report.
@@ -832,7 +832,7 @@ class ReportPlotter(PyAedtBase):
         self._notes.append(note)
 
     @pyaedt_function_handler()
-    def add_limit_line(self, plot_data, hatch_above: bool=True, properties=None, name: str="") -> bool:
+    def add_limit_line(self, plot_data, hatch_above: bool = True, properties=None, name: str = "") -> bool:
         """Add a new limit_line to the chart.
 
         Parameters
@@ -873,7 +873,7 @@ class ReportPlotter(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_trace(self, plot_data, data_type: int=0, properties=None, name: str="") -> bool:
+    def add_trace(self, plot_data, data_type: int = 0, properties=None, name: str = "") -> bool:
         """Add a new trace to the chart.
 
         Parameters
@@ -931,7 +931,7 @@ class ReportPlotter(PyAedtBase):
         return [i * px for i in self.plt_params["figure.figsize"]]
 
     @size.setter
-    def size(self, val, is_pixel: bool=True) -> None:
+    def size(self, val, is_pixel: bool = True) -> None:
         if is_pixel:
             px = 1 / self.plt_params["figure.dpi"]  # pixel in inches
             self.plt_params["figure.figsize"] = [i * px for i in val]
@@ -1012,7 +1012,15 @@ class ReportPlotter(PyAedtBase):
         return traces_to_plot
 
     @pyaedt_function_handler()
-    def plot_polar(self, traces=None, to_polar: bool=False, snapshot_path=None, show: bool=True, is_degree: bool=True, figure=None):
+    def plot_polar(
+        self,
+        traces=None,
+        to_polar: bool = False,
+        snapshot_path=None,
+        show: bool = True,
+        is_degree: bool = True,
+        figure=None,
+    ):
         """Create a Matplotlib polar plot based on a list of data.
 
         Parameters
@@ -1073,7 +1081,9 @@ class ReportPlotter(PyAedtBase):
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_3d(self, trace: int=0, snapshot_path=None, show: bool=True, color_map_limits=None, is_polar: bool=True):
+    def plot_3d(
+        self, trace: int = 0, snapshot_path=None, show: bool = True, color_map_limits=None, is_polar: bool = True
+    ):
         """Create a Matplotlib 3D plot based on a list of data.
 
         Parameters
@@ -1183,7 +1193,7 @@ class ReportPlotter(PyAedtBase):
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_2d(self, traces=None, snapshot_path=None, show: bool=True, figure=None):
+    def plot_2d(self, traces=None, snapshot_path=None, show: bool = True, figure=None):
         """Create a Matplotlib figure based on a list of data.
 
         Parameters
@@ -1259,7 +1269,7 @@ class ReportPlotter(PyAedtBase):
         return self.fig
 
     @pyaedt_function_handler()
-    def animate_2d(self, traces=None, snapshot_path=None, show: bool=True, figure=None):
+    def animate_2d(self, traces=None, snapshot_path=None, show: bool = True, figure=None):
         """Create an animated Matplotlib figure based on a list of data.
 
         Parameters
@@ -1336,7 +1346,7 @@ class ReportPlotter(PyAedtBase):
                 t.set_bbox(bbox)
 
     @pyaedt_function_handler()
-    def _plot_limit_lines(self, convert_to_radians: bool=False) -> None:
+    def _plot_limit_lines(self, convert_to_radians: bool = False) -> None:
         rate = 1
         if convert_to_radians:
             rate = np.pi / 180
@@ -1377,16 +1387,16 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_contour(
         self,
-        trace: int=0,
-        polar: bool=False,
-        levels: int=64,
-        max_theta: int=360,
-        min_theta: int=0,
+        trace: int = 0,
+        polar: bool = False,
+        levels: int = 64,
+        max_theta: int = 360,
+        min_theta: int = 0,
         color_bar=None,
         snapshot_path=None,
-        show: bool=True,
+        show: bool = True,
         figure=None,
-        is_spherical: bool=True,
+        is_spherical: bool = True,
         normalize=None,
     ):
         """Create a Matplotlib figure contour based on a list of data.
@@ -1478,10 +1488,10 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_pcolor(
         self,
-        trace: int=0,
+        trace: int = 0,
         color_bar=None,
         snapshot_path=None,
-        show: bool=True,
+        show: bool = True,
         figure=None,
     ):
         """Create a Matplotlib figure pseudo color plot with a non-regular rectangular grid based on a list of data.
@@ -1544,16 +1554,16 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def animate_contour(
         self,
-        trace: int=0,
-        polar: bool=False,
-        levels: int=64,
-        max_theta: int=180,
-        min_theta: int=0,
+        trace: int = 0,
+        polar: bool = False,
+        levels: int = 64,
+        max_theta: int = 180,
+        min_theta: int = 0,
         color_bar=None,
         snapshot_path=None,
-        show: bool=True,
+        show: bool = True,
         figure=None,
-        is_spherical: bool=True,
+        is_spherical: bool = True,
         normalize=None,
     ):
         """Create an animated Matplotlib figure contour based on a list of data.
@@ -1664,16 +1674,16 @@ class ReportPlotter(PyAedtBase):
 def plot_matplotlib(
     plot_data,
     size=(1920, 1440),
-    show_legend: bool=True,
-    xlabel: str="",
-    ylabel: str="",
-    title: str="",
+    show_legend: bool = True,
+    xlabel: str = "",
+    ylabel: str = "",
+    title: str = "",
     snapshot_path=None,
     x_limits=None,
     y_limits=None,
-    axis_equal: bool=False,
+    axis_equal: bool = False,
     annotations=None,
-    show: bool=True,
+    show: bool = True,
 ):  # pragma: no cover
     """Create a matplotlib plot based on a list of data.
 

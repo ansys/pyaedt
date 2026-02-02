@@ -292,7 +292,7 @@ class EmitNode:
         except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
-    def _set_property(self, prop, value, skipChecks: bool=False):
+    def _set_property(self, prop, value, skipChecks: bool = False):
         try:
             self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], skipChecks)
         except Exception:

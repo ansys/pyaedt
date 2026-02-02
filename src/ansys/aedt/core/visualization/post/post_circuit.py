@@ -64,9 +64,9 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
     def export_model_picture(
         self,
         output_file=None,
-        page: int=1,
-        width: int=1920,
-        height: int=1080,
+        page: int = 1,
+        width: int = 1920,
+        height: int = 1080,
     ):
         """Export a snapshot of the schematic to a ``JPG`` file.
 
@@ -112,10 +112,10 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         setup,
         ami_name,
         variation_list_w_value,
-        plot_type: str="Rectangular Plot",
-        plot_initial_response: bool=True,
-        plot_intermediate_response: bool=False,
-        plot_final_response: bool=False,
+        plot_type: str = "Rectangular Plot",
+        plot_initial_response: bool = True,
+        plot_intermediate_response: bool = False,
+        plot_final_response: bool = False,
         plot_name=None,
     ):
         """Create an AMI initial response plot.
@@ -222,7 +222,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_ami_statistical_eye_plot(
-        self, setup, ami_name, variation_list_w_value, ami_plot_type: str="InitialEye", plot_name=None
+        self, setup, ami_name, variation_list_w_value, ami_plot_type: str = "InitialEye", plot_name=None
     ):
         """Create an AMI statistical eye plot.
 
@@ -435,11 +435,11 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         self,
         waveform_data,
         waveform_sweep,
-        waveform_unit: str="V",
-        waveform_sweep_unit: str="s",
-        unit_interval: float=1e-9,
+        waveform_unit: str = "V",
+        waveform_sweep_unit: str = "s",
+        unit_interval: float = 1e-9,
         clock_tics=None,
-        pandas_enabled: bool=False,
+        pandas_enabled: bool = False,
     ):
         """Sampling a waveform at clock times plus half unit interval.
 
@@ -521,8 +521,8 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         probe,
         source,
         variation_list_w_value,
-        unit_interval: float=1e-9,
-        ignore_bits: int=0,
+        unit_interval: float = 1e-9,
+        ignore_bits: int = 0,
         plot_type=None,
         clock_tics=None,
     ):

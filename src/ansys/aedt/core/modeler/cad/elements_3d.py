@@ -445,7 +445,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_object(self, non_model: bool=False):
+    def create_object(self, non_model: bool = False):
         """Return a new object from the selected edge.
 
         Returns
@@ -462,7 +462,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         return self._object3d._primitives.create_object_from_edge(self, non_model)
 
     @pyaedt_function_handler()
-    def move_along_normal(self, offset: float=1.0):
+    def move_along_normal(self, offset: float = 1.0):
         """Move this edge.
 
         This method moves an edge which belong to the same solid.
@@ -487,7 +487,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         return self._object3d._primitives.move_edge(self, offset)
 
     @pyaedt_function_handler()
-    def fillet(self, radius: float=0.1, setback: float=0.0) -> bool:
+    def fillet(self, radius: float = 0.1, setback: float = 0.0) -> bool:
         """Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -531,7 +531,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def chamfer(self, left_distance: int=1, right_distance=None, angle: int=45, chamfer_type: int=0) -> bool:
+    def chamfer(self, left_distance: int = 1, right_distance=None, angle: int = 45, chamfer_type: int = 0) -> bool:
         """Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -957,7 +957,7 @@ class FacePrimitive(PyAedtBase):
             return None
 
     @pyaedt_function_handler()
-    def is_on_bounding(self, tolerance: float=1e-9) -> bool:
+    def is_on_bounding(self, tolerance: float = 1e-9) -> bool:
         """Check if the face is on bounding box or Not.
 
         Parameters
@@ -984,7 +984,7 @@ class FacePrimitive(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def move_with_offset(self, offset: float=1.0) -> bool:
+    def move_with_offset(self, offset: float = 1.0) -> bool:
         """Move the face along the normal.
 
         Parameters
@@ -1127,7 +1127,7 @@ class FacePrimitive(PyAedtBase):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self, non_model: bool=False):
+    def create_object(self, non_model: bool = False):
         """Return a new object from the selected face.
 
         Returns
@@ -1567,7 +1567,9 @@ class HistoryProps(dict):
 class BinaryTreeNode:
     """Manages an object's history structure."""
 
-    def __init__(self, node, child_object, first_level: bool=False, get_child_obj_arg=None, root_name=None, app=None) -> None:
+    def __init__(
+        self, node, child_object, first_level: bool = False, get_child_obj_arg=None, root_name=None, app=None
+    ) -> None:
         self._props = None
         self._app = app
         if not root_name:

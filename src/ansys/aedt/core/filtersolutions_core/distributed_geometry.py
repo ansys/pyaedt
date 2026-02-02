@@ -148,7 +148,9 @@ class DistributedGeometry:
         return fixed_width_to_height_ratio_capacitor_sections_string
 
     @fixed_width_to_height_ratio_capacitor_sections.setter
-    def fixed_width_to_height_ratio_capacitor_sections(self, fixed_width_to_height_ratio_capacitor_sections_string) -> None:
+    def fixed_width_to_height_ratio_capacitor_sections(
+        self, fixed_width_to_height_ratio_capacitor_sections_string
+    ) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedCapacitorSections, fixed_width_to_height_ratio_capacitor_sections_string
         )
@@ -192,7 +194,9 @@ class DistributedGeometry:
         return fixed_width_to_height_ratio_inductor_sections_string
 
     @fixed_width_to_height_ratio_inductor_sections.setter
-    def fixed_width_to_height_ratio_inductor_sections(self, fixed_width_to_height_ratio_inductor_sections_string) -> None:
+    def fixed_width_to_height_ratio_inductor_sections(
+        self, fixed_width_to_height_ratio_inductor_sections_string
+    ) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedInductorSections, fixed_width_to_height_ratio_inductor_sections_string
         )

@@ -114,14 +114,14 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         design=None,
         solution_type=None,
         version=None,
-        non_graphical: bool=False,
-        new_desktop: bool=False,
-        close_on_exit: bool=False,
-        student_version: bool=False,
-        machine: str="",
-        port: int=0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id=None,
-        remove_lock: bool=False,
+        remove_lock: bool = False,
     ) -> None:
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(

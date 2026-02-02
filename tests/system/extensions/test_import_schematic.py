@@ -35,7 +35,7 @@ from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicE
 from ansys.aedt.core.extensions.circuit.import_schematic import main
 
 
-def create_temp_file(suffix, content: str="*"):
+def create_temp_file(suffix, content: str = "*"):
     fd, path = tempfile.mkstemp(suffix=suffix)
     with os.fdopen(fd, "w") as f:
         f.write(content)

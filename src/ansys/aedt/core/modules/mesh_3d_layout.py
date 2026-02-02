@@ -240,7 +240,16 @@ class Mesh3d(PyAedtBase):
         return meshops
 
     @pyaedt_function_handler()
-    def assign_length_mesh(self, setup, layer, net, is_inside: bool=True, maximum_length: int=1, maximum_elements: int=1000, name=None):
+    def assign_length_mesh(
+        self,
+        setup,
+        layer,
+        net,
+        is_inside: bool = True,
+        maximum_length: int = 1,
+        maximum_elements: int = 1000,
+        name=None,
+    ):
         """Assign mesh length.
 
         Parameters
@@ -330,10 +339,10 @@ class Mesh3d(PyAedtBase):
         setup,
         layer,
         net,
-        skin_depth: int=1,
+        skin_depth: int = 1,
         maximum_elements=None,
-        triangulation_max_length: float=0.1,
-        layers_number: str="2",
+        triangulation_max_length: float = 0.1,
+        layers_number: str = "2",
         name=None,
     ):
         """Assign skin depth to the mesh.

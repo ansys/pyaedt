@@ -64,7 +64,9 @@ class ScatteringMethods(PyAedtBase):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitations=None, excitation_name_prefix: str="", math_formula: str="", nets=None):
+    def get_all_return_loss_list(
+        self, excitations=None, excitation_name_prefix: str = "", math_formula: str = "", nets=None
+    ):
         """Get a list of all return losses for a list of excitations.
 
         Parameters
@@ -108,7 +110,13 @@ class ScatteringMethods(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_all_insertion_loss_list(
-        self, drivers=None, receivers=None, drivers_prefix_name: str="", receivers_prefix_name: str="", math_formula: str="", nets=None
+        self,
+        drivers=None,
+        receivers=None,
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        math_formula: str = "",
+        nets=None,
     ):
         """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
@@ -183,7 +191,7 @@ class ScatteringMethods(PyAedtBase):
         return spar
 
     @pyaedt_function_handler()
-    def get_next_xtalk_list(self, drivers=None, drivers_prefix_name: str="", math_formula: str="", nets=None):
+    def get_next_xtalk_list(self, drivers=None, drivers_prefix_name: str = "", math_formula: str = "", nets=None):
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
@@ -228,10 +236,10 @@ class ScatteringMethods(PyAedtBase):
         self,
         drivers=None,
         receivers=None,
-        drivers_prefix_name: str="",
-        receivers_prefix_name: str="",
-        skip_same_index_couples: bool=True,
-        math_formula: str="",
+        drivers_prefix_name: str = "",
+        receivers_prefix_name: str = "",
+        skip_same_index_couples: bool = True,
+        math_formula: str = "",
         nets=None,
     ):
         """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
@@ -335,9 +343,9 @@ class ScatteringMethods(PyAedtBase):
         output_file=None,
         variations=None,
         variations_value=None,
-        renormalization: bool=False,
+        renormalization: bool = False,
         impedance=None,
-        gamma_impedance_comments: bool=False,
+        gamma_impedance_comments: bool = False,
     ):
         """Export a Touchstone file.
 

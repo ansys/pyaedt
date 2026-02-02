@@ -26,14 +26,15 @@ import io
 import logging
 import sys
 import tempfile
+from types import TracebackType
+from typing import Optional
+from typing import Type
 import unittest.mock
 
 import pytest
 
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
-from types import TracebackType
-from typing import Optional, Type
 
 settings.enable_desktop_logs = True
 settings.enable_local_log_file = True
@@ -218,7 +219,12 @@ class CaptureStdOut:
     def __enter__(self) -> None:
         sys.stdout = self._stream
 
-    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], exc_traceback: Optional[TracebackType]) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        exc_traceback: Optional[TracebackType],
+    ) -> None:
         sys.stdout = sys.__stdout__
 
     def release(self) -> None:

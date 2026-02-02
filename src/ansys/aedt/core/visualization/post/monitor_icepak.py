@@ -271,7 +271,7 @@ class Monitor(PyAedtBase):
         return out_dict
 
     @pyaedt_function_handler()
-    def assign_point_monitor(self, point_position, monitor_quantity: str="Temperature", monitor_name=None):
+    def assign_point_monitor(self, point_position, monitor_quantity: str = "Temperature", monitor_name=None):
         """Create and assign a point monitor.
 
         Parameters
@@ -351,7 +351,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_point_monitor_to_vertex(self, vertex_id, monitor_quantity: str="Temperature", monitor_name=None):
+    def assign_point_monitor_to_vertex(self, vertex_id, monitor_quantity: str = "Temperature", monitor_name=None):
         """Create and assign a point monitor to a vertex.
 
         Parameters
@@ -397,7 +397,7 @@ class Monitor(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def assign_surface_monitor(self, surface_name, monitor_quantity: str="Temperature", monitor_name=None):
+    def assign_surface_monitor(self, surface_name, monitor_quantity: str = "Temperature", monitor_name=None):
         """Assign a surface monitor.
 
         Parameters
@@ -452,7 +452,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_face_monitor(self, face_id, monitor_quantity: str="Temperature", monitor_name=None):
+    def assign_face_monitor(self, face_id, monitor_quantity: str = "Temperature", monitor_name=None):
         """Assign a face monitor.
 
         Parameters
@@ -498,7 +498,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def assign_point_monitor_in_object(self, name, monitor_quantity: str="Temperature", monitor_name=None):
+    def assign_point_monitor_in_object(self, name, monitor_quantity: str = "Temperature", monitor_name=None):
         """Assign a point monitor in the centroid of a specific object.
 
         Parameters
@@ -627,7 +627,7 @@ class Monitor(PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert_monitor_object_from_dict(self, monitor_dict, mode: int=0):
+    def insert_monitor_object_from_dict(self, monitor_dict, mode: int = 0):
         """Insert a monitor.
 
         Parameters
@@ -776,7 +776,7 @@ class ObjectMonitor(PyAedtBase):
         return self._type
 
     @pyaedt_function_handler()
-    def value(self, quantity=None, setup=None, design_variation_dict=None, si_out: bool=True):
+    def value(self, quantity=None, setup=None, design_variation_dict=None, si_out: bool = True):
         """Get a list of values obtained from the monitor object.
 
         If the simulation is steady state, the list will contain just one element.

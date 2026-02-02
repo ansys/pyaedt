@@ -623,7 +623,7 @@ def download_custom_reports(force_download: bool = False, local_path: Optional[U
 
 
 @pyaedt_function_handler()
-def download_3dcomponent(force_download: bool=False, local_path: Optional[Union[str, Path]] = None) -> str:
+def download_3dcomponent(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -664,7 +664,7 @@ def download_3dcomponent(force_download: bool=False, local_path: Optional[Union[
 
 
 @pyaedt_function_handler()
-def download_fss_3dcomponent(force_download: bool=False, local_path: Optional[Union[str, Path]] = None) -> str:
+def download_fss_3dcomponent(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -745,7 +745,7 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
 
 @pyaedt_function_handler()
 def download_twin_builder_data(
-    file_name: Optional[str] = None, force_download: bool=False, local_path: Optional[Union[str, Path]] = None
+    file_name: Optional[str] = None, force_download: bool = False, local_path: Optional[Union[str, Path]] = None
 ) -> str:
     """Download a Twin Builder example data file.
 

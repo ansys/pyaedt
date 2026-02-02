@@ -303,7 +303,7 @@ class Pin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle: float=0.0, page: int=1):
+    def insert(self, x, y, angle: float = 0.0, page: int = 1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -475,7 +475,7 @@ class DifferentialPin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle: float=0.0, page: int=1):
+    def insert(self, x, y, angle: float = 0.0, page: int = 1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -547,7 +547,7 @@ class Buffer(PyAedtBase):
             ],
         )
 
-    def insert(self, x, y, angle: float=0.0, page: int=1):
+    def insert(self, x, y, angle: float = 0.0, page: int = 1):
         """Insert a buffer at a defined location inside the graphical window.
 
         Parameters
@@ -1429,7 +1429,7 @@ class AMIReader(IbisReader, PyAedtBase):
             self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
 
 
-def is_started_with(src, find, ignore_case: bool=True):
+def is_started_with(src, find, ignore_case: bool = True):
     """Verify if a string content starts with a specific string or not.
 
     This is identical to ``str.startswith``, except that it includes

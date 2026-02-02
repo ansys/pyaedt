@@ -53,11 +53,11 @@ class VRTFieldPlot(PyAedtBase):
     def __init__(
         self,
         postprocessor,
-        is_creeping_wave: bool=False,
-        quantity: str="QuantityName_SBR",
-        max_frequency: str="1GHz",
-        ray_density: int=2,
-        bounces: int=5,
+        is_creeping_wave: bool = False,
+        quantity: str = "QuantityName_SBR",
+        max_frequency: str = "1GHz",
+        ray_density: int = 2,
+        bounces: int = 5,
         intrinsics=None,
     ) -> None:
         self.is_creeping_wave = is_creeping_wave

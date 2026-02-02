@@ -458,7 +458,15 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(
-        self, assignment, origin, axis_position, axis: str="X", name=None, offset=None, rotation: int=0, always_move_to_end: bool=True
+        self,
+        assignment,
+        origin,
+        axis_position,
+        axis: str = "X",
+        name=None,
+        offset=None,
+        rotation: int = 0,
+        always_move_to_end: bool = True,
     ) -> bool:
         """Create a face coordinate system.
 
@@ -820,7 +828,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def change_cs_mode(self, mode_type: int=0) -> bool:
+    def change_cs_mode(self, mode_type: int = 0) -> bool:
         """Change the mode of the coordinate system.
 
         Parameters
@@ -927,15 +935,15 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     def create(
         self,
         origin=None,
-        reference_cs: str="Global",
+        reference_cs: str = "Global",
         name=None,
-        mode: str="axis",
-        view: str="iso",
+        mode: str = "axis",
+        view: str = "iso",
         x_pointing=None,
         y_pointing=None,
-        phi: int=0,
-        theta: int=0,
-        psi: int=0,
+        phi: int = 0,
+        theta: int = 0,
+        psi: int = 0,
         u=None,
     ):
         """Create a coordinate system.
@@ -1123,7 +1131,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         return xp, yp, zp
 
-    def _get_numeric_value(self, value=None, init: bool=False, destroy: bool=False):
+    def _get_numeric_value(self, value=None, init: bool = False, destroy: bool = False):
         """Get numeric value from a variable.
 
         Parameters
@@ -1347,9 +1355,9 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         origin,
         x_axis,
         y_axis,
-        move_to_end: bool=True,
-        reverse_x_axis: bool=False,
-        reverse_y_axis: bool=False,
+        move_to_end: bool = True,
+        reverse_x_axis: bool = False,
+        reverse_y_axis: bool = False,
     ) -> bool:
         """Create an object coordinate system.
 
@@ -1762,7 +1770,7 @@ class Lists(PropsManager, PyAedtBase):
         self,
         assignment,
         name=None,
-        entity_type: str="Object",
+        entity_type: str = "Object",
     ) -> bool:
         """Create a List.
 

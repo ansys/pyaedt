@@ -285,7 +285,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup=None, nets=None, plot_on_surface: bool=True, intrinsics=None, name=None
+        self, layers, quantity, setup=None, nets=None, plot_on_surface: bool = True, intrinsics=None, name=None
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -384,7 +384,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_nets(
-        self, nets, quantity, setup=None, layers=None, plot_on_surface: bool=True, intrinsics=None, name=None
+        self, nets, quantity, setup=None, layers=None, plot_on_surface: bool = True, intrinsics=None, name=None
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot based on a net selections.
@@ -463,7 +463,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface: bool=True, plot_name=None
+        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface: bool = True, plot_name=None
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

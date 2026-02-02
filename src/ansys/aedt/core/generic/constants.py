@@ -44,7 +44,7 @@ MILS2METER = 39370.078740157
 SpeedOfLight = 299792458.0
 
 
-def db20(x, inverse: bool=True):
+def db20(x, inverse: bool = True):
     """Convert db20 to decimal and vice versa."""
     if inverse:
         return 20 * math.log10(x)
@@ -52,7 +52,7 @@ def db20(x, inverse: bool=True):
         return math.pow(10, x / 20.0)
 
 
-def db10(x, inverse: bool=True):
+def db10(x, inverse: bool = True):
     """Convert db10 to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
@@ -60,7 +60,7 @@ def db10(x, inverse: bool=True):
         return math.pow(10, x / 10.0)
 
 
-def dbw(x, inverse: bool=True):
+def dbw(x, inverse: bool = True):
     """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
@@ -68,7 +68,7 @@ def dbw(x, inverse: bool=True):
         return math.pow(10, x / 10.0)
 
 
-def dbm(x, inverse: bool=True):
+def dbm(x, inverse: bool = True):
     """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x) + 30
@@ -76,7 +76,7 @@ def dbm(x, inverse: bool=True):
         return math.pow(10, x / 10.0) / 1000
 
 
-def fah2kel(val, inverse: bool=True):
+def fah2kel(val, inverse: bool = True):
     """Convert a temperature from Fahrenheit to Kelvin.
 
     Parameters
@@ -98,7 +98,7 @@ def fah2kel(val, inverse: bool=True):
         return (val - 32) * 5 / 9 + 273.15
 
 
-def cel2kel(val, inverse: bool=True):
+def cel2kel(val, inverse: bool = True):
     """Convert a temperature from Celsius to Kelvin.
 
     Parameters
@@ -170,7 +170,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 
-def unit_converter(values, unit_system: str="Length", input_units: str="meter", output_units: str="mm"):
+def unit_converter(values, unit_system: str = "Length", input_units: str = "meter", output_units: str = "mm"):
     """Convert unit in specified unit system.
 
     Parameters

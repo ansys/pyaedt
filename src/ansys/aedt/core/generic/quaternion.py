@@ -57,7 +57,7 @@ class Quaternion(PyAedtBase):
 
     """
 
-    def __init__(self, a: int=0, b: int=0, c: int=0, d: int=0) -> None:
+    def __init__(self, a: int = 0, b: int = 0, c: int = 0, d: int = 0) -> None:
         """Initialize the quaternion.
         Quaternions are created using ``Quaternion(a, b, c, d)``, representing the form q = a + bi + cj + dk.
 
@@ -125,7 +125,7 @@ class Quaternion(PyAedtBase):
 
     @classmethod
     @pyaedt_function_handler()
-    def from_euler(cls, angles, sequence, extrinsic: bool=False):
+    def from_euler(cls, angles, sequence, extrinsic: bool = False):
         """Creates a normalized rotation quaternion from the Euler angles using the specified rotation sequence.
 
         Parameters
@@ -186,7 +186,7 @@ class Quaternion(PyAedtBase):
             return qi * qj * qk
 
     @pyaedt_function_handler()
-    def to_euler(self, sequence, extrinsic: bool=False):
+    def to_euler(self, sequence, extrinsic: bool = False):
         """
         Converts the quaternion to Euler angles using the specified rotation sequence.
 

@@ -1802,7 +1802,7 @@ def test_all_generated_emit_node_properties(emit_app) -> None:
                                 mem_results[mem_key] = (Result.EXCEPTION, f"{e}")
         return mem_results
 
-    def test_nodes_from_top_level(nodes, add_untested_children: bool=True, max_node_iterations=None):
+    def test_nodes_from_top_level(nodes, add_untested_children: bool = True, max_node_iterations=None):
         # Test every method on every node, but add node children to list while iterating
         nodes_tested = []
         node_types = []

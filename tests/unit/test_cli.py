@@ -199,7 +199,9 @@ def test_stop_all_command_with_process_no_longer_exists(
 
 @patch("psutil.process_iter")
 @patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
-def test_stop_all_command_with_generic_exception(mock_process_access, mock_process_iter, cli_runner, mock_aedt_process) -> None:
+def test_stop_all_command_with_generic_exception(
+    mock_process_access, mock_process_iter, cli_runner, mock_aedt_process
+) -> None:
     """Test stop all when generic exception occurs during kill."""
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_iter.return_value = [mock_aedt_process]
@@ -250,7 +252,9 @@ def test_stop_command_by_pid_not_stoppable_state(mock_access_process, mock_proce
 
 @patch("psutil.Process")
 @patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
-def test_stop_command_by_pid_generic_exception(mock_process_access, mock_process_class, cli_runner, mock_aedt_process) -> None:
+def test_stop_command_by_pid_generic_exception(
+    mock_process_access, mock_process_class, cli_runner, mock_aedt_process
+) -> None:
     """Test stopping process by PID when generic exception occurs."""
     mock_aedt_process.kill.side_effect = Exception("Dummy exception")
     mock_process_class.return_value = mock_aedt_process
@@ -273,7 +277,9 @@ def test_stop_command_by_pid_invalid_pid(mock_process, cli_runner) -> None:
 @patch("psutil.process_iter")
 @patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
 @patch("ansys.aedt.core.cli.process._can_access_process", return_value=True)
-def test_stop_command_by_port_success(mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process) -> None:
+def test_stop_command_by_port_success(
+    mock_access, mock_get_port, mock_process_iter, cli_runner, mock_aedt_process
+) -> None:
     """Test successfully stopping process by port."""
     mock_process_iter.return_value = [mock_aedt_process]
 
@@ -550,7 +556,9 @@ def test_panels_add_with_skip_version_manager(
     )
 
 
-def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions) -> None:
+def test_panels_add_short_options(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
     """Test panel installation with short option flags."""
     result = cli_runner.invoke(
         app,
@@ -684,7 +692,9 @@ def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner, mock_
     assert "Linux: /home/<username>/Ansoft/PersonalLib" in result.stdout
 
 
-def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions) -> None:
+def test_panels_add_strips_whitespace(
+    cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions
+) -> None:
     """Test that path whitespace is stripped."""
     result = cli_runner.invoke(
         app,
@@ -1605,7 +1615,9 @@ def test_attach_with_pid_success(mock_launch, mock_get_port, mock_find_procs, cl
 @patch("ansys.aedt.core.cli.process._find_aedt_processes")
 @patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
 @patch("ansys.aedt.core.cli.process._launch_console_setup")
-def test_attach_with_pid_short_option(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process) -> None:
+def test_attach_with_pid_short_option(
+    mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+) -> None:
     """Test attach command with -p short option."""
     mock_aedt_process.cmdline.return_value = [
         "C:\\Program Files\\ANSYS Inc\\v252\\AnsysEM\\ansysedt.exe",
@@ -1651,7 +1663,9 @@ def test_attach_with_pid_no_processes_running(mock_find_procs, cli_runner) -> No
 @patch("ansys.aedt.core.cli.process._find_aedt_processes")
 @patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
 @patch("ansys.aedt.core.cli.process._launch_console_setup")
-def test_attach_with_pid_version_extraction(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process) -> None:
+def test_attach_with_pid_version_extraction(
+    mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+) -> None:
     """Test attach command extracts version correctly from command line."""
     mock_aedt_process.cmdline.return_value = [
         "C:\\Program Files\\ANSYS Inc\\v241\\AnsysEM\\ansysedt.exe",
@@ -1668,7 +1682,9 @@ def test_attach_with_pid_version_extraction(mock_launch, mock_get_port, mock_fin
 @patch("ansys.aedt.core.cli.process._find_aedt_processes")
 @patch("ansys.aedt.core.cli.process._get_port", return_value=50051)
 @patch("ansys.aedt.core.cli.process._launch_console_setup")
-def test_attach_with_pid_unknown_version(mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process) -> None:
+def test_attach_with_pid_unknown_version(
+    mock_launch, mock_get_port, mock_find_procs, cli_runner, mock_aedt_process
+) -> None:
     """Test attach command handles unknown version."""
     mock_aedt_process.cmdline.return_value = ["ansysedt.exe"]
     mock_find_procs.return_value = [mock_aedt_process]

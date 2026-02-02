@@ -368,7 +368,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_rotate_about_axis(vector, angle, radians: bool=False, axis: str="z"):
+    def v_rotate_about_axis(vector, angle, radians: bool = False, axis: str = "z"):
         """Evaluate rotation of a vector around an axis.
 
         Parameters
@@ -540,7 +540,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_point_on_plane(pointlists, direction: int=0):
+    def find_point_on_plane(pointlists, direction: int = 0):
         """Find a point on a plane.
 
         Parameters
@@ -601,7 +601,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_between_points(p, a, b, tol: float=1e-6) -> bool:
+    def is_between_points(p, a, b, tol: float = 1e-6) -> bool:
         """Check if a point lies on the segment defined by two points.
 
         Parameters
@@ -634,7 +634,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_parallel(a1, a2, b1, b2, tol: float=1e-6) -> bool:
+    def is_parallel(a1, a2, b1, b2, tol: float = 1e-6) -> bool:
         """Check if a segment defined by two points is parallel to a segment defined by two other points.
 
         Parameters
@@ -691,7 +691,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_collinear(a, b, tol: float=1e-6) -> bool:
+    def is_collinear(a, b, tol: float = 1e-6) -> bool:
         """Check if two vectors are collinear (parallel or anti-parallel).
 
         Parameters
@@ -1114,7 +1114,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def orient_polygon(x, y, clockwise: bool=True):
+    def orient_polygon(x, y, clockwise: bool = True):
         """Orient a polygon clockwise or counterclockwise.
 
         The vertices should be already ordered either way.
@@ -1191,7 +1191,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign(va, vb, vn, right_handed: bool=True):
+    def v_angle_sign(va, vb, vn, right_handed: bool = True):
         """Evaluate the signed angle between two geometry vectors.
 
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
@@ -1236,7 +1236,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign_2D(va, vb, right_handed: bool=True):
+    def v_angle_sign_2D(va, vb, right_handed: bool = True):
         """Evaluate the signed angle between two 2D geometry vectors.
 
         It is the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
@@ -1267,7 +1267,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def point_in_polygon(point, polygon, tolerance: float=1e-8):
+    def point_in_polygon(point, polygon, tolerance: float = 1e-8):
         """Determine if a point is inside, outside the polygon or at exactly at the border.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
@@ -1351,7 +1351,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def are_segments_intersecting(a1, a2, b1, b2, include_collinear: bool=True):
+    def are_segments_intersecting(a1, a2, b1, b2, include_collinear: bool = True):
         """
         Determine if the two segments a and b are intersecting.
 
@@ -1479,7 +1479,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_perpendicular(a, b, tol: float=1e-6) -> bool:
+    def is_perpendicular(a, b, tol: float = 1e-6) -> bool:
         """Check if two vectors are perpendicular.
 
         Parameters
@@ -1558,7 +1558,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_largest_rectangle_inside_polygon(polygon, partition_max_order: int=16):
+    def find_largest_rectangle_inside_polygon(polygon, partition_max_order: int = 16):
         """Find the largest area rectangles of arbitrary orientation in a polygon.
 
         Implements the algorithm described by Rubén Molano, et al.
@@ -1743,7 +1743,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def find_closest_points(points_list, reference_point, tol: float=1e-6):
+    def find_closest_points(points_list, reference_point, tol: float = 1e-6):
         """Given a list of points, finds the closest points to a reference point.
         It returns a list of points because more than one can be found.
         It works with 2D or 3D points. The tolerance used to evaluate the distance

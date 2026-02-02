@@ -109,7 +109,7 @@ def is_float(istring):
         return 0
 
 
-def _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes: bool=True):
+def _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes: bool = True):
     trg_vertex = []
     if num_nodes_per_element == 10 and take_all_nodes:
         for e in elements_nodes:
@@ -358,14 +358,14 @@ class FieldClass(PyAedtBase):
     def __init__(
         self,
         path,
-        log_scale: bool=True,
-        coordinate_units: str="meter",
-        opacity: int=1,
-        color_map: str="jet",
-        label: str="Field",
-        tolerance: float=1e-3,
-        headers: int=2,
-        show_edge: bool=True,
+        log_scale: bool = True,
+        coordinate_units: str = "meter",
+        opacity: int = 1,
+        color_map: str = "jet",
+        label: str = "Field",
+        tolerance: float = 1e-3,
+        headers: int = 2,
+        show_edge: bool = True,
     ) -> None:
         self.path = path
         self.log_scale = log_scale
@@ -539,7 +539,7 @@ class CommonPlotter(PyAedtBase):
         return self._isometric_view
 
     @isometric_view.setter
-    def isometric_view(self, value: bool=True) -> None:
+    def isometric_view(self, value: bool = True) -> None:
         self._isometric_view = value
 
     @property
@@ -624,7 +624,7 @@ class CommonPlotter(PyAedtBase):
         return self._roll_angle
 
     @roll_angle.setter
-    def roll_angle(self, value: int=20) -> None:
+    def roll_angle(self, value: int = 20) -> None:
         self._roll_angle = value
         self.isometric_view = False
 
@@ -644,7 +644,7 @@ class CommonPlotter(PyAedtBase):
         return self._azimuth_angle
 
     @azimuth_angle.setter
-    def azimuth_angle(self, value: int=45) -> None:
+    def azimuth_angle(self, value: int = 45) -> None:
         self._azimuth_angle = value
         self.use_default_iso_view = False
 
@@ -664,7 +664,7 @@ class CommonPlotter(PyAedtBase):
         return self._elevation_angle
 
     @elevation_angle.setter
-    def elevation_angle(self, value: int=45) -> None:
+    def elevation_angle(self, value: int = 45) -> None:
         self._elevation_angle = value
         self.use_default_iso_view = False
 
@@ -684,11 +684,13 @@ class CommonPlotter(PyAedtBase):
         return self._zoom
 
     @zoom.setter
-    def zoom(self, value: int=1) -> None:
+    def zoom(self, value: int = 1) -> None:
         self._zoom = value
 
     @pyaedt_function_handler()
-    def set_orientation(self, camera_position: str="xy", roll_angle: int=0, azimuth_angle: int=45, elevation_angle: int=20) -> bool:
+    def set_orientation(
+        self, camera_position: str = "xy", roll_angle: int = 0, azimuth_angle: int = 45, elevation_angle: int = 20
+    ) -> bool:
         """Change the plot default orientation.
 
         Parameters
@@ -814,7 +816,7 @@ class ModelPlotter(CommonPlotter):
         return self._objects
 
     @pyaedt_function_handler()
-    def add_object(self, cad_path, cad_color: str="dodgerblue", opacity: int=1, units: str="mm") -> bool:
+    def add_object(self, cad_path, cad_color: str = "dodgerblue", opacity: int = 1, units: str = "mm") -> bool:
         """Add a mesh file to the scenario.
 
         The mesh file can be an object or any of the PyVista supported files.
@@ -843,14 +845,14 @@ class ModelPlotter(CommonPlotter):
     def add_field_from_file(
         self,
         field_path,
-        log_scale: bool=True,
-        coordinate_units: str="meter",
-        opacity: int=1,
-        color_map: str="jet",
-        label_name: str="Field",
-        surface_mapping_tolerance: float=1e-3,
-        header_lines: int=2,
-        show_edges: bool=True,
+        log_scale: bool = True,
+        coordinate_units: str = "meter",
+        opacity: int = 1,
+        color_map: str = "jet",
+        label_name: str = "Field",
+        surface_mapping_tolerance: float = 1e-3,
+        header_lines: int = 2,
+        show_edges: bool = True,
     ) -> None:
         """Add a field file to the scenario.
 
@@ -898,13 +900,13 @@ class ModelPlotter(CommonPlotter):
     def add_frames_from_file(
         self,
         field_files,
-        log_scale: bool=True,
-        coordinate_units: str="meter",
-        opacity: int=1,
-        color_map: str="jet",
-        label_name: str="Field",
-        surface_mapping_tolerance: float=1e-3,
-        header_lines: int=2,
+        log_scale: bool = True,
+        coordinate_units: str = "meter",
+        opacity: int = 1,
+        color_map: str = "jet",
+        label_name: str = "Field",
+        surface_mapping_tolerance: float = 1e-3,
+        header_lines: int = 2,
     ) -> None:
         """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
@@ -952,13 +954,13 @@ class ModelPlotter(CommonPlotter):
         self,
         coordinates,
         fields_data,
-        log_scale: bool=True,
-        coordinate_units: str="meter",
-        opacity: int=1,
-        color_map: str="jet",
-        label_name: str="Field",
-        surface_mapping_tolerance: float=1e-3,
-        show_edges: bool=True,
+        log_scale: bool = True,
+        coordinate_units: str = "meter",
+        opacity: int = 1,
+        color_map: str = "jet",
+        label_name: str = "Field",
+        surface_mapping_tolerance: float = 1e-3,
+        show_edges: bool = True,
     ) -> None:
         """Add field data to the scenario.
 
@@ -1124,7 +1126,7 @@ class ModelPlotter(CommonPlotter):
             field._cached_polydata = filedata  # Update field data
 
     @pyaedt_function_handler()
-    def _read_mesh_files(self, read_frames: bool=False) -> None:
+    def _read_mesh_files(self, read_frames: bool = False) -> None:
         for cad in self.objects:
             if not cad._cached_polydata:
                 filedata = pv.read(cad.path)
@@ -1351,7 +1353,7 @@ class ModelPlotter(CommonPlotter):
         self.pv.camera.zoom(self.zoom)
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path=None, show: bool=True) -> bool:
+    def plot(self, export_image_path=None, show: bool = True) -> bool:
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
@@ -1405,7 +1407,9 @@ class ModelPlotter(CommonPlotter):
         return True
 
     @pyaedt_function_handler()
-    def clean_cache_and_files(self, remove_objs: bool=True, remove_fields: bool=True, clean_cache: bool=False) -> bool:
+    def clean_cache_and_files(
+        self, remove_objs: bool = True, remove_fields: bool = True, clean_cache: bool = False
+    ) -> bool:
         """Clean downloaded files, and, on demand, also the cached meshes.
 
         Parameters
@@ -1438,7 +1442,7 @@ class ModelPlotter(CommonPlotter):
         return True
 
     @pyaedt_function_handler()
-    def animate(self, show: bool=True):
+    def animate(self, show: bool = True):
         """Animate the current field plot.
 
         show : bool, optional

@@ -124,8 +124,8 @@ class CSVDataset(PyAedtBase):
         separator=None,
         units_dict=None,
         append_dict=None,
-        valid_solutions: bool=True,
-        invalid_solutions: bool=False,
+        valid_solutions: bool = True,
+        invalid_solutions: bool = False,
     ) -> None:
         self._header = []
         self._data = {}
@@ -822,7 +822,7 @@ class VariableManager(PyAedtBase):
                         self.__dependent_design_variables[variable_name] = value
 
     @pyaedt_function_handler()
-    def _variable_dict(self, object_list, dependent: bool=True, independent: bool=True):
+    def _variable_dict(self, object_list, dependent: bool = True, independent: bool = True):
         """Retrieve the variable dictionary.
 
         Parameters
@@ -902,13 +902,13 @@ class VariableManager(PyAedtBase):
         self,
         name,
         expression=None,
-        read_only: bool=False,
-        hidden: bool=False,
+        read_only: bool = False,
+        hidden: bool = False,
         description=None,
-        sweep: bool=True,
-        overwrite: bool=True,
-        is_post_processing: bool=False,
-        circuit_parameter: bool=True,
+        sweep: bool = True,
+        overwrite: bool = True,
+        is_post_processing: bool = False,
+        circuit_parameter: bool = True,
     ):
         """Set the value of a design property or project variable.
 
@@ -1527,7 +1527,7 @@ class Variable(PyAedtBase):
         return default_container
 
     @pyaedt_function_handler()
-    def _set_prop_val(self, prop, val, n_times: int=10):
+    def _set_prop_val(self, prop, val, n_times: int = 10):
         """Set a property value with retries, handling AEDT containers automatically."""
         if not self._app or self._app.design_type == "Maxwell Circuit":
             return
@@ -1566,7 +1566,7 @@ class Variable(PyAedtBase):
             except Exception as e:
                 raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
 
-    def _get_prop_generic(self, prop, evaluated: bool=False):
+    def _get_prop_generic(self, prop, evaluated: bool = False):
         """Generic property getter. If *evaluated* is True, returns the evaluated value."""
         if not self._aedt_obj:
             return None
@@ -2220,7 +2220,20 @@ class DataSet(PyAedtBase):
         Sort dataset. The default is ``True``.
     """
 
-    def __init__(self, app, name, x, y, z=None, v=None, xunit: str="", yunit: str="", zunit: str="", vunit: str="", sort: bool=True) -> None:
+    def __init__(
+        self,
+        app,
+        name,
+        x,
+        y,
+        z=None,
+        v=None,
+        xunit: str = "",
+        yunit: str = "",
+        zunit: str = "",
+        vunit: str = "",
+        sort: bool = True,
+    ) -> None:
         self._app = app
         self.name = name
         self.x = x

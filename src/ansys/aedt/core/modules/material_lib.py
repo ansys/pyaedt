@@ -589,7 +589,7 @@ class Materials(PyAedtBase):
         return newmat
 
     @pyaedt_function_handler()
-    def remove_material(self, material, library: str="Project") -> bool:
+    def remove_material(self, material, library: str = "Project") -> bool:
         """Remove a material.
 
         Parameters

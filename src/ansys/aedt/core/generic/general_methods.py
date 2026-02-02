@@ -87,7 +87,7 @@ def _get_args_dicts(func, args, kwargs):
     return args_dict
 
 
-def _exception(ex_info, func, args, kwargs, message: str="Type Error") -> None:
+def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None:
     """Write the trace stack to the desktop when a Python error occurs.
 
     Parameters
@@ -332,7 +332,7 @@ def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
 
 
 @pyaedt_function_handler()
-def check_numeric_equivalence(a, b, relative_tolerance: float=1e-7):
+def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
     """Check if two numeric values are equivalent to within a relative tolerance.
 
     Parameters
@@ -708,7 +708,7 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def active_sessions(version=None, student_version: bool=False, non_graphical: bool=False) -> dict:
+def active_sessions(version=None, student_version: bool = False, non_graphical: bool = False) -> dict:
     """Get information for the active AEDT sessions.
 
     Parameters
@@ -793,7 +793,7 @@ def active_sessions(version=None, student_version: bool=False, non_graphical: bo
 
 
 @pyaedt_function_handler()
-def com_active_sessions(version=None, student_version: bool=False, non_graphical: bool=False):
+def com_active_sessions(version=None, student_version: bool = False, non_graphical: bool = False):
     """Get information for the active COM AEDT sessions.
 
     Parameters
@@ -822,7 +822,7 @@ def com_active_sessions(version=None, student_version: bool=False, non_graphical
 
 
 @pyaedt_function_handler()
-def grpc_active_sessions(version=None, student_version: bool=False, non_graphical: bool=False):
+def grpc_active_sessions(version=None, student_version: bool = False, non_graphical: bool = False):
     """Get information for the active gRPC AEDT sessions.
 
     Parameters
@@ -987,7 +987,7 @@ class PropsManager(PyAedtBase):
             self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
 
     @pyaedt_function_handler()
-    def _recursive_search(self, dict_in, key: str="", matching_percentage: float=0.8):
+    def _recursive_search(self, dict_in, key: str = "", matching_percentage: float = 0.8):
         f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
         if f:
             return True, dict_in, f[0]
@@ -1005,7 +1005,7 @@ class PropsManager(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def _recursive_list(self, dict_in, prefix: str=""):
+    def _recursive_list(self, dict_in, prefix: str = ""):
         available_list = []
         for k, v in dict_in.items():
             if prefix:
@@ -1089,7 +1089,9 @@ def _to_boolean(val):
 
 
 @pyaedt_function_handler()
-def install_with_pip(package_name, package_path=None, upgrade: bool=False, uninstall: bool=False):  # pragma: no cover
+def install_with_pip(
+    package_name, package_path=None, upgrade: bool = False, uninstall: bool = False
+):  # pragma: no cover
     """Install a new package using pip.
 
     This method is useful for installing a package from the AEDT Console without launching the Python environment.

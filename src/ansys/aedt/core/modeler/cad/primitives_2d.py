@@ -57,7 +57,15 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_circle(
-        self, origin, radius, num_sides: int=0, is_covered: bool=True, name=None, material=None, non_model: bool=False, **kwargs
+        self,
+        origin,
+        radius,
+        num_sides: int = 0,
+        is_covered: bool = True,
+        name=None,
+        material=None,
+        non_model: bool = False,
+        **kwargs,
     ):
         """Create a circle.
 

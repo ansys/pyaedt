@@ -227,7 +227,7 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None, auto_update: bool=True) -> None:
+    def __init__(self, app, name, props=None, boundarytype=None, auto_update: bool = True) -> None:
         self.auto_update = False
         self._app = app
         self._name = name

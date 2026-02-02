@@ -206,7 +206,7 @@ def test_non_silent_methods_open_browser(monkeypatch) -> None:
             opened_urls.append(url)
             return True
 
-    def fake_get(name: str="default"):
+    def fake_get(name: str = "default"):
         return DummyController()
 
     monkeypatch.setattr(webbrowser, "get", fake_get)

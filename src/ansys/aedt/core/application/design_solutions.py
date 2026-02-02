@@ -255,7 +255,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self.solution_type = self.solution_type
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable: bool=True, opening_type: str="Radiation") -> bool:
+    def set_auto_open(self, enable: bool = True, opening_type: str = "Radiation") -> bool:
         """Set HFSS auto open type.
 
         Parameters
@@ -291,7 +291,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
-    def xy_plane(self, value: bool=True) -> None:
+    def xy_plane(self, value: bool = True) -> None:
         if value:
             self._geometry_mode = "XY"
         else:
@@ -356,7 +356,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         return self._problem_type
 
     @problem_type.setter
-    def problem_type(self, value: str="TemperatureAndFlow"):
+    def problem_type(self, value: str = "TemperatureAndFlow"):
         if value == "TemperatureAndFlow":
             self._problem_type = value
             self._solution_options[self.solution_type]["options"] = self._problem_type

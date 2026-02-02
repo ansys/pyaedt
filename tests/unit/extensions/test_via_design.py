@@ -61,7 +61,7 @@ def toml_file_path(tmp_path):
     return file_path
 
 
-def conditional_open(file=None, mode: str="r", *args, **kwargs):
+def conditional_open(file=None, mode: str = "r", *args, **kwargs):
     """Open mocked TOML files, otherwise call real open."""
     if file is None or str(file).endswith(".toml"):
         return MOCK_CALL_OPEN(file, mode, *args, **kwargs)

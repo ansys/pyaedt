@@ -185,7 +185,7 @@ class AdvancedReport(ReportBase):
 class SpiSim(PyAedtBase):
     """Provides support to SpiSim batch mode."""
 
-    def __init__(self, touchstone_file: str="") -> None:
+    def __init__(self, touchstone_file: str = "") -> None:
         self.touchstone_file = touchstone_file
         if settings.aedt_version:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
@@ -249,7 +249,7 @@ class SpiSim(PyAedtBase):
         return temp
 
     @pyaedt_function_handler()
-    def __compute_spisim(self, parameter, config_file, out_file: str="", in_file: str=""):
+    def __compute_spisim(self, parameter, config_file, out_file: str = "", in_file: str = ""):
         import subprocess  # nosec
 
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
@@ -472,10 +472,10 @@ class SpiSim(PyAedtBase):
         self,
         standard,
         config_file=None,
-        port_order: str="EvenOdd",
-        fext_s4p: str="",
-        next_s4p: str="",
-        out_folder: str="",
+        port_order: str = "EvenOdd",
+        fext_s4p: str = "",
+        next_s4p: str = "",
+        out_folder: str = "",
     ):
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
@@ -568,7 +568,7 @@ class SpiSim(PyAedtBase):
         return self.__get_output_parameter_from_result(out_processing, "COM")
 
     @pyaedt_function_handler
-    def export_com_configure_file(self, file_path, standard: int=1):
+    def export_com_configure_file(self, file_path, standard: int = 1):
         """Generate a configuration file for SpiSim.
 
         Parameters
@@ -594,8 +594,8 @@ class SpiSim(PyAedtBase):
         tx_capacitance: str = "0.2p",
         rx_resistance: Union[int, float, str] = 50,
         rx_capacitance: str = "0.2p",
-        packaging_type: str="standard",
-        data_rate: str="GTS04",
+        packaging_type: str = "standard",
+        data_rate: str = "GTS04",
         report_directory: str = None,
     ) -> bool:
         """Universal Chiplet Interface Express (UCIe) Compliance support.
@@ -715,7 +715,7 @@ class SpiSim(PyAedtBase):
             raise AEDTRuntimeError("SPIsim Failed")
 
 
-def detect_encoding(file_path, expected_pattern: str="", re_flags: int=0):
+def detect_encoding(file_path, expected_pattern: str = "", re_flags: int = 0):
     """Check encoding of a file."""
     for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):
         try:

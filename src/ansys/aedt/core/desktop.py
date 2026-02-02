@@ -46,7 +46,9 @@ import sys
 import tempfile
 import time
 import traceback
-from typing import Type, Optional
+from types import TracebackType
+from typing import Optional
+from typing import Type
 from typing import Union
 import warnings
 
@@ -73,7 +75,6 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from types import TracebackType
 
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
 """Tuple of loopback host names."""
@@ -537,12 +538,12 @@ class Desktop(PyAedtBase):
     def __init__(
         self,
         version=None,
-        non_graphical: bool=False,
-        new_desktop: bool=True,
-        close_on_exit: bool=True,
-        student_version: bool=False,
+        non_graphical: bool = False,
+        new_desktop: bool = True,
+        close_on_exit: bool = True,
+        student_version: bool = False,
         machine=None,
-        port: int=0,
+        port: int = 0,
         aedt_process_id=None,
     ) -> None:
         """Initialize desktop."""
@@ -825,7 +826,12 @@ class Desktop(PyAedtBase):
     def __enter__(self):
         return self
 
-    def __exit__(self, ex_type: Optional[Type[BaseException]], ex_value: Optional[BaseException], ex_traceback: Optional[TracebackType]) -> None:  # pragma no cover
+    def __exit__(
+        self,
+        ex_type: Optional[Type[BaseException]],
+        ex_value: Optional[BaseException],
+        ex_traceback: Optional[TracebackType],
+    ) -> None:  # pragma no cover
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             self.__exception(ex_value, ex_traceback)
@@ -916,7 +922,7 @@ class Desktop(PyAedtBase):
             return self.installed_versions[version_key + "CL"]
 
     @pyaedt_function_handler()
-    def get_example(self, example_name, folder_name: str="."):
+    def get_example(self, example_name, folder_name: str = "."):
         """Retrieve the path to a built-in example project.
 
         Parameters
@@ -1588,7 +1594,7 @@ class Desktop(PyAedtBase):
         message="The ``close_on_exit`` argument will be removed in future versions. "
         "Use ``close_desktop`` method to close the desktop.",
     )
-    def release_desktop(self, close_projects: bool=True, close_on_exit: bool=True):
+    def release_desktop(self, close_projects: bool = True, close_on_exit: bool = True):
         """Release AEDT.
 
         Parameters
@@ -1670,7 +1676,7 @@ class Desktop(PyAedtBase):
         """
         self.odesktop.EnableAutoSave(False)
 
-    def change_license_type(self, license_type: str="Pool") -> bool:  # pragma: no cover
+    def change_license_type(self, license_type: str = "Pool") -> bool:  # pragma: no cover
         """Change the license type.
 
         Parameters
@@ -1759,7 +1765,9 @@ class Desktop(PyAedtBase):
             self.logger.warning("Key value must be an integer or string.")
             return False
 
-    def change_active_dso_config_name(self, product_name: str="HFSS", config_name: str="Local") -> bool:  # pragma: no cover
+    def change_active_dso_config_name(
+        self, product_name: str = "HFSS", config_name: str = "Local"
+    ) -> bool:  # pragma: no cover
         """Change a specific registry key to a new value.
 
         Parameters
@@ -1784,7 +1792,7 @@ class Desktop(PyAedtBase):
             self.logger.warning(f"Error Setting Up Configuration {config_name} for {product_name}.")
             return False
 
-    def change_registry_from_file(self, registry_file, make_active: bool=True) -> bool:  # pragma: no cover
+    def change_registry_from_file(self, registry_file, make_active: bool = True) -> bool:  # pragma: no cover
         """Apply desktop registry settings from an ACF file.
 
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
@@ -1838,9 +1846,9 @@ class Desktop(PyAedtBase):
         project_file,
         clustername,
         aedt_full_exe_path=None,
-        numnodes: int=1,
-        numcores: int=32,
-        wait_for_license: bool=True,
+        numnodes: int = 1,
+        numcores: int = 32,
+        wait_for_license: bool = True,
         setting_file=None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
@@ -1951,9 +1959,9 @@ class Desktop(PyAedtBase):
         project_file,
         config_name,
         region,
-        numnodes: int=1,
-        numcores: int=32,
-        wait_for_license: bool=True,
+        numnodes: int = 1,
+        numcores: int = 32,
+        wait_for_license: bool = True,
         setting_file=None,
         job_name=None,
     ):  # pragma: no cover
@@ -2122,7 +2130,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def select_scheduler(
-        self, scheduler_type, address=None, username=None, force_password_entry: bool=False
+        self, scheduler_type, address=None, username=None, force_password_entry: bool = False
     ):  # pragma: no cover
         """Select a scheduler to submit the job.
 
@@ -2173,7 +2181,7 @@ class Desktop(PyAedtBase):
             return self.odesktop.SelectScheduler(scheduler_type, address, username, str(force_password_entry))
 
     @pyaedt_function_handler()
-    def get_available_cloud_config(self, region: str="westeurope"):  # pragma: no cover
+    def get_available_cloud_config(self, region: str = "westeurope"):  # pragma: no cover
         """Get available Ansys Cloud machines configuration.
 
         .. warning::
@@ -2241,7 +2249,7 @@ class Desktop(PyAedtBase):
         return dict_out
 
     @pyaedt_function_handler()
-    def download_job_results(self, job_id, project_path, results_folder, filter: str="*"):  # pragma: no cover
+    def download_job_results(self, job_id, project_path, results_folder, filter: str = "*"):  # pragma: no cover
         """Download job results to a specific folder from Ansys Cloud.
 
         Parameters
@@ -2296,7 +2304,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
-    def stop_simulations(self, clean_stop: bool=True):
+    def stop_simulations(self, clean_stop: bool = True):
         """Check if there are simulation running and stops them.
 
         Returns

@@ -345,7 +345,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @graphics_required
-    def plot_insertion_losses(self, threshold=-3, plot: bool=True):
+    def plot_insertion_losses(self, threshold=-3, plot: bool = True):
         """Plot all insertion losses.
 
         The first frequency point is used to determine whether two ports are shorted.
@@ -372,7 +372,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @graphics_required
-    def plot(self, index_couples=None, show: bool=True) -> bool:
+    def plot(self, index_couples=None, show: bool = True) -> bool:
         """Plot a list of curves.
 
         Parameters
@@ -412,7 +412,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         plt.show()
         return True
 
-    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering: str="1234"):
+    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering: str = "1234"):
         """Transform network from single ended parameters to generalized mixed mode parameters.
 
         Parameters
@@ -461,7 +461,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return ts_diff
 
     @pyaedt_function_handler()
-    def get_return_loss_index(self, excitation_name_prefix: str=""):
+    def get_return_loss_index(self, excitation_name_prefix: str = ""):
         """Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
@@ -517,7 +517,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_next_xtalk_index(self, tx_prefix: str=""):
+    def get_next_xtalk_index(self, tx_prefix: str = ""):
         """Get the list of all the Near End XTalk a list of excitation.
 
         Optionally prefix can be used to retrieve driver names.
@@ -546,7 +546,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples: bool=True):
+    def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples: bool = True):
         """Get the list of all the Far End XTalk from a list of excitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
@@ -576,7 +576,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @graphics_required
-    def plot_next_xtalk_losses(self, tx_prefix: str="") -> bool:
+    def plot_next_xtalk_losses(self, tx_prefix: str = "") -> bool:
         """Plot all next crosstalk curves.
 
         Parameters
@@ -598,7 +598,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return True
 
     @graphics_required
-    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples: bool=True) -> bool:
+    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples: bool = True) -> bool:
         """Plot all fext crosstalk curves.
 
         Parameters
@@ -626,7 +626,9 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher: bool=True, curve_list=None, plot: bool=True):
+    def get_worst_curve(
+        self, freq_min=None, freq_max=None, worst_is_higher: bool = True, curve_list=None, plot: bool = True
+    ):
         """Analyze a solution data object with multiple curves and find the worst curve.
 
         Take the mean of the magnitude over the frequency range.
@@ -702,7 +704,7 @@ def read_touchstone(input_file):
 
 
 @pyaedt_function_handler()
-def check_touchstone_files(input_dir: str="", passivity: bool=True, causality: bool=True):
+def check_touchstone_files(input_dir: str = "", passivity: bool = True, causality: bool = True):
     """Check passivity and causality for all Touchstone files included in the folder.
 
     .. warning::

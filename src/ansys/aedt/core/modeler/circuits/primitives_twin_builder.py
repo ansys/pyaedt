@@ -110,7 +110,9 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return self.o_definition_manager.GetManager("SimModel")
 
     @pyaedt_function_handler()
-    def create_resistor(self, name=None, value: int=50, location=None, angle: int=0, use_instance_id_netlist: bool=False):
+    def create_resistor(
+        self, name=None, value: int = 50, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+    ):
         """Create a resistor.
 
         Parameters
@@ -152,7 +154,9 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_inductor(self, name=None, value: int=50, location=None, angle: int=0, use_instance_id_netlist: bool=False):
+    def create_inductor(
+        self, name=None, value: int = 50, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+    ):
         """Create an inductor.
 
         Parameters
@@ -193,7 +197,9 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_capacitor(self, name=None, value: int=50, location=None, angle: int=0, use_instance_id_netlist: bool=False):
+    def create_capacitor(
+        self, name=None, value: int = 50, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+    ):
         """Create a capacitor.
 
         Parameters
@@ -236,7 +242,14 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_voltage_source(
-        self, name=None, type: str="E", amplitude: int=326, freq: int=50, location=None, angle: int=0, use_instance_id_netlist: bool=False
+        self,
+        name=None,
+        type: str = "E",
+        amplitude: int = 326,
+        freq: int = 50,
+        location=None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
     ):
         """Create a voltage source (conservative electrical output).
 
@@ -291,7 +304,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_diode(self, name=None, location=None, angle: int=0, use_instance_id_netlist: bool=False):
+    def create_diode(self, name=None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
         """Create a diode.
 
         Parameters
@@ -328,7 +341,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_npn(self, name=None, location=None, angle: int=0, use_instance_id_netlist: bool=False):
+    def create_npn(self, name=None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
         """Create an NPN transistor.
 
         Parameters
@@ -365,7 +378,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_pnp(self, name=None, location=None, angle: int=0, use_instance_id_netlist: bool=False):
+    def create_pnp(self, name=None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
         """Create a PNP transistor.
 
         Parameters
@@ -406,15 +419,15 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     def create_periodic_waveform_source(
         self,
         name=None,
-        type: str="SINE",
-        amplitude: int=100,
-        freq: int=50,
-        phase: int=0,
-        offset: int=0,
-        delay: int=0,
+        type: str = "SINE",
+        amplitude: int = 100,
+        freq: int = 50,
+        phase: int = 0,
+        offset: int = 0,
+        delay: int = 0,
         location=None,
-        angle: int=0,
-        use_instance_id_netlist: bool=False,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
     ):
         """
         Create a periodic waveform source (non conservative real output).
@@ -523,7 +536,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update_quantity_value(self, component_name, name, value, netlist_units: str="") -> bool:
+    def update_quantity_value(self, component_name, name, value, netlist_units: str = "") -> bool:
         """Change the quantity value of a component.
 
         Parameters

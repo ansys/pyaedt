@@ -175,13 +175,13 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         goal_weight,
         goal_value,
         setup_sweep_name=None,
-        domain: str="Sweep",
+        domain: str = "Sweep",
         intrinsics=None,
         report_category=None,
         context=None,
         subdesign_id=None,
-        polyline_points: int=0,
-        is_goal: bool=False,
+        polyline_points: int = 0,
+        is_goal: bool = False,
     ):
         did = 3
         if domain != "Sweep":
@@ -349,7 +349,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         solution=None,
         context=None,
         subdesign_id=None,
-        polyline_points: int=1001,
+        polyline_points: int = 1001,
         report_type=None,
     ):
         """Add a calculation to the setup.
@@ -405,12 +405,12 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         solution=None,
         context=None,
         subdesign_id=None,
-        polyline_points: int=1001,
+        polyline_points: int = 1001,
         report_type=None,
-        is_goal: bool=False,
-        condition: str="<=",
-        goal_value: int=1,
-        goal_weight: int=1,
+        is_goal: bool = False,
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
     ):
         self.auto_update = False
         if not solution:
@@ -563,7 +563,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 class SetupOpti(CommonOptimetrics, PyAedtBase):
     """Sets up an optimization in Opimetrics."""
 
-    def __init__(self, app, name, dictinputs=None, optim_type: str="OptiDesignExplorer") -> None:
+    def __init__(self, app, name, dictinputs=None, optim_type: str = "OptiDesignExplorer") -> None:
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
 
     @pyaedt_function_handler()
@@ -593,11 +593,11 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         solution=None,
         context=None,
         subdesign_id=None,
-        polyline_points: int=1001,
+        polyline_points: int = 1001,
         report_type=None,
-        condition: str="<=",
-        goal_value: int=1,
-        goal_weight: int=1,
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
     ):
         """Add a goal to the setup.
 
@@ -662,7 +662,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         starting_point=None,
         min_step=None,
         max_step=None,
-        use_manufacturable: bool=False,
+        use_manufacturable: bool = False,
         levels=None,
     ) -> bool:
         """Add a new variable as input for the optimization and defines its ranges.
@@ -787,7 +787,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 class SetupParam(CommonOptimetrics, PyAedtBase):
     """Sets up a parametric analysis in Optimetrics."""
 
-    def __init__(self, p_app, name, dictinputs=None, optim_type: str="OptiParametric") -> None:
+    def __init__(self, p_app, name, dictinputs=None, optim_type: str = "OptiParametric") -> None:
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
         pass
 
@@ -806,7 +806,13 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_variation(
-        self, sweep_variable, start_point, end_point=None, step: int=100, units=None, variation_type: str="LinearCount"
+        self,
+        sweep_variable,
+        start_point,
+        end_point=None,
+        step: int = 100,
+        units=None,
+        variation_type: str = "LinearCount",
     ):
         """Add a variation to an existing parametric setup.
 
@@ -884,7 +890,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def sync_variables(self, variables, sync_n: int=1) -> bool:
+    def sync_variables(self, variables, sync_n: int = 1) -> bool:
         """Sync variable variations in an existing parametric setup.
         Setting the sync number to `0` will effectively unsync the variables.
 
@@ -1009,8 +1015,8 @@ class ParametricSetups(PyAedtBase):
         variable,
         start_point,
         end_point=None,
-        step: int=100,
-        variation_type: str="LinearCount",
+        step: int = 100,
+        variation_type: str = "LinearCount",
         solution=None,
         name=None,
     ):
@@ -1231,15 +1237,15 @@ class OptimizationSetups(PyAedtBase):
         calculation=None,
         ranges=None,
         variables=None,
-        optimization_type: str="Optimization",
-        condition: str="<=",
-        goal_value: int=1,
-        goal_weight: int=1,
+        optimization_type: str = "Optimization",
+        condition: str = "<=",
+        goal_value: int = 1,
+        goal_weight: int = 1,
         solution=None,
         name=None,
         context=None,
         subdesign_id=None,
-        polyline_points: int=1001,
+        polyline_points: int = 1001,
         report_type=None,
     ):
         """Add a basic optimization analysis.

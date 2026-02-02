@@ -91,7 +91,7 @@ def is_student():
     return res
 
 
-def get_latest_version(package_name, timeout: int=3):
+def get_latest_version(package_name, timeout: int = 3):
     """Return latest version string from PyPI or 'Unknown' on failure."""
     UNKNOWN_VERSION = "Unknown"
     try:
@@ -725,7 +725,7 @@ class ExtensionProjectCommon(ExtensionCommon):
         pass
 
 
-def create_default_ui(title, withdraw: bool=False):
+def create_default_ui(title, withdraw: bool = False):
     import tkinter
     from tkinter import ttk
 
@@ -775,7 +775,7 @@ def create_default_ui(title, withdraw: bool=False):
     return root, theme, style
 
 
-def get_arguments(args=None, description: str=""):  # pragma: no cover
+def get_arguments(args=None, description: str = ""):  # pragma: no cover
     """Get extension arguments."""
     output_args = {"is_batch": False, "is_test": False}
 
@@ -1099,7 +1099,7 @@ def __string_to_bool(v):  # pragma: no cover
     return v
 
 
-def __parse_arguments(args=None, description: str=""):  # pragma: no cover
+def __parse_arguments(args=None, description: str = ""):  # pragma: no cover
     """Parse arguments."""
     parser = argparse.ArgumentParser(description=description)
     if args:
@@ -1112,7 +1112,7 @@ def __parse_arguments(args=None, description: str=""):  # pragma: no cover
 class ToolTip:
     """Create a tooltip for a given widget."""
 
-    def __init__(self, widget, text: str="Widget info") -> None:
+    def __init__(self, widget, text: str = "Widget info") -> None:
         self.widget = widget
         self.text = text
         self.widget.bind("<Enter>", self.enter)

@@ -40,7 +40,7 @@ json_to_dict = read_json
 
 
 @pyaedt_function_handler()
-def _dict_items_to_list_items(d, k, idx: str="name") -> None:
+def _dict_items_to_list_items(d, k, idx: str = "name") -> None:
     if d.get(k, []):
         if isinstance(d[k], dict) and idx in d[k].keys():
             d[k] = [d[k]]
@@ -254,7 +254,7 @@ def format_decimals(el):
 
 
 @pyaedt_function_handler()
-def random_string(length: int=6, only_digits: bool=False, char_set=None):
+def random_string(length: int = 6, only_digits: bool = False, char_set=None):
     """Generate a random string.
 
     Parameters
@@ -283,7 +283,7 @@ def random_string(length: int=6, only_digits: bool=False, char_set=None):
 
 
 @pyaedt_function_handler()
-def unique_string_list(element_list, only_string: bool=True):
+def unique_string_list(element_list, only_string: bool = True):
     """Return a unique list of strings from an element list.
 
     Parameters
@@ -350,7 +350,7 @@ def ensure_list(element_list):
 
 
 @pyaedt_function_handler()
-def variation_string_to_dict(variation_string, separator: str="="):
+def variation_string_to_dict(variation_string, separator: str = "="):
     """Helper function to convert a list of "="-separated strings into a dictionary
 
     Returns
@@ -589,7 +589,7 @@ with Desktop() as d:
 
 
 @pyaedt_function_handler()
-def float_units(val_str, units: str=""):
+def float_units(val_str, units: str = ""):
     """Retrieve units for a value.
 
     Parameters

@@ -258,7 +258,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
-    def __init__(self, app, name=None, props=None, create: bool=False) -> None:
+    def __init__(self, app, name=None, props=None, create: bool = False) -> None:
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
@@ -684,7 +684,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def _add_to_props(self, new_node, type_dict: str="Nodes") -> None:
+    def _add_to_props(self, new_node, type_dict: str = "Nodes") -> None:
         try:
             self.props[type_dict].update({new_node.name: new_node.props})
         except KeyError:
@@ -692,7 +692,13 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_face_node(
-        self, assignment, name=None, thermal_resistance: str="NoResistance", material=None, thickness=None, resistance=None
+        self,
+        assignment,
+        name=None,
+        thermal_resistance: str = "NoResistance",
+        material=None,
+        thickness=None,
+        resistance=None,
     ):
         """
         Create a face node in the network.

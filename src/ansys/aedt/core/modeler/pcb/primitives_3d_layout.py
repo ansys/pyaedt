@@ -219,7 +219,7 @@ class Primitives3DLayout(PyAedtBase):
         return geom
 
     @pyaedt_function_handler()
-    def objects_by_layer(self, layer, object_filter=None, include_voids: bool=False):
+    def objects_by_layer(self, layer, object_filter=None, include_voids: bool = False):
         """Retrieve the list of objects that belongs to a specific layer.
 
         Parameters
@@ -256,7 +256,7 @@ class Primitives3DLayout(PyAedtBase):
         return objs
 
     @pyaedt_function_handler()
-    def objects_by_net(self, net, object_filter=None, include_voids: bool=False):
+    def objects_by_net(self, net, object_filter=None, include_voids: bool = False):
         """Retrieve the list of objects that belongs to a specific net.
 
         Parameters
@@ -579,7 +579,7 @@ class Primitives3DLayout(PyAedtBase):
         return self._components3d
 
     @pyaedt_function_handler()
-    def _cleanup_vias(self, pins: bool=True):
+    def _cleanup_vias(self, pins: bool = True):
         if pins:
             vias = set(self._get_names(["pin"]))
         else:
@@ -752,7 +752,7 @@ class Primitives3DLayout(PyAedtBase):
         return Padstack()
 
     @pyaedt_function_handler()
-    def new_padstack(self, name: str="Padstack"):
+    def new_padstack(self, name: str = "Padstack"):
         """Create a `Padstack` object that can be used to create a padstack.
 
         Parameters
@@ -852,7 +852,7 @@ class Primitives3DLayout(PyAedtBase):
         return self._padstacks
 
     @pyaedt_function_handler()
-    def change_net_visibility(self, assignment=None, visible: bool=False) -> bool:
+    def change_net_visibility(self, assignment=None, visible: bool = False) -> bool:
         """Change the visibility of one or more nets.
 
         Parameters
@@ -916,10 +916,10 @@ class Primitives3DLayout(PyAedtBase):
     @pyaedt_function_handler()
     def create_via(
         self,
-        padstack: str="PlanarEMVia",
-        x: int=0,
-        y: int=0,
-        rotation: int=0,
+        padstack: str = "PlanarEMVia",
+        x: int = 0,
+        y: int = 0,
+        rotation: int = 0,
         hole_diam=None,
         top_layer=None,
         bot_layer=None,
@@ -1068,7 +1068,9 @@ class Primitives3DLayout(PyAedtBase):
         return primitive
 
     @pyaedt_function_handler()
-    def create_rectangle(self, layer, origin, sizes, corner_radius: int=0, angle: int=0, name=None, net=None, **kwargs):
+    def create_rectangle(
+        self, layer, origin, sizes, corner_radius: int = 0, angle: int = 0, name=None, net=None, **kwargs
+    ):
         """Create a rectangle on a layer.
 
         Parameters
@@ -1244,7 +1246,15 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_line(
-        self, layer, center_line_coordinates, lw: int=1, start_style: int=0, end_style: int=0, name=None, net=None, **kwargs
+        self,
+        layer,
+        center_line_coordinates,
+        lw: int = 1,
+        start_style: int = 0,
+        end_style: int = 0,
+        name=None,
+        net=None,
+        **kwargs,
     ):
         # type: (str, list, float|str, int, int, str, str, any) -> Line3dLayout
         """Create a line based on a list of points.
@@ -1471,8 +1481,8 @@ class Primitives3DLayout(PyAedtBase):
         self,
         pins,
         definition_name=None,
-        component_type: str="Other",
-        ref_des: str="U100",
+        component_type: str = "Other",
+        ref_des: str = "U100",
     ):
         """Create a component based on a pin list.
 
@@ -1521,7 +1531,7 @@ class Primitives3DLayout(PyAedtBase):
         return comp
 
     @pyaedt_function_handler()
-    def create_text(self, text, position, layer: str="PostProcessing", angle: int=0, font_size: int=12):
+    def create_text(self, text, position, layer: str = "PostProcessing", angle: int = 0, font_size: int = 12):
         """Create a text primitive object.
 
         Parameters

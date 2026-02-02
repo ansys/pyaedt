@@ -528,7 +528,7 @@ class Revision:
         return band_names
 
     @pyaedt_function_handler()
-    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units: str=""):
+    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units: str = ""):
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 

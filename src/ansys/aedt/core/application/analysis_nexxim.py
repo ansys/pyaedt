@@ -61,14 +61,14 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         solution_type,
         setup_name=None,
         version=None,
-        non_graphical: bool=False,
-        new_desktop: bool=False,
-        close_on_exit: bool=False,
-        student_version: bool=False,
-        machine: str="",
-        port: int=0,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
         aedt_process_id=None,
-        remove_lock: bool=False,
+        remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(
             self,
@@ -354,7 +354,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters

@@ -294,7 +294,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Type of the boundary.
     """
 
-    def __init__(self, app, name, props=None, boundarytype: str="Port") -> None:
+    def __init__(self, app, name, props=None, boundarytype: str = "Port") -> None:
         self.auto_update = False
         self._app = app
         self._name = name
@@ -489,10 +489,10 @@ class NativeComponentPCB(NativeComponentObject):
     def set_high_side_radiation(
         self,
         enabled,
-        surface_material: str="Steel-oxidised-surface",
-        radiate_to_ref_temperature: bool=False,
-        view_factor: int=1,
-        ref_temperature: str="AmbientTemp",
+        surface_material: str = "Steel-oxidised-surface",
+        radiate_to_ref_temperature: bool = False,
+        view_factor: int = 1,
+        ref_temperature: str = "AmbientTemp",
     ) -> bool:
         """Set high side radiation properties.
 
@@ -635,10 +635,10 @@ class NativeComponentPCB(NativeComponentObject):
     def set_low_side_radiation(
         self,
         enabled,
-        surface_material: str="Steel-oxidised-surface",
-        radiate_to_ref_temperature: bool=False,
-        view_factor: int=1,
-        ref_temperature: str="AmbientTemp",
+        surface_material: str = "Steel-oxidised-surface",
+        radiate_to_ref_temperature: bool = False,
+        view_factor: int = 1,
+        ref_temperature: str = "AmbientTemp",
     ) -> bool:
         """Set low side radiation properties.
 
@@ -927,9 +927,9 @@ class PCBSettingsPackageParts(PyAedtBase):
     def set_connectors_modeling(
         self,
         modeling=None,
-        solderbumps_modeling: str="Boxes",
-        bondwire_material: str="Au-Typical",
-        bondwire_diameter: str="0.05mm",
+        solderbumps_modeling: str = "Boxes",
+        bondwire_material: str = "Au-Typical",
+        bondwire_diameter: str = "0.05mm",
     ) -> bool:
         """Set how to model connectors.
 
@@ -1345,7 +1345,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
         package=None,
         part=None,
         reference_designator=None,
-        filter_component: bool=False,
+        filter_component: bool = False,
         power=None,
         r_jb=None,
         r_jc=None,
@@ -1391,7 +1391,9 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @pyaedt_function_handler()
     @disable_auto_update
-    def override_definition(self, package, part, filter_component: bool=False, power=None, r_jb=None, r_jc=None, height=None):
+    def override_definition(
+        self, package, part, filter_component: bool = False, power=None, r_jb=None, r_jc=None, height=None
+    ):
         """Set component override.
 
         Parameters
@@ -1440,7 +1442,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @pyaedt_function_handler()
     @disable_auto_update
     def override_instance(
-        self, reference_designator, filter_component: bool=False, power=None, r_jb=None, r_jc=None, height=None
+        self, reference_designator, filter_component: bool = False, power=None, r_jb=None, r_jc=None, height=None
     ):
         """Set instance override.
 

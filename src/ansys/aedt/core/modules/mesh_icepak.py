@@ -307,7 +307,7 @@ class CommonRegion(PyAedtBase):
             if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
                 self._name = value
 
-    def _set_region_data(self, value, direction=None, padding_type: bool=True) -> None:
+    def _set_region_data(self, value, direction=None, padding_type: bool = True) -> None:
         self._update_region_data()
         region = self.object
         create_region = region.history()
@@ -330,7 +330,7 @@ class CommonRegion(PyAedtBase):
             self._padding_value.append(create_region.properties[f"{padding_direction} Padding Data"])
             self._coordinate_system = create_region.properties["Coordinate System"]
 
-    def _get_region_data(self, direction=None, padding_type: bool=True):
+    def _get_region_data(self, direction=None, padding_type: bool = True):
         self._update_region_data()
         idx = self._dir_order.index(direction)
         if padding_type:
@@ -1308,7 +1308,7 @@ class IcepakMesh(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_mesh_region(self, assignment=None, level: int=5, name=None, **kwargs):
+    def assign_mesh_region(self, assignment=None, level: int = 5, name=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -1379,8 +1379,8 @@ class IcepakMesh(PyAedtBase):
         self,
         mesh_level,
         group_name,
-        enable_local_mesh_parameters: bool=False,
-        local_mesh_parameters: str="No local mesh parameters",
+        enable_local_mesh_parameters: bool = False,
+        local_mesh_parameters: str = "No local mesh parameters",
         name=None,
     ):
         """Assign a mesh level to a group.

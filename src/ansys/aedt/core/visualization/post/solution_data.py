@@ -111,7 +111,7 @@ class SolutionData(PyAedtBase):
             self.init_solutions_data()
 
     @pyaedt_function_handler()
-    def set_active_variation(self, var_id: int=0) -> bool:
+    def set_active_variation(self, var_id: int = 0) -> bool:
         """Set the active variations to one of available variations in self.variations.
 
         Parameters
@@ -507,7 +507,12 @@ class SolutionData(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_expression_data(
-        self, expression=None, formula: str="real", convert_to_SI: bool=False, use_quantity: bool=False, sweeps=None
+        self,
+        expression=None,
+        formula: str = "real",
+        convert_to_SI: bool = False,
+        use_quantity: bool = False,
+        sweeps=None,
     ):
         """Retrieve the real part of the data for an expression.
 
@@ -610,7 +615,7 @@ class SolutionData(PyAedtBase):
         return x_axis, sol
 
     @pyaedt_function_handler()
-    def data_real(self, expression=None, convert_to_SI: bool=False):
+    def data_real(self, expression=None, convert_to_SI: bool = False):
         """Retrieve the real part of the data for an expression.
 
         .. deprecated:: 0.20.0
@@ -653,7 +658,7 @@ class SolutionData(PyAedtBase):
         return np.any(self._solutions_imag[expression][:, -1] != 0)
 
     @pyaedt_function_handler()
-    def export_data_to_csv(self, output, delimiter: str=";"):
+    def export_data_to_csv(self, output, delimiter: str = ";"):
         """Save to output csv file the Solution Data.
 
         Parameters
@@ -712,7 +717,7 @@ class SolutionData(PyAedtBase):
         return self.get_expression_data(curve, formula=formula)[1]
 
     @pyaedt_function_handler()
-    def get_report_plotter(self, curves=None, formula=None, to_radians: bool=False, props=None):
+    def get_report_plotter(self, curves=None, formula=None, to_radians: bool = False, props=None):
         """Get the `ReportPlotter` on the specified curves.
 
         Parameters
@@ -759,13 +764,13 @@ class SolutionData(PyAedtBase):
         curves=None,
         formula=None,
         size=(1920, 1440),
-        show_legend: bool=True,
-        x_label: str="",
-        y_label: str="",
-        title: str="",
+        show_legend: bool = True,
+        x_label: str = "",
+        y_label: str = "",
+        title: str = "",
         snapshot_path=None,
-        is_polar: bool=False,
-        show: bool=True,
+        is_polar: bool = False,
+        show: bool = True,
     ):
         """Create a matplotlib figure based on a list of data.
 
@@ -831,15 +836,15 @@ class SolutionData(PyAedtBase):
     def plot_3d(
         self,
         curve=None,
-        primary_sweep: str="Theta",
-        secondary_sweep: str="Phi",
-        x_label: str="",
-        y_label: str="",
-        title: str="",
+        primary_sweep: str = "Theta",
+        secondary_sweep: str = "Phi",
+        x_label: str = "",
+        y_label: str = "",
+        title: str = "",
         formula=None,
         size=(1920, 1440),
         snapshot_path=None,
-        show: bool=True,
+        show: bool = True,
     ):
         """Create a matplotlib 3D figure based on a list of data.
 
@@ -939,7 +944,7 @@ class SolutionData(PyAedtBase):
         return new
 
     @pyaedt_function_handler()
-    def ifft(self, curve_header: str="NearE", u_axis: str="_u", v_axis: str="_v", window: bool=False):
+    def ifft(self, curve_header: str = "NearE", u_axis: str = "_u", v_axis: str = "_v", window: bool = False):
         """Create IFFT of given complex data.
 
         Parameters
@@ -1003,13 +1008,13 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def ifft_to_file(
         self,
-        u_axis: str="_u",
-        v_axis: str="_v",
+        u_axis: str = "_u",
+        v_axis: str = "_v",
         coord_system_center=None,
-        db_val: bool=False,
+        db_val: bool = False,
         num_frames=None,
         csv_path=None,
-        csv_file_header: str="res_",
+        csv_file_header: str = "res_",
     ):
         """Save IFFT matrix to a list of CSV files (one per time step).
 

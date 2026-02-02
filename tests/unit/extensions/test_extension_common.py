@@ -286,7 +286,9 @@ def test_check_for_pyaedt_update_declined_version_same(mock_read_text, mock_is_f
 @patch("pathlib.Path.write_text")
 @patch("pathlib.Path.read_text")
 @patch("pathlib.Path.is_file")
-def test_check_for_pyaedt_update_prompt_user(mock_is_file, mock_read_text, mock_write_text, mock_get_latest_version) -> None:
+def test_check_for_pyaedt_update_prompt_user(
+    mock_is_file, mock_read_text, mock_write_text, mock_get_latest_version
+) -> None:
     """Test the logic for prompting the user to update."""
     mock_get_latest_version.return_value = "1.0.0"
     mock_is_file.return_value = True

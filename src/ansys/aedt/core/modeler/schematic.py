@@ -120,7 +120,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_schematic_components(
-        self, starting_component, ending_component, pin_starting: int=2, pin_ending: int=1, use_wire: bool=True
+        self, starting_component, ending_component, pin_starting: int = 2, pin_ending: int = 1, use_wire: bool = True
     ) -> bool:
         """Connect schematic components.
 
@@ -174,20 +174,20 @@ class ModelerCircuit(Modeler, PyAedtBase):
     def create_text(
         self,
         text,
-        x_origin: int=0,
-        y_origin: int=0,
-        text_size: int=12,
-        text_angle: int=0,
-        text_color: int=0,
-        show_rect: bool=False,
-        x1: int=0,
-        y1: int=0,
-        x2: int=0,
-        y2: int=0,
-        rect_line_width: int=0,
-        rect_border_color: int=0,
-        rect_fill: int=0,
-        rect_color: int=0,
+        x_origin: int = 0,
+        y_origin: int = 0,
+        text_size: int = 12,
+        text_angle: int = 0,
+        text_color: int = 0,
+        show_rect: bool = False,
+        x1: int = 0,
+        y1: int = 0,
+        x2: int = 0,
+        y2: int = 0,
+        rect_line_width: int = 0,
+        rect_border_color: int = 0,
+        rect_fill: int = 0,
+        rect_color: int = 0,
     ):
         """Draw Text.
 
@@ -436,7 +436,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list: bool=True):
+    def _get_components_selections(self, selections, return_as_list: bool = True):
         sels = []
         if not isinstance(selections, list):
             selections = [selections]
@@ -654,7 +654,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def rotate(self, assignment, degrees: int=90) -> bool:
+    def rotate(self, assignment, degrees: int = 90) -> bool:
         """Rotate the selections by degrees.
 
         Parameters
@@ -751,7 +751,7 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
         self.logger.info("ModelerEmit class has been initialized!")
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list: bool=True):  # pragma: no cover
+    def _get_components_selections(self, selections, return_as_list: bool = True):  # pragma: no cover
         sels = []
         if not isinstance(selections, list):
             selections = [selections]

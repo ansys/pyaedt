@@ -326,15 +326,15 @@ class AMIConturEyeDiagram(CommonReport):
     def eye_mask(
         self,
         points,
-        x_units: str="ns",
-        y_units: str="mV",
-        enable_limits: bool=False,
-        upper_limit: int=500,
+        x_units: str = "ns",
+        y_units: str = "mV",
+        enable_limits: bool = False,
+        upper_limit: int = 500,
         lower_limit=-500,
         color=(0, 255, 0),
-        x_offset: str="0ns",
-        y_offset: str="0V",
-        transparency: float=0.3,
+        x_offset: str = "0ns",
+        y_offset: str = "0V",
+        transparency: float = 0.3,
     ) -> bool:
         """Create an eye diagram in the plot.
 
@@ -409,7 +409,7 @@ class AMIConturEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def rectangular_plot(self, enable: bool=True) -> bool:
+    def rectangular_plot(self, enable: bool = True) -> bool:
         """Enable or disable the rectangular plot on the chart.
 
         Parameters
@@ -903,15 +903,15 @@ class AMIEyeDiagram(CommonReport):
     def eye_mask(
         self,
         points,
-        x_units: str="ns",
-        y_units: str="mV",
-        enable_limits: bool=False,
-        upper_limit: int=500,
+        x_units: str = "ns",
+        y_units: str = "mV",
+        enable_limits: bool = False,
+        upper_limit: int = 500,
         lower_limit=-500,
         color=(0, 255, 0),
-        x_offset: str="0ns",
-        y_offset: str="0V",
-        transparency: float=0.3,
+        x_offset: str = "0ns",
+        y_offset: str = "0V",
+        transparency: float = 0.3,
     ) -> bool:
         """Create an eye diagram in the plot.
 
@@ -980,7 +980,7 @@ class AMIEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def rectangular_plot(self, enable: bool=True) -> bool:
+    def rectangular_plot(self, enable: bool = True) -> bool:
         """Enable or disable the rectangular plot on the chart.
 
         Parameters

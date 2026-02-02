@@ -73,7 +73,7 @@ class Generic(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed: str="0", relative_cs_name=None) -> None:
+    def __init__(self, actor_folder, speed: str = "0", relative_cs_name=None) -> None:
         """Generic class."""
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -103,7 +103,7 @@ class Person(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed: str="0", stride: str="0.8meters", relative_cs_name=None) -> None:
+    def __init__(self, actor_folder, speed: str = "0", stride: str = "0.8meters", relative_cs_name=None) -> None:
         """Initialize person actor."""
         super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -146,7 +146,7 @@ class Person(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=True) -> None:
+    def insert(self, app, motion: bool = True) -> None:
         """Insert the person in HFSS SBR+.
 
         Parameters
@@ -194,7 +194,7 @@ class Bird(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, bird_folder, speed: str="2.0", flapping_rate: str="50Hz", relative_cs_name=None) -> None:
+    def __init__(self, bird_folder, speed: str = "2.0", flapping_rate: str = "50Hz", relative_cs_name=None) -> None:
         """Bike class."""
         super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
@@ -210,7 +210,7 @@ class Bird(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=True) -> None:
+    def insert(self, app, motion: bool = True) -> None:
         """Insert the bird in HFSS SBR+.
 
         Parameters
@@ -254,7 +254,7 @@ class Vehicle(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, car_folder, speed: float=10.0, relative_cs_name=None) -> None:
+    def __init__(self, car_folder, speed: float = 10.0, relative_cs_name=None) -> None:
         """Vehicle class."""
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -275,7 +275,7 @@ class Vehicle(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=True) -> bool:
+    def insert(self, app, motion: bool = True) -> bool:
         """Insert the vehicle in HFSS SBR+.
 
         Parameters
@@ -326,10 +326,10 @@ class Radar(MultiPartComponent, PyAedtBase):
         self,
         radar_folder,
         name=None,
-        motion: bool=False,
-        use_relative_cs: bool=False,
+        motion: bool = False,
+        use_relative_cs: bool = False,
         offset=("0", "0", "0"),
-        speed: int=0,
+        speed: int = 0,
         relative_cs_name=None,
     ) -> None:
         self.aedt_antenna_names = []  # List of Antenna Names
@@ -398,7 +398,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=False):
+    def insert(self, app, motion: bool = False):
         """Insert radar in the HFSS application instance.
 
         Parameters

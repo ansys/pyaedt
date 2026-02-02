@@ -27,15 +27,16 @@ from pathlib import Path
 import secrets
 import shutil
 import string
+from types import TracebackType
+from typing import Optional
+from typing import Type
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
-from types import TracebackType
-from typing import Optional, Type
 
 
-def search_files(dirname, pattern: str="*"):
+def search_files(dirname, pattern: str = "*"):
     """Search for files inside a directory given a specific pattern.
 
     Parameters
@@ -68,7 +69,7 @@ class Scratch(PyAedtBase):
         """ """
         return self._cleaned
 
-    def __init__(self, local_path, permission: int=0o777, volatile: bool=False) -> None:
+    def __init__(self, local_path, permission: int = 0o777, volatile: bool = False) -> None:
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
@@ -148,7 +149,12 @@ class Scratch(PyAedtBase):
     def __enter__(self):
         return self
 
-    def __exit__(self, ex_type: Optional[Type[BaseException]], ex_value: Optional[BaseException], ex_traceback: Optional[TracebackType]) -> None:
+    def __exit__(
+        self,
+        ex_type: Optional[Type[BaseException]],
+        ex_value: Optional[BaseException],
+        ex_traceback: Optional[TracebackType],
+    ) -> None:
         if ex_type or self._volatile:
             self.remove()
 

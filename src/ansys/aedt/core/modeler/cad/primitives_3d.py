@@ -196,7 +196,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_cylinder(self, orientation, origin, radius, height, num_sides: int=0, name=None, material=None, **kwargs):
+    def create_cylinder(
+        self, orientation, origin, radius, height, num_sides: int = 0, name=None, material=None, **kwargs
+    ):
         """Create a cylinder.
 
         Parameters
