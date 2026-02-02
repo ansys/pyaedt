@@ -233,7 +233,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def _on_victim_changed(self, event=None):
         """Handle victim radio selection change."""
-
         self._victim = self._victim_combo.get()
         if not self._victim:
             return
@@ -271,7 +270,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def _on_aggressor_changed(self, event=None):
         """Handle aggressor radio selection change."""
-
         self._aggressor = self._aggressor_combo.get()
         if not self._aggressor:
             return

@@ -235,9 +235,6 @@ def test_on_victim_changed(mock_emit_environment):
 
 def test_on_victim_band_changed(mock_emit_environment):
     """Test handling victim band selection change."""
-    from ansys.aedt.core.emit_core.emit_constants import InterfererType
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
@@ -671,7 +668,9 @@ def test_error_handling_csv(mock_error, mock_emit_environment):
     extension = EMIHeatmapExtension(withdraw=True)
 
     # Test CSV export error
-    with patch("ansys.aedt.core.extensions.emit.emi_heat_map.filedialog.asksaveasfilename", return_value="/invalid/path.csv"):
+    with patch(
+        "ansys.aedt.core.extensions.emit.emi_heat_map.filedialog.asksaveasfilename", return_value="/invalid/path.csv"
+    ):
         extension._victim = "RxRadio1"
         extension._aggressor = "TxRadio1"
         extension._victim_band = "Band1"
