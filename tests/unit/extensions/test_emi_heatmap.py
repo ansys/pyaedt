@@ -241,10 +241,14 @@ def test_on_victim_changed(mock_emit_environment):
 
 def test_on_victim_band_changed(mock_emit_environment):
     """Test handling victim band selection change."""
+    from ansys.aedt.core.emit_core.emit_constants import InterfererType
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
 
+    # Mock for new API
     mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
     mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
     mock_analyze.get_band_names.return_value = ["Band1", "Band2"]
@@ -252,6 +256,15 @@ def test_on_victim_band_changed(mock_emit_environment):
     mock_results.analyze.return_value = mock_analyze
     mock_results.interaction_domain.return_value = MagicMock()
     mock_aedt_app.results = mock_results
+
+    # Mock for old API
+    mock_emit_api = MagicMock()
+    mock_emit_api.get_radio_names.side_effect = [
+        ["TxRadio1"],  # First call for TX
+        ["RxRadio1"],  # Second call for RX
+    ]
+    mock_emit_api.get_band_names.return_value = ["Band1", "Band2"]
+    mock_aedt_app._emit_api = mock_emit_api
 
     extension = EMIHeatmapExtension(withdraw=True)
 
@@ -626,5 +639,121 @@ def test_on_generate_heatmap(mock_show, mock_fig_manager, mock_emit_environment)
     extension._on_generate_heatmap()
 
     assert mock_show.called
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.emit.emi_heat_map.messagebox.showerror")
+def test_error_handling_heat_map(mock_error, mock_emit_environment):
+    """Test error handling in _on_generate_heatmap."""
+    mock_aedt_app = mock_emit_environment["emit_app"]
+    mock_analyze = MagicMock()
+    mock_aedt_app.results.analyze.return_value = mock_analyze
+    mock_aedt_app.results.interaction_domain.return_value = MagicMock()
+
+    # Initialize extension with valid data first
+    mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
+    mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
+    mock_analyze.get_band_names.return_value = ["Band1"]
+    extension = EMIHeatmapExtension(withdraw=True)
+    extension._emi = []  # Dummy data to prevent _extract_data call
+
+    extension._on_generate_heatmap()
+
+    assert mock_error.called
+    assert "No data to plot" in str(mock_error.call_args)
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.emit.emi_heat_map.messagebox.showerror")
+def test_error_handling_csv(mock_error, mock_emit_environment):
+    """Test error message boxes are shown when operations fail."""
+    mock_aedt_app = mock_emit_environment["emit_app"]
+    mock_analyze = MagicMock()
+    mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
+    mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0]
+    mock_aedt_app.results.analyze.return_value = mock_analyze
+    mock_aedt_app.results.interaction_domain.return_value = MagicMock()
+    mock_aedt_app._emit_api = MagicMock()
+    mock_aedt_app._emit_api.get_radio_names.side_effect = [["TxRadio1"], ["RxRadio1"]]
+
+    # Initialize extension with valid data first
+    extension = EMIHeatmapExtension(withdraw=True)
+
+    # Test CSV export error
+    with patch("ansys.aedt.core.extensions.emit.emi_heat_map.filedialog.asksaveasfilename", return_value="/invalid/path.csv"):
+        extension._victim = "RxRadio1"
+        extension._aggressor = "TxRadio1"
+        extension._victim_band = "Band1"
+        extension._aggressor_band = "Band1"
+        extension._victim_frequencies = [2400.0]
+        extension._aggressor_frequencies = [2400.0]
+        extension._emi = [[-20.0]]
+        extension._rx_power = [[-50.0]]
+        extension._desense = [[5.0]]
+        extension._sensitivity = [[-100.0]]
+        extension._on_export_csv()
+        assert mock_error.called and "Failed to export CSV" in str(mock_error.call_args)
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.emit.emi_heat_map.messagebox.showwarning")
+def test_no_bands_warnings(mock_warning, mock_emit_environment):
+    """Test warning messages when no bands are found."""
+    mock_aedt_app = mock_emit_environment["emit_app"]
+    mock_analyze = MagicMock()
+    mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
+    mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
+    mock_analyze.get_active_frequencies.return_value = [2400.0]
+    mock_aedt_app.results.analyze.return_value = mock_analyze
+    mock_aedt_app.results.interaction_domain.return_value = MagicMock()
+    mock_aedt_app._emit_api = MagicMock()
+    mock_aedt_app._emit_api.get_radio_names.side_effect = [["TxRadio1"], ["RxRadio1"]]
+    mock_aedt_app._emit_api.get_band_names.return_value = []
+
+    # Initialize with valid data
+    mock_analyze.get_band_names.return_value = ["Band1"]
+    extension = EMIHeatmapExtension(withdraw=True)
+
+    # Test victim with no bands
+    mock_analyze.get_band_names.return_value = []
+    extension._on_victim_changed()
+    assert mock_warning.called and "No bands found" in str(mock_warning.call_args)
+    mock_warning.reset_mock()
+
+    # Test aggressor with no bands
+    mock_analyze.get_band_names.return_value = []
+    extension._on_aggressor_changed()
+    assert mock_warning.called and "No bands found" in str(mock_warning.call_args)
+
+    extension.root.destroy()
+
+
+def test_early_returns(mock_emit_environment):
+    """Test early returns in change handlers for coverage."""
+    mock_aedt_app = mock_emit_environment["emit_app"]
+    mock_analyze = MagicMock()
+    mock_analyze.get_interferer_names.return_value = ["TxRadio1"]
+    mock_analyze.get_receiver_names.return_value = ["RxRadio1"]
+    mock_analyze.get_band_names.return_value = ["Band1"]
+    mock_aedt_app.results.analyze.return_value = mock_analyze
+    mock_aedt_app.results.interaction_domain.return_value = MagicMock()
+
+    extension = EMIHeatmapExtension(withdraw=True)
+
+    # Test _on_victim_changed with empty victim
+    extension._victim_combo.set("")
+    extension._on_victim_changed()  # Should return early, covering the 'if not self._victim' case
+
+    # Test _on_aggressor_changed with empty aggressor
+    extension._aggressor_combo.set("")
+    extension._on_aggressor_changed()  # Should return early, covering the 'if not self._aggressor' case
+
+    # Test _on_export_csv with no filename from dialog
+    with patch("ansys.aedt.core.extensions.emit.emi_heat_map.filedialog.asksaveasfilename", return_value=""):
+        extension._on_export_csv()  # Should return early, covering the 'if not filename' case
 
     extension.root.destroy()

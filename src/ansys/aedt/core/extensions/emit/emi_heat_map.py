@@ -233,8 +233,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def _on_victim_changed(self, event=None):
         """Handle victim radio selection change."""
-        if not self._revision:
-            return
 
         self._victim = self._victim_combo.get()
         if not self._victim:
@@ -273,8 +271,6 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
     def _on_aggressor_changed(self, event=None):
         """Handle aggressor radio selection change."""
-        if not self._revision:
-            return
 
         self._aggressor = self._aggressor_combo.get()
         if not self._aggressor:
@@ -554,10 +550,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
             self._plot_matrix_heatmap(red, yellow)
 
             # Set save directory to project directory
-            app = self.aedt_application
-            project_path = app.project_path
-            if project_path and os.path.exists(os.path.dirname(project_path)):
-                plt.rcParams["savefig.directory"] = os.path.dirname(project_path)
+            plt.rcParams["savefig.directory"] = os.path.dirname(self.aedt_application.project_path)
 
         except Exception as e:
             messagebox.showerror("Heatmap Error", f"Failed to generate heatmap: {e}")
