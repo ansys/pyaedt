@@ -836,8 +836,9 @@ def _check_psutil_connections(pids):
         try:
             if conn.pid in pids:
                 connections[conn.pid].append({"ip": conn.laddr.ip, "port": conn.laddr.port, "status": conn.status})
-        except Exception:
-            continue
+        except (AttributeError, KeyError):
+            # Skip connections that don't have valid PID or address information
+            pass
     return connections
 
 
