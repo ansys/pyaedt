@@ -24,6 +24,7 @@
 
 import ast
 from typing import List
+from typing import TypeVar
 from typing import Union
 import warnings
 
@@ -35,6 +36,9 @@ from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
+
+#Type variable to be used in methods that might receive a subclass of EmitNode
+T = TypeVar('T', bound='EmitNode')
 
 
 class EmitNode:
@@ -447,7 +451,7 @@ class EmitNode:
 
         return self.name
 
-    def _duplicate(self, new_name:str = "")->'EmitNode':
+    def _duplicate(self: T, new_name:str = "") -> T:
         """Duplicate component using oEditor's Copy/Paste.  
         New component is placed under existing components in the schematic window.
         
@@ -475,7 +479,7 @@ class EmitNode:
 
         self_bb = oEditor.GetComponentBoundingBox(self.name) #[[xBottom,yBottom],[width,height]] in meters
         offset_y = -0.00508 - self_bb[1][1] #0.00508meters == 200mil wich is the height of a radio
-        
+        offset_x = self_bb[1][0]/2
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
             
@@ -483,14 +487,14 @@ class EmitNode:
         orig_location = self_bb[0]
 
         #offset for paste
-        min_y = 0.0
+        min_y = float('inf')
         for comp_name in all_components:
             location = oEditor.GetComponentLocation(comp_name)
             if location[1] < min_y:
                 min_y = location[1]
 
         # Calculate paste position (using lowest y + offset)
-        paste_x = orig_location[0]
+        paste_x = orig_location[0] + offset_x
         paste_y = min_y + offset_y
 
         # Copy the component
