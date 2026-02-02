@@ -168,9 +168,6 @@ def test_get_radios(mock_emit_environment):
 
 def test_populate_dropdowns(mock_emit_environment):
     """Test populating victim and aggressor combo boxes."""
-    from ansys.aedt.core.emit_core.emit_constants import InterfererType
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
@@ -202,9 +199,6 @@ def test_populate_dropdowns(mock_emit_environment):
 
 def test_on_victim_changed(mock_emit_environment):
     """Test handling victim radio selection change."""
-    from ansys.aedt.core.emit_core.emit_constants import InterfererType
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
@@ -267,9 +261,6 @@ def test_on_victim_band_changed(mock_emit_environment):
 
 def test_on_aggressor_band_changed(mock_emit_environment):
     """Test handling aggressor band selection change."""
-    from ansys.aedt.core.emit_core.emit_constants import InterfererType
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
@@ -306,9 +297,6 @@ def test_on_aggressor_band_changed(mock_emit_environment):
 
 def test_on_aggressor_changed(mock_emit_environment):
     """Test handling aggressor radio selection change."""
-    from ansys.aedt.core.emit_core.emit_constants import InterfererType
-    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
     mock_aedt_app = mock_emit_environment["emit_app"]
     mock_results = MagicMock()
     mock_analyze = MagicMock()
