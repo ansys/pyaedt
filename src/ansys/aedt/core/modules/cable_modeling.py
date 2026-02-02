@@ -25,7 +25,8 @@
 import itertools
 import json
 import os
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -56,7 +57,9 @@ class Cable(PyAedtBase):
 
     """
 
-    def __init__(self, app, json_file_name: Optional[Union[str, dict]] = None, working_dir: Optional[str] = None) -> None:
+    def __init__(
+        self, app, json_file_name: Optional[Union[str, dict]] = None, working_dir: Optional[str] = None
+    ) -> None:
         self._app = app
         self._odesign = app.odesign
         self._omodule = self._odesign.GetModule("CableSetup")

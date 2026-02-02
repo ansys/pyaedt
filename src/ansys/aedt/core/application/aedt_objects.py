@@ -24,6 +24,7 @@
 
 import sys
 import time
+from typing import Optional
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
 from ansys.aedt.core.base import PyAedtBase
@@ -33,11 +34,12 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
-from typing import Optional
 
 
 class AedtObjects(PyAedtBase):
-    def __init__(self, desktop=None, project: Optional[str]=None, design: Optional[str]=None, is_inherithed: bool = False) -> None:
+    def __init__(
+        self, desktop=None, project: Optional[str] = None, design: Optional[str] = None, is_inherithed: bool = False
+    ) -> None:
         self._odesign = design
         self._oproject = project
         if desktop:

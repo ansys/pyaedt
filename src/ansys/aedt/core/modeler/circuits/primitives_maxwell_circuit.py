@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
-from typing import Optional
 
 
 class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
@@ -83,7 +84,12 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_resistor(
-        self, name: Optional[str]=None, value: int = 50, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+        self,
+        name: Optional[str] = None,
+        value: int = 50,
+        location=None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
     ):
         """Create a resistor.
 
@@ -136,7 +142,12 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_inductor(
-        self, name: Optional[str]=None, value: int = 50, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+        self,
+        name: Optional[str] = None,
+        value: int = 50,
+        location=None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
     ):
         """Create an inductor.
 
@@ -189,7 +200,12 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_capacitor(
-        self, name: Optional[str]=None, value: int = 50, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+        self,
+        name: Optional[str] = None,
+        value: int = 50,
+        location=None,
+        angle: int = 0,
+        use_instance_id_netlist: bool = False,
     ):
         """Create a capacitor.
 
@@ -240,7 +256,9 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_diode(self, name: Optional[str]=None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
+    def create_diode(
+        self, name: Optional[str] = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+    ):
         """Create a diode.
 
         Parameters
@@ -288,7 +306,9 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_winding(self, name: Optional[str]=None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
+    def create_winding(
+        self, name: Optional[str] = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
+    ):
         """Create a winding linked to a Maxwell design.
 
         Parameters

@@ -23,13 +23,13 @@
 # SOFTWARE.
 from abc import abstractmethod
 import copy
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
-from typing import Optional
 
 
 class BoundaryDictionary(PyAedtBase):
@@ -259,7 +259,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
-    def __init__(self, app, name: Optional[str]=None, props=None, create: bool = False) -> None:
+    def __init__(self, app, name: Optional[str] = None, props=None, create: bool = False) -> None:
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
@@ -695,7 +695,7 @@ class NetworkObject(BoundaryObject):
     def add_face_node(
         self,
         assignment,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         thermal_resistance: str = "NoResistance",
         material=None,
         thickness=None,
@@ -892,7 +892,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_link(self, node1, node2, value, name: Optional[str]=None) -> bool:
+    def add_link(self, node1, node2, value, name: Optional[str] = None) -> bool:
         """Create links in the network object.
 
         Parameters

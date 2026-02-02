@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from typing import Optional
 
 
 class FieldAnalysisRMxprt(Analysis, PyAedtBase):
@@ -50,14 +51,14 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version: Optional[str]=None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(
@@ -115,7 +116,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return self._modeler
 
     @pyaedt_function_handler()
-    def disable_modelcreation(self, solution_type: Optional[str]=None) -> bool:
+    def disable_modelcreation(self, solution_type: Optional[str] = None) -> bool:
         """Enable the RMxprt solution.
 
         Parameters
@@ -134,7 +135,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_modelcreation(self, solution_type: Optional[str]=None) -> bool:
+    def enable_modelcreation(self, solution_type: Optional[str] = None) -> bool:
         """Enable model creation for the Maxwell model wizard.
 
         Parameters

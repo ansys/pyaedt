@@ -25,7 +25,8 @@
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.base import PyAedtBase
@@ -221,19 +222,19 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
         model_units=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         FieldAnalysisRMxprt.__init__(

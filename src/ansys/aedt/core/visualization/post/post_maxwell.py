@@ -117,7 +117,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         seeding_faces,
         in_volume_tracing_objs=None,
         surface_tracing_objs=None,
-        setup: Optional[str]=None,
+        setup: Optional[str] = None,
         intrinsics=None,
         plot_name=None,
         field_type: str = "DC R/L Fields",
@@ -233,7 +233,14 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup: Optional[str]=None, nets=None, plot_on_surface: bool = True, intrinsics=None, name: Optional[str]=None
+        self,
+        layers,
+        quantity,
+        setup: Optional[str] = None,
+        nets=None,
+        plot_on_surface: bool = True,
+        intrinsics=None,
+        name: Optional[str] = None,
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -290,7 +297,13 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup: Optional[str]=None, intrinsics=None, plot_on_surface: bool = True, plot_name=None
+        self,
+        layers_nets,
+        quantity,
+        setup: Optional[str] = None,
+        intrinsics=None,
+        plot_on_surface: bool = True,
+        plot_name=None,
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

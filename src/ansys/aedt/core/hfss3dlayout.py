@@ -29,6 +29,8 @@ import io
 import os
 from pathlib import Path
 import re
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -41,7 +43,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
-from typing import Optional, Union
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
@@ -147,18 +148,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         ic_mode=None,
         remove_lock: bool = False,
     ) -> None:
@@ -766,7 +767,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def validate_full_design(self, name: Optional[str]=None, output_dir=None, ports=None):
+    def validate_full_design(self, name: Optional[str] = None, output_dir=None, ports=None):
         """Validate the design based on the expected value and save the information in the log file.
 
         Parameters
@@ -872,7 +873,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         sweep_name=None,
         port_names=None,
         port_excited=None,
-        variations: Optional[dict]=None,
+        variations: Optional[dict] = None,
     ):
         """Create a scattering report.
 
@@ -1085,7 +1086,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         start_frequency,
         stop_frequency,
         num_of_freq_points,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         save_fields: bool = True,
         save_rad_fields_only: bool = False,
         sweep_type: str = "Interpolating",
@@ -1190,7 +1191,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         start_frequency,
         stop_frequency,
         step_size,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         save_fields: bool = True,
         save_rad_fields_only: bool = False,
         sweep_type: str = "Interpolating",
@@ -1293,7 +1294,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         setup,
         unit,
         freq,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         save_fields: bool = False,
         save_rad_fields_only: bool = False,
     ):
@@ -1792,8 +1793,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         assignment,
         reference,
-        common_mode: Optional[str]=None,
-        differential_mode: Optional[str]=None,
+        common_mode: Optional[str] = None,
+        differential_mode: Optional[str] = None,
         common_reference: int = 25,
         differential_reference: int = 100,
         active: bool = True,

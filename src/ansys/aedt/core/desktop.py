@@ -537,14 +537,14 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        version: Optional[str]=None,
+        version: Optional[str] = None,
         non_graphical: Optional[bool] = False,
         new_desktop: Optional[bool] = True,
         close_on_exit: Optional[bool] = True,
         student_version: Optional[bool] = False,
         machine: Optional[str] = None,
         port: Optional[int] = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
     ) -> None:
         """Initialize desktop."""
         # Check if already initialized and returning object if so.
@@ -1094,7 +1094,7 @@ class Desktop(PyAedtBase):
     # ############################################ #
 
     @pyaedt_function_handler()
-    def active_design(self, project_object=None, name: Optional[str]=None, design_type=None):
+    def active_design(self, project_object=None, name: Optional[str] = None, design_type=None):
         """Get the active design.
 
         Parameters
@@ -1141,7 +1141,7 @@ class Desktop(PyAedtBase):
         return active_design
 
     @pyaedt_function_handler()
-    def active_project(self, name: Optional[str]=None):
+    def active_project(self, name: Optional[str] = None):
         """Get the active project.
 
         Parameters
@@ -1200,7 +1200,7 @@ class Desktop(PyAedtBase):
         return list(self.odesktop.GetProjectList())
 
     @pyaedt_function_handler()
-    def analyze_all(self, project: Optional[str]=None, design: Optional[str]=None) -> bool:  # pragma: no cover
+    def analyze_all(self, project: Optional[str] = None, design: Optional[str] = None) -> bool:  # pragma: no cover
         """Analyze all setups in a project.
 
         Parameters
@@ -1302,7 +1302,7 @@ class Desktop(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def design_list(self, project: Optional[str]=None):
+    def design_list(self, project: Optional[str] = None):
         """Get a list of the designs.
 
         Parameters
@@ -1845,11 +1845,11 @@ class Desktop(PyAedtBase):
         self,
         project_file: Union[str, Path],
         clustername: str,
-        aedt_full_exe_path: Optional[str]=None,
+        aedt_full_exe_path: Optional[str] = None,
         numnodes: int = 1,
         numcores: int = 32,
         wait_for_license: bool = True,
-        setting_file: Optional[str]=None,
+        setting_file: Optional[str] = None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -1963,7 +1963,7 @@ class Desktop(PyAedtBase):
         numnodes: int = 1,
         numcores: int = 32,
         wait_for_license: bool = True,
-        setting_file: Optional[str]=None,
+        setting_file: Optional[str] = None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 

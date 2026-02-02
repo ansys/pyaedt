@@ -25,7 +25,8 @@
 
 # import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
@@ -923,7 +924,7 @@ class Primitives3DLayout(PyAedtBase):
         hole_diam=None,
         top_layer=None,
         bot_layer=None,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         net=None,
     ):
         # type: (str, float | str, float | str, float, float, str, str, str, str) -> Pins3DLayout
@@ -1013,7 +1014,7 @@ class Primitives3DLayout(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_circle(self, layer, x, y, radius, name: Optional[str]=None, net=None, **kwargs):
+    def create_circle(self, layer, x, y, radius, name: Optional[str] = None, net=None, **kwargs):
         """Create a circle on a layer.
 
         Parameters
@@ -1069,7 +1070,15 @@ class Primitives3DLayout(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_rectangle(
-        self, layer, origin, sizes, corner_radius: int = 0, angle: int = 0, name: Optional[str]=None, net=None, **kwargs
+        self,
+        layer,
+        origin,
+        sizes,
+        corner_radius: int = 0,
+        angle: int = 0,
+        name: Optional[str] = None,
+        net=None,
+        **kwargs,
     ):
         """Create a rectangle on a layer.
 
@@ -1136,7 +1145,7 @@ class Primitives3DLayout(PyAedtBase):
         return primitive
 
     @pyaedt_function_handler()
-    def create_polygon(self, layer, point_list, units=None, name: Optional[str]=None, net=None):
+    def create_polygon(self, layer, point_list, units=None, name: Optional[str] = None, net=None):
         """Create a polygon on a specified layer.
 
         Parameters
@@ -1191,7 +1200,7 @@ class Primitives3DLayout(PyAedtBase):
         return primitive
 
     @pyaedt_function_handler()
-    def create_polygon_void(self, layer, points, assignment, units=None, name: Optional[str]=None):
+    def create_polygon_void(self, layer, points, assignment, units=None, name: Optional[str] = None):
         """Create a polygon void on a specified layer.
 
         Parameters
@@ -1252,7 +1261,7 @@ class Primitives3DLayout(PyAedtBase):
         lw: int = 1,
         start_style: int = 0,
         end_style: int = 0,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         net=None,
         **kwargs,
     ):
@@ -1586,7 +1595,7 @@ class Primitives3DLayout(PyAedtBase):
         return self.modeler.oeditor.CreateText(args)
 
     @pyaedt_function_handler()
-    def create_coordinate_system(self, origin=None, name: Optional[str]=None):
+    def create_coordinate_system(self, origin=None, name: Optional[str] = None):
         """Create a coordinate system.
 
         Parameters

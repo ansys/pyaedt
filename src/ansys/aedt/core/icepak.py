@@ -165,18 +165,18 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         FieldAnalysisIcepak.__init__(
@@ -341,7 +341,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_2way_coupling(
         self,
-        setup: Optional[str]=None,
+        setup: Optional[str] = None,
         number_of_iterations: int = 2,
         continue_ipk_iterations: bool = True,
         ipk_iterations_per_coupling: int = 20,
@@ -1578,7 +1578,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_fan(
         self,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         is_2d: bool = False,
         shape: str = "Circular",
         cross_section: str = "XY",
@@ -1924,7 +1924,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def copyGroupFrom(
-        self, group_name, source_design, source_project_name: Optional[str]=None, source_project_path: Optional[str]=None, **kwargs
+        self,
+        group_name,
+        source_design,
+        source_project_name: Optional[str] = None,
+        source_project_path: Optional[str] = None,
+        **kwargs,
     ) -> bool:
         """Copy a group from another design.
 
@@ -2645,7 +2650,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         self,
         geometry,
         boundary_condition,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         temperature: str = "0cel",
         heat_flux: str = "0irrad_W_per_m2",
         thickness: str = "0mm",
@@ -2874,7 +2879,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     def assign_stationary_wall_with_heat_flux(
         self,
         geometry,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         heat_flux: str = "0irrad_W_per_m2",
         thickness: str = "0mm",
         material: str = "Al-Extruded",
@@ -2935,7 +2940,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     def assign_stationary_wall_with_temperature(
         self,
         geometry,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         temperature: str = "0cel",
         thickness: str = "0mm",
         material: str = "Al-Extruded",
@@ -2997,7 +3002,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     def assign_stationary_wall_with_htc(
         self,
         geometry,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         thickness: str = "0mm",
         material: str = "Al-Extruded",
         htc: str = "0w_per_m2kel",
@@ -3143,7 +3148,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def create_setup(self, name: Optional[str]=None, setup_type=None, **kwargs):
+    def create_setup(self, name: Optional[str] = None, setup_type=None, **kwargs):
         """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
         names correspond to the ``setup_type``
@@ -3337,7 +3342,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return bound
 
     @pyaedt_function_handler()
-    def create_network_object(self, name: Optional[str]=None, props=None, create: bool = False):
+    def create_network_object(self, name: Optional[str] = None, props=None, create: bool = False):
         """Create a thermal network.
 
         Parameters

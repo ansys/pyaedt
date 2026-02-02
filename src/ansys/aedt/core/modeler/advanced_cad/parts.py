@@ -23,11 +23,11 @@
 # SOFTWARE.
 
 import os
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from typing import Optional
 
 
 class Part(PyAedtBase):
@@ -73,7 +73,7 @@ class Part(PyAedtBase):
         "polarization": None,
     }  # Antenna only
 
-    def __init__(self, part_folder, part_dict, parent=None, name: Optional[str]=None) -> None:
+    def __init__(self, part_folder, part_dict, parent=None, name: Optional[str] = None) -> None:
         # Default values:
         self._compdef = dict()
         self._multiparts = parent
@@ -476,7 +476,7 @@ class Antenna(Part, PyAedtBase):
 
     """
 
-    def __init__(self, root_folder, ant_dict, parent=None, name: Optional[str]=None) -> None:
+    def __init__(self, root_folder, ant_dict, parent=None, name: Optional[str] = None) -> None:
         super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)
 
     def _antenna_type(self, app):

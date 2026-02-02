@@ -26,12 +26,12 @@
 
 import math
 from pathlib import Path
+from typing import Optional
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from typing import Optional
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
@@ -111,17 +111,17 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         """Constructor."""

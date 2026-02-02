@@ -30,13 +30,13 @@ This module provides all functionalities for creating and editing reports.
 """
 
 import re
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
-from typing import Optional
 
 
 class Standard(CommonReport, PyAedtBase):
@@ -806,7 +806,7 @@ class Spectral(CommonReport, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self, name: Optional[str]=None) -> bool:
+    def create(self, name: Optional[str] = None) -> bool:
         """Create an eye diagram report.
 
         Parameters

@@ -23,13 +23,13 @@
 # SOFTWARE.
 
 from collections import defaultdict
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
-from typing import Optional
 
 
 class EmitComponents(PyAedtBase):
@@ -174,7 +174,7 @@ class EmitComponents(PyAedtBase):
         return self._components_catalog
 
     @pyaedt_function_handler()
-    def create_component(self, component_type, name: Optional[str]=None, library=None):
+    def create_component(self, component_type, name: Optional[str] = None, library=None):
         """Create a new component from a library.
 
         Parameters

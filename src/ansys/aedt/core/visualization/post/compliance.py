@@ -25,7 +25,8 @@ import copy
 import os.path
 from pathlib import Path
 import time
-from typing import Optional, List
+from typing import List
+from typing import Optional
 
 import numpy as np
 from pyedb.generic.constants import unit_converter
@@ -316,7 +317,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         pass_fail,
         pass_fail_criteria: int = 0,
         name: str = "ERL",
-        project: Optional[str]=None,
+        project: Optional[str] = None,
     ) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
@@ -357,7 +358,15 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_report_derived_parameter(
-        self, design_name, config_file, parameter, traces, report_type, pass_fail_criteria, name: str, project: Optional[str]=None
+        self,
+        design_name,
+        config_file,
+        parameter,
+        traces,
+        report_type,
+        pass_fail_criteria,
+        name: str,
+        project: Optional[str] = None,
     ) -> None:
         """Add report derived parameters computed by AEDT and python into the configuration.
 
@@ -397,7 +406,15 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_report(
-        self, design_name, config_file, traces, report_type, pass_fail, group_plots, name: str, project: Optional[str]=None
+        self,
+        design_name,
+        config_file,
+        traces,
+        report_type,
+        pass_fail,
+        group_plots,
+        name: str,
+        project: Optional[str] = None,
     ) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
@@ -435,7 +452,9 @@ class VirtualComplianceGenerator(PyAedtBase):
         self.config["reports"].append(pars)
 
     @pyaedt_function_handler()
-    def add_report_from_folder(self, input_folder, design_name, group_plots: bool = False, project: Optional[str]=None) -> None:
+    def add_report_from_folder(
+        self, input_folder, design_name, group_plots: bool = False, project: Optional[str] = None
+    ) -> None:
         """Add multiple reports from a folder.
 
         Parameters

@@ -179,7 +179,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         intrinsics=None,
         report_category=None,
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 0,
         is_goal: bool = False,
     ):
@@ -346,9 +346,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         calculation,
         ranges=None,
         variables=None,
-        solution: Optional[str]=None,
+        solution: Optional[str] = None,
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
         report_type=None,
     ):
@@ -402,9 +402,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         calculation,
         ranges=None,
         variables=None,
-        solution: Optional[str]=None,
+        solution: Optional[str] = None,
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
         report_type=None,
         is_goal: bool = False,
@@ -590,9 +590,9 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         calculation,
         ranges,
         variables=None,
-        solution: Optional[str]=None,
+        solution: Optional[str] = None,
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
         report_type=None,
         condition: str = "<=",
@@ -1017,8 +1017,8 @@ class ParametricSetups(PyAedtBase):
         end_point=None,
         step: int = 100,
         variation_type: str = "LinearCount",
-        solution: Optional[str]=None,
-        name: Optional[str]=None,
+        solution: Optional[str] = None,
+        name: Optional[str] = None,
     ):
         """Add a basic sensitivity analysis.
         You can customize all options after the analysis is added.
@@ -1098,7 +1098,7 @@ class ParametricSetups(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_from_file(self, input_file: str, name: Optional[str]=None):
+    def add_from_file(self, input_file: str, name: Optional[str] = None):
         """Add a Parametric setup from either a csv or txt file.
 
         Parameters
@@ -1241,10 +1241,10 @@ class OptimizationSetups(PyAedtBase):
         condition: str = "<=",
         goal_value: int = 1,
         goal_weight: int = 1,
-        solution: Optional[str]=None,
-        name: Optional[str]=None,
+        solution: Optional[str] = None,
+        name: Optional[str] = None,
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
         report_type=None,
     ):

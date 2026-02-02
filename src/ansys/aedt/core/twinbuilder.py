@@ -26,6 +26,7 @@
 
 import math
 from pathlib import Path
+from typing import Optional
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
@@ -37,7 +38,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.checks import min_aedt_version
-from typing import Optional
 
 
 class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
@@ -124,18 +124,18 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         """Constructor."""
@@ -647,7 +647,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         project,
         design,
         use_default_values: bool = True,
-        setup: Optional[str]=None,
+        setup: Optional[str] = None,
         start=None,
         stop=None,
         export_uniform_points: bool = False,

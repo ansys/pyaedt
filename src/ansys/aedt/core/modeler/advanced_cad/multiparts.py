@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -31,7 +32,6 @@ from ansys.aedt.core.internal.filesystem import get_json_files
 from ansys.aedt.core.modeler.advanced_cad.parts import Antenna
 from ansys.aedt.core.modeler.advanced_cad.parts import Part
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from typing import Optional
 
 
 class MultiPartComponent(PyAedtBase):
@@ -113,7 +113,7 @@ class MultiPartComponent(PyAedtBase):
     def __init__(
         self,
         comp_folder,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         use_relative_cs: bool = False,
         relative_cs_name=None,
         motion: bool = False,

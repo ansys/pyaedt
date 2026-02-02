@@ -23,12 +23,12 @@
 # SOFTWARE.
 from pathlib import Path
 import re
+from typing import Optional
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
-from typing import Optional
 
 
 class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
@@ -49,7 +49,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         PostProcessor3D.__init__(self, app)
 
     @pyaedt_function_handler
-    def _compute_power_loss(self, net_filter=None, layer_filter=None, solution: Optional[str]=None):
+    def _compute_power_loss(self, net_filter=None, layer_filter=None, solution: Optional[str] = None):
         if solution is None:
             for setup in self._app.setups:
                 if setup.solver_type == "SIwaveDCIR":
@@ -162,7 +162,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         return power_loss_per_layer
 
     @pyaedt_function_handler()
-    def compute_power_by_layer(self, layers=None, solution: Optional[str]=None):
+    def compute_power_by_layer(self, layers=None, solution: Optional[str] = None):
         """Compute the power by layer.
 
         This applies only to SIwave DC Analysis.
@@ -191,7 +191,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
         return power_by_layers
 
     @pyaedt_function_handler()
-    def compute_power_by_net(self, nets=None, solution: Optional[str]=None):
+    def compute_power_by_net(self, nets=None, solution: Optional[str] = None):
         """Compute the power by nets. This applies only to SIwave DC Analysis.
 
         Parameters
@@ -286,7 +286,14 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup: Optional[str]=None, nets=None, plot_on_surface: bool = True, intrinsics=None, name: Optional[str]=None
+        self,
+        layers,
+        quantity,
+        setup: Optional[str] = None,
+        nets=None,
+        plot_on_surface: bool = True,
+        intrinsics=None,
+        name: Optional[str] = None,
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -385,7 +392,14 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_nets(
-        self, nets, quantity, setup: Optional[str]=None, layers=None, plot_on_surface: bool = True, intrinsics=None, name: Optional[str]=None
+        self,
+        nets,
+        quantity,
+        setup: Optional[str] = None,
+        layers=None,
+        plot_on_surface: bool = True,
+        intrinsics=None,
+        name: Optional[str] = None,
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot based on a net selections.
@@ -464,7 +478,13 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup: Optional[str]=None, intrinsics=None, plot_on_surface: bool = True, plot_name=None
+        self,
+        layers_nets,
+        quantity,
+        setup: Optional[str] = None,
+        intrinsics=None,
+        plot_on_surface: bool = True,
+        plot_name=None,
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

@@ -31,6 +31,7 @@ import re
 import shutil
 import time
 from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -56,7 +57,6 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
-from typing import Optional, Union
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
@@ -153,18 +153,18 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         FieldAnalysisCircuit.__init__(
@@ -641,7 +641,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_source_pin_names(
-        self, source_design_name, source_project_name: Optional[str]=None, source_project_path: Optional[str]=None, port_selector: int = 3
+        self,
+        source_design_name,
+        source_project_name: Optional[str] = None,
+        source_project_path: Optional[str] = None,
+        port_selector: int = 3,
     ):
         """Retrieve pin names.
 
@@ -835,8 +839,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def export_fullwave_spice(
         self,
-        design: Optional[str]=None,
-        setup: Optional[str]=None,
+        design: Optional[str] = None,
+        setup: Optional[str] = None,
         is_solution_file: bool = False,
         filename: Optional[str] = None,
         passivity: bool = False,
@@ -965,10 +969,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self,
         name: str,
         curves,
-        solution: Optional[str]=None,
+        solution: Optional[str] = None,
         variations: Optional[dict] = None,
         differential_pairs: bool = False,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
     ):
         """Create a Touchstone plot.
 
@@ -1108,7 +1112,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_source(self, source_type, name: Optional[str]=None):
+    def create_source(self, source_type, name: Optional[str] = None):
         """Create a source in Circuit.
 
         Parameters
@@ -1276,8 +1280,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self,
         assignment,
         reference,
-        common_mode: Optional[str]=None,
-        differential_mode: Optional[str]=None,
+        common_mode: Optional[str] = None,
+        differential_mode: Optional[str] = None,
         common_reference: int = 25,
         differential_reference: int = 100,
         active: bool = True,
@@ -1444,7 +1448,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return Path(output_file).is_file()
 
     @pyaedt_function_handler()
-    def add_netlist_datablock(self, input_file: Union[str, Path], name: Optional[str]=None) -> bool:
+    def add_netlist_datablock(self, input_file: Union[str, Path], name: Optional[str] = None) -> bool:
         """Add a new netlist data block to the circuit schematic.
 
         Parameters
@@ -1472,7 +1476,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def browse_log_file(self, input_file: Optional[Union[str, Path]]=None):
+    def browse_log_file(self, input_file: Optional[Union[str, Path]] = None):
         """Save the most recent log file in a new directory.
 
         Parameters
@@ -1517,7 +1521,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
-        self, project_connections: dict, edb_zones_dict: dict, ports: Optional[dict] = None, schematic_units: Optional[str] = "mm", model_inc: Optional[float] = 50
+        self,
+        project_connections: dict,
+        edb_zones_dict: dict,
+        ports: Optional[dict] = None,
+        schematic_units: Optional[str] = "mm",
+        model_inc: Optional[float] = 50,
     ) -> bool:
         """Connect circuit model from a multizone clipped project.
 
@@ -1786,8 +1795,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     def create_lna_schematic_from_snp(
         self,
         input_file: str,
-        start_frequency: Optional[int,float] = 0,
-        stop_frequency: Optional[int,float] = 30,
+        start_frequency: Optional[int, float] = 0,
+        stop_frequency: Optional[int, float] = 30,
         auto_assign_diff_pairs: bool = False,
         separation: Optional[str] = ".",
         pattern: Optional[list] = None,
@@ -2127,8 +2136,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         rx_schematic_pins: Optional[list] = None,
         tx_schematic_differential_pins: Optional[list] = None,
         rx_schematic_differential_pins: list = None,
-        tx_component_name: Optional[str] =None,
-        rx_component_name: Optional[str] =None,
+        tx_component_name: Optional[str] = None,
+        rx_component_name: Optional[str] = None,
         ibis_tx_component_name: Optional[str] = None,
         ibis_rx_component_name: Optional[str] = None,
         use_ibis_buffer: bool = True,

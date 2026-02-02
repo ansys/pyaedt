@@ -22,12 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
-from typing import Optional
 
 
 def read_actors(fn, actor_lib):
@@ -326,7 +327,7 @@ class Radar(MultiPartComponent, PyAedtBase):
     def __init__(
         self,
         radar_folder,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         motion: bool = False,
         use_relative_cs: bool = False,
         offset=("0", "0", "0"),

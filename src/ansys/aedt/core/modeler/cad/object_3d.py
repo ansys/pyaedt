@@ -35,6 +35,7 @@ objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 import math
 from pathlib import Path
 import re
+from typing import Optional
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -56,7 +57,6 @@ from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from typing import Optional
 
 
 class Object3d(PyAedtBase):
@@ -85,7 +85,7 @@ class Object3d(PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, primitives, name: Optional[str]=None) -> None:
+    def __init__(self, primitives, name: Optional[str] = None) -> None:
         self._id = None
         self._positions = None
         if name:

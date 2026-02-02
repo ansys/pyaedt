@@ -22,13 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
-from typing import Optional
 
 
 class AnalysisTwinBuilder(Analysis, PyAedtBase):
@@ -58,14 +59,14 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version: Optional[str]=None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(

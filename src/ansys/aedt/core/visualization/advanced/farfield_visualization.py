@@ -90,7 +90,13 @@ class FfdSolutionData(PyAedtBase):
     """
 
     def __init__(
-        self, input_file: str, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
+        self,
+        input_file: str,
+        frequency=None,
+        variation=None,
+        model_info=None,
+        incident_power=None,
+        touchstone_file=None,
     ) -> None:
         if isinstance(input_file, Path):
             input_file = str(input_file)

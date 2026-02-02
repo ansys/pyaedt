@@ -22,9 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from typing import Optional
 
 
 class ScatteringMethods(PyAedtBase):
@@ -294,7 +295,7 @@ class ScatteringMethods(PyAedtBase):
         return fext
 
     @pyaedt_function_handler()
-    def get_touchstone_data(self, setup: Optional[str]=None, sweep=None, variations: Optional[dict]=None):
+    def get_touchstone_data(self, setup: Optional[str] = None, sweep=None, variations: Optional[dict] = None):
         """
         Return a Touchstone data plot.
 
@@ -339,10 +340,10 @@ class ScatteringMethods(PyAedtBase):
     @pyaedt_function_handler()
     def export_touchstone(
         self,
-        setup: Optional[str]=None,
+        setup: Optional[str] = None,
         sweep=None,
         output_file=None,
-        variations: Optional[list]=None,
+        variations: Optional[list] = None,
         variations_value=None,
         renormalization: bool = False,
         impedance=None,

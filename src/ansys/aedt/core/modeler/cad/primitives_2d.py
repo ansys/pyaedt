@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
-from typing import Optional
 
 
 class Primitives2D(GeometryModeler, PyAedtBase):
@@ -63,7 +64,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         radius,
         num_sides: int = 0,
         is_covered: bool = True,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         material=None,
         non_model: bool = False,
         **kwargs,

@@ -24,6 +24,7 @@
 
 import copy
 from pathlib import Path
+from typing import Optional
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -36,7 +37,6 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from typing import Optional
 
 PARENT_DIR = Path(__file__).parent
 
@@ -116,7 +116,7 @@ class FieldsCalculator(PyAedtBase):
         return list(self.expression_catalog.keys())
 
     @pyaedt_function_handler()
-    def add_expression(self, calculation, assignment, name: Optional[str]=None):
+    def add_expression(self, calculation, assignment, name: Optional[str] = None):
         """Add named expression.
 
         Parameters
@@ -284,7 +284,7 @@ class FieldsCalculator(PyAedtBase):
         return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
-    def expression_plot(self, calculation, assignment, names, setup: Optional[str]=None):
+    def expression_plot(self, calculation, assignment, names, setup: Optional[str] = None):
         """Create plots defined in the expression catalog.
 
         Parameters
@@ -377,7 +377,7 @@ class FieldsCalculator(PyAedtBase):
         return reports
 
     @pyaedt_function_handler()
-    def delete_expression(self, name: Optional[str]=None) -> bool:
+    def delete_expression(self, name: Optional[str] = None) -> bool:
         """Delete a named expression.
 
         Parameters
@@ -516,7 +516,7 @@ class FieldsCalculator(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def write(self, expression, output_file, setup: Optional[str]=None, intrinsics=None) -> bool:
+    def write(self, expression, output_file, setup: Optional[str] = None, intrinsics=None) -> bool:
         """Save the content of the stack register for future reuse in a later Field Calculator session.
 
         Parameters
@@ -593,7 +593,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def evaluate(self, expression, setup: Optional[str]=None, intrinsics=None):
+    def evaluate(self, expression, setup: Optional[str] = None, intrinsics=None):
         """Evaluate an expression and return the value.
 
         Parameters
@@ -640,8 +640,8 @@ class FieldsCalculator(PyAedtBase):
     def export(
         self,
         quantity,
-        solution: Optional[str]=None,
-        variations: Optional[dict]=None,
+        solution: Optional[str] = None,
+        variations: Optional[dict] = None,
         output_file=None,
         intrinsics=None,
         phase=None,

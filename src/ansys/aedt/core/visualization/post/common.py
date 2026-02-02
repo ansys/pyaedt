@@ -31,7 +31,8 @@ This module provides all functionalities for common AEDT post processing.
 
 import os
 import re
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from typing import Optional
 
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.base import PyAedtBase
@@ -183,7 +184,12 @@ class PostProcessorCommon(PyAedtBase):
 
     @pyaedt_function_handler()
     def available_quantities_categories(
-        self, report_category=None, display_type=None, solution: Optional[str]=None, context=None, is_siwave_dc: bool = False
+        self,
+        report_category=None,
+        display_type=None,
+        solution: Optional[str] = None,
+        context=None,
+        is_siwave_dc: bool = False,
     ):
         """Compute the list of all available report categories.
 
@@ -262,7 +268,7 @@ class PostProcessorCommon(PyAedtBase):
         self,
         report_category=None,
         display_type=None,
-        solution: Optional[str]=None,
+        solution: Optional[str] = None,
         quantities_category=None,
         context=None,
         is_siwave_dc: bool = False,
@@ -465,7 +471,7 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def get_all_report_quantities(
         self,
-        solution: Optional[str]=None,
+        solution: Optional[str] = None,
         context=None,
         is_siwave_dc: bool = False,
     ):
@@ -1024,13 +1030,13 @@ class PostProcessorCommon(PyAedtBase):
         expressions,
         setup_sweep_name=None,
         domain: str = "Sweep",
-        variations: Optional[dict]=None,
+        variations: Optional[dict] = None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
         report_category=None,
         plot_type: str = "Rectangular Plot",
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 0,
         plot_name=None,
         only_get_method: bool = False,
@@ -1233,12 +1239,12 @@ class PostProcessorCommon(PyAedtBase):
         expressions=None,
         setup_sweep_name=None,
         domain=None,
-        variations: Optional[dict]=None,
+        variations: Optional[dict] = None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
         report_category=None,
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
     ):
         # Setup
@@ -1412,13 +1418,13 @@ class PostProcessorCommon(PyAedtBase):
         expressions=None,
         setup_sweep_name=None,
         domain: str = "Sweep",
-        variations: Optional[dict]=None,
+        variations: Optional[dict] = None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
         report_category=None,
         plot_type: str = "Rectangular Plot",
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
         plot_name=None,
     ) -> "Standard":
@@ -1558,11 +1564,11 @@ class PostProcessorCommon(PyAedtBase):
         expressions=None,
         setup_sweep_name=None,
         domain=None,
-        variations: Optional[dict]=None,
+        variations: Optional[dict] = None,
         primary_sweep_variable=None,
         report_category=None,
         context=None,
-        subdesign_id: Optional[int]=None,
+        subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
         math_formula=None,
     ) -> "SolutionData":
@@ -1713,10 +1719,10 @@ class PostProcessorCommon(PyAedtBase):
     @pyaedt_function_handler()
     def create_report_from_configuration(
         self,
-        input_file: Optional[str]=None,
+        input_file: Optional[str] = None,
         report_settings=None,
         solution_name=None,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         matplotlib: bool = False,
         show: bool = True,
     ):
@@ -2032,7 +2038,7 @@ class Reports(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def standard(self, expressions=None, setup: Optional[str]=None):
+    def standard(self, expressions=None, setup: Optional[str] = None):
         """Create a standard or default report object.
 
         Parameters
@@ -2074,7 +2080,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def monitor(self, expressions=None, setup: Optional[str]=None):
+    def monitor(self, expressions=None, setup: Optional[str] = None):
         """Create an Icepak Monitor Report object.
 
         Parameters
@@ -2108,7 +2114,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def fields(self, expressions=None, setup: Optional[str]=None, polyline=None):
+    def fields(self, expressions=None, setup: Optional[str] = None, polyline=None):
         """Create a Field Report object.
 
         Parameters
@@ -2149,7 +2155,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def cg_fields(self, expressions=None, setup: Optional[str]=None, polyline=None):
+    def cg_fields(self, expressions=None, setup: Optional[str] = None, polyline=None):
         """Create a CG Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2189,7 +2195,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def dc_fields(self, expressions=None, setup: Optional[str]=None, polyline=None):
+    def dc_fields(self, expressions=None, setup: Optional[str] = None, polyline=None):
         """Create a DC Field Report object in Q3D.
 
         Parameters
@@ -2229,7 +2235,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def rl_fields(self, expressions=None, setup: Optional[str]=None, polyline=None):
+    def rl_fields(self, expressions=None, setup: Optional[str] = None, polyline=None):
         """Create an AC RL Field Report object in Q3D and Q2D.
 
         Parameters
@@ -2272,7 +2278,9 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def far_field(self, expressions=None, setup: Optional[str]=None, sphere_name=None, source_context=None, **variations):
+    def far_field(
+        self, expressions=None, setup: Optional[str] = None, sphere_name=None, source_context=None, **variations
+    ):
         """Create a Far Field Report object.
 
         Parameters
@@ -2322,7 +2330,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def antenna_parameters(self, expressions=None, setup: Optional[str]=None, infinite_sphere=None):
+    def antenna_parameters(self, expressions=None, setup: Optional[str] = None, infinite_sphere=None):
         """Create an Antenna Parameters Report object.
 
         Parameters
@@ -2361,7 +2369,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def near_field(self, expressions=None, setup: Optional[str]=None):
+    def near_field(self, expressions=None, setup: Optional[str] = None):
         """Create a Field Report object.
 
         Parameters
@@ -2397,7 +2405,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def modal_solution(self, expressions=None, setup: Optional[str]=None):
+    def modal_solution(self, expressions=None, setup: Optional[str] = None):
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2432,7 +2440,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def terminal_solution(self, expressions=None, setup: Optional[str]=None):
+    def terminal_solution(self, expressions=None, setup: Optional[str] = None):
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2469,7 +2477,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def eigenmode(self, expressions=None, setup: Optional[str]=None):
+    def eigenmode(self, expressions=None, setup: Optional[str] = None):
         """Create a Standard or Default Report object.
 
         Parameters
@@ -2504,7 +2512,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def statistical_eye_contour(self, expressions=None, setup: Optional[str]=None, quantity_type: int = 3):
+    def statistical_eye_contour(self, expressions=None, setup: Optional[str] = None, quantity_type: int = 3):
         """Create a standard statistical AMI contour plot.
 
         Parameters
@@ -2560,7 +2568,7 @@ class Reports(PyAedtBase):
     def eye_diagram(
         self,
         expressions=None,
-        setup: Optional[str]=None,
+        setup: Optional[str] = None,
         quantity_type: int = 3,
         statistical_analysis: bool = True,
         unit_interval: str = "1ns",
@@ -2622,7 +2630,7 @@ class Reports(PyAedtBase):
         return
 
     @pyaedt_function_handler()
-    def spectral(self, expressions=None, setup: Optional[str]=None):
+    def spectral(self, expressions=None, setup: Optional[str] = None):
         """Create a Spectral Report object.
 
         Parameters

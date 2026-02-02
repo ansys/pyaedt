@@ -24,6 +24,8 @@
 
 """This module contains the ``Mechanical`` class."""
 
+from typing import Optional
+
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMechanical
@@ -32,7 +34,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from typing import Optional
 
 
 class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
@@ -127,18 +128,18 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         FieldAnalysis3D.__init__(
@@ -170,7 +171,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         sweep: str = "LastAdaptive",
         map_frequency=None,
         surface_objects=None,
-        source_project_name: Optional[str]=None,
+        source_project_name: Optional[str] = None,
         parameters=None,
         assignment=None,
     ):
@@ -274,7 +275,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         design: str = "IcepakDesign1",
         setup: str = "Setup1",
         sweep: str = "SteadyState",
-        source_project_name: Optional[str]=None,
+        source_project_name: Optional[str] = None,
         parameters=None,
     ):
         """Map thermal losses to a Mechanical design.
@@ -643,7 +644,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "HeatGeneration")
 
     @pyaedt_function_handler()
-    def assign_2way_coupling(self, setup: Optional[str]=None, number_of_iterations: int = 2) -> bool:
+    def assign_2way_coupling(self, setup: Optional[str] = None, number_of_iterations: int = 2) -> bool:
         """Assign two-way coupling to a setup.
 
         Parameters

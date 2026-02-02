@@ -28,12 +28,13 @@ This module contains the `PostProcessor3D` class.
 It contains all advanced postprocessing functionalities for creating and editing plots in the 3D tools.
 """
 
+from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
-from typing import Optional
 
 
 class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
@@ -362,7 +363,14 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup: Optional[str]=None, nets=None, plot_on_surface: bool = True, intrinsics=None, name: Optional[str]=None
+        self,
+        layers,
+        quantity,
+        setup: Optional[str] = None,
+        nets=None,
+        plot_on_surface: bool = True,
+        intrinsics=None,
+        name: Optional[str] = None,
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -419,7 +427,13 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup: Optional[str]=None, intrinsics=None, plot_on_surface: bool = True, plot_name=None
+        self,
+        layers_nets,
+        quantity,
+        setup: Optional[str] = None,
+        intrinsics=None,
+        plot_on_surface: bool = True,
+        plot_name=None,
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

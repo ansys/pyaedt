@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import math
+from typing import Optional
 
 import pytest
 
@@ -32,7 +33,6 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-from typing import Optional
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def aedt_app(add_app):
     app.close_project(name=project_name, save=False)
 
 
-def create_example_coil(app, name: Optional[str]=None):
+def create_example_coil(app, name: Optional[str] = None):
     if not name:
         name = "test_coil"
     RI = 10
@@ -68,7 +68,7 @@ def create_example_coil(app, name: Optional[str]=None):
     return app.modeler.create_polyline(points=pointsList1, name=name)
 
 
-def create_copper_box(app, name: Optional[str]=None):
+def create_copper_box(app, name: Optional[str] = None):
     if not name:
         name = "MyBox"
     box = app.modeler[name]
@@ -77,7 +77,7 @@ def create_copper_box(app, name: Optional[str]=None):
     return box
 
 
-def create_copper_sphere(app, name: Optional[str]=None):
+def create_copper_sphere(app, name: Optional[str] = None):
     if not name:
         name = "Mysphere"
     if app.modeler[name]:
@@ -85,7 +85,7 @@ def create_copper_sphere(app, name: Optional[str]=None):
     return app.modeler.create_sphere([0, 0, 0], radius=4, name=name, material="Copper")
 
 
-def create_copper_cylinder(app, name: Optional[str]=None):
+def create_copper_cylinder(app, name: Optional[str] = None):
     if not name:
         name = "MyCyl"
     if app.modeler[name]:

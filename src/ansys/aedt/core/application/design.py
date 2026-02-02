@@ -1398,7 +1398,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name: Optional[str]=None) -> Profiles:
+    def get_profile(self, name: Optional[str] = None) -> Profiles:
         """Get profile information.
 
         Parameters
@@ -2302,7 +2302,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_em_target_design(self, design, setup: Optional[str]=None, design_setup=None) -> bool:
+    def create_em_target_design(self, design, setup: Optional[str] = None, design_setup=None) -> bool:
         """Create an EM Target design.
 
         Parameters
@@ -2627,7 +2627,9 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def load_project(self, file_name: str, design: Optional[str]=None, close_active: bool = False, set_active: bool = False) -> bool:
+    def load_project(
+        self, file_name: str, design: Optional[str] = None, close_active: bool = False, set_active: bool = False
+    ) -> bool:
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -3177,7 +3179,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def clean_proj_folder(self, directory=None, name: Optional[str]=None) -> bool:
+    def clean_proj_folder(self, directory=None, name: Optional[str] = None) -> bool:
         """Delete a project folder.
 
         Parameters
@@ -3263,7 +3265,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def close_project(self, name: Optional[str]=None, save: bool = True) -> bool:
+    def close_project(self, name: Optional[str] = None, save: bool = True) -> bool:
         """Close an AEDT project.
 
         Parameters
@@ -3334,7 +3336,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_design(self, name: Optional[str]=None, fallback_design=None) -> bool:
+    def delete_design(self, name: Optional[str] = None, fallback_design=None) -> bool:
         """Delete a design from the current project.
 
         .. warning::
@@ -3431,7 +3433,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.variable_manager.delete_unused_variables()
 
     @pyaedt_function_handler()
-    def insert_design(self, name: Optional[str]=None, solution_type: Optional[str]=None):
+    def insert_design(self, name: Optional[str] = None, solution_type: Optional[str] = None):
         """Add a design of a specified type.
 
         The default design type is taken from the derived application class.
@@ -3787,7 +3789,9 @@ class Design(AedtObjects, PyAedtBase):
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler()
-    def save_project(self, file_name: Union[str, Path] = None, overwrite: bool = True, refresh_ids: bool = False) -> bool:
+    def save_project(
+        self, file_name: Union[str, Path] = None, overwrite: bool = True, refresh_ids: bool = False
+    ) -> bool:
         """Save the project and add a message.
 
         Parameters

@@ -1528,7 +1528,12 @@ class Stackup3D(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_signal_layer(
-        self, name: str, material: str = "copper", thickness: float = 0.035, fill_material: str = "FR4_epoxy", frequency=None
+        self,
+        name: str,
+        material: str = "copper",
+        thickness: float = 0.035,
+        fill_material: str = "FR4_epoxy",
+        frequency=None,
     ):
         """Add a new ground layer to the stackup.
 

@@ -30,6 +30,8 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
 
+from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -43,7 +45,6 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from typing import Optional
 
 
 class CsProps(dict):
@@ -110,7 +111,7 @@ class BaseCoordinateSystem(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, name: Optional[str]=None) -> None:
+    def __init__(self, modeler, name: Optional[str] = None) -> None:
         self.auto_update = True
         self._modeler = modeler
         self.model_units = self._modeler.model_units
@@ -410,7 +411,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name: Optional[str]=None, face_id=None) -> None:
+    def __init__(self, modeler, props=None, name: Optional[str] = None, face_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
         self._props = None
@@ -464,7 +465,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         origin,
         axis_position,
         axis: str = "X",
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         offset=None,
         rotation: int = 0,
         always_move_to_end: bool = True,
@@ -692,7 +693,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, modeler, props=None, name: Optional[str]=None) -> None:
+    def __init__(self, modeler, props=None, name: Optional[str] = None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
         self._props = None
@@ -937,7 +938,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         self,
         origin=None,
         reference_cs: str = "Global",
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         mode: str = "axis",
         view: str = "iso",
         x_pointing=None,
@@ -1267,7 +1268,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name: Optional[str]=None, entity_id=None) -> None:
+    def __init__(self, modeler, props=None, name: Optional[str] = None, entity_id=None) -> None:
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.entity_id = entity_id
         self._props = None
@@ -1731,7 +1732,7 @@ class Lists(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, modeler, props=None, name: Optional[str]=None) -> None:
+    def __init__(self, modeler, props=None, name: Optional[str] = None) -> None:
         self.auto_update = True
         self._modeler = modeler
         self.name = name
@@ -1770,7 +1771,7 @@ class Lists(PropsManager, PyAedtBase):
     def create(
         self,
         assignment,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
         entity_type: str = "Object",
     ) -> bool:
         """Create a List.

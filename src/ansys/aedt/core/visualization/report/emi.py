@@ -29,10 +29,11 @@ This module provides all functionalities for creating and editing reports.
 
 """
 
+from typing import Optional
+
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.report.common import CommonReport
-from typing import Optional
 
 
 class EMIReceiver(CommonReport):
@@ -277,7 +278,7 @@ class EMIReceiver(CommonReport):
             return [self.expressions]
 
     @pyaedt_function_handler()
-    def create(self, name: Optional[str]=None):
+    def create(self, name: Optional[str] = None):
         """Create an EMI receiver report.
 
         Parameters

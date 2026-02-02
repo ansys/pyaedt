@@ -69,18 +69,18 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     def __init__(
         self,
         Q3DType,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
         setup_name=None,
-        version: Optional[str]=None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         FieldAnalysis3D.__init__(
@@ -441,9 +441,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     def export_matrix_data(
         self,
         file_name: str,
-        problem_type: Optional[str]=None,
-        variations: Optional[str]=None,
-        setup: Optional[str]=None,
+        problem_type: Optional[str] = None,
+        variations: Optional[str] = None,
+        setup: Optional[str] = None,
         sweep=None,
         reduce_matrix=None,
         r_unit: str = "ohm",
@@ -778,9 +778,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     def export_equivalent_circuit(
         self,
         output_file,
-        setup: Optional[str]=None,
+        setup: Optional[str] = None,
         sweep=None,
-        variations: Optional[Union[list, str]]=None,
+        variations: Optional[Union[list, str]] = None,
         matrix=None,
         cells: int = 2,
         user_changed_settings: bool = True,
@@ -1289,18 +1289,18 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         self.is3d = True
@@ -1687,7 +1687,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(net_name, props, type_bound)
 
     @pyaedt_function_handler()
-    def source(self, assignment=None, direction: int = 0, name: Optional[str]=None, net_name=None, terminal_type: str = "voltage"):
+    def source(
+        self,
+        assignment=None,
+        direction: int = 0,
+        name: Optional[str] = None,
+        net_name=None,
+        terminal_type: str = "voltage",
+    ):
         """Generate a source on a face of an object or a group of faces or face ids.
 
         The face ID is selected based on the axis direction. It is the face that
@@ -1718,7 +1725,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Source")
 
     @pyaedt_function_handler()
-    def sink(self, assignment=None, direction: int = 0, name: Optional[str]=None, net_name=None, terminal_type: str = "voltage"):
+    def sink(
+        self,
+        assignment=None,
+        direction: int = 0,
+        name: Optional[str] = None,
+        net_name=None,
+        terminal_type: str = "voltage",
+    ):
         """Generate a sink on a face of an object or a group of faces or face ids.
 
         The face ID is selected based on the axis direction. It is the face that
@@ -1923,7 +1937,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_mutual_coupling(
-        self, source1, sink1, source2, sink2, calculation: str = "ACL", setup_sweep_name=None, variations: Optional[dict]=None
+        self,
+        source1,
+        sink1,
+        source2,
+        sink2,
+        calculation: str = "ACL",
+        setup_sweep_name=None,
+        variations: Optional[dict] = None,
     ):
         """Get mutual coupling between two terminals.
 
@@ -2395,18 +2416,18 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project: Optional[str]=None,
-        design: Optional[str]=None,
-        solution_type: Optional[str]=None,
-        setup: Optional[str]=None,
-        version: Optional[str]=None,
+        project: Optional[str] = None,
+        design: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        setup: Optional[str] = None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         self.is3d = False

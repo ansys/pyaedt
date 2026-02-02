@@ -99,7 +99,7 @@ def path_string(path: Path):
     return path_str
 
 
-def get_aedt_exe(version: Optional[str]=None):
+def get_aedt_exe(version: Optional[str] = None):
     """Retrieve the full path to the Ansys AEDT executable.
 
     Parameters

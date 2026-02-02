@@ -36,7 +36,9 @@ from math import tan
 import os
 from pathlib import Path
 import shutil
-from typing import Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core.base import PyAedtBase
@@ -125,7 +127,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         self.multiparts = []
 
     @pyaedt_function_handler()
-    def create_box(self, origin, sizes, name: Optional[str]=None, material=None, **kwargs) -> "Object3d":
+    def create_box(self, origin, sizes, name: Optional[str] = None, material=None, **kwargs) -> "Object3d":
         """Create a box.
 
         Parameters
@@ -197,7 +199,15 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_cylinder(
-        self, orientation, origin, radius, height, num_sides: int = 0, name: Optional[str]=None, material=None, **kwargs
+        self,
+        orientation,
+        origin,
+        radius,
+        height,
+        num_sides: int = 0,
+        name: Optional[str] = None,
+        material=None,
+        **kwargs,
     ):
         """Create a cylinder.
 

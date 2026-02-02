@@ -25,7 +25,8 @@
 import csv
 import os
 from pathlib import Path
-from typing import Optional, List
+from typing import List
+from typing import Optional
 from typing import Union
 
 from ansys.aedt.core.application.analysis import Analysis
@@ -100,14 +101,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version: Optional[str]=None,
+        version: Optional[str] = None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id: Optional[int]=None,
+        aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(

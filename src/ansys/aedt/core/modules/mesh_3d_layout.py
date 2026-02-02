@@ -29,13 +29,14 @@ This module provides all functionalities for creating and editing the mesh in th
 
 """
 
+from typing import Optional
+
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.mesh import MeshProps
-from typing import Optional
 
 
 class Mesh3DOperation(PropsManager, PyAedtBase):
@@ -249,7 +250,7 @@ class Mesh3d(PyAedtBase):
         is_inside: bool = True,
         maximum_length: int = 1,
         maximum_elements: int = 1000,
-        name: Optional[str]=None,
+        name: Optional[str] = None,
     ):
         """Assign mesh length.
 
@@ -344,7 +345,7 @@ class Mesh3d(PyAedtBase):
         maximum_elements=None,
         triangulation_max_length: float = 0.1,
         layers_number: str = "2",
-        name: Optional[str]=None,
+        name: Optional[str] = None,
     ):
         """Assign skin depth to the mesh.
 
