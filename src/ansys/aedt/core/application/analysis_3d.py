@@ -105,8 +105,8 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -236,7 +236,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         plot_air_objects: bool=True,
         force_opacity_value=None,
         clean_files: bool=False,
-        view="isometric",
+        view: str="isometric",
         show_legend: bool=True,
         dark_mode: bool=False,
         show_grid: bool=False,
@@ -299,7 +299,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    def export_mesh_stats(self, setup, variations: str="", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -571,9 +571,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def export_3d_model(
         self,
-        file_name="",
-        file_path="",
-        file_format=".step",
+        file_name: str="",
+        file_path: str="",
+        file_format: str=".step",
         assignment_to_export=None,
         assignment_to_remove=None,
         major_version=-1,
@@ -648,7 +648,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return list(self.osolution.GetAllSourceModes())
 
     @pyaedt_function_handler()
-    def set_source_context(self, sources, number_of_modes=1):
+    def set_source_context(self, sources, number_of_modes: int=1):
         """Set the source context.
 
         Parameters
@@ -832,7 +832,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return obj_names
 
     @pyaedt_function_handler()
-    def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
+    def _create_dataset_from_sherlock(self, material_string, property_name: str="Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
         nominal_id = int(len(mat_temp) / 2)
@@ -959,7 +959,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def cleanup_solution(self, variations="All", entire_solution: bool=True, field: bool=True, mesh: bool=True, linked_data: bool=True):
+    def cleanup_solution(self, variations: str="All", entire_solution: bool=True, field: bool=True, mesh: bool=True, linked_data: bool=True):
         """Delete a set of Solution Variations or part of them.
 
         Parameters

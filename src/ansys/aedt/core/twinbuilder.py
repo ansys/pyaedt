@@ -132,8 +132,8 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -301,7 +301,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_sim_setup_parameter(self, variable, expression, analysis_name="TR"):
+    def set_sim_setup_parameter(self, variable, expression, analysis_name: str="TR"):
         """Set simulation setup parameters.
 
         Parameters
@@ -384,10 +384,10 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         setup,
         sweep,
         coupling_matrix_name,
-        model_depth="1meter",
-        maximum_order=10000,
-        error_tolerance=0.005,
-        z_ref=50,
+        model_depth: str="1meter",
+        maximum_order: int=10000,
+        error_tolerance: float=0.005,
+        z_ref: int=50,
         state_space_dynamic_link_type=None,
         component_name=None,
         save_project: bool=True,
@@ -650,7 +650,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         start=None,
         stop=None,
         export_uniform_points: bool=False,
-        export_uniform_points_step=1e-5,
+        export_uniform_points_step: float=1e-5,
         excitations=None,
     ):
         """Use the excitation component to assign output quantities

@@ -793,8 +793,8 @@ class ReportPlotter(PyAedtBase):
         back_color=None,
         background_visibility=None,
         border_width=None,
-        font="Arial",
-        font_size=12,
+        font: str="Arial",
+        font_size: int=12,
         italic: bool=False,
         bold: bool=False,
         color=(0.2, 0.2, 0.2),
@@ -832,7 +832,7 @@ class ReportPlotter(PyAedtBase):
         self._notes.append(note)
 
     @pyaedt_function_handler()
-    def add_limit_line(self, plot_data, hatch_above: bool=True, properties=None, name=""):
+    def add_limit_line(self, plot_data, hatch_above: bool=True, properties=None, name: str=""):
         """Add a new limit_line to the chart.
 
         Parameters
@@ -873,7 +873,7 @@ class ReportPlotter(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_trace(self, plot_data, data_type=0, properties=None, name=""):
+    def add_trace(self, plot_data, data_type: int=0, properties=None, name: str=""):
         """Add a new trace to the chart.
 
         Parameters
@@ -1073,7 +1073,7 @@ class ReportPlotter(PyAedtBase):
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_3d(self, trace=0, snapshot_path=None, show: bool=True, color_map_limits=None, is_polar: bool=True):
+    def plot_3d(self, trace: int=0, snapshot_path=None, show: bool=True, color_map_limits=None, is_polar: bool=True):
         """Create a Matplotlib 3D plot based on a list of data.
 
         Parameters
@@ -1377,11 +1377,11 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_contour(
         self,
-        trace=0,
+        trace: int=0,
         polar: bool=False,
-        levels=64,
-        max_theta=360,
-        min_theta=0,
+        levels: int=64,
+        max_theta: int=360,
+        min_theta: int=0,
         color_bar=None,
         snapshot_path=None,
         show: bool=True,
@@ -1478,7 +1478,7 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def plot_pcolor(
         self,
-        trace=0,
+        trace: int=0,
         color_bar=None,
         snapshot_path=None,
         show: bool=True,
@@ -1544,11 +1544,11 @@ class ReportPlotter(PyAedtBase):
     @pyaedt_function_handler()
     def animate_contour(
         self,
-        trace=0,
+        trace: int=0,
         polar: bool=False,
-        levels=64,
-        max_theta=180,
-        min_theta=0,
+        levels: int=64,
+        max_theta: int=180,
+        min_theta: int=0,
         color_bar=None,
         snapshot_path=None,
         show: bool=True,
@@ -1665,9 +1665,9 @@ def plot_matplotlib(
     plot_data,
     size=(1920, 1440),
     show_legend: bool=True,
-    xlabel="",
-    ylabel="",
-    title="",
+    xlabel: str="",
+    ylabel: str="",
+    title: str="",
     snapshot_path=None,
     x_limits=None,
     y_limits=None,

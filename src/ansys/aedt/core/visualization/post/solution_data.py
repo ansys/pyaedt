@@ -111,7 +111,7 @@ class SolutionData(PyAedtBase):
             self.init_solutions_data()
 
     @pyaedt_function_handler()
-    def set_active_variation(self, var_id=0):
+    def set_active_variation(self, var_id: int=0):
         """Set the active variations to one of available variations in self.variations.
 
         Parameters
@@ -507,7 +507,7 @@ class SolutionData(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_expression_data(
-        self, expression=None, formula="real", convert_to_SI: bool=False, use_quantity: bool=False, sweeps=None
+        self, expression=None, formula: str="real", convert_to_SI: bool=False, use_quantity: bool=False, sweeps=None
     ):
         """Retrieve the real part of the data for an expression.
 
@@ -653,7 +653,7 @@ class SolutionData(PyAedtBase):
         return np.any(self._solutions_imag[expression][:, -1] != 0)
 
     @pyaedt_function_handler()
-    def export_data_to_csv(self, output, delimiter=";"):
+    def export_data_to_csv(self, output, delimiter: str=";"):
         """Save to output csv file the Solution Data.
 
         Parameters
@@ -760,9 +760,9 @@ class SolutionData(PyAedtBase):
         formula=None,
         size=(1920, 1440),
         show_legend: bool=True,
-        x_label="",
-        y_label="",
-        title="",
+        x_label: str="",
+        y_label: str="",
+        title: str="",
         snapshot_path=None,
         is_polar: bool=False,
         show: bool=True,
@@ -831,11 +831,11 @@ class SolutionData(PyAedtBase):
     def plot_3d(
         self,
         curve=None,
-        primary_sweep="Theta",
-        secondary_sweep="Phi",
-        x_label="",
-        y_label="",
-        title="",
+        primary_sweep: str="Theta",
+        secondary_sweep: str="Phi",
+        x_label: str="",
+        y_label: str="",
+        title: str="",
         formula=None,
         size=(1920, 1440),
         snapshot_path=None,
@@ -939,7 +939,7 @@ class SolutionData(PyAedtBase):
         return new
 
     @pyaedt_function_handler()
-    def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window: bool=False):
+    def ifft(self, curve_header: str="NearE", u_axis: str="_u", v_axis: str="_v", window: bool=False):
         """Create IFFT of given complex data.
 
         Parameters
@@ -1003,13 +1003,13 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def ifft_to_file(
         self,
-        u_axis="_u",
-        v_axis="_v",
+        u_axis: str="_u",
+        v_axis: str="_v",
         coord_system_center=None,
         db_val: bool=False,
         num_frames=None,
         csv_path=None,
-        csv_file_header="res_",
+        csv_file_header: str="res_",
     ):
         """Save IFFT matrix to a list of CSV files (one per time step).
 

@@ -71,7 +71,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         setup,
         intrinsics,
         plot_name=None,
-        field_type="",
+        field_type: str="",
     ):
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
@@ -120,7 +120,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
         setup=None,
         intrinsics=None,
         plot_name=None,
-        field_type="DC R/L Fields",
+        field_type: str="DC R/L Fields",
     ):
         """
         Create a field plot of the line.

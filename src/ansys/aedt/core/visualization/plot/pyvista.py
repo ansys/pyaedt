@@ -359,12 +359,12 @@ class FieldClass(PyAedtBase):
         self,
         path,
         log_scale: bool=True,
-        coordinate_units="meter",
-        opacity=1,
-        color_map="jet",
-        label="Field",
-        tolerance=1e-3,
-        headers=2,
+        coordinate_units: str="meter",
+        opacity: int=1,
+        color_map: str="jet",
+        label: str="Field",
+        tolerance: float=1e-3,
+        headers: int=2,
         show_edge: bool=True,
     ):
         self.path = path
@@ -624,7 +624,7 @@ class CommonPlotter(PyAedtBase):
         return self._roll_angle
 
     @roll_angle.setter
-    def roll_angle(self, value=20):
+    def roll_angle(self, value: int=20):
         self._roll_angle = value
         self.isometric_view = False
 
@@ -644,7 +644,7 @@ class CommonPlotter(PyAedtBase):
         return self._azimuth_angle
 
     @azimuth_angle.setter
-    def azimuth_angle(self, value=45):
+    def azimuth_angle(self, value: int=45):
         self._azimuth_angle = value
         self.use_default_iso_view = False
 
@@ -664,7 +664,7 @@ class CommonPlotter(PyAedtBase):
         return self._elevation_angle
 
     @elevation_angle.setter
-    def elevation_angle(self, value=45):
+    def elevation_angle(self, value: int=45):
         self._elevation_angle = value
         self.use_default_iso_view = False
 
@@ -684,11 +684,11 @@ class CommonPlotter(PyAedtBase):
         return self._zoom
 
     @zoom.setter
-    def zoom(self, value=1):
+    def zoom(self, value: int=1):
         self._zoom = value
 
     @pyaedt_function_handler()
-    def set_orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
+    def set_orientation(self, camera_position: str="xy", roll_angle: int=0, azimuth_angle: int=45, elevation_angle: int=20):
         """Change the plot default orientation.
 
         Parameters
@@ -814,7 +814,7 @@ class ModelPlotter(CommonPlotter):
         return self._objects
 
     @pyaedt_function_handler()
-    def add_object(self, cad_path, cad_color="dodgerblue", opacity=1, units="mm"):
+    def add_object(self, cad_path, cad_color: str="dodgerblue", opacity: int=1, units: str="mm"):
         """Add a mesh file to the scenario.
 
         The mesh file can be an object or any of the PyVista supported files.
@@ -844,12 +844,12 @@ class ModelPlotter(CommonPlotter):
         self,
         field_path,
         log_scale: bool=True,
-        coordinate_units="meter",
-        opacity=1,
-        color_map="jet",
-        label_name="Field",
-        surface_mapping_tolerance=1e-3,
-        header_lines=2,
+        coordinate_units: str="meter",
+        opacity: int=1,
+        color_map: str="jet",
+        label_name: str="Field",
+        surface_mapping_tolerance: float=1e-3,
+        header_lines: int=2,
         show_edges: bool=True,
     ):
         """Add a field file to the scenario.
@@ -899,12 +899,12 @@ class ModelPlotter(CommonPlotter):
         self,
         field_files,
         log_scale: bool=True,
-        coordinate_units="meter",
-        opacity=1,
-        color_map="jet",
-        label_name="Field",
-        surface_mapping_tolerance=1e-3,
-        header_lines=2,
+        coordinate_units: str="meter",
+        opacity: int=1,
+        color_map: str="jet",
+        label_name: str="Field",
+        surface_mapping_tolerance: float=1e-3,
+        header_lines: int=2,
     ):
         """Add a field file to the scenario. It can be aedtplt, fld or csv file.
 
@@ -953,11 +953,11 @@ class ModelPlotter(CommonPlotter):
         coordinates,
         fields_data,
         log_scale: bool=True,
-        coordinate_units="meter",
-        opacity=1,
-        color_map="jet",
-        label_name="Field",
-        surface_mapping_tolerance=1e-3,
+        coordinate_units: str="meter",
+        opacity: int=1,
+        color_map: str="jet",
+        label_name: str="Field",
+        surface_mapping_tolerance: float=1e-3,
         show_edges: bool=True,
     ):
         """Add field data to the scenario.

@@ -111,7 +111,7 @@ class SweepHFSS(SweepCommon):
 
     """
 
-    def __init__(self, setup, name, sweep_type="Interpolating", props=None):
+    def __init__(self, setup, name, sweep_type: str="Interpolating", props=None):
         self._app = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -219,7 +219,7 @@ class SweepHFSS(SweepCommon):
         return []
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", save_single_fields: bool=False, clear: bool=False):
+    def add_subrange(self, range_type, start, end=None, count=None, unit: str="GHz", save_single_fields: bool=False, clear: bool=False):
         """Add a range to the sweep.
 
         Parameters
@@ -375,7 +375,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
     """
 
-    def __init__(self, setup, name, sweep_type="Interpolating", save_fields: bool=True, props=None, **kwargs):
+    def __init__(self, setup, name, sweep_type: str="Interpolating", save_fields: bool=True, props=None, **kwargs):
         self._app = setup
         self.oanalysis = setup.omodule
         self.props = {}
@@ -471,7 +471,7 @@ class SweepHFSS3DLayout(SweepCommon):
         return self.update()
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz"):
+    def add_subrange(self, range_type, start, end=None, count=None, unit: str="GHz"):
         """Add a subrange to the sweep.
 
         Parameters
@@ -521,7 +521,7 @@ class SweepHFSS3DLayout(SweepCommon):
             return False
 
     @pyaedt_function_handler()
-    def change_range(self, range_type, start, end=None, count=None, unit="GHz"):
+    def change_range(self, range_type, start, end=None, count=None, unit: str="GHz"):
         """Change the range of the sweep.
 
         Parameters
@@ -626,7 +626,7 @@ class SweepMatrix(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, name, sweep_type="Interpolating", props=None):
+    def __init__(self, setup, name, sweep_type: str="Interpolating", props=None):
         self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -735,7 +735,7 @@ class SweepMatrix(SweepCommon):
         return []
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear: bool=False):
+    def add_subrange(self, range_type, start, end=None, count=None, unit: str="GHz", clear: bool=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -858,7 +858,7 @@ class SweepMaxwellEC(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, sweep_type="LinearStep", props=None):
+    def __init__(self, setup, sweep_type: str="LinearStep", props=None):
         self._setup = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name

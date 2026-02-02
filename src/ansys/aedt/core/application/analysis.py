@@ -134,8 +134,8 @@ class Analysis(Design, PyAedtBase):
         new_desktop,
         close_on_exit,
         student_version,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         ic_mode=None,
         remove_lock: bool=False,
@@ -599,7 +599,7 @@ class Analysis(Design, PyAedtBase):
         get_mutual_terms: bool=True,
         first_element_filter=None,
         second_element_filter=None,
-        category="dB(S",
+        category: str="dB(S",
         differential_pairs=None,
     ):
         # type: (bool, bool, str, str, str, list) -> list
@@ -721,12 +721,12 @@ class Analysis(Design, PyAedtBase):
         self,
         analyze: bool=False,
         export_folder=None,
-        matrix_name="Original",
-        matrix_type="S",
-        touchstone_format="MagPhase",
-        touchstone_number_precision=15,
-        length="1meter",
-        impedance=50,
+        matrix_name: str="Original",
+        matrix_type: str="S",
+        touchstone_format: str="MagPhase",
+        touchstone_number_precision: int=15,
+        length: str="1meter",
+        impedance: int=50,
         include_gamma_comment: bool=True,
         support_non_standard_touchstone_extension: bool=False,
         variations=None,
@@ -970,7 +970,7 @@ class Analysis(Design, PyAedtBase):
         return exported_files
 
     @pyaedt_function_handler()
-    def export_convergence(self, setup, variations="", output_file=None):
+    def export_convergence(self, setup, variations: str="", output_file=None):
         """Export a solution convergence to a file.
 
         Parameters
@@ -1182,7 +1182,7 @@ class Analysis(Design, PyAedtBase):
         return name
 
     @pyaedt_function_handler()
-    def _create_setup(self, name="MySetupAuto", setup_type=None, props=None):
+    def _create_setup(self, name: str="MySetupAuto", setup_type=None, props=None):
         if props is None:
             props = {}
 
@@ -1553,7 +1553,7 @@ class Analysis(Design, PyAedtBase):
         acf_file=None,
         use_auto_settings: bool=True,
         solve_in_batch: bool=False,
-        machine="localhost",
+        machine: str="localhost",
         run_in_thread: bool=False,
         revert_to_initial_mesh: bool=False,
         blocking: bool=True,
@@ -1932,10 +1932,10 @@ class Analysis(Design, PyAedtBase):
     def solve_in_batch(
         self,
         file_name=None,
-        machine="localhost",
+        machine: str="localhost",
         run_in_thread: bool=False,
-        cores=4,
-        tasks=1,
+        cores: int=4,
+        tasks: int=1,
         setup=None,
         revert_to_initial_mesh: bool=False,
     ):  # pragma: no cover
@@ -2070,7 +2070,7 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def submit_job(
-        self, cluster_name, aedt_full_exe_path=None, nodes=1, cores=32, wait_for_license: bool=True, setting_file=None
+        self, cluster_name, aedt_full_exe_path=None, nodes: int=1, cores: int=32, wait_for_license: bool=True, setting_file=None
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -2246,7 +2246,7 @@ class Analysis(Design, PyAedtBase):
         self,
         value,
         units=None,
-        units_system="Length",
+        units_system: str="Length",
     ):
         """Combine a number and a string containing the modeler length unit in a single
         string e.g. "1.2mm".

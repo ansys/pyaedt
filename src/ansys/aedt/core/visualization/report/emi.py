@@ -37,7 +37,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class EMIReceiver(CommonReport):
     """Provides for managing EMI receiver reports."""
 
-    def __init__(self, app, report_category="EMIReceiver", setup_name=None, expressions=None):
+    def __init__(self, app, report_category: str="EMIReceiver", setup_name=None, expressions=None):
         CommonReport.__init__(self, app, "EMIReceiver", setup_name, expressions)
         self.logger = app.logger
         self.domain = "EMI Receiver"

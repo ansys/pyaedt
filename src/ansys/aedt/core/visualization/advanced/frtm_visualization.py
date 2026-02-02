@@ -664,7 +664,7 @@ class FRTMData(PyAedtBase):
         return rng_xrng
 
     @staticmethod
-    def window_function(window="Flat", size=512):
+    def window_function(window: str="Flat", size: int=512):
         """Window function.
 
         Parameters
@@ -1367,7 +1367,7 @@ class FRTMPlotter(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def get_results_files(input_dir, var_name="time_var"):
+def get_results_files(input_dir, var_name: str="time_var"):
     path = Path(input_dir)
 
     # Find all CSV files recursively

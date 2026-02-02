@@ -412,7 +412,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         plt.show()
         return True
 
-    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering="1234"):
+    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering: str="1234"):
         """Transform network from single ended parameters to generalized mixed mode parameters.
 
         Parameters
@@ -461,7 +461,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return ts_diff
 
     @pyaedt_function_handler()
-    def get_return_loss_index(self, excitation_name_prefix=""):
+    def get_return_loss_index(self, excitation_name_prefix: str=""):
         """Get the list of all the return loss from a list of excitations.
 
         If no excitation is provided it will provide a full list of return losses.
@@ -517,7 +517,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @pyaedt_function_handler()
-    def get_next_xtalk_index(self, tx_prefix=""):
+    def get_next_xtalk_index(self, tx_prefix: str=""):
         """Get the list of all the Near End XTalk a list of excitation.
 
         Optionally prefix can be used to retrieve driver names.
@@ -576,7 +576,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @graphics_required
-    def plot_next_xtalk_losses(self, tx_prefix=""):
+    def plot_next_xtalk_losses(self, tx_prefix: str=""):
         """Plot all next crosstalk curves.
 
         Parameters
@@ -702,7 +702,7 @@ def read_touchstone(input_file):
 
 
 @pyaedt_function_handler()
-def check_touchstone_files(input_dir="", passivity: bool=True, causality: bool=True):
+def check_touchstone_files(input_dir: str="", passivity: bool=True, causality: bool=True):
     """Check passivity and causality for all Touchstone files included in the folder.
 
     .. warning::

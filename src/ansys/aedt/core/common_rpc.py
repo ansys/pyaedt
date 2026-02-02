@@ -141,7 +141,7 @@ safe_attrs = {
 }
 
 
-def pyaedt_service_manager(port=17878, aedt_version=None, student_version: bool=False):
+def pyaedt_service_manager(port: int=17878, aedt_version=None, student_version: bool=False):
     """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
@@ -211,7 +211,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version: bool=
     t.start()
 
 
-def launch_server(port=18000, ansysem_path=None, non_graphical: bool=False, threaded: bool=True):
+def launch_server(port: int=18000, ansysem_path=None, non_graphical: bool=False, threaded: bool=True):
     """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.

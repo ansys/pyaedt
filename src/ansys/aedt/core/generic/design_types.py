@@ -56,8 +56,8 @@ def launch_desktop(
     new_desktop: bool=True,
     close_on_exit: bool=True,
     student_version: bool=False,
-    machine="",
-    port=0,
+    machine: str="",
+    port: int=0,
     aedt_process_id=None,
 ):
     """Initialize AEDT based on the inputs provided.

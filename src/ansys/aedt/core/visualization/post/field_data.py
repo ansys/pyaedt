@@ -90,7 +90,7 @@ class ColorMapSettings(BaseFolderPlot):
         Else a list of 3 values (R,G,B). Default is `"Rainbow"`.
     """
 
-    def __init__(self, map_type="Spectrum", color="Rainbow"):
+    def __init__(self, map_type: str="Spectrum", color: str="Rainbow"):
         self._map_type = None
         self.map_type = map_type
 
@@ -234,7 +234,7 @@ class AutoScale(BaseFolderPlot):
     """
 
     def __init__(
-        self, n_levels=10, limit_precision_digits: bool=False, precision_digits=3, use_current_scale_for_animation: bool=False
+        self, n_levels: int=10, limit_precision_digits: bool=False, precision_digits: int=3, use_current_scale_for_animation: bool=False
     ):
         self.n_levels = n_levels
         self.limit_precision_digits = limit_precision_digits
@@ -301,7 +301,7 @@ class MinMaxScale(BaseFolderPlot):
         Maximum value of the scale. Default is `1`.
     """
 
-    def __init__(self, n_levels=10, min_value=0, max_value=1):
+    def __init__(self, n_levels: int=10, min_value: int=0, max_value: int=1):
         self.n_levels = n_levels
         self.min_value = min_value
         self.max_value = max_value
@@ -395,7 +395,7 @@ class NumberFormat(BaseFolderPlot):
         Precision of the numbers. Default is `4`.
     """
 
-    def __init__(self, format_type="Automatic", width=4, precision=4):
+    def __init__(self, format_type: str="Automatic", width: int=4, precision: int=4):
         self._format_type = format_type
         self.width = width
         self.precision = precision
@@ -483,7 +483,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     def __init__(
         self,
-        scale_type="Auto",
+        scale_type: str="Auto",
         scale_settings=AutoScale(),
         log: bool=False,
         db: bool=False,
@@ -651,7 +651,7 @@ class MarkerSettings(BaseFolderPlot):
         Whether to map the field magnitude to the arrow color. Default is `True`.
     """
 
-    def __init__(self, marker_type="Box", map_size: bool=False, map_color: bool=True, marker_size=0.005):
+    def __init__(self, marker_type: str="Box", map_size: bool=False, map_color: bool=True, marker_size: float=0.005):
         self._marker_type = None
         self.marker_type = marker_type
         self.map_size = map_size
@@ -751,15 +751,15 @@ class ArrowSettings(BaseFolderPlot):
 
     def __init__(
         self,
-        arrow_type="Line",
-        arrow_size=0.005,
+        arrow_type: str="Line",
+        arrow_size: float=0.005,
         map_size: bool=False,
         map_color: bool=True,
         show_arrow_tail: bool=False,
         magnitude_filtering: bool=False,
-        magnitude_threshold=0,
-        min_magnitude=0,
-        max_magnitude=0.5,
+        magnitude_threshold: int=0,
+        min_magnitude: int=0,
+        max_magnitude: float=0.5,
     ):
         self._arrow_type = None
         self._allowed_arrow_types = ["Line", "Cylinder", "Umbrella"]
@@ -964,12 +964,12 @@ class FieldPlot(PyAedtBase):
         surfaces=None,
         lines=None,
         cutplanes=None,
-        solution="",
-        quantity="",
+        solution: str="",
+        quantity: str="",
         intrinsics=None,
         seeding_faces=None,
         layer_nets=None,
-        layer_plot_type="LayerNetsExtFace",
+        layer_plot_type: str="LayerNetsExtFace",
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -1653,9 +1653,9 @@ class FieldPlot(PyAedtBase):
     def export_image(
         self,
         full_path=None,
-        width=1920,
-        height=1080,
-        orientation="isometric",
+        width: int=1920,
+        height: int=1080,
+        orientation: str="isometric",
         display_wireframe: bool=True,
         selections=None,
         show_region: bool=True,
@@ -1738,7 +1738,7 @@ class FieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_image_from_aedtplt(
-        self, export_path=None, view="isometric", plot_mesh: bool=False, scale_min=None, scale_max=None
+        self, export_path=None, view: str="isometric", plot_mesh: bool=False, scale_min=None, scale_max=None
     ):
         """Save an image of the active plot using PyVista.
 

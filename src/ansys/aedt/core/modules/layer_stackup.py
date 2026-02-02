@@ -96,7 +96,7 @@ class Layer(PyAedtBase):
     >>> layers = app.modeler.layers["Top"]
     """
 
-    def __init__(self, app, layertype="signal", negative: bool=False):
+    def __init__(self, app, layertype: str="signal", negative: bool=False):
         self.LengthUnit = app.LengthUnit
         self.LengthUnitRough = app.LengthUnit
         self._layers = app
@@ -1085,7 +1085,7 @@ class Layers(PyAedtBase):
     >>> layers = app.modeler.layers
     """
 
-    def __init__(self, modeler, roughnessunits="um"):
+    def __init__(self, modeler, roughnessunits: str="um"):
         self._modeler = modeler
         self._app = self._modeler._app
         self._currentId = 0
@@ -1320,7 +1320,7 @@ class Layers(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_layer(
-        self, layer, layer_type="signal", thickness="0mm", elevation="0mm", material="copper", isnegative: bool=False
+        self, layer, layer_type: str="signal", thickness: str="0mm", elevation: str="0mm", material: str="copper", isnegative: bool=False
     ):
         """Add a layer.
 
@@ -1366,7 +1366,7 @@ class Layers(PyAedtBase):
         return self.layers[newlayer.id]
 
     @pyaedt_function_handler()
-    def change_stackup_type(self, mode="MultiZone", number_zones=3):
+    def change_stackup_type(self, mode: str="MultiZone", number_zones: int=3):
         """Change the stackup type between Multizone, Overlap and Laminate.
 
         Parameters

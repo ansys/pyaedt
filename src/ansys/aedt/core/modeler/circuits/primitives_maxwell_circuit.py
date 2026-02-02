@@ -81,7 +81,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         self._currentId = 0
 
     @pyaedt_function_handler()
-    def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist: bool=False):
+    def create_resistor(self, name=None, value: int=50, location=None, angle: int=0, use_instance_id_netlist: bool=False):
         """Create a resistor.
 
         Parameters
@@ -132,7 +132,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist: bool=False):
+    def create_inductor(self, name=None, value: int=50, location=None, angle: int=0, use_instance_id_netlist: bool=False):
         """Create an inductor.
 
         Parameters
@@ -183,7 +183,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist: bool=False):
+    def create_capacitor(self, name=None, value: int=50, location=None, angle: int=0, use_instance_id_netlist: bool=False):
         """Create a capacitor.
 
         Parameters
@@ -233,7 +233,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_diode(self, name=None, location=None, angle=0, use_instance_id_netlist: bool=False):
+    def create_diode(self, name=None, location=None, angle: int=0, use_instance_id_netlist: bool=False):
         """Create a diode.
 
         Parameters
@@ -281,7 +281,7 @@ class MaxwellCircuitComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_winding(self, name=None, location=None, angle=0, use_instance_id_netlist: bool=False):
+    def create_winding(self, name=None, location=None, angle: int=0, use_instance_id_netlist: bool=False):
         """Create a winding linked to a Maxwell design.
 
         Parameters

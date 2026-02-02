@@ -208,7 +208,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return xpos, ypos, zpos
 
     @pyaedt_function_handler()
-    def change_property(self, assignment, name, value, aedt_tab="BaseElementTab"):
+    def change_property(self, assignment, name, value, aedt_tab: str="BaseElementTab"):
         """Change an oeditor property.
 
         Parameters
@@ -287,7 +287,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def merge_design(self, merged_design=None, x="0.0", y="0.0", z="0.0", rotation="0.0"):
+    def merge_design(self, merged_design=None, x: str="0.0", y: str="0.0", z: str="0.0", rotation: str="0.0"):
         """Merge a design into another.
 
         Parameters
@@ -357,7 +357,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return self.change_property(name, "Location", location)
 
     @pyaedt_function_handler()
-    def colinear_heal(self, assignment, tolerance=0.1):
+    def colinear_heal(self, assignment, tolerance: float=0.1):
         """Remove small edges of one or more primitives.
 
         Parameters
@@ -405,7 +405,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def expand(self, assignment, size=1, expand_type="ROUND", replace_original: bool=False):
+    def expand(self, assignment, size: int=1, expand_type: str="ROUND", replace_original: bool=False):
         """Expand the object by a specific size.
 
         Parameters
@@ -741,7 +741,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         self,
         include_temperature_dependence: bool=True,
         enable_feedback: bool=True,
-        ambient_temp=22,
+        ambient_temp: int=22,
         create_project_var: bool=False,
     ):
         """Set the temperature dependence for the design.
@@ -1243,7 +1243,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     @pyaedt_function_handler()
     def geometry_check_and_fix_all(
         self,
-        min_area=2e-6,
+        min_area: float=2e-6,
     ):
         """Run Geometry Check.
 

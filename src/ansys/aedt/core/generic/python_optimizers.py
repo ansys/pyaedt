@@ -133,11 +133,11 @@ class GeneticAlgorithm(PyAedtBase):
         dim,
         reference_file=None,
         population_file=None,
-        goal=0,
-        var_type="bool",
+        goal: int=0,
+        var_type: str="bool",
         boundaries=None,
         var_type_mixed=None,
-        function_timeout=0,
+        function_timeout: int=0,
         algorithm_parameters=None,
         progress_bar: bool=True,
     ):
@@ -522,7 +522,7 @@ class GeneticAlgorithm(PyAedtBase):
             self.evaluate()
         return self.evaluate_val
 
-    def progress(self, count, total, status=""):
+    def progress(self, count, total, status: str=""):
         bar_len = 50
         filled_len = int(round(bar_len * count / float(total)))
 

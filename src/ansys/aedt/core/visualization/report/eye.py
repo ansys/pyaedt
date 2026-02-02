@@ -326,15 +326,15 @@ class AMIConturEyeDiagram(CommonReport):
     def eye_mask(
         self,
         points,
-        x_units="ns",
-        y_units="mV",
+        x_units: str="ns",
+        y_units: str="mV",
         enable_limits: bool=False,
-        upper_limit=500,
+        upper_limit: int=500,
         lower_limit=-500,
         color=(0, 255, 0),
-        x_offset="0ns",
-        y_offset="0V",
-        transparency=0.3,
+        x_offset: str="0ns",
+        y_offset: str="0V",
+        transparency: float=0.3,
     ):
         """Create an eye diagram in the plot.
 
@@ -903,15 +903,15 @@ class AMIEyeDiagram(CommonReport):
     def eye_mask(
         self,
         points,
-        x_units="ns",
-        y_units="mV",
+        x_units: str="ns",
+        y_units: str="mV",
         enable_limits: bool=False,
-        upper_limit=500,
+        upper_limit: int=500,
         lower_limit=-500,
         color=(0, 255, 0),
-        x_offset="0ns",
-        y_offset="0V",
-        transparency=0.3,
+        x_offset: str="0ns",
+        y_offset: str="0V",
+        transparency: float=0.3,
     ):
         """Create an eye diagram in the plot.
 

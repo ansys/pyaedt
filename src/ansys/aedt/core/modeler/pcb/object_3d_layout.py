@@ -198,7 +198,7 @@ class Object3DLayout(PyAedtBase):
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Net")
 
     @net_name.setter
-    def net_name(self, netname=""):
+    def net_name(self, netname: str=""):
         if self.prim_type not in ["component"]:
             vMaterial = ["NAME:Net", "Value:=", netname]
             self.change_property(vMaterial)
@@ -252,7 +252,7 @@ class Object3DLayout(PyAedtBase):
         return [bbllx, bblly, bburx, bbury]
 
     @pyaedt_function_handler()
-    def create_clearance_on_component(self, extra_soldermask_clearance=5e-3):
+    def create_clearance_on_component(self, extra_soldermask_clearance: float=5e-3):
         """Create a Clearance on Soldermask layer by drawing a rectangle.
 
         Parameters
@@ -458,7 +458,7 @@ class ModelInfoRlc(PyAedtBase):
 class Components3DLayout(Object3DLayout, PyAedtBase):
     """Contains components in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name="", edb_object=None):
+    def __init__(self, primitives, name: str="", edb_object=None):
         Object3DLayout.__init__(self, primitives, "component")
         self.name = name
         self.edb_object = edb_object
@@ -684,13 +684,13 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
     @pyaedt_function_handler()
     def set_die_type(
         self,
-        die_type=1,
-        orientation=0,
-        height=0,
-        reference_offset=0,
+        die_type: int=1,
+        orientation: int=0,
+        height: int=0,
+        reference_offset: int=0,
         auto_reference: bool=True,
-        reference_x="0.1mm",
-        reference_y="0.1mm",
+        reference_x: str="0.1mm",
+        reference_y: str="0.1mm",
     ):
         """Set the die type.
 
@@ -756,11 +756,11 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
     @pyaedt_function_handler()
     def set_solderball(
         self,
-        solderball_type="Cyl",
-        diameter="0.1mm",
-        mid_diameter="0.1mm",
-        height="0.2mm",
-        material="solder",
+        solderball_type: str="Cyl",
+        diameter: str="0.1mm",
+        mid_diameter: str="0.1mm",
+        height: str="0.2mm",
+        material: str="solder",
         reference_offset=None,
     ):
         """Set solderball on the active component.
@@ -894,7 +894,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
 class Nets3DLayout(PyAedtBase):
     """Contains Nets in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name=""):
+    def __init__(self, primitives, name: str=""):
         self._primitives = primitives
         self._oeditor = self._primitives.oeditor
         self._n = 10
@@ -982,7 +982,7 @@ class Nets3DLayout(PyAedtBase):
 class Pins3DLayout(Object3DLayout, PyAedtBase):
     """Contains the pins in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name="", component_name=None, is_pin: bool=True):
+    def __init__(self, primitives, name: str="", component_name=None, is_pin: bool=True):
         Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
         self.name = name
@@ -1037,7 +1037,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 class Geometries3DLayout(Object3DLayout, PyAedtBase):
     """Contains geometries in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name, prim_type="poly", is_void: bool=False):
+    def __init__(self, primitives, name, prim_type: str="poly", is_void: bool=False):
         Object3DLayout.__init__(self, primitives, prim_type)
         self.is_void = is_void
         self._name = name
@@ -1280,7 +1280,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
             return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Net")
 
     @net_name.setter
-    def net_name(self, netname=""):
+    def net_name(self, netname: str=""):
         if not self.is_void and self.prim_type not in ["component"]:
             vMaterial = ["NAME:Net", "Value:=", netname]
             self.change_property(vMaterial)
@@ -1289,7 +1289,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout polygons."""
 
-    def __init__(self, primitives, name, prim_type="poly", is_void: bool=False):
+    def __init__(self, primitives, name, prim_type: str="poly", is_void: bool=False):
         Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void)
         self._points = []
 
@@ -1680,7 +1680,7 @@ class Line3dLayout(Geometries3DLayout, PyAedtBase):
         self._center_line = {}
 
     @pyaedt_function_handler()
-    def add(self, point, position=0):
+    def add(self, point, position: int=0):
         """Add a new point to the center line.
 
         Parameters
@@ -1828,7 +1828,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, PyAedtBase):
 
     """
 
-    def __init__(self, primitives, name=""):
+    def __init__(self, primitives, name: str=""):
         Object3DLayout.__init__(self, primitives, "component")
         self.name = name
 
@@ -2010,7 +2010,7 @@ class Padstack(PyAedtBase):
 
     """
 
-    def __init__(self, name="Padstack", padstackmanager=None, units="mm"):
+    def __init__(self, name: str="Padstack", padstackmanager=None, units: str="mm"):
         self.name = name
         self.padstackmgr = padstackmanager
         self.units = units
@@ -2045,7 +2045,7 @@ class Padstack(PyAedtBase):
 
         """
 
-        def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
+        def __init__(self, holetype: str="Cir", sizes=["1mm"], xpos: str="0mm", ypos: str="0mm", rot: str="0deg"):
             self.shape = holetype
             self.sizes = sizes
             self.x = xpos
@@ -2055,7 +2055,7 @@ class Padstack(PyAedtBase):
     class PDSLayer(PyAedtBase):
         """Manages properties of a padstack layer."""
 
-        def __init__(self, layername="Default", id=1):
+        def __init__(self, layername: str="Default", id: int=1):
             self.layername = layername
             self.id = id
             self._pad = None
@@ -2214,13 +2214,13 @@ class Padstack(PyAedtBase):
     @pyaedt_function_handler()
     def add_layer(
         self,
-        layer="Start",
+        layer: str="Start",
         pad_hole=None,
         antipad_hole=None,
         thermal_hole=None,
-        connx=0,
-        conny=0,
-        conndir=0,
+        connx: int=0,
+        conny: int=0,
+        conndir: int=0,
         layer_id=None,
     ):
         """Create a layer in the padstack.
@@ -2267,7 +2267,7 @@ class Padstack(PyAedtBase):
             return True
 
     @pyaedt_function_handler()
-    def add_hole(self, hole_type="Cir", sizes=None, x=0, y=0, rotation=0):
+    def add_hole(self, hole_type: str="Cir", sizes=None, x: int=0, y: int=0, rotation: int=0):
         """Add a hole.
 
         Parameters

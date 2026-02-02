@@ -116,7 +116,7 @@ class AppFilter(logging.Filter):
         Name of the design or project. The default is ``""``.
     """
 
-    def __init__(self, destination="Global", extra=""):
+    def __init__(self, destination: str="Global", extra: str=""):
         self._destination = destination
         self._extra = extra
 
@@ -432,7 +432,7 @@ class AedtLogger:
             self._timer = time.time()
         return self._timer
 
-    def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages: bool=False):
+    def get_messages(self, project_name=None, design_name=None, level: int=0, aedt_messages: bool=False):
         """Get the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
@@ -646,7 +646,7 @@ class AedtLogger:
         except Exception as e:
             print(f"Logging error: {e}", file=sys.stderr)
 
-    def clear_messages(self, proj_name=None, des_name=None, level=2):
+    def clear_messages(self, proj_name=None, des_name=None, level: int=2):
         """Clear all messages.
 
         Parameters

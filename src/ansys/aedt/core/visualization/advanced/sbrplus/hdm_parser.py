@@ -77,7 +77,7 @@ class Parser(PyAedtBase):
         else:
             return self._parse_list(**self.parser_types[type_name])
 
-    def _parse_simple_base_type(self, format="i", size=4, how_many=1, final_type=None):
+    def _parse_simple_base_type(self, format: str="i", size: int=4, how_many: int=1, final_type=None):
         """Parser for int, float, complex, enum or flag.
 
         Can also parse a list of base types and convert them to another type if possible.
@@ -107,7 +107,7 @@ class Parser(PyAedtBase):
         self.idx = end
         return res
 
-    def _parse_list(self, type=None, base=None, size=1):
+    def _parse_list(self, type=None, base=None, size: int=1):
         """Parser for vector or list.
 
         A vector is interpreted in the linear algebra sense and converted to a NumPy array.

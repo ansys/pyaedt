@@ -245,7 +245,7 @@ class AedtPropServer(AedtObjWrapper):
     def GetObjPath(self):
         return self.__Invoke__("GetObjPath", ())
 
-    def GetChildNames(self, childType=""):
+    def GetChildNames(self, childType: str=""):
         return self.__Invoke__("GetChildNames", (childType))
 
     def GetPropNames(self, includeReadOnly: bool=True):
@@ -255,7 +255,7 @@ class AedtPropServer(AedtObjWrapper):
             return self.__propNames__
         return self.__Invoke__("GetPropNames", (includeReadOnly,))
 
-    def GetPropValue(self, propName=""):
+    def GetPropValue(self, propName: str=""):
         return self.__Invoke__("GetPropValue", (propName,))
 
     def SetPropValue(self, propName, val):
@@ -333,7 +333,7 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
-    def CreateAedtApplication(self, machine, port=0, NGmode: bool=False, alwaysNew: bool=True):
+    def CreateAedtApplication(self, machine, port: int=0, NGmode: bool=False, alwaysNew: bool=True):
         try:
             pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
             if machine.endswith("InsecureMode"):

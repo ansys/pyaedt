@@ -675,7 +675,7 @@ class MatProperty(PyAedtBase):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def add_thermal_modifier_free_form(self, formula, index=0):
+    def add_thermal_modifier_free_form(self, formula, index: int=0):
         """Add a thermal modifier to a material property using a free-form formula.
 
         Parameters
@@ -705,7 +705,7 @@ class MatProperty(PyAedtBase):
         return self._add_thermal_modifier(formula, index)
 
     @pyaedt_function_handler()
-    def add_thermal_modifier_dataset(self, dataset, index=0):
+    def add_thermal_modifier_dataset(self, dataset, index: int=0):
         """Add a thermal modifier to a material property using an existing dataset.
 
         Parameters
@@ -738,7 +738,7 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_thermal_modifier_closed_form(
-        self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc: bool=True, tml=1000, tmu=1000, index=0
+        self, tref: int=22, c1: float=0.0001, c2: float=1e-6, tl=-273.15, tu: int=1000, units: str="cel", auto_calc: bool=True, tml: int=1000, tmu: int=1000, index: int=0
     ):
         """Add a thermal modifier to a material property using a closed-form formula.
 
@@ -1159,7 +1159,7 @@ class MatProperty(PyAedtBase):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def add_spatial_modifier_free_form(self, formula, index=0):
+    def add_spatial_modifier_free_form(self, formula, index: int=0):
         """Add a spatial modifier to a material property using a free-form formula.
 
         Parameters
@@ -1189,7 +1189,7 @@ class MatProperty(PyAedtBase):
         return self._add_spatial_modifier(formula, index)
 
     @pyaedt_function_handler()
-    def add_spatial_modifier_dataset(self, dataset, index=0):
+    def add_spatial_modifier_dataset(self, dataset, index: int=0):
         """Add a spatial modifier to a material property using an existing dataset.
 
         Parameters
@@ -2084,7 +2084,7 @@ class Material(CommonMaterial, PyAedtBase):
             self._update_props("stacking_direction", dict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @pyaedt_function_handler()
-    def set_magnetic_coercivity(self, value=0, x=1, y=0, z=0):
+    def set_magnetic_coercivity(self, value: int=0, x: int=1, y: int=0, z: int=0):
         """Set magnetic coercivity for material.
 
         Parameters
@@ -2117,10 +2117,10 @@ class Material(CommonMaterial, PyAedtBase):
     def get_core_loss_coefficients(
         self,
         points_at_frequency,
-        core_loss_model_type="Electrical Steel",
-        thickness="0.5mm",
-        conductivity=0,
-        coefficient_setup="w_per_cubic_meter",
+        core_loss_model_type: str="Electrical Steel",
+        thickness: str="0.5mm",
+        conductivity: int=0,
+        coefficient_setup: str="w_per_cubic_meter",
     ):
         """Get electrical steel or power ferrite core loss coefficients at a given frequency.
 
@@ -2225,12 +2225,12 @@ class Material(CommonMaterial, PyAedtBase):
     def set_coreloss_at_frequency(
         self,
         points_at_frequency,
-        kdc=0,
-        cut_depth="1mm",
-        thickness="0.5mm",
-        conductivity=0,
-        coefficient_setup="w_per_cubic_meter",
-        core_loss_model_type="Electrical Steel",
+        kdc: int=0,
+        cut_depth: str="1mm",
+        thickness: str="0.5mm",
+        conductivity: int=0,
+        coefficient_setup: str="w_per_cubic_meter",
+        core_loss_model_type: str="Electrical Steel",
     ):
         """Set electrical steel or power ferrite core loss model at one single frequency or at multiple frequencies.
 
@@ -2372,7 +2372,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_electrical_steel_coreloss(self, kh=0, kc=0, ke=0, kdc=0, cut_depth="1mm"):
+    def set_electrical_steel_coreloss(self, kh: int=0, kc: int=0, ke: int=0, kdc: int=0, cut_depth: str="1mm"):
         """Set electrical steel core loss.
 
         Parameters
@@ -2416,7 +2416,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_hysteresis_coreloss(self, kdc=0, hci=0, br=0, hkc=0, cut_depth=0.0001):
+    def set_hysteresis_coreloss(self, kdc: int=0, hci: int=0, br: int=0, hkc: int=0, cut_depth: float=0.0001):
         """Set Hysteresis Type Core Loss.
 
         Parameters
@@ -2453,7 +2453,7 @@ class Material(CommonMaterial, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_power_ferrite_coreloss(self, cm=0, x=0, y=0, kdc=0, cut_depth=0.0001):
+    def set_power_ferrite_coreloss(self, cm: int=0, x: int=0, y: int=0, kdc: int=0, cut_depth: float=0.0001):
         """Set Power Ferrite Type Core Loss.
 
         Parameters
@@ -2491,7 +2491,7 @@ class Material(CommonMaterial, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_bp_curve_coreloss(
-        self, points, kdc=0, cut_depth=0.0001, units="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
+        self, points, kdc: int=0, cut_depth: float=0.0001, units: str="kw/m^3", bunit: str="tesla", frequency: int=60, thickness: str="0.5mm"
     ):
         """Set B-P Type Core Loss.
 
@@ -2659,11 +2659,11 @@ class Material(CommonMaterial, PyAedtBase):
     @pyaedt_function_handler()
     def set_djordjevic_sarkar_model(
         self,
-        dk=4,
-        df=0.02,
-        frequency=1e9,
-        sigma_dc=1e-12,
-        freq_hi=159.15494e9,
+        dk: int=4,
+        df: float=0.02,
+        frequency: float=1e9,
+        sigma_dc: float=1e-12,
+        freq_hi: float=159.15494e9,
     ):
         """Set Djordjevic-Sarkar model.
 

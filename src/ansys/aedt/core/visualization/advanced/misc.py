@@ -81,7 +81,7 @@ class BoxFacePointsAndFields(PyAedtBase):
 
 
 @pyaedt_function_handler()
-def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces: bool=True, output_folder=None):
+def convert_nearfield_data(dat_folder, frequency: int=6, invert_phase_for_lower_faces: bool=True, output_folder=None):
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
@@ -453,7 +453,7 @@ def parse_rdat_file(file_path):
 
 @pyaedt_function_handler()
 @graphics_required
-def preview_pyvista(dict_in, decimation=0, output_stls=None):
+def preview_pyvista(dict_in, decimation: int=0, output_stls=None):
     import pyvista as pv
 
     if decimation > 0:
@@ -525,7 +525,7 @@ def preview_pyvista(dict_in, decimation=0, output_stls=None):
 
 @pyaedt_function_handler()
 @graphics_required
-def simplify_and_preview_stl(input_file, output_file=None, decimation=0.5, preview: bool=False):
+def simplify_and_preview_stl(input_file, output_file=None, decimation: float=0.5, preview: bool=False):
     """Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters

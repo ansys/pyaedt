@@ -103,7 +103,7 @@ class BuildingsPrep(PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def generate_buildings(self, center_lat_lon, terrain_mesh, max_radius=500):
+    def generate_buildings(self, center_lat_lon, terrain_mesh, max_radius: int=500):
         """Generate the buildings stl file.
 
         Parameters
@@ -260,7 +260,7 @@ class RoadPrep(PyAedtBase):
 
     @pyaedt_function_handler()
     @graphics_required
-    def create_roads(self, center_lat_lon, terrain_mesh, max_radius=1000, z_offset=0, road_step=10, road_width=5):
+    def create_roads(self, center_lat_lon, terrain_mesh, max_radius: int=1000, z_offset: int=0, road_step: int=10, road_width: int=5):
         """Generate the road stl file.
 
         Parameters
@@ -377,12 +377,12 @@ class RoadPrep(PyAedtBase):
 class TerrainPrep(PyAedtBase):
     """Contains all basic functions needed for creating a terrain stl mesh."""
 
-    def __init__(self, cad_path="./"):
+    def __init__(self, cad_path: str="./"):
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
     @graphics_required
-    def get_terrain(self, center_lat_lon, max_radius=500, grid_size=5, buffer_percent=0):
+    def get_terrain(self, center_lat_lon, max_radius: int=500, grid_size: int=5, buffer_percent: int=0):
         """Generate the terrain stl file.
 
         Parameters
@@ -442,8 +442,8 @@ class TerrainPrep(PyAedtBase):
     @pyaedt_function_handler()
     def get_elevation(
         center_lat_lon,
-        max_radius=500,
-        grid_size=3,
+        max_radius: int=500,
+        grid_size: int=3,
     ):
         """Get Elevation map.
 

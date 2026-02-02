@@ -99,7 +99,7 @@ class DllInterface:
         self._dll.getVersion.argtypes = [ctypes.c_char_p, ctypes.c_int]
         self._dll.getVersion.restype = ctypes.c_int
 
-    def get_string(self, dll_function: Callable, max_size=100) -> str:
+    def get_string(self, dll_function: Callable, max_size: int=100) -> str:
         """Call a DLL function that returns a string.
 
         Parameters

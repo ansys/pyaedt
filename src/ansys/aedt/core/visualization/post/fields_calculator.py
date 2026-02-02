@@ -646,7 +646,7 @@ class FieldsCalculator(PyAedtBase):
         phase=None,
         sample_points=None,
         export_with_sample_points: bool=True,
-        reference_coordinate_system="Global",
+        reference_coordinate_system: str="Global",
         export_in_si_system: bool=True,
         export_field_in_reference: bool=True,
         grid_type=None,
@@ -655,8 +655,8 @@ class FieldsCalculator(PyAedtBase):
         grid_stop=None,
         grid_step=None,
         is_vector: bool=False,
-        assignment="AllObjects",
-        objects_type="Vol",
+        assignment: str="AllObjects",
+        objects_type: str="Vol",
     ):
         """Export the field quantity at the top of the register to a file, mapping it to a grid of points.
 

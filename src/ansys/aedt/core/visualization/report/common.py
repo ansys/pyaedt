@@ -134,8 +134,8 @@ class Note(BinaryTreeNode, PyAedtBase):
         border_color=None,
         border_visibility=None,
         border_width=None,
-        font="Arial",
-        font_size=12,
+        font: str="Arial",
+        font_size: int=12,
         italic: bool=False,
         bold: bool=False,
         color=(0, 0, 0),
@@ -1718,7 +1718,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return solution_data
 
     @pyaedt_function_handler()
-    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis="Y1"):  # pragma: no cover
+    def add_limit_line_from_points(self, x_list, y_list, x_units: str="", y_units: str="", y_axis: str="Y1"):  # pragma: no cover
         """Add a Cartesian limit line from point lists. This method works only in graphical mode.
 
         Parameters
@@ -1765,7 +1765,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_limit_line_from_equation(
-        self, start_x, stop_x, step, equation="x", units="GHz", y_axis=1
+        self, start_x, stop_x, step, equation: str="x", units: str="GHz", y_axis: int=1
     ):  # pragma: no cover
         """Add a Cartesian limit line from point lists. This method works only in graphical mode.
 
@@ -1810,7 +1810,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_note(self, text, x_position=0, y_position=0):  # pragma: no cover
+    def add_note(self, text, x_position: int=0, y_position: int=0):  # pragma: no cover
         """Add a note at a position.
 
         Parameters
@@ -1877,7 +1877,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return ""
 
     @pyaedt_function_handler()
-    def add_cartesian_y_marker(self, value, name=None, y_axis=1):  # pragma: no cover
+    def add_cartesian_y_marker(self, value, name=None, y_axis: int=1):  # pragma: no cover
         """Add a cartesian Y marker.
 
         .. note::
@@ -1924,8 +1924,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         minor_y: bool=True,
         major_x: bool=True,
         major_y: bool=True,
-        style_minor="Solid",
-        style_major="Solid",
+        style_minor: str="Solid",
+        style_major: str="Solid",
         minor_color=(0, 0, 0),
         major_color=(0, 0, 0),
     ):
@@ -1972,7 +1972,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def edit_x_axis(
-        self, font="Arial", font_size=12, italic: bool=False, bold: bool=False, color=(0, 0, 0), label=None, display_units: bool=True
+        self, font: str="Arial", font_size: int=12, italic: bool=False, bold: bool=False, color=(0, 0, 0), label=None, display_units: bool=True
     ):
         """Edit the X-axis settings.
 
@@ -2048,7 +2048,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def edit_x_axis_scaling(
-        self, linear_scaling: bool=True, min_scale=None, max_scale=None, minor_tick_divs=5, min_spacing=None, units=None
+        self, linear_scaling: bool=True, min_scale=None, max_scale=None, minor_tick_divs: int=5, min_spacing=None, units=None
     ):
         """Edit the X-axis scaling settings.
 
@@ -2132,7 +2132,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._change_property("legend", "legend", props)
 
     @pyaedt_function_handler()
-    def hide_legend(self, solution_name: bool=True, trace_name: bool=True, variation_key: bool=True, font_size=1):
+    def hide_legend(self, solution_name: bool=True, trace_name: bool=True, variation_key: bool=True, font_size: int=1):
         """Hide the Legend.
 
         Parameters
@@ -2166,9 +2166,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def edit_y_axis(
         self,
-        name="Y1",
-        font="Arial",
-        font_size=12,
+        name: str="Y1",
+        font: str="Arial",
+        font_size: int=12,
         italic: bool=False,
         bold: bool=False,
         color=(0, 0, 0),
@@ -2251,11 +2251,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def edit_y_axis_scaling(
         self,
-        name="Y1",
+        name: str="Y1",
         linear_scaling: bool=True,
         min_scale=None,
         max_scale=None,
-        minor_tick_divs=5,
+        minor_tick_divs: int=5,
         min_spacing=None,
         units=None,
     ):
@@ -2307,8 +2307,8 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         background_color=(255, 255, 255),
         plot_color=(255, 255, 255),
         enable_y_stripes: bool=True,
-        field_width=4,
-        precision=4,
+        field_width: int=4,
+        precision: int=4,
         use_scientific_notation: bool=True,
     ):
         """Edit general settings for the plot.
@@ -2359,11 +2359,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def edit_header(
         self,
-        company_name="PyAEDT",
+        company_name: str="PyAEDT",
         show_design_name: bool=True,
-        font="Arial",
-        title_size=12,
-        subtitle_size=12,
+        font: str="Arial",
+        title_size: int=12,
+        subtitle_size: int=12,
         italic: bool=False,
         bold: bool=False,
         color=(0, 0, 0),
@@ -2633,7 +2633,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.expressions = expr
 
     @pyaedt_function_handler()
-    def apply_report_template(self, input_file, property_type="Graphical"):  # pragma: no cover
+    def apply_report_template(self, input_file, property_type: str="Graphical"):  # pragma: no cover
         """Apply report template.
 
         .. note::
@@ -2703,7 +2703,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_table_to_file(self, plot_name, output_file, table_type="Marker"):
+    def export_table_to_file(self, plot_name, output_file, table_type: str="Marker"):
         """Export a marker table or a legend (with trace characteristics result) from a report to a file.
 
         Parameters

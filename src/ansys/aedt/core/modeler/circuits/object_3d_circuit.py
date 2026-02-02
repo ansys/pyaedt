@@ -159,7 +159,7 @@ class CircuitPins(PyAedtBase):
             points.append([points[-1][0], deltay])
             points.append([target[0], deltay])
 
-    def _get_deltas(self, point, move_x: bool=True, move_y: bool=True, positive: bool=True, units=1):
+    def _get_deltas(self, point, move_x: bool=True, move_y: bool=True, positive: bool=True, units: int=1):
         if positive:
             delta = +units * 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
         else:
@@ -180,10 +180,10 @@ class CircuitPins(PyAedtBase):
         assignment,
         page_name=None,
         use_wire: bool=False,
-        wire_name="",
-        clearance_units=1,
+        wire_name: str="",
+        clearance_units: int=1,
         page_port_angle=None,
-        offset=0.00254,
+        offset: float=0.00254,
     ):
         """Connect schematic components.
 
@@ -453,7 +453,7 @@ class CircuitComponent(PyAedtBase):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, circuit_components, tabname="PassedParameterTab", custom_editor=None):
+    def __init__(self, circuit_components, tabname: str="PassedParameterTab", custom_editor=None):
         self.__name = ""
 
         self._circuit_components = circuit_components
@@ -513,7 +513,7 @@ class CircuitComponent(PyAedtBase):
         return self._oeditor.GetPropertyValue(tab_name if tab_name else self.tabname, self.composed_name, prop_name)
 
     @pyaedt_function_handler()
-    def _change_property(self, prop_name, prop_value, tab_name=None, value_name="Value"):
+    def _change_property(self, prop_name, prop_value, tab_name=None, value_name: str="Value"):
         """Change the value of a property.
 
         Parameters
@@ -927,7 +927,7 @@ class CircuitComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_color(self, red=255, green=128, blue=0):
+    def set_color(self, red: int=255, green: int=128, blue: int=0):
         """Set symbol color.
 
         Parameters
@@ -1317,7 +1317,7 @@ class Wire(PyAedtBase):
         return wire_names
 
     @pyaedt_function_handler()
-    def display_wire_properties(self, name="", property_to_display="NetName", visibility="Name", location="Top"):
+    def display_wire_properties(self, name: str="", property_to_display: str="NetName", visibility: str="Name", location: str="Top"):
         """
         Display wire properties.
 

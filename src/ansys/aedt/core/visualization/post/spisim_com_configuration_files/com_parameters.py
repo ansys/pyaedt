@@ -256,7 +256,7 @@ class COMParameters:
 class COMParametersVer3p4(COMParameters):
     """Manages COM parameters of version 3.4."""
 
-    def __init__(self, standard=1):
+    def __init__(self, standard: int=1):
         super().__init__(standard)
 
     @pyaedt_function_handler

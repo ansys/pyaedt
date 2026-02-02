@@ -196,7 +196,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_cylinder(self, orientation, origin, radius, height, num_sides=0, name=None, material=None, **kwargs):
+    def create_cylinder(self, orientation, origin, radius, height, num_sides: int=0, name=None, material=None, **kwargs):
         """Create a cylinder.
 
         Parameters
@@ -285,7 +285,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     # fmt: off
     @pyaedt_function_handler()
     def create_polyhedron(self, orientation=None, center=(0.0, 0.0, 0.0), origin=(0.0, 1.0, 0.0),
-                          height=1.0, num_sides=12, name=None, material=None, **kwargs):  # fmt: on
+                          height: float=1.0, num_sides: int=12, name=None, material=None, **kwargs):  # fmt: on
         """Create a regular polyhedron.
 
         Parameters
@@ -585,8 +585,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_bondwire(self, start, end, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
-                        diameter=0.025, facets=6, name=None, material=None, orientation="Z", **kwargs):  # fmt: on
+    def create_bondwire(self, start, end, h1: float=0.2, h2: int=0, alpha: int=80, beta: int=5, bond_type: int=0,
+                        diameter: float=0.025, facets: int=6, name=None, material=None, orientation: str="Z", **kwargs):  # fmt: on
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
         """Create a bondwire.
@@ -797,7 +797,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_circle(self, orientation, origin, radius, num_sides=0, is_covered: bool=True, name=None,
+    def create_circle(self, orientation, origin, radius, num_sides: int=0, is_covered: bool=True, name=None,
                       material=None, non_model: bool=False, **kwargs):  # fmt: on
         """Create a circle.
 
@@ -888,7 +888,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             is_covered: bool=True,
             name=None,
             material=None,
-            segments=0,
+            segments: int=0,
             **kwargs
     ):
         """Create an ellipse.
@@ -975,9 +975,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_equationbased_curve(self, x_t=0, y_t=0, z_t=0, t_start=0, t_end=1, num_points=0, name=None,
-                                   xsection_type=None, xsection_orient=None, xsection_width=1, xsection_topwidth=1,
-                                   xsection_height=1, xsection_num_seg=0, xsection_bend_type=None, **kwargs):  # fmt: on
+    def create_equationbased_curve(self, x_t: int=0, y_t: int=0, z_t: int=0, t_start: int=0, t_end: int=1, num_points: int=0, name=None,
+                                   xsection_type=None, xsection_orient=None, xsection_width: int=1, xsection_topwidth: int=1,
+                                   xsection_height: int=1, xsection_num_seg: int=0, xsection_bend_type=None, **kwargs):  # fmt: on
         """Create an equation-based curve.
 
         Parameters
@@ -1093,7 +1093,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_equationbased_surface(self, x_uv=0, y_uv=0, z_uv=0, u_start=0, u_end=1, v_start=0, v_end=1,
+    def create_equationbased_surface(self, x_uv: int=0, y_uv: int=0, z_uv: int=0, u_start: int=0, u_end: int=1, v_start: int=0, v_end: int=1,
                                      name=None, **kwargs):  # fmt: on
         """Create an equation-based surface.
 
@@ -1168,8 +1168,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_helix(self, assignment, origin, x_start_dir, y_start_dir, z_start_dir, turns=1,
-                     right_hand: bool=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
+    def create_helix(self, assignment, origin, x_start_dir, y_start_dir, z_start_dir, turns: int=1,
+                     right_hand: bool=True, radius_increment: float=0.0, thread: int=1, **kwargs):  # fmt: on
         """Create a helix from a polyline.
 
         Parameters
@@ -1257,7 +1257,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             self,
             udm_full_name,
             parameters,
-            library="syslib",
+            library: str="syslib",
             name=None,
     ):
         """Create a user-defined model.
@@ -1337,8 +1337,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_spiral(self, internal_radius=10, spacing=1, faces=8, turns=10, width=2, thickness=1, elevation=0,
-                      material="copper", name=None, **kwargs):  # fmt: on
+    def create_spiral(self, internal_radius: int=10, spacing: int=1, faces: int=8, turns: int=10, width: int=2, thickness: int=1, elevation: int=0,
+                      material: str="copper", name=None, **kwargs):  # fmt: on
         """Create a spiral inductor from a polyline.
 
         Parameters
@@ -1555,9 +1555,9 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             self,
             input_file,
             geometry_parameters=None,
-            material_parameters="",
-            design_parameters="",
-            coordinate_system="Global",
+            material_parameters: str="",
+            design_parameters: str="",
+            coordinate_system: str="Global",
             name=None,
             password=None,
             auxiliary_parameters: bool=False,
@@ -1761,7 +1761,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def add_layout_component_definition(
             self,
             file_path,
-            name="",
+            name: str="",
     ):
         """Add a layout submodel definition to the design.
 
@@ -1808,10 +1808,10 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             self,
             name=None,
             definition_name=None,
-            target_coordinate_system="Global",
+            target_coordinate_system: str="Global",
             parameter_mapping=None,
             import_coordinate_systems=None,
-            reference_coordinate_system="Global"
+            reference_coordinate_system: str="Global"
             ):
         """
         Insert a new layout component instance.
@@ -1926,11 +1926,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def insert_layout_component(
             self,
             input_file,
-            coordinate_system="Global",
+            coordinate_system: str="Global",
             name=None,
             parameter_mapping: bool=False,
             layout_coordinate_systems=None,
-            reference_coordinate_system="Global"
+            reference_coordinate_system: str="Global"
     ):
         """Insert a new layout component.
 
@@ -2178,11 +2178,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def add_person(
             self,
             input_dir,
-            speed=0.0,
+            speed: float=0.0,
             global_offset=[0, 0, 0],
-            yaw=0,
-            pitch=0,
-            roll=0,
+            yaw: int=0,
+            pitch: int=0,
+            roll: int=0,
             coordinate_system=None,
             name=None,
     ):
@@ -2285,11 +2285,11 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def add_vehicle(
             self,
             input_dir,
-            speed=0,
+            speed: int=0,
             global_offset=[0, 0, 0],
-            yaw=0,
-            pitch=0,
-            roll=0,
+            yaw: int=0,
+            pitch: int=0,
+            roll: int=0,
             coordinate_system=None,
             name=None,
     ):
@@ -2374,12 +2374,12 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def add_bird(
             self,
             input_dir,
-            speed=0,
+            speed: int=0,
             global_offset=[0, 0, 0],
-            yaw=0,
-            pitch=0,
-            roll=0,
-            flapping_rate=50,
+            yaw: int=0,
+            pitch: int=0,
+            roll: int=0,
+            flapping_rate: int=50,
             coordinate_system=None,
             name=None,
     ):
@@ -2487,7 +2487,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def add_environment(
-            self, input_dir, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, coordinate_system=None,
+            self, input_dir, global_offset=[0, 0, 0], yaw: int=0, pitch: int=0, roll: int=0, coordinate_system=None,
             name=None
     ):
         """Add an Environment Multipart Component from JSON file.

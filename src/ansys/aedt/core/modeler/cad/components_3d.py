@@ -561,7 +561,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def rotate(self, axis, angle=90.0, units="deg"):
+    def rotate(self, axis, angle: float=90.0, units: str="deg"):
         """Rotate the selection.
 
         Parameters
@@ -623,7 +623,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects: bool=True):
+    def duplicate_around_axis(self, axis, angle: int=90, clones: int=2, create_new_objects: bool=True):
         """Duplicate the component around the axis.
 
         Parameters
@@ -656,7 +656,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, clones=2, attach: bool=False, **kwargs):
+    def duplicate_along_line(self, vector, clones: int=2, attach: bool=False, **kwargs):
         """Duplicate the object along a line.
 
         Parameters
@@ -817,7 +817,7 @@ class UserDefinedComponent(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def update_definition(self, password=None, output_file="", local_update: bool=False):
+    def update_definition(self, password=None, output_file: str="", local_update: bool=False):
         """Update 3d component definition.
 
         Parameters

@@ -793,15 +793,15 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_initial_mesh_from_slider(
         self,
-        level=5,
-        method="Auto",
+        level: int=5,
+        method: str="Auto",
         dynamic_surface: bool=True,
         flex_mesh: bool=False,
         curvilinear: bool=False,
         fallback: bool=True,
         phi: bool=True,
         auto_model_resolution: bool=True,
-        model_resolution_length="0.0001mm",
+        model_resolution_length: str="0.0001mm",
     ):
         """Assign a surface mesh level to an object.
 
@@ -882,7 +882,7 @@ class Mesh(PyAedtBase):
     @pyaedt_function_handler()
     def assign_initial_mesh(
         self,
-        method="Auto",
+        method: str="Auto",
         surface_deviation=None,
         normal_deviation=None,
         aspect_ratio=None,
@@ -891,7 +891,7 @@ class Mesh(PyAedtBase):
         fallback: bool=True,
         phi: bool=True,
         auto_model_resolution: bool=True,
-        model_resolution_length="0.0001mm",
+        model_resolution_length: str="0.0001mm",
     ):
         """Assign a surface mesh level to an object.
 
@@ -993,7 +993,7 @@ class Mesh(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_surf_priority_for_tau(self, assignment, surface_priority=0):
+    def assign_surf_priority_for_tau(self, assignment, surface_priority: int=0):
         """Assign a surface representation priority for the TAU mesh.
 
         Parameters
@@ -1085,7 +1085,7 @@ class Mesh(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_length_mesh(self, assignment, inside_selection: bool=True, maximum_length=1, maximum_elements=1000, name=None):
+    def assign_length_mesh(self, assignment, inside_selection: bool=True, maximum_length: int=1, maximum_elements: int=1000, name=None):
         """Assign a length for the model resolution.
 
         Parameters
@@ -1173,10 +1173,10 @@ class Mesh(PyAedtBase):
     def assign_skin_depth(
         self,
         assignment,
-        skin_depth="0.2mm",
+        skin_depth: str="0.2mm",
         maximum_elements=None,
-        triangulation_max_length="0.1mm",
-        layers_number="2",
+        triangulation_max_length: str="0.1mm",
+        layers_number: str="2",
         name=None,
     ):
         """Assign a skin depth for the mesh refinement.
@@ -1356,7 +1356,7 @@ class Mesh(PyAedtBase):
         return mop
 
     @pyaedt_function_handler()
-    def assign_rotational_layer(self, assignment, layers_number=3, total_thickness="1mm", name=None):
+    def assign_rotational_layer(self, assignment, layers_number: int=3, total_thickness: str="1mm", name=None):
         """Assign a rotational layer mesh.
 
         Parameters
@@ -1407,7 +1407,7 @@ class Mesh(PyAedtBase):
         return mop
 
     @pyaedt_function_handler()
-    def assign_edge_cut(self, assignment, layer_thickness="1mm", name=None):
+    def assign_edge_cut(self, assignment, layer_thickness: str="1mm", name=None):
         """Assign an edge cut layer mesh.
 
         Parameters
@@ -1523,8 +1523,8 @@ class Mesh(PyAedtBase):
         name=None,
         band_mapping_angle=None,
         clone_mesh: bool=False,
-        moving_side_layers=1,
-        static_side_layers=1,
+        moving_side_layers: int=1,
+        static_side_layers: int=1,
     ):
         """Assign a cylindrical gap for a 2D or 3D design to enable a clone mesh and associated band mapping angle.
 

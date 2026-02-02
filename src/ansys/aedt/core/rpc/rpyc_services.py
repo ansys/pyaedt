@@ -140,10 +140,10 @@ class FileManagement(PyAedtBase):
             i += 1
         logger.info("Directory %s downloaded. %s files copied", localpath, i)
 
-    def open_file(self, remote_file, open_options="r", encoding=None):
+    def open_file(self, remote_file, open_options: str="r", encoding=None):
         return self.client.root.open(remote_file, open_options=open_options, encoding=encoding)
 
-    def create_file(self, remote_file, create_options="w", encoding=None, override: bool=True):
+    def create_file(self, remote_file, create_options: str="w", encoding=None, override: bool=True):
         return self.client.root.create(remote_file, open_options=create_options, encoding=encoding, override=override)
 
     def makedirs(self, remotepath):
@@ -258,7 +258,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
             for opt in range(self._beta_options.__len__()):
                 os.environ["ANSYSEM_FEATURE_" + self._beta_options[opt] + "_ENABLE"] = "1"
 
-    def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical: bool=True):
+    def exposed_run_script(self, script, aedt_version: str="2021.2", ansysem_path=None, non_graphical: bool=True):
         """Run script on AEDT in the server.
 
         .. warning::
@@ -329,7 +329,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         edbpath=None,
         cellname=None,
         isreadonly: bool=False,
-        edbversion="2021.2",
+        edbversion: str="2021.2",
         use_ppe: bool=False,
     ):
         """Start a new Hfss session.
@@ -896,7 +896,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
     @staticmethod
     def aedt_grpc(
             port=None, beta_options: List[str] = None, use_aedt_relative_path: bool=False, non_graphical: bool=True,
-            check_interval=2
+            check_interval: int=2
     ):
         """Start a new AEDT session on a specified gRPC port.
 
@@ -1080,12 +1080,12 @@ class GlobalService(rpyc.Service, PyAedtBase):
         )
 
     @staticmethod
-    def exposed_open(filename, open_options="rb", encoding=None):
+    def exposed_open(filename, open_options: str="rb", encoding=None):
         f = open(filename, open_options, encoding=encoding)
         return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
     @staticmethod
-    def exposed_create(filename, create_options="wb", encoding=None, override: bool=True):
+    def exposed_create(filename, create_options: str="wb", encoding=None, override: bool=True):
         if os.path.exists(filename) and not override:
             return "File already exists"
         f = open(filename, create_options, encoding=encoding)

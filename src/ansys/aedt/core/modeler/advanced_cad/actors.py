@@ -73,7 +73,7 @@ class Generic(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed="0", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str="0", relative_cs_name=None):
         """Generic class."""
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -103,7 +103,7 @@ class Person(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str="0", stride: str="0.8meters", relative_cs_name=None):
         """Initialize person actor."""
         super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -194,7 +194,7 @@ class Bird(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
+    def __init__(self, bird_folder, speed: str="2.0", flapping_rate: str="50Hz", relative_cs_name=None):
         """Bike class."""
         super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
@@ -254,7 +254,7 @@ class Vehicle(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, car_folder, speed=10.0, relative_cs_name=None):
+    def __init__(self, car_folder, speed: float=10.0, relative_cs_name=None):
         """Vehicle class."""
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -329,7 +329,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         motion: bool=False,
         use_relative_cs: bool=False,
         offset=("0", "0", "0"),
-        speed=0,
+        speed: int=0,
         relative_cs_name=None,
     ):
         self.aedt_antenna_names = []  # List of Antenna Names

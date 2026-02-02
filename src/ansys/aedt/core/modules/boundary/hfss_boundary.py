@@ -203,7 +203,7 @@ class FarFieldSetup(FieldSetup):
     >>> sphere1.delete()
     """
 
-    def __init__(self, app, component_name, props, component_type, units="deg"):
+    def __init__(self, app, component_name, props, component_type, units: str="deg"):
         FieldSetup.__init__(self, app, component_name, props, component_type)
         self.units = units
 

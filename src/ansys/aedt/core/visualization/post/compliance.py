@@ -308,7 +308,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_erl_parameters(
-        self, design_name, config_file, traces, pins, pass_fail, pass_fail_criteria=0, name="ERL", project=None
+        self, design_name, config_file, traces, pins, pass_fail, pass_fail_criteria: int=0, name: str="ERL", project=None
     ):
         """Add Com parameters computed by SpiSim into the configuration.
 
@@ -480,7 +480,7 @@ class VirtualComplianceChaptersData(PyAedtBase):
         self.title = title
         self.content = []
 
-    def add_content(self, content, content_type=0) -> dict:
+    def add_content(self, content, content_type: int=0) -> dict:
         """Add content to the chapter.
 
         Parameters
@@ -1674,7 +1674,7 @@ class VirtualCompliance(PyAedtBase):
                     report.add_table("Components", components, col_widths=[75, 275])
 
     @pyaedt_function_handler()
-    def create_compliance_report(self, file_name="compliance_test.pdf", close_project: bool=True):
+    def create_compliance_report(self, file_name: str="compliance_test.pdf", close_project: bool=True):
         """Create the Virtual Compliance report.
 
         Parameters

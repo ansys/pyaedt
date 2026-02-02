@@ -170,7 +170,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 
-def unit_converter(values, unit_system="Length", input_units="meter", output_units="mm"):
+def unit_converter(values, unit_system: str="Length", input_units: str="meter", output_units: str="mm"):
     """Convert unit in specified unit system.
 
     Parameters

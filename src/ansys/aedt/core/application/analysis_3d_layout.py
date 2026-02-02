@@ -99,8 +99,8 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         ic_mode=None,
         remove_lock: bool=False,
@@ -208,7 +208,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    def export_mesh_stats(self, setup, variations: str="", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -262,7 +262,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self.oexcitation.GetAllPortsList()
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters

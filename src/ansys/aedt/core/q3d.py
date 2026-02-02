@@ -78,8 +78,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -105,7 +105,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             self.matrices.append(Matrix(self, el))
 
     @pyaedt_function_handler()
-    def sources(self, matrix_index=0, is_gc_sources: bool=True):
+    def sources(self, matrix_index: int=0, is_gc_sources: bool=True):
         """List of matrix sources.
 
         Parameters
@@ -193,7 +193,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         get_mutual_terms: bool=True,
         first_element_filter=None,
         second_element_filter=None,
-        category="C",
+        category: str="C",
     ):
         """Get a list of traces of specified designs ready to use in plot reports.
 
@@ -233,7 +233,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations="", output_file=None, setup_type="CG"):
+    def export_mesh_stats(self, setup, variations: str="", output_file=None, setup_type: str="CG"):
         """Export mesh statistics to a file.
 
         Parameters
@@ -446,10 +446,10 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         setup=None,
         sweep=None,
         reduce_matrix=None,
-        r_unit="ohm",
-        l_unit="nH",
-        c_unit="pF",
-        g_unit="mho",
+        r_unit: str="ohm",
+        l_unit: str="nH",
+        c_unit: str="pF",
+        g_unit: str="mho",
         freq=None,
         freq_unit=None,
         matrix_type=None,
@@ -457,8 +457,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         precision=None,
         field_width=None,
         use_sci_notation: bool=True,
-        length_setting="Distributed",
-        length="1meter",
+        length_setting: str="Distributed",
+        length: str="1meter",
     ):
         """Export matrix data.
 
@@ -782,7 +782,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         sweep=None,
         variations=None,
         matrix=None,
-        cells=2,
+        cells: int=2,
         user_changed_settings: bool=True,
         include_cap: bool=True,
         include_cond: bool=True,
@@ -795,7 +795,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         add_resistance: bool=False,
         parse_pin_names: bool=False,
         export_distributed: bool=True,
-        lumped_length="1meter",
+        lumped_length: str="1meter",
         rise_time_value=None,
         rise_time_unit=None,
         coupling_limit_type=None,
@@ -804,8 +804,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         res_limit=None,
         cond_limit=None,
         model=None,
-        frequency=0,
-        file_type="HSPICE",
+        frequency: int=0,
+        file_type: str="HSPICE",
         include_cpp: bool=False,
     ):
         """Export matrix data.
@@ -1298,8 +1298,8 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -1593,7 +1593,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def toggle_net(self, net_name, net_type="Signal"):
+    def toggle_net(self, net_name, net_type: str="Signal"):
         """Toggle net type.
 
         Parameters
@@ -1644,7 +1644,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._boundaries[net_name]
 
     @pyaedt_function_handler()
-    def assign_net(self, assignment, net_name=None, net_type="Signal"):
+    def assign_net(self, assignment, net_name=None, net_type: str="Signal"):
         """Assign a net to a list of objects.
 
         Parameters
@@ -1687,7 +1687,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(net_name, props, type_bound)
 
     @pyaedt_function_handler()
-    def source(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
+    def source(self, assignment=None, direction: int=0, name=None, net_name=None, terminal_type: str="voltage"):
         """Generate a source on a face of an object or a group of faces or face ids.
 
         The face ID is selected based on the axis direction. It is the face that
@@ -1718,7 +1718,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Source")
 
     @pyaedt_function_handler()
-    def sink(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
+    def sink(self, assignment=None, direction: int=0, name=None, net_name=None, terminal_type: str="voltage"):
         """Generate a sink on a face of an object or a group of faces or face ids.
 
         The face ID is selected based on the axis direction. It is the face that
@@ -1833,7 +1833,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", **kwargs):
+    def create_setup(self, name: str="MySetupAuto", **kwargs):
         """Create an analysis setup for Q3D Extractor.
 
         Optional arguments are passed along with the ``name`` parameter.
@@ -1877,7 +1877,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def assign_thin_conductor(self, assignment, material="copper", thickness=1, name=""):
+    def assign_thin_conductor(self, assignment, material: str="copper", thickness: int=1, name: str=""):
         """Assign a thin conductor to a sheet.
 
         The method accepts both a sheet name or a face id.
@@ -1923,7 +1923,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_mutual_coupling(
-        self, source1, sink1, source2, sink2, calculation="ACL", setup_sweep_name=None, variations=None
+        self, source1, sink1, source2, sink2, calculation: str="ACL", setup_sweep_name=None, variations=None
     ):
         """Get mutual coupling between two terminals.
 
@@ -2404,8 +2404,8 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -2432,7 +2432,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, name="", material=""):
+    def create_rectangle(self, origin, sizes, name: str="", material: str=""):
         """Create a rectangle.
 
         Parameters
@@ -2463,11 +2463,11 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def assign_single_conductor(
         self,
         assignment,
-        name="",
-        conductor_type="SignalLine",
-        solve_option="SolveInside",
+        name: str="",
+        conductor_type: str="SignalLine",
+        solve_option: str="SolveInside",
         thickness=None,
-        units="um",
+        units: str="um",
     ):
         """
         Assign the conductor type to sheets.
@@ -2525,7 +2525,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, conductor_type)
 
     @pyaedt_function_handler()
-    def assign_huray_finitecond_to_edges(self, assignment, radius, ratio, units="um", name=""):
+    def assign_huray_finitecond_to_edges(self, assignment, radius, ratio, units: str="um", name: str=""):
         """
         Assign the Huray surface roughness model to edges.
 
@@ -2742,7 +2742,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for 2D Extractor.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``

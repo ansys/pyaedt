@@ -332,11 +332,11 @@ class Layer3D(PyAedtBase):
         stackup,
         app,
         name,
-        layer_type="S",
-        material_name="copper",
-        thickness=0.035,
-        fill_material="FR4_epoxy",
-        index=1,
+        layer_type: str="S",
+        material_name: str="copper",
+        thickness: float=0.035,
+        fill_material: str="FR4_epoxy",
+        index: int=1,
         frequency=None,
     ):
         self._stackup = stackup
@@ -617,10 +617,10 @@ class Layer3D(PyAedtBase):
         frequency,
         patch_width,
         patch_length=None,
-        patch_position_x=0,
-        patch_position_y=0,
+        patch_position_x: int=0,
+        patch_position_y: int=0,
         patch_name=None,
-        axis="X",
+        axis: str="X",
     ):
         """Create a parametric patch.
 
@@ -694,12 +694,12 @@ class Layer3D(PyAedtBase):
         line_length,
         is_electrical_length: bool=False,
         is_impedance: bool=False,
-        line_position_x=0,
-        line_position_y=0,
+        line_position_x: int=0,
+        line_position_y: int=0,
         line_name=None,
-        axis="X",
+        axis: str="X",
         reference_system=None,
-        frequency=1e9,
+        frequency: float=1e9,
     ):
         """Create a trace.
 
@@ -783,7 +783,7 @@ class Layer3D(PyAedtBase):
         return created_line
 
     @pyaedt_function_handler()
-    def add_polygon(self, points, material="copper", is_void: bool=False, poly_name=None):
+    def add_polygon(self, points, material: str="copper", is_void: bool=False, poly_name=None):
         """Create a polygon.
 
         Parameters
@@ -910,7 +910,7 @@ class PadstackLayer(PyAedtBase):
 class Padstack(PyAedtBase):
     """Provides the ``Padstack`` class member of Stackup3D."""
 
-    def __init__(self, app, stackup, name, material="copper"):
+    def __init__(self, app, stackup, name, material: str="copper"):
         self._app = app
         self._stackup = stackup
         self.name = name
@@ -1062,7 +1062,7 @@ class Padstack(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_via(self, position_x=0, position_y=0, instance_name=None, reference_system=None):
+    def add_via(self, position_x: int=0, position_y: int=0, instance_name=None, reference_system=None):
         """Insert a new via on this padstack.
 
         Parameters
@@ -1420,7 +1420,7 @@ class Stackup3D(PyAedtBase):
         return self._duplicated_material_list
 
     @pyaedt_function_handler()
-    def add_padstack(self, name, material="copper"):
+    def add_padstack(self, name, material: str="copper"):
         """Add a new padstack definition.
 
         Parameters
@@ -1440,7 +1440,7 @@ class Stackup3D(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_layer(
-        self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None
+        self, name, layer_type: str="S", material_name: str="copper", thickness: float=0.035, fill_material: str="FR4_epoxy", frequency=None
     ):
         """Add a new layer to the stackup.
 
@@ -1521,7 +1521,7 @@ class Stackup3D(PyAedtBase):
         return lay
 
     @pyaedt_function_handler()
-    def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None):
+    def add_signal_layer(self, name, material: str="copper", thickness: float=0.035, fill_material: str="FR4_epoxy", frequency=None):
         """Add a new ground layer to the stackup.
 
         A signal layer is positive. The layer is entirely filled with the fill material.
@@ -1571,7 +1571,7 @@ class Stackup3D(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def add_dielectric_layer(self, name, material="FR4_epoxy", thickness=0.035, frequency=None):
+    def add_dielectric_layer(self, name, material: str="FR4_epoxy", thickness: float=0.035, frequency=None):
         """Add a new dielectric layer to the stackup.
 
         Parameters
@@ -1610,7 +1610,7 @@ class Stackup3D(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air", frequency=None):
+    def add_ground_layer(self, name, material: str="copper", thickness: float=0.035, fill_material: str="air", frequency=None):
         """Add a new ground layer to the stackup.
 
         A ground layer is negative.
@@ -1725,7 +1725,7 @@ class Stackup3D(PyAedtBase):
         )
         return True
 
-    def resize_around_element(self, element, percentage_offset=0.25):
+    def resize_around_element(self, element, percentage_offset: float=0.25):
         """Resize the stackup around parametrized objects and make it parametrize.
 
         Parameters
@@ -1936,11 +1936,11 @@ class Patch(CommonObject, PyAedtBase):
         signal_layer,
         dielectric_layer,
         dy=None,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name="patch",
+        patch_position_x: int=0,
+        patch_position_y: int=0,
+        patch_name: str="patch",
         reference_system=None,
-        axis="X",
+        axis: str="X",
     ):
         CommonObject.__init__(self, application)
         if frequency:
@@ -2288,7 +2288,7 @@ class Patch(CommonObject, PyAedtBase):
         )
         return self._impedance_l_w, self._impedance_w_l
 
-    def create_probe_port(self, reference_layer, rel_x_offset=0, rel_y_offset=0, r=0.01, name="Probe"):
+    def create_probe_port(self, reference_layer, rel_x_offset: int=0, rel_y_offset: int=0, r: float=0.01, name: str="Probe"):
         """Create a coaxial probe port for the patch.
 
         Parameters
@@ -2446,7 +2446,7 @@ class Patch(CommonObject, PyAedtBase):
             port = self.application.lumped_port(rect.name, reference=[reference_layer.name], name=port_name)
         return port
 
-    def quarter_wave_feeding_line(self, impedance_to_adapt=50):
+    def quarter_wave_feeding_line(self, impedance_to_adapt: int=50):
         """Create a Trace to feed the patch.
 
         The trace length is the quarter wavelength, and this width is calculated
@@ -2582,13 +2582,13 @@ class Trace(CommonObject, PyAedtBase):
         line_impedance,
         signal_layer,
         dielectric_layer,
-        line_electrical_length=90,
+        line_electrical_length: int=90,
         line_length=None,
-        line_position_x=0,
-        line_position_y=0,
-        line_name="line",
+        line_position_x: int=0,
+        line_position_y: int=0,
+        line_name: str="line",
         reference_system=None,
-        axis="X",
+        axis: str="X",
     ):
         CommonObject.__init__(self, application)
         if frequency:
@@ -3239,8 +3239,8 @@ class Polygon(CommonObject, PyAedtBase):
         application,
         point_list,
         signal_layer,
-        poly_name="poly",
-        mat_name="copper",
+        poly_name: str="poly",
+        mat_name: str="copper",
         is_void: bool=False,
         reference_system=None,
     ):

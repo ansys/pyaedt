@@ -255,7 +255,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self.solution_type = self.solution_type
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable: bool=True, opening_type="Radiation"):
+    def set_auto_open(self, enable: bool=True, opening_type: str="Radiation"):
         """Set HFSS auto open type.
 
         Parameters
@@ -356,7 +356,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         return self._problem_type
 
     @problem_type.setter
-    def problem_type(self, value="TemperatureAndFlow"):
+    def problem_type(self, value: str="TemperatureAndFlow"):
         if value == "TemperatureAndFlow":
             self._problem_type = value
             self._solution_options[self.solution_type]["options"] = self._problem_type

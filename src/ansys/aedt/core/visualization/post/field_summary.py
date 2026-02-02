@@ -114,11 +114,11 @@ class FieldSummary(PyAedtBase):
         geometry,
         geometry_name,
         quantity,
-        normal="",
-        side="Default",
-        mesh="All",
-        ref_temperature="AmbientTemp",
-        time="0s",
+        normal: str="",
+        side: str="Default",
+        mesh: str="All",
+        ref_temperature: str="AmbientTemp",
+        time: str="0s",
     ):
         """
         Add an entry in the field summary calculation requests.
@@ -186,7 +186,7 @@ class FieldSummary(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_field_summary_data(self, setup=None, variation=None, intrinsics="", pandas_output: bool=False):
+    def get_field_summary_data(self, setup=None, variation=None, intrinsics: str="", pandas_output: bool=False):
         """
         Get  field summary output computation.
 
@@ -236,7 +236,7 @@ class FieldSummary(PyAedtBase):
         return out_dict
 
     @pyaedt_function_handler()
-    def export_csv(self, output_file, setup=None, variations=None, intrinsics=""):
+    def export_csv(self, output_file, setup=None, variations=None, intrinsics: str=""):
         """
         Get the field summary output computation.
 

@@ -61,7 +61,7 @@ class HDMPlotter(CommonPlotter, PyAedtBase):
         return self._bundle
 
     @pyaedt_function_handler()
-    def add_cad_model(self, filename, cad_color="dodgerblue", opacity=1, units="mm"):
+    def add_cad_model(self, filename, cad_color: str="dodgerblue", opacity: int=1, units: str="mm"):
         """Add a ``stl`` file to the scenario.
 
         Parameters

@@ -294,7 +294,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Type of the boundary.
     """
 
-    def __init__(self, app, name, props=None, boundarytype="Port"):
+    def __init__(self, app, name, props=None, boundarytype: str="Port"):
         self.auto_update = False
         self._app = app
         self._name = name
@@ -489,10 +489,10 @@ class NativeComponentPCB(NativeComponentObject):
     def set_high_side_radiation(
         self,
         enabled,
-        surface_material="Steel-oxidised-surface",
+        surface_material: str="Steel-oxidised-surface",
         radiate_to_ref_temperature: bool=False,
-        view_factor=1,
-        ref_temperature="AmbientTemp",
+        view_factor: int=1,
+        ref_temperature: str="AmbientTemp",
     ):
         """Set high side radiation properties.
 
@@ -635,10 +635,10 @@ class NativeComponentPCB(NativeComponentObject):
     def set_low_side_radiation(
         self,
         enabled,
-        surface_material="Steel-oxidised-surface",
+        surface_material: str="Steel-oxidised-surface",
         radiate_to_ref_temperature: bool=False,
-        view_factor=1,
-        ref_temperature="AmbientTemp",
+        view_factor: int=1,
+        ref_temperature: str="AmbientTemp",
     ):
         """Set low side radiation properties.
 
@@ -927,9 +927,9 @@ class PCBSettingsPackageParts(PyAedtBase):
     def set_connectors_modeling(
         self,
         modeling=None,
-        solderbumps_modeling="Boxes",
-        bondwire_material="Au-Typical",
-        bondwire_diameter="0.05mm",
+        solderbumps_modeling: str="Boxes",
+        bondwire_material: str="Au-Typical",
+        bondwire_diameter: str="0.05mm",
     ):
         """Set how to model connectors.
 

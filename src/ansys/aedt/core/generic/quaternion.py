@@ -57,7 +57,7 @@ class Quaternion(PyAedtBase):
 
     """
 
-    def __init__(self, a=0, b=0, c=0, d=0):
+    def __init__(self, a: int=0, b: int=0, c: int=0, d: int=0):
         """Initialize the quaternion.
         Quaternions are created using ``Quaternion(a, b, c, d)``, representing the form q = a + bi + cj + dk.
 

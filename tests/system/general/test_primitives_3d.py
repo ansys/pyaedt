@@ -83,7 +83,7 @@ def aedt_app(add_app):
 # Utils functions
 
 
-def create_copper_box(app, name="MyBox"):
+def create_copper_box(app, name: str="MyBox"):
     """Create a copper box."""
     if app.modeler[name]:
         app.modeler.delete(name)
@@ -91,7 +91,7 @@ def create_copper_box(app, name="MyBox"):
     return new_object
 
 
-def create_copper_cylinder(app, name="MyCyl"):
+def create_copper_cylinder(app, name: str="MyCyl"):
     """Create a copper cylinder."""
     if app.modeler[name]:
         app.modeler.delete(name)
@@ -101,7 +101,7 @@ def create_copper_cylinder(app, name="MyCyl"):
     return new_object
 
 
-def create_rectangle(app, name="MyRectangle"):
+def create_rectangle(app, name: str="MyRectangle"):
     """Create a rectangle."""
     if app.modeler[name]:
         app.modeler.delete(name)
@@ -110,7 +110,7 @@ def create_rectangle(app, name="MyRectangle"):
     return new_object
 
 
-def create_copper_torus(app, name="MyTorus"):
+def create_copper_torus(app, name: str="MyTorus"):
     """Create a copper torus."""
     if app.modeler[name]:
         app.modeler.delete(name)
@@ -120,7 +120,7 @@ def create_copper_torus(app, name="MyTorus"):
     return new_object
 
 
-def create_polylines(app, name="Poly_"):
+def create_polylines(app, name: str="Poly_"):
     test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
     if app.modeler[name + "segmented"]:
         app.modeler.delete(

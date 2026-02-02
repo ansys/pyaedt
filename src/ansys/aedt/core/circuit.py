@@ -160,8 +160,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -639,7 +639,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_source_pin_names(
-        self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3
+        self, source_design_name, source_project_name=None, source_project_path=None, port_selector: int=3
     ):
         """Retrieve pin names.
 
@@ -696,7 +696,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return pins
 
     @pyaedt_function_handler()
-    def import_touchstone_solution(self, input_file, solution="Imported_Data"):
+    def import_touchstone_solution(self, input_file, solution: str="Imported_Data"):
         """Import a Touchstone file as the solution.
 
         Parameters
@@ -840,9 +840,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         passivity: bool=False,
         causality: bool=False,
         renormalize: bool=False,
-        impedance=50,
-        error=0.5,
-        poles=10000,
+        impedance: int=50,
+        error: float=0.5,
+        poles: int=10000,
     ):
         """
         Export a full wave HSpice file using NDE.
@@ -1008,7 +1008,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def push_excitations(self, instance, thevenin_calculation: bool=False, setup="LinearFrequency"):
+    def push_excitations(self, instance, thevenin_calculation: bool=False, setup: str="LinearFrequency"):
         """Push excitations for a linear frequency setup.
 
         Parameters
@@ -1038,14 +1038,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     def push_time_excitations(
         self,
         instance,
-        start=0.0,
-        stop=0.0,
-        harmonics=100,
-        window_type="Rectangular",
-        width_percentage=100.0,
-        kaiser=0.0,
+        start: float=0.0,
+        stop: float=0.0,
+        harmonics: int=100,
+        window_type: str="Rectangular",
+        width_percentage: float=100.0,
+        kaiser: float=0.0,
         correct_coherent_gain: bool=True,
-        setup="NexximTransient",
+        setup: str="NexximTransient",
     ):
         """Push excitations for a transient setup.
 
@@ -1276,8 +1276,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         reference,
         common_mode=None,
         differential_mode=None,
-        common_reference=25,
-        differential_reference=100,
+        common_reference: int=25,
+        differential_reference: int=100,
         active: bool=True,
     ):
         """Add a differential pair definition.
@@ -1515,7 +1515,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
-        self, project_connections, edb_zones_dict, ports=None, schematic_units="mm", model_inc=50
+        self, project_connections, edb_zones_dict, ports=None, schematic_units: str="mm", model_inc: int=50
     ):
         """Connect circuit model from a multizone clipped project.
 
@@ -1644,11 +1644,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         tx_schematic_differential_pins=None,
         termination_pins=None,
         differential: bool=True,
-        rise_time=30,
+        rise_time: int=30,
         use_convolution: bool=True,
         analyze: bool=True,
-        design_name="LNA",
-        impedance=50,
+        design_name: str="LNA",
+        impedance: int=50,
     ):
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
@@ -1784,13 +1784,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     def create_lna_schematic_from_snp(
         self,
         input_file,
-        start_frequency=0,
-        stop_frequency=30,
+        start_frequency: int=0,
+        stop_frequency: int=30,
         auto_assign_diff_pairs: bool=False,
-        separation=".",
+        separation: str=".",
         pattern=None,
         analyze: bool=True,
-        design_name="LNA",
+        design_name: str="LNA",
     ):
         """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
 
@@ -1910,7 +1910,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         unit_interval=None,
         use_convolution: bool=True,
         analyze: bool=False,
-        design_name="AMI",
+        design_name: str="AMI",
         ibis_rx_file=None,
         create_setup: bool=True,
     ):
@@ -2016,7 +2016,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         unit_interval=None,
         use_convolution: bool=True,
         analyze: bool=False,
-        design_name="IBIS",
+        design_name: str="IBIS",
         is_ami: bool=False,
         create_setup: bool=True,
     ):
@@ -2119,8 +2119,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self,
         ibis_tx_file,
         ibis_rx_file=None,
-        tx_buffer_name="",
-        rx_buffer_name="",
+        tx_buffer_name: str="",
+        rx_buffer_name: str="",
         tx_schematic_pins=None,
         rx_schematic_pins=None,
         tx_schematic_differential_pins=None,
@@ -2613,13 +2613,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self,
         input_file,
         link: bool=False,
-        header_rows=0,
+        header_rows: int=0,
         rows_to_read=-1,
-        column_separator="Space",
-        data_type="real",
-        sweep_columns=0,
+        column_separator: str="Space",
+        data_type: str="real",
+        sweep_columns: int=0,
         total_columns=-1,
-        real_columns=1,
+        real_columns: int=1,
     ):
         """Import a data table as a solution.
 

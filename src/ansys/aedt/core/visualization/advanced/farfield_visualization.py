@@ -506,7 +506,7 @@ class FfdSolutionData(PyAedtBase):
             self.__origin = vals
 
     @pyaedt_function_handler()
-    def combine_farfield(self, phi_scan=0.0, theta_scan=0.0):
+    def combine_farfield(self, phi_scan: float=0.0, theta_scan: float=0.0):
         """Compute the far field pattern calculated for a specific phi and theta scan angle requested.
 
         Parameters
@@ -719,7 +719,7 @@ class FfdSolutionData(PyAedtBase):
         return w1 * w2
 
     @pyaedt_function_handler()
-    def __phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
+    def __phase_shift_steering(self, a, b, theta: float=0.0, phi: float=0.0):
         """Shift element phase for a specific Theta and Phi scan angle in degrees.
 
         This method calculates phase shifts between array elements in A and B directions given the lattice vector.
@@ -781,15 +781,15 @@ class FfdSolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_contour(
         self,
-        quantity="RealizedGain",
-        phi=0,
-        theta=0,
+        quantity: str="RealizedGain",
+        phi: int=0,
+        theta: int=0,
         title=None,
-        quantity_format="dB10",
+        quantity_format: str="dB10",
         output_file=None,
-        levels=64,
+        levels: int=64,
         polar: bool=True,
-        max_theta=180,
+        max_theta: int=180,
         show: bool=True,
     ):
         """Create a contour plot of a specified quantity in Matplotlib.
@@ -883,13 +883,13 @@ class FfdSolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_cut(
         self,
-        quantity="RealizedGain",
-        primary_sweep="phi",
-        secondary_sweep_value=0,
-        phi=0,
-        theta=0,
-        title="Far Field Cut",
-        quantity_format="dB10",
+        quantity: str="RealizedGain",
+        primary_sweep: str="phi",
+        secondary_sweep_value: int=0,
+        phi: int=0,
+        theta: int=0,
+        title: str="Far Field Cut",
+        quantity_format: str="dB10",
         output_file=None,
         show: bool=True,
         is_polar: bool=False,
@@ -1004,11 +1004,11 @@ class FfdSolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_3d_chart(
         self,
-        quantity="RealizedGain",
-        phi=0,
-        theta=0,
-        title="3D Plot",
-        quantity_format="dB10",
+        quantity: str="RealizedGain",
+        phi: int=0,
+        theta: int=0,
+        title: str="3D Plot",
+        quantity_format: str="dB10",
         output_file=None,
         show: bool=True,
     ):
@@ -1086,8 +1086,8 @@ class FfdSolutionData(PyAedtBase):
     @graphics_required
     def plot_3d(
         self,
-        quantity="RealizedGain",
-        quantity_format="dB10",
+        quantity: str="RealizedGain",
+        quantity_format: str="dB10",
         rotation=None,
         output_file=None,
         show: bool=True,
@@ -1259,7 +1259,7 @@ class FfdSolutionData(PyAedtBase):
                 for i in cad:
                     i.SetVisibility(flag)
 
-            def scale(value=1):
+            def scale(value: int=1):
                 ff_mesh_inst.SetScale(value, value, value)
                 sf = AEDT_UNITS["Length"][self.__model_units]
                 ff_mesh_inst.SetPosition(np.divide(self.origin, sf))
@@ -1370,7 +1370,7 @@ class FfdSolutionData(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_far_field_mesh(self, quantity="RealizedGain", quantity_format="dB10"):
+    def get_far_field_mesh(self, quantity: str="RealizedGain", quantity_format: str="dB10"):
         """Generate a PyVista ``UnstructuredGrid`` object that represents the far field mesh.
 
         Parameters
@@ -1594,7 +1594,7 @@ class UpdateBeamForm(PyAedtBase):
     """
 
     @pyaedt_function_handler()
-    def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
+    def __init__(self, ff, farfield_quantity: str="RealizedGain", quantity_format: str="abs"):
         self.output = ff._mesh
         self.__phi = 0
         self.__theta = 0

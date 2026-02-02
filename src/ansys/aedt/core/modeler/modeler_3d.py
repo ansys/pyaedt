@@ -74,16 +74,16 @@ class Modeler3D(Primitives3D, PyAedtBase):
         boundaries=None,
         excitations=None,
         coordinate_systems=None,
-        reference_coordinate_system="Global",
+        reference_coordinate_system: str="Global",
         is_encrypted: bool=False,
         allow_edit: bool=False,
-        security_message="",
+        security_message: str="",
         password=None,  # nosec
         edit_password=None,
-        password_type="UserSuppliedPassword",
+        password_type: str="UserSuppliedPassword",
         hide_contents: bool=False,
         replace_names: bool=False,
-        component_outline="BoundingBox",
+        component_outline: str="BoundingBox",
         export_auxiliary: bool=False,
         monitor_objects=None,
         datasets=None,
@@ -402,7 +402,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         boundaries=None,
         excitations=None,
         coordinate_systems=None,
-        reference_coordinate_system="Global",
+        reference_coordinate_system: str="Global",
     ):
         """Replace with 3D component.
 
@@ -558,13 +558,13 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self,
         origin,
         axis,
-        inner_radius=1,
-        outer_radius=2,
-        diel_radius=1.8,
-        length=10,
-        mat_inner="copper",
-        mat_outer="copper",
-        mat_diel="teflon_based",
+        inner_radius: int=1,
+        outer_radius: int=2,
+        diel_radius: float=1.8,
+        length: int=10,
+        mat_inner: str="copper",
+        mat_outer: str="copper",
+        mat_diel: str="teflon_based",
     ):
         """Create a coaxial.
 
@@ -632,10 +632,10 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self,
         origin,
         wg_direction_axis,
-        wgmodel="WG0",
-        wg_length=100,
+        wgmodel: str="WG0",
+        wg_length: int=100,
         wg_thickness=None,
-        wg_material="aluminum",
+        wg_material: str="aluminum",
         parametrize_w: bool=False,
         parametrize_h: bool=False,
         create_sheets_on_openings: bool=False,
@@ -984,14 +984,14 @@ class Modeler3D(Primitives3D, PyAedtBase):
         self,
         file_path,
         import_lines: bool=True,
-        lines_thickness=0,
+        lines_thickness: int=0,
         import_as_light_weight: bool=False,
-        decimation=0,
+        decimation: int=0,
         group_parts: bool=True,
-        enable_planar_merge="True",
+        enable_planar_merge: str="True",
         save_only_stl: bool=False,
         preview: bool=False,
-        merge_angle=1e-3,
+        merge_angle: float=1e-3,
         remove_multiple_connections: bool=False,
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
@@ -1167,15 +1167,15 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def import_from_openstreet_map(
         self,
         latitude_longitude,
-        env_name="default",
-        terrain_radius=500,
+        env_name: str="default",
+        terrain_radius: int=500,
         include_osm_buildings: bool=True,
         including_osm_roads: bool=True,
         import_in_aedt: bool=True,
         plot_before_importing: bool=False,
-        z_offset=2,
-        road_step=3,
-        road_width=8,
+        z_offset: int=2,
+        road_step: int=3,
+        road_width: int=8,
         create_lightweigth_part: bool=True,
     ):
         """Import OpenStreet Maps into AEDT.
@@ -1327,7 +1327,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         segmentation_thickness=None,
         segments=None,
         apply_mesh_sheets: bool=False,
-        mesh_sheets=2,
+        mesh_sheets: int=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
@@ -1411,7 +1411,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return segment_objects
 
     @pyaedt_function_handler
-    def change_region_padding(self, padding_data, padding_type, direction=None, region_name="Region"):
+    def change_region_padding(self, padding_data, padding_type, direction=None, region_name: str="Region"):
         """
         Change region padding settings.
 
@@ -1503,7 +1503,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_region_coordinate_system(self, assignment="Global", name="Region"):
+    def change_region_coordinate_system(self, assignment: str="Global", name: str="Region"):
         """
         Change region coordinate system.
 

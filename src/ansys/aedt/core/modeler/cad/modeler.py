@@ -458,7 +458,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(
-        self, assignment, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end: bool=True
+        self, assignment, origin, axis_position, axis: str="X", name=None, offset=None, rotation: int=0, always_move_to_end: bool=True
     ):
         """Create a face coordinate system.
 
@@ -820,7 +820,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def change_cs_mode(self, mode_type=0):
+    def change_cs_mode(self, mode_type: int=0):
         """Change the mode of the coordinate system.
 
         Parameters
@@ -927,15 +927,15 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
     def create(
         self,
         origin=None,
-        reference_cs="Global",
+        reference_cs: str="Global",
         name=None,
-        mode="axis",
-        view="iso",
+        mode: str="axis",
+        view: str="iso",
         x_pointing=None,
         y_pointing=None,
-        phi=0,
-        theta=0,
-        psi=0,
+        phi: int=0,
+        theta: int=0,
+        psi: int=0,
         u=None,
     ):
         """Create a coordinate system.
@@ -1762,7 +1762,7 @@ class Lists(PropsManager, PyAedtBase):
         self,
         assignment,
         name=None,
-        entity_type="Object",
+        entity_type: str="Object",
     ):
         """Create a List.
 

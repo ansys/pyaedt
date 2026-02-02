@@ -241,7 +241,7 @@ def test_get_mesh_process_name():
     assert profiles.get_mesh_process_name(n3) is None
 
 
-def build_simulation_group(product="HFSS"):
+def build_simulation_group(product: str="HFSS"):
     design_validation_hfss = Node(properties={"Info": "Elapsed Time: 00:00:06, Memory: 3 G"})
     design_validation_mx = Node(properties={"Elapsed Time": "00:00:04", "Memory": "1.2 G"})
     freq_child = Node(properties={"Info": "Elapsed time : 00:00:02", "Name": "Frequency - 1 GHz Group"}, children={})

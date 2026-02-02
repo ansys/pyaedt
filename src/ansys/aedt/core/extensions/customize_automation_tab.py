@@ -66,10 +66,10 @@ def add_automation_tab(
     name,
     lib_dir,
     icon_file=None,
-    product="Project",
-    template="Run PyAEDT Toolkit Script",
+    product: str="Project",
+    template: str="Run PyAEDT Toolkit Script",
     overwrite: bool=False,
-    panel="Panel_PyAEDT_Extensions",
+    panel: str="Panel_PyAEDT_Extensions",
     is_custom: bool=False,  # new argument for custom flag
     odesktop=None,
 ):
@@ -203,7 +203,7 @@ def create_xml_tab(root, output_file):
         f.write(xml_str)
 
 
-def is_extension_in_panel(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
+def is_extension_in_panel(toolkit_dir, product, name, panel: str="Panel_PyAEDT_Extensions"):
     """Check if a toolkit configuration exists in the panel.
 
     Parameters
@@ -253,7 +253,7 @@ def is_extension_in_panel(toolkit_dir, product, name, panel="Panel_PyAEDT_Extens
     return name in button_names
 
 
-def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
+def remove_xml_tab(toolkit_dir, product, name, panel: str="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration from the panel.
 
     Parameters
@@ -319,11 +319,11 @@ def available_toolkits():
 def add_script_to_menu(
     name,
     script_file=None,
-    template_file="run_pyaedt_toolkit_script",
+    template_file: str="run_pyaedt_toolkit_script",
     icon_file=None,
-    product="Project",
+    product: str="Project",
     copy_to_personal_lib: bool=True,
-    panel="Panel_PyAEDT_Extensions",
+    panel: str="Panel_PyAEDT_Extensions",
     personal_lib=None,
     is_custom: bool=False,
     odesktop=None,
@@ -684,7 +684,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             desktop_object.logger.info(f"{toolkit_info['name']} uninstalled")
 
 
-def remove_script_from_menu(desktop_object, name, product="Project"):
+def remove_script_from_menu(desktop_object, name, product: str="Project"):
     """Remove a toolkit script from the menu.
 
     Parameters

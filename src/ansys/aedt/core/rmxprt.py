@@ -231,8 +231,8 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         new_desktop: bool=False,
         close_on_exit: bool=False,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -277,7 +277,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         self.design_solutions._design_type = value
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for RmXport.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``

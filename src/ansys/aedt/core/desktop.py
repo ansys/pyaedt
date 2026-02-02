@@ -541,7 +541,7 @@ class Desktop(PyAedtBase):
         close_on_exit: bool=True,
         student_version: bool=False,
         machine=None,
-        port=0,
+        port: int=0,
         aedt_process_id=None,
     ):
         """Initialize desktop."""
@@ -915,7 +915,7 @@ class Desktop(PyAedtBase):
             return self.installed_versions[version_key + "CL"]
 
     @pyaedt_function_handler()
-    def get_example(self, example_name, folder_name="."):
+    def get_example(self, example_name, folder_name: str="."):
         """Retrieve the path to a built-in example project.
 
         Parameters
@@ -1669,7 +1669,7 @@ class Desktop(PyAedtBase):
         """
         self.odesktop.EnableAutoSave(False)
 
-    def change_license_type(self, license_type="Pool"):  # pragma: no cover
+    def change_license_type(self, license_type: str="Pool"):  # pragma: no cover
         """Change the license type.
 
         Parameters
@@ -1758,7 +1758,7 @@ class Desktop(PyAedtBase):
             self.logger.warning("Key value must be an integer or string.")
             return False
 
-    def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):  # pragma: no cover
+    def change_active_dso_config_name(self, product_name: str="HFSS", config_name: str="Local"):  # pragma: no cover
         """Change a specific registry key to a new value.
 
         Parameters
@@ -1837,8 +1837,8 @@ class Desktop(PyAedtBase):
         project_file,
         clustername,
         aedt_full_exe_path=None,
-        numnodes=1,
-        numcores=32,
+        numnodes: int=1,
+        numcores: int=32,
         wait_for_license: bool=True,
         setting_file=None,
     ):  # pragma: no cover
@@ -1950,8 +1950,8 @@ class Desktop(PyAedtBase):
         project_file,
         config_name,
         region,
-        numnodes=1,
-        numcores=32,
+        numnodes: int=1,
+        numcores: int=32,
         wait_for_license: bool=True,
         setting_file=None,
         job_name=None,
@@ -2172,7 +2172,7 @@ class Desktop(PyAedtBase):
             return self.odesktop.SelectScheduler(scheduler_type, address, username, str(force_password_entry))
 
     @pyaedt_function_handler()
-    def get_available_cloud_config(self, region="westeurope"):  # pragma: no cover
+    def get_available_cloud_config(self, region: str="westeurope"):  # pragma: no cover
         """Get available Ansys Cloud machines configuration.
 
         .. warning::
@@ -2240,7 +2240,7 @@ class Desktop(PyAedtBase):
         return dict_out
 
     @pyaedt_function_handler()
-    def download_job_results(self, job_id, project_path, results_folder, filter="*"):  # pragma: no cover
+    def download_job_results(self, job_id, project_path, results_folder, filter: str="*"):  # pragma: no cover
         """Download job results to a specific folder from Ansys Cloud.
 
         Parameters

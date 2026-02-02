@@ -1527,7 +1527,7 @@ class Variable(PyAedtBase):
         return default_container
 
     @pyaedt_function_handler()
-    def _set_prop_val(self, prop, val, n_times=10):
+    def _set_prop_val(self, prop, val, n_times: int=10):
         """Set a property value with retries, handling AEDT containers automatically."""
         if not self._app or self._app.design_type == "Maxwell Circuit":
             return
@@ -2220,7 +2220,7 @@ class DataSet(PyAedtBase):
         Sort dataset. The default is ``True``.
     """
 
-    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit="", sort: bool=True):
+    def __init__(self, app, name, x, y, z=None, v=None, xunit: str="", yunit: str="", zunit: str="", vunit: str="", sort: bool=True):
         self._app = app
         self.name = name
         self.x = x

@@ -33,7 +33,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 
 
-def search_files(dirname, pattern="*"):
+def search_files(dirname, pattern: str="*"):
     """Search for files inside a directory given a specific pattern.
 
     Parameters
@@ -66,7 +66,7 @@ class Scratch(PyAedtBase):
         """ """
         return self._cleaned
 
-    def __init__(self, local_path, permission=0o777, volatile: bool=False):
+    def __init__(self, local_path, permission: int=0o777, volatile: bool=False):
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits

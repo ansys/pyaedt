@@ -53,12 +53,12 @@ class TransmissionLine(PyAedtBase):
     >>> tl_calc.stripline_calculator(substrate_height=10, permittivity=2.2, impedance=60)
     """
 
-    def __init__(self, frequency=10, frequency_unit="GHz"):
+    def __init__(self, frequency: int=10, frequency_unit: str="GHz"):
         self.frequency = frequency
         self.frequency_unit = frequency_unit
 
     @pyaedt_function_handler()
-    def microstrip_synthesis(self, substrate_height, permittivity, impedance=50.0, electrical_length=150.0):
+    def microstrip_synthesis(self, substrate_height, permittivity, impedance: float=50.0, electrical_length: float=150.0):
         """Strip line calculator.
 
         Parameters
@@ -171,7 +171,7 @@ class TransmissionLine(PyAedtBase):
         return z0, z0d
 
     @pyaedt_function_handler()
-    def stripline_synthesis(self, substrate_height, permittivity, impedance=50.0):
+    def stripline_synthesis(self, substrate_height, permittivity, impedance: float=50.0):
         """Strip line calculator.
 
         Parameters
@@ -199,7 +199,7 @@ class TransmissionLine(PyAedtBase):
         return width
 
     @pyaedt_function_handler()
-    def suspended_strip_synthesis(self, substrate_height, permittivity, w1, units="mm"):
+    def suspended_strip_synthesis(self, substrate_height, permittivity, w1, units: str="mm"):
         """Suspended stripline calculator.
 
         Parameters
@@ -299,7 +299,7 @@ class StandardWaveguide(PyAedtBase):
     wg["WR-7"] = [0.065, 0.0325, 0.02]
     wg["WR-5"] = [0.0510, 0.0255, 0.02]
 
-    def __init__(self, frequency=10, frequency_unit="GHz"):
+    def __init__(self, frequency: int=10, frequency_unit: str="GHz"):
         self.frequency = frequency
         self.frequency_unit = frequency_unit
 
@@ -309,7 +309,7 @@ class StandardWaveguide(PyAedtBase):
         return self.wg.keys()
 
     @pyaedt_function_handler()
-    def get_waveguide_dimensions(self, name, units="mm"):
+    def get_waveguide_dimensions(self, name, units: str="mm"):
         """Strip line calculator.
 
         Parameters
@@ -333,7 +333,7 @@ class StandardWaveguide(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def find_waveguide(self, freq, units="GHz"):  # pragma: no cover
+    def find_waveguide(self, freq, units: str="GHz"):  # pragma: no cover
         """Find the closest standard waveguide for the operational frequency.
 
         Parameters

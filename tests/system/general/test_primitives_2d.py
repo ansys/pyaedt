@@ -157,7 +157,7 @@ def test_assign_material_ceramic(aedt_app):
     assert aedt_app.modeler[o.name].material_name == material
 
 
-def test_assign_material(aedt_app, material="steel_stainless"):
+def test_assign_material(aedt_app, material: str="steel_stainless"):
     o = create_rectangle(aedt_app, "Rectangle1")
     aedt_app.assign_material([o.name], material)
     assert aedt_app.modeler[o.name].material_name == material

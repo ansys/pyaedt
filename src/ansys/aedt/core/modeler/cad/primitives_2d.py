@@ -57,7 +57,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_circle(
-        self, origin, radius, num_sides=0, is_covered: bool=True, name=None, material=None, non_model: bool=False, **kwargs
+        self, origin, radius, num_sides: int=0, is_covered: bool=True, name=None, material=None, non_model: bool=False, **kwargs
     ):
         """Create a circle.
 
@@ -138,7 +138,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         name=None,
         material=None,
         non_model: bool=False,
-        segments=0,
+        segments: int=0,
         **kwargs
     ):  # fmt: on
         """Create an ellipse.
@@ -261,7 +261,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_regular_polygon(
-        self, origin, start_point, num_sides=6, name=None, material=None, non_model: bool=False, **kwargs
+        self, origin, start_point, num_sides: int=6, name=None, material=None, non_model: bool=False, **kwargs
     ):
         """Create a rectangle.
 
@@ -326,7 +326,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_region(self, pad_value=300, pad_type="Percentage Offset", name="Region", **kwarg):
+    def create_region(self, pad_value: int=300, pad_type: str="Percentage Offset", name: str="Region", **kwarg):
         """Create an air region.
 
         Parameters

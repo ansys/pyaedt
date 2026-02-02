@@ -138,8 +138,8 @@ class Emit(Design, PyAedtBase):
         new_desktop: bool=True,
         close_on_exit: bool=True,
         student_version: bool=False,
-        machine="",
-        port=0,
+        machine: str="",
+        port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
     ):
@@ -298,7 +298,7 @@ class Emit(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_type=""):
+    def get_units(self, unit_type: str=""):
         """Get units for the EMIT design.
 
         Parameters

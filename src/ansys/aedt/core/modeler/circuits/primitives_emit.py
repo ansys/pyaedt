@@ -669,7 +669,7 @@ class EmitAntennaComponent(EmitComponent):
 
         return orientation
 
-    def get_position(self, units=""):
+    def get_position(self, units: str=""):
         """Get the position of this antenna.
 
         Parameters
@@ -760,7 +760,7 @@ class EmitRadioComponent(EmitComponent):
                 return node
         return None
 
-    def band_start_frequency(self, band_node, units=""):
+    def band_start_frequency(self, band_node, units: str=""):
         """Get the start frequency of the band node.
 
         Parameters
@@ -778,7 +778,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
 
-    def band_stop_frequency(self, band_node, units=""):
+    def band_stop_frequency(self, band_node, units: str=""):
         """Get the stop frequency of the band node.
 
         Parameters
@@ -796,7 +796,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
 
-    def set_band_start_frequency(self, band_node, band_start_freq, units=""):
+    def set_band_start_frequency(self, band_node, band_start_freq, units: str=""):
         """Set start frequency of the band.
 
         Parameters
@@ -841,7 +841,7 @@ class EmitRadioComponent(EmitComponent):
             prop_list = {"StartFrequency": freq_string}
             band_node._set_prop_value(prop_list)
 
-    def set_band_stop_frequency(self, band_node, band_stop_freq, units=""):
+    def set_band_stop_frequency(self, band_node, band_stop_freq, units: str=""):
         """Set stop frequency of the band.
 
         Parameters
@@ -885,7 +885,7 @@ class EmitRadioComponent(EmitComponent):
         prop_list = {"StopFrequency": freq_string}
         band_node._set_prop_value(prop_list)
 
-    def band_channel_bandwidth(self, band_node, units=""):
+    def band_channel_bandwidth(self, band_node, units: str=""):
         """Get the channel bandwidth of the band node.
 
         Parameters
@@ -903,7 +903,7 @@ class EmitRadioComponent(EmitComponent):
             units = "Hz"
         return consts.unit_converter(float(band_node.props["ChannelBandwidth"]), "Freq", "Hz", units)
 
-    def band_tx_power(self, band_node, units=""):
+    def band_tx_power(self, band_node, units: str=""):
         """Get the transmit power of the band node.
 
         Parameters
@@ -1045,7 +1045,7 @@ class EmitComponentPropNode(PyAedtBase):
         return self.props["Enabled"] == "true"
 
     @pyaedt_function_handler()
-    def set_band_power_level(self, power, units=""):
+    def set_band_power_level(self, power, units: str=""):
         """Set the power of the fundamental for the given band.
 
         Parameters
@@ -1075,7 +1075,7 @@ class EmitComponentPropNode(PyAedtBase):
                 return  # only one Tx Spectral Profile per Band
 
     @pyaedt_function_handler()
-    def get_band_power_level(self, units=""):
+    def get_band_power_level(self, units: str=""):
         """Get the power of the fundamental for the given band.
 
         Parameters
@@ -1101,7 +1101,7 @@ class EmitComponentPropNode(PyAedtBase):
         return consts.unit_converter(float(power), "Power", "dBm", units)
 
     @pyaedt_function_handler()
-    def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
+    def set_channel_sampling(self, sampling_type: str="Uniform", percentage=None, max_channels=None, seed=None):
         """Set the channel sampling for the radio.
 
         If a percentage is specified, then it will be used instead of max_channels.

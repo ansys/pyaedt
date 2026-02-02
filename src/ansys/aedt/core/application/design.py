@@ -1562,7 +1562,7 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def export_profile(self, setup, variation="", output_file=None):
+    def export_profile(self, setup, variation: str="", output_file=None):
         """Export a solution profile to a PROF file.
 
         Parameters
@@ -1685,7 +1685,7 @@ class Design(AedtObjects, PyAedtBase):
         return val
 
     @pyaedt_function_handler()
-    def set_license_type(self, license_type="Pool"):
+    def set_license_type(self, license_type: str="Pool"):
         """Change the license type between ``"Pack"`` and ``"Pool"``.
 
         Parameters
@@ -1837,7 +1837,7 @@ class Design(AedtObjects, PyAedtBase):
                 return False
 
     @pyaedt_function_handler()
-    def set_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
+    def set_active_dso_config_name(self, product_name: str="HFSS", config_name: str="Local"):
         """Change a specific registry key to a new value.
 
         Parameters
@@ -2660,7 +2660,7 @@ class Design(AedtObjects, PyAedtBase):
                 self.modeler._edb.close_edb()
 
     @pyaedt_function_handler()
-    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit="", sort: bool=True):
+    def create_dataset1d_design(self, name, x, y, x_unit: str="", y_unit: str="", sort: bool=True):
         """Create a design dataset.
 
         Parameters
@@ -2690,7 +2690,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
     @pyaedt_function_handler()
-    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit="", sort: bool=True):
+    def create_dataset1d_project(self, name, x, y, x_unit: str="", y_unit: str="", sort: bool=True):
         """Create a project dataset.
 
         Parameters
@@ -2722,7 +2722,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_dataset3d(
-        self, name, x, y, z=None, v=None, x_unit="", y_unit="", z_unit="", v_unit="", is_project_dataset: bool=True, sort: bool=True
+        self, name, x, y, z=None, v=None, x_unit: str="", y_unit: str="", z_unit: str="", v_unit: str="", is_project_dataset: bool=True, sort: bool=True
     ):
         """Create a 3D dataset.
 
@@ -2950,7 +2950,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_dataset(
-        self, name, x, y, z=None, v=None, is_project_dataset: bool=True, x_unit="", y_unit="", z_unit="", v_unit="", sort: bool=True
+        self, name, x, y, z=None, v=None, is_project_dataset: bool=True, x_unit: str="", y_unit: str="", z_unit: str="", v_unit: str="", sort: bool=True
     ):
         """Create a dataset.
 
@@ -3109,7 +3109,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_validation_settings(
-        self, entity_check_level="Strict", ignore_unclassified: bool=False, skip_intersections: bool=False
+        self, entity_check_level: str="Strict", ignore_unclassified: bool=False, skip_intersections: bool=False
     ):
         """Update the validation design settings.
 
@@ -3810,7 +3810,7 @@ class Design(AedtObjects, PyAedtBase):
         include_external_files: bool=True,
         include_results_file: bool=True,
         additional_files=None,
-        notes="",
+        notes: str="",
     ):
         """Archive the AEDT project and add a message.
 

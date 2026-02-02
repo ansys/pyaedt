@@ -1308,7 +1308,7 @@ class IcepakMesh(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_mesh_region(self, assignment=None, level=5, name=None, **kwargs):
+    def assign_mesh_region(self, assignment=None, level: int=5, name=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -1380,7 +1380,7 @@ class IcepakMesh(PyAedtBase):
         mesh_level,
         group_name,
         enable_local_mesh_parameters: bool=False,
-        local_mesh_parameters="No local mesh parameters",
+        local_mesh_parameters: str="No local mesh parameters",
         name=None,
     ):
         """Assign a mesh level to a group.

@@ -303,7 +303,7 @@ class Pin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle=0.0, page=1):
+    def insert(self, x, y, angle: float=0.0, page: int=1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -475,7 +475,7 @@ class DifferentialPin(PyAedtBase):
             logger.error(f"Error adding {self.short_name} pin component.")
             return False
 
-    def insert(self, x, y, angle=0.0, page=1):
+    def insert(self, x, y, angle: float=0.0, page: int=1):
         """Insert a pin at a defined location inside the graphical window.
 
         Parameters
@@ -547,7 +547,7 @@ class Buffer(PyAedtBase):
             ],
         )
 
-    def insert(self, x, y, angle=0.0, page=1):
+    def insert(self, x, y, angle: float=0.0, page: int=1):
         """Insert a buffer at a defined location inside the graphical window.
 
         Parameters

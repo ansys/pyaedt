@@ -758,7 +758,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_solution_data_per_variation(
-        self, solution_type="Far Fields", setup_sweep_name="", context=None, sweeps=None, expressions=""
+        self, solution_type: str="Far Fields", setup_sweep_name: str="", context=None, sweeps=None, expressions: str=""
     ):
         """Retrieve solution data for each variation.
 
@@ -975,7 +975,7 @@ class PostProcessorCommon(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_report_to_jpg(self, project_path, plot_name, width=800, height=450, image_format="jpg"):
+    def export_report_to_jpg(self, project_path, plot_name, width: int=800, height: int=450, image_format: str="jpg"):
         """Export plot to an image file.
 
         Parameters
@@ -1009,15 +1009,15 @@ class PostProcessorCommon(PyAedtBase):
         self,
         expressions,
         setup_sweep_name=None,
-        domain="Sweep",
+        domain: str="Sweep",
         variations=None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
         report_category=None,
-        plot_type="Rectangular Plot",
+        plot_type: str="Rectangular Plot",
         context=None,
         subdesign_id=None,
-        polyline_points=0,
+        polyline_points: int=0,
         plot_name=None,
         only_get_method: bool=False,
     ):
@@ -1225,7 +1225,7 @@ class PostProcessorCommon(PyAedtBase):
         report_category=None,
         context=None,
         subdesign_id=None,
-        polyline_points=1001,
+        polyline_points: int=1001,
     ):
         # Setup
         if not setup_sweep_name:
@@ -1397,15 +1397,15 @@ class PostProcessorCommon(PyAedtBase):
         self,
         expressions=None,
         setup_sweep_name=None,
-        domain="Sweep",
+        domain: str="Sweep",
         variations=None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
         report_category=None,
-        plot_type="Rectangular Plot",
+        plot_type: str="Rectangular Plot",
         context=None,
         subdesign_id=None,
-        polyline_points=1001,
+        polyline_points: int=1001,
         plot_name=None,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or a data table.
@@ -1549,7 +1549,7 @@ class PostProcessorCommon(PyAedtBase):
         report_category=None,
         context=None,
         subdesign_id=None,
-        polyline_points=1001,
+        polyline_points: int=1001,
         math_formula=None,
     ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
@@ -2484,7 +2484,7 @@ class Reports(PyAedtBase):
         return rep
 
     @pyaedt_function_handler()
-    def statistical_eye_contour(self, expressions=None, setup=None, quantity_type=3):
+    def statistical_eye_contour(self, expressions=None, setup=None, quantity_type: int=3):
         """Create a standard statistical AMI contour plot.
 
         Parameters
@@ -2538,7 +2538,7 @@ class Reports(PyAedtBase):
 
     @pyaedt_function_handler()
     def eye_diagram(
-        self, expressions=None, setup=None, quantity_type=3, statistical_analysis: bool=True, unit_interval="1ns"
+        self, expressions=None, setup=None, quantity_type: int=3, statistical_analysis: bool=True, unit_interval: str="1ns"
     ):
         """Create a Standard or Default Report object.
 
