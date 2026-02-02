@@ -52,6 +52,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and DESKTOP_VERSION > "2024.2"
 ):
     from ansys.aedt.core import Emit
+    from ansys.aedt.core.emit_core.results import revision as Revision
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
@@ -2571,12 +2572,92 @@ def test_units(emit_app):
 
 
 @pytest.mark.skipif(
-    DESKTOP_VERSION <= "2027.1",
+    DESKTOP_VERSION < "2027.1",
     reason="Skipped on versions earlier than 2027.1",
 )
 def test_hfss_phased_array_antennas(hfss_phased_array):
-    # TODO: implement test logic or remove placeholder
-    pass
+    rev : Revision = hfss_phased_array.results.analyze()
+    domain = hfss_phased_array.results.interaction_domain()
+    assert domain is not None
+    engine = hfss_phased_array._emit_api.get_engine()
+    assert engine is not None
+    assert engine.is_domain_valid(domain)
+    assert rev.is_domain_valid(domain)
+    
+    # run the interaction
+    domain = hfss_phased_array.results.interaction_domain()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 35.1
+    
+    bowtie_ant : AntennaNode = rev.get_component_node("Bowtie")
+    assert bowtie_ant is not None
+    
+    # scan the antenna array and recompute EMI
+    bowtie_ant.elevation_angle = 45
+    bowtie_ant.azimuth_angle = 45
+    assert bowtie_ant.elevation_angle == 45
+    assert bowtie_ant.azimuth_angle == 45
+    
+    rev : Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 16.78
+    
+    # set taper to Cosine
+    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.COSINE    
+    bowtie_ant.edge_taper = 10
+    bowtie_ant.cosine_power = 10
+    bowtie_ant.max_taper_distance_x = 0.1
+    bowtie_ant.max_taper_distance_y = 0.1
+    assert bowtie_ant.edge_taper == 10
+    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.COSINE
+    assert round(bowtie_ant.cosine_power,1) == 10.0
+    assert bowtie_ant.max_taper_distance_x == 0.1
+    assert bowtie_ant.max_taper_distance_y == 0.1
+    
+    rev : Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 17.5
+    
+    # set taper to Hamming
+    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.HAMMING
+    bowtie_ant.max_taper_distance_x = 0.004
+    bowtie_ant.max_taper_distance_y = 0.004
+    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.HAMMING
+    assert bowtie_ant.max_taper_distance_x == 0.004
+    assert bowtie_ant.max_taper_distance_y == 0.004
+    
+    rev : Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 16.79
+    
+    # set taper to Triangular
+    bowtie_ant.tapering_function = AntennaNode.TaperingFunctionOption.TRIANGULAR
+    bowtie_ant.edge_taper = 3
+    bowtie_ant.max_taper_distance_x = .008
+    bowtie_ant.max_taper_distance_y = .008
+    assert bowtie_ant.tapering_function == AntennaNode.TaperingFunctionOption.TRIANGULAR
+    assert bowtie_ant.edge_taper == 3
+    assert bowtie_ant.max_taper_distance_x == .008
+    assert bowtie_ant.max_taper_distance_y == .008
+    
+    rev : Revision = hfss_phased_array.results.analyze()
+    interaction = engine.run(domain)
+    assert interaction is not None
+    assert interaction.is_valid()
+    instance = interaction.get_worst_instance(ResultType.EMI)
+    assert instance.get_value(ResultType.EMI) == 21.08
     
 @pytest.mark.skipif(DESKTOP_VERSION <= "2026.2", reason="Skipped on versions earlier than 2026 R1.")
 def test_27_components_catalog(emit_app):

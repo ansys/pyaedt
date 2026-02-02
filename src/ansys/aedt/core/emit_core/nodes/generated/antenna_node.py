@@ -472,10 +472,10 @@ class AntennaNode(EmitNode):
         self._set_property("Azimuth Angle", f"{value}")
 
     class TaperingFunctionOption(Enum):
-        FLAT = "FlatTaper"
-        COSINE = "CosineTaper"
-        HAMMING = "HammingTaper"
-        TRIANGULAR = "TriangularTaper"
+        FLAT = "Flat"
+        COSINE = "Cosine"
+        HAMMING = "Hamming"
+        TRIANGULAR = "Triangular"
 
     @property
     def tapering_function(self) -> TaperingFunctionOption:
