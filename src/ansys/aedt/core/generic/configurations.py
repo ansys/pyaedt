@@ -2511,7 +2511,9 @@ class ConfigurationsNexxim(Configurations, PyAedtBase):
                         and "left" in value["pin_locations"]
                         and "right" in value["pin_locations"]
                     ):  # pragma: no cover
-                        new_comp.change_symbol_pin_locations(value["pin_locations"])
+                        new_comp.change_symbol_pin_locations(
+                            value["pin_locations"], keep_original_size=True if value.get("image_path") else False
+                        )
                     if j.get("mirror", False):
                         new_comp.mirror = True
                     new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
