@@ -37,8 +37,8 @@ from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
 from ansys.aedt.core.emit_core.emit_function_validator import FunctionValidator
 import ansys.aedt.core.generic.constants as consts
 
-#Type variable to be used in methods that might receive a subclass of EmitNode
-T = TypeVar('T', bound='EmitNode')
+# Type variable to be used in methods that might receive a subclass of EmitNode
+T = TypeVar("T", bound="EmitNode")
 
 
 class EmitNode:
@@ -451,43 +451,43 @@ class EmitNode:
 
         return self.name
 
-    def _duplicate(self: T, new_name:str = "") -> T:
-        """Duplicate component using oEditor's Copy/Paste.  
+    def _duplicate(self: T, new_name: str = "") -> T:
+        """Duplicate component using oEditor's Copy/Paste.
         New component is placed under existing components in the schematic window.
-        
+
         Parameters
         ----------
         self : EmitNode
             The component node to duplicate
         new_name : str, optional
             Name for the duplicated component. If empty, AEDT auto-generates a name.
-            
+
         Returns
         -------
         EmitNode
             The duplicated component node
 
         Raises
-        -------
-        NotImplementedError 
-            when self is not a component.  Should avoid calls on BandNodes, SamplingNodes, etc.  
+        ------
+        NotImplementedError
+            when self is not a component.  Should avoid calls on BandNodes, SamplingNodes, etc.
         """
         if not self.get_is_component():
             raise NotImplementedError("This method is not implemented yet.")
         emit_design = self._emit_obj
         oEditor = emit_design._oeditor
 
-        self_bb = oEditor.GetComponentBoundingBox(self.name) #[[xBottom,yBottom],[width,height]] in meters
-        offset_y = -0.00508 - self_bb[1][1] #0.00508meters == 200mil which is the height of a radio
-        offset_x = self_bb[1][0]/2
+        self_bb = oEditor.GetComponentBoundingBox(self.name)  # [[xBottom,yBottom],[width,height]] in meters
+        offset_y = -0.00508 - self_bb[1][1]  # 0.00508meters == 200mil which is the height of a radio
+        offset_x = self_bb[1][0] / 2
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
-            
+
         # Get the original component location
         orig_location = self_bb[0]
 
-        #offset for paste
-        min_y = float('inf')
+        # offset for paste
+        min_y = float("inf")
         for comp_name in all_components:
             location = oEditor.GetComponentLocation(comp_name)
             if location[1] < min_y:
@@ -499,24 +499,24 @@ class EmitNode:
 
         # Copy the component
         oEditor.Copy(self.name)
-        
+
         # Paste at new location
-        oEditor.Paste(paste_x,paste_y)
-        
+        oEditor.Paste(paste_x, paste_y)
+
         # Get the new component node
         # The pasted component gets an auto-incremented name
         all_components_after = oEditor.GetAllComponents()
         new_comp_name = [c for c in all_components_after if c not in all_components][0]
-        
+
         # Optionally rename if new_name provided
         if new_name:
             oEditor.RenameComponent(new_comp_name, new_name)
             new_comp_name = new_name
-        
+
         # Get the component EmitNode from revision
         revision = emit_design.results.get_revision()
         new_component = revision.get_component_node(new_comp_name)
-        
+
         return new_component
 
     def _import(self, file_path: str, import_type: str):

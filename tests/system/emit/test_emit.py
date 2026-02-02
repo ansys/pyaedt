@@ -62,9 +62,14 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import Amplifier
     from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
     from ansys.aedt.core.emit_core.nodes.generated import Band
+    from ansys.aedt.core.emit_core.nodes.generated import Cable
+    from ansys.aedt.core.emit_core.nodes.generated import Circulator
     from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
     from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
     from ansys.aedt.core.emit_core.nodes.generated import Filter
+    from ansys.aedt.core.emit_core.nodes.generated import Isolator
+    from ansys.aedt.core.emit_core.nodes.generated import Multiplexer
+    from ansys.aedt.core.emit_core.nodes.generated import PowerDivider
     from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import RxMixerProductNode
     from ansys.aedt.core.emit_core.nodes.generated import RxSaturationNode
@@ -81,12 +86,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import TxSpectralProfNode
     from ansys.aedt.core.emit_core.nodes.generated import TxSpurNode
     from ansys.aedt.core.emit_core.nodes.generated import Waveform
-    from ansys.aedt.core.emit_core.nodes.generated import Cable
-    from ansys.aedt.core.emit_core.nodes.generated import Circulator
-    from ansys.aedt.core.emit_core.nodes.generated import Isolator
-    from ansys.aedt.core.emit_core.nodes.generated import Multiplexer
-    from ansys.aedt.core.emit_core.nodes.generated import PowerDivider
-    from ansys.aedt.core.emit_core.nodes.generated import TR_Switch 
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -228,7 +227,6 @@ def test_create_components(emit_app):
 @pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Duplicate method requires 2026 R1 or later")
 def test_duplicate_components(emit_app):
     """Test duplicating various component types using schematic.create_component which returns EmitNodes."""
-
     # Test Radio duplication
     radio: RadioNode = emit_app.schematic.create_component("New Radio", name="TestRadio")
     dup_radio = radio.duplicate("DuplicatedRadio")
