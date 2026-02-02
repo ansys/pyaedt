@@ -446,7 +446,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         renorm: bool = True,
         deembed=None,
         iswaveport: bool = False,
-        impedance=None,
+        impedance: Optional[float]=None,
         terminals_rename: bool = True,
     ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
@@ -544,7 +544,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return boundary
 
     @pyaedt_function_handler()
-    def _create_circuit_port(self, assignment, impedance, name: str, renorm, deemb, renorm_impedance: str = ""):
+    def _create_circuit_port(self, assignment, impedance, name: str, renorm, deemb, renorm_impedance: str = "") -> NearFieldSetup:
         edgelist = self.modeler.convert_to_selections(assignment, True)
         props = dict(
             {
@@ -677,7 +677,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         ratio: str = "2.9",
         height_deviation: float = 0.0,
         name: Optional[str] = None,
-    ):
+    ) -> NearFieldSetup:
         """Assign finite conductivity to one or more objects or faces of a given material.
 
         Parameters
@@ -4206,7 +4206,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         is_time_domain: bool = True,
         x_scale: int = 1,
         y_scale: int = 1,
-        impedance: int = 50,
+        impedance: Optional[float] = 50,
         data_format: str = "Power",
         encoding: str = "utf-8",
         window: str = "hamming",
@@ -4490,7 +4490,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return ports_ID
 
     @pyaedt_function_handler()
-    def validate_full_design(self, design: Optional[str] = None, output_dir=None, ports=None):
+    def validate_full_design(self, design: Optional[str] = None, output_dir=None, ports: Optional[int]=None):
         """Validate a design based on an expected value and save information to the log file.
 
         Parameters
@@ -4621,8 +4621,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_scattering(
         self,
         plot: str = "S Parameter Plot Nominal",
-        sweep=None,
-        ports=None,
+        sweep: Optional[str]=None,
+        ports: Optional[list]=None,
         ports_excited=None,
         variations: Optional[str] = None,
     ):
@@ -6242,10 +6242,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         assignment,
         reference,
         port_location: int = 0,
-        impedance: int = 50,
+        impedance: Optional[Union[int, float, str]] = 50,
         name: Optional[str] = None,
         renormalize: bool = True,
-        renorm_impedance: int = 50,
+        renorm_impedance: Optional[str] = '50',
         deembed: bool = False,
     ):
         """Create a circuit port from two objects.
@@ -6332,7 +6332,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         create_port_sheet: bool = False,
         port_on_plane: bool = True,
         integration_line: int = 0,
-        impedance: int = 50,
+        impedance: Optional[float] = 50,
         name: Optional[str] = None,
         renormalize: bool = True,
         deembed: bool = False,
@@ -6459,7 +6459,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         integration_line: int = 0,
         port_on_plane: bool = True,
         modes: int = 1,
-        impedance: int = 50,
+        impedance: Optional[float] = 50,
         name: Optional[str] = None,
         renormalize: bool = True,
         deembed: int = 0,

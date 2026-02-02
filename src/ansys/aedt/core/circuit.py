@@ -1169,7 +1169,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return new_source
 
     @pyaedt_function_handler()
-    def assign_voltage_sinusoidal_excitation_to_ports(self, ports):
+    def assign_voltage_sinusoidal_excitation_to_ports(self, ports: list):
         """Assign a voltage sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1193,7 +1193,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_v
 
     @pyaedt_function_handler()
-    def assign_current_sinusoidal_excitation_to_ports(self, ports):
+    def assign_current_sinusoidal_excitation_to_ports(self, ports: list):
         """Assign a current sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1217,7 +1217,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_i
 
     @pyaedt_function_handler()
-    def assign_power_sinusoidal_excitation_to_ports(self, ports):
+    def assign_power_sinusoidal_excitation_to_ports(self, ports: list):
         """Assign a power sinusoidal excitation to circuit ports.
 
         Parameters
@@ -1241,7 +1241,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_p
 
     @pyaedt_function_handler()
-    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, input_file: Union[str, Path]):
+    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports: list, input_file: Union[str, Path]):
         """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters

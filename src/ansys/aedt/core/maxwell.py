@@ -2728,7 +2728,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         permeability: float = 0.0,
         conductivity=None,
         non_linear_permeability: bool = False,
-        impedance=None,
+        impedance: Optional[float]=None,
     ):
         """Create an impedance boundary condition for Transient or Eddy Current solvers.
 

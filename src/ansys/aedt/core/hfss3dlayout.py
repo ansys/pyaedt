@@ -767,7 +767,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def validate_full_design(self, name: Optional[str] = None, output_dir=None, ports=None):
+    def validate_full_design(self, name: Optional[str] = None, output_dir=None, ports: Optional[list]=None):
         """Validate the design based on the expected value and save the information in the log file.
 
         Parameters
@@ -923,7 +923,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         use_common_ground: bool = True,
         show_gamma_comments: bool = True,
         renormalize: bool = False,
-        impedance: float = 50.0,
+        impedance: Optional[float] = 50.0,
         fitting_error: float = 0.5,
         maximum_poles: int = 1000,
         passivity_type: str = "PassivityByPerturbation",
@@ -2169,7 +2169,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         is_time_domain: bool = True,
         x_scale: int = 1,
         y_scale: int = 1,
-        impedance: int = 50,
+        impedance: Optional[float] = 50,
         data_format: str = "Power",
         encoding: str = "utf-8",
         include_post_effects: bool = True,

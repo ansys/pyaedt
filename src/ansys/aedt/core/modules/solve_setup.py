@@ -372,7 +372,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         context=None,
         polyline_points: int = 1001,
         math_formula=None,
-        sweep=None,
+        sweep: Optional[str]=None,
     ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 
@@ -498,7 +498,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         subdesign_id: Optional[int] = None,
         polyline_points: int = 1001,
         name: Optional[str] = None,
-        sweep=None,
+        sweep: Optional[str]=None,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
 
@@ -1691,7 +1691,7 @@ class SetupCircuit(CommonSetup):
         context=None,
         polyline_points: int = 1001,
         math_formula=None,
-        sweep=None,
+        sweep: Optional[str]=None,
     ) -> "SolutionData":
         """Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 

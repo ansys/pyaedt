@@ -25,6 +25,7 @@
 import math
 import os
 import time
+from typing import Optional
 import warnings
 
 import numpy as np
@@ -835,15 +836,15 @@ class SolutionData(PyAedtBase):
     @pyaedt_function_handler()
     def plot_3d(
         self,
-        curve=None,
+        curve: str = None,
         primary_sweep: str = "Theta",
         secondary_sweep: str = "Phi",
         x_label: str = "",
         y_label: str = "",
         title: str = "",
-        formula=None,
-        size=(1920, 1440),
-        snapshot_path=None,
+        formula: Optional[str] = None,
+        size: Optional[tuple] = (1920, 1440),
+        snapshot_path: Optional[str] = None,
         show: bool = True,
     ):
         """Create a matplotlib 3D figure based on a list of data.

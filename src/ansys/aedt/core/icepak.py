@@ -28,7 +28,7 @@ import csv
 import os
 from pathlib import Path
 import re
-from typing import Literal
+from typing import Literal, Union
 from typing import Optional
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
@@ -5000,7 +5000,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         thermal_resistance: str = "0Kel_per_W",
         low_side_rad_material=None,
         high_side_rad_material=None,
-        thermal_impedance: str = "0celm2_per_W",
+        thermal_impedance: Optional[Union[str, float]] = "0celm2_per_W",
     ):
         """
         Assign thermal boundary conditions to a conducting plate.
