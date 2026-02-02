@@ -503,23 +503,23 @@ def test_panels_add_success(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_l
     """Test successful panel installation."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
+        input="1\n",
     )
 
     assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
+    assert "Installing PyAEDT panels..." in result.stdout
     assert "✓ PyAEDT panels installed successfully." in result.stdout
     assert "• Console" in result.stdout
+    assert "• Jupyter" in result.stdout
     assert "• Run Script" in result.stdout
     assert "• Extension Manager" in result.stdout
     assert "• Version Manager" in result.stdout
     assert "Restart AEDT to see the new panels" in result.stdout
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
         personal_lib=str(temp_personal_lib),
         skip_version_manager=False,
-        odesktop=None,
     )
 
 
@@ -532,12 +532,11 @@ def test_panels_add_with_skip_version_manager(
         [
             "panels",
             "add",
-            "--version",
-            "2025.2",
             "--personal-lib",
             str(temp_personal_lib),
             "--skip-version-manager",
         ],
+        input="1\n",
     )
 
     assert result.exit_code == 0
@@ -546,10 +545,8 @@ def test_panels_add_with_skip_version_manager(
     assert "• Version Manager" not in result.stdout
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
         personal_lib=str(temp_personal_lib),
         skip_version_manager=True,
-        odesktop=None,
     )
 
 
@@ -557,45 +554,26 @@ def test_panels_add_short_options(cli_runner, mock_add_pyaedt_to_aedt, temp_pers
     """Test panel installation with short option flags."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "-v", "2025.2", "-p", str(temp_personal_lib)],
+        ["panels", "add", "-p", str(temp_personal_lib)],
+        input="1\n",
     )
 
     assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
+    assert "Installing PyAEDT panels..." in result.stdout
     assert "✓ PyAEDT panels installed successfully." in result.stdout
 
-
-def test_panels_add_invalid_version_none(cli_runner, temp_personal_lib, mock_installed_versions):
-    """Test panel installation with invalid selection input."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
-        input="abc\n",  # Invalid input for selection prompt
+    mock_add_pyaedt_to_aedt.assert_called_once_with(
+        personal_lib=str(temp_personal_lib),
+        skip_version_manager=False,
     )
-
-    assert result.exit_code == 1
-    # The error comes from typer's prompt validation or our exception handling
-    assert "Error" in result.stdout or "✗" in result.stdout
-
-
-def test_panels_add_invalid_version_empty(cli_runner, mock_installed_versions):
-    """Test panel installation with empty version string via CLI."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--version", "   ", "--personal-lib", "dummy"],
-        input="\n",
-    )
-
-    assert result.exit_code == 1
-    assert "✗ AEDT version cannot be empty" in result.stdout
 
 
 def test_panels_add_invalid_personal_lib_none(cli_runner, mock_installed_versions):
     """Test panel installation with whitespace-only personal_lib."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2"],
-        input="   \n",  # Whitespace only for path prompt
+        ["panels", "add"],
+        input="   \n1\n",  # Whitespace only for path prompt, then selection
     )
 
     assert result.exit_code == 1
@@ -608,7 +586,8 @@ def test_panels_add_nonexistent_personal_lib(cli_runner, mock_installed_versions
     """Test panel installation with non-existent PersonalLib path."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path/PersonalLib"],
+        ["panels", "add", "--personal-lib", "/nonexistent/path/PersonalLib"],
+        input="1\n",
     )
 
     assert result.exit_code == 1
@@ -624,7 +603,8 @@ def test_panels_add_personal_lib_not_directory(cli_runner, tmp_path, mock_instal
 
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(file_path)],
+        ["panels", "add", "--personal-lib", str(file_path)],
+        input="1\n",
     )
 
     assert result.exit_code == 1
@@ -637,7 +617,8 @@ def test_panels_add_installer_returns_false(mock_func, cli_runner, temp_personal
     """Test panel installation when installer returns False."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
+        input="1\n",
     )
 
     assert result.exit_code == 1
@@ -652,7 +633,8 @@ def test_panels_add_import_error(mock_func, cli_runner, temp_personal_lib, mock_
     """Test panel installation when import fails."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
+        input="1\n",
     )
 
     assert result.exit_code == 1
@@ -668,7 +650,8 @@ def test_panels_add_generic_exception(mock_func, cli_runner, temp_personal_lib, 
     """Test panel installation when generic exception occurs."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", str(temp_personal_lib)],
+        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
+        input="1\n",
     )
 
     assert result.exit_code == 1
@@ -680,7 +663,8 @@ def test_panels_add_nonexistent_path_windows_hint(mock_platform, cli_runner, moc
     """Test that Windows-specific path hint is shown on Windows."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", "C:\\nonexistent\\path"],
+        ["panels", "add", "--personal-lib", "C:\\nonexistent\\path"],
+        input="1\n",
     )
 
     assert result.exit_code == 1
@@ -692,7 +676,8 @@ def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner, mock_
     """Test that Linux-specific path hint is shown on Linux."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "2025.2", "--personal-lib", "/nonexistent/path"],
+        ["panels", "add", "--personal-lib", "/nonexistent/path"],
+        input="1\n",
     )
 
     assert result.exit_code == 1
@@ -700,20 +685,19 @@ def test_panels_add_nonexistent_path_linux_hint(mock_platform, cli_runner, mock_
 
 
 def test_panels_add_strips_whitespace(cli_runner, mock_add_pyaedt_to_aedt, temp_personal_lib, mock_installed_versions):
-    """Test that version and path whitespace is stripped."""
+    """Test that path whitespace is stripped."""
     result = cli_runner.invoke(
         app,
-        ["panels", "add", "--version", "  2025.2  ", "--personal-lib", f"  {temp_personal_lib}  "],
+        ["panels", "add", "--personal-lib", f"  {temp_personal_lib}  "],
+        input="1\n",
     )
 
     assert result.exit_code == 0
-    assert "Installing PyAEDT panels for AEDT 2025.2..." in result.stdout
+    assert "Installing PyAEDT panels..." in result.stdout
 
     mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.2",
         personal_lib=str(temp_personal_lib),
         skip_version_manager=False,
-        odesktop=None,
     )
 
 
@@ -1145,8 +1129,6 @@ def test_panels_add_no_versions_installed(mock_installed_versions, cli_runner):
         [
             "panels",
             "add",
-            "--version",
-            "2025.2",
             "--personal-lib",
             "dummy",
         ],
@@ -1155,73 +1137,6 @@ def test_panels_add_no_versions_installed(mock_installed_versions, cli_runner):
     assert result.exit_code == 1
     assert "✗ No AEDT versions found on this system." in result.stdout
     assert "Please install AEDT before running this command." in (result.stdout)
-
-
-# PANELS ADD - INVALID SELECTION TESTS
-
-
-def test_panels_add_selection_out_of_range_above(cli_runner, mock_installed_versions):
-    """Test panels add with selection number above range."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--personal-lib", "dummy"],
-        input="10\n",  # Out of range (only 4 versions available)
-    )
-
-    assert result.exit_code == 1
-    assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 2" in result.stdout
-
-
-def test_panels_add_selection_out_of_range_below(cli_runner, mock_installed_versions):
-    """Test panels add with selection number below range."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--personal-lib", "dummy"],
-        input="0\n",  # Out of range (minimum is 1)
-    )
-
-    assert result.exit_code == 1
-    assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 2" in result.stdout
-
-
-def test_panels_add_selection_negative(cli_runner, mock_installed_versions):
-    """Test panels add with negative selection number."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--personal-lib", "dummy"],
-        input="-1\n",  # Negative number
-    )
-
-    assert result.exit_code == 1
-    assert "✗ Invalid selection" in result.stdout
-    assert "Please choose a number between 1 and 2" in result.stdout
-
-
-def test_panels_add_valid_selection(
-    cli_runner,
-    mock_add_pyaedt_to_aedt,
-    temp_personal_lib,
-    mock_installed_versions,
-):
-    """Test panels add with valid selection from menu."""
-    result = cli_runner.invoke(
-        app,
-        ["panels", "add", "--personal-lib", str(temp_personal_lib)],
-        input="2\n",  # Select version 2025.1
-    )
-
-    assert result.exit_code == 0
-    assert "Selected version: 2025.1" in result.stdout
-    assert "✓ PyAEDT panels installed successfully." in result.stdout
-
-    mock_add_pyaedt_to_aedt.assert_called_once_with(
-        aedt_version="2025.1",
-        personal_lib=str(temp_personal_lib),
-        skip_version_manager=False,
-        odesktop=None,
-    )
 
 
 def test_doc_group_help(cli_runner):
