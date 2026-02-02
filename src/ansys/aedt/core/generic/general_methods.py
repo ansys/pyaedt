@@ -708,7 +708,7 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def active_sessions(version=None, student_version=False, non_graphical=False) -> dict:
+def active_sessions(version=None, student_version: bool=False, non_graphical: bool=False) -> dict:
     """Get information for the active AEDT sessions.
 
     Parameters
