@@ -62,7 +62,7 @@ default_keys = [
 
 
 class CommonTemplate(PyAedtBase):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         self._name = report["name"]
         self.report_type = report.get("type", "frequency")
         self.config_file = report.get("config", "")
@@ -99,7 +99,7 @@ class CommonTemplate(PyAedtBase):
         return
 
     @project_name.setter
-    def project_name(self, val):
+    def project_name(self, val) -> None:
         self._project_name = val
 
     @property
@@ -108,7 +108,7 @@ class CommonTemplate(PyAedtBase):
         return self._project
 
     @project.setter
-    def project(self, val):
+    def project(self, val) -> None:
         self._project = val
 
     @property
@@ -122,7 +122,7 @@ class CommonTemplate(PyAedtBase):
         return self._report_type
 
     @report_type.setter
-    def report_type(self, val):
+    def report_type(self, val) -> None:
         self._report_type = val
 
     @property
@@ -136,7 +136,7 @@ class CommonTemplate(PyAedtBase):
         return self._config_file
 
     @config_file.setter
-    def config_file(self, val):
+    def config_file(self, val) -> None:
         self._config_file = val
 
     @property
@@ -150,7 +150,7 @@ class CommonTemplate(PyAedtBase):
         return self._design_name
 
     @design_name.setter
-    def design_name(self, val):
+    def design_name(self, val) -> None:
         self._design_name = val
 
     @property
@@ -164,7 +164,7 @@ class CommonTemplate(PyAedtBase):
         return self._traces
 
     @traces.setter
-    def traces(self, val):
+    def traces(self, val) -> None:
         if not isinstance(val, list):
             self._traces = [val]
         else:
@@ -181,7 +181,7 @@ class CommonTemplate(PyAedtBase):
         return self._pass_fail
 
     @pass_fail.setter
-    def pass_fail(self, val):
+    def pass_fail(self, val) -> None:
         self._pass_fail = val
 
     @property
@@ -195,12 +195,12 @@ class CommonTemplate(PyAedtBase):
         return self._pass_fail_criteria
 
     @pass_fail_criteria.setter
-    def pass_fail_criteria(self, val):
+    def pass_fail_criteria(self, val) -> None:
         self._pass_fail_criteria = val
 
 
 class ReportTemplate(CommonTemplate):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self.group_plots = report.get("group_plots", False)
 
@@ -215,12 +215,12 @@ class ReportTemplate(CommonTemplate):
         return self._group_plots
 
     @group_plots.setter
-    def group_plots(self, val):
+    def group_plots(self, val) -> None:
         self._group_plots = val
 
 
 class ReportParametersTemplate(CommonTemplate):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self._parameter_name = report.get("parameter_name", "")
         self._pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
@@ -236,12 +236,12 @@ class ReportParametersTemplate(CommonTemplate):
         return self._parameter_name
 
     @parameter_name.setter
-    def parameter_name(self, val):
+    def parameter_name(self, val) -> None:
         self._parameter_name = val
 
 
 class ParametersTemplate(CommonTemplate):
-    def __init__(self, report):
+    def __init__(self, report) -> None:
         CommonTemplate.__init__(self, report)
         self.trace_pins = report.get("trace_pins", [])
         self._pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
@@ -257,14 +257,14 @@ class ParametersTemplate(CommonTemplate):
         return self._trace_pins
 
     @trace_pins.setter
-    def trace_pins(self, val):
+    def trace_pins(self, val) -> None:
         self._trace_pins = val
 
 
 class VirtualComplianceGenerator(PyAedtBase):
     """Class to generate a Virtual Compliance configuration."""
 
-    def __init__(self, compliance_name, project_name, specification_folder=None):
+    def __init__(self, compliance_name, project_name, specification_folder=None) -> None:
         self.config = {
             "general": {
                 "name": compliance_name,
@@ -303,13 +303,13 @@ class VirtualComplianceGenerator(PyAedtBase):
         return self.config["general"]["project"]
 
     @project_file.setter
-    def project_file(self, val):
+    def project_file(self, val) -> None:
         self.config["general"]["project"] = val
 
     @pyaedt_function_handler()
     def add_erl_parameters(
         self, design_name, config_file, traces, pins, pass_fail, pass_fail_criteria: int=0, name: str="ERL", project=None
-    ):
+    ) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
@@ -350,7 +350,7 @@ class VirtualComplianceGenerator(PyAedtBase):
     @pyaedt_function_handler()
     def add_report_derived_parameter(
         self, design_name, config_file, parameter, traces, report_type, pass_fail_criteria, name, project=None
-    ):
+    ) -> None:
         """Add report derived parameters computed by AEDT and python into the configuration.
 
         Parameters
@@ -388,7 +388,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         self.config["report_derived_parameters"].append(pars)
 
     @pyaedt_function_handler()
-    def add_report(self, design_name, config_file, traces, report_type, pass_fail, group_plots, name, project=None):
+    def add_report(self, design_name, config_file, traces, report_type, pass_fail, group_plots, name, project=None) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
         Parameters
@@ -425,7 +425,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         self.config["reports"].append(pars)
 
     @pyaedt_function_handler()
-    def add_report_from_folder(self, input_folder, design_name, group_plots: bool=False, project=None):
+    def add_report_from_folder(self, input_folder, design_name, group_plots: bool=False, project=None) -> None:
         """Add multiple reports from a folder.
 
         Parameters
@@ -476,7 +476,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
 
 class VirtualComplianceChaptersData(PyAedtBase):
-    def __init__(self, title):
+    def __init__(self, title) -> None:
         self.title = title
         self.content = []
 
@@ -517,7 +517,7 @@ class VirtualComplianceChaptersData(PyAedtBase):
 class VirtualComplianceData(PyAedtBase):
     """Virtual compliance data class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._chapters = []
 
     @property
@@ -531,7 +531,7 @@ class VirtualComplianceData(PyAedtBase):
         return self._chapters
 
     @chapters.setter
-    def chapters(self, val):
+    def chapters(self, val) -> None:
         self._chapters = val
 
     def add_chapter(self, chapter, position=None) -> VirtualComplianceChaptersData:
@@ -561,7 +561,7 @@ class VirtualCompliance(PyAedtBase):
 
     """
 
-    def __init__(self, desktop, template):
+    def __init__(self, desktop, template) -> None:
         self._add_project_info = True
         self._add_specs_info = False
         self._specs_folder = None
@@ -591,7 +591,7 @@ class VirtualCompliance(PyAedtBase):
         return self._image_width
 
     @image_width.setter
-    def image_width(self, val):
+    def image_width(self, val) -> None:
         self._image_width = val
 
     @property
@@ -600,7 +600,7 @@ class VirtualCompliance(PyAedtBase):
         return self._image_height
 
     @image_height.setter
-    def image_height(self, val):
+    def image_height(self, val) -> None:
         self._image_height = val
 
     @property
@@ -614,12 +614,12 @@ class VirtualCompliance(PyAedtBase):
         return self._dut
 
     @dut_image.setter
-    def dut_image(self, val):
+    def dut_image(self, val) -> None:
         self._dut = val
 
     @pyaedt_function_handler()
     @pyaedt_function_handler()
-    def load_project(self):
+    def load_project(self) -> bool:
         """Open the aedt project in Electronics Desktop.
 
         Returns
@@ -649,7 +649,7 @@ class VirtualCompliance(PyAedtBase):
         return self._reports
 
     @reports.setter
-    def reports(self, val):
+    def reports(self, val) -> None:
         self._reports = val
 
     @property
@@ -663,7 +663,7 @@ class VirtualCompliance(PyAedtBase):
         return self._parameters
 
     @parameters.setter
-    def parameters(self, val):
+    def parameters(self, val) -> None:
         self._parameters = val
 
     @property
@@ -672,7 +672,7 @@ class VirtualCompliance(PyAedtBase):
         return self._add_project_info
 
     @add_project_info.setter
-    def add_project_info(self, val):
+    def add_project_info(self, val) -> None:
         self._add_project_info = val
 
     @property
@@ -681,7 +681,7 @@ class VirtualCompliance(PyAedtBase):
         return self._add_specs_info
 
     @add_specs_info.setter
-    def add_specs_info(self, val):
+    def add_specs_info(self, val) -> None:
         self._add_specs_info = val
 
     @property
@@ -690,7 +690,7 @@ class VirtualCompliance(PyAedtBase):
         return self._specs_folder
 
     @specs_folder.setter
-    def specs_folder(self, val):
+    def specs_folder(self, val) -> None:
         self._specs_folder = val
         if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
             self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
@@ -701,7 +701,7 @@ class VirtualCompliance(PyAedtBase):
         return self._template_name
 
     @template_name.setter
-    def template_name(self, val):
+    def template_name(self, val) -> None:
         self._template_name = val
 
     @property
@@ -710,7 +710,7 @@ class VirtualCompliance(PyAedtBase):
         return self._project_file
 
     @project_file.setter
-    def project_file(self, val):
+    def project_file(self, val) -> None:
         self._project_file = val
 
     @property
@@ -724,11 +724,11 @@ class VirtualCompliance(PyAedtBase):
         return self._use_portrait
 
     @use_portrait.setter
-    def use_portrait(self, val):
+    def use_portrait(self, val) -> None:
         self._use_portrait = val
 
     @pyaedt_function_handler()
-    def _parse_template(self):
+    def _parse_template(self) -> None:
         if self._template:
             self.local_config = read_configuration_file(self._template)
             if "general" in self.local_config:
@@ -750,7 +750,7 @@ class VirtualCompliance(PyAedtBase):
                     self._parse_reports(parameter, True)
 
     @pyaedt_function_handler()
-    def _parse_reports(self, report, is_parameter: bool=False, is_report_parameters: bool=False):
+    def _parse_reports(self, report, is_parameter: bool=False, is_report_parameters: bool=False) -> None:
         name = report["name"]
 
         if name in self._reports.values():
@@ -803,7 +803,7 @@ class VirtualCompliance(PyAedtBase):
         setup_name=None,
         pass_fail: bool=True,
         pass_fail_criteria=None,
-    ):
+    ) -> None:
         """Add a new custom aedt report to the compliance.
 
         Parameters
@@ -852,7 +852,7 @@ class VirtualCompliance(PyAedtBase):
                 sweep_name = solution_names[0]
         return sweep_name
 
-    def _add_skew(self, _design, aedt_report, chapter, name, pass_fail_criteria):
+    def _add_skew(self, _design, aedt_report, chapter, name, pass_fail_criteria) -> bool:
         _design.logger.info("Adding single lines violations")
         font_table = [["", None]]
         trace_data = aedt_report.get_solution_data()
@@ -943,7 +943,7 @@ class VirtualCompliance(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _create_derived_reports(self):
+    def _create_derived_reports(self) -> None:
         _design = None
         if not self._reports_parameters:
             return
@@ -1038,7 +1038,7 @@ class VirtualCompliance(PyAedtBase):
             settings.logger.info(f"Report {template_report.name} added to the pdf.")
 
     @pyaedt_function_handler()
-    def _create_aedt_reports(self):
+    def _create_aedt_reports(self) -> bool:
         _design = None
         if not self._reports:
             return False
@@ -1267,7 +1267,7 @@ class VirtualCompliance(PyAedtBase):
                 self._summary_font.append([[255, 255, 255], [255, 0, 0]])
 
     @pyaedt_function_handler()
-    def _create_parameters(self):
+    def _create_parameters(self) -> None:
         start = True
         _design = None
 
@@ -1618,7 +1618,7 @@ class VirtualCompliance(PyAedtBase):
         return new_table
 
     @pyaedt_function_handler()
-    def add_specs_to_report(self, folder):
+    def add_specs_to_report(self, folder) -> None:
         """Add specs to the report from a given folder.
 
         All images in such folder will be added to the report.
@@ -1633,7 +1633,7 @@ class VirtualCompliance(PyAedtBase):
             self._add_specs_info = True
 
     @pyaedt_function_handler()
-    def _create_project_info(self, report):
+    def _create_project_info(self, report) -> None:
         report.add_section()
         designs = []
         _design = None

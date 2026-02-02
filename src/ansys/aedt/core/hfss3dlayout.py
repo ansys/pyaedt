@@ -160,7 +160,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         aedt_process_id=None,
         ic_mode=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         FieldAnalysis3DLayout.__init__(
             self,
             "HFSS3DLAYOUT",
@@ -181,7 +181,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         )
         ScatteringMethods.__init__(self, self)
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
@@ -195,7 +195,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return self.get_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC")
 
     @ic_mode.setter
-    def ic_mode(self, value):
+    def ic_mode(self, value) -> None:
         self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", value)
 
     @pyaedt_function_handler()
@@ -420,7 +420,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def dissolve_component(self, component):
+    def dissolve_component(self, component) -> bool:
         """Dissolve a component and remove it from 3D Layout.
 
         Parameters
@@ -519,7 +519,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         self,
         component,
         nets,
-    ):
+    ) -> bool:
         """Create a PEC connection on a component for a list of nets.
 
         Parameters
@@ -707,7 +707,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete_port(self, name, remove_geometry: bool=True):
+    def delete_port(self, name, remove_geometry: bool=True) -> bool:
         """Delete a port.
 
         Parameters
@@ -738,7 +738,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def import_edb(self, input_folder):
+    def import_edb(self, input_folder) -> bool:
         """Import EDB.
 
         Parameters
@@ -927,7 +927,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         touchstone_output: str="MA",
         units: str="GHz",
         precision: int=11,
-    ):  # pragma: no cover
+    ) -> bool:  # pragma: no cover
         """Set or disable the automatic export of the touchstone file after completing frequency sweep.
 
         Parameters
@@ -1035,7 +1035,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_meshing_settings(self, mesh_method: str="Phi", enable_intersections_check: bool=True, use_alternative_fallback: bool=True):
+    def set_meshing_settings(self, mesh_method: str="Phi", enable_intersections_check: bool=True, use_alternative_fallback: bool=True) -> bool:
         """Define the settings of the mesh.
 
         Parameters
@@ -1357,7 +1357,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def _import_cad(
         self, cad_path, cad_format: str="gds", aedb_path=None, xml_path=None, set_as_active: bool=True, close_active_project: bool=False
-    ):
+    ) -> bool:
         method = None
         if cad_format == "gds":
             method = self.oimport_export.ImportGDSII
@@ -1641,7 +1641,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         use_interpolating_sweep: bool=False,
         use_y_matrix: bool=True,
         interpolation_algorithm: str="auto",
-    ):
+    ) -> bool:
         """Edit cosimulation options.
 
         Parameters
@@ -1749,7 +1749,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         differential_reference: int=100,
         active: bool=True,
         matched: bool=False,
-    ):
+    ) -> bool:
         """Add a differential pair definition.
 
         Parameters
@@ -1885,7 +1885,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, input_file):
+    def load_diff_pairs_from_file(self, input_file) -> bool:
         # type: (str) -> bool
         """Load differential pairs definition from a file.
 
@@ -2007,7 +2007,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         air_vertical_negative_padding=None,
         airbox_values_as_dim: bool=True,
         air_horizontal_padding=None,
-    ):
+    ) -> bool:
         """Edit HFSS 3D Layout extents.
 
         Parameters
@@ -2125,7 +2125,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         include_post_effects: bool=True,
         incident_voltage: bool=True,
         window: str="hamming",
-    ):
+    ) -> bool:
         """Edit a source from file data.
 
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -2408,7 +2408,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return df
 
     @pyaedt_function_handler()
-    def show_extent(self, show: bool=True):
+    def show_extent(self, show: bool=True) -> bool:
         """Show or hide extent in a HFSS3dLayout design.
 
         Parameters
@@ -2437,7 +2437,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_options(self, color_by_net: bool=True):
+    def change_options(self, color_by_net: bool=True) -> bool:
         """Change options for an existing layout.
 
         It changes design visualization by color.
@@ -2599,7 +2599,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return new_sweep[0]
 
     @pyaedt_function_handler()
-    def delete_imported_data(self, name):
+    def delete_imported_data(self, name) -> bool:
         """Delete imported data.
 
         Parameters

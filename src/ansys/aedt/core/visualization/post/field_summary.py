@@ -103,7 +103,7 @@ AVAILABLE_QUANTITIES = [
 class FieldSummary(PyAedtBase):
     """Provides Icepak field summary methods."""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self.calculations = []
 
@@ -119,7 +119,7 @@ class FieldSummary(PyAedtBase):
         mesh: str="All",
         ref_temperature: str="AmbientTemp",
         time: str="0s",
-    ):
+    ) -> bool:
         """
         Add an entry in the field summary calculation requests.
 
@@ -236,7 +236,7 @@ class FieldSummary(PyAedtBase):
         return out_dict
 
     @pyaedt_function_handler()
-    def export_csv(self, output_file, setup=None, variations=None, intrinsics: str=""):
+    def export_csv(self, output_file, setup=None, variations=None, intrinsics: str="") -> bool:
         """
         Get the field summary output computation.
 
@@ -282,7 +282,7 @@ class FieldSummary(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _create_field_summary(self, setup, variation):
+    def _create_field_summary(self, setup, variation) -> None:
         arg = ["SolutionName:=", setup, "Variation:=", variation]
         for i in self.calculations:
             arg.append("Calculation:=")

@@ -38,7 +38,7 @@ class ModelerRMxprt(Modeler, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         Modeler.__init__(self, app)
         app.logger.info_timer("ModelerRMxprt class has been initialized!")
@@ -67,7 +67,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         Primitives2D.__init__(self, application)
         self._primitives = self
         self.logger.info("Modeler2D class has been initialized!")
@@ -120,7 +120,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return radius
 
     @pyaedt_function_handler()
-    def radial_split_2D(self, radius, name):
+    def radial_split_2D(self, radius, name) -> bool:
         """Split the stator and rotor for mesh refinement.
 
         Parameters

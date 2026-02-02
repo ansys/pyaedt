@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class CouplingsNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -88,7 +88,7 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @minimum_allowed_coupling.setter
-    def minimum_allowed_coupling(self, value: float):
+    def minimum_allowed_coupling(self, value: float) -> None:
         self._set_property("Minimum Allowed Coupling", f"{value}")
 
     @property
@@ -101,7 +101,7 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @global_default_coupling.setter
-    def global_default_coupling(self, value: float):
+    def global_default_coupling(self, value: float) -> None:
         self._set_property("Global Default Coupling", f"{value}")
 
     @property

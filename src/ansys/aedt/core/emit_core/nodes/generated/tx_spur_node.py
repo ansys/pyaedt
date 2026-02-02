@@ -28,7 +28,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class TxSpurNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -46,7 +46,7 @@ class TxSpurNode(EmitNode):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -64,7 +64,7 @@ class TxSpurNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value) -> None:
         self._set_table_data(value)
 
     @property
@@ -73,7 +73,7 @@ class TxSpurNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")
 
     class SpurTableUnitsOption(Enum):
@@ -88,5 +88,5 @@ class TxSpurNode(EmitNode):
         return val
 
     @spur_table_units.setter
-    def spur_table_units(self, value: SpurTableUnitsOption):
+    def spur_table_units(self, value: SpurTableUnitsOption) -> None:
         self._set_property("Spur Table Units", f"{value.value}")

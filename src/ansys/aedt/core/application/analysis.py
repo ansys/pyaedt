@@ -139,7 +139,7 @@ class Analysis(Design, PyAedtBase):
         aedt_process_id=None,
         ic_mode=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         Design.__init__(
             self,
             application,
@@ -1133,7 +1133,7 @@ class Analysis(Design, PyAedtBase):
         return list(sweeps)
 
     @pyaedt_function_handler()
-    def export_parametric_results(self, sweep, output_file, export_units: bool=True):
+    def export_parametric_results(self, sweep, output_file, export_units: bool=True) -> bool:
         """Export a list of all parametric variations solved for a sweep to a CSV file.
 
         Parameters
@@ -1276,7 +1276,7 @@ class Analysis(Design, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name) -> bool:
         """Delete a setup.
 
         Parameters
@@ -1360,7 +1360,7 @@ class Analysis(Design, PyAedtBase):
         return self.design_setups[name]
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential: bool=False):
+    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential: bool=False) -> bool:
         """Create or modify an output variable.
 
         Parameters
@@ -1938,7 +1938,7 @@ class Analysis(Design, PyAedtBase):
         tasks: int=1,
         setup=None,
         revert_to_initial_mesh: bool=False,
-    ):  # pragma: no cover
+    ) -> bool:  # pragma: no cover
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -2301,7 +2301,7 @@ class Analysis(Design, PyAedtBase):
             return str(f"{value}{units}")
 
     @pyaedt_function_handler()
-    def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
+    def change_property(self, aedt_object, tab_name, property_object, property_name, property_value) -> bool:
         """Change a property.
 
         Parameters
@@ -2372,7 +2372,7 @@ class Analysis(Design, PyAedtBase):
 
 
 class AvailableVariations(PyAedtBase):
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         """Contains available variations.
 
         Parameters

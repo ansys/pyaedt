@@ -59,7 +59,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
     >>> my_modeler = app.modeler
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
         self._schematic_units = "meter"
@@ -82,7 +82,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value):
+    def schematic_units(self, value) -> None:
         if value in list(AEDT_UNITS["Length"].keys()):
             self._schematic_units = value
         else:
@@ -109,7 +109,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return self._app.oeditor
 
     @pyaedt_function_handler()
-    def zoom_to_fit(self):
+    def zoom_to_fit(self) -> None:
         """Zoom To Fit.
 
         References
@@ -121,7 +121,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
     @pyaedt_function_handler()
     def connect_schematic_components(
         self, starting_component, ending_component, pin_starting: int=2, pin_ending: int=1, use_wire: bool=True
-    ):
+    ) -> bool:
         """Connect schematic components.
 
         Parameters
@@ -343,7 +343,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_text_property(self, assignment, name, value):
+    def change_text_property(self, assignment, name, value) -> bool:
         """Change an oeditor property.
 
         Parameters
@@ -463,7 +463,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._schematic = NexximComponents(self)
@@ -543,7 +543,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
             return pnames.index(name)
 
     @pyaedt_function_handler()
-    def rename_page(self, page, name):
+    def rename_page(self, page, name) -> bool:
         """Rename a page in the schematic."""
         pnames = self.page_names
         if page in pnames:
@@ -597,12 +597,12 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return self._primitives
 
     @model_units.setter
-    def model_units(self, units):
+    def model_units(self, units) -> None:
         """Set the model units as a string e.g. "mm"."""
         self._app.units.length = units
 
     @pyaedt_function_handler()
-    def move(self, assignment, offset, units=None):
+    def move(self, assignment, offset, units=None) -> bool:
         """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
@@ -654,7 +654,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def rotate(self, assignment, degrees: int=90):
+    def rotate(self, assignment, degrees: int=90) -> bool:
         """Rotate the selections by degrees.
 
         Parameters
@@ -702,7 +702,7 @@ class ModelerTwinBuilder(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = TwinBuilderComponents(self)
@@ -738,7 +738,7 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
         if not (3, 7) < sys.version_info < (3, 13):
@@ -778,7 +778,7 @@ class ModelerMaxwellCircuit(ModelerCircuit, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._components = MaxwellCircuitComponents(self)

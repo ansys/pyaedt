@@ -71,7 +71,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         Path for the touchstone file. The default is ``None``.
     """
 
-    def __init__(self, solution_data=None, touchstone_file=None):
+    def __init__(self, solution_data=None, touchstone_file=None) -> None:
         if touchstone_file is not None:
             touchstone_file = Path(touchstone_file)
 
@@ -372,7 +372,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return temp_list
 
     @graphics_required
-    def plot(self, index_couples=None, show: bool=True):
+    def plot(self, index_couples=None, show: bool=True) -> bool:
         """Plot a list of curves.
 
         Parameters
@@ -398,7 +398,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return True
 
     @graphics_required
-    def plot_return_losses(self):
+    def plot_return_losses(self) -> bool:
         """Plot all return losses.
 
         Returns
@@ -576,7 +576,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return values
 
     @graphics_required
-    def plot_next_xtalk_losses(self, tx_prefix: str=""):
+    def plot_next_xtalk_losses(self, tx_prefix: str="") -> bool:
         """Plot all next crosstalk curves.
 
         Parameters
@@ -598,7 +598,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
         return True
 
     @graphics_required
-    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples: bool=True):
+    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples: bool=True) -> bool:
         """Plot all fext crosstalk curves.
 
         Parameters

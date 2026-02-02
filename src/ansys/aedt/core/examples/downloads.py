@@ -47,7 +47,7 @@ EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/raw/main"
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
-def delete_downloads():
+def delete_downloads() -> None:
     """Delete all downloaded examples to free space or update the files."""
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
@@ -788,7 +788,7 @@ def download_twin_builder_data(
 
     if file_name:
 
-        def filter_func(f):
+        def filter_func(f) -> bool:
             return not f.endswith(file_name)
 
     else:
@@ -861,7 +861,7 @@ def download_file(source: str, name: Optional[str] = None, local_path: Optional[
     return str(path)
 
 
-def unzip(source_filename, dest_dir):
+def unzip(source_filename, dest_dir) -> None:
     with zipfile.ZipFile(source_filename) as zf:
         zf.extractall(dest_dir)
     print(dest_dir)

@@ -61,7 +61,7 @@ class Materials(PyAedtBase):
     >>> materials = app.materials
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._color_id = 0
         self._mats = []
@@ -88,7 +88,7 @@ class Materials(PyAedtBase):
         """Material Manager from AEDT."""
         return self._app.omaterial_manager
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.material_keys)
 
     def __iter__(self):
@@ -279,7 +279,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def check_thermal_modifier(self, material):
+    def check_thermal_modifier(self, material) -> bool:
         """Check a material to see if it has any thermal modifiers.
 
         Parameters
@@ -589,7 +589,7 @@ class Materials(PyAedtBase):
         return newmat
 
     @pyaedt_function_handler()
-    def remove_material(self, material, library: str="Project"):
+    def remove_material(self, material, library: str="Project") -> bool:
         """Remove a material.
 
         Parameters
@@ -657,7 +657,7 @@ class Materials(PyAedtBase):
                 data.append(key)
         return data
 
-    def _load_from_project(self):
+    def _load_from_project(self) -> None:
         if self.odefinition_manager:
             mats = self.odefinition_manager.GetProjectMaterialNames()
             if not mats:
@@ -711,7 +711,7 @@ class Materials(PyAedtBase):
 
         """
 
-        def find_datasets(d, out_list):
+        def find_datasets(d, out_list) -> None:
             for k, v in d.items():
                 if isinstance(v, dict):
                     find_datasets(v, out_list)

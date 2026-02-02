@@ -91,7 +91,7 @@ quantities_type_dict = {  # pragma: no cover
 class Monitor(PyAedtBase):
     """Provides Icepak monitor methods."""
 
-    def __init__(self, p_app):
+    def __init__(self, p_app) -> None:
         self._face_monitors = {}
         self._point_monitors = {}
         self._app = p_app
@@ -171,7 +171,7 @@ class Monitor(PyAedtBase):
             return names
 
     @pyaedt_function_handler
-    def _load_monitor_objects(self, aedtfile_monitor_dict):
+    def _load_monitor_objects(self, aedtfile_monitor_dict) -> bool:
         for monitor_name, monitor_prop in aedtfile_monitor_dict.items():
             if "Faces" in monitor_prop.keys():
                 self._face_monitors[monitor_name] = FaceMonitor(
@@ -563,7 +563,7 @@ class Monitor(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete_monitor(self, monitor_name):
+    def delete_monitor(self, monitor_name) -> bool:
         """Delete monitor object.
 
         Parameters
@@ -616,7 +616,7 @@ class Monitor(PyAedtBase):
         else:
             return monitor.id
 
-    def _delete_removed_monitors(self):
+    def _delete_removed_monitors(self) -> None:
         existing_monitors = self._app.odesign.GetChildObject("Monitor").GetChildNames()
         for j in [self._face_monitors, self._point_monitors]:
             for i in list(j):
@@ -681,7 +681,7 @@ class Monitor(PyAedtBase):
 class ObjectMonitor(PyAedtBase):
     """Provides Icepak Monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app) -> None:
         self._name = monitor_name
         self._type = monitor_type
         self._id = monitor_id
@@ -741,7 +741,7 @@ class ObjectMonitor(PyAedtBase):
         }
 
     @pyaedt_function_handler
-    def delete(self):
+    def delete(self) -> bool:
         """
         Delete a monitor object.
 
@@ -849,7 +849,7 @@ class ObjectMonitor(PyAedtBase):
 class PointMonitor(ObjectMonitor):
     """Provides Icepak point monitor methods and properties."""
 
-    def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, point_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
     @property
@@ -874,7 +874,7 @@ class PointMonitor(ObjectMonitor):
 class FaceMonitor(ObjectMonitor):
     """Provides Icepak face monitor properties and methods."""
 
-    def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, face_id, quantity, app) -> None:
         ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
     @property

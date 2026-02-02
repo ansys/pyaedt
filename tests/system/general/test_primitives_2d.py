@@ -61,14 +61,14 @@ def create_rectangle(app, name=None):
     return o
 
 
-def test_create_primitive(aedt_app):
+def test_create_primitive(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     o = aedt_app.modeler.create_rectangle(udp, [5, 3], name="Rectangle1", material="copper")
     assert isinstance(o.id, int)
     assert o.solve_inside
 
 
-def test_create_circle(aedt_app):
+def test_create_circle(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     o1 = aedt_app.modeler.create_circle(udp, 3, 0, name="Circle1", material="copper")
     assert isinstance(o1.id, int)
@@ -76,19 +76,19 @@ def test_create_circle(aedt_app):
     assert isinstance(o2.id, int)
 
 
-def test_create_ellipse(aedt_app):
+def test_create_ellipse(aedt_app) -> None:
     udp = aedt_app.modeler.Position(0, 0, 0)
     o = aedt_app.modeler.create_ellipse(udp, 3, 2, name="Ellipse1", material="copper")
     assert isinstance(o.id, int)
 
 
-def test_create_poly(aedt_app):
+def test_create_poly(aedt_app) -> None:
     udp = [aedt_app.modeler.Position(0, 0, 0), aedt_app.modeler.Position(10, 5, 0)]
     o = aedt_app.modeler.create_polyline(udp, name="Ellipse1", material="copper")
     assert isinstance(o, Polyline)
 
 
-def test_chamfer_vertex(aedt_app):
+def test_chamfer_vertex(aedt_app) -> None:
     o = create_rectangle(aedt_app, "Rectangle1")
     assert o.vertices[0].chamfer()
     o2 = create_rectangle(aedt_app, "Rectangle2")
@@ -97,7 +97,7 @@ def test_chamfer_vertex(aedt_app):
     assert not o2.chamfer()
 
 
-def test_fillet_vertex(aedt_app):
+def test_fillet_vertex(aedt_app) -> None:
     o = create_rectangle(aedt_app, "Rectangle1")
     o.vertices[0].fillet()
     o2 = create_rectangle(aedt_app, "Rectangle2")
@@ -105,7 +105,7 @@ def test_fillet_vertex(aedt_app):
     assert not o2.fillet(edges=o2.edges)
 
 
-def test_create_region(aedt_app):
+def test_create_region(aedt_app) -> None:
     if aedt_app.modeler["Region"]:
         aedt_app.modeler.delete("Region")
     assert "Region" not in aedt_app.modeler.object_names
@@ -129,7 +129,7 @@ def test_create_region(aedt_app):
     assert not region
 
 
-def test_create_region_Z(axisymmetrical_app):
+def test_create_region_Z(axisymmetrical_app) -> None:
     if axisymmetrical_app.modeler["Region"]:
         axisymmetrical_app.modeler.delete("Region")
     assert "Region" not in axisymmetrical_app.modeler.object_names
@@ -150,20 +150,20 @@ def test_create_region_Z(axisymmetrical_app):
     axisymmetrical_app.modeler["Region"].delete()
 
 
-def test_assign_material_ceramic(aedt_app):
+def test_assign_material_ceramic(aedt_app) -> None:
     material = "Ceramic_material"
     o = create_rectangle(aedt_app, "Rectangle1")
     aedt_app.assign_material([o.name], material)
     assert aedt_app.modeler[o.name].material_name == material
 
 
-def test_assign_material(aedt_app, material: str="steel_stainless"):
+def test_assign_material(aedt_app, material: str="steel_stainless") -> None:
     o = create_rectangle(aedt_app, "Rectangle1")
     aedt_app.assign_material([o.name], material)
     assert aedt_app.modeler[o.name].material_name == material
 
 
-def test_region(q2d_app):
+def test_region(q2d_app) -> None:
     if q2d_app.modeler["Region"]:
         q2d_app.modeler.delete(
             "Region",

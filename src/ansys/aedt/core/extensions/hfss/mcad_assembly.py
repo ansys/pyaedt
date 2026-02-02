@@ -124,7 +124,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
     local_path = ""
     config_data: dict = dict()
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         self.aedt_info = AedtInfo(
             port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
@@ -138,10 +138,10 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
             toggle_column=0,
         )
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
+    def add_toggle_theme_button(self, parent, toggle_row, toggle_column) -> None:
         return
 
-    def add_toggle_theme_button_(self, parent):
+    def add_toggle_theme_button_(self, parent) -> None:
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
@@ -171,7 +171,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         change_theme_button.pack(anchor="e", side="right", **{"padx": 15, "pady": 10})
         self._widgets["change_theme_button"] = change_theme_button
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         self.root.geometry("700x600")
 
         menubar = tkinter.Menu(self.root)
@@ -187,7 +187,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
         create_tab_main(self.tab_frame_main, self)
         self.add_toggle_theme_button_(self.root)
 
-    def run(self, config_data):
+    def run(self, config_data) -> None:
         hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
         app = MCADAssemblyBackend.load(data=config_data, cur_dir=self.local_path)
         app.run(hfss)
@@ -201,7 +201,7 @@ class MCADAssemblyFrontend(ExtensionHFSSCommon):
 
 
 # create main tab
-def create_tab_main(tab_frame, master):
+def create_tab_main(tab_frame, master) -> None:
     tree = ttk.Treeview(tab_frame, name="tree")
     tree.pack(expand=True, fill="both", **master.PACK_PARAMS)
 
@@ -215,7 +215,7 @@ def create_tab_main(tab_frame, master):
     ).pack(anchor="w", **master.PACK_PARAMS)
 
 
-def load_dict(tree, master):
+def load_dict(tree, master) -> None:
     file_path = filedialog.askopenfilename(
         title="Select Design",
         filetypes=(("JSON", "*.json"), ("All files", "*.*")),
@@ -240,7 +240,7 @@ def load_dict(tree, master):
     insert_items(tree, node3, master.config_data.get("assembly", {}))
 
 
-def insert_items(tree, parent, dictionary):
+def insert_items(tree, parent, dictionary) -> None:
     if isinstance(dictionary, dict):
         for key, value in dictionary.items():
             node = tree.insert(parent, "end", text=str(key), open=False)
@@ -303,11 +303,11 @@ class Component(BaseModel):
         data_["name"] = name
         return cls(**data_)
 
-    def assemble_sub_components(self, hfss, cs_prefix: str=""):
+    def assemble_sub_components(self, hfss, cs_prefix: str="") -> None:
         for name, comp in self.sub_components.items():
             comp.assemble(hfss, cs_prefix)
 
-    def apply_arrange(self, hfss):
+    def apply_arrange(self, hfss) -> None:
         for i in self.arranges:
             if i.operation == "rotate":
                 self.__rotate_index = self.__rotate_index + 1
@@ -405,7 +405,7 @@ class MCADAssemblyBackend(BaseModel):
             sub_components={name: Component.load(name, comp) for name, comp in data.get("assembly", {}).items()},
         )
 
-    def run(self, hfss):
+    def run(self, hfss) -> None:
         for name, value in self.coordinate_system.items():
             hfss.modeler.create_coordinate_system(name=name, **value)
 

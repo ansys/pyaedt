@@ -72,7 +72,7 @@ class Part(PyAedtBase):
         "polarization": None,
     }  # Antenna only
 
-    def __init__(self, part_folder, part_dict, parent=None, name=None):
+    def __init__(self, part_folder, part_dict, parent=None, name=None) -> None:
         # Default values:
         self._compdef = dict()
         self._multiparts = parent
@@ -139,7 +139,7 @@ class Part(PyAedtBase):
             self._pitch = "0"
             self._roll = "0"
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         self._compdef[key] = value
 
     def __getitem__(self, key):
@@ -300,7 +300,7 @@ class Part(PyAedtBase):
         return self._yaw
 
     @yaw.setter
-    def yaw(self, yaw):
+    def yaw(self, yaw) -> None:
         self._yaw = yaw
 
     @property
@@ -315,7 +315,7 @@ class Part(PyAedtBase):
         return self._pitch
 
     @pitch.setter
-    def pitch(self, pitch):
+    def pitch(self, pitch) -> None:
         self._pitch = pitch
 
     @property
@@ -330,7 +330,7 @@ class Part(PyAedtBase):
         return self._roll
 
     @roll.setter
-    def roll(self, roll):
+    def roll(self, roll) -> None:
         self._roll = roll
 
     @property
@@ -345,7 +345,7 @@ class Part(PyAedtBase):
         return self._multiparts.name + "_" + self._name
 
     @pyaedt_function_handler()
-    def set_relative_cs(self, app):
+    def set_relative_cs(self, app) -> bool:
         """Create a parametric coordinate system.
 
         Parameters
@@ -384,7 +384,7 @@ class Part(PyAedtBase):
         return self.name + "_rot_cs"
 
     @pyaedt_function_handler()
-    def do_rotate(self, app, aedt_object):
+    def do_rotate(self, app, aedt_object) -> bool:
         """Set the rotation coordinate system relative to the parent coordinate system.
 
         This method should only be called if there is rotation in the component.
@@ -475,7 +475,7 @@ class Antenna(Part, PyAedtBase):
 
     """
 
-    def __init__(self, root_folder, ant_dict, parent=None, name=None):
+    def __init__(self, root_folder, ant_dict, parent=None, name=None) -> None:
         super(Antenna, self).__init__(root_folder, ant_dict, parent=parent, name=name)
 
     def _antenna_type(self, app):

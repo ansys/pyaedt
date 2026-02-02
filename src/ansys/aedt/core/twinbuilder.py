@@ -136,7 +136,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         """Constructor."""
         AnalysisTwinBuilder.__init__(
             self,
@@ -156,11 +156,11 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file):
+    def create_schematic_from_netlist(self, input_file) -> bool:
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -238,7 +238,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_end_time(self, expression):
+    def set_end_time(self, expression) -> bool:
         """Set the end time.
 
         Parameters
@@ -259,7 +259,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_hmin(self, expression):
+    def set_hmin(self, expression) -> bool:
         """Set hmin.
 
         Parameters
@@ -280,7 +280,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_hmax(self, expression):
+    def set_hmax(self, expression) -> bool:
         """Set hmax.
 
         Parameters
@@ -301,7 +301,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_sim_setup_parameter(self, variable, expression, analysis_name: str="TR"):
+    def set_sim_setup_parameter(self, variable, expression, analysis_name: str="TR") -> bool:
         """Set simulation setup parameters.
 
         Parameters
@@ -343,7 +343,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_subsheet(self, name, design_name):
+    def create_subsheet(self, name, design_name) -> bool:
         """Create a subsheet from a parent design.
 
         If the parent design does not exist, it will add at top level.

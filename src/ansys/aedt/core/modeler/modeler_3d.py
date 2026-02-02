@@ -57,7 +57,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     >>> my_modeler = hfss.modeler
     """
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         Primitives3D.__init__(self, application)
 
     def __get__(self, instance, owner):
@@ -89,7 +89,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         datasets=None,
         native_components=None,
         create_folder: bool=True,
-    ):
+    ) -> bool:
         """Create a 3D component file.
 
         Parameters
@@ -1411,7 +1411,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
             return segment_objects
 
     @pyaedt_function_handler
-    def change_region_padding(self, padding_data, padding_type, direction=None, region_name: str="Region"):
+    def change_region_padding(self, padding_data, padding_type, direction=None, region_name: str="Region") -> bool:
         """
         Change region padding settings.
 

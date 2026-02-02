@@ -106,7 +106,7 @@ class Polyline(Object3d, PyAedtBase):
         xsection_num_seg: int=0,
         xsection_bend_type=None,
         non_model: bool=False,
-    ):
+    ) -> None:
         self._is_polyline = True
         self._primitives = primitives
         self._positions = []

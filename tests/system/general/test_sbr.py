@@ -77,7 +77,7 @@ def aedt_sbr(add_app):
     app.close_project(app.project_name, save=False)
 
 
-def test_open_source(aedt_app, add_app):
+def test_open_source(aedt_app, add_app) -> None:
     source = add_app(project=aedt_app.project_name, design="feeder", close_projects=False)
     assert aedt_app.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
     assert len(aedt_app.native_components) == 1
@@ -107,7 +107,7 @@ def test_open_source(aedt_app, add_app):
     assert len(aedt_app.native_components) == 6
 
 
-def test_add_antennas(aedt_sbr):
+def test_add_antennas(aedt_sbr) -> None:
     dict1 = {"Polarization": "Horizontal"}
     par_beam = aedt_sbr.create_sbr_antenna(aedt_sbr.SbrAntennas.ParametricBeam, parameters=dict1, name="TX1")
     assert par_beam.definition_name == "TX1"
@@ -158,7 +158,7 @@ def test_add_antennas(aedt_sbr):
     )
 
 
-def test_add_ffd_antenna(aedt_sbr, test_tmp_dir):
+def test_add_ffd_antenna(aedt_sbr, test_tmp_dir) -> None:
     ffd_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / FARFIELD_DATA
     file = shutil.copy2(ffd_path, test_tmp_dir / FARFIELD_DATA)
 
@@ -172,7 +172,7 @@ def test_add_ffd_antenna(aedt_sbr, test_tmp_dir):
     )
 
 
-def test_add_environment(aedt_sbr, test_tmp_dir):
+def test_add_environment(aedt_sbr, test_tmp_dir) -> None:
     env_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "environment_library" / TUNNEL
     env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
 
@@ -180,7 +180,7 @@ def test_add_environment(aedt_sbr, test_tmp_dir):
     assert road1.name
 
 
-def test_add_person(aedt_sbr, test_tmp_dir):
+def test_add_person(aedt_sbr, test_tmp_dir) -> None:
     person_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "actor_library" / PERSON
     person_dir = shutil.copytree(person_folder, test_tmp_dir / PERSON)
 
@@ -191,7 +191,7 @@ def test_add_person(aedt_sbr, test_tmp_dir):
     assert person1.roll == "0deg"
 
 
-def test_add_car(aedt_sbr, test_tmp_dir):
+def test_add_car(aedt_sbr, test_tmp_dir) -> None:
     car_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "actor_library" / VEHICLE
     car_dir = shutil.copytree(car_folder, test_tmp_dir / VEHICLE)
 
@@ -202,7 +202,7 @@ def test_add_car(aedt_sbr, test_tmp_dir):
     assert car1.roll == "0deg"
 
 
-def test_add_bird(aedt_sbr, test_tmp_dir):
+def test_add_bird(aedt_sbr, test_tmp_dir) -> None:
     bird_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "actor_library" / BIRD
     bird_dir = shutil.copytree(bird_folder, test_tmp_dir / VEHICLE)
 
@@ -214,14 +214,14 @@ def test_add_bird(aedt_sbr, test_tmp_dir):
     assert bird1._flapping_rate == "30Hz"
 
 
-def test_add_radar(aedt_sbr, test_tmp_dir):
+def test_add_radar(aedt_sbr, test_tmp_dir) -> None:
     radar_lib = TESTS_GENERAL_PATH / "example_models" / "library" / "radar_modules"
     radar_dir = shutil.copytree(radar_lib, test_tmp_dir / "radar_modules")
     assert aedt_sbr.create_sbr_radar_from_json(str(radar_dir), name="Example_1Tx_1Rx", speed=3)
     assert aedt_sbr.create_sbr_radar_from_json(str(radar_dir), name="Example_1Tx_4Rx")
 
 
-def test_add_doppler_sweep(aedt_sbr, test_tmp_dir):
+def test_add_doppler_sweep(aedt_sbr, test_tmp_dir) -> None:
     env_folder = TESTS_GENERAL_PATH / "example_models" / "library" / "environment_library" / TUNNEL
     env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
 
@@ -233,7 +233,7 @@ def test_add_doppler_sweep(aedt_sbr, test_tmp_dir):
     assert sweep.props["Sim. Setups"] == [setup.name]
 
 
-def test_add_chirp_sweep(aedt_sbr, test_tmp_dir):
+def test_add_chirp_sweep(aedt_sbr, test_tmp_dir) -> None:
     env_folder = Path(TESTS_GENERAL_PATH) / "example_models" / "library" / "environment_library" / TUNNEL
     env_dir = shutil.copytree(env_folder, test_tmp_dir / TUNNEL)
 
@@ -248,7 +248,7 @@ def test_add_chirp_sweep(aedt_sbr, test_tmp_dir):
     assert sweep.props["Sim. Setups"] == [setup.name]
 
 
-def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal):
+def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal) -> None:
     # sbr file based antenna should only work for SBR+ solution.
     ffd_test_path = Path(TESTS_GENERAL_PATH) / "example_models" / TEST_SUBFOLDER / "test.ffd"
     with pytest.raises(
@@ -260,7 +260,7 @@ def test_add_sbr_boundaries_in_hfss_solution(aedt_terminal):
 
 @pytest.mark.skipif(on_ci, reason="Map download takes too long for unit test.")
 @pytest.mark.skipif(is_linux, reason="Not supported.")
-def test_import_map(aedt_sbr):
+def test_import_map(aedt_sbr) -> None:
     ansys_home = [40.273726, -80.168269]
     parts_dict = aedt_sbr.modeler.import_from_openstreet_map(
         ansys_home, terrain_radius=200, road_step=3, plot_before_importing=False, import_in_aedt=True
@@ -269,7 +269,7 @@ def test_import_map(aedt_sbr):
         assert Path(parts_dict["parts"][part]["file_name"]).exists()
 
 
-def test_create_custom_array(aedt_sbr):
+def test_create_custom_array(aedt_sbr) -> None:
     output_file1 = aedt_sbr.create_sbr_custom_array_file()
     assert Path(output_file1).is_file()
 
@@ -293,7 +293,7 @@ def test_create_custom_array(aedt_sbr):
 
 
 @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
-def test_read_hdm(aedt_sbr, test_tmp_dir):
+def test_read_hdm(aedt_sbr, test_tmp_dir) -> None:
     hdm_path = TESTS_GENERAL_PATH / "example_models" / TEST_SUBFOLDER / "freighter_rays.hdm"
     hdm_local = shutil.copy2(hdm_path, test_tmp_dir / "freighter_rays.hdm")
 
@@ -314,7 +314,7 @@ def test_read_hdm(aedt_sbr, test_tmp_dir):
     assert bounce2_path.exists()
 
 
-def test_boundary_perfect_e(aedt_sbr):
+def test_boundary_perfect_e(aedt_sbr) -> None:
     b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
     model_units = aedt_sbr.modeler.model_units
 
@@ -331,7 +331,7 @@ def test_boundary_perfect_e(aedt_sbr):
         aedt_sbr.assign_perfect_e(assignment="invented")
 
 
-def test_boundary_perfect_h(aedt_sbr):
+def test_boundary_perfect_h(aedt_sbr) -> None:
     b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
     model_units = aedt_sbr.modeler.model_units
 
@@ -348,7 +348,7 @@ def test_boundary_perfect_h(aedt_sbr):
         aedt_sbr.assign_perfect_h(assignment="invented")
 
 
-def test_boundaries_finite_conductivity(aedt_sbr):
+def test_boundaries_finite_conductivity(aedt_sbr) -> None:
     b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
 
     args = {
@@ -395,7 +395,7 @@ def test_boundaries_finite_conductivity(aedt_sbr):
         aedt_sbr.assign_finite_conductivity(["insulator2"])
 
 
-def test_boundaries_layered_impedance(aedt_sbr):
+def test_boundaries_layered_impedance(aedt_sbr) -> None:
     b = aedt_sbr.modeler.create_box([0, 0, 0], [10, 20, 30])
     model_units = aedt_sbr.modeler.model_units
 

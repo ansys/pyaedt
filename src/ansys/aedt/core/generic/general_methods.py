@@ -68,7 +68,7 @@ inclusion_list = [
 ]
 
 
-def _write_mes(mes_text):
+def _write_mes(mes_text) -> None:
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     mes_text = str(mes_text)
@@ -87,7 +87,7 @@ def _get_args_dicts(func, args, kwargs):
     return args_dict
 
 
-def _exception(ex_info, func, args, kwargs, message: str="Type Error"):
+def _exception(ex_info, func, args, kwargs, message: str="Type Error") -> None:
     """Write the trace stack to the desktop when a Python error occurs.
 
     Parameters
@@ -186,7 +186,7 @@ def _exception(ex_info, func, args, kwargs, message: str="Type Error"):
     _write_mes(header)
 
 
-def _check_types(arg):
+def _check_types(arg) -> str:
     if "netref.builtins.list" in str(type(arg)):
         return "list"
     elif "netref.builtins.dict" in str(type(arg)):
@@ -357,7 +357,7 @@ def check_numeric_equivalence(a, b, relative_tolerance: float=1e-7):
     return True if reldiff < relative_tolerance else False
 
 
-def _log_method(func, new_args, new_kwargs):
+def _log_method(func, new_args, new_kwargs) -> None:
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
@@ -500,7 +500,7 @@ def env_path(input_version):
 
 
 @pyaedt_function_handler()
-def env_value(input_version):
+def env_value(input_version) -> str:
     """Get the name of the version environment variable for an AEDT version.
 
     Parameters
@@ -547,7 +547,7 @@ def env_path_student(input_version):
 
 
 @pyaedt_function_handler()
-def env_value_student(input_version):
+def env_value_student(input_version) -> str:
     """Get the name of the version environment variable for an AEDT student version.
 
     Parameters
@@ -624,7 +624,7 @@ def time_fn(fn, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def filter_tuple(value, search_key_1, search_key_2):
+def filter_tuple(value, search_key_1, search_key_2) -> bool:
     """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
 
@@ -648,7 +648,7 @@ def filter_tuple(value, search_key_1, search_key_2):
 
 
 @pyaedt_function_handler()
-def filter_string(value, search_key_1):
+def filter_string(value, search_key_1) -> bool:
     """Filter a string"""
     ignore_case = True
 
@@ -942,7 +942,7 @@ class PropsManager(PyAedtBase):
         self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
         return None
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         """Set the `self.props` key value.
 
         Parameters
@@ -1030,7 +1030,7 @@ class PropsManager(PyAedtBase):
         return []
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> None:
         """Update method."""
         pass
 

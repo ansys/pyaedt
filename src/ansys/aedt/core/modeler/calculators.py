@@ -53,7 +53,7 @@ class TransmissionLine(PyAedtBase):
     >>> tl_calc.stripline_calculator(substrate_height=10, permittivity=2.2, impedance=60)
     """
 
-    def __init__(self, frequency: int=10, frequency_unit: str="GHz"):
+    def __init__(self, frequency: int=10, frequency_unit: str="GHz") -> None:
         self.frequency = frequency
         self.frequency_unit = frequency_unit
 
@@ -299,7 +299,7 @@ class StandardWaveguide(PyAedtBase):
     wg["WR-7"] = [0.065, 0.0325, 0.02]
     wg["WR-5"] = [0.0510, 0.0255, 0.02]
 
-    def __init__(self, frequency: int=10, frequency_unit: str="GHz"):
+    def __init__(self, frequency: int=10, frequency_unit: str="GHz") -> None:
         self.frequency = frequency
         self.frequency_unit = frequency_unit
 

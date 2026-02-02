@@ -32,12 +32,14 @@ import pytest
 
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
+from types import TracebackType
+from typing import Optional, Type
 
 settings.enable_desktop_logs = True
 settings.enable_local_log_file = True
 
 
-def test_formatter(test_tmp_dir):
+def test_formatter(test_tmp_dir) -> None:
     settings.formatter = logging.Formatter(fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S")
     path = test_tmp_dir / "test01.txt"
     logger = AedtLogger(filename=str(path))
@@ -47,7 +49,7 @@ def test_formatter(test_tmp_dir):
     path.unlink(missing_ok=True)
 
 
-def test_output_file_with_app_filter(test_tmp_dir):
+def test_output_file_with_app_filter(test_tmp_dir) -> None:
     settings.enable_debug_logger = True
     path = test_tmp_dir / "test02.txt"
     logger = AedtLogger(filename=str(path))
@@ -97,7 +99,7 @@ def test_output_file_with_app_filter(test_tmp_dir):
     path.unlink(missing_ok=True)
 
 
-def test_stdout_with_app_filter():
+def test_stdout_with_app_filter() -> None:
     capture = CaptureStdOut()
     settings.logger_file_path = ""
     with capture:
@@ -111,7 +113,7 @@ def test_stdout_with_app_filter():
     assert "PyAEDT ERROR: Error for Global" in capture.content
 
 
-def test_disable_output_file_handler(test_tmp_dir):
+def test_disable_output_file_handler(test_tmp_dir) -> None:
     tempfile.gettempdir()
     path = test_tmp_dir / "test04.txt"
 
@@ -169,7 +171,7 @@ def test_disable_output_file_handler(test_tmp_dir):
     path.unlink(missing_ok=True)
 
 
-def test_disable_stdout(test_tmp_dir):
+def test_disable_stdout(test_tmp_dir) -> None:
     temp_file = test_tmp_dir / "dummy.tmp"
     with temp_file.open("w+") as fp:
         stream = unittest.mock.MagicMock()
@@ -210,16 +212,16 @@ def test_disable_stdout(test_tmp_dir):
 class CaptureStdOut:
     """Capture standard output with a context manager."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._stream = io.StringIO()
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         sys.stdout = self._stream
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(self, exc_type: Optional[Type[BaseException]], exc_value: Optional[BaseException], exc_traceback: Optional[TracebackType]) -> None:
         sys.stdout = sys.__stdout__
 
-    def release(self):
+    def release(self) -> None:
         self._stream.close()
 
     @property

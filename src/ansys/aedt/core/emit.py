@@ -142,7 +142,7 @@ class Emit(Design, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
@@ -182,7 +182,7 @@ class Emit(Design, PyAedtBase):
 
             self.__emit_api_enabled = True
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
@@ -243,7 +243,7 @@ class Emit(Design, PyAedtBase):
             return ver
 
     @pyaedt_function_handler()
-    def set_units(self, unit_type, unit_value):
+    def set_units(self, unit_type, unit_value) -> bool:
         """Set units for the EMIT design.
 
         Parameters

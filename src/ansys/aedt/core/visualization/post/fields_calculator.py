@@ -92,7 +92,7 @@ class FieldsCalculator(PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.expression_catalog = read_configuration_file(
             PARENT_DIR / "fields_calculator_files" / "expression_catalog.toml"
         )
@@ -376,7 +376,7 @@ class FieldsCalculator(PyAedtBase):
         return reports
 
     @pyaedt_function_handler()
-    def delete_expression(self, name=None):
+    def delete_expression(self, name=None) -> bool:
         """Delete a named expression.
 
         Parameters
@@ -407,7 +407,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def is_expression_defined(self, name):
+    def is_expression_defined(self, name) -> bool:
         """Check if a named expression exists.
 
         Parameters
@@ -515,7 +515,7 @@ class FieldsCalculator(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def write(self, expression, output_file, setup=None, intrinsics=None):
+    def write(self, expression, output_file, setup=None, intrinsics=None) -> bool:
         """Save the content of the stack register for future reuse in a later Field Calculator session.
 
         Parameters
@@ -850,14 +850,14 @@ class FieldsCalculator(PyAedtBase):
         return expressions
 
     @staticmethod
-    def __has_integer(lst):  # pragma: no cover
+    def __has_integer(lst) -> bool:  # pragma: no cover
         """Check if a list has integers."""
         for item in lst:
             if isinstance(item, int):
                 return True
         return False
 
-    def __has_lines(self, lst):  # pragma: no cover
+    def __has_lines(self, lst) -> bool:  # pragma: no cover
         """Check if a list has lines."""
         for item in lst:
             if item not in self.__app.modeler.line_names:

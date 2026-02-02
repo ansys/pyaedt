@@ -33,7 +33,7 @@ from ansys.aedt.core.modules.circuit_templates import SourceKeys
 class Sources(PyAedtBase):
     """Manages sources in Circuit projects."""
 
-    def __init__(self, app, name, source_type=None):
+    def __init__(self, app, name, source_type=None) -> None:
         self._app = app
         self._name = name
         self._props = self._source_props(name, source_type)
@@ -53,7 +53,7 @@ class Sources(PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, source_name):
+    def name(self, source_name) -> None:
         if source_name not in self._app.source_names:
             if source_name != self._name:
                 original_name = self._name
@@ -182,7 +182,7 @@ class Sources(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def update(self, original_name=None, new_source=None):
+    def update(self, original_name=None, new_source=None) -> bool:
         """Update the source in AEDT.
 
         Parameters
@@ -287,7 +287,7 @@ class Sources(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the source in AEDT.
 
         Returns
@@ -305,7 +305,7 @@ class Sources(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a new source in AEDT.
 
         Returns
@@ -321,7 +321,7 @@ class Sources(PyAedtBase):
 class PowerSinSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None):
+    def __init__(self, app, name, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -339,7 +339,7 @@ class PowerSinSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value):
+    def ac_magnitude(self, value) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
@@ -354,7 +354,7 @@ class PowerSinSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value):
+    def ac_phase(self, value) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
@@ -369,7 +369,7 @@ class PowerSinSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value):
+    def dc_magnitude(self, value) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
@@ -384,7 +384,7 @@ class PowerSinSource(Sources):
         return self._props["VO"]
 
     @power_offset.setter
-    def power_offset(self, value):
+    def power_offset(self, value) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
@@ -399,7 +399,7 @@ class PowerSinSource(Sources):
         return self._props["POWER"]
 
     @power_magnitude.setter
-    def power_magnitude(self, value):
+    def power_magnitude(self, value) -> None:
         self._props["POWER"] = value
         self._child.SetPropValue("POWER", value)
 
@@ -414,7 +414,7 @@ class PowerSinSource(Sources):
         return self._props["FREQ"]
 
     @frequency.setter
-    def frequency(self, value):
+    def frequency(self, value) -> None:
         self._props["FREQ"] = value
         self._child.SetPropValue("FREQ", value)
 
@@ -429,7 +429,7 @@ class PowerSinSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value):
+    def delay(self, value) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
@@ -444,7 +444,7 @@ class PowerSinSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value):
+    def damping_factor(self, value) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
@@ -459,7 +459,7 @@ class PowerSinSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value):
+    def phase_delay(self, value) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
@@ -474,7 +474,7 @@ class PowerSinSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value):
+    def tone(self, value) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)
 
@@ -482,7 +482,7 @@ class PowerSinSource(Sources):
 class PowerIQSource(Sources):
     """Power IQ Class."""
 
-    def __init__(self, app, name, source_type=None):
+    def __init__(self, app, name, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -500,7 +500,7 @@ class PowerIQSource(Sources):
         return self._props["FC"]
 
     @carrier_frequency.setter
-    def carrier_frequency(self, value):
+    def carrier_frequency(self, value) -> None:
         self._props["FC"] = value
         self._child.SetPropValue("FC", value)
 
@@ -515,7 +515,7 @@ class PowerIQSource(Sources):
         return self._props["TS"]
 
     @sampling_time.setter
-    def sampling_time(self, value):
+    def sampling_time(self, value) -> None:
         self._props["TS"] = value
         self._child.SetPropValue("TS", value)
 
@@ -530,7 +530,7 @@ class PowerIQSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value):
+    def dc_magnitude(self, value) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
@@ -545,7 +545,7 @@ class PowerIQSource(Sources):
         return self._props["R"]
 
     @repeat_from.setter
-    def repeat_from(self, value):
+    def repeat_from(self, value) -> None:
         self._props["R"] = value
         self._child.SetPropValue("R", value)
 
@@ -560,7 +560,7 @@ class PowerIQSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value):
+    def delay(self, value) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
@@ -575,7 +575,7 @@ class PowerIQSource(Sources):
         return self._props["V"]
 
     @carrier_amplitude_voltage.setter
-    def carrier_amplitude_voltage(self, value):
+    def carrier_amplitude_voltage(self, value) -> None:
         self._props["V"] = value
         self._child.SetPropValue("V", value)
 
@@ -590,7 +590,7 @@ class PowerIQSource(Sources):
         return self._props["VA"]
 
     @carrier_amplitude_power.setter
-    def carrier_amplitude_power(self, value):
+    def carrier_amplitude_power(self, value) -> None:
         self._props["VA"] = value
         self._child.SetPropValue("VA", value)
 
@@ -605,7 +605,7 @@ class PowerIQSource(Sources):
         return self._props["VO"]
 
     @carrier_offset.setter
-    def carrier_offset(self, value):
+    def carrier_offset(self, value) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
@@ -620,7 +620,7 @@ class PowerIQSource(Sources):
         return self._props["RZ"]
 
     @real_impedance.setter
-    def real_impedance(self, value):
+    def real_impedance(self, value) -> None:
         self._props["RZ"] = value
         self._child.SetPropValue("RZ", value)
 
@@ -635,7 +635,7 @@ class PowerIQSource(Sources):
         return self._props["IZ"]
 
     @imaginary_impedance.setter
-    def imaginary_impedance(self, value):
+    def imaginary_impedance(self, value) -> None:
         self._props["IZ"] = value
         self._child.SetPropValue("IZ", value)
 
@@ -650,7 +650,7 @@ class PowerIQSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value):
+    def damping_factor(self, value) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
@@ -665,7 +665,7 @@ class PowerIQSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value):
+    def phase_delay(self, value) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
@@ -680,7 +680,7 @@ class PowerIQSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value):
+    def tone(self, value) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)
 
@@ -700,7 +700,7 @@ class PowerIQSource(Sources):
         return i_q
 
     @i_q_values.setter
-    def i_q_values(self, value):
+    def i_q_values(self, value) -> None:
         cont = 0
         for point in value:
             self._props["time" + str(cont + 1)] = point[0]
@@ -724,7 +724,7 @@ class PowerIQSource(Sources):
         return self._props["file"]
 
     @file.setter
-    def file(self, value):
+    def file(self, value) -> None:
         self._props["file"] = str(value)
         self.update()
 
@@ -732,7 +732,7 @@ class PowerIQSource(Sources):
 class VoltageFrequencyDependentSource(Sources):
     """Voltage Frequency Dependent Class."""
 
-    def __init__(self, app, name, source_type=None):
+    def __init__(self, app, name, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -750,7 +750,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["frequencies"]
 
     @frequencies.setter
-    def frequencies(self, value):
+    def frequencies(self, value) -> None:
         self._props["frequencies"] = [float(i) for i in value]
         self._update_prop()
 
@@ -765,7 +765,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vmag"]
 
     @vmag.setter
-    def vmag(self, value):
+    def vmag(self, value) -> None:
         self._props["vmag"] = [float(i) for i in value]
         self._update_prop()
 
@@ -780,7 +780,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vang"]
 
     @vang.setter
-    def vang(self, value):
+    def vang(self, value) -> None:
         self._props["vang"] = [float(i) for i in value]
         self._update_prop()
 
@@ -795,7 +795,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vreal"]
 
     @vreal.setter
-    def vreal(self, value):
+    def vreal(self, value) -> None:
         self._props["vreal"] = [float(i) for i in value]
         self._update_prop()
 
@@ -810,7 +810,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["vimag"]
 
     @vimag.setter
-    def vimag(self, value):
+    def vimag(self, value) -> None:
         self._props["vimag"] = [float(i) for i in value]
         self._update_prop()
 
@@ -825,7 +825,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["magnitude_angle"]
 
     @magnitude_angle.setter
-    def magnitude_angle(self, value):
+    def magnitude_angle(self, value) -> None:
         self._props["magnitude_angle"] = value
         self._update_prop()
 
@@ -840,7 +840,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["fds_filename"]
 
     @fds_filename.setter
-    def fds_filename(self, name):
+    def fds_filename(self, name) -> None:
         if not name:
             self._props["fds_filename"] = None
             self._update_prop()
@@ -850,7 +850,7 @@ class VoltageFrequencyDependentSource(Sources):
             self.update()
 
     @pyaedt_function_handler()
-    def _update_prop(self):
+    def _update_prop(self) -> bool:
         if (
             self._props["vmag"]
             and self._props["vang"]
@@ -894,7 +894,7 @@ class VoltageFrequencyDependentSource(Sources):
 class VoltageDCSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None):
+    def __init__(self, app, name, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -912,7 +912,7 @@ class VoltageDCSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value):
+    def ac_magnitude(self, value) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
@@ -927,7 +927,7 @@ class VoltageDCSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value):
+    def ac_phase(self, value) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
@@ -942,7 +942,7 @@ class VoltageDCSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value):
+    def dc_magnitude(self, value) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
@@ -950,7 +950,7 @@ class VoltageDCSource(Sources):
 class VoltageSinSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None):
+    def __init__(self, app, name, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -968,7 +968,7 @@ class VoltageSinSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value):
+    def ac_magnitude(self, value) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
@@ -983,7 +983,7 @@ class VoltageSinSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value):
+    def ac_phase(self, value) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
@@ -998,7 +998,7 @@ class VoltageSinSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value):
+    def dc_magnitude(self, value) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
@@ -1013,7 +1013,7 @@ class VoltageSinSource(Sources):
         return self._props["VA"]
 
     @voltage_amplitude.setter
-    def voltage_amplitude(self, value):
+    def voltage_amplitude(self, value) -> None:
         self._props["VA"] = value
         self._child.SetPropValue("VA", value)
 
@@ -1028,7 +1028,7 @@ class VoltageSinSource(Sources):
         return self._props["VO"]
 
     @voltage_offset.setter
-    def voltage_offset(self, value):
+    def voltage_offset(self, value) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
@@ -1043,7 +1043,7 @@ class VoltageSinSource(Sources):
         return self._props["FREQ"]
 
     @frequency.setter
-    def frequency(self, value):
+    def frequency(self, value) -> None:
         self._props["FREQ"] = value
         self._child.SetPropValue("FREQ", value)
 
@@ -1058,7 +1058,7 @@ class VoltageSinSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value):
+    def delay(self, value) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
@@ -1073,7 +1073,7 @@ class VoltageSinSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value):
+    def damping_factor(self, value) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
@@ -1088,7 +1088,7 @@ class VoltageSinSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value):
+    def phase_delay(self, value) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
@@ -1103,7 +1103,7 @@ class VoltageSinSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value):
+    def tone(self, value) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)
 
@@ -1111,7 +1111,7 @@ class VoltageSinSource(Sources):
 class CurrentSinSource(Sources):
     """Current Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None):
+    def __init__(self, app, name, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -1129,7 +1129,7 @@ class CurrentSinSource(Sources):
         return self._props["ACMAG"]
 
     @ac_magnitude.setter
-    def ac_magnitude(self, value):
+    def ac_magnitude(self, value) -> None:
         self._props["ACMAG"] = value
         self._child.SetPropValue("ACMAG", value)
 
@@ -1144,7 +1144,7 @@ class CurrentSinSource(Sources):
         return self._props["ACPHASE"]
 
     @ac_phase.setter
-    def ac_phase(self, value):
+    def ac_phase(self, value) -> None:
         self._props["ACPHASE"] = value
         self._child.SetPropValue("ACPHASE", value)
 
@@ -1159,7 +1159,7 @@ class CurrentSinSource(Sources):
         return self._props["DC"]
 
     @dc_magnitude.setter
-    def dc_magnitude(self, value):
+    def dc_magnitude(self, value) -> None:
         self._props["DC"] = value
         self._child.SetPropValue("DC", value)
 
@@ -1174,7 +1174,7 @@ class CurrentSinSource(Sources):
         return self._props["VA"]
 
     @current_amplitude.setter
-    def current_amplitude(self, value):
+    def current_amplitude(self, value) -> None:
         self._props["VA"] = value
         self._child.SetPropValue("VA", value)
 
@@ -1189,7 +1189,7 @@ class CurrentSinSource(Sources):
         return self._props["VO"]
 
     @current_offset.setter
-    def current_offset(self, value):
+    def current_offset(self, value) -> None:
         self._props["VO"] = value
         self._child.SetPropValue("VO", value)
 
@@ -1204,7 +1204,7 @@ class CurrentSinSource(Sources):
         return self._props["FREQ"]
 
     @frequency.setter
-    def frequency(self, value):
+    def frequency(self, value) -> None:
         self._props["FREQ"] = value
         self._child.SetPropValue("FREQ", value)
 
@@ -1219,7 +1219,7 @@ class CurrentSinSource(Sources):
         return self._props["TD"]
 
     @delay.setter
-    def delay(self, value):
+    def delay(self, value) -> None:
         self._props["TD"] = value
         self._child.SetPropValue("TD", value)
 
@@ -1234,7 +1234,7 @@ class CurrentSinSource(Sources):
         return self._props["ALPHA"]
 
     @damping_factor.setter
-    def damping_factor(self, value):
+    def damping_factor(self, value) -> None:
         self._props["ALPHA"] = value
         self._child.SetPropValue("ALPHA", value)
 
@@ -1249,7 +1249,7 @@ class CurrentSinSource(Sources):
         return self._props["THETA"]
 
     @phase_delay.setter
-    def phase_delay(self, value):
+    def phase_delay(self, value) -> None:
         self._props["THETA"] = value
         self._child.SetPropValue("THETA", value)
 
@@ -1264,7 +1264,7 @@ class CurrentSinSource(Sources):
         return self._props["M"]
 
     @multiplier.setter
-    def multiplier(self, value):
+    def multiplier(self, value) -> None:
         self._props["M"] = value
         self._child.SetPropValue("M", value)
 
@@ -1279,6 +1279,6 @@ class CurrentSinSource(Sources):
         return self._props["TONE"]
 
     @tone.setter
-    def tone(self, value):
+    def tone(self, value) -> None:
         self._props["TONE"] = value
         self._child.SetPropValue("TONE", value)

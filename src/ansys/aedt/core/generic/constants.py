@@ -757,19 +757,19 @@ class DynamicMeta(type):
             pass
         return super().__getattribute__(name)
 
-    def __repr__(cls):
+    def __repr__(cls) -> str:
         try:
             return cls.NAME
         except AttributeError:
             return super().__getattribute__("__name__")
 
-    def __str__(cls):
+    def __str__(cls) -> str:
         try:
             return cls.NAME
         except AttributeError:
             return super().__getattribute__("__name__")
 
-    def __contains__(cls, item):
+    def __contains__(cls, item) -> bool:
         try:
             super().__getattribute__(item)
             return True
@@ -1338,10 +1338,10 @@ class SymbolStyle(metaclass=DynamicMeta):
 
 
 class IntEnumProps(IntEnum):
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
 

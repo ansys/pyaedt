@@ -75,7 +75,7 @@ class CircuitComponents(PyAedtBase):
 
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, modeler) -> None:
         self._app = modeler._app
         self._modeler = modeler
         self.logger = self._app.logger
@@ -172,7 +172,7 @@ class CircuitComponents(PyAedtBase):
         return self._modeler.schematic_units
 
     @schematic_units.setter
-    def schematic_units(self, value):
+    def schematic_units(self, value) -> None:
         self._modeler.schematic_units = value
 
     @property
@@ -274,7 +274,7 @@ class CircuitComponents(PyAedtBase):
         return comp_id
 
     @pyaedt_function_handler()
-    def add_pin_iports(self, name, id_num):
+    def add_pin_iports(self, name, id_num) -> bool:
         """Add ports on pins.
 
         Parameters
@@ -1154,7 +1154,7 @@ class CircuitComponents(PyAedtBase):
         return self.components[comp_id]
 
     @pyaedt_function_handler()
-    def disable_data_netlist(self, assignment):
+    def disable_data_netlist(self, assignment) -> bool:
         """Disable the Nexxim global net list.
 
         Parameters
@@ -1188,7 +1188,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_global_netlist(self, assignment, global_netlist_list=None):
+    def enable_global_netlist(self, assignment, global_netlist_list=None) -> bool:
         """Enable Nexxim global net list.
 
         Parameters
@@ -1228,7 +1228,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_symbol(self, name, pins):
+    def create_symbol(self, name, pins) -> bool:
         """Create a symbol.
 
         Parameters
@@ -1307,7 +1307,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_use_instance_name(self, component_library: str="", component_name: str="RES_"):
+    def enable_use_instance_name(self, component_library: str="", component_name: str="RES_") -> bool:
         """Enable the use of the instance name.
 
         Parameters
@@ -1608,7 +1608,7 @@ class CircuitComponents(PyAedtBase):
 class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
 
-    def __init__(self, name, component_manager, file_name, component_library):
+    def __init__(self, name, component_manager, file_name, component_library) -> None:
         self._component_manager = component_manager
         self.file_name = file_name
         self.name = name
@@ -1696,14 +1696,14 @@ class ComponentCatalog(PyAedtBase):
                 self._component_manager._logger.warning("Component not found.")
                 return None
 
-    def __init__(self, component_manager):
+    def __init__(self, component_manager) -> None:
         self._component_manager = component_manager
         self._app = self._component_manager._app
         self.components = {}
         self._index_components()
 
     @pyaedt_function_handler()
-    def _index_components(self, library_path=None):
+    def _index_components(self, library_path=None) -> None:
         if library_path:
             sys_files = recursive_glob(library_path, "*.aclb")
             root = Path(library_path).name

@@ -57,7 +57,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None):
+    def __init__(self, app, name, props=None, boundarytype=None) -> None:
         self.auto_update = False
         self._app = app
         self._name = name
@@ -130,7 +130,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         if self._child_object:
             try:
                 self.properties["Name"] = value
@@ -181,7 +181,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> bool:
         """Update the boundary.
 
         Returns
@@ -285,7 +285,7 @@ class MaxwellMatrix(PyAedtBase):
 
     """
 
-    def __init__(self, app, parent_name, reduced_name):
+    def __init__(self, app, parent_name, reduced_name) -> None:
         """Initialize Maxwell matrix."""
         self._app = app
         self.parent_matrix = parent_name
@@ -316,7 +316,7 @@ class MaxwellMatrix(PyAedtBase):
         return self.__sources
 
     @pyaedt_function_handler()
-    def update(self, old_source, source_type, new_source=None, new_excitations=None):
+    def update(self, old_source, source_type, new_source=None, new_excitations=None) -> bool:
         """Update the reduced matrix.
 
         Parameters
@@ -352,7 +352,7 @@ class MaxwellMatrix(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self, source):
+    def delete(self, source) -> bool:
         """Delete a specified source in a reduced matrix.
 
         Parameters

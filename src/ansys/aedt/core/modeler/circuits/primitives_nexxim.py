@@ -61,12 +61,12 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     """
 
     @property
-    def design_libray(self):
+    def design_libray(self) -> str:
         """Design library."""
         return "Nexxim Circuit Elements"
 
     @property
-    def tab_name(self):
+    def tab_name(self) -> str:
         """Tab name."""
         return "PassedParameterTab"
 
@@ -104,7 +104,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
     def _logger(self):
         return self._app.logger
 
-    def __init__(self, modeler):
+    def __init__(self, modeler) -> None:
         CircuitComponents.__init__(self, modeler)
         self._app = modeler._app
         self._modeler = modeler
@@ -141,7 +141,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def delete_component(self, name):
+    def delete_component(self, name) -> bool:
         """Get and delete a component.
 
         Parameters
@@ -282,7 +282,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def connect_components_in_series(self, assignment, use_wire: bool=True):
+    def connect_components_in_series(self, assignment, use_wire: bool=True) -> bool:
         """Connect schematic components in series.
 
         Parameters
@@ -326,7 +326,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def connect_components_in_parallel(self, assignment):
+    def connect_components_in_parallel(self, assignment) -> bool:
         """Connect schematic components in parallel.
 
         Parameters
@@ -1375,7 +1375,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         parameters=None,
         values=None,
         gref: str="",
-    ):
+    ) -> bool:
         """Create a component from a symbol.
 
         Parameters
@@ -2017,7 +2017,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         return self._edit_link_definition_hfss_subcircuit(component, arg)
 
     @pyaedt_function_handler()
-    def _edit_link_definition_hfss_subcircuit(self, component, edited_prop):
+    def _edit_link_definition_hfss_subcircuit(self, component, edited_prop) -> bool:
         """Generic function to set the link definition for a HFSS subcircuit."""
         if isinstance(component, str):
             complist = component.split(";")
@@ -2046,7 +2046,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def refresh_dynamic_link(self, name):
+    def refresh_dynamic_link(self, name) -> bool:
         """Refresh a dynamic link component.
 
         Parameters

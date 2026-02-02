@@ -81,10 +81,10 @@ class Object3d(PyAedtBase):
     >>> part = prim[id]
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, primitives, name=None):
+    def __init__(self, primitives, name=None) -> None:
         self._id = None
         self._positions = None
         if name:
@@ -131,7 +131,7 @@ class Object3d(PyAedtBase):
         return self._is_polyline
 
     @is_polyline.setter
-    def is_polyline(self, value):
+    def is_polyline(self, value) -> None:
         self._is_polyline = value
 
     @pyaedt_function_handler()
@@ -860,7 +860,7 @@ class Object3d(PyAedtBase):
         return self._m_groupName
 
     @group_name.setter
-    def group_name(self, name):
+    def group_name(self, name) -> None:
         """Assign Object to a specific group. It creates a new group if the group doesn't exist.
 
         Parameters
@@ -910,7 +910,7 @@ class Object3d(PyAedtBase):
         self._m_groupName = name
 
     @property
-    def is_conductor(self):
+    def is_conductor(self) -> bool:
         """Check if the object is a conductor."""
         if self.material_name and self._primitives._materials[self.material_name].is_conductor():
             return True
@@ -942,7 +942,7 @@ class Object3d(PyAedtBase):
         return ""
 
     @material_name.setter
-    def material_name(self, mat):
+    def material_name(self, mat) -> None:
         matobj = self._primitives._materials.exists_material(mat)
         mat_value = None
         if matobj:
@@ -960,7 +960,7 @@ class Object3d(PyAedtBase):
             self.logger.warning("Material %s does not exist.", mat)
 
     @surface_material_name.setter
-    def surface_material_name(self, mat):
+    def surface_material_name(self, mat) -> None:
         try:
             if not self.model:
                 self.model = True
@@ -1119,7 +1119,7 @@ class Object3d(PyAedtBase):
         return self._m_name
 
     @name.setter
-    def name(self, obj_name):
+    def name(self, obj_name) -> None:
         if obj_name != self._m_name and obj_name not in self._primitives.object_names:
             vName = ["NAME:Name", "Value:=", obj_name]
             vChangedProps = ["NAME:ChangedProps", vName]
@@ -1175,7 +1175,7 @@ class Object3d(PyAedtBase):
             return self._color
 
     @property
-    def color_string(self):
+    def color_string(self) -> str:
         """Color tuple as a string in the format '(Red, Green, Blue)'.
 
         References
@@ -1186,7 +1186,7 @@ class Object3d(PyAedtBase):
         return f"({self.color[0]} {self.color[1]} {self.color[2]})"
 
     @color.setter
-    def color(self, color_value):
+    def color(self, color_value) -> None:
         color_tuple = None
         if isinstance(color_value, str):
             try:
@@ -1239,7 +1239,7 @@ class Object3d(PyAedtBase):
             return self._transparency
 
     @transparency.setter
-    def transparency(self, T):
+    def transparency(self, T) -> None:
         try:
             trans_float = float(T)
             if trans_float < 0.0:
@@ -1283,7 +1283,7 @@ class Object3d(PyAedtBase):
             return self._part_coordinate_system
 
     @part_coordinate_system.setter
-    def part_coordinate_system(self, sCS):
+    def part_coordinate_system(self, sCS) -> None:
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
@@ -1315,7 +1315,7 @@ class Object3d(PyAedtBase):
         return None
 
     @solve_inside.setter
-    def solve_inside(self, S):
+    def solve_inside(self, S) -> None:
         if not self.model:
             self.model = True
         vSolveInside = []
@@ -1353,7 +1353,7 @@ class Object3d(PyAedtBase):
             return self._wireframe
 
     @display_wireframe.setter
-    def display_wireframe(self, fWireframe):
+    def display_wireframe(self, fWireframe) -> None:
         vWireframe = ["NAME:Display Wireframe", "Value:=", fWireframe]
         # fwf = self._to_boolean(wf)
 
@@ -1388,7 +1388,7 @@ class Object3d(PyAedtBase):
             return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, material_appearance):
+    def material_appearance(self, material_appearance) -> None:
         vMaterialAppearance = [
             "NAME:Material Appearance",
             "Value:=",
@@ -1441,7 +1441,7 @@ class Object3d(PyAedtBase):
             return self._model
 
     @is_model.setter
-    def is_model(self, fModel):
+    def is_model(self, fModel) -> None:
         vArg1 = ["NAME:Model", "Value:=", fModel]
         fModel = _to_boolean(fModel)
         self._change_property(vArg1)
@@ -1469,7 +1469,7 @@ class Object3d(PyAedtBase):
         return self.is_model
 
     @model.setter
-    def model(self, fModel):
+    def model(self, fModel) -> None:
         self.is_model = fModel
 
     @pyaedt_function_handler()
@@ -1893,7 +1893,7 @@ class Object3d(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> None:
         """Delete the object.
 
         References
@@ -1996,7 +1996,7 @@ class Object3d(PyAedtBase):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
 
     @pyaedt_function_handler()
-    def fillet(self, vertices=None, edges=None, radius: float=0.1, setback: float=0.0):
+    def fillet(self, vertices=None, edges=None, radius: float=0.1, setback: float=0.0) -> bool:
         """Add a fillet to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -2043,7 +2043,7 @@ class Object3d(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def chamfer(self, vertices=None, edges=None, left_distance: int=1, right_distance=None, angle: int=45, chamfer_type: int=0):
+    def chamfer(self, vertices=None, edges=None, left_distance: int=1, right_distance=None, angle: int=45, chamfer_type: int=0) -> bool:
         """Add a chamfer to the selected edges in 3D/vertices in 2D.
 
         Parameters
@@ -2424,7 +2424,7 @@ class Object3d(PyAedtBase):
         return arg_1
 
     @pyaedt_function_handler()
-    def _evaluate_arc_angle_extra_points(self, segment, start_point):
+    def _evaluate_arc_angle_extra_points(self, segment, start_point) -> bool:
         """Evaluate the extra points for the ArcAngle segment type.
 
         It also auto evaluates the arc_plane if it was not specified by the user.
@@ -2541,7 +2541,7 @@ class Object3d(PyAedtBase):
         return seg
 
     @pyaedt_function_handler()
-    def remove_point(self, position, tolerance: float=1e-9):
+    def remove_point(self, position, tolerance: float=1e-9) -> bool:
         """Remove a point from an existing polyline by position.
 
         You must enter the exact position of the vertex as a list
@@ -2627,7 +2627,7 @@ class Object3d(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def remove_segments(self, assignment):
+    def remove_segments(self, assignment) -> bool:
         """Remove a segment from an existing polyline by segment id.
 
         You must enter the segment id or the list of the segment ids you want to remove.
@@ -2690,7 +2690,7 @@ class Object3d(PyAedtBase):
     @pyaedt_function_handler()
     def set_crosssection_properties(
         self, section=None, orient=None, width: int=0, topwidth: int=0, height: int=0, num_seg: int=0, bend_type=None
-    ):
+    ) -> bool:
         """Set the properties of an existing polyline object.
 
         Parameters
@@ -2859,7 +2859,7 @@ class Object3d(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def insert_segment(self, points, segment=None):
+    def insert_segment(self, points, segment=None) -> bool:
         """Add a segment to an existing polyline.
 
         Parameters
@@ -3022,7 +3022,7 @@ class Object3d(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _check_polyline_health(self):
+    def _check_polyline_health(self) -> bool:
         # force re-evaluation of object_type
         self._object_type = None
         if self.object_type == "Unclassified":
@@ -3072,7 +3072,7 @@ class PolylineSegment(PyAedtBase):
 
     """
 
-    def __init__(self, segment_type, num_seg: int=0, num_points: int=0, arc_angle: int=0, arc_center=None, arc_plane=None):
+    def __init__(self, segment_type, num_seg: int=0, num_points: int=0, arc_angle: int=0, arc_center=None, arc_plane=None) -> None:
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
         if segment_type not in valid_types:
             raise TypeError(f"Segment type must be one of {valid_types}.")

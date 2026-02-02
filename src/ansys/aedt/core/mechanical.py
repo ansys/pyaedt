@@ -139,7 +139,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         FieldAnalysis3D.__init__(
             self,
             "ICEPAKFEA",
@@ -158,7 +158,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
@@ -642,7 +642,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "HeatGeneration")
 
     @pyaedt_function_handler()
-    def assign_2way_coupling(self, setup=None, number_of_iterations: int=2):
+    def assign_2way_coupling(self, setup=None, number_of_iterations: int=2) -> bool:
         """Assign two-way coupling to a setup.
 
         Parameters

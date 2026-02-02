@@ -49,7 +49,7 @@ except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
-def is_notebook():
+def is_notebook() -> bool:
     """Check if pyaedt is running in Jupyter or not.
 
     Returns
@@ -66,7 +66,7 @@ def is_notebook():
         return False  # Probably standard Python interpreter
 
 
-def is_ipython():
+def is_ipython() -> bool:
     """Check if pyaedt is running in Jupyter or not.
 
     Returns
@@ -84,7 +84,7 @@ def is_ipython():
 
 
 class Note(PyAedtBase):
-    def __init__(self):
+    def __init__(self) -> None:
         self._position = (0, 0)
         self._text = ""
         self._back_color = None
@@ -108,7 +108,7 @@ class Note(PyAedtBase):
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value) -> None:
         self._text = value
 
     @property
@@ -122,7 +122,7 @@ class Note(PyAedtBase):
         return self._back_color
 
     @background_color.setter
-    def background_color(self, value):
+    def background_color(self, value) -> None:
         self._back_color = value
 
     @property
@@ -136,7 +136,7 @@ class Note(PyAedtBase):
         return self._background_visibility
 
     @background_visibility.setter
-    def background_visibility(self, value):
+    def background_visibility(self, value) -> None:
         self._background_visibility = value
 
     @property
@@ -150,7 +150,7 @@ class Note(PyAedtBase):
         return self._border_visibility
 
     @border_visibility.setter
-    def border_visibility(self, value):
+    def border_visibility(self, value) -> None:
         self._border_visibility = value
 
     @property
@@ -164,7 +164,7 @@ class Note(PyAedtBase):
         return self._border_width
 
     @border_width.setter
-    def border_width(self, value):
+    def border_width(self, value) -> None:
         self._border_width = value
 
     @property
@@ -178,7 +178,7 @@ class Note(PyAedtBase):
         return self._font
 
     @font.setter
-    def font(self, value):
+    def font(self, value) -> None:
         self._font = value
 
     @property
@@ -192,7 +192,7 @@ class Note(PyAedtBase):
         return self._font_size
 
     @font_size.setter
-    def font_size(self, value):
+    def font_size(self, value) -> None:
         self._font_size = value
 
     @property
@@ -206,7 +206,7 @@ class Note(PyAedtBase):
         return self._color
 
     @color.setter
-    def color(self, value):
+    def color(self, value) -> None:
         self._color = value
 
     @property
@@ -220,7 +220,7 @@ class Note(PyAedtBase):
         return self._bold
 
     @bold.setter
-    def bold(self, value):
+    def bold(self, value) -> None:
         self._bold = value
 
     @property
@@ -234,14 +234,14 @@ class Note(PyAedtBase):
         return self._italic
 
     @italic.setter
-    def italic(self, value):
+    def italic(self, value) -> None:
         self._italic = value
 
 
 class Trace(PyAedtBase):
     """Trace class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.name = ""
         self._cartesian_data = None
         self._spherical_data = None
@@ -306,23 +306,23 @@ class Trace(PyAedtBase):
         return self.__fill_symbol
 
     @trace_style.setter
-    def trace_style(self, val):
+    def trace_style(self, val) -> None:
         self.__trace_style = val
 
     @trace_width.setter
-    def trace_width(self, val):
+    def trace_width(self, val) -> None:
         self.__trace_width = val
 
     @trace_color.setter
-    def trace_color(self, val):
+    def trace_color(self, val) -> None:
         self.__trace_color = val
 
     @symbol_style.setter
-    def symbol_style(self, val):
+    def symbol_style(self, val) -> None:
         self.__symbol_style = val
 
     @fill_symbol.setter
-    def fill_symbol(self, val):
+    def fill_symbol(self, val) -> None:
         self.__fill_symbol = val
 
     @property
@@ -337,7 +337,7 @@ class Trace(PyAedtBase):
         return self._cartesian_data
 
     @cartesian_data.setter
-    def cartesian_data(self, val):
+    def cartesian_data(self, val) -> None:
         self._cartesian_data = []
         for el in val:
             if not isinstance(el, (float, int, str)):
@@ -360,7 +360,7 @@ class Trace(PyAedtBase):
         return self._spherical_data
 
     @spherical_data.setter
-    def spherical_data(self, rthetaphi):
+    def spherical_data(self, rthetaphi) -> None:
         self._spherical_data = []
         for el in rthetaphi:
             if not isinstance(el, (float, int, str)):
@@ -397,7 +397,7 @@ class Trace(PyAedtBase):
         return [rho, phi]
 
     @pyaedt_function_handler()
-    def car2spherical(self):
+    def car2spherical(self) -> None:
         """Convert cartesian data to spherical and assigns to property spherical data."""
         x = np.array(self.cartesian_data[0], dtype=float)
         y = np.array(self.cartesian_data[1], dtype=float)
@@ -411,7 +411,7 @@ class Trace(PyAedtBase):
         self._spherical_data = [r, theta, phi]
 
     @pyaedt_function_handler()
-    def spherical2car(self):
+    def spherical2car(self) -> None:
         """Convert spherical data to cartesian data and assign to cartesian data property."""
         r = np.array(self._spherical_data[0], dtype=float)
         theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
@@ -445,7 +445,7 @@ class Trace(PyAedtBase):
 class LimitLine(Trace):
     """Limit Line class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         Trace.__init__(self)
         self.hatch_above = True
 
@@ -453,7 +453,7 @@ class LimitLine(Trace):
 class ReportPlotter(PyAedtBase):
     """Matplotlib Report manager."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         rc_params = {
             "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
             "axes.labelsize": 20,  # Apply the settings only in this module.
@@ -528,7 +528,7 @@ class ReportPlotter(PyAedtBase):
         return self._limit_lines
 
     @pyaedt_function_handler()
-    def apply_style(self, style_name):
+    def apply_style(self, style_name) -> bool:
         """Apply a custom matplotlib style (eg. background_dark).
 
         Parameters
@@ -556,7 +556,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_style
 
     @grid_style.setter
-    def grid_style(self, val):
+    def grid_style(self, val) -> None:
         self.__grid_style = val
 
     @property
@@ -570,7 +570,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_major_x
 
     @grid_enable_major_x.setter
-    def grid_enable_major_x(self, val):
+    def grid_enable_major_x(self, val) -> None:
         self.__grid_enable_major_x = val
 
     @property
@@ -584,7 +584,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_major_y
 
     @grid_enable_major_y.setter
-    def grid_enable_major_y(self, val):
+    def grid_enable_major_y(self, val) -> None:
         self.__grid_enable_major_y = val
 
     @property
@@ -598,7 +598,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_minor_x
 
     @grid_enable_minor_x.setter
-    def grid_enable_minor_x(self, val):
+    def grid_enable_minor_x(self, val) -> None:
         self.__grid_enable_minor_x = val
 
     @property
@@ -612,7 +612,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_enable_minor_y
 
     @grid_enable_minor_y.setter
-    def grid_enable_minor_y(self, val):
+    def grid_enable_minor_y(self, val) -> None:
         self.__grid_enable_minor_y = val
 
     @property
@@ -627,7 +627,7 @@ class ReportPlotter(PyAedtBase):
         return self.__grid_color
 
     @grid_color.setter
-    def grid_color(self, val):
+    def grid_color(self, val) -> None:
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -644,7 +644,7 @@ class ReportPlotter(PyAedtBase):
         return self.__general_back_color
 
     @general_back_color.setter
-    def general_back_color(self, val):
+    def general_back_color(self, val) -> None:
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -661,7 +661,7 @@ class ReportPlotter(PyAedtBase):
         return self.__general_plot_color
 
     @general_plot_color.setter
-    def general_plot_color(self, val):
+    def general_plot_color(self, val) -> None:
         if isinstance(val, (list, tuple)):
             if any([i for i in val if i > 1]):
                 val = [i / 255 for i in val]
@@ -699,7 +699,7 @@ class ReportPlotter(PyAedtBase):
         return image_array  # Output
 
     @pyaedt_function_handler()
-    def _update_grid(self):
+    def _update_grid(self) -> None:
         if self._has_x_axis and self._has_y_axis:
             axis = "both"
         elif self._has_y_axis:
@@ -752,7 +752,7 @@ class ReportPlotter(PyAedtBase):
         return self.__y_scale
 
     @y_scale.setter
-    def y_scale(self, val):
+    def y_scale(self, val) -> None:
         self.__y_scale = val
 
     @property
@@ -766,7 +766,7 @@ class ReportPlotter(PyAedtBase):
         return self.__x_scale
 
     @x_scale.setter
-    def x_scale(self, val):
+    def x_scale(self, val) -> None:
         self.__x_scale = val
 
     @property
@@ -780,7 +780,7 @@ class ReportPlotter(PyAedtBase):
         return plt.isinteractive()
 
     @interactive.setter
-    def interactive(self, val):
+    def interactive(self, val) -> None:
         if val:
             plt.ion()
         else:
@@ -798,7 +798,7 @@ class ReportPlotter(PyAedtBase):
         italic: bool=False,
         bold: bool=False,
         color=(0.2, 0.2, 0.2),
-    ):
+    ) -> None:
         """Add a note to the report.
 
         Parameters
@@ -832,7 +832,7 @@ class ReportPlotter(PyAedtBase):
         self._notes.append(note)
 
     @pyaedt_function_handler()
-    def add_limit_line(self, plot_data, hatch_above: bool=True, properties=None, name: str=""):
+    def add_limit_line(self, plot_data, hatch_above: bool=True, properties=None, name: str="") -> bool:
         """Add a new limit_line to the chart.
 
         Parameters
@@ -873,7 +873,7 @@ class ReportPlotter(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_trace(self, plot_data, data_type: int=0, properties=None, name: str=""):
+    def add_trace(self, plot_data, data_type: int=0, properties=None, name: str="") -> bool:
         """Add a new trace to the chart.
 
         Parameters
@@ -931,7 +931,7 @@ class ReportPlotter(PyAedtBase):
         return [i * px for i in self.plt_params["figure.figsize"]]
 
     @size.setter
-    def size(self, val, is_pixel: bool=True):
+    def size(self, val, is_pixel: bool=True) -> None:
         if is_pixel:
             px = 1 / self.plt_params["figure.dpi"]  # pixel in inches
             self.plt_params["figure.figsize"] = [i * px for i in val]
@@ -1315,7 +1315,7 @@ class ReportPlotter(PyAedtBase):
         return self.animation
 
     @pyaedt_function_handler()
-    def _plot_notes(self):
+    def _plot_notes(self) -> None:
         for note in self._notes:
             t = self.ax.text(
                 note.position[0],
@@ -1336,7 +1336,7 @@ class ReportPlotter(PyAedtBase):
                 t.set_bbox(bbox)
 
     @pyaedt_function_handler()
-    def _plot_limit_lines(self, convert_to_radians: bool=False):
+    def _plot_limit_lines(self, convert_to_radians: bool=False) -> None:
         rate = 1
         if convert_to_radians:
             rate = np.pi / 180

@@ -82,7 +82,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         FieldAnalysis3D.__init__(
             self,
             Q3DType,
@@ -264,7 +264,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         return str(output_file)
 
     @pyaedt_function_handler()
-    def edit_sources(self, cg=None, acrl=None, dcrl=None, harmonic_loss=None):
+    def edit_sources(self, cg=None, acrl=None, dcrl=None, harmonic_loss=None) -> bool:
         """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
 
         Parameters
@@ -459,7 +459,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         use_sci_notation: bool=True,
         length_setting: str="Distributed",
         length: str="1meter",
-    ):
+    ) -> bool:
         """Export matrix data.
 
         Parameters
@@ -807,7 +807,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         frequency: int=0,
         file_type: str="HSPICE",
         include_cpp: bool=False,
-    ):
+    ) -> bool:
         """Export matrix data.
 
         Parameters
@@ -1302,7 +1302,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         self.is3d = True
         QExtractor.__init__(
             self,
@@ -1322,7 +1322,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler
@@ -1434,7 +1434,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self.odesign.GetChildObject("EM Fields").GetChildNames()
 
     @pyaedt_function_handler()
-    def delete_all_nets(self):
+    def delete_all_nets(self) -> bool:
         """Delete all nets in the design."""
         net_names = self.net_names[::]
         for i in self.boundaries[::]:
@@ -1556,7 +1556,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return sinks
 
     @pyaedt_function_handler()
-    def auto_identify_nets(self):
+    def auto_identify_nets(self) -> bool:
         """Identify nets automatically.
 
         Returns
@@ -1786,7 +1786,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def set_material_thresholds(
         self, insulator_threshold=None, perfect_conductor_threshold=None, magnetic_threshold=None
-    ):
+    ) -> bool:
         """Set material threshold.
 
         Parameters
@@ -2408,7 +2408,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         self.is3d = False
         QExtractor.__init__(
             self,
@@ -2428,7 +2428,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
@@ -2563,7 +2563,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "Finite Conductivity")
 
     @pyaedt_function_handler()
-    def auto_assign_conductors(self):
+    def auto_assign_conductors(self) -> bool:
         """Automatically assign conductors to signal lines.
 
         Returns
@@ -2715,7 +2715,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return exported_files
 
     @pyaedt_function_handler()
-    def toggle_conductor_type(self, assignment, new_type):
+    def toggle_conductor_type(self, assignment, new_type) -> bool:
         """Change the conductor type.
 
         Parameters

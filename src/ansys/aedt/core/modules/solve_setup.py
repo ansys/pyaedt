@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 
 
 class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         self.auto_update = False
         self._app = app
         if solution_type is None:
@@ -111,7 +111,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return child_object
 
     @pyaedt_function_handler()
-    def _initialize_tree_node(self):
+    def _initialize_tree_node(self) -> bool:
         if self._child_object:
             BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
             return True
@@ -202,10 +202,10 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
                 intrinsics[i] = "0s"
         return intrinsics
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
-    def __str__(self):
+    def __str__(self) -> str:
         if not self._app.design_solutions.default_adaptive:
             return self.name
         else:
@@ -224,7 +224,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         run_in_thread: bool=False,
         revert_to_initial_mesh: bool=False,
         blocking: bool=True,
-    ):
+    ) -> None:
         """Solve the active design.
 
         Parameters
@@ -302,7 +302,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return self._legacy_props
 
     @props.setter
-    def props(self, value):
+    def props(self, value) -> None:
         self._legacy_props = SetupProps(self, value)
 
     @property
@@ -345,7 +345,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, name):
+    def name(self, name) -> None:
         self._name = name
         self.props["Name"] = name
 
@@ -596,7 +596,7 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -618,7 +618,7 @@ class Setup(CommonSetup):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def update(self, properties=None):
+    def update(self, properties=None) -> bool:
         """Update the setup based on either the class argument or a dictionary.
 
         Parameters
@@ -647,7 +647,7 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete actual Setup.
 
         Returns
@@ -788,7 +788,7 @@ class Setup(CommonSetup):
         conv_criteria: int=1,
         use_cache_for_pass: bool=True,
         use_cache_for_freq: bool=True,
-    ):
+    ) -> bool:
         """Enable an expression cache.
 
         Parameters
@@ -840,7 +840,7 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def enable(self):
+    def enable(self) -> bool:
         """Enable a setup.
 
         Parameters
@@ -861,7 +861,7 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def disable(self):
+    def disable(self) -> bool:
         """Disable a setup.
 
         Parameters
@@ -892,7 +892,7 @@ class Setup(CommonSetup):
         preserve_partner_solution: bool=True,
         apply_mesh_operations: bool=True,
         adapt_port: bool=True,
-    ):
+    ) -> bool:
         """Import mesh from a source design solution to the target design.
 
         Parameters
@@ -1072,7 +1072,7 @@ class Setup(CommonSetup):
         project: str="This Project*",
         force_source_to_solve: bool=True,
         preserve_partner_solution: bool=True,
-    ):
+    ) -> bool:
         """Start or continue from a previously solved setup.
 
         Parameters
@@ -1158,7 +1158,7 @@ class SetupCircuit(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
@@ -1216,7 +1216,7 @@ class SetupCircuit(CommonSetup):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def _setup(self, soltype, arg, newsetup: bool=True):
+    def _setup(self, soltype, arg, newsetup: bool=True) -> bool:
         if newsetup:
             if soltype == "NexximLNA":
                 self.omodule.AddLinearNetworkAnalysis(arg)
@@ -1251,7 +1251,7 @@ class SetupCircuit(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def update(self, properties=None):
+    def update(self, properties=None) -> bool:
         """Update the setup based on the class arguments or a dictionary.
 
         Parameters
@@ -1588,7 +1588,7 @@ class SetupCircuit(CommonSetup):
         isconvergence: bool=True,
         isrelativeconvergence: bool=True,
         conv_criteria: int=1,
-    ):
+    ) -> bool:
         """Enable a setup expression cache.
 
         Parameters
@@ -1628,7 +1628,7 @@ class SetupCircuit(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def enable(self, name=None):
+    def enable(self, name=None) -> bool:
         """Enable a setup.
 
         Parameters
@@ -1651,7 +1651,7 @@ class SetupCircuit(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def disable(self, name=None):
+    def disable(self, name=None) -> bool:
         """Disable a setup.
 
         Parameters
@@ -1847,7 +1847,7 @@ class Setup3DLayout(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
@@ -1890,7 +1890,7 @@ class Setup3DLayout(CommonSetup):
         return self._legacy_props
 
     @props.setter
-    def props(self, value):
+    def props(self, value) -> None:
         self._legacy_props = SetupProps(self, value)
 
     @property
@@ -1966,7 +1966,7 @@ class Setup3DLayout(CommonSetup):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def update(self, properties=None):
+    def update(self, properties=None) -> bool:
         """Update the setup based on the class arguments or a dictionary.
 
         Parameters
@@ -1991,7 +1991,7 @@ class Setup3DLayout(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def enable(self):
+    def enable(self) -> bool:
         """Enable a setup.
 
         Parameters
@@ -2013,7 +2013,7 @@ class Setup3DLayout(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def disable(self):
+    def disable(self) -> bool:
         """Disable a setup.
 
         Parameters
@@ -2075,7 +2075,7 @@ class Setup3DLayout(CommonSetup):
         return succeeded
 
     @pyaedt_function_handler()
-    def _get_net_names(self, app, file_fullname, unite):
+    def _get_net_names(self, app, file_fullname, unite) -> None:
         """Identify nets and unite bodies that belong to the same net."""
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
         self._app.logger.info("Processing vias...")
@@ -2239,7 +2239,7 @@ class Setup3DLayout(CommonSetup):
                     return [x, y]
 
     @pyaedt_function_handler()
-    def _convert_edb_to_aedt_units(self, input_dict=None, output_unit: float=0.001):
+    def _convert_edb_to_aedt_units(self, input_dict=None, output_unit: float=0.001) -> None:
         if input_dict:
             for k, v in input_dict.items():
                 new_pts = []
@@ -2268,7 +2268,7 @@ class Setup3DLayout(CommonSetup):
         return via_dict
 
     @pyaedt_function_handler()
-    def _convert_edb_layer_elevation_to_aedt_units(self, input_dict=None, output_units: float=0.001):
+    def _convert_edb_layer_elevation_to_aedt_units(self, input_dict=None, output_units: float=0.001) -> None:
         if input_dict:
             for k, v in input_dict.items():
                 input_dict[k] = round(v / output_units, 5)
@@ -2403,7 +2403,7 @@ class Setup3DLayout(CommonSetup):
         return False
 
     @pyaedt_function_handler()
-    def import_from_json(self, file_path):
+    def import_from_json(self, file_path) -> bool:
         """Import setup properties from a json file.
 
         Parameters
@@ -2540,7 +2540,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -2582,7 +2582,7 @@ class SetupHFSS(Setup, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_tuning_offset(self, offsets):
+    def set_tuning_offset(self, offsets) -> bool:
         """Set derivative variable to a specific offset value.
 
         This method adjusts the tuning ranges for derivative variables in the design, allowing for specific offset
@@ -3007,7 +3007,7 @@ class SetupHFSS(Setup, PyAedtBase):
         return self.omodule.GetSweeps(self.name)
 
     @pyaedt_function_handler()
-    def delete_sweep(self, name):
+    def delete_sweep(self, name) -> bool:
         """Delete a sweep.
 
         Parameters
@@ -3268,7 +3268,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3310,7 +3310,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_tuning_offset(self, offsets):
+    def set_tuning_offset(self, offsets) -> bool:
         """Set derivative variable to a specific offset value.
 
         This method adjusts the tuning ranges for derivative variables in the design, allowing for specific offset
@@ -3556,7 +3556,7 @@ class SetupSBR(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3635,7 +3635,7 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3728,7 +3728,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         return sweep
 
     @pyaedt_function_handler()
-    def delete_all_eddy_current_sweeps(self):
+    def delete_all_eddy_current_sweeps(self) -> bool:
         """Delete all Maxwell Eddy Current sweeps.
 
         Returns
@@ -3745,7 +3745,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_control_program(self, control_program_path, control_program_args: str=" ", call_after_last_step: bool=False):
+    def enable_control_program(self, control_program_path, control_program_args: str=" ", call_after_last_step: bool=False) -> bool:
         """Enable control program option is solution setup.
 
         Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
@@ -3804,7 +3804,7 @@ class SetupMaxwell(Setup, PyAedtBase):
     @pyaedt_function_handler()
     def set_save_fields(
         self, enable: bool=True, range_type: str="Custom", subrange_type: str="LinearStep", start: int=0, stop: int=100000, count: int=1, units: str="ns"
-    ):
+    ) -> bool:
         """Enable the save fields option in the setup.
 
         Parameters
@@ -3927,7 +3927,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         setup=None,
         default_adaptive: str="LastAdaptive",
         is_post_processed: bool=False,
-    ):
+    ) -> bool:
         """Export R/L or Capacitance matrix after solving.
 
         Parameters
@@ -4006,7 +4006,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True):
+    def __init__(self, app, solution_type, name: str="MySetupAuto", is_new_setup: bool=True) -> None:
         Setup.__init__(self, app, solution_type, name, is_new_setup)
         self._dc_enabled = True
         self._ac_rl_enbled = True
@@ -4358,7 +4358,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return self._ac_rl_enbled
 
     @ac_rl_enabled.setter
-    def ac_rl_enabled(self, value):
+    def ac_rl_enabled(self, value) -> None:
         if value or (self._dc_enabled or self._capacitance_enabled):
             self._ac_rl_enbled = value
             self.update()
@@ -4374,7 +4374,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return self._capacitance_enabled
 
     @capacitance_enabled.setter
-    def capacitance_enabled(self, value):
+    def capacitance_enabled(self, value) -> None:
         if value or (self._dc_enabled or self._ac_rl_enbled):
             self._capacitance_enabled = value
             self.update()
@@ -4390,7 +4390,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return self._dc_enabled
 
     @dc_enabled.setter
-    def dc_enabled(self, value):
+    def dc_enabled(self, value) -> None:
         if value or (self._ac_rl_enbled or self._capacitance_enabled):
             self._dc_enabled = value
             self.update()
@@ -4409,12 +4409,12 @@ class SetupQ3D(Setup, PyAedtBase):
             return False
 
     @dc_resistance_only.setter
-    def dc_resistance_only(self, value):
+    def dc_resistance_only(self, value) -> None:
         if self.dc_enabled:
             self.props["DC"]["SolveResOnly"] = value
 
     @pyaedt_function_handler()
-    def update(self, properties=None):
+    def update(self, properties=None) -> bool:
         """Update the setup based on either the class argument or a dictionary.
 
         Parameters
@@ -4451,7 +4451,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
 
 class SetupIcepak(Setup, PyAedtBase):
-    def __init__(self, app, solution_type, setup_name, is_new_setup: bool=True):
+    def __init__(self, app, solution_type, setup_name, is_new_setup: bool=True) -> None:
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     def start_continue_from_previous_setup(
@@ -4464,7 +4464,7 @@ class SetupIcepak(Setup, PyAedtBase):
         force_source_to_solve: bool=True,
         preserve_partner_solution: bool=True,
         frozen_flow: bool=False,
-    ):
+    ) -> bool:
         """Start or continue from a previously solved setup.
 
         Parameters

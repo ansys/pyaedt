@@ -26,7 +26,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class RxSaturationNode(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = False
 
@@ -44,7 +44,7 @@ class RxSaturationNode(EmitNode):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -60,7 +60,7 @@ class RxSaturationNode(EmitNode):
         return self._get_table_data()
 
     @table_data.setter
-    def table_data(self, value):
+    def table_data(self, value) -> None:
         self._set_table_data(value)
 
     @property
@@ -69,5 +69,5 @@ class RxSaturationNode(EmitNode):
         return self._get_property("Enabled") == "true"
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._set_property("Enabled", f"{str(value).lower()}")

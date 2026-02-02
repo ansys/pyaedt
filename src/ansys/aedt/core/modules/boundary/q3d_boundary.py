@@ -43,7 +43,7 @@ class Matrix(PyAedtBase):
 
     """
 
-    def __init__(self, app, name, operations=None):
+    def __init__(self, app, name, operations=None) -> None:
         self._app = app
         self.omatrix = self._app.omatrix
         self.name = name

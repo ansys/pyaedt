@@ -83,7 +83,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
     >>> post = hfss.post
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
         self._post_osolution = self._app.osolution
@@ -351,7 +351,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return plots
 
     @pyaedt_function_handler()
-    def change_field_property(self, plot_name, property_name, property_value):
+    def change_field_property(self, plot_name, property_name, property_value) -> None:
         """Modify a field plot property.
 
         Parameters
@@ -1303,7 +1303,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         show_grid: bool=True,
         show_ruler: bool=True,
         show_region: str="Default",
-    ):
+    ) -> bool:
         """Export a field plot and coordinate system to a JPG file.
 
         Parameters
@@ -1390,7 +1390,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_field_plot(self, name):
+    def delete_field_plot(self, name) -> bool:
         """Delete a field plot.
 
         Parameters
@@ -2518,7 +2518,7 @@ class PostProcessor3D(PostProcessorCommon, PyAedtBase):
         zoom: float=2.0,
         convert_fields_in_db: bool=False,
         log_multiplier: float=10.0,
-    ):
+    ) -> bool:
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
         Parameters

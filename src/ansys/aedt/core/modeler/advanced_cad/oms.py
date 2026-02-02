@@ -46,7 +46,7 @@ ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 class BuildingsPrep(PyAedtBase):
     """Contains all basic functions needed to generate buildings stl files."""
 
-    def __init__(self, cad_path):
+    def __init__(self, cad_path) -> None:
         self.cad_path = cad_path
 
     @staticmethod
@@ -255,7 +255,7 @@ class BuildingsPrep(PyAedtBase):
 class RoadPrep(PyAedtBase):
     """Contains all basic functions needed to generate road stl files."""
 
-    def __init__(self, cad_path):
+    def __init__(self, cad_path) -> None:
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
@@ -377,7 +377,7 @@ class RoadPrep(PyAedtBase):
 class TerrainPrep(PyAedtBase):
     """Contains all basic functions needed for creating a terrain stl mesh."""
 
-    def __init__(self, cad_path: str="./"):
+    def __init__(self, cad_path: str="./") -> None:
         self.cad_path = cad_path
 
     @pyaedt_function_handler()

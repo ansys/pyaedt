@@ -50,7 +50,7 @@ class EmitterNode(EmitNode):
     >>> receivers = revision.get_receiver_names()
     """
 
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
         self._radio_node = RadioNode(emit_obj, result_id, node_id)
@@ -75,7 +75,7 @@ class EmitterNode(EmitNode):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 

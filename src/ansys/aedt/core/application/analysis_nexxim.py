@@ -69,7 +69,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -108,7 +108,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._configurations
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name) -> bool:
         """Delete a setup.
 
         Parameters
@@ -134,7 +134,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def push_down(self, component):
+    def push_down(self, component) -> bool:
         """Push-down to the child component and reinitialize the Circuit object.
 
         Parameters
@@ -166,7 +166,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def pop_up(self):
+    def pop_up(self) -> bool:
         """Pop-up to parent Circuit design and reinitialize Circuit object.
 
         Returns

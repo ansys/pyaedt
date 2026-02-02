@@ -73,7 +73,7 @@ class Generic(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed: str="0", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str="0", relative_cs_name=None) -> None:
         """Generic class."""
         super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -103,7 +103,7 @@ class Person(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, actor_folder, speed: str="0", stride: str="0.8meters", relative_cs_name=None):
+    def __init__(self, actor_folder, speed: str="0", stride: str="0.8meters", relative_cs_name=None) -> None:
         """Initialize person actor."""
         super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
@@ -120,11 +120,11 @@ class Person(Actor, PyAedtBase):
         return self._stride
 
     @stride.setter
-    def stride(self, s):
+    def stride(self, s) -> None:
         self._stride = s  # TODO: Add validation to allow expressions.
 
     @pyaedt_function_handler()
-    def _add_walking(self, app):
+    def _add_walking(self, app) -> None:
         # Update expressions for oscillation of limbs. At this point
         # we could parse p.name to handle motion (arm, leg, ...).
         for k, p in self.parts.items():
@@ -146,7 +146,7 @@ class Person(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=True):
+    def insert(self, app, motion: bool=True) -> None:
         """Insert the person in HFSS SBR+.
 
         Parameters
@@ -194,12 +194,12 @@ class Bird(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, bird_folder, speed: str="2.0", flapping_rate: str="50Hz", relative_cs_name=None):
+    def __init__(self, bird_folder, speed: str="2.0", flapping_rate: str="50Hz", relative_cs_name=None) -> None:
         """Bike class."""
         super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
 
-    def _add_flying(self, app):
+    def _add_flying(self, app) -> None:
         # Update expressions for wheel motion:
 
         for k, p in self.parts.items():
@@ -210,7 +210,7 @@ class Bird(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=True):
+    def insert(self, app, motion: bool=True) -> None:
         """Insert the bird in HFSS SBR+.
 
         Parameters
@@ -254,12 +254,12 @@ class Vehicle(Actor, PyAedtBase):
 
     """
 
-    def __init__(self, car_folder, speed: float=10.0, relative_cs_name=None):
+    def __init__(self, car_folder, speed: float=10.0, relative_cs_name=None) -> None:
         """Vehicle class."""
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
     @pyaedt_function_handler()
-    def _add_driving(self, app):
+    def _add_driving(self, app) -> None:
         # Update expressions for wheel motion:
         for k, p in self.parts.items():
             if any(p.rot_axis):  # use this key to determine if there is motion of the wheel.
@@ -275,7 +275,7 @@ class Vehicle(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion: bool=True):
+    def insert(self, app, motion: bool=True) -> bool:
         """Insert the vehicle in HFSS SBR+.
 
         Parameters
@@ -331,7 +331,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         offset=("0", "0", "0"),
         speed: int=0,
         relative_cs_name=None,
-    ):
+    ) -> None:
         self.aedt_antenna_names = []  # List of Antenna Names
         name = name.split(".")[0] if name else name  # remove suffix if any
         self._component_class = "radar"
@@ -380,11 +380,11 @@ class Radar(MultiPartComponent, PyAedtBase):
         return self._speed_expression
 
     @speed_expression.setter
-    def speed_expression(self, s):
+    def speed_expression(self, s) -> None:
         self._speed_expression = s
 
     @pyaedt_function_handler()
-    def _add_speed(self, app):
+    def _add_speed(self, app) -> None:
         app.variable_manager.set_variable(
             name=self.speed_name, expression=self.speed_expression, description="radar speed"
         )

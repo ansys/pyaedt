@@ -53,7 +53,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, app, hfss_setup_name, name, props):
+    def __init__(self, app, hfss_setup_name, name, props) -> None:
         self.auto_update = True
         self._mesh3dlayout = app
         self.name = name
@@ -83,7 +83,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def create(self):
+    def create(self) -> bool:
         """Create a mesh.
 
         Returns
@@ -99,7 +99,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> bool:
         """Update the mesh.
 
         Returns
@@ -115,7 +115,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete the mesh.
 
         Returns
@@ -147,7 +147,7 @@ class Mesh3d(PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         app.logger.reset_timer()
         self._app = app
 
@@ -161,7 +161,7 @@ class Mesh3d(PyAedtBase):
         app.logger.info_timer("Mesh class has been initialized!")
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name):
+    def generate_mesh(self, name) -> bool:
         """Generate the mesh for a design.
 
         Parameters
@@ -192,7 +192,7 @@ class Mesh3d(PyAedtBase):
         return self._app.omeshmodule
 
     @pyaedt_function_handler()
-    def delete_mesh_operations(self, setup, name):
+    def delete_mesh_operations(self, setup, name) -> bool:
         """Remove mesh operations from a setup.
 
         Parameters

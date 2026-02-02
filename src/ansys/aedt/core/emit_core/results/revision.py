@@ -71,7 +71,7 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name=None):
+    def __init__(self, parent_results, emit_obj, name=None) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 
@@ -144,7 +144,7 @@ class Revision:
         self._load_revision()
 
     @pyaedt_function_handler()
-    def _load_revision(self):
+    def _load_revision(self) -> None:
         """
         Load this revision.
 
@@ -580,7 +580,7 @@ class Revision:
         return design.GetResultNotes(self.name)
 
     @notes.setter
-    def notes(self, notes):
+    def notes(self, notes) -> None:
         self.emit_project.odesign.SetResultNotes(self.name, notes)
         self.emit_project.save_project()
 

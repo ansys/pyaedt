@@ -50,7 +50,7 @@ def sanitize_interpreter_path(interpreter_path, version):
     return interpreter_path
 
 
-def check_file(file_path, oDesktop):
+def check_file(file_path, oDesktop) -> bool:
     """Check if a file exists."""
     if not os.path.isfile(file_path):
         show_error(
@@ -105,14 +105,14 @@ def which(program):
     return None
 
 
-def show_error(msg, oDesktop):
+def show_error(msg, oDesktop) -> None:
     """Display an error message in the AEDT console and a dialog box."""
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
 
-def environment_variables(oDesktop):
+def environment_variables(oDesktop) -> None:
     """Set environment variables for the AEDT process."""
     os.environ["PYAEDT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])

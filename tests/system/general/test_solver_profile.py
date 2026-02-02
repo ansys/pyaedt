@@ -166,7 +166,7 @@ def _exercise_profile_object(profile) -> None:
         (Maxwell3d, SYSTEM_SOLVERS_TEST_PREFIX + "/example_models/T00/Transient_StrandedWindings.aedtz"),
     ],
 )
-def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder):
+def test_solver_profiles_for_apps(add_app, test_tmp_dir, app_cls, folder) -> None:
     # Download one or more archives for this application class.
     archives = _download_archives(folder=folder, dest=test_tmp_dir / "downloads")
     if not archives:

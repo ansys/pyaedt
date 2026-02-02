@@ -52,7 +52,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
                 plane = "Y"
         return plane
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         GeometryModeler.__init__(self, application, is3d=False)
 
     @pyaedt_function_handler()

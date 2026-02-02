@@ -89,7 +89,7 @@ class NamedVariable(PyAedtBase):
 
     """
 
-    def __init__(self, application, name, expression):
+    def __init__(self, application, name, expression) -> None:
         self._application = application
         self._name = name
         self._expression = expression
@@ -110,7 +110,7 @@ class NamedVariable(PyAedtBase):
         return self._expression
 
     @expression.setter
-    def expression(self, expression):
+    def expression(self, expression) -> None:
         """Set the expression of the variable.
 
         Parameters
@@ -150,7 +150,7 @@ class NamedVariable(PyAedtBase):
         return self._variable.evaluated_value
 
     @pyaedt_function_handler()
-    def hide_variable(self, value: bool=True):
+    def hide_variable(self, value: bool=True) -> bool:
         """Set the variable to a hidden variable.
 
         Parameters
@@ -166,7 +166,7 @@ class NamedVariable(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def read_only_variable(self, value: bool=True):
+    def read_only_variable(self, value: bool=True) -> bool:
         """Set the variable to a read-only variable.
 
         Parameters
@@ -212,7 +212,7 @@ class DuplicatedParametrizedMaterial(PyAedtBase):
 
     """
 
-    def __init__(self, application, material_name, cloned_material_name, list_of_properties=None):
+    def __init__(self, application, material_name, cloned_material_name, list_of_properties=None) -> None:
         self._thickness = None
         self._permittivity = None
         self._permeability = None
@@ -338,7 +338,7 @@ class Layer3D(PyAedtBase):
         fill_material: str="FR4_epoxy",
         index: int=1,
         frequency=None,
-    ):
+    ) -> None:
         self._stackup = stackup
         self._index = index
         self._app = app
@@ -519,7 +519,7 @@ class Layer3D(PyAedtBase):
         return self._thickness.value
 
     @thickness.setter
-    def thickness(self, value):
+    def thickness(self, value) -> None:
         self._thickness.expression = value
 
     @property
@@ -856,7 +856,7 @@ class Layer3D(PyAedtBase):
 class PadstackLayer(PyAedtBase):
     """Provides a data class for the definition of a padstack layer and relative pad and antipad values."""
 
-    def __init__(self, padstack, layer_name, elevation, thickness):
+    def __init__(self, padstack, layer_name, elevation, thickness) -> None:
         self._padstack = padstack
         self._layer_name = layer_name
         self._layer_elevation = elevation
@@ -888,7 +888,7 @@ class PadstackLayer(PyAedtBase):
         return self._pad_radius
 
     @pad_radius.setter
-    def pad_radius(self, value):
+    def pad_radius(self, value) -> None:
         self._pad_radius = value
 
     @property
@@ -903,14 +903,14 @@ class PadstackLayer(PyAedtBase):
         return self._antipad_radius
 
     @antipad_radius.setter
-    def antipad_radius(self, value):
+    def antipad_radius(self, value) -> None:
         self._antipad_radius = value
 
 
 class Padstack(PyAedtBase):
     """Provides the ``Padstack`` class member of Stackup3D."""
 
-    def __init__(self, app, stackup, name, material: str="copper"):
+    def __init__(self, app, stackup, name, material: str="copper") -> None:
         self._app = app
         self._stackup = stackup
         self.name = name
@@ -938,7 +938,7 @@ class Padstack(PyAedtBase):
         return self._plating_ratio
 
     @plating_ratio.setter
-    def plating_ratio(self, val):
+    def plating_ratio(self, val) -> None:
         if isinstance(val, (float, int)) and 0 < val <= 1:
             self._plating_ratio = val
         elif isinstance(val, str):
@@ -968,11 +968,11 @@ class Padstack(PyAedtBase):
         return self._num_sides
 
     @num_sides.setter
-    def num_sides(self, val):
+    def num_sides(self, val) -> None:
         self._num_sides = val
 
     @pyaedt_function_handler()
-    def set_all_pad_value(self, value):
+    def set_all_pad_value(self, value) -> bool:
         """Set all pads in all layers to a specified value.
 
         Parameters
@@ -990,7 +990,7 @@ class Padstack(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_all_antipad_value(self, value):
+    def set_all_antipad_value(self, value) -> bool:
         """Set all antipads in all layers to a specified value.
 
         Parameters
@@ -1008,7 +1008,7 @@ class Padstack(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_start_layer(self, layer):
+    def set_start_layer(self, layer) -> bool:
         """Set the start layer to a specified value.
 
         Parameters
@@ -1037,7 +1037,7 @@ class Padstack(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_stop_layer(self, layer):
+    def set_stop_layer(self, layer) -> bool:
         """Set the stop layer to a specified value.
 
         Parameters
@@ -1166,7 +1166,7 @@ class Stackup3D(PyAedtBase):
 
     """
 
-    def __init__(self, application, frequency=None):
+    def __init__(self, application, frequency=None) -> None:
         self._app = application
         self._layer_name = []
         self._layer_position = []
@@ -1296,7 +1296,7 @@ class Stackup3D(PyAedtBase):
         return self._start_position
 
     @start_position.setter
-    def start_position(self, expression):
+    def start_position(self, expression) -> None:
         self._start_position.expression = expression
 
     @property
@@ -1311,7 +1311,7 @@ class Stackup3D(PyAedtBase):
         return self._dielectric_x_position
 
     @dielectric_x_position.setter
-    def dielectric_x_position(self, expression):
+    def dielectric_x_position(self, expression) -> None:
         self._dielectric_x_position.expression = expression
 
     @property
@@ -1326,7 +1326,7 @@ class Stackup3D(PyAedtBase):
         return self._dielectric_x_position
 
     @dielectric_y_position.setter
-    def dielectric_y_position(self, expression):
+    def dielectric_y_position(self, expression) -> None:
         self._dielectric_y_position.expression = expression
 
     @property
@@ -1341,7 +1341,7 @@ class Stackup3D(PyAedtBase):
         return self._dielectric_width
 
     @dielectric_width.setter
-    def dielectric_width(self, expression):
+    def dielectric_width(self, expression) -> None:
         self._dielectric_width.expression = expression
 
     @property
@@ -1356,7 +1356,7 @@ class Stackup3D(PyAedtBase):
         return self._dielectric_length
 
     @dielectric_length.setter
-    def dielectric_length(self, expression):
+    def dielectric_length(self, expression) -> None:
         self._dielectric_length.expression = expression
 
     @property
@@ -1654,7 +1654,7 @@ class Stackup3D(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def _layer_position_manager(self, layer):
+    def _layer_position_manager(self, layer) -> None:
         """Set the last layer of the stackup.
 
         Parameters
@@ -1674,7 +1674,7 @@ class Stackup3D(PyAedtBase):
             self._end_of_stackup3D.expression = layer.elevation.name
 
     @pyaedt_function_handler()
-    def resize(self, percentage_offset):
+    def resize(self, percentage_offset) -> bool:
         """Resize the stackup around objects created by a percentage offset.
 
         Parameters
@@ -1725,7 +1725,7 @@ class Stackup3D(PyAedtBase):
         )
         return True
 
-    def resize_around_element(self, element, percentage_offset: float=0.25):
+    def resize_around_element(self, element, percentage_offset: float=0.25) -> bool:
         """Resize the stackup around parametrized objects and make it parametrize.
 
         Parameters
@@ -1767,7 +1767,7 @@ class Stackup3D(PyAedtBase):
 class CommonObject(PyAedtBase):
     """CommonObject Class in Stackup3D. This class must not be directly used."""
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         self._app = application
         self._name = None
         self._dielectric_layer = None
@@ -1941,7 +1941,7 @@ class Patch(CommonObject, PyAedtBase):
         patch_name: str="patch",
         reference_system=None,
         axis: str="X",
-    ):
+    ) -> None:
         CommonObject.__init__(self, application)
         if frequency:
             self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
@@ -2288,7 +2288,7 @@ class Patch(CommonObject, PyAedtBase):
         )
         return self._impedance_l_w, self._impedance_w_l
 
-    def create_probe_port(self, reference_layer, rel_x_offset: int=0, rel_y_offset: int=0, r: float=0.01, name: str="Probe"):
+    def create_probe_port(self, reference_layer, rel_x_offset: int=0, rel_y_offset: int=0, r: float=0.01, name: str="Probe") -> None:
         """Create a coaxial probe port for the patch.
 
         Parameters
@@ -2498,7 +2498,7 @@ class Patch(CommonObject, PyAedtBase):
         feeding_line.position_x.expression = "-" + feeding_line.length.name
         return feeding_line
 
-    def set_optimal_width(self):
+    def set_optimal_width(self) -> None:
         """Set the expression of the NamedVariable corresponding to the patch width, to an optimal expression.
 
         Examples
@@ -2589,7 +2589,7 @@ class Trace(CommonObject, PyAedtBase):
         line_name: str="line",
         reference_system=None,
         axis: str="X",
-    ):
+    ) -> None:
         CommonObject.__init__(self, application)
         if frequency:
             self._frequency = NamedVariable(application, line_name + "_frequency", str(frequency) + "Hz")
@@ -3243,7 +3243,7 @@ class Polygon(CommonObject, PyAedtBase):
         mat_name: str="copper",
         is_void: bool=False,
         reference_system=None,
-    ):
+    ) -> None:
         CommonObject.__init__(self, application)
 
         self._is_void = is_void

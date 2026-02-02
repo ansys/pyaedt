@@ -44,7 +44,7 @@ class PostProcessor3DLayout(PostProcessor3D, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
 
     @pyaedt_function_handler

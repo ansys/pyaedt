@@ -58,7 +58,7 @@ class FRTMData(PyAedtBase):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, input_file):
+    def __init__(self, input_file) -> None:
         input_file = Path(input_file)
 
         if not input_file.is_file():
@@ -253,7 +253,7 @@ class FRTMData(PyAedtBase):
         return self.__receiver_position
 
     @receiver_position.setter
-    def receiver_position(self, value):
+    def receiver_position(self, value) -> None:
         """Position of receivers respected the transmitters."""
         self.__receiver_position = value
 
@@ -312,7 +312,7 @@ class FRTMData(PyAedtBase):
         return self.__data_conversion_function
 
     @data_conversion_function.setter
-    def data_conversion_function(self, val):
+    def data_conversion_function(self, val) -> None:
         available_functions = ["dB10", "dB20", "abs", "real", "imag", "norm", "ang", "ang_deg", None]
         if val in available_functions:
             self.__data_conversion_function = val
@@ -696,7 +696,7 @@ class FRTMData(PyAedtBase):
             raise ValueError(f"Window function {window} not supported.")
         return win
 
-    def __read_frtm(self):
+    def __read_frtm(self) -> None:
         string_to_stop_reading_header = "@ BeginData"
         header = []
 
@@ -872,7 +872,7 @@ class FRTMPlotter(PyAedtBase):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, frtm_data):
+    def __init__(self, frtm_data) -> None:
         if not isinstance(frtm_data, dict):
             frtm_data = {0: frtm_data}
 

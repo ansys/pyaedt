@@ -122,7 +122,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
@@ -140,11 +140,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file):
+    def create_schematic_from_netlist(self, input_file) -> bool:
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:

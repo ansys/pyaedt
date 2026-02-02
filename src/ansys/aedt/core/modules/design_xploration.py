@@ -63,10 +63,10 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         ``"OptiOptimization"``, ``"OptiSensitivity"``, ``"OptiStatistical"``, ``"OptiDXDOE"``, and ``"optiSLang"``.
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, p_app, name, dictinputs, optimtype):
+    def __init__(self, p_app, name, dictinputs, optimtype) -> None:
         self.auto_update = False
         self._app = p_app
         self.omodule = self._app.ooptimetrics
@@ -483,7 +483,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def _activate_variable(self, variable_name):
+    def _activate_variable(self, variable_name) -> None:
         if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "optiSLang"]:
             self._app.activate_variable_optimization(variable_name)
         elif self.soltype == "OptiParametric":
@@ -563,11 +563,11 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 class SetupOpti(CommonOptimetrics, PyAedtBase):
     """Sets up an optimization in Opimetrics."""
 
-    def __init__(self, app, name, dictinputs=None, optim_type: str="OptiDesignExplorer"):
+    def __init__(self, app, name, dictinputs=None, optim_type: str="OptiDesignExplorer") -> None:
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete a defined Optimetrics Setup.
 
         Parameters
@@ -664,7 +664,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         max_step=None,
         use_manufacturable: bool=False,
         levels=None,
-    ):
+    ) -> bool:
         """Add a new variable as input for the optimization and defines its ranges.
 
         Parameters
@@ -787,12 +787,12 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 class SetupParam(CommonOptimetrics, PyAedtBase):
     """Sets up a parametric analysis in Optimetrics."""
 
-    def __init__(self, p_app, name, dictinputs=None, optim_type: str="OptiParametric"):
+    def __init__(self, p_app, name, dictinputs=None, optim_type: str="OptiParametric") -> None:
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
         pass
 
     @pyaedt_function_handler()
-    def delete(self):
+    def delete(self) -> bool:
         """Delete a defined Optimetrics Setup.
 
         Returns
@@ -875,7 +875,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         return self.update()
 
     @pyaedt_function_handler()
-    def _append_sweepdefinition(self, sweepdefinition):
+    def _append_sweepdefinition(self, sweepdefinition) -> bool:
         for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
             if sweepdefinition["Variable"] == sweep_def["Variable"]:
                 sweep_def["Data"] += " " + sweepdefinition["Data"]
@@ -884,7 +884,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def sync_variables(self, variables, sync_n: int=1):
+    def sync_variables(self, variables, sync_n: int=1) -> bool:
         """Sync variable variations in an existing parametric setup.
         Setting the sync number to `0` will effectively unsync the variables.
 
@@ -936,7 +936,7 @@ class SetupParam(CommonOptimetrics, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_to_csv(self, output_file):
+    def export_to_csv(self, output_file) -> bool:
         """Export the current Parametric Setup to csv.
 
         Parameters
@@ -963,7 +963,7 @@ class ParametricSetups(PyAedtBase):
     >>> sensitivity_setups = app.parametrics
     """
 
-    def __init__(self, p_app):
+    def __init__(self, p_app) -> None:
         self._app = p_app
         self.setups = []
         if self._app.design_properties:
@@ -1072,7 +1072,7 @@ class ParametricSetups(PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete(self, name):
+    def delete(self, name) -> bool:
         """Delete a defined Parametric Setup.
 
         Parameters
@@ -1157,7 +1157,7 @@ class OptimizationSetups(PyAedtBase):
     >>> optimization_setup = app.optimizations
     """
 
-    def __init__(self, p_app):
+    def __init__(self, p_app) -> None:
         self._app = p_app
         self.setups = []
         if self._app.design_properties:
@@ -1206,7 +1206,7 @@ class OptimizationSetups(PyAedtBase):
         return self._app.ooptimetrics
 
     @pyaedt_function_handler()
-    def delete(self, name):
+    def delete(self, name) -> bool:
         """Delete a defined Optimetrics Setup.
 
         Parameters

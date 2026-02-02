@@ -89,14 +89,14 @@ class Primitives3DLayout(PyAedtBase):
             return partname
         return None
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._padstacks = {}
         self._components3d = {}
         self._init_prims()
 
     @pyaedt_function_handler()
-    def _init_prims(self):
+    def _init_prims(self) -> None:
         self._components = {}
         self._rectangles = {}
         self._lines = {}
@@ -852,7 +852,7 @@ class Primitives3DLayout(PyAedtBase):
         return self._padstacks
 
     @pyaedt_function_handler()
-    def change_net_visibility(self, assignment=None, visible: bool=False):
+    def change_net_visibility(self, assignment=None, visible: bool=False) -> bool:
         """Change the visibility of one or more nets.
 
         Parameters

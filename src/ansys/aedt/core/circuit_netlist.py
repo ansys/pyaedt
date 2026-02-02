@@ -134,7 +134,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         AnalysisCircuitNetlist.__init__(
             self,
             project,
@@ -150,7 +150,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
             remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):  # pragma: no cover
+    def _init_from_design(self, *args, **kwargs) -> None:  # pragma: no cover
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()

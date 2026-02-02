@@ -31,7 +31,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class DesignSolution(PyAedtBase):
-    def __init__(self, odesign, design_type, aedt_version):
+    def __init__(self, odesign, design_type, aedt_version) -> None:
         self._odesign = odesign
         self._aedt_version = aedt_version
         self.model_name = design_type.model_name
@@ -67,7 +67,7 @@ class DesignSolution(PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value):
+    def solution_type(self, value) -> None:
         if value is None:
             if self._design_type in [
                 DesignType.CIRCUIT,
@@ -131,7 +131,7 @@ class DesignSolution(PyAedtBase):
 
 
 class HFSSDesignSolution(DesignSolution, PyAedtBase):
-    def __init__(self, odesign, design_type, aedt_version):
+    def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._composite = False
         self._hybrid = False
@@ -153,7 +153,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value):
+    def solution_type(self, value) -> None:
         if self._aedt_version < "2021.2":
             if not value:
                 self._solution_type = "DrivenModal"
@@ -216,7 +216,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._hybrid
 
     @hybrid.setter
-    def hybrid(self, value):
+    def hybrid(self, value) -> None:
         if self._aedt_version < "2021.2":
             return
         if value and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
@@ -240,7 +240,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         return self._composite
 
     @composite.setter
-    def composite(self, val):
+    def composite(self, val) -> None:
         if self._aedt_version < "2021.2":
             return
         if val:
@@ -255,7 +255,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self.solution_type = self.solution_type
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable: bool=True, opening_type: str="Radiation"):
+    def set_auto_open(self, enable: bool=True, opening_type: str="Radiation") -> bool:
         """Set HFSS auto open type.
 
         Parameters
@@ -281,7 +281,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
 
 
 class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
-    def __init__(self, odesign, design_type, aedt_version):
+    def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._geometry_mode = "XY"
 
@@ -291,7 +291,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
-    def xy_plane(self, value: bool=True):
+    def xy_plane(self, value: bool=True) -> None:
         if value:
             self._geometry_mode = "XY"
         else:
@@ -310,7 +310,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, value):
+    def solution_type(self, value) -> None:
         if value is None:
             if self._odesign and "GetSolutionType" in dir(self._odesign):
                 self._solution_type = self._odesign.GetSolutionType()
@@ -341,7 +341,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
 
 
 class IcepakDesignSolution(DesignSolution, PyAedtBase):
-    def __init__(self, odesign, design_type, aedt_version):
+    def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
         self._problem_type = "TemperatureAndFlow"
 
@@ -393,7 +393,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, solution_type):
+    def solution_type(self, solution_type) -> None:
         if solution_type:
             if "SteadyState" in solution_type:
                 self._solution_type = "SteadyState"
@@ -420,7 +420,7 @@ class IcepakDesignSolution(DesignSolution, PyAedtBase):
 
 
 class RmXprtDesignSolution(DesignSolution, PyAedtBase):
-    def __init__(self, odesign, design_type, aedt_version):
+    def __init__(self, odesign, design_type, aedt_version) -> None:
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
 
     @property
@@ -431,7 +431,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
         return self._solution_type
 
     @solution_type.setter
-    def solution_type(self, solution_type):
+    def solution_type(self, solution_type) -> None:
         if solution_type:
             try:
                 self._odesign.SetDesignFlow(self._design_type.NAME, solution_type)
@@ -445,7 +445,7 @@ class RmXprtDesignSolution(DesignSolution, PyAedtBase):
         return self._design_type
 
     @design_type.setter
-    def design_type(self, value):
+    def design_type(self, value) -> None:
         if value:
             self._design_type = value
             self.solution_type = self._solution_type

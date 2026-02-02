@@ -1025,7 +1025,7 @@ def available_license_feature(
 
 
 @pyaedt_function_handler()
-def _check_installed_version(install_path, long_version):
+def _check_installed_version(install_path, long_version) -> bool:
     """Check installation folder to determine if it is for specified Ansys EM version.
 
     Parameters
@@ -1053,7 +1053,7 @@ def _check_installed_version(install_path, long_version):
 
 
 @pyaedt_function_handler()
-def _create_json_file(json_dict, full_json_path):
+def _create_json_file(json_dict, full_json_path) -> bool:
     full_json_path = Path(full_json_path)
     if not full_json_path.parent.exists():
         full_json_path.parent.mkdir(parents=True)
@@ -1065,7 +1065,7 @@ def _create_json_file(json_dict, full_json_path):
 
 
 @pyaedt_function_handler()
-def _create_toml_file(input_dict, full_toml_path):
+def _create_toml_file(input_dict, full_toml_path) -> bool:
     import tomli_w
 
     full_toml_path = Path(full_toml_path)

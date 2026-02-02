@@ -30,7 +30,7 @@ from tkinter import messagebox
 from tkinter import ttk
 
 
-def create_tab_main(tab_frame, master):
+def create_tab_main(tab_frame, master) -> None:
     frame0 = ttk.Frame(tab_frame, name="frame0", style="PyAEDT.TFrame", borderwidth=1, relief="raised")
     # frame0.grid(row=0, column=0, **master.GRID_PARAMS)
     frame0.pack(fill="both", expand=True, padx=5, pady=5)
@@ -42,7 +42,7 @@ def create_tab_main(tab_frame, master):
     create_sub_frame1(frame1, master)
 
 
-def create_sub_frame0(parent, master):
+def create_sub_frame0(parent, master) -> None:
     """Import frame."""
     row = 0
     ttk.Radiobutton(
@@ -85,7 +85,7 @@ def create_sub_frame0(parent, master):
     # ).grid(row=row, column=0, sticky="w")
 
 
-def create_sub_frame1(parent, master):
+def create_sub_frame1(parent, master) -> None:
     """Export frame"""
     row = 0
 
@@ -123,7 +123,7 @@ def create_sub_frame1(parent, master):
         row = row if col == 0 else row + 1
 
 
-def callback_select_design(master):
+def callback_select_design(master) -> None:
     """Select design to apply configuration."""
     design_path = filedialog.askopenfilename(
         title="Select Design",
@@ -144,7 +144,7 @@ def callback_select_design(master):
         master.selected_edb = design_path
 
 
-def callback_apply(master):
+def callback_apply(master) -> bool:
     file_path = filedialog.askopenfilename(
         title="Select Configuration",
         filetypes=(("json", "*.json"), ("toml", "*.toml"), ("All files", "*.*")),
@@ -176,7 +176,7 @@ def callback_export(master):
     return file_path
 
 
-def update_options(master):
+def update_options(master) -> None:
     """Update export options based on the selected checkboxes."""
     for name, var in master.export_option_vars.items():
         setattr(master.export_options, name, var.get())

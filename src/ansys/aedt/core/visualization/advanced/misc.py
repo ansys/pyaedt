@@ -43,20 +43,20 @@ from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 class BoxFacePointsAndFields(PyAedtBase):
     """Data model class containing field component and coordinates."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.x = []
         self.y = []
         self.z = []
         self.re = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
-    def set_xyz_points(self, x, y, z):
+    def set_xyz_points(self, x, y, z) -> None:
         """Set X, Y, Z coordinates."""
         self.x = x
         self.y = y
         self.z = z
 
-    def set_field_component(self, field_component, real, imag, invert):
+    def set_field_component(self, field_component, real, imag, invert) -> None:
         """Set Field component Real and imaginary parts."""
         if field_component in self.re:
             if invert:
@@ -68,7 +68,7 @@ class BoxFacePointsAndFields(PyAedtBase):
         else:
             print("Error in set_field_component function.")
 
-    def fill_empty_data(self):
+    def fill_empty_data(self) -> None:
         """Fill empty data with zeros."""
         for el, val in self.re.items():
             if not val:
@@ -453,7 +453,7 @@ def parse_rdat_file(file_path):
 
 @pyaedt_function_handler()
 @graphics_required
-def preview_pyvista(dict_in, decimation: int=0, output_stls=None):
+def preview_pyvista(dict_in, decimation: int=0, output_stls=None) -> None:
     import pyvista as pv
 
     if decimation > 0:

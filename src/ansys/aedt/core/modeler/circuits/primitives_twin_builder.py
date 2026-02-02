@@ -53,12 +53,12 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return self._app.logger
 
     @property
-    def design_libray(self):
+    def design_libray(self) -> str:
         """Design Library."""
         return "Simplorer Elements"
 
     @property
-    def tab_name(self):
+    def tab_name(self) -> str:
         """Tab name."""
         return "Quantities"
 
@@ -85,7 +85,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
 
         return None
 
-    def __init__(self, modeler):
+    def __init__(self, modeler) -> None:
         CircuitComponents.__init__(self, modeler)
         self._app = modeler._app
         self._modeler = modeler
@@ -480,7 +480,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         input_file,
         model,
         pins_names,
-    ):
+    ) -> bool:
         """Create and place a new component based on a .sml file.
 
         Parameters
@@ -523,7 +523,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def update_quantity_value(self, component_name, name, value, netlist_units: str=""):
+    def update_quantity_value(self, component_name, name, value, netlist_units: str="") -> bool:
         """Change the quantity value of a component.
 
         Parameters

@@ -126,13 +126,13 @@ class EmitComponents(PyAedtBase):
     def _logger(self):
         return self._app.logger
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.components)
 
     def __iter__(self):
         return self.components.keys().__iter__()
 
-    def __init__(self, parent, modeler):
+    def __init__(self, parent, modeler) -> None:
         self._parent = parent
         self.modeler = modeler
         self._currentId = 0
@@ -150,11 +150,11 @@ class EmitComponents(PyAedtBase):
         return self.include_personal_lib
 
     @include_personal_library.setter
-    def include_personal_library(self, value):
+    def include_personal_library(self, value) -> None:
         self.include_personal_lib = value
 
     @property
-    def design_libray(self):
+    def design_libray(self) -> str:
         """Design library."""
         if self.include_personal_lib:
             return "PersonalLib"
@@ -382,7 +382,7 @@ class EmitComponent(PyAedtBase):
             return EmitComponent(components, component_name)
         return cls.subclasses[root_node_type](components, component_name)
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         self.name = component_name
         """Name of the component."""
 
@@ -404,7 +404,7 @@ class EmitComponent(PyAedtBase):
         return self.name
 
     @pyaedt_function_handler()
-    def move_and_connect_to(self, component):
+    def move_and_connect_to(self, component) -> None:
         """Move and connect this component to another component.
 
         Parameters
@@ -525,7 +525,7 @@ class EmitComponent(PyAedtBase):
         return props
 
     @pyaedt_function_handler()
-    def _add_property(self, property_name, property_value):
+    def _add_property(self, property_name, property_value) -> bool:
         """Add a property or update existing property value.
 
         Parameters
@@ -621,7 +621,7 @@ class EmitComponent(PyAedtBase):
 class EmitAntennaComponent(EmitComponent):
     """An Antenna component in the EMIT schematic."""
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         super(EmitAntennaComponent, self).__init__(components, component_name)
 
     def get_pattern_filename(self):
@@ -707,7 +707,7 @@ class EmitAntennaComponent(EmitComponent):
 class EmitRadioComponent(EmitComponent):
     """A Radio component in the EMIT schematic."""
 
-    def __init__(self, components, component_name):
+    def __init__(self, components, component_name) -> None:
         super(EmitRadioComponent, self).__init__(components, component_name)
 
     def is_emitter(self):
@@ -989,7 +989,7 @@ class EmitRadioComponent(EmitComponent):
 
 
 class EmitComponentPropNode(PyAedtBase):
-    def __init__(self, editor, design, parent_component, node_name):
+    def __init__(self, editor, design, parent_component, node_name) -> None:
         self.oeditor = editor
         """Oeditor module"""
 
@@ -1177,7 +1177,7 @@ class EmitComponentPropNode(PyAedtBase):
         self.odesign.EditComponentNodes(comp_name, properties_to_set, nodes_to_delete)
 
     @enabled.setter
-    def enabled(self, value):
+    def enabled(self, value) -> None:
         """Set the node enabled or disabled.
 
         Parameters

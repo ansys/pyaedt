@@ -99,7 +99,7 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         port: int = 0,
         aedt_process_id: Optional[int] = None,
         remove_lock: bool = False,
-    ):
+    ) -> None:
         FieldAnalysis3D.__init__(
             self,
             application,
@@ -191,7 +191,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         Icepak application that is to initialize the call.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.app = app
 
     def execute(self, k, v) -> str:

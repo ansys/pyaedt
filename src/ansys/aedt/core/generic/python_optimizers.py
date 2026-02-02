@@ -33,16 +33,16 @@ from ansys.aedt.core.base import PyAedtBase
 class ThreadTrace(threading.Thread):
     """Control a thread with python"""
 
-    def __init__(self, *args, **keywords):
+    def __init__(self, *args, **keywords) -> None:
         threading.Thread.__init__(self, *args, **keywords)
         self.killed = False
 
-    def start(self):
+    def start(self) -> None:
         self.__run_backup = self.run
         self.run = self.__run
         threading.Thread.start(self)
 
-    def __run(self):
+    def __run(self) -> None:
         sys.settrace(self.globaltrace)
         self.__run_backup()
         self.run = self.__run_backup
@@ -59,7 +59,7 @@ class ThreadTrace(threading.Thread):
                 raise SystemExit()
         return self.localtrace
 
-    def kill(self):
+    def kill(self) -> None:
         self.killed = True
 
 
@@ -140,7 +140,7 @@ class GeneticAlgorithm(PyAedtBase):
         function_timeout: int=0,
         algorithm_parameters=None,
         progress_bar: bool=True,
-    ):
+    ) -> None:
         self.population_file = None
         self.goal = 1e10
         if population_file:
@@ -267,7 +267,7 @@ class GeneticAlgorithm(PyAedtBase):
         self.reference_file = reference_file
         self.evaluate_val = 1e10
 
-    def run(self):
+    def run(self) -> bool:
         """Implement the genetic algorithm"""
         # Init Population
         pop = np.array([np.zeros(self.dim + 1)] * self.population_size)
@@ -499,7 +499,7 @@ class GeneticAlgorithm(PyAedtBase):
                     x[i] = self.var_bound[i][0] + np.random.random() * (self.var_bound[i][1] - self.var_bound[i][0])
         return x
 
-    def evaluate(self):
+    def evaluate(self) -> bool:
         if not self.reference_file:
             self.evaluate_val = self.function(self.temp)
             return True
@@ -522,7 +522,7 @@ class GeneticAlgorithm(PyAedtBase):
             self.evaluate()
         return self.evaluate_val
 
-    def progress(self, count, total, status: str=""):
+    def progress(self, count, total, status: str="") -> None:
         bar_len = 50
         filled_len = int(round(bar_len * count / float(total)))
 

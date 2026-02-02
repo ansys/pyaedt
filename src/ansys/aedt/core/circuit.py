@@ -164,7 +164,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         FieldAnalysisCircuit.__init__(
             self,
             "CIRCUIT",
@@ -184,7 +184,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
         ScatteringMethods.__init__(self, self)
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     def _get_number_from_string(self, stringval):
@@ -197,7 +197,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return from_rkm_to_aedt(value)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file):
+    def create_schematic_from_netlist(self, input_file) -> bool:
         """Create a circuit schematic from an HSpice netlist.
 
         Supported currently are:
@@ -469,7 +469,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return reader.ibis_model
 
     @pyaedt_function_handler()
-    def create_schematic_from_mentor_netlist(self, input_file):
+    def create_schematic_from_mentor_netlist(self, input_file) -> bool:
         """Create a circuit schematic from a Mentor netlist.
 
         Supported currently are:
@@ -610,7 +610,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def retrieve_mentor_comp(self, reference_id):
+    def retrieve_mentor_comp(self, reference_id) -> str:
         """Retrieve the type of the Mentor netlist component for a given reference ID.
 
         Parameters
@@ -1008,7 +1008,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def push_excitations(self, instance, thevenin_calculation: bool=False, setup: str="LinearFrequency"):
+    def push_excitations(self, instance, thevenin_calculation: bool=False, setup: str="LinearFrequency") -> bool:
         """Push excitations for a linear frequency setup.
 
         Parameters
@@ -1046,7 +1046,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         kaiser: float=0.0,
         correct_coherent_gain: bool=True,
         setup: str="NexximTransient",
-    ):
+    ) -> bool:
         """Push excitations for a transient setup.
 
         Parameters
@@ -1279,7 +1279,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         common_reference: int=25,
         differential_reference: int=100,
         active: bool=True,
-    ):
+    ) -> bool:
         """Add a differential pair definition.
 
         Parameters
@@ -1380,7 +1380,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, input_file):
+    def load_diff_pairs_from_file(self, input_file) -> bool:
         """Load differtential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file()`` method to obtain the file format.
@@ -1442,7 +1442,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return Path(output_file).is_file()
 
     @pyaedt_function_handler()
-    def add_netlist_datablock(self, input_file, name=None):
+    def add_netlist_datablock(self, input_file, name=None) -> bool:
         """Add a new netlist data block to the circuit schematic.
 
         Parameters
@@ -1516,7 +1516,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
         self, project_connections, edb_zones_dict, ports=None, schematic_units: str="mm", model_inc: int=50
-    ):
+    ) -> bool:
         """Connect circuit model from a multizone clipped project.
 
         Parameters
@@ -2445,7 +2445,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return flag, wire_xy, symbol
 
     @pyaedt_function_handler()
-    def create_schematic_from_asc_file(self, input_file, config_file=None):
+    def create_schematic_from_asc_file(self, input_file, config_file=None) -> bool:
         """Import an asc schematic and convert to Circuit Schematic. Only passives and sources will be imported.
 
         Parameters
@@ -2708,7 +2708,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return new_sweep[0]
 
     @pyaedt_function_handler()
-    def delete_imported_data(self, name):
+    def delete_imported_data(self, name) -> bool:
         """Delete imported data.
 
         Parameters

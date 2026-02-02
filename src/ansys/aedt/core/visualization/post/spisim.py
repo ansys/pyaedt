@@ -185,7 +185,7 @@ class AdvancedReport(ReportBase):
 class SpiSim(PyAedtBase):
     """Provides support to SpiSim batch mode."""
 
-    def __init__(self, touchstone_file: str=""):
+    def __init__(self, touchstone_file: str="") -> None:
         self.touchstone_file = touchstone_file
         if settings.aedt_version:
             self.desktop_install_dir = os.environ[env_value(settings.aedt_version)]
@@ -210,7 +210,7 @@ class SpiSim(PyAedtBase):
         return self._working_directory
 
     @working_directory.setter
-    def working_directory(self, val):
+    def working_directory(self, val) -> None:
         self._working_directory = val
 
     def _copy_to_relative_path(self, file_name):
@@ -597,7 +597,7 @@ class SpiSim(PyAedtBase):
         packaging_type: str="standard",
         data_rate: str="GTS04",
         report_directory: str = None,
-    ):
+    ) -> bool:
         """Universal Chiplet Interface Express (UCIe) Compliance support.
 
         Parameters
@@ -755,7 +755,7 @@ class DataSet(PyAedtBase):
         name,
         whattype,
         datalen,
-    ):
+    ) -> None:
         """Base Class for both Axis and Trace Classes.
 
         Defines the common operations between both.
@@ -764,7 +764,7 @@ class DataSet(PyAedtBase):
         self.whattype = whattype
         self.data = zeros(datalen, dtype=float64)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
     def __iter__(self):
@@ -798,11 +798,11 @@ class Trace(DataSet):
         whattype,
         datalen,
         axis,
-    ):
+    ) -> None:
         super().__init__(name, whattype, datalen)
         self.axis = axis
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length of the axis.
 
         Returns
@@ -832,7 +832,7 @@ class SpiSimRawRead(PyAedtBase):
         s = f.read(4)
         return unpack("f", s)[0]
 
-    def __init__(self, raw_filename: str, **kwargs):
+    def __init__(self, raw_filename: str, **kwargs) -> None:
         raw_filename = Path(raw_filename)
 
         raw_file = open(raw_filename, "rb")
@@ -990,7 +990,7 @@ class SpiSimRawRead(PyAedtBase):
         else:  # pragma: no cover
             raise RuntimeError("This RAW file does not have an axis.")
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Compute the length of the data.
 
         Returns

@@ -80,7 +80,7 @@ EXPORT_EXAMPLES = [
 class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for advanced fields calculator in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -92,10 +92,10 @@ class ViaDesignExtension(ExtensionHFSS3DLayoutCommon):
         self.__export_examples: List[ExportExampleData] = EXPORT_EXAMPLES
         self.add_extension_content()
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
 
-        def save_example(toml_file_path: Path):
+        def save_example(toml_file_path: Path) -> None:
             file_path = filedialog.asksaveasfilename(
                 initialfile=toml_file_path.name,
                 defaultextension=".toml",

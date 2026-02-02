@@ -120,7 +120,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     can be passed to any method that creates a primitive.
     """
 
-    def __init__(self, application):
+    def __init__(self, application) -> None:
         GeometryModeler.__init__(self, application, is3d=True)
         self.multiparts = []
 
@@ -2156,7 +2156,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return []
 
     @pyaedt_function_handler()
-    def _check_actor_folder(self, actor_folder):
+    def _check_actor_folder(self, actor_folder) -> bool:
         if not Path(actor_folder).exists():
             self.logger.error(f"Folder {actor_folder} does not exist.")
             return False

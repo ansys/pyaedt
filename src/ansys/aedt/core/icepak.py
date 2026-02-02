@@ -177,7 +177,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         FieldAnalysisIcepak.__init__(
             self,
             "ICEPAK",
@@ -196,7 +196,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
             remove_lock=remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs) -> None:
         self.__init__(*args, **kwargs)
 
     @property
@@ -208,7 +208,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return self.design_solutions.problem_type
 
     @problem_type.setter
-    def problem_type(self, value: str="TemperatureAndFlow"):
+    def problem_type(self, value: str="TemperatureAndFlow") -> None:
         self.design_solutions.problem_type = value
 
     @property
@@ -340,7 +340,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_2way_coupling(
         self, setup=None, number_of_iterations: int=2, continue_ipk_iterations: bool=True, ipk_iterations_per_coupling: int=20
-    ):
+    ) -> bool:
         """Assign two-way coupling to a setup.
 
         Parameters
@@ -982,7 +982,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         radiation_temperature: int=20,
         ignore_unclassified_objects: bool=False,
         skip_intersection_checks: bool=False,
-    ):
+    ) -> bool:
         """Update the main settings of the design.
 
         Parameters
@@ -1391,7 +1391,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         variation: str="",
         variation_list=None,
         filename: str="IPKsummaryReport",
-    ):
+    ) -> bool:
         """Export a fields summary of all objects.
 
         Parameters
@@ -1916,7 +1916,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return status
 
     @pyaedt_function_handler()
-    def copyGroupFrom(self, group_name, source_design, source_project_name=None, source_project_path=None, **kwargs):
+    def copyGroupFrom(self, group_name, source_design, source_project_name=None, source_project_path=None, **kwargs) -> bool:
         """Copy a group from another design.
 
         Parameters
@@ -1971,7 +1971,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         stairStep_en: bool=False,
         edge_min_elements: str="1",
         object: str="Region",
-    ):
+    ) -> bool:
         """Create a custom mesh tailored on a PCB design.
 
         Parameters
@@ -2057,7 +2057,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_pcb_component(self, comp_name):
+    def delete_pcb_component(self, comp_name) -> bool:
         """Delete a PCB component.
 
         Parameters
@@ -2282,7 +2282,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         raise AEDTRuntimeError("Failed to create Fluent mesh file")
 
     @pyaedt_function_handler()
-    def assign_surface_material(self, obj, mat):
+    def assign_surface_material(self, obj, mat) -> bool:
         """Assign a surface material to one or more objects.
 
         Parameters
@@ -2366,7 +2366,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         model_device_as_rect: bool=True,
         cutoff_height: str="5mm",
         component_lib: str="",
-    ):
+    ) -> bool:
         """Import an IDF file into an Icepak design.
 
         Parameters
@@ -5523,7 +5523,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
 
     @pyaedt_function_handler()
-    def clear_linked_data(self):
+    def clear_linked_data(self) -> bool:
         """Clear the linked data of all the solution setups.
 
         Returns

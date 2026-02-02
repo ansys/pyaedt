@@ -57,7 +57,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         PostProcessor3D.__init__(self, app)
         self.post_3dlayout = PostProcessor3DLayout(app)
 
@@ -345,7 +345,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def evaluate_inception_voltage(self, plot_name, field_line_number=None):  # pragma: no cover
+    def evaluate_inception_voltage(self, plot_name, field_line_number=None) -> bool:  # pragma: no cover
         """Perform Inception voltage evaluation on selected field line traces.
 
         .. note::
@@ -404,7 +404,7 @@ class PostProcessorMaxwell(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2026.1")
-    def export_inception_voltage(self, plot_name, output_file, field_line_number=None):  # pragma: no cover
+    def export_inception_voltage(self, plot_name, output_file, field_line_number=None) -> bool:  # pragma: no cover
         """Export inception voltage evaluation results to a TXT file.
 
         .. note::

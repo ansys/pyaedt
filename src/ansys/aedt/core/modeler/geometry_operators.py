@@ -136,7 +136,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_plane_to_axis_str(val):
+    def cs_plane_to_axis_str(val) -> str:
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -159,7 +159,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_plane_to_plane_str(val):
+    def cs_plane_to_plane_str(val) -> str:
         """Retrieve a string for a coordinate system plane.
 
         Parameters
@@ -182,7 +182,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def cs_axis_str(val):
+    def cs_axis_str(val) -> str:
         """Retrieve a string for a coordinate system axis.
 
         Parameters
@@ -206,7 +206,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def draft_type_str(val):
+    def draft_type_str(val) -> str:
         """Retrieve the draft type.
 
         Parameters
@@ -601,7 +601,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_between_points(p, a, b, tol: float=1e-6):
+    def is_between_points(p, a, b, tol: float=1e-6) -> bool:
         """Check if a point lies on the segment defined by two points.
 
         Parameters
@@ -634,7 +634,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_parallel(a1, a2, b1, b2, tol: float=1e-6):
+    def is_parallel(a1, a2, b1, b2, tol: float=1e-6) -> bool:
         """Check if a segment defined by two points is parallel to a segment defined by two other points.
 
         Parameters
@@ -691,7 +691,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_collinear(a, b, tol: float=1e-6):
+    def is_collinear(a, b, tol: float=1e-6) -> bool:
         """Check if two vectors are collinear (parallel or anti-parallel).
 
         Parameters
@@ -719,7 +719,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_projection_inside(a1, a2, b1, b2):
+    def is_projection_inside(a1, a2, b1, b2) -> bool:
         """Project a segment onto another segment and check if the projected segment is inside it.
 
         Parameters
@@ -838,7 +838,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthonormal_triplet(x, y, z, tol=None):
+    def is_orthonormal_triplet(x, y, z, tol=None) -> bool:
         """Check if three vectors are orthonormal.
 
         Parameters
@@ -905,7 +905,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_orthogonal_matrix(matrix, tol=None):
+    def is_orthogonal_matrix(matrix, tol=None) -> bool:
         """
         Check if a given 3x3 matrix is orthogonal.
 
@@ -1327,7 +1327,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_point_in_polygon(point, polygon):
+    def is_point_in_polygon(point, polygon) -> bool:
         """Determine if a point is inside or outside a polygon, both located on the same plane.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
@@ -1375,7 +1375,7 @@ class GeometryOperators(PyAedtBase):
         """
 
         # fmt: off
-        def on_segment(p, q, r):
+        def on_segment(p, q, r) -> bool:
             # Given three collinear points p, q, r, the function checks if point q lies on line-segment 'pr'
             if ((q[0] <= max(p[0], r[0])) and (q[0] >= min(p[0], r[0])) and
                (q[1] <= max(p[1], r[1])) and (q[1] >= min(p[1], r[1]))):
@@ -1441,7 +1441,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_segment_intersecting_polygon(a, b, polygon):
+    def is_segment_intersecting_polygon(a, b, polygon) -> bool:
         """Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
 
         Points on the vertices and on the polygon boundaries are not considered intersecting.
@@ -1479,7 +1479,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_perpendicular(a, b, tol: float=1e-6):
+    def is_perpendicular(a, b, tol: float=1e-6) -> bool:
         """Check if two vectors are perpendicular.
 
         Parameters
@@ -1627,7 +1627,7 @@ class GeometryOperators(PyAedtBase):
                                 Umatrix[i][j] = GeometryOperators.v_points(S[i], S[j])
             return Umatrix
 
-        def inside(i, j):
+        def inside(i, j) -> bool:
             if U[i][j] == 0 and isinstance(U[i][j], int):
                 return False
             else:

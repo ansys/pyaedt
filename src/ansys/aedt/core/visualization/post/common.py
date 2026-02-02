@@ -96,7 +96,7 @@ class PostProcessorCommon(PyAedtBase):
     >>> q3d.post.get_solution_data(domain="Original")
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._scratch = self._app.working_directory
         self.__plots = self._get_plot_inputs()
@@ -116,7 +116,7 @@ class PostProcessorCommon(PyAedtBase):
         return self.__plots
 
     @plots.setter
-    def plots(self, value):
+    def plots(self, value) -> None:
         self.__plots = value
 
     @property
@@ -147,7 +147,7 @@ class PostProcessorCommon(PyAedtBase):
         )
 
     @update_report_dynamically.setter
-    def update_report_dynamically(self, value):
+    def update_report_dynamically(self, value) -> None:
         if value:
             self._app.odesktop.SetRegistryInt(
                 f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 1
@@ -655,7 +655,7 @@ class PostProcessorCommon(PyAedtBase):
         return list(self.oreportsetup.GetAllReportNames())
 
     @pyaedt_function_handler()
-    def copy_report_data(self, plot_name, paste: bool=True):
+    def copy_report_data(self, plot_name, paste: bool=True) -> bool:
         """Copy report data as static data.
 
         Parameters
@@ -681,7 +681,7 @@ class PostProcessorCommon(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def paste_report_data(self):
+    def paste_report_data(self) -> bool:
         """Paste report data as static data.
 
         Returns
@@ -697,7 +697,7 @@ class PostProcessorCommon(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, plot_name=None):
+    def delete_report(self, plot_name=None) -> bool:
         """Delete all reports or specific report.
 
         Parameters
@@ -728,7 +728,7 @@ class PostProcessorCommon(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def rename_report(self, plot_name, new_name):
+    def rename_report(self, plot_name, new_name) -> bool:
         """Rename a plot.
 
         Parameters
@@ -811,7 +811,7 @@ class PostProcessorCommon(PyAedtBase):
             return None
 
     @pyaedt_function_handler()
-    def steal_focus_oneditor(self):
+    def steal_focus_oneditor(self) -> bool:
         """Remove the selection of an object that would prevent the image from exporting correctly.
 
         Returns
@@ -975,7 +975,7 @@ class PostProcessorCommon(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_report_to_jpg(self, project_path, plot_name, width: int=800, height: int=450, image_format: str="jpg"):
+    def export_report_to_jpg(self, project_path, plot_name, width: int=800, height: int=450, image_format: str="jpg") -> bool:
         """Export plot to an image file.
 
         Parameters
@@ -1799,7 +1799,7 @@ class PostProcessorCommon(PyAedtBase):
                 report_temp = TEMPLATES_BY_NAME[props["report_category"]]
             report = report_temp(self, props["report_category"], solution_name)
 
-            def _update_props(prop_in, props_out):
+            def _update_props(prop_in, props_out) -> None:
                 for k, v in prop_in.items():
                     if isinstance(v, dict):
                         if k not in props_out:
@@ -1991,7 +1991,7 @@ class PostProcessorCommon(PyAedtBase):
 class Reports(PyAedtBase):
     """Provides the names of default solution types."""
 
-    def __init__(self, post_app, design_type):
+    def __init__(self, post_app, design_type) -> None:
         self._post_app = post_app
         self._design_type = design_type
         self._templates = self._post_app._app._design_type.report_templates

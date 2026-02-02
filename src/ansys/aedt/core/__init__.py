@@ -48,13 +48,13 @@ DOTNET_LINUX_WARNING = (
 )
 
 
-def deprecation_warning():
+def deprecation_warning() -> None:
     """Warning message informing users that some Python versions are deprecated in PyAEDT."""
     # Store warnings showwarning
     existing_showwarning = warnings.showwarning
 
     # Define and use custom showwarning
-    def custom_show_warning(message, category, filename, lineno, file=None, line=None):
+    def custom_show_warning(message, category, filename, lineno, file=None, line=None) -> None:
         """Define and use custom warning to remove <stdin>:loc: pattern."""
         print(f"{category.__name__}: {message}")
 

@@ -66,7 +66,7 @@ class AnalysisTwinBuilder(Analysis, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         Analysis.__init__(
             self,
             application,

@@ -117,7 +117,7 @@ else:
     settings._update_settings()
 
 
-def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
+def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]) -> None:
     """Hook used to apply marker on tests."""
     for item in items:
         # Mark unit, integration and system tests
@@ -152,7 +152,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
 
 
 @pytest.fixture(scope="session", autouse=True)
-def clean_old_pytest_temps(tmp_path_factory):
+def clean_old_pytest_temps(tmp_path_factory) -> None:
     """Delete previous pytest temp dirs before starting a new session."""
     # Clean pytest temp dirs
     base = tmp_path_factory.getbasetemp().parent

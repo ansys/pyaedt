@@ -40,7 +40,7 @@ json_to_dict = read_json
 
 
 @pyaedt_function_handler()
-def _dict_items_to_list_items(d, k, idx: str="name"):
+def _dict_items_to_list_items(d, k, idx: str="name") -> None:
     if d.get(k, []):
         if isinstance(d[k], dict) and idx in d[k].keys():
             d[k] = [d[k]]
@@ -60,7 +60,7 @@ def _dict_items_to_list_items(d, k, idx: str="name"):
 
 
 @pyaedt_function_handler()
-def _tuple2dict(t, d):
+def _tuple2dict(t, d) -> None:
     """
 
     Parameters
@@ -99,7 +99,7 @@ def _tuple2dict(t, d):
 
 
 @pyaedt_function_handler()
-def _dict2arg(d, arg_out):
+def _dict2arg(d, arg_out) -> None:
     """Create a valid string of name-value pairs for the native AEDT API.
 
     Prepend the argument string in `arg_out` using the dictionary ``d``

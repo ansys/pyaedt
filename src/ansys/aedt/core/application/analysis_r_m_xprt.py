@@ -58,7 +58,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         port: int=0,
         aedt_process_id=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -114,7 +114,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return self._modeler
 
     @pyaedt_function_handler()
-    def disable_modelcreation(self, solution_type=None):
+    def disable_modelcreation(self, solution_type=None) -> bool:
         """Enable the RMxprt solution.
 
         Parameters
@@ -133,7 +133,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_modelcreation(self, solution_type=None):
+    def enable_modelcreation(self, solution_type=None) -> bool:
         """Enable model creation for the Maxwell model wizard.
 
         Parameters
@@ -183,7 +183,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def set_material_threshold(self, conductivity: int=100000, permeability: int=100):
+    def set_material_threshold(self, conductivity: int=100000, permeability: int=100) -> bool:
         """Set material threshold.
 
         Parameters

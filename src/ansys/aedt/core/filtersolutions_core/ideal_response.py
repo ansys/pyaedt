@@ -156,13 +156,13 @@ class IdealResponse:
     This class allows you to define and modify the ideal response parameters for the designed filter.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_response_dll_functions()
         self.graph_setup = GraphSetup()
 
-    def _define_response_dll_functions(self):
+    def _define_response_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.getIdealFrequencyResponseSize.argtype = POINTER(c_int)
         self._dll.getIdealFrequencyResponseSize.restype = c_int
@@ -322,7 +322,7 @@ class IdealResponse:
         return bool(vsg_analysis_enabled.value)
 
     @vsg_analysis_enabled.setter
-    def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool):
+    def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool) -> None:
         status = self._dll.setVSGAnalsyis(filter_vsg_analysis_enabled)
         self._dll_interface.raise_error(status)
 

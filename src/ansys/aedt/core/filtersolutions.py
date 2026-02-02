@@ -55,7 +55,7 @@ class FilterDesignBase(PyAedtBase):
 
     _active_design = None
 
-    def __init__(self, version=None):
+    def __init__(self, version=None) -> None:
         if FilterDesignBase._active_design:
             warnings.warn(
                 "FilterSolutions API currently supports only one design at a time. \n"
@@ -73,14 +73,14 @@ class FilterDesignBase(PyAedtBase):
         self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
         self.export_to_aedt = ExportToAedt()
 
-    def close(self):
+    def close(self) -> None:
         """Closes the current design and clears the active design."""
         if FilterDesignBase._active_design == self:
             print(f"Closing design: {self}")
             self._cleanup_resources()
             FilterDesignBase._active_design = None
 
-    def _cleanup_resources(self):
+    def _cleanup_resources(self) -> None:
         """Perform cleanup operations for the design."""
         print("Cleaning up resources...")
         self.attributes = None
@@ -148,11 +148,11 @@ class LumpedDesign(FilterDesignBase):
     >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
     """
 
-    def __init__(self, version=None):
+    def __init__(self, version=None) -> None:
         super().__init__(version)
         self._init_lumped_design()
 
-    def _init_lumped_design(self):
+    def _init_lumped_design(self) -> None:
         """Initialize the ``FilterSolutions`` object to support a lumped filter design."""
         self.source_impedance_table = LumpedTerminationImpedance(TerminationType.SOURCE)
         self.load_impedance_table = LumpedTerminationImpedance(TerminationType.LOAD)
@@ -183,7 +183,7 @@ class DistributedDesign(FilterDesignBase):
     >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
     """
 
-    def __init__(self, version=None):
+    def __init__(self, version=None) -> None:
         super().__init__(version)
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
@@ -191,7 +191,7 @@ class DistributedDesign(FilterDesignBase):
         self._init_distributed_design()
         self._set_distributed_implementation()
 
-    def _init_distributed_design(self):
+    def _init_distributed_design(self) -> None:
         """Initialize the ``FilterSolutions`` object to support a distributed filter design."""
         self.topology = DistributedTopology()
         self.substrate = DistributedSubstrate()
@@ -199,7 +199,7 @@ class DistributedDesign(FilterDesignBase):
         self.radial = DistributedRadial()
         self.parasitics = DistributedParasitics()
 
-    def _set_distributed_implementation(self):
+    def _set_distributed_implementation(self) -> None:
         """Set ``FilterSolutions`` implementation to ``Distributed Design``."""
         filter_implementation_status = self._dll.setFilterImplementation(1)
         self._dll_interface.raise_error(filter_implementation_status)

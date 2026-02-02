@@ -58,7 +58,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     >>> my_modeler = hfss.modeler
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self._app = app
         self._edb = None
         self.logger.info("Loading Modeler.")
@@ -148,7 +148,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return self._app.logger
 
     @pyaedt_function_handler()
-    def fit_all(self):
+    def fit_all(self) -> None:
         """Fit all.
 
         References
@@ -173,7 +173,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return self._app.units.length
 
     @model_units.setter
-    def model_units(self, units):
+    def model_units(self, units) -> None:
         self._app.units.length = units
 
     @pyaedt_function_handler()
@@ -208,7 +208,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return xpos, ypos, zpos
 
     @pyaedt_function_handler()
-    def change_property(self, assignment, name, value, aedt_tab: str="BaseElementTab"):
+    def change_property(self, assignment, name, value, aedt_tab: str="BaseElementTab") -> bool:
         """Change an oeditor property.
 
         Parameters
@@ -357,7 +357,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return self.change_property(name, "Location", location)
 
     @pyaedt_function_handler()
-    def colinear_heal(self, assignment, tolerance: float=0.1):
+    def colinear_heal(self, assignment, tolerance: float=0.1) -> bool:
         """Remove small edges of one or more primitives.
 
         Parameters
@@ -463,7 +463,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return assignment
 
     @pyaedt_function_handler()
-    def import_cadence_brd(self, input_file, output_dir=None, name=None):
+    def import_cadence_brd(self, input_file, output_dir=None, name=None) -> bool:
         """Import a cadence board.
 
         Parameters
@@ -516,7 +516,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def import_ipc2581(self, input_file, output_dir=None, name=None):
+    def import_ipc2581(self, input_file, output_dir=None, name=None) -> bool:
         """Import an IPC file.
 
         Parameters
@@ -743,7 +743,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         enable_feedback: bool=True,
         ambient_temp: int=22,
         create_project_var: bool=False,
-    ):
+    ) -> bool:
         """Set the temperature dependence for the design.
 
         Parameters
@@ -1244,7 +1244,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     def geometry_check_and_fix_all(
         self,
         min_area: float=2e-6,
-    ):
+    ) -> bool:
         """Run Geometry Check.
 
         All checks are used and all auto fix options are enabled.

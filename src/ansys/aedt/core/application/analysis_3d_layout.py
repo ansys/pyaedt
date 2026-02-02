@@ -104,7 +104,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         aedt_process_id=None,
         ic_mode=None,
         remove_lock: bool=False,
-    ):
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -188,7 +188,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return list(self.oboundary.GetAllPortsList())
 
     @pyaedt_function_handler()
-    def change_design_settings(self, settings):
+    def change_design_settings(self, settings) -> bool:
         """Set HFSS 3D Layout Design Settings.
 
         Parameters
@@ -315,7 +315,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name) -> bool:
         """Delete a setup.
 
         Parameters

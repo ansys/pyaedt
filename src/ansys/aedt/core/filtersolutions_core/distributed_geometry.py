@@ -37,12 +37,12 @@ class DistributedGeometry:
     This class allows you to define and modify the layout geometry parameters of distributed filters.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dll = ansys.aedt.core.filtersolutions_core._dll_interface()._dll
         self._dll_interface = ansys.aedt.core.filtersolutions_core._dll_interface()
         self._define_geomtry_dll_functions()
 
-    def _define_geomtry_dll_functions(self):
+    def _define_geomtry_dll_functions(self) -> None:
         """Define C++ API DLL functions."""
         self._dll.setEnableDistributedCapacitorSections.argtype = c_bool
         self._dll.setEnableDistributedCapacitorSections.restype = c_int
@@ -128,7 +128,7 @@ class DistributedGeometry:
     @fixed_width_to_height_ratio_capacitor_sections_enabled.setter
     def fixed_width_to_height_ratio_capacitor_sections_enabled(
         self, fixed_width_to_height_ratio_capacitor_sections_enabled: bool
-    ):
+    ) -> None:
         status = self._dll.setEnableDistributedCapacitorSections(fixed_width_to_height_ratio_capacitor_sections_enabled)
         self._dll_interface.raise_error(status)
 
@@ -148,7 +148,7 @@ class DistributedGeometry:
         return fixed_width_to_height_ratio_capacitor_sections_string
 
     @fixed_width_to_height_ratio_capacitor_sections.setter
-    def fixed_width_to_height_ratio_capacitor_sections(self, fixed_width_to_height_ratio_capacitor_sections_string):
+    def fixed_width_to_height_ratio_capacitor_sections(self, fixed_width_to_height_ratio_capacitor_sections_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedCapacitorSections, fixed_width_to_height_ratio_capacitor_sections_string
         )
@@ -172,7 +172,7 @@ class DistributedGeometry:
     @fixed_width_to_height_ratio_inductor_sections_enabled.setter
     def fixed_width_to_height_ratio_inductor_sections_enabled(
         self, fixed_width_to_height_ratio_inductor_sections_enabled: bool
-    ):
+    ) -> None:
         status = self._dll.setEnableDistributedInductorSections(fixed_width_to_height_ratio_inductor_sections_enabled)
         self._dll_interface.raise_error(status)
 
@@ -192,7 +192,7 @@ class DistributedGeometry:
         return fixed_width_to_height_ratio_inductor_sections_string
 
     @fixed_width_to_height_ratio_inductor_sections.setter
-    def fixed_width_to_height_ratio_inductor_sections(self, fixed_width_to_height_ratio_inductor_sections_string):
+    def fixed_width_to_height_ratio_inductor_sections(self, fixed_width_to_height_ratio_inductor_sections_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedInductorSections, fixed_width_to_height_ratio_inductor_sections_string
         )
@@ -211,7 +211,7 @@ class DistributedGeometry:
         return bool(split_wide_stubs_enabled.value)
 
     @split_wide_stubs_enabled.setter
-    def split_wide_stubs_enabled(self, split_wide_stubs_enabled: bool):
+    def split_wide_stubs_enabled(self, split_wide_stubs_enabled: bool) -> None:
         status = self._dll.setEnableDistributedSplitHeightRatio(split_wide_stubs_enabled)
         self._dll_interface.raise_error(status)
 
@@ -231,7 +231,7 @@ class DistributedGeometry:
         return wide_stubs_width_to_substrate_height_ratio_string
 
     @wide_stubs_width_to_substrate_height_ratio.setter
-    def wide_stubs_width_to_substrate_height_ratio(self, wide_stubs_width_to_substrate_height_ratio_string):
+    def wide_stubs_width_to_substrate_height_ratio(self, wide_stubs_width_to_substrate_height_ratio_string) -> None:
         self._dll_interface.set_string(
             self._dll.setDistributedSplitHeightRatio, wide_stubs_width_to_substrate_height_ratio_string
         )
@@ -251,7 +251,7 @@ class DistributedGeometry:
         return bool(alternate_stub_orientation.value)
 
     @alternate_stub_orientation.setter
-    def alternate_stub_orientation(self, alternate_stub_orientation: bool):
+    def alternate_stub_orientation(self, alternate_stub_orientation: bool) -> None:
         status = self._dll.setDistributedAlternateStubOrientation(alternate_stub_orientation)
         self._dll_interface.raise_error(status)
 
@@ -267,7 +267,7 @@ class DistributedGeometry:
         return max_width_string
 
     @max_width.setter
-    def max_width(self, max_width_string):
+    def max_width(self, max_width_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMaxWidth, max_width_string)
 
     @property
@@ -282,7 +282,7 @@ class DistributedGeometry:
         return min_width_string
 
     @min_width.setter
-    def min_width(self, min_width_string):
+    def min_width(self, min_width_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMinWidth, min_width_string)
 
     @property
@@ -297,7 +297,7 @@ class DistributedGeometry:
         return max_gap_string
 
     @max_gap.setter
-    def max_gap(self, max_gap_string):
+    def max_gap(self, max_gap_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMaxGap, max_gap_string)
 
     @property
@@ -312,7 +312,7 @@ class DistributedGeometry:
         return min_gap_string
 
     @min_gap.setter
-    def min_gap(self, min_gap_string):
+    def min_gap(self, min_gap_string) -> None:
         self._dll_interface.set_string(self._dll.setDistributedGeometryMinGap, min_gap_string)
 
     @property
@@ -329,7 +329,7 @@ class DistributedGeometry:
         return bool(apply_limits.value)
 
     @apply_limits.setter
-    def apply_limits(self, apply_limits: bool):
+    def apply_limits(self, apply_limits: bool) -> None:
         status = self._dll.setDistributedApplyLimits(apply_limits)
         self._dll_interface.raise_error(status)
 
@@ -349,6 +349,6 @@ class DistributedGeometry:
         return bool(adjust_length_on_limit.value)
 
     @adjust_length_on_limit.setter
-    def adjust_length_on_limit(self, adjust_length_on_limit: bool):
+    def adjust_length_on_limit(self, adjust_length_on_limit: bool) -> None:
         status = self._dll.setDistributedAdjustLengthOnLimit(adjust_length_on_limit)
         self._dll_interface.raise_error(status)
