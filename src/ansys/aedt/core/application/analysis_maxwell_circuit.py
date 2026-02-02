@@ -25,6 +25,7 @@
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.settings import settings
+from typing import Optional
 
 
 class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
@@ -74,14 +75,14 @@ class AnalysisMaxwellCircuit(Analysis, PyAedtBase):
         application,
         project,
         design,
-        version=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(

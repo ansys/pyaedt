@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 
+from typing import Optional
 from ansys.aedt.core.generic.settings import settings
 
 log = settings.logger
@@ -30,15 +31,15 @@ log = settings.logger
 
 # lazy imports
 def Edb(
-    edbpath=None,
-    cellname=None,
+    edbpath: Optional[str]=None,
+    cellname: Optional[str]=None,
     isreadonly: bool = False,
-    edbversion=None,
+    edbversion: Optional[str]=None,
     isaedtowned: bool = False,
-    oproject=None,
+    oproject: Optional[any] = None,
     student_version: bool = False,
     use_ppe: bool = False,
-    technology_file=None,
+    technology_file: Optional[str]=None,
 ):
     """Provides the EDB application interface.
 

@@ -41,6 +41,7 @@ from ansys.aedt.core.emit_core.nodes.generated import Waveform
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
+from typing import Optional
 
 
 class Revision:
@@ -71,7 +72,7 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    def __init__(self, parent_results, emit_obj, name=None) -> None:
+    def __init__(self, parent_results, emit_obj, name: Optional[str]=None) -> None:
         self.emit_project = emit_obj
         """EMIT project."""
 

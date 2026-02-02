@@ -25,7 +25,7 @@ import copy
 import os.path
 from pathlib import Path
 import time
-from typing import List
+from typing import Optional, List
 
 import numpy as np
 from pyedb.generic.constants import unit_converter
@@ -316,7 +316,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         pass_fail,
         pass_fail_criteria: int = 0,
         name: str = "ERL",
-        project=None,
+        project: Optional[str]=None,
     ) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
@@ -357,7 +357,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_report_derived_parameter(
-        self, design_name, config_file, parameter, traces, report_type, pass_fail_criteria, name, project=None
+        self, design_name, config_file, parameter, traces, report_type, pass_fail_criteria, name: str, project: Optional[str]=None
     ) -> None:
         """Add report derived parameters computed by AEDT and python into the configuration.
 
@@ -397,7 +397,7 @@ class VirtualComplianceGenerator(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_report(
-        self, design_name, config_file, traces, report_type, pass_fail, group_plots, name, project=None
+        self, design_name, config_file, traces, report_type, pass_fail, group_plots, name: str, project: Optional[str]=None
     ) -> None:
         """Add Com parameters computed by SpiSim into the configuration.
 
@@ -435,7 +435,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         self.config["reports"].append(pars)
 
     @pyaedt_function_handler()
-    def add_report_from_folder(self, input_folder, design_name, group_plots: bool = False, project=None) -> None:
+    def add_report_from_folder(self, input_folder, design_name, group_plots: bool = False, project: Optional[str]=None) -> None:
         """Add multiple reports from a folder.
 
         Parameters
@@ -805,7 +805,7 @@ class VirtualCompliance(PyAedtBase):
     @pyaedt_function_handler()
     def add_aedt_report(
         self,
-        name,
+        name: str,
         report_type,
         config_file,
         design_name,
@@ -862,7 +862,7 @@ class VirtualCompliance(PyAedtBase):
                 sweep_name = solution_names[0]
         return sweep_name
 
-    def _add_skew(self, _design, aedt_report, chapter, name, pass_fail_criteria) -> bool:
+    def _add_skew(self, _design, aedt_report, chapter, name: str, pass_fail_criteria) -> bool:
         _design.logger.info("Adding single lines violations")
         font_table = [["", None]]
         trace_data = aedt_report.get_solution_data()
@@ -1746,7 +1746,7 @@ class VirtualCompliance(PyAedtBase):
             )
         return self.report_data
 
-    def create_pdf(self, file_name, close_project: bool = True):
+    def create_pdf(self, file_name: str, close_project: bool = True):
         """Create the PDF report after the method ``compute_report_data`` is called.
 
         Parameters

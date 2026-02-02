@@ -31,6 +31,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import Setup3DLayout
+from typing import Optional
 
 
 class FieldAnalysis3DLayout(Analysis, PyAedtBase):
@@ -94,14 +95,14 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         ic_mode=None,
         remove_lock: bool = False,
     ) -> None:
@@ -208,7 +209,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations: str = "", output_file=None):
+    def export_mesh_stats(self, setup, variations: Optional[str] = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -315,7 +316,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete_setup(self, name) -> bool:
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters

@@ -31,6 +31,7 @@ from ansys.aedt.core.application.analysis_circuit_netlist import AnalysisCircuit
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.filesystem import search_files
+from typing import Optional, Union
 
 
 class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
@@ -123,16 +124,16 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        version=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         AnalysisCircuitNetlist.__init__(
@@ -154,7 +155,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def browse_log_file(self, input_file=None):  # pragma: no cover
+    def browse_log_file(self, input_file: Optional[Union[str, Path]]=None):  # pragma: no cover
         """Save the most recent log file in a new directory.
 
         Parameters

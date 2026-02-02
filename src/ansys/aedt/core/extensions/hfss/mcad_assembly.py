@@ -296,7 +296,7 @@ class Component(BaseModel):
         extra = "forbid"
 
     @classmethod
-    def load(cls, name, data):
+    def load(cls, name: str, data):
         sub_components = {name: cls.load(name, comp) for name, comp in data.get("sub_components", {}).items()}
         data_ = data.copy()
         data_["sub_components"] = sub_components

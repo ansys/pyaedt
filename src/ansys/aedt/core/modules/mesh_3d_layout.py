@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.mesh import MeshProps
+from typing import Optional
 
 
 class Mesh3DOperation(PropsManager, PyAedtBase):
@@ -53,7 +54,7 @@ class Mesh3DOperation(PropsManager, PyAedtBase):
 
     """
 
-    def __init__(self, app, hfss_setup_name, name, props) -> None:
+    def __init__(self, app, hfss_setup_name, name: str, props) -> None:
         self.auto_update = True
         self._mesh3dlayout = app
         self.name = name
@@ -161,7 +162,7 @@ class Mesh3d(PyAedtBase):
         app.logger.info_timer("Mesh class has been initialized!")
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name) -> bool:
+    def generate_mesh(self, name: str) -> bool:
         """Generate the mesh for a design.
 
         Parameters
@@ -192,7 +193,7 @@ class Mesh3d(PyAedtBase):
         return self._app.omeshmodule
 
     @pyaedt_function_handler()
-    def delete_mesh_operations(self, setup, name) -> bool:
+    def delete_mesh_operations(self, setup, name: str) -> bool:
         """Remove mesh operations from a setup.
 
         Parameters
@@ -248,7 +249,7 @@ class Mesh3d(PyAedtBase):
         is_inside: bool = True,
         maximum_length: int = 1,
         maximum_elements: int = 1000,
-        name=None,
+        name: Optional[str]=None,
     ):
         """Assign mesh length.
 
@@ -343,7 +344,7 @@ class Mesh3d(PyAedtBase):
         maximum_elements=None,
         triangulation_max_length: float = 0.1,
         layers_number: str = "2",
-        name=None,
+        name: Optional[str]=None,
     ):
         """Assign skin depth to the mesh.
 

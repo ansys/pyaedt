@@ -27,6 +27,7 @@ import math
 import os
 from pathlib import Path
 import re
+from typing import Union
 
 from ansys.aedt.core import settings
 from ansys.aedt.core.base import PyAedtBase
@@ -215,7 +216,7 @@ def convert_nearfield_data(
 
 
 @pyaedt_function_handler()
-def convert_farfield_data(input_file, output_file=None) -> str:
+def convert_farfield_data(input_file: Union[str, Path], output_file=None) -> str:
     """Convert a far field data file to hfss `ffd` file.
 
     Parameters
@@ -243,7 +244,7 @@ def convert_farfield_data(input_file, output_file=None) -> str:
 
 
 @pyaedt_function_handler()
-def __convert_ffs_data(input_file, output_file):
+def __convert_ffs_data(input_file: str, output_file):
     freqs = []
     output_data = {}
     if not input_file.exists():
@@ -329,7 +330,7 @@ def __convert_ffs_data(input_file, output_file):
 
 
 @pyaedt_function_handler()
-def __convert_ffe_data(input_file, output_file):
+def __convert_ffe_data(input_file: str, output_file):
     data = []
     quantity = []
 
@@ -527,7 +528,7 @@ def preview_pyvista(dict_in, decimation: int = 0, output_stls=None) -> None:
 
 @pyaedt_function_handler()
 @graphics_required
-def simplify_and_preview_stl(input_file, output_file=None, decimation: float = 0.5, preview: bool = False):
+def simplify_and_preview_stl(input_file: str, output_file=None, decimation: float = 0.5, preview: bool = False):
     """Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters

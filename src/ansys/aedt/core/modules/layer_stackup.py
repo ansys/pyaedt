@@ -1235,7 +1235,7 @@ class Layers(PyAedtBase):
         return [v for k, v in self.layers.items() if v.type == "dielectric"]
 
     @pyaedt_function_handler()
-    def layer_id(self, name):
+    def layer_id(self, name: str):
         """Retrieve a layer ID.
 
         Parameters

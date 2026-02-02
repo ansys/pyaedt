@@ -34,7 +34,7 @@ from pathlib import Path
 import re
 import secrets
 import time
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -81,7 +81,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         self.auto_update = True
         self._initialize_tree_node()
 
-    def _setup_dict_to_arg(self, name=None, props=None):
+    def _setup_dict_to_arg(self, name: Optional[str]=None, props=None):
         if name is None:
             arg = ["NAME:" + self.name]
         else:
@@ -345,7 +345,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         return self._name
 
     @name.setter
-    def name(self, name) -> None:
+    def name(self, name: str) -> None:
         self._name = name
         self.props["Name"] = name
 
@@ -365,7 +365,7 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         self,
         expressions=None,
         domain=None,
-        variations=None,
+        variations: Optional[dict]=None,
         primary_sweep_variable=None,
         report_category=None,
         context=None,
@@ -488,15 +488,15 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         self,
         expressions=None,
         domain: str = "Sweep",
-        variations=None,
+        variations: Optional[dict]=None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
         report_category=None,
         plot_type: str = "Rectangular Plot",
         context=None,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
         polyline_points: int = 1001,
-        name=None,
+        name: Optional[str]=None,
         sweep=None,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plot, or data table.
@@ -885,7 +885,7 @@ class Setup(CommonSetup):
     def add_mesh_link(
         self,
         design,
-        solution=None,
+        solution: Optional[str]=None,
         parameters=None,
         project: str = "This Project*",
         force_source_to_solve: bool = True,
@@ -1634,7 +1634,7 @@ class SetupCircuit(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def enable(self, name=None) -> bool:
+    def enable(self, name: Optional[str]=None) -> bool:
         """Enable a setup.
 
         Parameters
@@ -1657,7 +1657,7 @@ class SetupCircuit(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def disable(self, name=None) -> bool:
+    def disable(self, name: Optional[str]=None) -> bool:
         """Disable a setup.
 
         Parameters
@@ -1684,7 +1684,7 @@ class SetupCircuit(CommonSetup):
         self,
         expressions=None,
         domain=None,
-        variations=None,
+        variations: Optional[dict]=None,
         primary_sweep_variable=None,
         report_category=None,
         context=None,
@@ -1766,15 +1766,15 @@ class SetupCircuit(CommonSetup):
         self,
         expressions=None,
         domain: str = "Sweep",
-        variations=None,
+        variations: Optional[dict]=None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
         report_category=None,
         plot_type: str = "Rectangular Plot",
         context=None,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
         polyline_points: int = 1001,
-        name=None,
+        name: Optional[str]=None,
     ) -> "Standard":
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
@@ -2347,7 +2347,7 @@ class Setup3DLayout(CommonSetup):
         return succeeded
 
     @pyaedt_function_handler()
-    def add_sweep(self, name=None, sweep_type: str = "Interpolating"):
+    def add_sweep(self, name: Optional[str]=None, sweep_type: str = "Interpolating"):
         """Add a frequency sweep.
 
         Parameters
@@ -2378,7 +2378,7 @@ class Setup3DLayout(CommonSetup):
         return False
 
     @pyaedt_function_handler()
-    def get_sweep(self, name=None):
+    def get_sweep(self, name: Optional[str]=None):
         """Return frequency sweep object of a given sweep.
 
         Parameters
@@ -2648,7 +2648,7 @@ class SetupHFSS(Setup, PyAedtBase):
         start_frequency: float = 1.0,
         stop_frequency: float = 10.0,
         num_of_freq_points=None,
-        name=None,
+        name: Optional[str]=None,
         save_fields: bool = True,
         save_rad_fields: bool = False,
         sweep_type: str = "Discrete",
@@ -2753,7 +2753,7 @@ class SetupHFSS(Setup, PyAedtBase):
         start_frequency: float = 0.1,
         stop_frequency: float = 2.0,
         step_size: float = 0.05,
-        name=None,
+        name: Optional[str]=None,
         save_fields: bool = True,
         save_rad_fields: bool = False,
         sweep_type: str = "Discrete",
@@ -2837,7 +2837,7 @@ class SetupHFSS(Setup, PyAedtBase):
         self,
         unit: str = "GHz",
         freq: int = 1,
-        name=None,
+        name: Optional[str]=None,
         save_single_field: bool = True,
         save_fields: bool = False,
         save_rad_fields: bool = False,
@@ -2925,7 +2925,7 @@ class SetupHFSS(Setup, PyAedtBase):
         return sweepdata
 
     @pyaedt_function_handler()
-    def add_sweep(self, name=None, sweep_type: str = "Interpolating", **props):
+    def add_sweep(self, name: Optional[str]=None, sweep_type: str = "Interpolating", **props):
         """Add a sweep to the project.
 
         Parameters
@@ -2960,7 +2960,7 @@ class SetupHFSS(Setup, PyAedtBase):
         return sweep_n
 
     @pyaedt_function_handler()
-    def get_sweep(self, name=None):
+    def get_sweep(self, name: Optional[str]=None):
         """Return frequency sweep object of a given sweep.
 
         Parameters
@@ -3013,7 +3013,7 @@ class SetupHFSS(Setup, PyAedtBase):
         return self.omodule.GetSweeps(self.name)
 
     @pyaedt_function_handler()
-    def delete_sweep(self, name) -> bool:
+    def delete_sweep(self, name: str) -> bool:
         """Delete a sweep.
 
         Parameters
@@ -3943,7 +3943,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         width: int = 8,
         precision: int = 2,
         is_exponential: bool = False,
-        setup=None,
+        setup: Optional[str]=None,
         default_adaptive: str = "LastAdaptive",
         is_post_processed: bool = False,
     ) -> bool:
@@ -4038,7 +4038,7 @@ class SetupQ3D(Setup, PyAedtBase):
         start_frequency: float = 0.0,
         stop_frequency: float = 20.0,
         num_of_freq_points=None,
-        name=None,
+        name: Optional[str]=None,
         save_fields: bool = True,
         sweep_type: str = "Discrete",
         interpolation_tol: float = 0.5,
@@ -4132,7 +4132,7 @@ class SetupQ3D(Setup, PyAedtBase):
         start_frequency: float = 0.0,
         stop_frequency: float = 2.0,
         step_size: float = 0.05,
-        name=None,
+        name: Optional[str]=None,
         save_fields: bool = True,
         sweep_type: str = "Discrete",
     ):
@@ -4213,7 +4213,7 @@ class SetupQ3D(Setup, PyAedtBase):
         self,
         unit: str = "GHz",
         freq: float = 1.0,
-        name=None,
+        name: Optional[str]=None,
         save_single_field: bool = True,
         save_fields: bool = False,
     ):
@@ -4300,7 +4300,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return sweepdata
 
     @pyaedt_function_handler()
-    def add_sweep(self, name=None, sweep_type: str = "Interpolating", **props):
+    def add_sweep(self, name: Optional[str]=None, sweep_type: str = "Interpolating", **props):
         """Add a sweep to the project.
 
         Parameters
@@ -4333,7 +4333,7 @@ class SetupQ3D(Setup, PyAedtBase):
         return sweep_n
 
     @pyaedt_function_handler()
-    def get_sweep(self, name=None):
+    def get_sweep(self, name: Optional[str]=None):
         """Get the frequency sweep object of a given sweep.
 
         Parameters

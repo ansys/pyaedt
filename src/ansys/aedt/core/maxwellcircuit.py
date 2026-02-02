@@ -31,6 +31,7 @@ from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwell
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from typing import Optional
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
@@ -110,17 +111,17 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        version=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        solution_type: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         """Constructor."""
@@ -144,7 +145,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file) -> bool:
+    def create_schematic_from_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:

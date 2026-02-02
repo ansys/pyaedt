@@ -294,7 +294,7 @@ class BoundaryObject3dLayout(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Type of the boundary.
     """
 
-    def __init__(self, app, name, props=None, boundarytype: str = "Port") -> None:
+    def __init__(self, app, name: str, props=None, boundarytype: str = "Port") -> None:
         self.auto_update = False
         self._app = app
         self._name = name

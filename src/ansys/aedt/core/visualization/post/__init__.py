@@ -23,7 +23,9 @@
 # SOFTWARE.
 
 
-def post_processor(app=None, project=None, design=None, version=None):
+from typing import Optional
+
+def post_processor(app=None, project: Optional[str]=None, design: Optional[str]=None, version: Optional[str]=None):
     """PostProcessor.
 
     Returns

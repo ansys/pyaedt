@@ -25,6 +25,7 @@
 import csv
 from pathlib import Path
 import sys
+from typing import Union
 
 import numpy as np
 
@@ -58,7 +59,7 @@ class FRTMData(PyAedtBase):
     >>> data = RangeDopplerData(file)
     """
 
-    def __init__(self, input_file) -> None:
+    def __init__(self, input_file: Union[str, Path]) -> None:
         input_file = Path(input_file)
 
         if not input_file.is_file():

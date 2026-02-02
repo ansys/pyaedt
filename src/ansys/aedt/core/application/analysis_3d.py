@@ -25,7 +25,7 @@
 import csv
 import os
 from pathlib import Path
-from typing import List
+from typing import Optional, List
 from typing import Union
 
 from ansys.aedt.core.application.analysis import Analysis
@@ -100,14 +100,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(
@@ -299,7 +299,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations: str = "", output_file=None):
+    def export_mesh_stats(self, setup, variations: Optional[str] = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -963,7 +963,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def cleanup_solution(
         self,
-        variations: str = "All",
+        variations: Optional[Union[list, str]] = "All",
         entire_solution: bool = True,
         field: bool = True,
         mesh: bool = True,

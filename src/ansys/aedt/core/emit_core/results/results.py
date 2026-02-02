@@ -27,6 +27,7 @@ import warnings
 from ansys.aedt.core import emit_core
 from ansys.aedt.core.emit_core.results.revision import Revision
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from typing import Optional
 
 
 class Results:
@@ -63,7 +64,7 @@ class Results:
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
 
     @pyaedt_function_handler()
-    def _add_revision(self, name=None):
+    def _add_revision(self, name: Optional[str]=None):
         """Add a new revision or get the current revision if it already exists.
 
         Parameters

@@ -55,7 +55,7 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
-from typing import Optional
+from typing import Optional, Union
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
@@ -152,18 +152,18 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        setup=None,
-        version=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        solution_type: Optional[str]=None,
+        setup: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         FieldAnalysisCircuit.__init__(
@@ -198,7 +198,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
             return from_rkm_to_aedt(value)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file) -> bool:
+    def create_schematic_from_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from an HSpice netlist.
 
         Supported currently are:
@@ -446,7 +446,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, input_file, is_ami: bool = False):
+    def get_ibis_model_from_file(self, input_file: Union[str, Path], is_ami: bool = False):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -470,7 +470,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return reader.ibis_model
 
     @pyaedt_function_handler()
-    def create_schematic_from_mentor_netlist(self, input_file) -> bool:
+    def create_schematic_from_mentor_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from a Mentor netlist.
 
         Supported currently are:
@@ -640,7 +640,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def get_source_pin_names(
-        self, source_design_name, source_project_name=None, source_project_path=None, port_selector: int = 3
+        self, source_design_name, source_project_name: Optional[str]=None, source_project_path: Optional[str]=None, port_selector: int = 3
     ):
         """Retrieve pin names.
 
@@ -697,7 +697,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return pins
 
     @pyaedt_function_handler()
-    def import_touchstone_solution(self, input_file, solution: str = "Imported_Data"):
+    def import_touchstone_solution(self, input_file: str, solution: str = "Imported_Data"):
         """Import a Touchstone file as the solution.
 
         Parameters
@@ -834,8 +834,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def export_fullwave_spice(
         self,
-        design=None,
-        setup=None,
+        design: Optional[str]=None,
+        setup: Optional[str]=None,
         is_solution_file: bool = False,
         filename: Optional[str]=None,
         passivity: bool = False,
@@ -962,12 +962,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def create_touchstone_report(
         self,
-        name,
+        name: str,
         curves,
-        solution=None,
-        variations=None,
+        solution: Optional[str]=None,
+        variations: Optional[dict] = None,
         differential_pairs: bool = False,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
     ):
         """Create a Touchstone plot.
 
@@ -1107,7 +1107,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_source(self, source_type, name=None):
+    def create_source(self, source_type, name: Optional[str]=None):
         """Create a source in Circuit.
 
         Parameters
@@ -1236,7 +1236,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_p
 
     @pyaedt_function_handler()
-    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, input_file):
+    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, input_file: Union[str, Path]):
         """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters
@@ -1275,8 +1275,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self,
         assignment,
         reference,
-        common_mode=None,
-        differential_mode=None,
+        common_mode: Optional[str]=None,
+        differential_mode: Optional[str]=None,
         common_reference: int = 25,
         differential_reference: int = 100,
         active: bool = True,
@@ -1381,7 +1381,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, input_file) -> bool:
+    def load_diff_pairs_from_file(self, input_file: Union[str, Path]) -> bool:
         """Load differtential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file()`` method to obtain the file format.
@@ -1443,7 +1443,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return Path(output_file).is_file()
 
     @pyaedt_function_handler()
-    def add_netlist_datablock(self, input_file, name=None) -> bool:
+    def add_netlist_datablock(self, input_file: Union[str, Path], name: Optional[str]=None) -> bool:
         """Add a new netlist data block to the circuit schematic.
 
         Parameters
@@ -1471,7 +1471,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def browse_log_file(self, input_file=None):
+    def browse_log_file(self, input_file: Optional[Union[str, Path]]=None):
         """Save the most recent log file in a new directory.
 
         Parameters
@@ -1516,7 +1516,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
-        self, project_connections, edb_zones_dict, ports=None, schematic_units: str = "mm", model_inc: int = 50
+        self, project_connections: dict, edb_zones_dict: dict, ports: Optional[dict] = None, schematic_units: Optional[str] = "mm", model_inc: Optional[float] = 50
     ) -> bool:
         """Connect circuit model from a multizone clipped project.
 
@@ -1640,16 +1640,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     )
     def create_tdr_schematic_from_snp(
         self,
-        input_file,
-        tx_schematic_pins,
-        tx_schematic_differential_pins=None,
-        termination_pins=None,
-        differential: bool = True,
-        rise_time: int = 30,
-        use_convolution: bool = True,
+        input_file: str,
+        tx_schematic_pins: list,
+        tx_schematic_differential_pins: Optional[list] = None,
+        termination_pins: Optional[list] = None,
+        differential: Optional[bool] = True,
+        rise_time: Optional[float, int] = 30,
+        use_convolution: Optional[bool] = True,
         analyze: bool = True,
-        design_name: str = "LNA",
-        impedance: int = 50,
+        design_name: Optional[str] = "LNA",
+        impedance: Optional[float] = 50,
     ):
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
@@ -1784,14 +1784,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     )
     def create_lna_schematic_from_snp(
         self,
-        input_file,
-        start_frequency: int = 0,
-        stop_frequency: int = 30,
+        input_file: str,
+        start_frequency: Optional[int,float] = 0,
+        stop_frequency: Optional[int,float] = 30,
         auto_assign_diff_pairs: bool = False,
-        separation: str = ".",
-        pattern=None,
+        separation: Optional[str] = ".",
+        pattern: Optional[list] = None,
         analyze: bool = True,
-        design_name: str = "LNA",
+        design_name: Optional[str] = "LNA",
     ):
         """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
 
@@ -1895,25 +1895,25 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     )
     def create_ami_schematic_from_snp(
         self,
-        input_file,
-        ibis_tx_file,
-        tx_buffer_name,
-        rx_buffer_name,
-        tx_schematic_pins,
-        rx_schematic_pins,
-        tx_schematic_differential_pins=None,
-        rx_schematic_differentialial_pins=None,
-        ibis_tx_component_name=None,
-        ibis_rx_component_name=None,
-        use_ibis_buffer: bool = True,
-        differential: bool = True,
-        bit_pattern=None,
-        unit_interval=None,
-        use_convolution: bool = True,
+        input_file: str,
+        ibis_tx_file: str,
+        tx_buffer_name: str,
+        rx_buffer_name: str,
+        tx_schematic_pins: list,
+        rx_schematic_pins: list,
+        tx_schematic_differential_pins: list = None,
+        rx_schematic_differentialial_pins: list = None,
+        ibis_tx_component_name: Optional[str] = None,
+        ibis_rx_component_name: Optional[str] = None,
+        use_ibis_buffer: Optional[bool] = True,
+        differential: Optional[bool] = True,
+        bit_pattern: Optional[str] = None,
+        unit_interval: Optional[str] = None,
+        use_convolution: Optional[bool] = True,
         analyze: bool = False,
-        design_name: str = "AMI",
-        ibis_rx_file=None,
-        create_setup: bool = True,
+        design_name: Optional[str] = "AMI",
+        ibis_rx_file: Optional[str] = None,
+        create_setup: Optional[bool] = True,
     ):
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -2000,21 +2000,21 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     )
     def create_ibis_schematic_from_snp(
         self,
-        input_file,
+        input_file: str,
         ibis_tx_file,
-        tx_buffer_name,
-        rx_buffer_name,
-        tx_schematic_pins,
-        rx_schematic_pins,
-        ibis_rx_file=None,
-        tx_schematic_differential_pins=None,
-        rx_schematic_differential_pins=None,
-        ibis_tx_component_name=None,
-        ibis_rx_component_name=None,
+        tx_buffer_name: str,
+        rx_buffer_name: str,
+        tx_schematic_pins: list,
+        rx_schematic_pins: list,
+        ibis_rx_file: Optional[str] = None,
+        tx_schematic_differential_pins: Optional[list] = None,
+        rx_schematic_differential_pins: list = None,
+        ibis_tx_component_name: Optional[str] = None,
+        ibis_rx_component_name: Optional[str] = None,
         use_ibis_buffer: bool = True,
         differential: bool = True,
-        bit_pattern=None,
-        unit_interval=None,
+        bit_pattern: Optional[str] = None,
+        unit_interval: Optional[str] = None,
         use_convolution: bool = True,
         analyze: bool = False,
         design_name: str = "IBIS",
@@ -2122,18 +2122,18 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         ibis_rx_file=None,
         tx_buffer_name: str = "",
         rx_buffer_name: str = "",
-        tx_schematic_pins=None,
-        rx_schematic_pins=None,
-        tx_schematic_differential_pins=None,
-        rx_schematic_differential_pins=None,
-        tx_component_name=None,
-        rx_component_name=None,
-        ibis_tx_component_name=None,
-        ibis_rx_component_name=None,
+        tx_schematic_pins: list = None,
+        rx_schematic_pins: Optional[list] = None,
+        tx_schematic_differential_pins: Optional[list] = None,
+        rx_schematic_differential_pins: list = None,
+        tx_component_name: Optional[str] =None,
+        rx_component_name: Optional[str] =None,
+        ibis_tx_component_name: Optional[str] = None,
+        ibis_rx_component_name: Optional[str] = None,
         use_ibis_buffer: bool = True,
         differential: bool = True,
-        bit_pattern=None,
-        unit_interval=None,
+        bit_pattern: Optional[str] = None,
+        unit_interval: Optional[str] = None,
         use_convolution: bool = True,
         analyze: bool = False,
         is_ami: bool = False,
@@ -2359,7 +2359,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True, tx_eye_names, rx_eye_names
 
     @pyaedt_function_handler()
-    def _parse_asc_file(self, input_file, l_scale=2.54e-3 / 16, c_scale=2.54e-3 / 16, offset_angle=-90):
+    def _parse_asc_file(self, input_file: str, l_scale=2.54e-3 / 16, c_scale=2.54e-3 / 16, offset_angle=-90):
         with open(input_file, "r") as fid:
             asc_data = fid.read()
 
@@ -2446,7 +2446,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return flag, wire_xy, symbol
 
     @pyaedt_function_handler()
-    def create_schematic_from_asc_file(self, input_file, config_file=None) -> bool:
+    def create_schematic_from_asc_file(self, input_file: Union[str, Path], config_file=None) -> bool:
         """Import an asc schematic and convert to Circuit Schematic. Only passives and sources will be imported.
 
         Parameters
@@ -2612,15 +2612,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def import_table(
         self,
-        input_file,
+        input_file: Union[str, Path],
         link: bool = False,
-        header_rows: int = 0,
-        rows_to_read=-1,
-        column_separator: str = "Space",
-        data_type: str = "real",
-        sweep_columns: int = 0,
-        total_columns=-1,
-        real_columns: int = 1,
+        header_rows: Optional[int] = 0,
+        rows_to_read: Optional[int] = -1,
+        column_separator: Optional[str] = "Space",
+        data_type: Optional[str] = "real",
+        sweep_columns: Optional[int] = 0,
+        total_columns: Optional[int] = -1,
+        real_columns: Optional[int] = 1,
     ):
         """Import a data table as a solution.
 
@@ -2709,7 +2709,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return new_sweep[0]
 
     @pyaedt_function_handler()
-    def delete_imported_data(self, name) -> bool:
+    def delete_imported_data(self, name: str) -> bool:
         """Delete imported data.
 
         Parameters

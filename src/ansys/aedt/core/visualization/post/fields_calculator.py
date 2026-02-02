@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from typing import Optional
 
 PARENT_DIR = Path(__file__).parent
 
@@ -115,7 +116,7 @@ class FieldsCalculator(PyAedtBase):
         return list(self.expression_catalog.keys())
 
     @pyaedt_function_handler()
-    def add_expression(self, calculation, assignment, name=None):
+    def add_expression(self, calculation, assignment, name: Optional[str]=None):
         """Add named expression.
 
         Parameters
@@ -250,7 +251,7 @@ class FieldsCalculator(PyAedtBase):
         return expression_info["name"]
 
     @pyaedt_function_handler()
-    def create_expression_file(self, name, operations):
+    def create_expression_file(self, name: str, operations):
         """Create a calculator expression file.
 
         Parameters
@@ -283,7 +284,7 @@ class FieldsCalculator(PyAedtBase):
         return str(Path(file_name).resolve())
 
     @pyaedt_function_handler()
-    def expression_plot(self, calculation, assignment, names, setup=None):
+    def expression_plot(self, calculation, assignment, names, setup: Optional[str]=None):
         """Create plots defined in the expression catalog.
 
         Parameters
@@ -376,7 +377,7 @@ class FieldsCalculator(PyAedtBase):
         return reports
 
     @pyaedt_function_handler()
-    def delete_expression(self, name=None) -> bool:
+    def delete_expression(self, name: Optional[str]=None) -> bool:
         """Delete a named expression.
 
         Parameters
@@ -407,7 +408,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def is_expression_defined(self, name) -> bool:
+    def is_expression_defined(self, name: str) -> bool:
         """Check if a named expression exists.
 
         Parameters
@@ -426,7 +427,7 @@ class FieldsCalculator(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def is_general_expression(self, name):
+    def is_general_expression(self, name: str):
         """Check if a named expression is general.
 
         Parameters
@@ -450,7 +451,7 @@ class FieldsCalculator(PyAedtBase):
         return is_general
 
     @pyaedt_function_handler()
-    def load_expression_file(self, input_file):
+    def load_expression_file(self, input_file: str):
         """Load expressions from an external TOML file.
 
         Parameters
@@ -515,7 +516,7 @@ class FieldsCalculator(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def write(self, expression, output_file, setup=None, intrinsics=None) -> bool:
+    def write(self, expression, output_file, setup: Optional[str]=None, intrinsics=None) -> bool:
         """Save the content of the stack register for future reuse in a later Field Calculator session.
 
         Parameters
@@ -592,7 +593,7 @@ class FieldsCalculator(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def evaluate(self, expression, setup=None, intrinsics=None):
+    def evaluate(self, expression, setup: Optional[str]=None, intrinsics=None):
         """Evaluate an expression and return the value.
 
         Parameters
@@ -639,8 +640,8 @@ class FieldsCalculator(PyAedtBase):
     def export(
         self,
         quantity,
-        solution=None,
-        variations=None,
+        solution: Optional[str]=None,
+        variations: Optional[dict]=None,
         output_file=None,
         intrinsics=None,
         phase=None,

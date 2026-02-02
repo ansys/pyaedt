@@ -824,7 +824,7 @@ class Configurations(PyAedtBase):
             props["Edges"] = new_list
 
     @pyaedt_function_handler()
-    def _update_coordinate_systems(self, name, props) -> bool:
+    def _update_coordinate_systems(self, name: str, props) -> bool:
         for cs in self._app.modeler.coordinate_systems:
             if cs.name == name:
                 if not self.options.skip_import_if_exists:
@@ -863,7 +863,7 @@ class Configurations(PyAedtBase):
     #         self._app.logger.warning("Failed to add CS {} ".format(name))
 
     @pyaedt_function_handler()
-    def _update_object_properties(self, name, val) -> bool:
+    def _update_object_properties(self, name: str, val) -> bool:
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
@@ -890,7 +890,7 @@ class Configurations(PyAedtBase):
                 return False
 
     @pyaedt_function_handler()
-    def _update_boundaries(self, name, props) -> bool:
+    def _update_boundaries(self, name: str, props) -> bool:
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
@@ -959,7 +959,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_mesh_operations(self, name, props) -> bool:
+    def _update_mesh_operations(self, name: str, props) -> bool:
         for mesh_el in self._app.mesh.meshoperations:
             if mesh_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -976,7 +976,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_setup(self, name, props) -> bool:
+    def _update_setup(self, name: str, props) -> bool:
         for setup_el in self._app.setups:
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -995,7 +995,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_optimetrics(self, name, props) -> bool:
+    def _update_optimetrics(self, name: str, props) -> bool:
         for setup_el in self._app.optimizations.setups:
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -1012,7 +1012,7 @@ class Configurations(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def _update_parametrics(self, name, props) -> bool:
+    def _update_parametrics(self, name: str, props) -> bool:
         for setup_el in self._app.parametrics.setups:
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -1599,7 +1599,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
         self.options = ConfigurationOptionsIcepak(app)
 
     @pyaedt_function_handler()
-    def _update_object_properties(self, name, val) -> bool:
+    def _update_object_properties(self, name: str, val) -> bool:
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
@@ -1641,7 +1641,7 @@ class ConfigurationsIcepak(Configurations, PyAedtBase):
                 return False
 
     @pyaedt_function_handler()
-    def _update_mesh_operations(self, name, props):
+    def _update_mesh_operations(self, name: str, props):
         if name == "Settings":
             if not self.options.skip_import_if_exists:
                 for el in props:

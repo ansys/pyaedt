@@ -537,14 +537,14 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        version=None,
-        non_graphical: bool = False,
-        new_desktop: bool = True,
-        close_on_exit: bool = True,
-        student_version: bool = False,
-        machine=None,
-        port: int = 0,
-        aedt_process_id=None,
+        version: Optional[str]=None,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = True,
+        close_on_exit: Optional[bool] = True,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = None,
+        port: Optional[int] = 0,
+        aedt_process_id: Optional[int]=None,
     ) -> None:
         """Initialize desktop."""
         # Check if already initialized and returning object if so.
@@ -1094,7 +1094,7 @@ class Desktop(PyAedtBase):
     # ############################################ #
 
     @pyaedt_function_handler()
-    def active_design(self, project_object=None, name=None, design_type=None):
+    def active_design(self, project_object=None, name: Optional[str]=None, design_type=None):
         """Get the active design.
 
         Parameters
@@ -1141,7 +1141,7 @@ class Desktop(PyAedtBase):
         return active_design
 
     @pyaedt_function_handler()
-    def active_project(self, name=None):
+    def active_project(self, name: Optional[str]=None):
         """Get the active project.
 
         Parameters
@@ -1200,7 +1200,7 @@ class Desktop(PyAedtBase):
         return list(self.odesktop.GetProjectList())
 
     @pyaedt_function_handler()
-    def analyze_all(self, project=None, design=None) -> bool:  # pragma: no cover
+    def analyze_all(self, project: Optional[str]=None, design: Optional[str]=None) -> bool:  # pragma: no cover
         """Analyze all setups in a project.
 
         Parameters
@@ -1302,7 +1302,7 @@ class Desktop(PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def design_list(self, project=None):
+    def design_list(self, project: Optional[str]=None):
         """Get a list of the designs.
 
         Parameters
@@ -1387,7 +1387,7 @@ class Desktop(PyAedtBase):
         return str(ex_value)
 
     @pyaedt_function_handler()
-    def load_project(self, project_file, design_name=None):
+    def load_project(self, project_file: str, design_name: Optional[str] = None):
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -1843,13 +1843,13 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def submit_job(
         self,
-        project_file,
-        clustername,
-        aedt_full_exe_path=None,
+        project_file: Union[str, Path],
+        clustername: str,
+        aedt_full_exe_path: Optional[str]=None,
         numnodes: int = 1,
         numcores: int = 32,
         wait_for_license: bool = True,
-        setting_file=None,
+        setting_file: Optional[str]=None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -1956,14 +1956,14 @@ class Desktop(PyAedtBase):
     @pyaedt_function_handler()
     def submit_ansys_cloud_job(
         self,
-        project_file,
-        config_name,
-        region,
+        project_file: str,
+        config_name: str,
+        region: str,
+        job_name: str,
         numnodes: int = 1,
         numcores: int = 32,
         wait_for_license: bool = True,
-        setting_file=None,
-        job_name=None,
+        setting_file: Optional[str]=None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 

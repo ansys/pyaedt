@@ -128,7 +128,7 @@ class Pin(PyAedtBase):
         Circuit in which the pin will be added to.
     """
 
-    def __init__(self, name, buffername, app) -> None:
+    def __init__(self, name: str, buffername, app) -> None:
         self._name = name
         self._buffer_name = buffername
         self._app = app
@@ -345,7 +345,7 @@ class DifferentialPin(PyAedtBase):
         Circuit to add the pin to.
     """
 
-    def __init__(self, name, buffer_name, app) -> None:
+    def __init__(self, name: str, buffer_name, app) -> None:
         self._buffer_name = buffer_name
         self._app = app
         self._circuit = app._circuit
@@ -699,7 +699,7 @@ class Ibis(PyAedtBase):
     """
 
     # Ibis reader must work independently or in Circuit.
-    def __init__(self, name, app) -> None:
+    def __init__(self, name: str, app) -> None:
         self._app = app
         self.circuit = app._circuit
         self._name = name
@@ -761,7 +761,7 @@ class AMI(PyAedtBase):
     """
 
     # Ibis reader must work independently or in Circuit.
-    def __init__(self, name, app) -> None:
+    def __init__(self, name: str, app) -> None:
         self._app = app
         self.circuit = app._circuit
         self._name = name

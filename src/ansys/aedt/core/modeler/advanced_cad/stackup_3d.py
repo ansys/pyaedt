@@ -89,7 +89,7 @@ class NamedVariable(PyAedtBase):
 
     """
 
-    def __init__(self, application, name, expression) -> None:
+    def __init__(self, application, name: str, expression) -> None:
         self._application = application
         self._name = name
         self._expression = expression
@@ -331,7 +331,7 @@ class Layer3D(PyAedtBase):
         self,
         stackup,
         app,
-        name,
+        name: str,
         layer_type: str = "S",
         material_name: str = "copper",
         thickness: float = 0.035,
@@ -910,7 +910,7 @@ class PadstackLayer(PyAedtBase):
 class Padstack(PyAedtBase):
     """Provides the ``Padstack`` class member of Stackup3D."""
 
-    def __init__(self, app, stackup, name, material: str = "copper") -> None:
+    def __init__(self, app, stackup, name: str, material: str = "copper") -> None:
         self._app = app
         self._stackup = stackup
         self.name = name
@@ -1420,7 +1420,7 @@ class Stackup3D(PyAedtBase):
         return self._duplicated_material_list
 
     @pyaedt_function_handler()
-    def add_padstack(self, name, material: str = "copper"):
+    def add_padstack(self, name: str, material: str = "copper"):
         """Add a new padstack definition.
 
         Parameters
@@ -1441,7 +1441,7 @@ class Stackup3D(PyAedtBase):
     @pyaedt_function_handler()
     def add_layer(
         self,
-        name,
+        name: str,
         layer_type: str = "S",
         material_name: str = "copper",
         thickness: float = 0.035,
@@ -1528,7 +1528,7 @@ class Stackup3D(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_signal_layer(
-        self, name, material: str = "copper", thickness: float = 0.035, fill_material: str = "FR4_epoxy", frequency=None
+        self, name: str, material: str = "copper", thickness: float = 0.035, fill_material: str = "FR4_epoxy", frequency=None
     ):
         """Add a new ground layer to the stackup.
 
@@ -1579,7 +1579,7 @@ class Stackup3D(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def add_dielectric_layer(self, name, material: str = "FR4_epoxy", thickness: float = 0.035, frequency=None):
+    def add_dielectric_layer(self, name: str, material: str = "FR4_epoxy", thickness: float = 0.035, frequency=None):
         """Add a new dielectric layer to the stackup.
 
         Parameters
@@ -1619,7 +1619,7 @@ class Stackup3D(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_ground_layer(
-        self, name, material: str = "copper", thickness: float = 0.035, fill_material: str = "air", frequency=None
+        self, name: str, material: str = "copper", thickness: float = 0.035, fill_material: str = "air", frequency=None
     ):
         """Add a new ground layer to the stackup.
 

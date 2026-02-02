@@ -29,6 +29,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from typing import Optional
 
 
 class BoundaryDictionary(PyAedtBase):
@@ -258,7 +259,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
-    def __init__(self, app, name=None, props=None, create: bool = False) -> None:
+    def __init__(self, app, name: Optional[str]=None, props=None, create: bool = False) -> None:
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:
@@ -564,7 +565,7 @@ class NetworkObject(BoundaryObject):
             self._name = new_network_name
 
     @pyaedt_function_handler()
-    def add_internal_node(self, name, power, mass=None, specific_heat=None):
+    def add_internal_node(self, name: str, power, mass=None, specific_heat=None):
         """Add an internal node to the network.
 
         Parameters
@@ -624,7 +625,7 @@ class NetworkObject(BoundaryObject):
         return new_node
 
     @pyaedt_function_handler()
-    def add_boundary_node(self, name, assignment_type, value):
+    def add_boundary_node(self, name: str, assignment_type, value):
         """
         Add a boundary node to the network.
 
@@ -694,7 +695,7 @@ class NetworkObject(BoundaryObject):
     def add_face_node(
         self,
         assignment,
-        name=None,
+        name: Optional[str]=None,
         thermal_resistance: str = "NoResistance",
         material=None,
         thickness=None,
@@ -891,7 +892,7 @@ class NetworkObject(BoundaryObject):
         return True
 
     @pyaedt_function_handler()
-    def add_link(self, node1, node2, value, name=None) -> bool:
+    def add_link(self, node1, node2, value, name: Optional[str]=None) -> bool:
         """Create links in the network object.
 
         Parameters
@@ -1015,7 +1016,7 @@ class NetworkObject(BoundaryObject):
         return self.update()
 
     class _Link:
-        def __init__(self, node_1, node_2, value, name, network) -> None:
+        def __init__(self, node_1, node_2, value, name: str, network) -> None:
             self.name = name
             if not isinstance(node_1, str):
                 node_1 = "FaceID" + str(node_1)
@@ -1071,7 +1072,7 @@ class NetworkObject(BoundaryObject):
             self._network._links.remove(self)
 
     class _Node:
-        def __init__(self, name, app, network, node_type=None, props=None) -> None:
+        def __init__(self, name: str, app, network, node_type=None, props=None) -> None:
             self.name = name
             self._type = node_type
             self._app = app

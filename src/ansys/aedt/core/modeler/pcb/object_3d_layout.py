@@ -99,7 +99,7 @@ class Object3DLayout(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_property_value(self, name, value):
+    def set_property_value(self, name: str, value):
         """Set a property value.
 
         Parameters
@@ -409,7 +409,7 @@ class Object3DLayout(PyAedtBase):
 
 
 class ModelInfoRlc(PyAedtBase):
-    def __init__(self, component, name) -> None:
+    def __init__(self, component, name: str) -> None:
         self._comp = component
         self._name = name
 
@@ -1037,7 +1037,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 class Geometries3DLayout(Object3DLayout, PyAedtBase):
     """Contains geometries in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name, prim_type: str = "poly", is_void: bool = False) -> None:
+    def __init__(self, primitives, name: str, prim_type: str = "poly", is_void: bool = False) -> None:
         Object3DLayout.__init__(self, primitives, prim_type)
         self.is_void = is_void
         self._name = name
@@ -1213,7 +1213,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         return result.index(max(result))
 
     @pyaedt_function_handler()
-    def get_property_value(self, name):
+    def get_property_value(self, name: str):
         """Retrieve a property value.
 
         Parameters
@@ -1289,7 +1289,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout polygons."""
 
-    def __init__(self, primitives, name, prim_type: str = "poly", is_void: bool = False) -> None:
+    def __init__(self, primitives, name: str, prim_type: str = "poly", is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void)
         self._points = []
 
@@ -1323,7 +1323,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
 class Circle3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout circles."""
 
-    def __init__(self, primitives, name, is_void: bool = False) -> None:
+    def __init__(self, primitives, name: str, is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, "circle", is_void)
 
     @property
@@ -1372,7 +1372,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
 class Rect3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout rectangles."""
 
-    def __init__(self, primitives, name, is_void: bool = False) -> None:
+    def __init__(self, primitives, name: str, is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, "rect", is_void)
 
     @property
@@ -1539,7 +1539,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 class Line3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout lines."""
 
-    def __init__(self, primitives, name, is_void: bool = False) -> None:
+    def __init__(self, primitives, name: str, is_void: bool = False) -> None:
         Geometries3DLayout.__init__(self, primitives, name, "line", is_void)
         self._points = []
         self._center_line = {}

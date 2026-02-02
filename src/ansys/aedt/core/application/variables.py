@@ -860,7 +860,7 @@ class VariableManager(PyAedtBase):
         return vars_to_output
 
     @pyaedt_function_handler()
-    def get_expression(self, name):  # TODO: Should be renamed to "evaluate"
+    def get_expression(self, name: str):  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
 
         Parameters
@@ -883,7 +883,7 @@ class VariableManager(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def aedt_object(self, name):
+    def aedt_object(self, name: str):
         """Retrieve an AEDT object.
 
         Parameters
@@ -900,7 +900,7 @@ class VariableManager(PyAedtBase):
     @pyaedt_function_handler()
     def set_variable(
         self,
-        name,
+        name: str,
         expression=None,
         read_only: bool = False,
         hidden: bool = False,
@@ -1148,7 +1148,7 @@ class VariableManager(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def delete_separator(self, name) -> bool:
+    def delete_separator(self, name: str) -> bool:
         """Delete a separator from either the active project or design.
 
         Parameters
@@ -1188,7 +1188,7 @@ class VariableManager(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def delete_variable(self, name) -> bool:
+    def delete_variable(self, name: str) -> bool:
         """Delete a variable.
 
         Parameters
@@ -1248,7 +1248,7 @@ class VariableManager(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def is_used(self, name):
+    def is_used(self, name: str):
         """Find if a variable is used.
 
         Parameters
@@ -2223,7 +2223,7 @@ class DataSet(PyAedtBase):
     def __init__(
         self,
         app,
-        name,
+        name: str,
         x,
         y,
         z=None,

@@ -44,6 +44,7 @@ from ansys.aedt.core.modules.material import Material
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfaceMaterial
 from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
+from typing import Optional
 
 
 class Materials(PyAedtBase):
@@ -168,7 +169,7 @@ class Materials(PyAedtBase):
 
     @pyaedt_function_handler()
     def _read_materials(self):
-        def get_mat_list(file_name):
+        def get_mat_list(file_name: str):
             mats = []
             _begin_search = re.compile(r"^\$begin '(.+)'")
             with open_file(file_name, "rb") as aedt_fh:
@@ -302,7 +303,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_material(self, name, properties=None):
+    def add_material(self, name: str, properties=None):
         """Add a material with default values.
 
         When the added material object is returned, you can customize
@@ -352,7 +353,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_surface_material(self, name, emissivity=None):
+    def add_surface_material(self, name: str, emissivity=None):
         """Add a surface material.
 
         In AEDT, base properties are loaded from the XML database file ``amat.xml``
@@ -417,7 +418,7 @@ class Materials(PyAedtBase):
         return matprop
 
     @pyaedt_function_handler()
-    def add_material_sweep(self, assignment, name):
+    def add_material_sweep(self, assignment, name: str):
         """Create a sweep material made of an array of materials.
 
         Parameters
@@ -468,7 +469,7 @@ class Materials(PyAedtBase):
         return index
 
     @pyaedt_function_handler()
-    def duplicate_material(self, material, name=None, properties=None):
+    def duplicate_material(self, material, name: Optional[str]=None, properties=None):
         """Duplicate a material.
 
         Parameters
@@ -552,7 +553,7 @@ class Materials(PyAedtBase):
         return new_material
 
     @pyaedt_function_handler()
-    def duplicate_surface_material(self, material, name=None):
+    def duplicate_surface_material(self, material, name: Optional[str]=None):
         """Duplicate a surface material.
 
         Parameters
@@ -762,7 +763,7 @@ class Materials(PyAedtBase):
         return write_configuration_file(json_dict, output_file)
 
     @pyaedt_function_handler()
-    def import_materials_from_file(self, input_file=None):
+    def import_materials_from_file(self, input_file: Optional[str]=None):
         """Import and create materials from a JSON or AMAT file.
 
         Parameters
@@ -862,7 +863,7 @@ class Materials(PyAedtBase):
         return materials_added
 
     @pyaedt_function_handler()
-    def import_materials_from_excel(self, input_file):
+    def import_materials_from_excel(self, input_file: str):
         """Import and create materials from a csv or excel file.
 
         Parameters
@@ -929,7 +930,7 @@ class Materials(PyAedtBase):
         return self.odefinition_manager.GetInUseProjectMaterialNames()
 
     @pyaedt_function_handler
-    def import_materials_from_workbench(self, input_file, name_suffix=None):
+    def import_materials_from_workbench(self, input_file: str, name_suffix=None):
         """Import and create materials from Workbench Engineering Data XML file.
 
         Parameters

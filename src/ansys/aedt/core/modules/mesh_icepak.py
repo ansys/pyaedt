@@ -35,10 +35,11 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.mesh import MeshOperation
+from typing import Optional
 
 
 class CommonRegion(PyAedtBase):
-    def __init__(self, app, name) -> None:
+    def __init__(self, app, name: str) -> None:
         self._app = app
         self._name = name
         self._padding_type = None  # ["Percentage Offset"] * 6
@@ -353,7 +354,7 @@ class Region(CommonRegion):
 class SubRegion(CommonRegion):
     """Provides Icepak mesh subregions properties and methods."""
 
-    def __init__(self, app, parts, name=None) -> None:
+    def __init__(self, app, parts, name: Optional[str]=None) -> None:
         if name is None:
             name = generate_unique_name("SubRegion")
         super(SubRegion, self).__init__(app, name)
@@ -633,7 +634,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             Dictionary-like object to handle settings.
     """
 
-    def __init__(self, units, app, name) -> None:
+    def __init__(self, units, app, name: str) -> None:
         self.manual_settings = False
         self.settings = MeshSettings(self, app)
         self._name = name
@@ -685,7 +686,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
         return False
 
     # backward compatibility
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         try:
             self.__getattribute__(name)
         except AttributeError:
@@ -696,7 +697,7 @@ class MeshRegionCommon(BinaryTreeNode, PyAedtBase):
             else:
                 return self.__dict__[name]
 
-    def __setattr__(self, name, value) -> None:
+    def __setattr__(self, name: str, value) -> None:
         skip_properties = [
             "manual_settings",
             "settings",
@@ -792,7 +793,7 @@ class GlobalMeshRegion(MeshRegionCommon):
 class MeshRegion(MeshRegionCommon):
     """Provides Icepak subregions mesh properties and methods."""
 
-    def __init__(self, app, objects=None, name=None, **kwargs) -> None:
+    def __init__(self, app, objects=None, name: Optional[str]=None, **kwargs) -> None:
         if name is None:
             name = generate_unique_name("MeshRegion")
         super(MeshRegion, self).__init__(
@@ -1146,7 +1147,7 @@ class IcepakMesh(PyAedtBase):
         return meshops
 
     @pyaedt_function_handler()
-    def assign_mesh_level(self, mesh_order, name=None):
+    def assign_mesh_level(self, mesh_order, name: Optional[str]=None):
         """Assign a mesh level to objects.
 
         Parameters
@@ -1185,7 +1186,7 @@ class IcepakMesh(PyAedtBase):
         return list_meshops
 
     @pyaedt_function_handler()
-    def assign_mesh_from_file(self, assignment, file_name, name=None):
+    def assign_mesh_from_file(self, assignment, file_name: str, name: Optional[str]=None):
         """Assign a mesh from a file to objects.
 
         Parameters
@@ -1308,7 +1309,7 @@ class IcepakMesh(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_mesh_region(self, assignment=None, level: int = 5, name=None, **kwargs):
+    def assign_mesh_region(self, assignment=None, level: int = 5, name: Optional[str]=None, **kwargs):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -1353,7 +1354,7 @@ class IcepakMesh(PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def generate_mesh(self, name=None):
+    def generate_mesh(self, name: Optional[str]=None):
         """Generate the mesh for a given setup name.
 
         Parameters
@@ -1381,7 +1382,7 @@ class IcepakMesh(PyAedtBase):
         group_name,
         enable_local_mesh_parameters: bool = False,
         local_mesh_parameters: str = "No local mesh parameters",
-        name=None,
+        name: Optional[str]=None,
     ):
         """Assign a mesh level to a group.
 
@@ -1427,7 +1428,7 @@ class IcepakMesh(PyAedtBase):
         self.meshoperations.append(mop)
         return mop
 
-    def assign_mesh_reuse(self, assignment, mesh_file, name=None):
+    def assign_mesh_reuse(self, assignment, mesh_file, name: Optional[str]=None):
         """Assign a mesh file to objects.
 
         Parameters

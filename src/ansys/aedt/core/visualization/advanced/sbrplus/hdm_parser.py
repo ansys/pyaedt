@@ -139,7 +139,7 @@ class Parser(PyAedtBase):
         else:
             return res
 
-    def _parse_object(self, name):
+    def _parse_object(self, name: str):
         """Parser for an object message."""
         namesdict = {}
         for layout in self.parser_types[name]["layout"]:

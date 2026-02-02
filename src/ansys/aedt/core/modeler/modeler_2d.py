@@ -120,7 +120,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return radius
 
     @pyaedt_function_handler()
-    def radial_split_2D(self, radius, name) -> bool:
+    def radial_split_2D(self, radius, name: str) -> bool:
         """Split the stator and rotor for mesh refinement.
 
         Parameters

@@ -428,7 +428,7 @@ class ModelParameters(PyAedtBase):
             self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
             return False
 
-    def __init__(self, component, name, props) -> None:
+    def __init__(self, component, name: str, props) -> None:
         self.props = props
         self._component = component
         self.name = name
@@ -953,7 +953,7 @@ class CircuitComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_property(self, name, value) -> bool:
+    def set_property(self, name: str, value) -> bool:
         """Set a part property.
 
         Parameters
@@ -1390,7 +1390,7 @@ class Wire(PyAedtBase):
         return self.composed_name.split("@")[1].split(";")[0]
 
     @pyaedt_function_handler()
-    def set_net_name(self, name, split_wires: bool = False) -> bool:
+    def set_net_name(self, name: str, split_wires: bool = False) -> bool:
         """Set wire net name.
 
         Parameters
@@ -1425,7 +1425,7 @@ class Wire(PyAedtBase):
 class Excitations(CircuitComponent):
     """Manages Excitations in Circuit Projects."""
 
-    def __init__(self, circuit_components, name) -> None:
+    def __init__(self, circuit_components, name: str) -> None:
         self._name = name
         CircuitComponent.__init__(self, circuit_components, tabname="PassedParameterTab", custom_editor=None)
 

@@ -42,6 +42,7 @@ from ansys.aedt.core.q3d import Q2d
 from ansys.aedt.core.q3d import Q3d
 from ansys.aedt.core.rmxprt import Rmxprt
 from ansys.aedt.core.twinbuilder import TwinBuilder
+from typing import Optional
 
 Emit = None
 if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
@@ -51,14 +52,14 @@ Simplorer = TwinBuilder
 
 
 def launch_desktop(
-    version=None,
+    version: Optional[str]=None,
     non_graphical: bool = False,
     new_desktop: bool = True,
     close_on_exit: bool = True,
     student_version: bool = False,
     machine: str = "",
     port: int = 0,
-    aedt_process_id=None,
+    aedt_process_id: Optional[int]=None,
 ):
     """Initialize AEDT based on the inputs provided.
 

@@ -34,6 +34,7 @@ from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
 from ansys.aedt.core.emit_core.results.results import Results
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.schematic import ModelerEmit
+from typing import Optional
 
 
 class Emit(Design, PyAedtBase):
@@ -130,17 +131,17 @@ class Emit(Design, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        version=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        solution_type: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = True,
         close_on_exit: bool = True,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         self.__emit_api_enabled = False
@@ -325,7 +326,7 @@ class Emit(Design, PyAedtBase):
         return self._units[unit_type]
 
     @pyaedt_function_handler()
-    def save_project(self, file_name=None, overwrite: bool = True, refresh_ids: bool = False):
+    def save_project(self, file_name: Optional[str]=None, overwrite: bool = True, refresh_ids: bool = False):
         """Save the AEDT project and the current EMIT revision.
 
         Parameters

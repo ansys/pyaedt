@@ -38,6 +38,7 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDe
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_setup import SetupCircuit
+from typing import Optional
 
 
 class FieldAnalysisCircuit(Analysis, PyAedtBase):
@@ -60,14 +61,14 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         Analysis.__init__(
@@ -108,7 +109,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._configurations
 
     @pyaedt_function_handler()
-    def delete_setup(self, name) -> bool:
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters

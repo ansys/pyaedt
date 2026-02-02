@@ -45,7 +45,7 @@ class EmitSceneNode(EmitNode):
         """Add a new scene group"""
         return self._add_child_node("Group")
 
-    def import_cad(self, file_name):
+    def import_cad(self, file_name: str):
         """Add an existing CAD file"""
         return self._import(file_name, "CAD")
 

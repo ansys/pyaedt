@@ -33,7 +33,7 @@ from ansys.aedt.core.modules.circuit_templates import SourceKeys
 class Sources(PyAedtBase):
     """Manages sources in Circuit projects."""
 
-    def __init__(self, app, name, source_type=None) -> None:
+    def __init__(self, app, name: str, source_type=None) -> None:
         self._app = app
         self._name = name
         self._props = self._source_props(name, source_type)
@@ -148,7 +148,7 @@ class Sources(PyAedtBase):
         return source_prop_dict
 
     @pyaedt_function_handler()
-    def _update_command(self, name, source_prop_dict, source_type, fds_filename=None):
+    def _update_command(self, name: str, source_prop_dict, source_type, fds_filename=None):
         command_template = SourceKeys.SourceTemplates[source_type]
         commands = copy.deepcopy(command_template)
         commands[0] = "NAME:" + name
@@ -321,7 +321,7 @@ class Sources(PyAedtBase):
 class PowerSinSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None) -> None:
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -482,7 +482,7 @@ class PowerSinSource(Sources):
 class PowerIQSource(Sources):
     """Power IQ Class."""
 
-    def __init__(self, app, name, source_type=None) -> None:
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -732,7 +732,7 @@ class PowerIQSource(Sources):
 class VoltageFrequencyDependentSource(Sources):
     """Voltage Frequency Dependent Class."""
 
-    def __init__(self, app, name, source_type=None) -> None:
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -840,7 +840,7 @@ class VoltageFrequencyDependentSource(Sources):
         return self._props["fds_filename"]
 
     @fds_filename.setter
-    def fds_filename(self, name) -> None:
+    def fds_filename(self, name: str) -> None:
         if not name:
             self._props["fds_filename"] = None
             self._update_prop()
@@ -894,7 +894,7 @@ class VoltageFrequencyDependentSource(Sources):
 class VoltageDCSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None) -> None:
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -950,7 +950,7 @@ class VoltageDCSource(Sources):
 class VoltageSinSource(Sources):
     """Power Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None) -> None:
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property
@@ -1111,7 +1111,7 @@ class VoltageSinSource(Sources):
 class CurrentSinSource(Sources):
     """Current Sinusoidal Class."""
 
-    def __init__(self, app, name, source_type=None) -> None:
+    def __init__(self, app, name: str, source_type=None) -> None:
         Sources.__init__(self, app, name, source_type)
 
     @property

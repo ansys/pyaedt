@@ -111,7 +111,7 @@ class SweepHFSS(SweepCommon):
 
     """
 
-    def __init__(self, setup, name, sweep_type: str = "Interpolating", props=None) -> None:
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup
         self.oanalysis = setup.omodule
         self.setup_name = setup.name
@@ -385,7 +385,7 @@ class SweepHFSS3DLayout(SweepCommon):
     """
 
     def __init__(
-        self, setup, name, sweep_type: str = "Interpolating", save_fields: bool = True, props=None, **kwargs
+        self, setup, name: str, sweep_type: str = "Interpolating", save_fields: bool = True, props=None, **kwargs
     ) -> None:
         self._app = setup
         self.oanalysis = setup.omodule
@@ -637,7 +637,7 @@ class SweepMatrix(SweepCommon):
         the default properties are retrieved.
     """
 
-    def __init__(self, setup, name, sweep_type: str = "Interpolating", props=None) -> None:
+    def __init__(self, setup, name: str, sweep_type: str = "Interpolating", props=None) -> None:
         self._app = setup  # TODO: Remove sweep_type as an argument as it can be passed in props
         self.oanalysis = setup.omodule
         self.setup_name = setup.name

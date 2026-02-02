@@ -50,7 +50,7 @@ class Waveform(EmitNode):
         """Delete this node"""
         self._delete()
 
-    def import_tx_measurement(self, file_name):
+    def import_tx_measurement(self, file_name: str):
         """Import a Measurement from a File..."""
         return self._import(file_name, "TxMeasurement")
 

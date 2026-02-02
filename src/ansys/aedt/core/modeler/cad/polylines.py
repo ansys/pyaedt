@@ -25,6 +25,7 @@
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
+from typing import Optional
 
 
 class Polyline(Object3d, PyAedtBase):
@@ -96,7 +97,7 @@ class Polyline(Object3d, PyAedtBase):
         segment_type=None,
         cover_surface: bool = False,
         close_surface: bool = False,
-        name=None,
+        name: Optional[str]=None,
         matname=None,
         xsection_type=None,
         xsection_orient=None,

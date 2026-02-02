@@ -63,7 +63,7 @@ AEDT_APPLICATIONS = {
 
 
 def add_automation_tab(
-    name,
+    name: str,
     lib_dir,
     icon_file=None,
     product: str = "Project",
@@ -203,7 +203,7 @@ def create_xml_tab(root, output_file) -> None:
         f.write(xml_str)
 
 
-def is_extension_in_panel(toolkit_dir, product, name, panel: str = "Panel_PyAEDT_Extensions") -> bool:
+def is_extension_in_panel(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
     """Check if a toolkit configuration exists in the panel.
 
     Parameters
@@ -253,7 +253,7 @@ def is_extension_in_panel(toolkit_dir, product, name, panel: str = "Panel_PyAEDT
     return name in button_names
 
 
-def remove_xml_tab(toolkit_dir, product, name, panel: str = "Panel_PyAEDT_Extensions") -> bool:
+def remove_xml_tab(toolkit_dir, product, name: str, panel: str = "Panel_PyAEDT_Extensions") -> bool:
     """Remove a toolkit configuration from the panel.
 
     Parameters
@@ -317,7 +317,7 @@ def available_toolkits():
 
 
 def add_script_to_menu(
-    name,
+    name: str,
     script_file=None,
     template_file: str = "run_pyaedt_toolkit_script",
     icon_file=None,
@@ -684,7 +684,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             desktop_object.logger.info(f"{toolkit_info['name']} uninstalled")
 
 
-def remove_script_from_menu(desktop_object, name, product: str = "Project") -> bool:
+def remove_script_from_menu(desktop_object, name: str, product: str = "Project") -> bool:
     """Remove a toolkit script from the menu.
 
     Parameters

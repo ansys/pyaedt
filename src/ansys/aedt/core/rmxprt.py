@@ -25,7 +25,7 @@
 """This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
 
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.base import PyAedtBase
@@ -64,7 +64,7 @@ class RMXprtModule(PyAedtBase):
 
     @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value) -> None:
-        def _apply_val(dict_in, name, value) -> bool:
+        def _apply_val(dict_in, name: str, value) -> bool:
             if name in dict_in.properties:
                 if (
                     isinstance(dict_in.properties[name], list)
@@ -93,7 +93,7 @@ class RMXprtModule(PyAedtBase):
 
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
-        def _get_val(dict_in, name):
+        def _get_val(dict_in, name: str):
             if name in dict_in.properties:
                 return dict_in.properties[name]
             else:
@@ -221,19 +221,19 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        solution_type: Optional[str]=None,
         model_units=None,
-        setup=None,
-        version=None,
+        setup: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         FieldAnalysisRMxprt.__init__(
@@ -363,7 +363,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def import_configuration(self, input_file) -> bool:
+    def import_configuration(self, input_file: str) -> bool:
         """Parse a json file and assign all the properties to the Rmxprt design.
 
         Parameters

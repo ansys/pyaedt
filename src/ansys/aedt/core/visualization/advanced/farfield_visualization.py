@@ -90,7 +90,7 @@ class FfdSolutionData(PyAedtBase):
     """
 
     def __init__(
-        self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
+        self, input_file: str, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
     ) -> None:
         if isinstance(input_file, Path):
             input_file = str(input_file)
@@ -1624,7 +1624,7 @@ class UpdateBeamForm(PyAedtBase):
 
 @pyaedt_function_handler()
 def export_pyaedt_antenna_metadata(
-    input_file, output_dir, variation=None, model_info=None, power=None, touchstone_file=None
+    input_file: str, output_dir, variation=None, model_info=None, power=None, touchstone_file=None
 ):
     """Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
 
@@ -1796,7 +1796,7 @@ def export_pyaedt_antenna_metadata(
 
 
 @pyaedt_function_handler()
-def antenna_metadata_from_xml(input_file):
+def antenna_metadata_from_xml(input_file: str):
     """Obtain metadata information from metadata XML file.
 
     Parameters

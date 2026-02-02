@@ -1168,7 +1168,7 @@ class Point(PyAedtBase):
     >>> my_point = primitives.points[point.name]
     """
 
-    def __init__(self, primitives, name) -> None:
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._point_coordinate_system = "Global"
         self._color = None
@@ -1362,7 +1362,7 @@ class Plane(PyAedtBase):
     >>> my_plane = primitives.planes[plane.name]
     """
 
-    def __init__(self, primitives, name) -> None:
+    def __init__(self, primitives, name: str) -> None:
         self._name = name
         self._plane_coordinate_system = "Global"
         self._color = None

@@ -57,7 +57,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
-    def __init__(self, app, name, props=None, boundarytype=None) -> None:
+    def __init__(self, app, name: str, props=None, boundarytype=None) -> None:
         self.auto_update = False
         self._app = app
         self._name = name

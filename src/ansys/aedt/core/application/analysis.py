@@ -136,7 +136,7 @@ class Analysis(Design, PyAedtBase):
         student_version,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         ic_mode=None,
         remove_lock: bool = False,
     ) -> None:
@@ -338,7 +338,7 @@ class Analysis(Design, PyAedtBase):
 
     @active_setup.setter
     @pyaedt_function_handler()
-    def active_setup(self, name):
+    def active_setup(self, name: str):
         setup_list = self.setup_names
         if setup_list:
             if name not in setup_list:
@@ -666,7 +666,7 @@ class Analysis(Design, PyAedtBase):
         return list_output
 
     @pyaedt_function_handler()
-    def list_of_variations(self, setup=None, sweep=None):
+    def list_of_variations(self, setup: Optional[str]=None, sweep=None):
         """Retrieve a list of active variations for input setup.
 
         Parameters
@@ -729,7 +729,7 @@ class Analysis(Design, PyAedtBase):
         impedance: int = 50,
         include_gamma_comment: bool = True,
         support_non_standard_touchstone_extension: bool = False,
-        variations=None,
+        variations: Optional[list]=None,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
@@ -1112,7 +1112,7 @@ class Analysis(Design, PyAedtBase):
         return variation
 
     @pyaedt_function_handler()
-    def get_sweeps(self, name):
+    def get_sweeps(self, name: str):
         """Retrieve all sweeps for a setup.
 
         Parameters
@@ -1159,7 +1159,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def generate_unique_setup_name(self, name=None):
+    def generate_unique_setup_name(self, name: Optional[str]=None):
         """Generate a new setup with a unique name.
 
         Parameters
@@ -1276,7 +1276,7 @@ class Analysis(Design, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete_setup(self, name) -> bool:
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters
@@ -1312,7 +1312,7 @@ class Analysis(Design, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def _get_setup(self, name):
+    def _get_setup(self, name: str):
         setuptype = self.design_solutions.default_setup
         if self.solution_type == "SBR+":
             setuptype = 4
@@ -1344,7 +1344,7 @@ class Analysis(Design, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def get_setup(self, name):
+    def get_setup(self, name: str):
         """Get the setup from the current design.
 
         Parameters
@@ -1361,7 +1361,7 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_output_variable(
-        self, variable, expression, solution=None, context=None, is_differential: bool = False
+        self, variable, expression, solution: Optional[str]=None, context=None, is_differential: bool = False
     ) -> bool:
         """Create or modify an output variable.
 
@@ -1472,7 +1472,7 @@ class Analysis(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_output_variable(self, variable, solution=None):
+    def get_output_variable(self, variable, solution: Optional[str]=None):
         """Retrieve the value of the output variable.
 
         Parameters
@@ -1548,7 +1548,7 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze(
         self,
-        setup=None,
+        setup: Optional[str]=None,
         cores=None,
         tasks=None,
         gpus=None,
@@ -1768,7 +1768,7 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def analyze_setup(
         self,
-        name=None,
+        name: Optional[str]=None,
         cores=None,
         tasks=None,
         gpus=None,
@@ -1933,12 +1933,12 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def solve_in_batch(
         self,
-        file_name=None,
+        file_name: Optional[str]=None,
         machine: str = "localhost",
         run_in_thread: bool = False,
         cores: int = 4,
         tasks: int = 1,
-        setup=None,
+        setup: Optional[str]=None,
         revert_to_initial_mesh: bool = False,
     ) -> bool:  # pragma: no cover
         """Analyze a design setup in batch mode.
@@ -2074,11 +2074,11 @@ class Analysis(Design, PyAedtBase):
     def submit_job(
         self,
         cluster_name,
-        aedt_full_exe_path=None,
+        aedt_full_exe_path: Optional[str]=None,
         nodes: int = 1,
         cores: int = 32,
         wait_for_license: bool = True,
-        setting_file=None,
+        setting_file: Optional[str]=None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -2116,8 +2116,8 @@ class Analysis(Design, PyAedtBase):
         self,
         setup_name=None,
         sweep_name=None,
-        file_name=None,
-        variations=None,
+        file_name: Optional[str]=None,
+        variations: Optional[list]=None,
         variations_value=None,
         renormalization: bool = False,
         impedance=None,

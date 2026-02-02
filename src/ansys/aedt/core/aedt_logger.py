@@ -222,7 +222,7 @@ class AedtLogger:
         self._timer = time.time()
         settings.logger = self
 
-    def add_file_logger(self, filename, project_name, level=None):
+    def add_file_logger(self, filename, project_name, level: Optional[int]=None):
         """Add a new file to the logger handlers list."""
         # Ensure the directory exists
         log_path = Path(filename)
@@ -477,7 +477,7 @@ class AedtLogger:
                         message_lists.append(levels[message[0]] + message[1])
         return MessageList(message_lists)
 
-    def add_error_message(self, message_text, level=None) -> None:
+    def add_error_message(self, message_text, level: Optional[int]=None) -> None:
         """
         Add a type 2 "Error" message to the message manager tree.
 
@@ -502,7 +502,7 @@ class AedtLogger:
         """
         self.add_message(2, message_text, level)
 
-    def add_warning_message(self, message_text, level=None) -> None:
+    def add_warning_message(self, message_text, level: Optional[int]=None) -> None:
         """
         Add a type 1 "Warning" message to the message manager tree.
 
@@ -527,7 +527,7 @@ class AedtLogger:
         """
         self.add_message(1, message_text, level)
 
-    def add_info_message(self, message_text, level=None) -> None:
+    def add_info_message(self, message_text, level: Optional[int]=None) -> None:
         """Add a type 0 "Info" message to the active design level of the message manager tree.
 
         Also add an info message to the logger if the handler is present.
@@ -551,7 +551,7 @@ class AedtLogger:
         """
         self.add_message(0, message_text, level)
 
-    def add_debug_message(self, message_text, level=None):
+    def add_debug_message(self, message_text, level: Optional[int]=None):
         """
         Parameterized message to the message manager to specify the type and project or design level.
 
@@ -567,7 +567,7 @@ class AedtLogger:
         """
         return self.add_message(3, message_text, level=level)
 
-    def add_message(self, message_type, message_text, level=None, proj_name=None, des_name=None) -> None:
+    def add_message(self, message_type, message_text, level: Optional[int]=None, proj_name=None, des_name=None) -> None:
         """Add a message to the message manager to specify the type and project or design level.
 
         Parameters
@@ -596,7 +596,7 @@ class AedtLogger:
 
         self._log_on_handler(message_type, message_text)
 
-    def _log_on_dekstop(self, message_type, message_text, level=None, proj_name=None, des_name=None):
+    def _log_on_dekstop(self, message_type, message_text, level: Optional[int]=None, proj_name=None, des_name=None):
         if not proj_name:
             proj_name = ""
 

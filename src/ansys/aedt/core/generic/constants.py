@@ -704,7 +704,7 @@ def deprecate_enum(new_enum):
             __name__ = cls.__name__
             __qualname__ = cls.__qualname__
 
-            def __getattr__(self, name):
+            def __getattr__(self, name: str):
                 warnings.warn(
                     f"{cls.__qualname__} is deprecated. Use {new_enum.__qualname__} instead.",
                     DeprecationWarning,
@@ -736,7 +736,7 @@ class DynamicMeta(type):
                     return member
         return super().__call__(value, *args, **kwargs)
 
-    def __getattribute__(cls, name):
+    def __getattribute__(cls, name: str):
         var = settings.aedt_version if settings.aedt_version else ""
         clname = super().__getattribute__("__name__")
         try:

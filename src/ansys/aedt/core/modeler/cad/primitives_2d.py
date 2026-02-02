@@ -25,6 +25,7 @@
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
+from typing import Optional
 
 
 class Primitives2D(GeometryModeler, PyAedtBase):
@@ -62,7 +63,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         radius,
         num_sides: int = 0,
         is_covered: bool = True,
-        name=None,
+        name: Optional[str]=None,
         material=None,
         non_model: bool = False,
         **kwargs,
@@ -143,7 +144,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         major_radius,
         ratio,
         is_covered: bool=True,
-        name=None,
+        name: Optional[str]=None,
         material=None,
         non_model: bool=False,
         segments: int=0,
@@ -211,7 +212,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, is_covered: bool=True, name=None, material=None, non_model: bool=False, **kwargs):
+    def create_rectangle(self, origin, sizes, is_covered: bool=True, name: Optional[str]=None, material=None, non_model: bool=False, **kwargs):
         """Create a rectangle.
 
         Parameters
@@ -269,7 +270,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_regular_polygon(
-        self, origin, start_point, num_sides: int=6, name=None, material=None, non_model: bool=False, **kwargs
+        self, origin, start_point, num_sides: int=6, name: Optional[str]=None, material=None, non_model: bool=False, **kwargs
     ):
         """Create a rectangle.
 

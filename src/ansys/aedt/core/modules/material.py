@@ -318,7 +318,7 @@ class MatProperty(PyAedtBase):
     >>> matproperty = app.materials["copper"].conductivity
     """
 
-    def __init__(self, material, name, val=None, thermalmodifier=None, spatialmodifier=None) -> None:
+    def __init__(self, material, name: str, val=None, thermalmodifier=None, spatialmodifier=None) -> None:
         self._material = material
         self.logger = self._material.logger
         self._type = "simple"
@@ -1242,7 +1242,7 @@ class CommonMaterial(PyAedtBase):
         The default is ``None``.
     """
 
-    def __init__(self, materials, name, props=None) -> None:
+    def __init__(self, materials, name: str, props=None) -> None:
         self._materials = materials
         self.odefinition_manager = self._materials.odefinition_manager
         self._omaterial_manager = self._materials.omaterial_manager
@@ -1414,7 +1414,7 @@ class Material(CommonMaterial, PyAedtBase):
     def __str__(self) -> str:
         return self.name
 
-    def __init__(self, materiallib, name, props=None, material_update: bool = True) -> None:
+    def __init__(self, materiallib, name: str, props=None, material_update: bool = True) -> None:
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
         self._material_update = material_update
@@ -2762,7 +2762,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         The default is ``True``.
     """
 
-    def __init__(self, materiallib, name, props=None, material_update: bool = True) -> None:
+    def __init__(self, materiallib, name: str, props=None, material_update: bool = True) -> None:
         CommonMaterial.__init__(self, materiallib, name, props)
         self.surface_clarity_type = "Opaque"
         self._material_update = material_update

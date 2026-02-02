@@ -49,7 +49,7 @@ INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extens
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/index.html"
 
 
-def create_new_edb_name(name):
+def create_new_edb_name(name: str):
     suffix = name.split("_")[-1]
     is_int = True
     try:

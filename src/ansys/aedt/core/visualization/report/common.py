@@ -25,7 +25,7 @@
 
 import copy
 import os
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -1072,7 +1072,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._legacy_props["plot_name"]
 
     @plot_name.setter
-    def plot_name(self, name) -> None:
+    def plot_name(self, name: str) -> None:
         if self._is_created:
             if name not in self._post.oreportsetup.GetAllReportNames():
                 self._post.oreportsetup.RenameReport(self._legacy_props["plot_name"], name)
@@ -1351,7 +1351,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return sweep_list
 
     @pyaedt_function_handler()
-    def create(self, name=None) -> bool:
+    def create(self, name: Optional[str]=None) -> bool:
         """Create a report.
 
         Parameters
@@ -1854,7 +1854,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_cartesian_x_marker(self, value, name=None):  # pragma: no cover
+    def add_cartesian_x_marker(self, value, name: Optional[str]=None):  # pragma: no cover
         """Add a cartesian X marker.
 
         .. note::
@@ -1879,7 +1879,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return ""
 
     @pyaedt_function_handler()
-    def add_cartesian_y_marker(self, value, name=None, y_axis: int = 1):  # pragma: no cover
+    def add_cartesian_y_marker(self, value, name: Optional[str]=None, y_axis: int = 1):  # pragma: no cover
         """Add a cartesian Y marker.
 
         .. note::
@@ -2494,7 +2494,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._change_property("Header", "Header", props)
 
     @pyaedt_function_handler()
-    def import_traces(self, input_file, plot_name) -> bool:
+    def import_traces(self, input_file: str, plot_name) -> bool:
         """Import report data from a file into a specified report.
 
         Parameters
@@ -2572,7 +2572,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def add_trace_to_report(self, traces, setup_name=None, variations=None, context=None) -> bool:
+    def add_trace_to_report(self, traces, setup_name=None, variations: Optional[dict]=None, context=None) -> bool:
         """Add a trace to a specific report.
 
         Parameters
@@ -2612,7 +2612,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.expressions = expr
 
     @pyaedt_function_handler()
-    def update_trace_in_report(self, traces, setup_name=None, variations=None, context=None) -> bool:
+    def update_trace_in_report(self, traces, setup_name=None, variations: Optional[dict]=None, context=None) -> bool:
         """Update a trace in a specific report.
 
         Parameters
@@ -2650,7 +2650,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
             self.expressions = expr
 
     @pyaedt_function_handler()
-    def apply_report_template(self, input_file, property_type: str = "Graphical") -> bool:  # pragma: no cover
+    def apply_report_template(self, input_file: str, property_type: str = "Graphical") -> bool:  # pragma: no cover
         """Apply report template.
 
         .. note::
@@ -2694,7 +2694,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_trace_characteristics(self, name, arguments=None, solution_range=None) -> bool:
+    def add_trace_characteristics(self, name: str, arguments: Optional[list] = None, solution_range: Optional[list] = None) -> bool:
         """Add a trace characteristic to the plot.
 
         Parameters

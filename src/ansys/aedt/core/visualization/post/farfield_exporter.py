@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
+from typing import Optional
 
 
 class FfdSolutionDataExporter(PyAedtBase):
@@ -91,7 +92,7 @@ class FfdSolutionDataExporter(PyAedtBase):
         sphere_name,
         setup_name,
         frequencies,
-        variations=None,
+        variations: Optional[dict]=None,
         overwrite: bool = True,
         export_touchstone: bool = True,
         set_phase_center_per_port: bool = True,

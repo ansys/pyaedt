@@ -38,6 +38,7 @@ import warnings
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from typing import Optional
 
 try:
     import pandas as pd
@@ -186,7 +187,7 @@ class FieldSummary(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_field_summary_data(self, setup=None, variation=None, intrinsics: str = "", pandas_output: bool = False):
+    def get_field_summary_data(self, setup: Optional[str]=None, variation=None, intrinsics: str = "", pandas_output: bool = False):
         """
         Get  field summary output computation.
 
@@ -236,7 +237,7 @@ class FieldSummary(PyAedtBase):
         return out_dict
 
     @pyaedt_function_handler()
-    def export_csv(self, output_file, setup=None, variations=None, intrinsics: str = "") -> bool:
+    def export_csv(self, output_file, setup: Optional[str]=None, variations: Optional[dict]=None, intrinsics: str = "") -> bool:
         """
         Get the field summary output computation.
 

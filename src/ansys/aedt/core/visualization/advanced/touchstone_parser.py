@@ -685,7 +685,7 @@ class TouchstoneData(rf.Network, PyAedtBase):
 
 
 @pyaedt_function_handler()
-def read_touchstone(input_file):
+def read_touchstone(input_file: str):
     """Load the contents of a Touchstone file into an NPort.
 
     Parameters

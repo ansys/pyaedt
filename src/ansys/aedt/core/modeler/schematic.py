@@ -343,7 +343,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def change_text_property(self, assignment, name, value) -> bool:
+    def change_text_property(self, assignment, name: str, value) -> bool:
         """Change an oeditor property.
 
         Parameters
@@ -543,7 +543,7 @@ class ModelerNexxim(ModelerCircuit, PyAedtBase):
             return pnames.index(name)
 
     @pyaedt_function_handler()
-    def rename_page(self, page, name) -> bool:
+    def rename_page(self, page, name: str) -> bool:
         """Rename a page in the schematic."""
         pnames = self.page_names
         if page in pnames:

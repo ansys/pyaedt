@@ -42,7 +42,7 @@ class TxSpurNode(EmitNode):
         """The type of this emit node."""
         return self._node_type
 
-    def import_csv_file(self, file_name):
+    def import_csv_file(self, file_name: str):
         """Import a CSV File..."""
         return self._import(file_name, "Csv")
 

@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.checks import min_aedt_version
+from typing import Optional
 
 
 class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
@@ -123,18 +124,18 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        setup=None,
-        version=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        solution_type: Optional[str]=None,
+        setup: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         """Constructor."""
@@ -160,7 +161,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, input_file) -> bool:
+    def create_schematic_from_netlist(self, input_file: str) -> bool:
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -343,7 +344,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_subsheet(self, name, design_name) -> bool:
+    def create_subsheet(self, name: str, design_name) -> bool:
         """Create a subsheet from a parent design.
 
         If the parent design does not exist, it will add at top level.
@@ -646,7 +647,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         project,
         design,
         use_default_values: bool = True,
-        setup=None,
+        setup: Optional[str]=None,
         start=None,
         stop=None,
         export_uniform_points: bool = False,

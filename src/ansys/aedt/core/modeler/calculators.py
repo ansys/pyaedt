@@ -311,7 +311,7 @@ class StandardWaveguide(PyAedtBase):
         return self.wg.keys()
 
     @pyaedt_function_handler()
-    def get_waveguide_dimensions(self, name, units: str = "mm"):
+    def get_waveguide_dimensions(self, name: str, units: str = "mm"):
         """Strip line calculator.
 
         Parameters

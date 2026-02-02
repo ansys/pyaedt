@@ -656,7 +656,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         phase: str = "0deg",
         solid: bool = True,
         swap_direction: bool = False,
-        name=None,
+        name: Optional[str]=None,
     ):
         """Assign current excitation.
 
@@ -960,7 +960,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(motion_name, props, "Band")
 
     @pyaedt_function_handler()
-    def assign_voltage(self, assignment, amplitude: int = 1, name=None):
+    def assign_voltage(self, assignment, amplitude: int = 1, name: Optional[str]=None):
         """Assign a voltage excitation to a list of faces or edges in Maxwell 2D or a list of objects in Maxwell 2D.
 
         Parameters
@@ -1026,7 +1026,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "Voltage")
 
     @pyaedt_function_handler()
-    def assign_voltage_drop(self, assignment, amplitude: int = 1, swap_direction: bool = False, name=None):
+    def assign_voltage_drop(self, assignment, amplitude: int = 1, swap_direction: bool = False, name: Optional[str]=None):
         """Assign a voltage drop across a list of faces to a specific value.
 
         The voltage drop applies only to sheet objects. It is available only for Magnetostatic 3D.
@@ -1074,7 +1074,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "VoltageDrop")
 
     @pyaedt_function_handler()
-    def assign_floating(self, assignment, charge_value: int = 0, name=None):
+    def assign_floating(self, assignment, charge_value: int = 0, name: Optional[str]=None):
         """Assign floating excitation to model conductors at unknown potentials
         and specify the total charge on the conductor.
 
@@ -1161,7 +1161,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         voltage: int = 0,
         parallel_branches: int = 1,
         phase: int = 0,
-        name=None,
+        name: Optional[str]=None,
     ):
         """Assign a winding to a Maxwell design.
 
@@ -1284,7 +1284,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_coil(self, assignment, conductors_number: int = 1, polarity: str = "Positive", name=None):
+    def assign_coil(self, assignment, conductors_number: int = 1, polarity: str = "Positive", name: Optional[str]=None):
         """Assign coils to a list of objects or face IDs.
 
         Parameters
@@ -1516,7 +1516,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(torque_name, prop, "Torque")
 
     @pyaedt_function_handler()
-    def solve_inside(self, name, activate: bool = True) -> bool:
+    def solve_inside(self, name: str, activate: bool = True) -> bool:
         """Solve inside to generate a solution inside an object.
 
         With this method, Maxwell will create a mesh inside the object and generate the solution from the mesh.
@@ -2089,7 +2089,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     def export_element_based_harmonic_force(
         self,
         output_directory=None,
-        setup=None,
+        setup: Optional[str]=None,
         start_frequency=None,
         stop_frequency=None,
         number_of_frequency=None,
@@ -2515,7 +2515,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle Maxwell parameters
-    def _create_boundary(self, name, props, boundary_type):
+    def _create_boundary(self, name: str, props, boundary_type):
         # Non Maxwell parameters cases
         if boundary_type not in ("Force", "Torque", "Matrix", "LayoutForce"):
             return super()._create_boundary(name, props, boundary_type)
@@ -2617,18 +2617,18 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        setup=None,
-        version=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        solution_type: Optional[str]=None,
+        setup: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         """Initialize the ``Maxwell`` class."""
@@ -3323,7 +3323,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         self,
         assignment,
         resistance: str = "1ohm",
-        name=None,
+        name: Optional[str]=None,
         non_linear: bool = False,
         anode_a: str = "300000000",
         anode_b: str = "5",
@@ -3526,7 +3526,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_sink(self, assignment, name=None):
+    def assign_sink(self, assignment, name: Optional[str]=None):
         """Assign sink excitation. Available only in 3D electric solvers but electrostatic.
 
         Parameters
@@ -3678,18 +3678,18 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def __init__(
         self,
-        project=None,
-        design=None,
-        solution_type=None,
-        setup=None,
-        version=None,
+        project: Optional[str]=None,
+        design: Optional[str]=None,
+        solution_type: Optional[str]=None,
+        setup: Optional[str]=None,
+        version: Optional[str]=None,
         non_graphical: bool = False,
         new_desktop: bool = False,
         close_on_exit: bool = False,
         student_version: bool = False,
         machine: str = "",
         port: int = 0,
-        aedt_process_id=None,
+        aedt_process_id: Optional[int]=None,
         remove_lock: bool = False,
     ) -> None:
         self.is3d = False

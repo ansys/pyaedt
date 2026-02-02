@@ -66,7 +66,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, p_app, name, dictinputs, optimtype) -> None:
+    def __init__(self, p_app, name: str, dictinputs, optimtype) -> None:
         self.auto_update = False
         self._app = p_app
         self.omodule = self._app.ooptimetrics
@@ -179,7 +179,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         intrinsics=None,
         report_category=None,
         context=None,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
         polyline_points: int = 0,
         is_goal: bool = False,
     ):
@@ -346,9 +346,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         calculation,
         ranges=None,
         variables=None,
-        solution=None,
+        solution: Optional[str]=None,
         context=None,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
         polyline_points: int = 1001,
         report_type=None,
     ):
@@ -402,9 +402,9 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         calculation,
         ranges=None,
         variables=None,
-        solution=None,
+        solution: Optional[str]=None,
         context=None,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
         polyline_points: int = 1001,
         report_type=None,
         is_goal: bool = False,
@@ -563,7 +563,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
 class SetupOpti(CommonOptimetrics, PyAedtBase):
     """Sets up an optimization in Opimetrics."""
 
-    def __init__(self, app, name, dictinputs=None, optim_type: str = "OptiDesignExplorer") -> None:
+    def __init__(self, app, name: str, dictinputs=None, optim_type: str = "OptiDesignExplorer") -> None:
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
 
     @pyaedt_function_handler()
@@ -590,9 +590,9 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         calculation,
         ranges,
         variables=None,
-        solution=None,
+        solution: Optional[str]=None,
         context=None,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
         polyline_points: int = 1001,
         report_type=None,
         condition: str = "<=",
@@ -787,7 +787,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
 class SetupParam(CommonOptimetrics, PyAedtBase):
     """Sets up a parametric analysis in Optimetrics."""
 
-    def __init__(self, p_app, name, dictinputs=None, optim_type: str = "OptiParametric") -> None:
+    def __init__(self, p_app, name: str, dictinputs=None, optim_type: str = "OptiParametric") -> None:
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
         pass
 
@@ -1017,8 +1017,8 @@ class ParametricSetups(PyAedtBase):
         end_point=None,
         step: int = 100,
         variation_type: str = "LinearCount",
-        solution=None,
-        name=None,
+        solution: Optional[str]=None,
+        name: Optional[str]=None,
     ):
         """Add a basic sensitivity analysis.
         You can customize all options after the analysis is added.
@@ -1078,7 +1078,7 @@ class ParametricSetups(PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete(self, name) -> bool:
+    def delete(self, name: str) -> bool:
         """Delete a defined Parametric Setup.
 
         Parameters
@@ -1098,7 +1098,7 @@ class ParametricSetups(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def add_from_file(self, input_file, name=None):
+    def add_from_file(self, input_file: str, name: Optional[str]=None):
         """Add a Parametric setup from either a csv or txt file.
 
         Parameters
@@ -1212,7 +1212,7 @@ class OptimizationSetups(PyAedtBase):
         return self._app.ooptimetrics
 
     @pyaedt_function_handler()
-    def delete(self, name) -> bool:
+    def delete(self, name: str) -> bool:
         """Delete a defined Optimetrics Setup.
 
         Parameters
@@ -1241,10 +1241,10 @@ class OptimizationSetups(PyAedtBase):
         condition: str = "<=",
         goal_value: int = 1,
         goal_weight: int = 1,
-        solution=None,
-        name=None,
+        solution: Optional[str]=None,
+        name: Optional[str]=None,
         context=None,
-        subdesign_id=None,
+        subdesign_id: Optional[int]=None,
         polyline_points: int = 1001,
         report_type=None,
     ):

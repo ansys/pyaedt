@@ -208,7 +208,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return xpos, ypos, zpos
 
     @pyaedt_function_handler()
-    def change_property(self, assignment, name, value, aedt_tab: str = "BaseElementTab") -> bool:
+    def change_property(self, assignment, name: str, value, aedt_tab: str = "BaseElementTab") -> bool:
         """Change an oeditor property.
 
         Parameters
@@ -335,7 +335,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return comp
 
     @pyaedt_function_handler()
-    def change_clip_plane_position(self, name, location):
+    def change_clip_plane_position(self, name: str, location):
         """Change the clip plane position.
 
         Parameters
@@ -463,7 +463,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return assignment
 
     @pyaedt_function_handler()
-    def import_cadence_brd(self, input_file, output_dir=None, name=None) -> bool:
+    def import_cadence_brd(self, input_file: str, output_dir=None, name: Optional[str]=None) -> bool:
         """Import a cadence board.
 
         Parameters
@@ -516,7 +516,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def import_ipc2581(self, input_file, output_dir=None, name=None) -> bool:
+    def import_ipc2581(self, input_file: str, output_dir=None, name: Optional[str]=None) -> bool:
         """Import an IPC file.
 
         Parameters
@@ -906,7 +906,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_touchstone_model(self, assignment, input_file, model_name=None):
+    def set_touchstone_model(self, assignment, input_file: Optional[Union[str, Path]] = None, model_name=None):
         """Assign a Touchstone model to a component.
 
         Parameters

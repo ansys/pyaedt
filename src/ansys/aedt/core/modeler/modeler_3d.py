@@ -38,6 +38,7 @@ from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
+from typing import Optional
 
 
 class Modeler3D(Primitives3D, PyAedtBase):
@@ -67,8 +68,8 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def create_3dcomponent(
         self,
-        input_file,
-        name=None,
+        input_file: str,
+        name: Optional[str]=None,
         variables_to_include=None,
         assignment=None,
         boundaries=None,
@@ -396,7 +397,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
     @pyaedt_function_handler()
     def replace_3dcomponent(
         self,
-        name=None,
+        name: Optional[str]=None,
         variables_to_include=None,
         assignment=None,
         boundaries=None,
@@ -639,7 +640,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         parametrize_w: bool = False,
         parametrize_h: bool = False,
         create_sheets_on_openings: bool = False,
-        name=None,
+        name: Optional[str]=None,
     ):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
 
@@ -821,7 +822,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         cone_height,
         ring_height,
         thickness=None,
-        name=None,
+        name: Optional[str]=None,
     ):
         """Create rings in a conical shape.
 

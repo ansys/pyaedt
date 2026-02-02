@@ -39,6 +39,7 @@ from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
+from typing import Optional, Union
 
 
 class CircuitComponents(PyAedtBase):
@@ -90,7 +91,7 @@ class CircuitComponents(PyAedtBase):
         self.limits_mils = 20000
 
     @pyaedt_function_handler()
-    def get_wire_by_name(self, name):
+    def get_wire_by_name(self, name: str):
         """Wire class by name.
 
         Parameters
@@ -274,7 +275,7 @@ class CircuitComponents(PyAedtBase):
         return comp_id
 
     @pyaedt_function_handler()
-    def add_pin_iports(self, name, id_num) -> bool:
+    def add_pin_iports(self, name: str, id_num) -> bool:
         """Add ports on pins.
 
         Parameters
@@ -300,7 +301,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_interface_port(self, name, location=None, angle: int = 0, page: int = 1):
+    def create_interface_port(self, name: str, location=None, angle: int = 0, page: int = 1):
         """Create an interface port.
 
         Parameters
@@ -344,7 +345,7 @@ class CircuitComponents(PyAedtBase):
         return self._app.design_excitations[name]
 
     @pyaedt_function_handler()
-    def create_page_port(self, name, location=None, angle: int = 0, label_position: str = "Auto", page: int = 1):
+    def create_page_port(self, name: str, location=None, angle: int = 0, label_position: str = "Auto", page: int = 1):
         """Create a page port.
 
         Parameters
@@ -462,7 +463,7 @@ class CircuitComponents(PyAedtBase):
                 return self.components[el]
 
     @pyaedt_function_handler()
-    def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap: bool = True, image_path=None):
+    def create_model_from_touchstone(self, input_file: Union[str, Path], model_name=None, show_bitmap: bool = True, image_path=None):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -721,7 +722,7 @@ class CircuitComponents(PyAedtBase):
         return model_name
 
     @pyaedt_function_handler()
-    def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None, port_names=None):
+    def create_model_from_nexxim_state_space(self, input_file: str, num_terminal, model_name=None, port_names=None):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -1083,7 +1084,7 @@ class CircuitComponents(PyAedtBase):
     @pyaedt_function_handler()
     def create_component(
         self,
-        name=None,
+        name: Optional[str]=None,
         component_library: str = "Resistors",
         component_name: str = "RES_",
         location=None,
@@ -1228,7 +1229,7 @@ class CircuitComponents(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_symbol(self, name, pins) -> bool:
+    def create_symbol(self, name: str, pins) -> bool:
         """Create a symbol.
 
         Parameters
@@ -1390,7 +1391,7 @@ class CircuitComponents(PyAedtBase):
         return len(self.components)
 
     @pyaedt_function_handler()
-    def add_id_to_component(self, component_id, name=None):
+    def add_id_to_component(self, component_id, name: Optional[str]=None):
         """Add an ID to a component.
 
         Parameters
@@ -1608,7 +1609,7 @@ class CircuitComponents(PyAedtBase):
 class ComponentInfo(PyAedtBase):
     """Manages Circuit Catalog info."""
 
-    def __init__(self, name, component_manager, file_name, component_library) -> None:
+    def __init__(self, name: str, component_manager, file_name: str, component_library) -> None:
         self._component_manager = component_manager
         self.file_name = file_name
         self.name = name

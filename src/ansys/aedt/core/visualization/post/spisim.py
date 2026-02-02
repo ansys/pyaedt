@@ -213,7 +213,7 @@ class SpiSim(PyAedtBase):
     def working_directory(self, val) -> None:
         self._working_directory = val
 
-    def _copy_to_relative_path(self, file_name):
+    def _copy_to_relative_path(self, file_name: str):
         """Convert a path to a relative path."""
         if not pathlib.Path(file_name).is_file():
             return file_name
@@ -752,7 +752,7 @@ class DataSet(PyAedtBase):
 
     def __init__(
         self,
-        name,
+        name: str,
         whattype,
         datalen,
     ) -> None:
@@ -794,7 +794,7 @@ class Trace(DataSet):
 
     def __init__(
         self,
-        name,
+        name: str,
         whattype,
         datalen,
         axis,

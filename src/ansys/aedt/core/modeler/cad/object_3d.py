@@ -56,6 +56,7 @@ from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from typing import Optional
 
 
 class Object3d(PyAedtBase):
@@ -84,7 +85,7 @@ class Object3d(PyAedtBase):
     def __repr__(self) -> str:
         return self.name
 
-    def __init__(self, primitives, name=None) -> None:
+    def __init__(self, primitives, name: Optional[str]=None) -> None:
         self._id = None
         self._positions = None
         if name:
@@ -860,7 +861,7 @@ class Object3d(PyAedtBase):
         return self._m_groupName
 
     @group_name.setter
-    def group_name(self, name) -> None:
+    def group_name(self, name: str) -> None:
         """Assign Object to a specific group. It creates a new group if the group doesn't exist.
 
         Parameters

@@ -181,7 +181,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         quantity,
         side: str = "Default",
         setup_name=None,
-        variations=None,
+        variations: Optional[dict]=None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
@@ -239,7 +239,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         side: str = "Default",
         volume: bool = False,
         setup_name=None,
-        variations=None,
+        variations: Optional[dict]=None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
@@ -302,7 +302,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         quantity,
         side: str = "Default",
         setup_name=None,
-        variations=None,
+        variations: Optional[dict]=None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
@@ -362,7 +362,7 @@ class PostProcessorIcepak(PostProcessor3D, PyAedtBase):
         side: str = "Default",
         volume: bool = False,
         setup_name=None,
-        variations=None,
+        variations: Optional[dict]=None,
         ref_temperature: str = "",
         time: str = "0s",
     ):
