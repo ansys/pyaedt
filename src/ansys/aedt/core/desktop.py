@@ -56,6 +56,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import available_license_feature
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import _get_target_processes
 from ansys.aedt.core.generic.general_methods import _is_version_format_valid
 from ansys.aedt.core.generic.general_methods import _normalize_version_to_string
 from ansys.aedt.core.generic.general_methods import active_sessions
@@ -307,6 +308,21 @@ def launch_aedt(
         time.sleep(1)
 
     if timeout == 0:
+        if student_version:
+            target = ["ansysedtsv", "ansysedtsv.exe"] if is_linux else ["ansysedtsv.exe"]
+        else:
+            target = ["ansysedt", "ansysedt.exe"] if is_linux else ["ansysedt.exe"]
+        target_processes = _get_target_processes(target)
+        for process in target_processes:
+            if "-grpcsrv" in process:
+                try:
+                    prt_str = process[process.index("-grpcsrv") + 1].split(":")
+                    prt = int(prt_str[0]) if len(prt_str) == 1 else int(prt_str[1])
+                    if prt == port:
+                        pyaedt_logger.warning(f"Failed to retrieve connection but found aedt executable on {port}")
+                        return True, port
+                except Exception:
+                    continue
         pyaedt_logger.error(f"Failed to start on gRPC port: {port}.")
         return False, 0
 

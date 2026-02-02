@@ -213,7 +213,7 @@ class Settings(PyAedtBase):
         self.__force_error_on_missing_project = False
         self.__enable_pandas_output = False
         self.__edb_dll_path: Optional[str] = None
-        self.__desktop_launch_timeout: int = 240
+        self.__desktop_launch_timeout: int = 120
         self.__number_of_grpc_api_retries: int = 6
         self.__retry_n_times_time_interval: float = 0.1
         self.__wait_for_license: bool = False
@@ -722,7 +722,7 @@ class Settings(PyAedtBase):
 
     @property
     def desktop_launch_timeout(self):
-        """Timeout in seconds for trying to launch AEDT. The default is ``240`` seconds."""
+        """Timeout in seconds for trying to launch AEDT. The default is ``120`` seconds."""
         return self.__desktop_launch_timeout
 
     @desktop_launch_timeout.setter
