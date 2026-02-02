@@ -1278,7 +1278,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def set_differential_pair(
         self,
-        assignment,
+        assignment: str,
         reference,
         common_mode: Optional[str] = None,
         differential_mode: Optional[str] = None,

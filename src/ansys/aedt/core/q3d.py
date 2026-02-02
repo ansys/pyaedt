@@ -124,12 +124,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def insert_reduced_matrix(
         self,
-        operation_name,
+        operation_name: str,
         assignment=None,
-        reduced_matrix=None,
-        new_net_name=None,
-        new_source_name=None,
-        new_sink_name=None,
+        reduced_matrix: Optional[str] = None,
+        new_net_name: Optional[str] = None,
+        new_source_name: Optional[str] = None,
+        new_sink_name: Optional[str] = None,
     ):
         """Insert a new reduced matrix.
 
