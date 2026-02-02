@@ -242,11 +242,12 @@ def desktop(tmp_path_factory, request):
     desktop_app.odesktop.SetProjectDirectory(str(base))
 
     desktop_app.disable_autosave()
-
+    pid = desktop_app.aedt_process_id
     yield desktop_app
 
     try:
-        desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
+        os.kill(pid, 9)
+        # desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
     except Exception as e:
         raise Exception("Failed to close Desktop instance") from e
 
