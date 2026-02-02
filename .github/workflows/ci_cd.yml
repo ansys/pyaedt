@@ -1292,9 +1292,9 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+# =================================================================================================
+# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# =================================================================================================
 
 #   system-tests-extensions-linux:
 #     name: Test extensions (linux)
