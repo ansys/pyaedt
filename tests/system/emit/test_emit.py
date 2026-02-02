@@ -324,7 +324,7 @@ def test_duplicate_components(emit_app):
     assert isinstance(dup_power_divider, PowerDivider)
 
     # Test TR_Switch duplication
-    # TODO enable once "TR Switch" correctly creates TR_Switch instead of EmitNode
+    # TODO: enable once "TR Switch" correctly creates TR_Switch instead of EmitNode
     # tr_switch: TR_Switch = emit_app.schematic.create_component("TR Switch", name="new TR Switch")
     # dup_tr_switch = tr_switch.duplicate("dup TR Switch")
     # assert dup_tr_switch is not None
