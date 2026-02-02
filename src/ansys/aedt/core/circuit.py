@@ -30,6 +30,7 @@ from pathlib import Path
 import re
 import shutil
 import time
+from typing import Optional
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -837,7 +838,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         design: Optional[str]=None,
         setup: Optional[str]=None,
         is_solution_file: bool = False,
-        filename: Optional[str]=None,
+        filename: Optional[str] = None,
         passivity: bool = False,
         causality: bool = False,
         renormalize: bool = False,

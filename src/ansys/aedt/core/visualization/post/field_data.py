@@ -29,6 +29,7 @@ import os
 import shutil
 import sys
 import tempfile
+from typing import Optional
 import warnings
 
 from ansys.aedt.core.base import PyAedtBase
@@ -41,7 +42,6 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-from typing import Optional
 
 try:
     import pandas as pd
@@ -1266,7 +1266,7 @@ class FieldPlot(PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def get_points_value(self, points, filename: Optional[str]=None, visibility: bool = False):  # pragma: no cover
+    def get_points_value(self, points, filename: Optional[str] = None, visibility: bool = False):  # pragma: no cover
         """
         Get points data from field plot.
 
