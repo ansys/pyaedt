@@ -830,6 +830,28 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 
 @pyaedt_function_handler()
+def _check_psutil_connections(pids):
+    connections = {i: [] for i in pids}
+    for conn in psutil.net_connections(kind="tcp"):
+        try:
+            if conn.pid in pids:
+                connections[conn.pid].append({"ip": conn.laddr.ip, "port": conn.laddr.port, "status": conn.status})
+        except Exception:
+            continue
+    return connections
+
+
+@pyaedt_function_handler()
+def _check_connection_grpc_port(connections, pid):
+    for ip in ["::", "127.0.0.1"]:
+        for input_pid, conn in connections.items():
+            for el in conn:
+                if input_pid == pid and el["ip"] == ip and el["status"] == "LISTEN":
+                    return el["port"]
+    return -1
+
+
+@pyaedt_function_handler()
 def is_grpc_session_active(port):
     """Check if a gRPC session is active on the specified port.
 
@@ -887,17 +909,10 @@ def is_grpc_session_active(port):
         # Port will be determined later through socket/connection analysis
         return_dict = {pid: -1 for pid, _ in target_processes}
 
-        for conn in psutil.net_connections(kind="tcp"):
-            try:
-                if (
-                    conn.laddr.ip in ["127.0.0.1", "::"]
-                    and conn.pid in return_dict
-                    and conn.status == psutil.CONN_LISTEN
-                    and conn.laddr.port == port
-                ):
-                    return True
-            except Exception:
-                continue
+        connections = _check_psutil_connections(list(return_dict.keys()))
+        for pid in return_dict.keys():
+            if _check_connection_grpc_port(connections, pid) == port:
+                return True
     return False
 
 
@@ -999,20 +1014,9 @@ def active_sessions(
 
     # Fallback: Try to find ports by checking network connections for remaining unknown ports
     if any(port == -1 for port in return_dict.values()):
-        for conn in psutil.net_connections(kind="tcp"):
-            try:
-                if (
-                    conn.laddr.ip in ["127.0.0.1", "::"]
-                    and conn.pid in return_dict
-                    and conn.status == psutil.CONN_LISTEN
-                    and conn.laddr.port in available_ports
-                ):
-                    return_dict[conn.pid] = conn.laddr.port
-                    # Stop if all ports are resolved
-                    if not any(port == -1 for port in return_dict.values()):
-                        break
-            except Exception:
-                continue
+        connections = _check_psutil_connections(list(return_dict.keys()))
+        for pid in [i for i, v in return_dict.items() if v == -1]:
+            return_dict[pid] = _check_connection_grpc_port(connections, pid)
 
     return return_dict
 
