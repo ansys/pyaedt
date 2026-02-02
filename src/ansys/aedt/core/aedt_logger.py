@@ -30,9 +30,9 @@ import shutil
 import sys
 import tempfile
 import time
+from typing import Optional
 
 from ansys.aedt.core.generic.settings import settings
-from typing import Optional
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
 
@@ -158,7 +158,9 @@ class AedtLogger:
         Whether to write log messages to stdout. The default is ``False``.
     """
 
-    def __init__(self, level=logging.DEBUG, filename: Optional[str]=None, to_stdout: bool = False, desktop=None) -> None:
+    def __init__(
+        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop=None
+    ) -> None:
         self._desktop_class = desktop
         self._oproject = None
         self._odesign = None
