@@ -478,7 +478,7 @@ class EmitNode:
         oEditor = emit_design._oeditor
 
         self_bb = oEditor.GetComponentBoundingBox(self.name) #[[xBottom,yBottom],[width,height]] in meters
-        offset_y = -0.00508 - self_bb[1][1] #0.00508meters == 200mil wich is the height of a radio
+        offset_y = -0.00508 - self_bb[1][1] #0.00508meters == 200mil which is the height of a radio
         offset_x = self_bb[1][0]/2
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
