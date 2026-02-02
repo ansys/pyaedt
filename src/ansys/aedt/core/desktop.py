@@ -2249,7 +2249,7 @@ class Desktop(PyAedtBase):
         return dict_out
 
     @pyaedt_function_handler()
-    def download_job_results(self, job_id, project_path, results_folder, filter: str = "*"):  # pragma: no cover
+    def download_job_results(self, job_id, project_path, results_folder, file_type_filter: str = "*"):  # pragma: no cover
         """Download job results to a specific folder from Ansys Cloud.
 
         Parameters
@@ -2260,7 +2260,7 @@ class Desktop(PyAedtBase):
             Project path to aedt file. The ".q" file will be created there to monitor download status.
         results_folder : str
             Folder where the simulation results will be downloaded.
-        filter : str, optional
+        file_type_filter : str, optional
             A string containing filters to download. The delimiter of file types is ";". If no filter
             specified, the default filter "*" will be applied, which requests all files for download
 
@@ -2268,7 +2268,7 @@ class Desktop(PyAedtBase):
         -------
         bool
         """
-        download_status = self.odesktop.DownloadJobResults(job_id, project_path, results_folder, filter)
+        download_status = self.odesktop.DownloadJobResults(job_id, project_path, results_folder, file_type_filter)
         return True if download_status == 1 else False
 
     @pyaedt_function_handler()

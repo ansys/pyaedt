@@ -2057,9 +2057,9 @@ class Padstack(PyAedtBase):
     class PDSLayer(PyAedtBase):
         """Manages properties of a padstack layer."""
 
-        def __init__(self, layername: str = "Default", id: int = 1) -> None:
+        def __init__(self, layername: str = "Default", layer_id: int = 1) -> None:
             self.layername = layername
-            self.id = id
+            self.id = layer_id
             self._pad = None
             self._antipad = None
             self._thermal = None

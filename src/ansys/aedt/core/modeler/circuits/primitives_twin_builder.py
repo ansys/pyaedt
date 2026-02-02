@@ -244,7 +244,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     def create_voltage_source(
         self,
         name=None,
-        type: str = "E",
+        source_type: str = "E",
         amplitude: int = 326,
         freq: int = 50,
         location=None,
@@ -257,7 +257,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         ----------
         name : str, optional
             Name of the voltage source. The default is ``None``.
-        type  : str, optional
+        source_type  : str, optional
             Type of the source. The default is ``E``.
         amplitude : float, optional
             Amplitude of the waveform if periodic. The default is ``326V``
@@ -291,11 +291,11 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        id.set_property("Type", type)
+        id.set_property("Type", source_type)
 
-        if type == "E":
+        if source_type == "E":
             id.set_property("EMF", amplitude)
-        if type == "ESINE" or type == "EPULSE" or type == "ETRIANG":
+        if source_type == "ESINE" or source_type == "EPULSE" or source_type == "ETRIANG":
             id.set_property("AMPL", amplitude)
             id.set_property("FREQ", freq)
             id.set_property("TPERIO", "Tend+1")
@@ -419,7 +419,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
     def create_periodic_waveform_source(
         self,
         name=None,
-        type: str = "SINE",
+        waveform_type: str = "SINE",
         amplitude: int = 100,
         freq: int = 50,
         phase: int = 0,
@@ -470,13 +470,13 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         id = self.create_component(
             name,
             component_library="Basic Elements\\Tools\\Time Functions",
-            component_name=type,
+            component_name=waveform_type,
             location=location,
             angle=angle,
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        if type in ["SINE", "PULSE", "TRIANG", "SAWTOOTH"]:
+        if waveform_type in ["SINE", "PULSE", "TRIANG", "SAWTOOTH"]:
             id.set_property("AMPL", amplitude)
             id.set_property("FREQ", freq)
             id.set_property("PHASE", phase)
