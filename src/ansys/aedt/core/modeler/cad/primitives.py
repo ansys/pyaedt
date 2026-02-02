@@ -1172,7 +1172,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return len(self.objects)
 
     @pyaedt_function_handler()
-    def get_objects_by_material(self, material=None):
+    def get_objects_by_material(self, material: Optional[str]=None):
         """Get a list of objects either of a specified material or classified by material.
 
         Parameters
@@ -6976,7 +6976,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         cover_surface: bool = False,
         close_surface: bool = False,
         name: Optional[str] = None,
-        material=None,
+        material: Optional[str]=None,
         xsection_type=None,
         xsection_orient=None,
         xsection_width: int = 1,
@@ -8707,7 +8707,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return list_objs
 
     @pyaedt_function_handler()
-    def _check_material(self, material, default_material, threshold: int = 100000):
+    def _check_material(self, material: str, default_material: str, threshold: int = 100000):
         """Check for a material name.
 
         If a material name exists, it is assigned. Otherwise, the material
@@ -8900,7 +8900,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return o
 
     @pyaedt_function_handler()
-    def _default_object_attributes(self, name: Optional[str] = None, material=None, flags: str = ""):
+    def _default_object_attributes(self, name: Optional[str] = None, material: Optional[str]=None, flags: str = ""):
         if not material:
             material = self.defaultmaterial
 
@@ -9090,7 +9090,7 @@ class GeometryModeler(Modeler, PyAedtBase):
         return native_comp_properties
 
     @pyaedt_function_handler()
-    def _get_object_dict_by_material(self, material):
+    def _get_object_dict_by_material(self, material: str):
         obj_dict = {}
         for mat in material:
             objs = []

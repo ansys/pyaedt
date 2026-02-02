@@ -127,7 +127,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         self.multiparts = []
 
     @pyaedt_function_handler()
-    def create_box(self, origin, sizes, name: Optional[str] = None, material=None, **kwargs) -> "Object3d":
+    def create_box(self, origin, sizes, name: Optional[str] = None, material: Optional[str]=None, **kwargs) -> "Object3d":
         """Create a box.
 
         Parameters
@@ -206,7 +206,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         height,
         num_sides: int = 0,
         name: Optional[str] = None,
-        material=None,
+        material: Optional[str]=None,
         **kwargs,
     ):
         """Create a cylinder.
@@ -297,7 +297,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     # fmt: off
     @pyaedt_function_handler()
     def create_polyhedron(self, orientation=None, center=(0.0, 0.0, 0.0), origin=(0.0, 1.0, 0.0),
-                          height: float=1.0, num_sides: int=12, name: Optional[str]=None, material=None, **kwargs):  # fmt: on
+                          height: float=1.0, num_sides: int=12, name: Optional[str]=None, material: Optional[str]=None, **kwargs):  # fmt: on
         """Create a regular polyhedron.
 
         Parameters
@@ -377,7 +377,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_cone(self, orientation, origin, bottom_radius, top_radius, height, name: Optional[str]=None, material=None, **kwargs):
+    def create_cone(self, orientation, origin, bottom_radius, top_radius, height, name: Optional[str]=None, material: Optional[str]=None, **kwargs):
         """Create a cone.
 
         Parameters
@@ -460,7 +460,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_sphere(self, origin, radius, name: Optional[str]=None, material=None, **kwargs):
+    def create_sphere(self, origin, radius, name: Optional[str]=None, material: Optional[str]=None, **kwargs):
         """Create a sphere.
 
         Parameters
@@ -521,7 +521,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_torus(self, origin, major_radius, minor_radius, axis=None, name: Optional[str]=None, material=None, **kwargs):
+    def create_torus(self, origin, major_radius, minor_radius, axis=None, name: Optional[str]=None, material: Optional[str]=None, **kwargs):
         """Create a torus.
 
         Parameters
@@ -598,7 +598,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     # fmt: off
     @pyaedt_function_handler()
     def create_bondwire(self, start, end, h1: float=0.2, h2: int=0, alpha: int=80, beta: int=5, bond_type: int=0,
-                        diameter: float=0.025, facets: int=6, name: Optional[str]=None, material=None, orientation: str="Z", **kwargs):  # fmt: on
+                        diameter: float=0.025, facets: int=6, name: Optional[str]=None, material: Optional[str]=None, orientation: str="Z", **kwargs):  # fmt: on
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
         """Create a bondwire.
@@ -748,7 +748,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         origin,
         sizes,
         name: Optional[str]=None,
-        material=None,
+        material: Optional[str]=None,
         is_covered: bool=True,
         **kwargs
     ) -> "Object3d":
@@ -810,7 +810,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     # fmt: off
     @pyaedt_function_handler()
     def create_circle(self, orientation, origin, radius, num_sides: int=0, is_covered: bool=True, name: Optional[str]=None,
-                      material=None, non_model: bool=False, **kwargs):  # fmt: on
+                      material: Optional[str]=None, non_model: bool=False, **kwargs):  # fmt: on
         """Create a circle.
 
         Parameters
@@ -899,7 +899,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             ratio,
             is_covered: bool=True,
             name: Optional[str]=None,
-            material=None,
+            material: Optional[str]=None,
             segments: int=0,
             **kwargs
     ):
@@ -2792,7 +2792,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return returned_list
 
     @pyaedt_function_handler()
-    def _make_winding(self, name: str, material, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer):
+    def _make_winding(self, name: str, material: str, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer):
         import math
 
         teta_r = radians(teta)
@@ -2847,7 +2847,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def _make_double_linked_winding(
             self,
             name: str,
-            material,
+            material: str,
             in_rad,
             out_rad,
             height,
@@ -2906,7 +2906,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def _make_triple_linked_winding(
             self,
             name: str,
-            material,
+            material: str,
             in_rad,
             out_rad,
             height,
@@ -2981,7 +2981,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def _make_double_winding(
             self,
             name: str,
-            material,
+            material: str,
             in_rad,
             out_rad,
             height,
@@ -3021,7 +3021,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     def _make_triple_winding(
             self,
             name: str,
-            material,
+            material: str,
             in_rad,
             out_rad,
             height,
@@ -3076,7 +3076,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return list_object
 
     @pyaedt_function_handler()
-    def _make_core(self, name: str, material, in_rad, out_rad, height, chamfer):
+    def _make_core(self, name: str, material: str, in_rad, out_rad, height, chamfer):
         tool = self.create_cylinder("Z", [0, 0, -height / 2], in_rad, height, 0, "Tool", material=material)
         core = self.create_cylinder("Z", [0, 0, -height / 2], out_rad, height, 0, name=name, material=material)
         core.subtract(tool, False)

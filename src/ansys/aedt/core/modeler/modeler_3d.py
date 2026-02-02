@@ -636,7 +636,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         wgmodel: str = "WG0",
         wg_length: int = 100,
         wg_thickness=None,
-        wg_material: str = "aluminum",
+        wg_material: Optional[str] = "aluminum",
         parametrize_w: bool = False,
         parametrize_h: bool = False,
         create_sheets_on_openings: bool = False,

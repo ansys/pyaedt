@@ -243,7 +243,7 @@ class Materials(PyAedtBase):
         return mats
 
     @pyaedt_function_handler()
-    def exists_material(self, material):
+    def exists_material(self, material: str):
         """Check if a material exists in AEDT or PyAEDT Definitions.
 
         Parameters
@@ -280,7 +280,7 @@ class Materials(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def check_thermal_modifier(self, material) -> bool:
+    def check_thermal_modifier(self, material: str) -> bool:
         """Check a material to see if it has any thermal modifiers.
 
         Parameters
@@ -469,7 +469,7 @@ class Materials(PyAedtBase):
         return index
 
     @pyaedt_function_handler()
-    def duplicate_material(self, material, name: Optional[str] = None, properties=None):
+    def duplicate_material(self, material: str, name: Optional[str] = None, properties=None):
         """Duplicate a material.
 
         Parameters
@@ -553,7 +553,7 @@ class Materials(PyAedtBase):
         return new_material
 
     @pyaedt_function_handler()
-    def duplicate_surface_material(self, material, name: Optional[str] = None):
+    def duplicate_surface_material(self, material: str, name: Optional[str] = None):
         """Duplicate a surface material.
 
         Parameters
@@ -590,7 +590,7 @@ class Materials(PyAedtBase):
         return newmat
 
     @pyaedt_function_handler()
-    def remove_material(self, material, library: str = "Project") -> bool:
+    def remove_material(self, material: str, library: str = "Project") -> bool:
         """Remove a material.
 
         Parameters

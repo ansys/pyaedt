@@ -760,7 +760,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         diameter: str = "0.1mm",
         mid_diameter: str = "0.1mm",
         height: str = "0.2mm",
-        material: str = "solder",
+        material: Optional[str] = "solder",
         reference_offset=None,
     ):
         """Set solderball on the active component.

@@ -661,7 +661,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         symmetric: bool = True,
         symmetric_separation: float = 0.05,
         numcolumn_perside: int = 2,
-        material: str = "Al-Extruded",
+        material: Optional[str] = "Al-Extruded",
     ):
         """Create a parametric heat sink.
 
@@ -2656,7 +2656,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         thickness: str = "0mm",
         htc: str = "0w_per_m2kel",
         ref_temperature: str = "AmbientTemp",
-        material: str = "Al-Extruded",  # relevant if th>0
+        material: Optional[str] = "Al-Extruded",  # relevant if th>0
         radiate: bool = False,
         radiate_surf_mat: str = "Steel-oxidised-surface",  # relevant if radiate = False
         ht_correlation: bool = False,
@@ -2882,7 +2882,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         name: Optional[str] = None,
         heat_flux: str = "0irrad_W_per_m2",
         thickness: str = "0mm",
-        material: str = "Al-Extruded",
+        material: Optional[str] = "Al-Extruded",
         radiate: bool = False,
         radiate_surf_mat: str = "Steel-oxidised-surface",
         shell_conduction: bool = False,
@@ -2943,7 +2943,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         name: Optional[str] = None,
         temperature: str = "0cel",
         thickness: str = "0mm",
-        material: str = "Al-Extruded",
+        material: Optional[str] = "Al-Extruded",
         radiate: bool = False,
         radiate_surf_mat: str = "Steel-oxidised-surface",
         shell_conduction: bool = False,
@@ -3004,7 +3004,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         geometry,
         name: Optional[str] = None,
         thickness: str = "0mm",
-        material: str = "Al-Extruded",
+        material: Optional[str] = "Al-Extruded",
         htc: str = "0w_per_m2kel",
         ref_temperature: str = "AmbientTemp",
         ht_correlation: bool = False,

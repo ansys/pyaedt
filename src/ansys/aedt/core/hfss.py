@@ -662,7 +662,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def assign_finite_conductivity(
         self,
         assignment,
-        material=None,
+        material: Optional[str]=None,
         conductivity: int = 58000000,
         permittivity: int = 1,
         use_thickness: bool = False,
@@ -955,7 +955,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self,
         assignment,
         is_two_side: bool = False,
-        material=None,
+        material: Optional[Union[list,str]] = None,
         thickness=None,
         is_infinite_ground: bool = False,
         is_shell_element: bool = False,

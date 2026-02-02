@@ -318,7 +318,7 @@ class MatProperty(PyAedtBase):
     >>> matproperty = app.materials["copper"].conductivity
     """
 
-    def __init__(self, material, name: str, val=None, thermalmodifier=None, spatialmodifier=None) -> None:
+    def __init__(self, material: str, name: str, val=None, thermalmodifier=None, spatialmodifier=None) -> None:
         self._material = material
         self.logger = self._material.logger
         self._type = "simple"

@@ -1891,7 +1891,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def assign_thin_conductor(self, assignment, material: str = "copper", thickness: int = 1, name: str = ""):
+    def assign_thin_conductor(self, assignment, material: Optional[str] = "copper", thickness: int = 1, name: str = ""):
         """Assign a thin conductor to a sheet.
 
         The method accepts both a sheet name or a face id.
@@ -2453,7 +2453,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, name: str = "", material: str = ""):
+    def create_rectangle(self, origin, sizes, name: str = "", material: Optional[str] = ""):
         """Create a rectangle.
 
         Parameters

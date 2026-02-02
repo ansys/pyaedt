@@ -28,6 +28,7 @@ This module contains these classes: `Layer` and `Layers`.
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 
+from typing import Optional
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import str_to_bool
@@ -1322,11 +1323,11 @@ class Layers(PyAedtBase):
     def add_layer(
         self,
         layer,
-        layer_type: str = "signal",
-        thickness: str = "0mm",
-        elevation: str = "0mm",
-        material: str = "copper",
-        isnegative: bool = False,
+        layer_type: Optional[str] = "signal",
+        thickness: Optional[str] = "0mm",
+        elevation: Optional[str] = "0mm",
+        material: Optional[str] = "copper",
+        isnegative: Optional[bool] = False,
     ):
         """Add a layer.
 

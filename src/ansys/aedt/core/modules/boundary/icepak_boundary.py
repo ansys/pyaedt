@@ -697,7 +697,7 @@ class NetworkObject(BoundaryObject):
         assignment,
         name: Optional[str] = None,
         thermal_resistance: str = "NoResistance",
-        material=None,
+        material: Optional[str]=None,
         thickness=None,
         resistance=None,
     ):

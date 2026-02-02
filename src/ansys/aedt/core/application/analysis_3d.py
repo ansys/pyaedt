@@ -681,7 +681,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_material(self, assignment, material) -> bool:
+    def assign_material(self, assignment, material: str) -> bool:
         """Assign a material to one or more objects.
 
         Parameters
