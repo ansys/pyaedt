@@ -1,37 +1,18 @@
-name: GitHub CI CD
+name: CI - Release
 on:
-  pull_request:
-    # GitHub default types + ready_for_review to trigger the workflow on PRs no longer in draft mode.
-    # See https://github.com/ansys/pyaedt/issues/5223 for more information
-    types: [opened, synchronize, reopened, ready_for_review]
-  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.13'
-  TESTS_VERSION: '3.10'
-  PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
+  MAIN_PYTHON_VERSION: '3.13'
   ON_CI: True
-  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
+  PACKAGE_NAME: 'PyAEDT'
+  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
-  TESTMON_DATAFILE: '.testmondata'
-  TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
-  TESTMON_CACHE_KEY_INTEGRATION_LINUX: 'testmondata-integration-linux'
-  TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
-  TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
-  TESTMON_CACHE_KEY_GENERAL_WIN: 'testmondata-general-win'
-  TESTMON_CACHE_KEY_GENERAL_LINUX: 'testmondata-general-linux'
-  TESTMON_CACHE_KEY_VISUALIZATION_WIN: 'testmondata-visualization-win'
-  TESTMON_CACHE_KEY_VISUALIZATION_LINUX: 'testmondata-visualization-linux'
-  TESTMON_CACHE_KEY_ICEPAK_WIN: 'testmondata-icepak-win'
-  TESTMON_CACHE_KEY_ICEPAK_LINUX: 'testmondata-icepak-linux'
-  TESTMON_CACHE_KEY_LAYOUT_WIN: 'testmondata-layout-win'
-  TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
-  TESTMON_CACHE_KEY_EXTENSIONS_WIN: 'testmondata-extensions-win'
-  TESTMON_CACHE_KEY_EXTENSIONS_LINUX: 'testmondata-extensions-linux'
-  TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
-  TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
+  TESTS_VERSION: '3.10'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -43,69 +24,27 @@ permissions: {}
 
 jobs:
 
-  # NOTE: We do not allow dependabot to trigger the CI/CD pipeline automatically.
-  # This is to mitigate supply chain attacks, where a malicious dependency update
-  # could execute arbitrary code in our build environment.
-  # Dependabot PRs must be reviewed carefully and approved manually before
-  # running the CI.
-  block-dependabot:
-    name: "Block dependabot (on dependabot PR)"
+  update-changelog:
+    name: "Update CHANGELOG"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write        # Required to commit and push changelog updates to the repository
+      pull-requests: write   # Required to create pull requests with changelog updates
     steps:
-      - name: Exit if dependabot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if dependabot is triggering the action
-        if: github.triggering_actor == 'dependabot[bot]'
-        run: |
-          echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
-          exit 1
-
-
-  # NOTE: We do not allow the pre-commit-ci bot to trigger the CI/CD pipeline
-  # automatically on PR it creates.
-  # This is to mitigate supply chain attacks, where a malicious dependency update
-  # could execute arbitrary code in our build environment.
-  # PRs opened by the pre-commit-ci bot must be reviewed carefully and approved
-  # manually before running the CI.
-  block-pre-commit-ci-bot-PR:
-    name: "Block pre-commit-ci bot (on pre-commit-ci bot PR only)"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Exit if pre-commit-ci bot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if pre-commit-ci bot is triggering the action
-        if: github.triggering_actor == 'pre-commit-ci[bot]' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
-        run: |
-          echo "::warning::pre-commit-ci bot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
-          exit 1
-
-
-  # NOTE: We do not allow pyansys-ci-bot to trigger the CI/CD pipeline automatically
-  # on dependabot's and pre-commit-ci bot's PR. This is to mitigate supply chain attacks,
-  # where a malicious dependency update could execute arbitrary code in our build environment.
-  # Dependabot and pre-commit-ci bot PRs must be reviewed carefully and approved manually before
-  # running the CI.
-  block-pyansys-ci-bot:
-    name: "Block PyAnsys-CI-bot (on dependabot and pre-commit-ci bot PR)"
-    needs: [block-dependabot, block-pre-commit-ci-bot-PR]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Exit if pyansys-ci-bot triggered the workflow on dependabot's PR
-        if: github.triggering_actor == 'pyansys-ci-bot' && startsWith(github.head_ref, 'dependabot')
-        run: |
-          echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
-          exit 1
-      - name: Exit if pyansys-ci-bot triggered the workflow on pre-commit-ci bot's PR
-        if: github.triggering_actor == 'pyansys-ci-bot' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
-        run: |
-          echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in pre-commit-ci bot's PR. Please review carefully the changes before running the workflow manually."
-          exit 1
-
+      - uses: ansys/actions/doc-deploy-changelog@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          use-upper-case: true
 
   vulnerabilities:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
-    needs: [block-pyansys-ci-bot]
     permissions:
       contents: read   # Required to read repository content for vulnerability scanning
     steps:
-      - uses: ansys/actions/check-vulnerabilities@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+      - uses: ansys/actions/check-vulnerabilities@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -116,98 +55,23 @@ jobs:
   actions-security:
     name: "Check actions security"
     runs-on: ubuntu-latest
-    needs: [block-pyansys-ci-bot]
     permissions:
       contents: read   # Required to read workflow files and check for security issues
     steps:
-      - uses: ansys/actions/check-actions-security@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+      - uses: ansys/actions/check-actions-security@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
           auditing-level: 'high'
 
-  pr-title:
-    name: Check the title of the PR (if needed)
-    runs-on: ubuntu-latest
-    needs: [block-pyansys-ci-bot]
-    permissions:
-      pull-requests: read   # Required to read PR metadata
-    steps:
-      - name: Check the title of the pull request
-        if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          use-upper-case: true
-      - name: Check the title of the pull request
-        if: github.event_name != 'pull_request'
-        shell: bash
-        run: echo "::notice::Skipping PR title check for non-PR events"
-
-  analyze-changes:
-    name: Analyze code changes
-    runs-on: ubuntu-latest
-    needs: [pr-title]
-    outputs:
-      skip_tests: ${{ steps.analyze.outputs.skip_tests }}
-      doc_only: ${{ steps.analyze.outputs.doc_only }}
-      run_all: ${{ steps.analyze.outputs.run_all }}
-      emit_changed: ${{ steps.analyze.outputs.emit_changed }}
-      extensions_changed: ${{ steps.analyze.outputs.extensions_changed }}
-      filter_solutions_changed: ${{ steps.analyze.outputs.filter_solutions_changed }}
-    permissions:
-      contents: read   # Required to read repository content and git history
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0  # Need full history for git diff
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
-        with:
-          enable-cache: false
-          prune-cache: true
-
-      - name: Create virtual environment
-        run: uv venv .venv
-
-      - name: Install PyAEDT
-        shell: bash
-        run: |
-          source .venv/bin/activate
-          uv pip install .[tests]
-
-      - name: Analyze changes
-        id: analyze
-        shell: bash
-        run: |
-          source .venv/bin/activate
-          # Run the analyze-changes script in CI mode
-          python .ci/scripts/analyze_changes.py --base origin/main
-
-          # If no outputs were set, default to run_all=true
-          if [ ! -f "$GITHUB_OUTPUT" ] || ! grep -q "skip_tests\|doc_only\|run_all" "$GITHUB_OUTPUT" 2>/dev/null; then
-            echo "run_all=true" >> $GITHUB_OUTPUT
-            echo "skip_tests=false" >> $GITHUB_OUTPUT
-            echo "doc_only=false" >> $GITHUB_OUTPUT
-          fi
-
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
-    needs: [analyze-changes]
     permissions:
       contents: read   # Required to read documentation files for style checking
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-style@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -225,7 +89,7 @@ jobs:
           sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
 
       - name: Documentation build
-        uses: ansys/actions/doc-build@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/doc-build@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           skip-install: true
@@ -239,12 +103,10 @@ jobs:
   smoke-tests:
     name: Build wheelhouse and smoke tests
     runs-on: ${{ matrix.os }}
-    if: needs.analyze-changes.outputs.doc_only != 'true'
     permissions:
       attestations: write   # Required to create and publish build attestations (SLSA provenance)
       contents: read        # Required to read repository content for building
       id-token: write       # Required for OIDC token generation (for provenance signing)
-    needs: [analyze-changes]
     strategy:
       fail-fast: false
       matrix:
@@ -253,7 +115,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/build-wheelhouse@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -271,15 +133,13 @@ jobs:
           ${ACTIVATE_VENV}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
-
   unit-tests:
     name: Unit tests
-    needs: [smoke-tests, analyze-changes]
-    if: needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: smoke-tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -288,7 +148,7 @@ jobs:
         run: sudo apt-get install -y xvfb
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -308,15 +168,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra unit-tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
 
       - name: Run unit tests
         env:
@@ -341,17 +192,16 @@ jobs:
 
   integration-tests:
     name: Integration tests
-    needs: [unit-tests, analyze-changes]
-    if: needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: unit-tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -371,15 +221,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra integration-tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}
 
       - name: Run integration tests
         env:
@@ -402,23 +243,22 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-solvers-windows:
     name: Test solvers (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -438,15 +278,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -480,26 +311,25 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-solvers-linux:
     name: Test solvers (linux)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -519,15 +349,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -558,23 +379,22 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-general-windows:
     name: Test general (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -597,15 +417,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -639,26 +450,25 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-general-linux:
     name: Test general (linux)
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-    needs: [integration-tests, analyze-changes]
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -681,15 +491,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -719,25 +520,24 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-visualization-windows:
     name: Test visualization (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     env:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -760,15 +560,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -802,14 +593,13 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-visualization-linux:
     name: Test visualization (linux)
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
-    needs: [integration-tests, analyze-changes]
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
@@ -817,12 +607,12 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -845,15 +635,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -883,23 +664,22 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-icepak-windows:
     name: Test icepak (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -919,15 +699,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -961,26 +732,25 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-icepak-linux:
     name: Test icepak (linux)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1000,15 +770,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1039,23 +800,22 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-layout-windows:
     name: Test layout (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1075,15 +835,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1117,26 +868,25 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-layout-linux:
     name: Test layout (linux)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1150,19 +900,12 @@ jobs:
         run: uv venv .venv
 
       - name: Install pyaedt and tests dependencies
+        env:
+          TESTS_VERSION: ${{ env.TESTS_VERSION }}
         run: |
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1193,23 +936,23 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
- #=================================================================================================
- #vvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
- #=================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1232,15 +975,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1274,26 +1008,25 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-extensions-linux:
     name: Test extensions (linux)
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.extensions_changed == 'true'
-    needs: [integration-tests, analyze-changes]
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1316,15 +1049,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -1354,23 +1078,23 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-filter-windows:
     name: Test filter solutions (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.filter_solutions_changed == 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1390,15 +1114,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1432,23 +1147,23 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# =================================================================================================
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# =================================================================================================
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-emit-windows:
     name: Test EMIT (windows)
-    needs: [integration-tests, analyze-changes]
-    if: github.event.pull_request.draft == false && needs.analyze-changes.outputs.skip_tests != 'true' && needs.analyze-changes.outputs.emit_changed == 'true'
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1468,15 +1183,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
-      - name: Wait for master cache update
-        uses: ./.github/actions/check-cache
-
-      - name: Restore testmondata cache
-        uses: ./.github/actions/testmon-cache
-        with:
-          testmon-datafile: ${{ env.TESTMON_DATAFILE }}
-          cache-key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1511,8 +1217,7 @@ jobs:
 
   package:
     name: Package library
-    needs: [analyze-changes,
-            system-tests-solvers-windows,
+    needs: [system-tests-solvers-windows,
             system-tests-solvers-linux,
             system-tests-general-windows,
             system-tests-general-linux,
@@ -1528,18 +1233,62 @@ jobs:
             system-tests-emit-windows,
             doc-build]
     runs-on: ubuntu-latest
-    if: |
-      always() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
     permissions:
       attestations: write   # Required to create and publish package attestations (SLSA provenance)
       contents: read        # Required to read repository content for packaging
       id-token: write       # Required for OIDC token generation (for provenance signing)
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@36cd86710c966963f4dcec56a9670171618cf76a # v10.2.4
+        uses: ansys/actions/build-library@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           attest-provenance: true
+
+  # TODO: If we can fix the PDF issue and leverage classic ansys/release-github
+  release:
+    name: Release project
+    needs: [package, doc-build]
+    runs-on: ubuntu-latest
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
+    permissions:
+      id-token: write   # Required for OIDC authentication to PyPI (trusted publisher)
+      contents: write   # Required to create GitHub releases and upload release assets
+    steps:
+      - name: Download the library artifacts from build-library step
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: ${{ env.PACKAGE_NAME }}-artifacts
+          path: ${{ env.PACKAGE_NAME }}-artifacts
+
+      - name: Release to PyPI using trusted publisher
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+        with:
+          repository-url: "https://upload.pypi.org/legacy/"
+          print-hash: true
+          packages-dir: ${{ env.PACKAGE_NAME }}-artifacts
+          skip-existing: false
+
+      - name: Release to GitHub
+        uses: ansys/actions/release-github@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate-release-notes: false
+          add-artifact-attestation-notes: true
+
+  upload-release-doc:
+    name: Upload release documentation
+    runs-on: ubuntu-latest
+    needs: [release]
+    permissions:
+      contents: write   # Required to commit and push documentation to gh-pages branch
+    steps:
+      - name: Deploy the stable documentation
+        uses: ansys/actions/doc-deploy-stable@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
