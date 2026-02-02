@@ -50,11 +50,53 @@ jobs:
           exit 1
 
   # ------------------------------------------------------------------
+  # ANALYZE CHANGES
+  # ------------------------------------------------------------------
+  analyze-changes:
+    name: Analyze code changes
+    runs-on: ubuntu-latest
+    needs: check-reference
+    outputs:
+      skip_tests: ${{ steps.analyze.outputs.skip_tests }}
+      doc_only: ${{ steps.analyze.outputs.doc_only }}
+      run_all: ${{ steps.analyze.outputs.run_all }}
+    permissions:
+      contents: read # Required to read repository content and git history
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0  # Need full history for git diff
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.10'
+
+      - name: Analyze changes
+        id: analyze
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            BASE_REF="HEAD~1"
+          else
+            BASE_REF="origin/main"
+          fi
+          python .ci/scripts/analyze_changes.py --base "$BASE_REF"
+
+      - name: Exit when tests are skipped
+        if: ${{ steps.analyze.outputs.skip_tests == 'true' }}
+        run: |
+          echo "skip_tests=true; stopping workflow."
+          exit 1
+
+  # ------------------------------------------------------------------
   # UNIT TESTS CACHE UPDATE (LINUX)
   # ------------------------------------------------------------------
   update-unit-linux:
     name: Update unit test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: ubuntu-latest
     permissions:
       actions: write # Needed to delete cache
@@ -63,7 +105,7 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -73,7 +115,7 @@ jobs:
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -130,7 +172,7 @@ jobs:
   # ------------------------------------------------------------------
   update-integration-linux:
     name: Update integration test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: ubuntu-latest
     permissions:
       actions: write # Needed to delete cache
@@ -139,13 +181,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -202,7 +244,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-win:
     name: Update solvers test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -211,13 +253,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -288,7 +330,7 @@ jobs:
   # ------------------------------------------------------------------
   update-solvers-linux:
     name: Update solvers test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -299,13 +341,13 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -373,7 +415,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-win:
     name: Update general test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -382,13 +424,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -462,7 +504,7 @@ jobs:
   # ------------------------------------------------------------------
   update-general-linux:
     name: Update general test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -473,13 +515,13 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -549,7 +591,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-win:
     name: Update visualization test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -559,13 +601,13 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -639,7 +681,7 @@ jobs:
   # ------------------------------------------------------------------
   update-visualization-linux:
     name: Update visualization test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -651,13 +693,13 @@ jobs:
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -727,7 +769,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-win:
     name: Update icepak test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -736,13 +778,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -813,7 +855,7 @@ jobs:
   # ------------------------------------------------------------------
   update-icepak-linux:
     name: Update icepak test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -824,13 +866,13 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -898,7 +940,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-win:
     name: Update layout test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -907,13 +949,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -983,7 +1025,7 @@ jobs:
   # ------------------------------------------------------------------
   update-layout-linux:
     name: Update layout test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -994,13 +1036,13 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1068,7 +1110,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-win:
     name: Update extensions test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1077,13 +1119,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1157,7 +1199,7 @@ jobs:
   # ------------------------------------------------------------------
   update-extensions-linux:
     name: Update extensions test cache (Linux)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Linux, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1168,13 +1210,13 @@ jobs:
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1244,7 +1286,7 @@ jobs:
   # ------------------------------------------------------------------
   update-filter-win:
     name: Update filter test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1253,13 +1295,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1330,7 +1372,7 @@ jobs:
   # ------------------------------------------------------------------
   update-emit-win:
     name: Update emit test cache (Windows)
-    needs: check-reference
+    needs: [check-reference, analyze-changes]
     runs-on: [ self-hosted, Windows, pyaedt ]
     permissions:
       actions: write # Needed to delete cache
@@ -1339,13 +1381,13 @@ jobs:
       TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
 
       - name: Setup Python
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 

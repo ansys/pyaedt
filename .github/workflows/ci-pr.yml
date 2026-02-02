@@ -1,33 +1,18 @@
-name: Weekly Tests Updating Testmon Caches
-
+name: CI - Release
 on:
-  workflow_dispatch:
-  schedule:  # UTC at 2pm on Saturday
-    - cron:  '0 14 * * 6'
+  push:
+    tags:
+      - "v*.*.*"
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.10'
+  DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
+  MAIN_PYTHON_VERSION: '3.13'
   ON_CI: True
+  PACKAGE_NAME: 'PyAEDT'
+  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml
   PYAEDT_LOCAL_SETTINGS_PATH: 'tests/pyaedt_settings.yaml'
-  PYTEST_ARGUMENTS: -vvv --color=yes -ra --durations=25 --maxfail=10 --cov=ansys.aedt.core --cov-report=html --cov-report=xml --junitxml=junit/test-results.xml --testmon
-  TESTMON_DATAFILE: '.testmondata'
-  TESTMON_CACHE_KEY_UNIT_LINUX: 'testmondata-unit-linux'
-  TESTMON_CACHE_KEY_INTEGRATION_LINUX: 'testmondata-integration-linux'
-  TESTMON_CACHE_KEY_SOLVERS_WIN: 'testmondata-solvers-win'
-  TESTMON_CACHE_KEY_SOLVERS_LINUX: 'testmondata-solvers-linux'
-  TESTMON_CACHE_KEY_GENERAL_WIN: 'testmondata-general-win'
-  TESTMON_CACHE_KEY_GENERAL_LINUX: 'testmondata-general-linux'
-  TESTMON_CACHE_KEY_VISUALIZATION_WIN: 'testmondata-visualization-win'
-  TESTMON_CACHE_KEY_VISUALIZATION_LINUX: 'testmondata-visualization-linux'
-  TESTMON_CACHE_KEY_ICEPAK_WIN: 'testmondata-icepak-win'
-  TESTMON_CACHE_KEY_ICEPAK_LINUX: 'testmondata-icepak-linux'
-  TESTMON_CACHE_KEY_LAYOUT_WIN: 'testmondata-layout-win'
-  TESTMON_CACHE_KEY_LAYOUT_LINUX: 'testmondata-layout-linux'
-  TESTMON_CACHE_KEY_EXTENSIONS_WIN: 'testmondata-extensions-win'
-  TESTMON_CACHE_KEY_EXTENSIONS_LINUX: 'testmondata-extensions-linux'
-  TESTMON_CACHE_KEY_FILTER_WIN: 'testmondata-filter-win'
-  TESTMON_CACHE_KEY_EMIT_WIN: 'testmondata-emit-win'
+  TESTS_VERSION: '3.10'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,16 +24,122 @@ permissions: {}
 
 jobs:
 
-  unit-tests:
-    name: Unit tests
+  update-changelog:
+    name: "Update CHANGELOG"
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
+      contents: write        # Required to commit and push changelog updates to the repository
+      pull-requests: write   # Required to create pull requests with changelog updates
+    steps:
+      - uses: ansys/actions/doc-deploy-changelog@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          use-upper-case: true
+
+  vulnerabilities:
+    name: "Vulnerabilities"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read   # Required to read repository content for vulnerability scanning
+    steps:
+      - uses: ansys/actions/check-vulnerabilities@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-package-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          dev-mode: ${{ github.ref != 'refs/heads/main' }}
+          extra-targets: 'all'
+
+  actions-security:
+    name: "Check actions security"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read   # Required to read workflow files and check for security issues
+    steps:
+      - uses: ansys/actions/check-actions-security@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          generate-summary: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          auditing-level: 'high'
+
+  doc-style:
+    name: Documentation style check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read   # Required to read documentation files for style checking
+    steps:
+      - name: Check documentation style
+        uses: ansys/actions/doc-style@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail-level: 'warning'
+
+  doc-build:
+    name: Documentation build
+    runs-on: ubuntu-latest
+    needs: [doc-style]
+    steps:
+      - name: Temporary handle broken package dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get --fix-broken install -y
+          sudo apt-get install -y graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
+
+      - name: Documentation build
+        uses: ansys/actions/doc-build@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          # dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
+          skip-install: true
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
+          sphinxopts: '-j auto --color -w build_errors.txt'
+          dependencies: "pandoc"
+          check-links: false
+          needs-quarto: true
+
+  smoke-tests:
+    name: Build wheelhouse and smoke tests
+    runs-on: ${{ matrix.os }}
+    permissions:
+      attestations: write   # Required to create and publish build attestations (SLSA provenance)
+      contents: read        # Required to read repository content for building
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+    steps:
+      - name: Build wheelhouse and perform smoke test
+        id: build-wheelhouse
+        uses: ansys/actions/build-wheelhouse@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          operating-system: ${{ matrix.os }}
+          python-version: ${{ matrix.python-version }}
+          target: 'all'
+          attest-provenance: true
+          use-python-cache: false
+          whitelist-license-check: 'fpdf2'
+
+      - name: Import python package
+        env:
+          ACTIVATE_VENV: ${{ steps.build-wheelhouse.outputs.activate-venv }}
+        shell: bash
+        run: |
+          ${ACTIVATE_VENV}
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
+
+  unit-tests:
+    name: Unit tests
+    needs: smoke-tests
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -57,7 +148,7 @@ jobs:
         run: sudo apt-get install -y xvfb
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -78,7 +169,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra unit-tests
 
-
       - name: Run unit tests
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
@@ -86,38 +176,32 @@ jobs:
           source .venv/bin/activate
           xvfb-run pytest ${PYTEST_ARGUMENTS} tests/unit
 
-      - name: Prepare testmon data for caching
-        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_UNIT_LINUX }}-main-${{ github.sha }}
+          name: codecov-unit-tests
+          files: ./coverage.xml
+          flags: linux_unit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-unit
+          path: junit/test-results.xml
+        if: ${{ always() }}
 
   integration-tests:
     name: Integration tests
+    needs: unit-tests
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -138,7 +222,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra integration-tests
 
-
       - name: Run integration tests
         env:
           PYTEST_ARGUMENTS: ${{ env.PYTEST_ARGUMENTS }}
@@ -146,38 +229,36 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} tests/integration
 
-      - name: Prepare testmon data for caching
-        run: python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_INTEGRATION_LINUX }}-main-${{ github.sha }}
+          name: codecov-integration-tests
+          files: ./coverage.xml
+          flags: linux_integration
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-integration
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-solvers-windows:
     name: Test solvers (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -197,7 +278,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -218,42 +298,38 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/solvers
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_WIN }}-main-${{ github.sha }}
+          name: codecov-system-solvers-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_solvers
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-solvers-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-solvers-linux:
     name: Test solvers (linux)
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -274,7 +350,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -291,40 +366,35 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/solvers
 
-      - name: Prepare testmon data for caching
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_SOLVERS_LINUX }}-main-${{ github.sha }}
+          name: codecov-system-solvers-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_solvers
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-solvers-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-general-windows:
     name: Test general (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -347,7 +417,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -368,42 +437,38 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_GENERAL_WIN }}-main-${{ github.sha }}
+          name: codecov-system-general-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_general
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-general-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-general-linux:
     name: Test general (linux)
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -426,7 +491,6 @@ jobs:
           source .venv/bin/activate
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Remove Ansys processes (if any)
         shell: bash
@@ -443,41 +507,37 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=600 tests/system/general
 
-      - name: Prepare testmon data for caching
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_GENERAL_LINUX }}-main-${{ github.sha }}
+          name: codecov-system-general-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_general
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-general-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-visualization-windows:
     name: Test visualization (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -500,7 +560,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -521,43 +580,39 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args -n 4 --dist loadfile --timeout=600 tests/system/visualization -x
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_WIN }}-main-${{ github.sha }}
+          name: codecov-system-visualization-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-visualization-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-visualization-linux:
     name: Test visualization (linux)
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -581,7 +636,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -597,40 +651,35 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} -n 4 --dist loadfile --timeout=300 tests/system/visualization -x
 
-      - name: Prepare testmon data for caching
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_VISUALIZATION_LINUX }}-main-${{ github.sha }}
+          name: codecov-system-visualization-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_visualization
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-visualization-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-icepak-windows:
     name: Test icepak (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -650,7 +699,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -671,42 +719,38 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/icepak
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_WIN }}-main-${{ github.sha }}
+          name: codecov-system-icepak-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_icepak
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-icepak-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-icepak-linux:
     name: Test icepak (linux)
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -727,7 +771,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -744,40 +787,35 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/icepak
 
-      - name: Prepare testmon data for caching
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_ICEPAK_LINUX }}-main-${{ github.sha }}
+          name: codecov-system-icepak-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_icepak
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-icepak-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-layout-windows:
     name: Test layout (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -817,42 +855,38 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/layout
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_WIN }}-main-${{ github.sha }}
+          name: codecov-system-layout-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_layout
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-layout-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-layout-linux:
     name: Test layout (linux)
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -873,7 +907,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -890,40 +923,36 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/layout
 
-      - name: Prepare testmon data for caching
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_LAYOUT_LINUX }}-main-${{ github.sha }}
+          name: codecov-system-layout-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_layout
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-layout-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-extensions-windows:
     name: Test extensions (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -946,7 +975,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -967,42 +995,38 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/extensions
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_WIN }}-main-${{ github.sha }}
+          name: codecov-system-extensions-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_extensions
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-extensions-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-extensions-linux:
     name: Test extensions (linux)
+    needs: integration-tests
     runs-on: [ self-hosted, Linux, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
     env:
-      TESTS_VERSION: '3.10'
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1026,7 +1050,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-
       - name: Remove Ansys processes (if any)
         shell: bash
         run: |
@@ -1042,40 +1065,36 @@ jobs:
           source .venv/bin/activate
           pytest ${PYTEST_ARGUMENTS} --timeout=600 tests/system/extensions
 
-      - name: Prepare testmon data for caching
-        run: |
-          source .venv/bin/activate
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_EXTENSIONS_LINUX }}-main-${{ github.sha }}
+          name: codecov-system-extensions-tests-linux
+          files: ./coverage.xml
+          flags: linux_system_extensions
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-extensions-linux
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-filter-windows:
     name: Test filter solutions (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1095,7 +1114,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
-
 
       - name: Remove Ansys processes (if any)
         shell: powershell
@@ -1116,40 +1134,36 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 tests/system/filter_solutions
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_FILTER_WIN }}-main-${{ github.sha }}
+          name: codecov-system-filter-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_filter
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-filter_solutions-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
 
   system-tests-emit-windows:
     name: Test EMIT (windows)
+    needs: integration-tests
     runs-on: [ self-hosted, Windows, pyaedt ]
-    permissions:
-      contents: write # Needed to save cache
-    env:
-      TESTS_VERSION: '3.10'
     steps:
       - name: Install Git and checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
+      # NOTE: Our windows runners are impacted by nodejs/node#56645 so we cannot use astral-sh/setup-uv@v7
       - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.TESTS_VERSION }}
 
@@ -1170,7 +1184,6 @@ jobs:
           cp .ci/uv.lock uv.lock
           uv sync --frozen --extra tests
 
-
       - name: Remove Ansys processes (if any)
         shell: powershell
         run: |
@@ -1190,21 +1203,92 @@ jobs:
           $args = $env:PYTEST_ARGUMENTS -split ' '
           pytest @args --timeout=600 -v -rA --color=yes tests/system/emit
 
-      - name: Prepare testmon data for caching
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -c "import sqlite3; conn = sqlite3.connect('.testmondata'); conn.execute('PRAGMA journal_mode = OFF'); conn.close()"
-
-      - name: Delete old testmon caches
-        shell: bash
-        run: |
-          gh cache list --key ${CACHE_KEY}-main- --json key --jq '.[].key' | xargs -I {} gh cache delete {} || true
-        env:
-          CACHE_KEY: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Save updated testmon cache
-        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          path: ${{ env.TESTMON_DATAFILE }}
-          key: ${{ env.TESTMON_CACHE_KEY_EMIT_WIN }}-main-${{ github.sha }}
+          name: codecov-system-emit-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_emit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: pytest-emit-windows
+          path: junit/test-results.xml
+
+  package:
+    name: Package library
+    needs: [system-tests-solvers-windows,
+            system-tests-solvers-linux,
+            system-tests-general-windows,
+            system-tests-general-linux,
+            system-tests-visualization-windows,
+            system-tests-visualization-linux,
+            system-tests-icepak-windows,
+            system-tests-icepak-linux,
+            system-tests-layout-windows,
+            system-tests-layout-linux,
+            system-tests-extensions-windows,
+            system-tests-extensions-linux,
+            system-tests-filter-windows,
+            system-tests-emit-windows,
+            doc-build]
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write   # Required to create and publish package attestations (SLSA provenance)
+      contents: read        # Required to read repository content for packaging
+      id-token: write       # Required for OIDC token generation (for provenance signing)
+    steps:
+      - name: Build library source and wheel artifacts
+        uses: ansys/actions/build-library@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          attest-provenance: true
+
+  # TODO: If we can fix the PDF issue and leverage classic ansys/release-github
+  release:
+    name: Release project
+    needs: [package, doc-build]
+    runs-on: ubuntu-latest
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
+    permissions:
+      id-token: write   # Required for OIDC authentication to PyPI (trusted publisher)
+      contents: write   # Required to create GitHub releases and upload release assets
+    steps:
+      - name: Download the library artifacts from build-library step
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: ${{ env.PACKAGE_NAME }}-artifacts
+          path: ${{ env.PACKAGE_NAME }}-artifacts
+
+      - name: Release to PyPI using trusted publisher
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+        with:
+          repository-url: "https://upload.pypi.org/legacy/"
+          print-hash: true
+          packages-dir: ${{ env.PACKAGE_NAME }}-artifacts
+          skip-existing: false
+
+      - name: Release to GitHub
+        uses: ansys/actions/release-github@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate-release-notes: false
+          add-artifact-attestation-notes: true
+
+  upload-release-doc:
+    name: Upload release documentation
+    runs-on: ubuntu-latest
+    needs: [release]
+    permissions:
+      contents: write   # Required to commit and push documentation to gh-pages branch
+    steps:
+      - name: Deploy the stable documentation
+        uses: ansys/actions/doc-deploy-stable@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
