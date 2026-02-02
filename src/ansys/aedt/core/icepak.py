@@ -28,7 +28,7 @@ import csv
 import os
 from pathlib import Path
 import re
-from typing import Literal
+from typing import Optional, Literal
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
@@ -1249,7 +1249,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         faces_list,
         quantity_name: str = "HeatTransCoeff",
         savedir=None,
-        filename=None,
+        filename: Optional[str]=None,
         sweep_name=None,
         parameter_dict_with_values={},
     ):
@@ -1321,7 +1321,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         object_list,
         quantity_name: str = "HeatTransCoeff",
         savedir=None,
-        filename=None,
+        filename: Optional[str]=None,
         sweep_name=None,
         parameter_dict_with_values={},
     ):

@@ -55,6 +55,7 @@ from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
+from typing import Optional
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
@@ -836,7 +837,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         design=None,
         setup=None,
         is_solution_file: bool = False,
-        filename=None,
+        filename: Optional[str]=None,
         passivity: bool = False,
         causality: bool = False,
         renormalize: bool = False,
