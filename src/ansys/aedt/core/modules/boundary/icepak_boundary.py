@@ -258,7 +258,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 class NetworkObject(BoundaryObject):
     """Manages networks in Icepak projects."""
 
-    def __init__(self, app, name=None, props=None, create=False):
+    def __init__(self, app, name=None, props=None, create: bool=False):
         if not app.design_type == "Icepak":  # pragma: no cover
             raise NotImplementedError("Networks object works only with Icepak projects ")
         if name is None:

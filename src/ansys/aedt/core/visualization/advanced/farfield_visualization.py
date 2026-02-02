@@ -788,9 +788,9 @@ class FfdSolutionData(PyAedtBase):
         quantity_format="dB10",
         output_file=None,
         levels=64,
-        polar=True,
+        polar: bool=True,
         max_theta=180,
-        show=True,
+        show: bool=True,
     ):
         """Create a contour plot of a specified quantity in Matplotlib.
 
@@ -891,9 +891,9 @@ class FfdSolutionData(PyAedtBase):
         title="Far Field Cut",
         quantity_format="dB10",
         output_file=None,
-        show=True,
-        is_polar=False,
-        show_legend=True,
+        show: bool=True,
+        is_polar: bool=False,
+        show_legend: bool=True,
     ):
         """Create a 2D plot of a specified quantity in Matplotlib.
 
@@ -1010,7 +1010,7 @@ class FfdSolutionData(PyAedtBase):
         title="3D Plot",
         quantity_format="dB10",
         output_file=None,
-        show=True,
+        show: bool=True,
     ):
         """Create a 3D chart of a specified quantity in Matplotlib.
 
@@ -1090,13 +1090,13 @@ class FfdSolutionData(PyAedtBase):
         quantity_format="dB10",
         rotation=None,
         output_file=None,
-        show=True,
-        show_as_standalone=False,
+        show: bool=True,
+        show_as_standalone: bool=False,
         pyvista_object=None,
         background=None,
         scale_farfield=None,
-        show_beam_slider=True,
-        show_geometry=True,
+        show_beam_slider: bool=True,
+        show_geometry: bool=True,
     ):
         """Create a 3D polar plot of the geometry with a radiation pattern in PyVista.
 
@@ -1406,7 +1406,7 @@ class FfdSolutionData(PyAedtBase):
         return mesh
 
     @pyaedt_function_handler()
-    def __get_geometry(self, off_screen=False):
+    def __get_geometry(self, off_screen: bool=False):
         """Get 3D meshes."""
         model_info = self.metadata["model_info"]
         obj_meshes = []

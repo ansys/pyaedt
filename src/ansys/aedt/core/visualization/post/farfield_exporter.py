@@ -92,9 +92,9 @@ class FfdSolutionDataExporter(PyAedtBase):
         setup_name,
         frequencies,
         variations=None,
-        overwrite=True,
-        export_touchstone=True,
-        set_phase_center_per_port=True,
+        overwrite: bool=True,
+        export_touchstone: bool=True,
+        set_phase_center_per_port: bool=True,
     ):
         # Public
         self.sphere_name = sphere_name

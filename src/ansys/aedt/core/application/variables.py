@@ -124,8 +124,8 @@ class CSVDataset(PyAedtBase):
         separator=None,
         units_dict=None,
         append_dict=None,
-        valid_solutions=True,
-        invalid_solutions=False,
+        valid_solutions: bool=True,
+        invalid_solutions: bool=False,
     ):
         self._header = []
         self._data = {}
@@ -822,7 +822,7 @@ class VariableManager(PyAedtBase):
                         self.__dependent_design_variables[variable_name] = value
 
     @pyaedt_function_handler()
-    def _variable_dict(self, object_list, dependent=True, independent=True):
+    def _variable_dict(self, object_list, dependent: bool=True, independent: bool=True):
         """Retrieve the variable dictionary.
 
         Parameters
@@ -902,13 +902,13 @@ class VariableManager(PyAedtBase):
         self,
         name,
         expression=None,
-        read_only=False,
-        hidden=False,
+        read_only: bool=False,
+        hidden: bool=False,
         description=None,
-        sweep=True,
-        overwrite=True,
-        is_post_processing=False,
-        circuit_parameter=True,
+        sweep: bool=True,
+        overwrite: bool=True,
+        is_post_processing: bool=False,
+        circuit_parameter: bool=True,
     ):
         """Set the value of a design property or project variable.
 
@@ -1566,7 +1566,7 @@ class Variable(PyAedtBase):
             except Exception as e:
                 raise AEDTRuntimeError(f"Failed to set property '{prop}' value.") from e
 
-    def _get_prop_generic(self, prop, evaluated=False):
+    def _get_prop_generic(self, prop, evaluated: bool=False):
         """Generic property getter. If *evaluated* is True, returns the evaluated value."""
         if not self._aedt_obj:
             return None
@@ -2220,7 +2220,7 @@ class DataSet(PyAedtBase):
         Sort dataset. The default is ``True``.
     """
 
-    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit="", sort=True):
+    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit="", sort: bool=True):
         self._app = app
         self.name = name
         self.x = x

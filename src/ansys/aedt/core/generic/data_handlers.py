@@ -254,7 +254,7 @@ def format_decimals(el):
 
 
 @pyaedt_function_handler()
-def random_string(length=6, only_digits=False, char_set=None):
+def random_string(length=6, only_digits: bool=False, char_set=None):
     """Generate a random string.
 
     Parameters
@@ -283,7 +283,7 @@ def random_string(length=6, only_digits=False, char_set=None):
 
 
 @pyaedt_function_handler()
-def unique_string_list(element_list, only_string=True):
+def unique_string_list(element_list, only_string: bool=True):
     """Return a unique list of strings from an element list.
 
     Parameters

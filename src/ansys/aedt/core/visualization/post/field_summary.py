@@ -186,7 +186,7 @@ class FieldSummary(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_field_summary_data(self, setup=None, variation=None, intrinsics="", pandas_output=False):
+    def get_field_summary_data(self, setup=None, variation=None, intrinsics="", pandas_output: bool=False):
         """
         Get  field summary output computation.
 

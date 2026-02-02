@@ -725,7 +725,7 @@ class ExtensionProjectCommon(ExtensionCommon):
         pass
 
 
-def create_default_ui(title, withdraw=False):
+def create_default_ui(title, withdraw: bool=False):
     import tkinter
     from tkinter import ttk
 

@@ -234,7 +234,7 @@ class AutoScale(BaseFolderPlot):
     """
 
     def __init__(
-        self, n_levels=10, limit_precision_digits=False, precision_digits=3, use_current_scale_for_animation=False
+        self, n_levels=10, limit_precision_digits: bool=False, precision_digits=3, use_current_scale_for_animation: bool=False
     ):
         self.n_levels = n_levels
         self.limit_precision_digits = limit_precision_digits
@@ -485,8 +485,8 @@ class Scale3DSettings(BaseFolderPlot):
         self,
         scale_type="Auto",
         scale_settings=AutoScale(),
-        log=False,
-        db=False,
+        log: bool=False,
+        db: bool=False,
         unit=None,
         number_format=NumberFormat(),
     ):
@@ -651,7 +651,7 @@ class MarkerSettings(BaseFolderPlot):
         Whether to map the field magnitude to the arrow color. Default is `True`.
     """
 
-    def __init__(self, marker_type="Box", map_size=False, map_color=True, marker_size=0.005):
+    def __init__(self, marker_type="Box", map_size: bool=False, map_color: bool=True, marker_size=0.005):
         self._marker_type = None
         self.marker_type = marker_type
         self.map_size = map_size
@@ -753,10 +753,10 @@ class ArrowSettings(BaseFolderPlot):
         self,
         arrow_type="Line",
         arrow_size=0.005,
-        map_size=False,
-        map_color=True,
-        show_arrow_tail=False,
-        magnitude_filtering=False,
+        map_size: bool=False,
+        map_color: bool=True,
+        show_arrow_tail: bool=False,
+        magnitude_filtering: bool=False,
         magnitude_threshold=0,
         min_magnitude=0,
         max_magnitude=0.5,
@@ -1259,7 +1259,7 @@ class FieldPlot(PyAedtBase):
         return arg
 
     @pyaedt_function_handler()
-    def get_points_value(self, points, filename=None, visibility=False):  # pragma: no cover
+    def get_points_value(self, points, filename=None, visibility: bool=False):  # pragma: no cover
         """
         Get points data from field plot.
 
@@ -1656,12 +1656,12 @@ class FieldPlot(PyAedtBase):
         width=1920,
         height=1080,
         orientation="isometric",
-        display_wireframe=True,
+        display_wireframe: bool=True,
         selections=None,
-        show_region=True,
-        show_axis=True,
-        show_grid=True,
-        show_ruler=True,
+        show_region: bool=True,
+        show_axis: bool=True,
+        show_grid: bool=True,
+        show_ruler: bool=True,
     ):
         """Export the active plot to an image file.
 
@@ -1738,7 +1738,7 @@ class FieldPlot(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_image_from_aedtplt(
-        self, export_path=None, view="isometric", plot_mesh=False, scale_min=None, scale_max=None
+        self, export_path=None, view="isometric", plot_mesh: bool=False, scale_min=None, scale_max=None
     ):
         """Save an image of the active plot using PyVista.
 

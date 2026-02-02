@@ -138,7 +138,7 @@ class Analysis(Design, PyAedtBase):
         port=0,
         aedt_process_id=None,
         ic_mode=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         Design.__init__(
             self,
@@ -595,8 +595,8 @@ class Analysis(Design, PyAedtBase):
     @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
-        get_self_terms=True,
-        get_mutual_terms=True,
+        get_self_terms: bool=True,
+        get_mutual_terms: bool=True,
         first_element_filter=None,
         second_element_filter=None,
         category="dB(S",
@@ -719,7 +719,7 @@ class Analysis(Design, PyAedtBase):
     )
     def export_results(
         self,
-        analyze=False,
+        analyze: bool=False,
         export_folder=None,
         matrix_name="Original",
         matrix_type="S",
@@ -727,8 +727,8 @@ class Analysis(Design, PyAedtBase):
         touchstone_number_precision=15,
         length="1meter",
         impedance=50,
-        include_gamma_comment=True,
-        support_non_standard_touchstone_extension=False,
+        include_gamma_comment: bool=True,
+        support_non_standard_touchstone_extension: bool=False,
         variations=None,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
@@ -1088,7 +1088,7 @@ class Analysis(Design, PyAedtBase):
         return list(setups)
 
     @pyaedt_function_handler()
-    def get_nominal_variation(self, with_values=False):
+    def get_nominal_variation(self, with_values: bool=False):
         """Retrieve the nominal variation.
 
         Parameters
@@ -1133,7 +1133,7 @@ class Analysis(Design, PyAedtBase):
         return list(sweeps)
 
     @pyaedt_function_handler()
-    def export_parametric_results(self, sweep, output_file, export_units=True):
+    def export_parametric_results(self, sweep, output_file, export_units: bool=True):
         """Export a list of all parametric variations solved for a sweep to a CSV file.
 
         Parameters
@@ -1360,7 +1360,7 @@ class Analysis(Design, PyAedtBase):
         return self.design_setups[name]
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential=False):
+    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential: bool=False):
         """Create or modify an output variable.
 
         Parameters
@@ -1551,12 +1551,12 @@ class Analysis(Design, PyAedtBase):
         tasks=None,
         gpus=None,
         acf_file=None,
-        use_auto_settings=True,
-        solve_in_batch=False,
+        use_auto_settings: bool=True,
+        solve_in_batch: bool=False,
         machine="localhost",
-        run_in_thread=False,
-        revert_to_initial_mesh=False,
-        blocking=True,
+        run_in_thread: bool=False,
+        revert_to_initial_mesh: bool=False,
+        blocking: bool=True,
     ):
         """Solve the active design.
 
@@ -1771,11 +1771,11 @@ class Analysis(Design, PyAedtBase):
         tasks=None,
         gpus=None,
         acf_file=None,
-        use_auto_settings=True,
+        use_auto_settings: bool=True,
         num_variations_to_distribute=None,
         allowed_distribution_types=None,
-        revert_to_initial_mesh=False,
-        blocking=True,
+        revert_to_initial_mesh: bool=False,
+        blocking: bool=True,
     ):
         """Analyze a design setup.
 
@@ -1911,7 +1911,7 @@ class Analysis(Design, PyAedtBase):
         return self.desktop_class.get_monitor_data()
 
     @pyaedt_function_handler()
-    def stop_simulations(self, clean_stop=True):
+    def stop_simulations(self, clean_stop: bool=True):
         """Check if there are simulation running and stops them.
 
         .. note::
@@ -1933,11 +1933,11 @@ class Analysis(Design, PyAedtBase):
         self,
         file_name=None,
         machine="localhost",
-        run_in_thread=False,
+        run_in_thread: bool=False,
         cores=4,
         tasks=1,
         setup=None,
-        revert_to_initial_mesh=False,
+        revert_to_initial_mesh: bool=False,
     ):  # pragma: no cover
         """Analyze a design setup in batch mode.
 
@@ -2070,7 +2070,7 @@ class Analysis(Design, PyAedtBase):
 
     @pyaedt_function_handler()
     def submit_job(
-        self, cluster_name, aedt_full_exe_path=None, nodes=1, cores=32, wait_for_license=True, setting_file=None
+        self, cluster_name, aedt_full_exe_path=None, nodes=1, cores=32, wait_for_license: bool=True, setting_file=None
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
 
@@ -2111,9 +2111,9 @@ class Analysis(Design, PyAedtBase):
         file_name=None,
         variations=None,
         variations_value=None,
-        renormalization=False,
+        renormalization: bool=False,
         impedance=None,
-        comments=False,
+        comments: bool=False,
     ):
         """Export the Touchstone file to a local folder.
 
@@ -2524,7 +2524,7 @@ class AvailableVariations(PyAedtBase):
         return self.nominal_variation(dependent_params=False)
 
     @pyaedt_function_handler()
-    def nominal_variation(self, dependent_params=True, expressions=False) -> Dict:
+    def nominal_variation(self, dependent_params: bool=True, expressions: bool=False) -> Dict:
         """Retrieve variations for a given setup.
 
         Parameters

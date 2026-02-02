@@ -536,10 +536,10 @@ class Desktop(PyAedtBase):
     def __init__(
         self,
         version=None,
-        non_graphical=False,
-        new_desktop=True,
-        close_on_exit=True,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=True,
+        close_on_exit: bool=True,
+        student_version: bool=False,
         machine=None,
         port=0,
         aedt_process_id=None,
@@ -1587,7 +1587,7 @@ class Desktop(PyAedtBase):
         message="The ``close_on_exit`` argument will be removed in future versions. "
         "Use ``close_desktop`` method to close the desktop.",
     )
-    def release_desktop(self, close_projects=True, close_on_exit=True):
+    def release_desktop(self, close_projects: bool=True, close_on_exit: bool=True):
         """Release AEDT.
 
         Parameters
@@ -1783,7 +1783,7 @@ class Desktop(PyAedtBase):
             self.logger.warning(f"Error Setting Up Configuration {config_name} for {product_name}.")
             return False
 
-    def change_registry_from_file(self, registry_file, make_active=True):  # pragma: no cover
+    def change_registry_from_file(self, registry_file, make_active: bool=True):  # pragma: no cover
         """Apply desktop registry settings from an ACF file.
 
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
@@ -1839,7 +1839,7 @@ class Desktop(PyAedtBase):
         aedt_full_exe_path=None,
         numnodes=1,
         numcores=32,
-        wait_for_license=True,
+        wait_for_license: bool=True,
         setting_file=None,
     ):  # pragma: no cover
         """Submit a job to be solved on a cluster.
@@ -1952,7 +1952,7 @@ class Desktop(PyAedtBase):
         region,
         numnodes=1,
         numcores=32,
-        wait_for_license=True,
+        wait_for_license: bool=True,
         setting_file=None,
         job_name=None,
     ):  # pragma: no cover
@@ -2121,7 +2121,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def select_scheduler(
-        self, scheduler_type, address=None, username=None, force_password_entry=False
+        self, scheduler_type, address=None, username=None, force_password_entry: bool=False
     ):  # pragma: no cover
         """Select a scheduler to submit the job.
 
@@ -2295,7 +2295,7 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     @min_aedt_version("2023.2")
-    def stop_simulations(self, clean_stop=True):
+    def stop_simulations(self, clean_stop: bool=True):
         """Check if there are simulation running and stops them.
 
         Returns

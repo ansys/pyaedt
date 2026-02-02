@@ -109,7 +109,7 @@ def is_float(istring):
         return 0
 
 
-def _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes=True):
+def _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes: bool=True):
     trg_vertex = []
     if num_nodes_per_element == 10 and take_all_nodes:
         for e in elements_nodes:
@@ -358,14 +358,14 @@ class FieldClass(PyAedtBase):
     def __init__(
         self,
         path,
-        log_scale=True,
+        log_scale: bool=True,
         coordinate_units="meter",
         opacity=1,
         color_map="jet",
         label="Field",
         tolerance=1e-3,
         headers=2,
-        show_edge=True,
+        show_edge: bool=True,
     ):
         self.path = path
         self.log_scale = log_scale
@@ -539,7 +539,7 @@ class CommonPlotter(PyAedtBase):
         return self._isometric_view
 
     @isometric_view.setter
-    def isometric_view(self, value=True):
+    def isometric_view(self, value: bool=True):
         self._isometric_view = value
 
     @property
@@ -843,14 +843,14 @@ class ModelPlotter(CommonPlotter):
     def add_field_from_file(
         self,
         field_path,
-        log_scale=True,
+        log_scale: bool=True,
         coordinate_units="meter",
         opacity=1,
         color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         header_lines=2,
-        show_edges=True,
+        show_edges: bool=True,
     ):
         """Add a field file to the scenario.
 
@@ -898,7 +898,7 @@ class ModelPlotter(CommonPlotter):
     def add_frames_from_file(
         self,
         field_files,
-        log_scale=True,
+        log_scale: bool=True,
         coordinate_units="meter",
         opacity=1,
         color_map="jet",
@@ -952,13 +952,13 @@ class ModelPlotter(CommonPlotter):
         self,
         coordinates,
         fields_data,
-        log_scale=True,
+        log_scale: bool=True,
         coordinate_units="meter",
         opacity=1,
         color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
-        show_edges=True,
+        show_edges: bool=True,
     ):
         """Add field data to the scenario.
 
@@ -1124,7 +1124,7 @@ class ModelPlotter(CommonPlotter):
             field._cached_polydata = filedata  # Update field data
 
     @pyaedt_function_handler()
-    def _read_mesh_files(self, read_frames=False):
+    def _read_mesh_files(self, read_frames: bool=False):
         for cad in self.objects:
             if not cad._cached_polydata:
                 filedata = pv.read(cad.path)
@@ -1351,7 +1351,7 @@ class ModelPlotter(CommonPlotter):
         self.pv.camera.zoom(self.zoom)
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path=None, show=True):
+    def plot(self, export_image_path=None, show: bool=True):
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
@@ -1405,7 +1405,7 @@ class ModelPlotter(CommonPlotter):
         return True
 
     @pyaedt_function_handler()
-    def clean_cache_and_files(self, remove_objs=True, remove_fields=True, clean_cache=False):
+    def clean_cache_and_files(self, remove_objs: bool=True, remove_fields: bool=True, clean_cache: bool=False):
         """Clean downloaded files, and, on demand, also the cached meshes.
 
         Parameters
@@ -1438,7 +1438,7 @@ class ModelPlotter(CommonPlotter):
         return True
 
     @pyaedt_function_handler()
-    def animate(self, show=True):
+    def animate(self, show: bool=True):
         """Animate the current field plot.
 
         show : bool, optional

@@ -113,9 +113,9 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         ami_name,
         variation_list_w_value,
         plot_type="Rectangular Plot",
-        plot_initial_response=True,
-        plot_intermediate_response=False,
-        plot_final_response=False,
+        plot_initial_response: bool=True,
+        plot_intermediate_response: bool=False,
+        plot_final_response: bool=False,
         plot_name=None,
     ):
         """Create an AMI initial response plot.
@@ -439,7 +439,7 @@ class PostProcessorCircuit(PostProcessorCommon, PyAedtBase):
         waveform_sweep_unit="s",
         unit_interval=1e-9,
         clock_tics=None,
-        pandas_enabled=False,
+        pandas_enabled: bool=False,
     ):
         """Sampling a waveform at clock times plus half unit interval.
 

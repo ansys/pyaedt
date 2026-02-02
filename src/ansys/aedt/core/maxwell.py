@@ -111,7 +111,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self.change_design_settings({"Multiplier": value})
 
     @pyaedt_function_handler()
-    def change_inductance_computation(self, compute_transient_inductance=True, incremental_matrix=False):
+    def change_inductance_computation(self, compute_transient_inductance: bool=True, incremental_matrix: bool=False):
         """Enable the inductance computation for the transient analysis and set the incremental matrix.
 
         Parameters
@@ -240,7 +240,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             return self.change_design_settings(props)
 
     @pyaedt_function_handler()
-    def set_core_losses(self, assignment, core_loss_on_field=False):
+    def set_core_losses(self, assignment, core_loss_on_field: bool=False):
         """Whether to enable core losses for a set of objects.
 
         For ``EddyCurrent`` and ``Transient`` solver designs, core losses calculations
@@ -486,7 +486,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
             raise AEDTRuntimeError("Solution type does not have matrix parameters")
 
     @pyaedt_function_handler()
-    def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
+    def eddy_effects_on(self, assignment, enable_eddy_effects: bool=True, enable_displacement_current: bool=True):
         """Assign eddy effects on a list of objects.
 
         Available only for AC Magnetic (Eddy Current) and Transient solvers.
@@ -645,7 +645,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_current(self, assignment, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
+    def assign_current(self, assignment, amplitude=1, phase="0deg", solid: bool=True, swap_direction: bool=False, name=None):
         """Assign current excitation.
 
         Parameters
@@ -739,13 +739,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         assignment,
         coordinate_system="Global",
         axis="Z",
-        positive_movement=True,
+        positive_movement: bool=True,
         start_position=0,
-        periodic_translate=True,
+        periodic_translate: bool=True,
         negative_limit=0,
         positive_limit=0,
         velocity=0,
-        mechanical_transient=False,
+        mechanical_transient: bool=False,
         mass=1,
         damping=0,
         load_force=0,
@@ -847,13 +847,13 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         assignment,
         coordinate_system="Global",
         axis="Z",
-        positive_movement=True,
+        positive_movement: bool=True,
         start_position=0,
-        has_rotation_limits=True,
+        has_rotation_limits: bool=True,
         negative_limit=0,
         positive_limit=360,
-        non_cylindrical=False,
-        mechanical_transient=False,
+        non_cylindrical: bool=False,
+        mechanical_transient: bool=False,
         angular_velocity="0rpm",
         inertia="1",
         damping=0,
@@ -1014,7 +1014,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "Voltage")
 
     @pyaedt_function_handler()
-    def assign_voltage_drop(self, assignment, amplitude=1, swap_direction=False, name=None):
+    def assign_voltage_drop(self, assignment, amplitude=1, swap_direction: bool=False, name=None):
         """Assign a voltage drop across a list of faces to a specific value.
 
         The voltage drop applies only to sheet objects. It is available only for Magnetostatic 3D.
@@ -1142,7 +1142,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         self,
         assignment=None,
         winding_type="Current",
-        is_solid=True,
+        is_solid: bool=True,
         current=1,
         resistance=0,
         inductance=0,
@@ -1344,7 +1344,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, bound_type)
 
     @pyaedt_function_handler()
-    def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
+    def assign_force(self, assignment, coordinate_system="Global", is_virtual: bool=True, force_name=None):
         """Assign a force to one or more objects.
 
         Force assignment can be calculated based upon the solver type.
@@ -1422,7 +1422,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_torque(
-        self, assignment, coordinate_system="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
+        self, assignment, coordinate_system="Global", is_positive: bool=True, is_virtual: bool=True, axis="Z", torque_name=None
     ):
         """Assign a torque to one or more objects.
 
@@ -1498,7 +1498,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(torque_name, prop, "Torque")
 
     @pyaedt_function_handler()
-    def solve_inside(self, name, activate=True):
+    def solve_inside(self, name, activate: bool=True):
         """Solve inside to generate a solution inside an object.
 
         With this method, Maxwell will create a mesh inside the object and generate the solution from the mesh.
@@ -1625,7 +1625,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_symmetry(self, assignment, symmetry_name=None, is_odd=True):
+    def assign_symmetry(self, assignment, symmetry_name=None, is_odd: bool=True):
         """Assign symmetry boundary.
 
         This boundary condition defines a plane of geometric or magnetic symmetry in a structure.
@@ -1882,7 +1882,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         assignment,
         force_type=0,
         window_function="Rectangular",
-        use_number_of_last_cycles=True,
+        use_number_of_last_cycles: bool=True,
         last_cycles_number=1,
         calculate_force="Harmonic",
     ):
@@ -1964,14 +1964,14 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         nets,
         force_type=0,
         window_function="Rectangular",
-        use_number_of_last_cycles=True,
+        use_number_of_last_cycles: bool=True,
         last_cycles_number=1,
         calculate_force="Harmonic",
         start_time="0s",
         stop_time="2ms",
-        use_number_of_cycles_for_stop_time=True,
+        use_number_of_cycles_for_stop_time: bool=True,
         number_of_cycles_for_stop_time=1,
-        include_no_layer=True,
+        include_no_layer: bool=True,
     ):
         # type: (str, dict, int, str,bool, int, str, str, str, bool, int, bool) -> bool
         """Enable the harmonic force calculation for the transient analysis.
@@ -2604,14 +2604,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         """Initialize the ``Maxwell`` class."""
         self.is3d = True
@@ -2705,7 +2705,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         material_name=None,
         permeability=0.0,
         conductivity=None,
-        non_linear_permeability=False,
+        non_linear_permeability: bool=False,
         impedance=None,
     ):
         """Create an impedance boundary condition for Transient or Eddy Current solvers.
@@ -2895,9 +2895,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         u_vector_pos_coordinates_master,
         u_vector_origin_coordinates_slave,
         u_vector_pos_coordinates_slave,
-        reverse_master=False,
-        reverse_slave=False,
-        same_as_master=True,
+        reverse_master: bool=False,
+        reverse_slave: bool=False,
+        same_as_master: bool=True,
         bound_name=None,
     ):
         """Assign dependent and independent boundary conditions to two faces of the same object.
@@ -3067,7 +3067,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_layout_force(
-        self, net_layers, component_name, coordinate_system="Global", force_name=None, include_no_layer=True
+        self, net_layers, component_name, coordinate_system="Global", force_name=None, include_no_layer: bool=True
     ):
         # type: (dict, str, str, str, bool) -> bool
         """Assign the layout force to a component in a Transient A-Phi solver.
@@ -3151,7 +3151,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         coordinate_system="Global",
         origin=None,
         u_pos=None,
-        reverse=False,
+        reverse: bool=False,
         bound_name=None,
     ):
         """Assign a tangential H field boundary to a list of faces.
@@ -3301,7 +3301,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         assignment,
         resistance="1ohm",
         name=None,
-        non_linear=False,
+        non_linear: bool=False,
         anode_a="300000000",
         anode_b="5",
         anode_c="110000000000000",
@@ -3660,14 +3660,14 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         self.is3d = False
         FieldAnalysis3D.__init__(
@@ -3698,7 +3698,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
-    def xy_plane(self, value=True):
+    def xy_plane(self, value: bool=True):
         self.design_solutions.xy_plane = value
 
     @property
@@ -3782,7 +3782,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_balloon(self, assignment, boundary=None, is_voltage=False):
+    def assign_balloon(self, assignment, boundary=None, is_voltage: bool=False):
         """Assign a balloon boundary to a list of edges.
 
         Parameters
@@ -3876,7 +3876,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_master_slave(
-        self, independent, dependent, reverse_master=False, reverse_slave=False, same_as_master=True, boundary=None
+        self, independent, dependent, reverse_master: bool=False, reverse_slave: bool=False, same_as_master: bool=True, boundary=None
     ):
         """Assign dependent and independent boundary conditions to two edges of the same object.
 

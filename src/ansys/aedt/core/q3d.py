@@ -74,14 +74,14 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         solution_type=None,
         setup_name=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -105,7 +105,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             self.matrices.append(Matrix(self, el))
 
     @pyaedt_function_handler()
-    def sources(self, matrix_index=0, is_gc_sources=True):
+    def sources(self, matrix_index=0, is_gc_sources: bool=True):
         """List of matrix sources.
 
         Parameters
@@ -189,8 +189,8 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
-        get_self_terms=True,
-        get_mutual_terms=True,
+        get_self_terms: bool=True,
+        get_mutual_terms: bool=True,
         first_element_filter=None,
         second_element_filter=None,
         category="C",
@@ -453,10 +453,10 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         freq=None,
         freq_unit=None,
         matrix_type=None,
-        export_ac_dc_res=False,
+        export_ac_dc_res: bool=False,
         precision=None,
         field_width=None,
-        use_sci_notation=True,
+        use_sci_notation: bool=True,
         length_setting="Distributed",
         length="1meter",
     ):
@@ -783,18 +783,18 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         variations=None,
         matrix=None,
         cells=2,
-        user_changed_settings=True,
-        include_cap=True,
-        include_cond=True,
-        include_dcr=False,
-        include_dcl=False,
-        include_acr=False,
-        include_acl=False,
-        include_r=True,
-        include_l=True,
-        add_resistance=False,
-        parse_pin_names=False,
-        export_distributed=True,
+        user_changed_settings: bool=True,
+        include_cap: bool=True,
+        include_cond: bool=True,
+        include_dcr: bool=False,
+        include_dcl: bool=False,
+        include_acr: bool=False,
+        include_acl: bool=False,
+        include_r: bool=True,
+        include_l: bool=True,
+        add_resistance: bool=False,
+        parse_pin_names: bool=False,
+        export_distributed: bool=True,
         lumped_length="1meter",
         rise_time_value=None,
         rise_time_unit=None,
@@ -806,7 +806,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         model=None,
         frequency=0,
         file_type="HSPICE",
-        include_cpp=False,
+        include_cpp: bool=False,
     ):
         """Export matrix data.
 
@@ -1294,14 +1294,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         self.is3d = True
         QExtractor.__init__(
@@ -2400,14 +2400,14 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         self.is3d = False
         QExtractor.__init__(
@@ -2594,7 +2594,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         arg_name="analyze",
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
-    def export_w_elements(self, analyze=False, export_folder=None):
+    def export_w_elements(self, analyze: bool=False, export_folder=None):
         """Export all W-elements to files.
 
         Parameters

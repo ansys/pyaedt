@@ -68,9 +68,9 @@ def add_automation_tab(
     icon_file=None,
     product="Project",
     template="Run PyAEDT Toolkit Script",
-    overwrite=False,
+    overwrite: bool=False,
     panel="Panel_PyAEDT_Extensions",
-    is_custom=False,  # new argument for custom flag
+    is_custom: bool=False,  # new argument for custom flag
     odesktop=None,
 ):
     """Add an automation tab in AEDT.
@@ -322,10 +322,10 @@ def add_script_to_menu(
     template_file="run_pyaedt_toolkit_script",
     icon_file=None,
     product="Project",
-    copy_to_personal_lib=True,
+    copy_to_personal_lib: bool=True,
     panel="Panel_PyAEDT_Extensions",
     personal_lib=None,
-    is_custom=False,
+    is_custom: bool=False,
     odesktop=None,
 ):
     """Add a script to the ribbon menu.
@@ -476,7 +476,7 @@ def run_command(command: List[str], desktop_object):  # pragma: no cover
     return 0
 
 
-def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
+def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install: bool=True):  # pragma: no cover
     """Add toolkit to AEDT Automation Tab.
 
     .. warning::

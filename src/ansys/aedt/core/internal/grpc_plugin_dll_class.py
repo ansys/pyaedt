@@ -248,7 +248,7 @@ class AedtPropServer(AedtObjWrapper):
     def GetChildNames(self, childType=""):
         return self.__Invoke__("GetChildNames", (childType))
 
-    def GetPropNames(self, includeReadOnly=True):
+    def GetPropNames(self, includeReadOnly: bool=True):
         if includeReadOnly:
             if self.__propNames__ is None:
                 self.__propNames__ = self.__Invoke__("GetPropNames", (includeReadOnly,))
@@ -333,7 +333,7 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
-    def CreateAedtApplication(self, machine, port=0, NGmode=False, alwaysNew=True):
+    def CreateAedtApplication(self, machine, port=0, NGmode: bool=False, alwaysNew: bool=True):
         try:
             pyaedt_logger.debug(f"Starting client with machine {machine} and port {port}")
             if machine.endswith("InsecureMode"):
@@ -362,7 +362,7 @@ class AEDT:
     def odesktop(self):
         return self.recreate_application()
 
-    def recreate_application(self, force=False):
+    def recreate_application(self, force: bool=False):
         def run():
             self.ReleaseAedtObject(self.aedt.objectID)
             port = self.port

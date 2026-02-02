@@ -368,7 +368,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_rotate_about_axis(vector, angle, radians=False, axis="z"):
+    def v_rotate_about_axis(vector, angle, radians: bool=False, axis="z"):
         """Evaluate rotation of a vector around an axis.
 
         Parameters
@@ -1114,7 +1114,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def orient_polygon(x, y, clockwise=True):
+    def orient_polygon(x, y, clockwise: bool=True):
         """Orient a polygon clockwise or counterclockwise.
 
         The vertices should be already ordered either way.
@@ -1191,7 +1191,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign(va, vb, vn, right_handed=True):
+    def v_angle_sign(va, vb, vn, right_handed: bool=True):
         """Evaluate the signed angle between two geometry vectors.
 
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
@@ -1236,7 +1236,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_angle_sign_2D(va, vb, right_handed=True):
+    def v_angle_sign_2D(va, vb, right_handed: bool=True):
         """Evaluate the signed angle between two 2D geometry vectors.
 
         It is the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
@@ -1351,7 +1351,7 @@ class GeometryOperators(PyAedtBase):
 
     @staticmethod
     @pyaedt_function_handler()
-    def are_segments_intersecting(a1, a2, b1, b2, include_collinear=True):
+    def are_segments_intersecting(a1, a2, b1, b2, include_collinear: bool=True):
         """
         Determine if the two segments a and b are intersecting.
 

@@ -333,7 +333,7 @@ class VersionManager:
             # Fallback to the current environment to avoid breaking functionality
             self.activated_env = os.environ.copy()
 
-    def run_pip(self, pip_args, capture_output=False, check=True):
+    def run_pip(self, pip_args, capture_output: bool=False, check: bool=True):
         """Run pip using python -m pip.
 
         Arguments:
@@ -628,7 +628,7 @@ class VersionManager:
             except Exception:  # pragma: no cover
                 return "Please restart"
 
-    def clicked_refresh(self, need_restart=False):
+    def clicked_refresh(self, need_restart: bool=False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
         msg = "\n".join(msg)
         self.venv_information.set(msg)

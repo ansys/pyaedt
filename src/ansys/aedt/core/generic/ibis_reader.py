@@ -1429,7 +1429,7 @@ class AMIReader(IbisReader, PyAedtBase):
             self._circuit.modeler.schematic.ocomponent_manager.ImportModelsFromFile(self._filename, args)
 
 
-def is_started_with(src, find, ignore_case=True):
+def is_started_with(src, find, ignore_case: bool=True):
     """Verify if a string content starts with a specific string or not.
 
     This is identical to ``str.startswith``, except that it includes

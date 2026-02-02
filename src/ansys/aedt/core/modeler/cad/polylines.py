@@ -94,8 +94,8 @@ class Polyline(Object3d, PyAedtBase):
         src_object=None,
         position_list=None,
         segment_type=None,
-        cover_surface=False,
-        close_surface=False,
+        cover_surface: bool=False,
+        close_surface: bool=False,
         name=None,
         matname=None,
         xsection_type=None,
@@ -105,7 +105,7 @@ class Polyline(Object3d, PyAedtBase):
         xsection_height=1,
         xsection_num_seg=0,
         xsection_bend_type=None,
-        non_model=False,
+        non_model: bool=False,
     ):
         self._is_polyline = True
         self._primitives = primitives

@@ -255,7 +255,7 @@ class HFSSDesignSolution(DesignSolution, PyAedtBase):
         self.solution_type = self.solution_type
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable=True, opening_type="Radiation"):
+    def set_auto_open(self, enable: bool=True, opening_type="Radiation"):
         """Set HFSS auto open type.
 
         Parameters
@@ -291,7 +291,7 @@ class Maxwell2DDesignSolution(DesignSolution, PyAedtBase):
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
-    def xy_plane(self, value=True):
+    def xy_plane(self, value: bool=True):
         if value:
             self._geometry_mode = "XY"
         else:

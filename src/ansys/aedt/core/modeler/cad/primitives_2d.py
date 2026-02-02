@@ -57,7 +57,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_circle(
-        self, origin, radius, num_sides=0, is_covered=True, name=None, material=None, non_model=False, **kwargs
+        self, origin, radius, num_sides=0, is_covered: bool=True, name=None, material=None, non_model: bool=False, **kwargs
     ):
         """Create a circle.
 
@@ -134,10 +134,10 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         origin,
         major_radius,
         ratio,
-        is_covered=True,
+        is_covered: bool=True,
         name=None,
         material=None,
-        non_model=False,
+        non_model: bool=False,
         segments=0,
         **kwargs
     ):  # fmt: on
@@ -203,7 +203,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
         return self._create_object(new_object_name, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, is_covered=True, name=None, material=None, non_model=False, **kwargs):
+    def create_rectangle(self, origin, sizes, is_covered: bool=True, name=None, material=None, non_model: bool=False, **kwargs):
         """Create a rectangle.
 
         Parameters
@@ -261,7 +261,7 @@ class Primitives2D(GeometryModeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_regular_polygon(
-        self, origin, start_point, num_sides=6, name=None, material=None, non_model=False, **kwargs
+        self, origin, start_point, num_sides=6, name=None, material=None, non_model: bool=False, **kwargs
     ):
         """Create a rectangle.
 

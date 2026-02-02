@@ -146,7 +146,7 @@ class Person(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app, motion: bool=True):
         """Insert the person in HFSS SBR+.
 
         Parameters
@@ -210,7 +210,7 @@ class Bird(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app, motion: bool=True):
         """Insert the bird in HFSS SBR+.
 
         Parameters
@@ -275,7 +275,7 @@ class Vehicle(Actor, PyAedtBase):
                     )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=True):
+    def insert(self, app, motion: bool=True):
         """Insert the vehicle in HFSS SBR+.
 
         Parameters
@@ -326,8 +326,8 @@ class Radar(MultiPartComponent, PyAedtBase):
         self,
         radar_folder,
         name=None,
-        motion=False,
-        use_relative_cs=False,
+        motion: bool=False,
+        use_relative_cs: bool=False,
         offset=("0", "0", "0"),
         speed=0,
         relative_cs_name=None,
@@ -398,7 +398,7 @@ class Radar(MultiPartComponent, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=False):
+    def insert(self, app, motion: bool=False):
         """Insert radar in the HFSS application instance.
 
         Parameters

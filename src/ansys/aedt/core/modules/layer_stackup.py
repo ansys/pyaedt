@@ -96,7 +96,7 @@ class Layer(PyAedtBase):
     >>> layers = app.modeler.layers["Top"]
     """
 
-    def __init__(self, app, layertype="signal", negative=False):
+    def __init__(self, app, layertype="signal", negative: bool=False):
         self.LengthUnit = app.LengthUnit
         self.LengthUnitRough = app.LengthUnit
         self._layers = app
@@ -1320,7 +1320,7 @@ class Layers(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_layer(
-        self, layer, layer_type="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
+        self, layer, layer_type="signal", thickness="0mm", elevation="0mm", material="copper", isnegative: bool=False
     ):
         """Add a layer.
 

@@ -458,7 +458,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
     @pyaedt_function_handler()
     def create(
-        self, assignment, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
+        self, assignment, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end: bool=True
     ):
         """Create a face coordinate system.
 
@@ -1123,7 +1123,7 @@ class CoordinateSystem(BaseCoordinateSystem, PyAedtBase):
 
         return xp, yp, zp
 
-    def _get_numeric_value(self, value=None, init=False, destroy=False):
+    def _get_numeric_value(self, value=None, init: bool=False, destroy: bool=False):
         """Get numeric value from a variable.
 
         Parameters
@@ -1347,9 +1347,9 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, PyAedtBase):
         origin,
         x_axis,
         y_axis,
-        move_to_end=True,
-        reverse_x_axis=False,
-        reverse_y_axis=False,
+        move_to_end: bool=True,
+        reverse_x_axis: bool=False,
+        reverse_y_axis: bool=False,
     ):
         """Create an object coordinate system.
 

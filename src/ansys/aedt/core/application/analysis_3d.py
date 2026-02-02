@@ -101,14 +101,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         solution_type,
         setup_name=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         Analysis.__init__(
             self,
@@ -230,17 +230,17 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def plot(
         self,
         assignment=None,
-        show=True,
+        show: bool=True,
         output_file=None,
-        plot_as_separate_objects=True,
-        plot_air_objects=True,
+        plot_as_separate_objects: bool=True,
+        plot_air_objects: bool=True,
         force_opacity_value=None,
-        clean_files=False,
+        clean_files: bool=False,
         view="isometric",
-        show_legend=True,
-        dark_mode=False,
-        show_grid=False,
-        show_bounding=False,
+        show_legend: bool=True,
+        dark_mode: bool=False,
+        show_grid: bool=False,
+        show_bounding: bool=False,
     ):
         """Plot the model or a subset of objects.
 
@@ -400,7 +400,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
+    def copy_solid_bodies_from(self, design, assignment=None, no_vacuum: bool=True, no_pec: bool=True, include_sheets: bool=False):
         """Copy a list of objects and user defined models from one design to the active design.
 
         If user defined models are selected, the project will be saved automatically. If the destination design
@@ -959,7 +959,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def cleanup_solution(self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True):
+    def cleanup_solution(self, variations="All", entire_solution: bool=True, field: bool=True, mesh: bool=True, linked_data: bool=True):
         """Delete a set of Solution Variations or part of them.
 
         Parameters
@@ -1005,7 +1005,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return Stackup3D(self)
 
     @pyaedt_function_handler()
-    def flatten_3d_components(self, components=None, purge_history=True, password=None):
+    def flatten_3d_components(self, components=None, purge_history: bool=True, password=None):
         """Flatten one or multiple 3d components in the actual layout.
 
         Each 3d Component is replaced with objects.

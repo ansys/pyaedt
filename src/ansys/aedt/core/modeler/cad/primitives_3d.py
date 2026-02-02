@@ -737,7 +737,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         sizes,
         name=None,
         material=None,
-        is_covered=True,
+        is_covered: bool=True,
         **kwargs
     ) -> "Object3d":
         """Create a rectangle.
@@ -797,8 +797,8 @@ class Primitives3D(GeometryModeler, PyAedtBase):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_circle(self, orientation, origin, radius, num_sides=0, is_covered=True, name=None,
-                      material=None, non_model=False, **kwargs):  # fmt: on
+    def create_circle(self, orientation, origin, radius, num_sides=0, is_covered: bool=True, name=None,
+                      material=None, non_model: bool=False, **kwargs):  # fmt: on
         """Create a circle.
 
         Parameters
@@ -885,7 +885,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             origin,
             major_radius,
             ratio,
-            is_covered=True,
+            is_covered: bool=True,
             name=None,
             material=None,
             segments=0,
@@ -1169,7 +1169,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
     # fmt: off
     @pyaedt_function_handler()
     def create_helix(self, assignment, origin, x_start_dir, y_start_dir, z_start_dir, turns=1,
-                     right_hand=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
+                     right_hand: bool=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
         """Create a helix from a polyline.
 
         Parameters
@@ -1560,7 +1560,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             coordinate_system="Global",
             name=None,
             password=None,
-            auxiliary_parameters=False,
+            auxiliary_parameters: bool=False,
     ):
         """Insert a new 3D component.
 
@@ -1928,7 +1928,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             input_file,
             coordinate_system="Global",
             name=None,
-            parameter_mapping=False,
+            parameter_mapping: bool=False,
             layout_coordinate_systems=None,
             reference_coordinate_system="Global"
     ):
@@ -3073,7 +3073,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         return core
 
     @pyaedt_function_handler()
-    def check_choke_values(self, input_dir, create_another_file=True):
+    def check_choke_values(self, input_dir, create_another_file: bool=True):
         """Verify the values in the json file and create another one with corrected values next to the first one.
 
         Parameters

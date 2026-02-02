@@ -425,7 +425,7 @@ class VirtualComplianceGenerator(PyAedtBase):
         self.config["reports"].append(pars)
 
     @pyaedt_function_handler()
-    def add_report_from_folder(self, input_folder, design_name, group_plots=False, project=None):
+    def add_report_from_folder(self, input_folder, design_name, group_plots: bool=False, project=None):
         """Add multiple reports from a folder.
 
         Parameters
@@ -750,7 +750,7 @@ class VirtualCompliance(PyAedtBase):
                     self._parse_reports(parameter, True)
 
     @pyaedt_function_handler()
-    def _parse_reports(self, report, is_parameter=False, is_report_parameters=False):
+    def _parse_reports(self, report, is_parameter: bool=False, is_report_parameters: bool=False):
         name = report["name"]
 
         if name in self._reports.values():
@@ -801,7 +801,7 @@ class VirtualCompliance(PyAedtBase):
         design_name,
         traces,
         setup_name=None,
-        pass_fail=True,
+        pass_fail: bool=True,
         pass_fail_criteria=None,
     ):
         """Add a new custom aedt report to the compliance.
@@ -1674,7 +1674,7 @@ class VirtualCompliance(PyAedtBase):
                     report.add_table("Components", components, col_widths=[75, 275])
 
     @pyaedt_function_handler()
-    def create_compliance_report(self, file_name="compliance_test.pdf", close_project=True):
+    def create_compliance_report(self, file_name="compliance_test.pdf", close_project: bool=True):
         """Create the Virtual Compliance report.
 
         Parameters
@@ -1736,7 +1736,7 @@ class VirtualCompliance(PyAedtBase):
             )
         return self.report_data
 
-    def create_pdf(self, file_name, close_project=True):
+    def create_pdf(self, file_name, close_project: bool=True):
         """Create the PDF report after the method ``compute_report_data`` is called.
 
         Parameters

@@ -120,7 +120,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
 
     @pyaedt_function_handler()
     def connect_schematic_components(
-        self, starting_component, ending_component, pin_starting=2, pin_ending=1, use_wire=True
+        self, starting_component, ending_component, pin_starting=2, pin_ending=1, use_wire: bool=True
     ):
         """Connect schematic components.
 
@@ -179,7 +179,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         text_size=12,
         text_angle=0,
         text_color=0,
-        show_rect=False,
+        show_rect: bool=False,
         x1=0,
         y1=0,
         x2=0,
@@ -436,7 +436,7 @@ class ModelerCircuit(Modeler, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list=True):
+    def _get_components_selections(self, selections, return_as_list: bool=True):
         sels = []
         if not isinstance(selections, list):
             selections = [selections]
@@ -751,7 +751,7 @@ class ModelerEmit(ModelerCircuit, PyAedtBase):
         self.logger.info("ModelerEmit class has been initialized!")
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list=True):  # pragma: no cover
+    def _get_components_selections(self, selections, return_as_list: bool=True):  # pragma: no cover
         sels = []
         if not isinstance(selections, list):
             selections = [selections]

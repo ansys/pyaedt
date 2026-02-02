@@ -738,7 +738,7 @@ class MatProperty(PyAedtBase):
 
     @pyaedt_function_handler()
     def add_thermal_modifier_closed_form(
-        self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc=True, tml=1000, tmu=1000, index=0
+        self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc: bool=True, tml=1000, tmu=1000, index=0
     ):
         """Add a thermal modifier to a material property using a closed-form formula.
 
@@ -1299,7 +1299,7 @@ class CommonMaterial(PyAedtBase):
         _dict2arg(props, arg)
         return arg
 
-    def _update_props(self, propname, propvalue, update_aedt=True):
+    def _update_props(self, propname, propvalue, update_aedt: bool=True):
         """Update properties.
 
         Parameters
@@ -1404,7 +1404,7 @@ class Material(CommonMaterial, PyAedtBase):
     def __str__(self):
         return self.name
 
-    def __init__(self, materiallib, name, props=None, material_update=True):
+    def __init__(self, materiallib, name, props=None, material_update: bool=True):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
         self._material_update = material_update
@@ -2743,7 +2743,7 @@ class SurfaceMaterial(CommonMaterial, PyAedtBase):
         The default is ``True``.
     """
 
-    def __init__(self, materiallib, name, props=None, material_update=True):
+    def __init__(self, materiallib, name, props=None, material_update: bool=True):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.surface_clarity_type = "Opaque"
         self._material_update = material_update

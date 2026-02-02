@@ -623,7 +623,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
+    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects: bool=True):
         """Duplicate the component around the axis.
 
         Parameters
@@ -656,7 +656,7 @@ class UserDefinedComponent(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
+    def duplicate_along_line(self, vector, clones=2, attach: bool=False, **kwargs):
         """Duplicate the object along a line.
 
         Parameters
@@ -817,7 +817,7 @@ class UserDefinedComponent(PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def update_definition(self, password=None, output_file="", local_update=False):
+    def update_definition(self, password=None, output_file="", local_update: bool=False):
         """Update 3d component definition.
 
         Parameters

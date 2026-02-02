@@ -225,7 +225,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.cell(0, 10, self.report_specs.footer_text, 0, align="L")
         self.cell(0, 10, "Page " + str(self.page_no()) + "/{nb}", align="R")
 
-    def create(self, add_cover_page=True, add_new_section_after=True):
+    def create(self, add_cover_page: bool=True, add_new_section_after: bool=True):
         """Create a new report using ``report_specs`` properties.
 
         Parameters
@@ -602,7 +602,7 @@ class AnsysReport(FPDF, PyAedtBase):
         self.add_caption(f"Table {self.__table_idx}: {title}")
         self.__table_idx += 1
 
-    def add_text(self, content, bold=False, italic=False):
+    def add_text(self, content, bold: bool=False, italic: bool=False):
         """Add a new text.
 
         Parameters

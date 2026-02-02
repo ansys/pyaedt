@@ -181,7 +181,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         context=None,
         subdesign_id=None,
         polyline_points=0,
-        is_goal=False,
+        is_goal: bool=False,
     ):
         did = 3
         if domain != "Sweep":
@@ -407,7 +407,7 @@ class CommonOptimetrics(PropsManager, PyAedtBase):
         subdesign_id=None,
         polyline_points=1001,
         report_type=None,
-        is_goal=False,
+        is_goal: bool=False,
         condition="<=",
         goal_value=1,
         goal_weight=1,
@@ -662,7 +662,7 @@ class SetupOpti(CommonOptimetrics, PyAedtBase):
         starting_point=None,
         min_step=None,
         max_step=None,
-        use_manufacturable=False,
+        use_manufacturable: bool=False,
         levels=None,
     ):
         """Add a new variable as input for the optimization and defines its ranges.

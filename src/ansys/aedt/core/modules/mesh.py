@@ -795,12 +795,12 @@ class Mesh(PyAedtBase):
         self,
         level=5,
         method="Auto",
-        dynamic_surface=True,
-        flex_mesh=False,
-        curvilinear=False,
-        fallback=True,
-        phi=True,
-        auto_model_resolution=True,
+        dynamic_surface: bool=True,
+        flex_mesh: bool=False,
+        curvilinear: bool=False,
+        fallback: bool=True,
+        phi: bool=True,
+        auto_model_resolution: bool=True,
         model_resolution_length="0.0001mm",
     ):
         """Assign a surface mesh level to an object.
@@ -886,11 +886,11 @@ class Mesh(PyAedtBase):
         surface_deviation=None,
         normal_deviation=None,
         aspect_ratio=None,
-        flex_mesh=False,
-        curvilinear=False,
-        fallback=True,
-        phi=True,
-        auto_model_resolution=True,
+        flex_mesh: bool=False,
+        curvilinear: bool=False,
+        fallback: bool=True,
+        phi: bool=True,
+        auto_model_resolution: bool=True,
         model_resolution_length="0.0001mm",
     ):
         """Assign a surface mesh level to an object.
@@ -1085,7 +1085,7 @@ class Mesh(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_length_mesh(self, assignment, inside_selection=True, maximum_length=1, maximum_elements=1000, name=None):
+    def assign_length_mesh(self, assignment, inside_selection: bool=True, maximum_length=1, maximum_elements=1000, name=None):
         """Assign a length for the model resolution.
 
         Parameters
@@ -1257,7 +1257,7 @@ class Mesh(PyAedtBase):
         return mop
 
     @pyaedt_function_handler()
-    def assign_curvilinear_elements(self, assignment, enable=True, name=None):
+    def assign_curvilinear_elements(self, assignment, enable: bool=True, name=None):
         """Assign curvilinear elements.
 
         Parameters
@@ -1305,7 +1305,7 @@ class Mesh(PyAedtBase):
         return mop
 
     @pyaedt_function_handler()
-    def assign_curvature_extraction(self, assignment, disabled_for_faceted=True, name=None):
+    def assign_curvature_extraction(self, assignment, disabled_for_faceted: bool=True, name=None):
         """Assign curvature extraction.
 
         Parameters
@@ -1449,7 +1449,7 @@ class Mesh(PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_density_control(
-        self, assignment, refine_inside=True, maximum_element_length=None, layers_number=None, name=None
+        self, assignment, refine_inside: bool=True, maximum_element_length=None, layers_number=None, name=None
     ):
         """Assign density control.
 
@@ -1522,7 +1522,7 @@ class Mesh(PyAedtBase):
         entity,
         name=None,
         band_mapping_angle=None,
-        clone_mesh=False,
+        clone_mesh: bool=False,
         moving_side_layers=1,
         static_side_layers=1,
     ):

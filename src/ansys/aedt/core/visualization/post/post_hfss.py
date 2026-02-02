@@ -109,7 +109,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         irregular_surface_tolerance=50,
         incident_theta=0,
         incident_phi=0,
-        is_vertical_polarization=False,
+        is_vertical_polarization: bool=False,
     ):
         """Create a Creeping Wave Plane Wave Visual Ray Tracing and return the class object.
 
@@ -199,12 +199,12 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         max_frequency="1GHz",
         ray_density=2,
         number_of_bounces=5,
-        multi_bounce=False,
+        multi_bounce: bool=False,
         mbrd_max_sub_division=2,
-        shoot_utd=False,
+        shoot_utd: bool=False,
         incident_theta=0,
         incident_phi=0,
-        is_vertical_polarization=False,
+        is_vertical_polarization: bool=False,
         shoot_filter_type="All Rays",
         ray_index_start=0,
         ray_index_stop=1,
@@ -273,9 +273,9 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
         max_frequency="1GHz",
         ray_density=2,
         number_of_bounces=5,
-        multi_bounce=False,
+        multi_bounce: bool=False,
         mbrd_max_sub_division=2,
-        shoot_utd=False,
+        shoot_utd: bool=False,
         custom_location=None,
         shoot_filter_type="All Rays",
         ray_index_start=0,
@@ -359,7 +359,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers(
-        self, layers, quantity, setup=None, nets=None, plot_on_surface=True, intrinsics=None, name=None
+        self, layers, quantity, setup=None, nets=None, plot_on_surface: bool=True, intrinsics=None, name=None
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
@@ -416,7 +416,7 @@ class PostProcessorHFSS(PostProcessor3D, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_fieldplot_layers_nets(
-        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface=True, plot_name=None
+        self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface: bool=True, plot_name=None
     ):
         # type: (list, str, str, dict, bool, str) -> FieldPlot
         """Create a field plot of stacked layer plot on specified matrix of layers and nets.

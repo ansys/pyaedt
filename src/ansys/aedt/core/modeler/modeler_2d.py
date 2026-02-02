@@ -77,7 +77,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return self
 
     @pyaedt_function_handler()
-    def calculate_radius_2D(self, assignment, inner=False):
+    def calculate_radius_2D(self, assignment, inner: bool=False):
         """Calculate the extremity of an object in the radial direction.
 
         Parameters
@@ -145,7 +145,7 @@ class Modeler2D(Primitives2D, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def objects_in_bounding_box(self, bounding_box, check_lines=True, check_sheets=True):
+    def objects_in_bounding_box(self, bounding_box, check_lines: bool=True, check_sheets: bool=True):
         """Given a 2D bounding box, check if sheets and lines are inside it.
 
         Parameters

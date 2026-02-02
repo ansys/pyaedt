@@ -52,10 +52,10 @@ Simplorer = TwinBuilder
 
 def launch_desktop(
     version=None,
-    non_graphical=False,
-    new_desktop=True,
-    close_on_exit=True,
-    student_version=False,
+    non_graphical: bool=False,
+    new_desktop: bool=True,
+    close_on_exit: bool=True,
+    student_version: bool=False,
     machine="",
     port=0,
     aedt_process_id=None,

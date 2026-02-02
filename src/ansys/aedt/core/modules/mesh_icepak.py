@@ -307,7 +307,7 @@ class CommonRegion(PyAedtBase):
             if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
                 self._name = value
 
-    def _set_region_data(self, value, direction=None, padding_type=True):
+    def _set_region_data(self, value, direction=None, padding_type: bool=True):
         self._update_region_data()
         region = self.object
         create_region = region.history()
@@ -330,7 +330,7 @@ class CommonRegion(PyAedtBase):
             self._padding_value.append(create_region.properties[f"{padding_direction} Padding Data"])
             self._coordinate_system = create_region.properties["Coordinate System"]
 
-    def _get_region_data(self, direction=None, padding_type=True):
+    def _get_region_data(self, direction=None, padding_type: bool=True):
         self._update_region_data()
         idx = self._dir_order.index(direction)
         if padding_type:
@@ -1379,7 +1379,7 @@ class IcepakMesh(PyAedtBase):
         self,
         mesh_level,
         group_name,
-        enable_local_mesh_parameters=False,
+        enable_local_mesh_parameters: bool=False,
         local_mesh_parameters="No local mesh parameters",
         name=None,
     ):

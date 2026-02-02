@@ -159,7 +159,7 @@ class CircuitPins(PyAedtBase):
             points.append([points[-1][0], deltay])
             points.append([target[0], deltay])
 
-    def _get_deltas(self, point, move_x=True, move_y=True, positive=True, units=1):
+    def _get_deltas(self, point, move_x: bool=True, move_y: bool=True, positive: bool=True, units=1):
         if positive:
             delta = +units * 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
         else:
@@ -179,7 +179,7 @@ class CircuitPins(PyAedtBase):
         self,
         assignment,
         page_name=None,
-        use_wire=False,
+        use_wire: bool=False,
         wire_name="",
         clearance_units=1,
         page_port_angle=None,
@@ -887,7 +887,7 @@ class CircuitComponent(PyAedtBase):
         return self._mirror
 
     @mirror.setter
-    def mirror(self, mirror_value=True):
+    def mirror(self, mirror_value: bool=True):
         """Mirror part.
 
         Parameters
@@ -1086,7 +1086,7 @@ class CircuitComponent(PyAedtBase):
         return self.model_data.update()
 
     @pyaedt_function_handler()
-    def change_symbol_pin_locations(self, pin_locations, keep_original_size=True):
+    def change_symbol_pin_locations(self, pin_locations, keep_original_size: bool=True):
         """Change the locations of symbol pins.
 
         Parameters
@@ -1147,7 +1147,7 @@ class CircuitComponent(PyAedtBase):
         bounding = self.bounding_box
         loc = self.location
 
-        def round_to_base(number, ceil=False):
+        def round_to_base(number, ceil: bool=False):
             return (
                 round(number / base_spacing) * base_spacing
                 if not ceil
@@ -1388,7 +1388,7 @@ class Wire(PyAedtBase):
         return self.composed_name.split("@")[1].split(";")[0]
 
     @pyaedt_function_handler()
-    def set_net_name(self, name, split_wires=False):
+    def set_net_name(self, name, split_wires: bool=False):
         """Set wire net name.
 
         Parameters
@@ -1485,7 +1485,7 @@ class Excitations(CircuitComponent):
         return self._props["EnableNoise"]
 
     @enable_noise.setter
-    def enable_noise(self, enable=False):
+    def enable_noise(self, enable: bool=False):
         self.change_property(["NAME:EnableNoise", "Value:=", enable])
         self._props["EnableNoise"] = enable
 
@@ -1519,7 +1519,7 @@ class Excitations(CircuitComponent):
             return False
 
     @microwave_symbol.setter
-    def microwave_symbol(self, enable=False):
+    def microwave_symbol(self, enable: bool=False):
         if enable:
             self._props["SymbolType"] = 1
         else:

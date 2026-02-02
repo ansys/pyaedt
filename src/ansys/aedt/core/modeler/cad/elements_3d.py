@@ -445,7 +445,7 @@ class EdgePrimitive(ModifiablePrimitive, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_object(self, non_model=False):
+    def create_object(self, non_model: bool=False):
         """Return a new object from the selected edge.
 
         Returns
@@ -1127,7 +1127,7 @@ class FacePrimitive(PyAedtBase):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self, non_model=False):
+    def create_object(self, non_model: bool=False):
         """Return a new object from the selected face.
 
         Returns
@@ -1567,7 +1567,7 @@ class HistoryProps(dict):
 class BinaryTreeNode:
     """Manages an object's history structure."""
 
-    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None, root_name=None, app=None):
+    def __init__(self, node, child_object, first_level: bool=False, get_child_obj_arg=None, root_name=None, app=None):
         self._props = None
         self._app = app
         if not root_name:

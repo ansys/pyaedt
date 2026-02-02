@@ -183,7 +183,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @pyaedt_function_handler()
     def available_quantities_categories(
-        self, report_category=None, display_type=None, solution=None, context=None, is_siwave_dc=False
+        self, report_category=None, display_type=None, solution=None, context=None, is_siwave_dc: bool=False
     ):
         """Compute the list of all available report categories.
 
@@ -265,8 +265,8 @@ class PostProcessorCommon(PyAedtBase):
         solution=None,
         quantities_category=None,
         context=None,
-        is_siwave_dc=False,
-        differential_pairs=False,
+        is_siwave_dc: bool=False,
+        differential_pairs: bool=False,
     ):
         """Compute the list of all available report quantities of a given report quantity category.
 
@@ -467,7 +467,7 @@ class PostProcessorCommon(PyAedtBase):
         self,
         solution=None,
         context=None,
-        is_siwave_dc=False,
+        is_siwave_dc: bool=False,
     ):
         """Return all the possible report categories organized by report types, solution and categories.
 
@@ -655,7 +655,7 @@ class PostProcessorCommon(PyAedtBase):
         return list(self.oreportsetup.GetAllReportNames())
 
     @pyaedt_function_handler()
-    def copy_report_data(self, plot_name, paste=True):
+    def copy_report_data(self, plot_name, paste: bool=True):
         """Copy report data as static data.
 
         Parameters
@@ -836,12 +836,12 @@ class PostProcessorCommon(PyAedtBase):
         output_dir,
         plot_name,
         extension,
-        unique_file=False,
-        uniform=False,
+        unique_file: bool=False,
+        uniform: bool=False,
         start=None,
         end=None,
         step=None,
-        use_trace_number_format=False,
+        use_trace_number_format: bool=False,
     ):
         r"""
         Export a 2D Plot data to a file.
@@ -924,7 +924,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @pyaedt_function_handler()
     def export_report_to_csv(
-        self, project_dir, plot_name, uniform=False, start=None, end=None, step=None, use_trace_number_format=False
+        self, project_dir, plot_name, uniform: bool=False, start=None, end=None, step=None, use_trace_number_format: bool=False
     ):
         """Export the 2D Plot data to a CSV file.
 
@@ -1019,7 +1019,7 @@ class PostProcessorCommon(PyAedtBase):
         subdesign_id=None,
         polyline_points=0,
         plot_name=None,
-        only_get_method=False,
+        only_get_method: bool=False,
     ):
         ctxt = []
         if not setup_sweep_name:
@@ -1698,7 +1698,7 @@ class PostProcessorCommon(PyAedtBase):
 
     @pyaedt_function_handler()
     def create_report_from_configuration(
-        self, input_file=None, report_settings=None, solution_name=None, name=None, matplotlib=False, show=True
+        self, input_file=None, report_settings=None, solution_name=None, name=None, matplotlib: bool=False, show: bool=True
     ):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
@@ -1844,7 +1844,7 @@ class PostProcessorCommon(PyAedtBase):
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
-    def _report_plotter(self, report, show=True):
+    def _report_plotter(self, report, show: bool=True):
         """Create a Matplotlib plot from a report.
 
         Parameters
@@ -2538,7 +2538,7 @@ class Reports(PyAedtBase):
 
     @pyaedt_function_handler()
     def eye_diagram(
-        self, expressions=None, setup=None, quantity_type=3, statistical_analysis=True, unit_interval="1ns"
+        self, expressions=None, setup=None, quantity_type=3, statistical_analysis: bool=True, unit_interval="1ns"
     ):
         """Create a Standard or Default Report object.
 

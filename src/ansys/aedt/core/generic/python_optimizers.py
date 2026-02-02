@@ -139,7 +139,7 @@ class GeneticAlgorithm(PyAedtBase):
         var_type_mixed=None,
         function_timeout=0,
         algorithm_parameters=None,
-        progress_bar=True,
+        progress_bar: bool=True,
     ):
         self.population_file = None
         self.goal = 1e10

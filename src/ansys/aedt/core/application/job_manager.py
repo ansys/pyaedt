@@ -50,7 +50,7 @@ def get_hpc_info(filename):
     return config_name, design_type
 
 
-def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True, separator="="):
+def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring: bool=True, separator="="):
     """Update an HPC option in the configuration file.
 
     Parameters

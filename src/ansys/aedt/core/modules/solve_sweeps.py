@@ -219,7 +219,7 @@ class SweepHFSS(SweepCommon):
         return []
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", save_single_fields: bool=False, clear: bool=False):
         """Add a range to the sweep.
 
         Parameters
@@ -375,7 +375,7 @@ class SweepHFSS3DLayout(SweepCommon):
 
     """
 
-    def __init__(self, setup, name, sweep_type="Interpolating", save_fields=True, props=None, **kwargs):
+    def __init__(self, setup, name, sweep_type="Interpolating", save_fields: bool=True, props=None, **kwargs):
         self._app = setup
         self.oanalysis = setup.omodule
         self.props = {}
@@ -451,7 +451,7 @@ class SweepHFSS3DLayout(SweepCommon):
         return self.update()
 
     @pyaedt_function_handler()
-    def set_save_fields(self, save_fields, save_rad_fields=False):
+    def set_save_fields(self, save_fields, save_rad_fields: bool=False):
         """Choose whether to save fields.
 
         Parameters
@@ -735,7 +735,7 @@ class SweepMatrix(SweepCommon):
         return []
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear: bool=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -1018,7 +1018,7 @@ class SetupProps(dict):
     def _setitem_without_update(self, key, value):
         dict.__setitem__(self, key, value)
 
-    def _export_properties_to_json(self, file_path, overwrite=False):
+    def _export_properties_to_json(self, file_path, overwrite: bool=False):
         """Export all setup properties to a JSON file.
 
         Parameters

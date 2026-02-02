@@ -1915,7 +1915,7 @@ class Design(AedtObjects, PyAedtBase):
         tolerance=None,
         probability=None,
         mean=None,
-        enable=True,
+        enable: bool=True,
     ):
         """Optimetrics variable arguments.
 
@@ -2211,7 +2211,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def hidden_variable(self, name, value=True):
+    def hidden_variable(self, name, value: bool=True):
         """Set the variable to a hidden or unhidden variable.
 
         Parameters
@@ -2264,7 +2264,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def read_only_variable(self, name, value=True):
+    def read_only_variable(self, name, value: bool=True):
         """Set the variable to a read-only or not read-only variable.
 
         Parameters
@@ -2549,7 +2549,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def release_desktop(self, close_projects=True, close_desktop=True):
+    def release_desktop(self, close_projects: bool=True, close_desktop: bool=True):
         """Release AEDT.
 
         .. deprecated:: 0.19.1
@@ -2620,7 +2620,7 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def load_project(self, file_name, design=None, close_active=False, set_active=False):
+    def load_project(self, file_name, design=None, close_active: bool=False, set_active: bool=False):
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -2660,7 +2660,7 @@ class Design(AedtObjects, PyAedtBase):
                 self.modeler._edb.close_edb()
 
     @pyaedt_function_handler()
-    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit="", sort=True):
+    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit="", sort: bool=True):
         """Create a design dataset.
 
         Parameters
@@ -2690,7 +2690,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
     @pyaedt_function_handler()
-    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit="", sort=True):
+    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit="", sort: bool=True):
         """Create a project dataset.
 
         Parameters
@@ -2722,7 +2722,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_dataset3d(
-        self, name, x, y, z=None, v=None, x_unit="", y_unit="", z_unit="", v_unit="", is_project_dataset=True, sort=True
+        self, name, x, y, z=None, v=None, x_unit="", y_unit="", z_unit="", v_unit="", is_project_dataset: bool=True, sort: bool=True
     ):
         """Create a 3D dataset.
 
@@ -2950,7 +2950,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_dataset(
-        self, name, x, y, z=None, v=None, is_project_dataset=True, x_unit="", y_unit="", z_unit="", v_unit="", sort=True
+        self, name, x, y, z=None, v=None, is_project_dataset: bool=True, x_unit="", y_unit="", z_unit="", v_unit="", sort: bool=True
     ):
         """Create a dataset.
 
@@ -3005,7 +3005,7 @@ class Design(AedtObjects, PyAedtBase):
         return ds
 
     @pyaedt_function_handler()
-    def dataset_exists(self, name, is_project_dataset=True):
+    def dataset_exists(self, name, is_project_dataset: bool=True):
         """Check if a dataset exists.
 
         Parameters
@@ -3058,7 +3058,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def change_automatically_use_causal_materials(self, lossy_dielectric=True):
+    def change_automatically_use_causal_materials(self, lossy_dielectric: bool=True):
         """Enable or disable the automatic use of causal materials for lossy dielectrics.
 
         Parameters
@@ -3083,7 +3083,7 @@ class Design(AedtObjects, PyAedtBase):
         return self.change_design_settings({"Calculate Lossy Dielectrics": lossy_dielectric})
 
     @pyaedt_function_handler()
-    def change_material_override(self, material_override=True):
+    def change_material_override(self, material_override: bool=True):
         """Enable or disable the material override in the project.
 
         Parameters
@@ -3109,7 +3109,7 @@ class Design(AedtObjects, PyAedtBase):
 
     @pyaedt_function_handler()
     def change_validation_settings(
-        self, entity_check_level="Strict", ignore_unclassified=False, skip_intersections=False
+        self, entity_check_level="Strict", ignore_unclassified: bool=False, skip_intersections: bool=False
     ):
         """Update the validation design settings.
 
@@ -3234,7 +3234,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def close_project(self, name=None, save=True):
+    def close_project(self, name=None, save: bool=True):
         """Close an AEDT project.
 
         Parameters
@@ -3521,7 +3521,7 @@ class Design(AedtObjects, PyAedtBase):
         return proj_name
 
     @pyaedt_function_handler()
-    def rename_design(self, name, save=True):
+    def rename_design(self, name, save: bool=True):
         """Rename the active design.
 
         Parameters
@@ -3549,7 +3549,7 @@ class Design(AedtObjects, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def copy_design_from(self, project, design, save_project=True, set_active_design=True):
+    def copy_design_from(self, project, design, save_project: bool=True, set_active_design: bool=True):
         """Copy a design from a project into the active project.
 
         Parameters
@@ -3611,7 +3611,7 @@ class Design(AedtObjects, PyAedtBase):
         return new_designname
 
     @pyaedt_function_handler()
-    def duplicate_design(self, name, save_after_duplicate=True):
+    def duplicate_design(self, name, save_after_duplicate: bool=True):
         """Copy a design to a new name.
 
         The new name consists of the original
@@ -3758,7 +3758,7 @@ class Design(AedtObjects, PyAedtBase):
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler()
-    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
+    def save_project(self, file_name=None, overwrite: bool=True, refresh_ids: bool=False):
         """Save the project and add a message.
 
         Parameters
@@ -3807,8 +3807,8 @@ class Design(AedtObjects, PyAedtBase):
     def archive_project(
         self,
         project_path=None,
-        include_external_files=True,
-        include_results_file=True,
+        include_external_files: bool=True,
+        include_results_file: bool=True,
         additional_files=None,
         notes="",
     ):
@@ -4126,7 +4126,7 @@ class Design(AedtObjects, PyAedtBase):
         return consistent
 
     @pyaedt_function_handler()
-    def add_from_toolkit(self, toolkit, draw=False, **kwargs):
+    def add_from_toolkit(self, toolkit, draw: bool=False, **kwargs):
         """Add a new toolkit to the current application.
 
         Parameters

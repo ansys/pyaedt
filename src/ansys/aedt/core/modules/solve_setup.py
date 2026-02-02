@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 
 
 class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         self.auto_update = False
         self._app = app
         if solution_type is None:
@@ -218,12 +218,12 @@ class CommonSetup(PropsManager, BinaryTreeNode, PyAedtBase):
         tasks=1,
         gpus=0,
         acf_file=None,
-        use_auto_settings=True,
-        solve_in_batch=False,
+        use_auto_settings: bool=True,
+        solve_in_batch: bool=False,
         machine="localhost",
-        run_in_thread=False,
-        revert_to_initial_mesh=False,
-        blocking=True,
+        run_in_thread: bool=False,
+        revert_to_initial_mesh: bool=False,
+        blocking: bool=True,
     ):
         """Solve the active design.
 
@@ -596,7 +596,7 @@ class Setup(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -783,11 +783,11 @@ class Setup(CommonSetup):
         expressions,
         report_type="Fields",
         intrinsics="",
-        isconvergence=True,
-        isrelativeconvergence=True,
+        isconvergence: bool=True,
+        isrelativeconvergence: bool=True,
         conv_criteria=1,
-        use_cache_for_pass=True,
-        use_cache_for_freq=True,
+        use_cache_for_pass: bool=True,
+        use_cache_for_freq: bool=True,
     ):
         """Enable an expression cache.
 
@@ -888,10 +888,10 @@ class Setup(CommonSetup):
         solution=None,
         parameters=None,
         project="This Project*",
-        force_source_to_solve=True,
-        preserve_partner_solution=True,
-        apply_mesh_operations=True,
-        adapt_port=True,
+        force_source_to_solve: bool=True,
+        preserve_partner_solution: bool=True,
+        apply_mesh_operations: bool=True,
+        adapt_port: bool=True,
     ):
         """Import mesh from a source design solution to the target design.
 
@@ -1067,11 +1067,11 @@ class Setup(CommonSetup):
         self,
         design,
         solution,
-        map_variables_by_name=True,
+        map_variables_by_name: bool=True,
         parameters=None,
         project="This Project*",
-        force_source_to_solve=True,
-        preserve_partner_solution=True,
+        force_source_to_solve: bool=True,
+        preserve_partner_solution: bool=True,
     ):
         """Start or continue from a previously solved setup.
 
@@ -1158,7 +1158,7 @@ class SetupCircuit(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
@@ -1216,7 +1216,7 @@ class SetupCircuit(CommonSetup):
         return self._initialize_tree_node()
 
     @pyaedt_function_handler()
-    def _setup(self, soltype, arg, newsetup=True):
+    def _setup(self, soltype, arg, newsetup: bool=True):
         if newsetup:
             if soltype == "NexximLNA":
                 self.omodule.AddLinearNetworkAnalysis(arg)
@@ -1285,7 +1285,7 @@ class SetupCircuit(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def add_sweep_points(self, sweep_variable="Freq", sweep_points=1, units="GHz", override_existing_sweep=True):
+    def add_sweep_points(self, sweep_variable="Freq", sweep_points=1, units="GHz", override_existing_sweep: bool=True):
         """Add a linear count sweep to existing Circuit Setup.
 
         Parameters
@@ -1336,7 +1336,7 @@ class SetupCircuit(CommonSetup):
         count=100,
         units="GHz",
         count_type="Linear",
-        override_existing_sweep=True,
+        override_existing_sweep: bool=True,
     ):
         """Add a step sweep to existing Circuit Setup. It can be ``"Linear"``, ``"Decade"`` or ``"Octave"``.
 
@@ -1393,7 +1393,7 @@ class SetupCircuit(CommonSetup):
         stop=100,
         step_size=1,
         units="GHz",
-        override_existing_sweep=True,
+        override_existing_sweep: bool=True,
     ):
         """Add a linear count sweep to existing Circuit Setup.
 
@@ -1585,8 +1585,8 @@ class SetupCircuit(CommonSetup):
         expressions,
         report_type="Fields",
         intrinsics="",
-        isconvergence=True,
-        isrelativeconvergence=True,
+        isconvergence: bool=True,
+        isrelativeconvergence: bool=True,
         conv_criteria=1,
     ):
         """Enable a setup expression cache.
@@ -1847,7 +1847,7 @@ class Setup3DLayout(CommonSetup):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         CommonSetup.__init__(self, app, solution_type, name, is_new_setup)
 
     @property
@@ -2035,7 +2035,7 @@ class Setup3DLayout(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def export_to_hfss(self, output_file, keep_net_name=False, unite=True):
+    def export_to_hfss(self, output_file, keep_net_name: bool=False, unite: bool=True):
         """Export the HFSS 3D Layout design to an HFSS 3D design.
 
         This method is not supported with IronPython.
@@ -2301,7 +2301,7 @@ class Setup3DLayout(CommonSetup):
         return succeeded
 
     @pyaedt_function_handler()
-    def export_to_q3d(self, output_file, keep_net_name=False, unite=True):
+    def export_to_q3d(self, output_file, keep_net_name: bool=False, unite: bool=True):
         """Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
@@ -2424,7 +2424,7 @@ class Setup3DLayout(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def export_to_json(self, file_path, overwrite=False):
+    def export_to_json(self, file_path, overwrite: bool=False):
         """Export all setup properties into a json file.
 
         Parameters
@@ -2445,10 +2445,10 @@ class Setup3DLayout(CommonSetup):
         self,
         entry_selection=0,
         ignore_phase_when_mag_is_less_than=0.01,
-        all_diagonal_entries=True,
+        all_diagonal_entries: bool=True,
         max_delta=0.02,
         max_delta_phase=5,
-        all_offdiagonal_entries=True,
+        all_offdiagonal_entries: bool=True,
         off_diagonal_mag=0.02,
         off_diagonal_phase=5,
         custom_entries=None,
@@ -2540,7 +2540,7 @@ class SetupHFSS(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -2643,8 +2643,8 @@ class SetupHFSS(Setup, PyAedtBase):
         stop_frequency=10.0,
         num_of_freq_points=None,
         name=None,
-        save_fields=True,
-        save_rad_fields=False,
+        save_fields: bool=True,
+        save_rad_fields: bool=False,
         sweep_type="Discrete",
         interpolation_tol=0.5,
         interpolation_max_solutions=250,
@@ -2748,8 +2748,8 @@ class SetupHFSS(Setup, PyAedtBase):
         stop_frequency=2.0,
         step_size=0.05,
         name=None,
-        save_fields=True,
-        save_rad_fields=False,
+        save_fields: bool=True,
+        save_rad_fields: bool=False,
         sweep_type="Discrete",
     ):
         """Create a Sweep with a specified frequency step.
@@ -2832,9 +2832,9 @@ class SetupHFSS(Setup, PyAedtBase):
         unit="GHz",
         freq=1,
         name=None,
-        save_single_field=True,
-        save_fields=False,
-        save_rad_fields=False,
+        save_single_field: bool=True,
+        save_fields: bool=False,
+        save_rad_fields: bool=False,
     ):
         """Create a Sweep with a single frequency point.
 
@@ -3167,10 +3167,10 @@ class SetupHFSS(Setup, PyAedtBase):
         self,
         entry_selection=0,
         ignore_phase_when_mag_is_less_than=0.01,
-        all_diagonal_entries=True,
+        all_diagonal_entries: bool=True,
         max_delta=0.02,
         max_delta_phase=5,
-        all_offdiagonal_entries=True,
+        all_offdiagonal_entries: bool=True,
         off_diagonal_mag=0.02,
         off_diagonal_phase=5,
         custom_entries=None,
@@ -3268,7 +3268,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3364,7 +3364,7 @@ class SetupHFSSAuto(Setup, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear: bool=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -3556,11 +3556,11 @@ class SetupSBR(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
-    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):
+    def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear: bool=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -3635,7 +3635,7 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
 
     @pyaedt_function_handler()
@@ -3646,8 +3646,8 @@ class SetupMaxwell(Setup, PyAedtBase):
         stop_frequency=100,
         step_size=0.1,
         units="Hz",
-        clear=True,
-        save_all_fields=True,
+        clear: bool=True,
+        save_all_fields: bool=True,
     ):
         """Create a Maxwell Eddy Current Sweep.
 
@@ -3745,7 +3745,7 @@ class SetupMaxwell(Setup, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step=False):
+    def enable_control_program(self, control_program_path, control_program_args=" ", call_after_last_step: bool=False):
         """Enable control program option is solution setup.
 
         Provide externally created executable files, or Python (*.py) scripts that are called after each time step,
@@ -3803,7 +3803,7 @@ class SetupMaxwell(Setup, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_save_fields(
-        self, enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=100000, count=1, units="ns"
+        self, enable: bool=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=100000, count=1, units="ns"
     ):
         """Enable the save fields option in the setup.
 
@@ -3920,13 +3920,13 @@ class SetupMaxwell(Setup, PyAedtBase):
         matrix_type,
         matrix_name,
         output_file,
-        is_format_default=True,
+        is_format_default: bool=True,
         width=8,
         precision=2,
-        is_exponential=False,
+        is_exponential: bool=False,
         setup=None,
         default_adaptive="LastAdaptive",
-        is_post_processed=False,
+        is_post_processed: bool=False,
     ):
         """Export R/L or Capacitance matrix after solving.
 
@@ -4006,7 +4006,7 @@ class SetupQ3D(Setup, PyAedtBase):
 
     """
 
-    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
+    def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup: bool=True):
         Setup.__init__(self, app, solution_type, name, is_new_setup)
         self._dc_enabled = True
         self._ac_rl_enbled = True
@@ -4020,7 +4020,7 @@ class SetupQ3D(Setup, PyAedtBase):
         stop_frequency=20.0,
         num_of_freq_points=None,
         name=None,
-        save_fields=True,
+        save_fields: bool=True,
         sweep_type="Discrete",
         interpolation_tol=0.5,
         interpolation_max_solutions=250,
@@ -4114,7 +4114,7 @@ class SetupQ3D(Setup, PyAedtBase):
         stop_frequency=2.0,
         step_size=0.05,
         name=None,
-        save_fields=True,
+        save_fields: bool=True,
         sweep_type="Discrete",
     ):
         """Create a sweep with a specified frequency step.
@@ -4195,8 +4195,8 @@ class SetupQ3D(Setup, PyAedtBase):
         unit="GHz",
         freq=1.0,
         name=None,
-        save_single_field=True,
-        save_fields=False,
+        save_single_field: bool=True,
+        save_fields: bool=False,
     ):
         """Create a sweep with a single frequency point.
 
@@ -4451,19 +4451,19 @@ class SetupQ3D(Setup, PyAedtBase):
 
 
 class SetupIcepak(Setup, PyAedtBase):
-    def __init__(self, app, solution_type, setup_name, is_new_setup=True):
+    def __init__(self, app, solution_type, setup_name, is_new_setup: bool=True):
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     def start_continue_from_previous_setup(
         self,
         design,
         solution,
-        map_variables_by_name=True,
+        map_variables_by_name: bool=True,
         parameters=None,
         project="This Project*",
-        force_source_to_solve=True,
-        preserve_partner_solution=True,
-        frozen_flow=False,
+        force_source_to_solve: bool=True,
+        preserve_partner_solution: bool=True,
+        frozen_flow: bool=False,
     ):
         """Start or continue from a previously solved setup.
 

@@ -141,7 +141,7 @@ safe_attrs = {
 }
 
 
-def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
+def pyaedt_service_manager(port=17878, aedt_version=None, student_version: bool=False):
     """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
@@ -211,7 +211,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     t.start()
 
 
-def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=True):
+def launch_server(port=18000, ansysem_path=None, non_graphical: bool=False, threaded: bool=True):
     """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
@@ -283,7 +283,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     t.start()
 
 
-def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=False):
+def create_session(server_name, client_port=None, launch_aedt_on_server: bool=False, aedt_port=None, non_graphical: bool=False):
     """
     Connect to an existing AEDT server session and create a new client session from it.
 

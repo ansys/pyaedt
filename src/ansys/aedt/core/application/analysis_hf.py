@@ -230,7 +230,7 @@ class ScatteringMethods(PyAedtBase):
         receivers=None,
         drivers_prefix_name="",
         receivers_prefix_name="",
-        skip_same_index_couples=True,
+        skip_same_index_couples: bool=True,
         math_formula="",
         nets=None,
     ):
@@ -335,9 +335,9 @@ class ScatteringMethods(PyAedtBase):
         output_file=None,
         variations=None,
         variations_value=None,
-        renormalization=False,
+        renormalization: bool=False,
         impedance=None,
-        gamma_impedance_comments=False,
+        gamma_impedance_comments: bool=False,
     ):
         """Export a Touchstone file.
 

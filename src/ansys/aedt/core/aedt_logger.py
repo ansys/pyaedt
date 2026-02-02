@@ -157,7 +157,7 @@ class AedtLogger:
         Whether to write log messages to stdout. The default is ``False``.
     """
 
-    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False, desktop=None):
+    def __init__(self, level=logging.DEBUG, filename=None, to_stdout: bool=False, desktop=None):
         self._desktop_class = desktop
         self._oproject = None
         self._odesign = None
@@ -432,7 +432,7 @@ class AedtLogger:
             self._timer = time.time()
         return self._timer
 
-    def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages=False):
+    def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages: bool=False):
         """Get the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.

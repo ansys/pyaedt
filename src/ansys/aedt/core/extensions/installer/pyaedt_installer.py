@@ -32,7 +32,7 @@ from ansys.aedt.core.generic.file_utils import read_toml
 
 def add_pyaedt_to_aedt(
     personal_lib,
-    skip_version_manager=False,
+    skip_version_manager: bool=False,
     odesktop=None,
 ):
     """Add PyAEDT tabs in AEDT.

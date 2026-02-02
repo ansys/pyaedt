@@ -50,14 +50,14 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         solution_type,
         setup_name=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         Analysis.__init__(
             self,
@@ -152,7 +152,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_maxwell_design(self, setup_name, variation="", maxwell_2d=True):
+    def create_maxwell_design(self, setup_name, variation="", maxwell_2d: bool=True):
         """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
 
         Parameters

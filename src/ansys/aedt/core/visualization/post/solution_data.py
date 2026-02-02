@@ -507,7 +507,7 @@ class SolutionData(PyAedtBase):
 
     @pyaedt_function_handler()
     def get_expression_data(
-        self, expression=None, formula="real", convert_to_SI=False, use_quantity=False, sweeps=None
+        self, expression=None, formula="real", convert_to_SI: bool=False, use_quantity: bool=False, sweeps=None
     ):
         """Retrieve the real part of the data for an expression.
 
@@ -610,7 +610,7 @@ class SolutionData(PyAedtBase):
         return x_axis, sol
 
     @pyaedt_function_handler()
-    def data_real(self, expression=None, convert_to_SI=False):
+    def data_real(self, expression=None, convert_to_SI: bool=False):
         """Retrieve the real part of the data for an expression.
 
         .. deprecated:: 0.20.0
@@ -712,7 +712,7 @@ class SolutionData(PyAedtBase):
         return self.get_expression_data(curve, formula=formula)[1]
 
     @pyaedt_function_handler()
-    def get_report_plotter(self, curves=None, formula=None, to_radians=False, props=None):
+    def get_report_plotter(self, curves=None, formula=None, to_radians: bool=False, props=None):
         """Get the `ReportPlotter` on the specified curves.
 
         Parameters
@@ -759,13 +759,13 @@ class SolutionData(PyAedtBase):
         curves=None,
         formula=None,
         size=(1920, 1440),
-        show_legend=True,
+        show_legend: bool=True,
         x_label="",
         y_label="",
         title="",
         snapshot_path=None,
-        is_polar=False,
-        show=True,
+        is_polar: bool=False,
+        show: bool=True,
     ):
         """Create a matplotlib figure based on a list of data.
 
@@ -839,7 +839,7 @@ class SolutionData(PyAedtBase):
         formula=None,
         size=(1920, 1440),
         snapshot_path=None,
-        show=True,
+        show: bool=True,
     ):
         """Create a matplotlib 3D figure based on a list of data.
 
@@ -939,7 +939,7 @@ class SolutionData(PyAedtBase):
         return new
 
     @pyaedt_function_handler()
-    def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
+    def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window: bool=False):
         """Create IFFT of given complex data.
 
         Parameters
@@ -1006,7 +1006,7 @@ class SolutionData(PyAedtBase):
         u_axis="_u",
         v_axis="_v",
         coord_system_center=None,
-        db_val=False,
+        db_val: bool=False,
         num_frames=None,
         csv_path=None,
         csv_file_header="res_",

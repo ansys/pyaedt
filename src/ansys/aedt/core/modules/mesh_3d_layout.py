@@ -240,7 +240,7 @@ class Mesh3d(PyAedtBase):
         return meshops
 
     @pyaedt_function_handler()
-    def assign_length_mesh(self, setup, layer, net, is_inside=True, maximum_length=1, maximum_elements=1000, name=None):
+    def assign_length_mesh(self, setup, layer, net, is_inside: bool=True, maximum_length=1, maximum_elements=1000, name=None):
         """Assign mesh length.
 
         Parameters

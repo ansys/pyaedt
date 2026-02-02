@@ -150,7 +150,7 @@ class NamedVariable(PyAedtBase):
         return self._variable.evaluated_value
 
     @pyaedt_function_handler()
-    def hide_variable(self, value=True):
+    def hide_variable(self, value: bool=True):
         """Set the variable to a hidden variable.
 
         Parameters
@@ -166,7 +166,7 @@ class NamedVariable(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def read_only_variable(self, value=True):
+    def read_only_variable(self, value: bool=True):
         """Set the variable to a read-only variable.
 
         Parameters
@@ -692,8 +692,8 @@ class Layer3D(PyAedtBase):
         self,
         line_width,
         line_length,
-        is_electrical_length=False,
-        is_impedance=False,
+        is_electrical_length: bool=False,
+        is_impedance: bool=False,
         line_position_x=0,
         line_position_y=0,
         line_name=None,
@@ -783,7 +783,7 @@ class Layer3D(PyAedtBase):
         return created_line
 
     @pyaedt_function_handler()
-    def add_polygon(self, points, material="copper", is_void=False, poly_name=None):
+    def add_polygon(self, points, material="copper", is_void: bool=False, poly_name=None):
         """Create a polygon.
 
         Parameters
@@ -2385,7 +2385,7 @@ class Patch(CommonObject, PyAedtBase):
             probe_feed_outer.bottom_face_z, reference=probe_feed_outer.name, create_pec_cap=True, name="Probe_Port"
         )
 
-    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
+    def create_lumped_port(self, reference_layer, opposite_side: bool=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
 
         Parameters
@@ -3120,7 +3120,7 @@ class Trace(CommonObject, PyAedtBase):
         self._electrical_length = NamedVariable(self.application, self._name + "_elec_length", elec_length_formula)
         return self._electrical_length
 
-    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
+    def create_lumped_port(self, reference_layer, opposite_side: bool=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
 
         Parameters
@@ -3241,7 +3241,7 @@ class Polygon(CommonObject, PyAedtBase):
         signal_layer,
         poly_name="poly",
         mat_name="copper",
-        is_void=False,
+        is_void: bool=False,
         reference_system=None,
     ):
         CommonObject.__init__(self, application)

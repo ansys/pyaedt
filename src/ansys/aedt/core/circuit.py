@@ -156,14 +156,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         FieldAnalysisCircuit.__init__(
             self,
@@ -445,7 +445,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, input_file, is_ami=False):
+    def get_ibis_model_from_file(self, input_file, is_ami: bool=False):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -835,11 +835,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         self,
         design=None,
         setup=None,
-        is_solution_file=False,
+        is_solution_file: bool=False,
         filename=None,
-        passivity=False,
-        causality=False,
-        renormalize=False,
+        passivity: bool=False,
+        causality: bool=False,
+        renormalize: bool=False,
         impedance=50,
         error=0.5,
         poles=10000,
@@ -965,7 +965,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         curves,
         solution=None,
         variations=None,
-        differential_pairs=False,
+        differential_pairs: bool=False,
         subdesign_id=None,
     ):
         """Create a Touchstone plot.
@@ -1008,7 +1008,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def push_excitations(self, instance, thevenin_calculation=False, setup="LinearFrequency"):
+    def push_excitations(self, instance, thevenin_calculation: bool=False, setup="LinearFrequency"):
         """Push excitations for a linear frequency setup.
 
         Parameters
@@ -1044,7 +1044,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         window_type="Rectangular",
         width_percentage=100.0,
         kaiser=0.0,
-        correct_coherent_gain=True,
+        correct_coherent_gain: bool=True,
         setup="NexximTransient",
     ):
         """Push excitations for a transient setup.
@@ -1278,7 +1278,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         differential_mode=None,
         common_reference=25,
         differential_reference=100,
-        active=True,
+        active: bool=True,
     ):
         """Add a differential pair definition.
 
@@ -1643,10 +1643,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         tx_schematic_pins,
         tx_schematic_differential_pins=None,
         termination_pins=None,
-        differential=True,
+        differential: bool=True,
         rise_time=30,
-        use_convolution=True,
-        analyze=True,
+        use_convolution: bool=True,
+        analyze: bool=True,
         design_name="LNA",
         impedance=50,
     ):
@@ -1786,10 +1786,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         input_file,
         start_frequency=0,
         stop_frequency=30,
-        auto_assign_diff_pairs=False,
+        auto_assign_diff_pairs: bool=False,
         separation=".",
         pattern=None,
-        analyze=True,
+        analyze: bool=True,
         design_name="LNA",
     ):
         """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
@@ -1904,15 +1904,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         rx_schematic_differentialial_pins=None,
         ibis_tx_component_name=None,
         ibis_rx_component_name=None,
-        use_ibis_buffer=True,
-        differential=True,
+        use_ibis_buffer: bool=True,
+        differential: bool=True,
         bit_pattern=None,
         unit_interval=None,
-        use_convolution=True,
-        analyze=False,
+        use_convolution: bool=True,
+        analyze: bool=False,
         design_name="AMI",
         ibis_rx_file=None,
-        create_setup=True,
+        create_setup: bool=True,
     ):
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -2010,15 +2010,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         rx_schematic_differential_pins=None,
         ibis_tx_component_name=None,
         ibis_rx_component_name=None,
-        use_ibis_buffer=True,
-        differential=True,
+        use_ibis_buffer: bool=True,
+        differential: bool=True,
         bit_pattern=None,
         unit_interval=None,
-        use_convolution=True,
-        analyze=False,
+        use_convolution: bool=True,
+        analyze: bool=False,
         design_name="IBIS",
-        is_ami=False,
-        create_setup=True,
+        is_ami: bool=False,
+        create_setup: bool=True,
     ):
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -2129,14 +2129,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         rx_component_name=None,
         ibis_tx_component_name=None,
         ibis_rx_component_name=None,
-        use_ibis_buffer=True,
-        differential=True,
+        use_ibis_buffer: bool=True,
+        differential: bool=True,
         bit_pattern=None,
         unit_interval=None,
-        use_convolution=True,
-        analyze=False,
-        is_ami=False,
-        create_setup=True,
+        use_convolution: bool=True,
+        analyze: bool=False,
+        is_ami: bool=False,
+        create_setup: bool=True,
     ):
         """Create a schematic from a list of pins and automatically set up an IBIS-AMI analysis.
 
@@ -2612,7 +2612,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
     def import_table(
         self,
         input_file,
-        link=False,
+        link: bool=False,
         header_rows=0,
         rows_to_read=-1,
         column_separator="Space",

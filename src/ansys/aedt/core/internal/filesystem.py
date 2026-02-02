@@ -66,7 +66,7 @@ class Scratch(PyAedtBase):
         """ """
         return self._cleaned
 
-    def __init__(self, local_path, permission=0o777, volatile=False):
+    def __init__(self, local_path, permission=0o777, volatile: bool=False):
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits

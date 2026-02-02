@@ -328,7 +328,7 @@ class AMIConturEyeDiagram(CommonReport):
         points,
         x_units="ns",
         y_units="mV",
-        enable_limits=False,
+        enable_limits: bool=False,
         upper_limit=500,
         lower_limit=-500,
         color=(0, 255, 0),
@@ -409,7 +409,7 @@ class AMIConturEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def rectangular_plot(self, enable=True):
+    def rectangular_plot(self, enable: bool=True):
         """Enable or disable the rectangular plot on the chart.
 
         Parameters
@@ -905,7 +905,7 @@ class AMIEyeDiagram(CommonReport):
         points,
         x_units="ns",
         y_units="mV",
-        enable_limits=False,
+        enable_limits: bool=False,
         upper_limit=500,
         lower_limit=-500,
         color=(0, 255, 0),
@@ -980,7 +980,7 @@ class AMIEyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def rectangular_plot(self, enable=True):
+    def rectangular_plot(self, enable: bool=True):
         """Enable or disable the rectangular plot on the chart.
 
         Parameters

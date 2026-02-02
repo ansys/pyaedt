@@ -128,14 +128,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
+        non_graphical: bool=False,
+        new_desktop: bool=False,
+        close_on_exit: bool=False,
+        student_version: bool=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        remove_lock=False,
+        remove_lock: bool=False,
     ):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
@@ -390,7 +390,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         z_ref=50,
         state_space_dynamic_link_type=None,
         component_name=None,
-        save_project=True,
+        save_project: bool=True,
     ):
         """Add a Q2D or Q3D dynamic component to a Twin Builder design.
 
@@ -645,11 +645,11 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         self,
         project,
         design,
-        use_default_values=True,
+        use_default_values: bool=True,
         setup=None,
         start=None,
         stop=None,
-        export_uniform_points=False,
+        export_uniform_points: bool=False,
         export_uniform_points_step=1e-5,
         excitations=None,
     ):

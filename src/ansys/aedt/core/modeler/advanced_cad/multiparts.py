@@ -113,9 +113,9 @@ class MultiPartComponent(PyAedtBase):
         self,
         comp_folder,
         name=None,
-        use_relative_cs=False,
+        use_relative_cs: bool=False,
         relative_cs_name=None,
-        motion=False,
+        motion: bool=False,
         offset=("0", "0", "0"),
         yaw="0deg",
         pitch="0deg",
@@ -453,7 +453,7 @@ class MultiPartComponent(PyAedtBase):
             )
 
     @pyaedt_function_handler()
-    def _insert(self, app, motion=False):
+    def _insert(self, app, motion: bool=False):
         """Insert the multi-part 3D component.
 
         Parameters
@@ -485,7 +485,7 @@ class MultiPartComponent(PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def insert(self, app, motion=False):
+    def insert(self, app, motion: bool=False):
         """Insert the object in HFSS SBR+.
 
         Returns

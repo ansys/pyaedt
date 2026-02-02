@@ -793,7 +793,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False) ->
 
 
 @pyaedt_function_handler()
-def com_active_sessions(version=None, student_version=False, non_graphical=False):
+def com_active_sessions(version=None, student_version: bool=False, non_graphical: bool=False):
     """Get information for the active COM AEDT sessions.
 
     Parameters
@@ -822,7 +822,7 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
 
 
 @pyaedt_function_handler()
-def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
+def grpc_active_sessions(version=None, student_version: bool=False, non_graphical: bool=False):
     """Get information for the active gRPC AEDT sessions.
 
     Parameters
@@ -1089,7 +1089,7 @@ def _to_boolean(val):
 
 
 @pyaedt_function_handler()
-def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
+def install_with_pip(package_name, package_path=None, upgrade: bool=False, uninstall: bool=False):  # pragma: no cover
     """Install a new package using pip.
 
     This method is useful for installing a package from the AEDT Console without launching the Python environment.

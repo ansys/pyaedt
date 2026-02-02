@@ -195,7 +195,7 @@ def test_start_log_stream_threads_appends_stdout_and_stderr(mock_toolkits, mock_
 
     # Patch threading.Thread to run target synchronously on start
     class DummyThread:
-        def __init__(self, target=None, args=(), daemon=False):
+        def __init__(self, target=None, args=(), daemon: bool=False):
             self._target = target
             self._args = args
             self._alive = False

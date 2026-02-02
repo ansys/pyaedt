@@ -403,7 +403,7 @@ class Object3DLayout(PyAedtBase):
         )
 
     @lock_position.setter
-    def lock_position(self, lock_position=True):
+    def lock_position(self, lock_position: bool=True):
         vMaterial = ["NAME:LockPosition", "Value:=", lock_position]
         self.change_property(vMaterial)
 
@@ -688,7 +688,7 @@ class Components3DLayout(Object3DLayout, PyAedtBase):
         orientation=0,
         height=0,
         reference_offset=0,
-        auto_reference=True,
+        auto_reference: bool=True,
         reference_x="0.1mm",
         reference_y="0.1mm",
     ):
@@ -930,13 +930,13 @@ class Nets3DLayout(PyAedtBase):
     def plot(
         self,
         layers=None,
-        show_legend=True,
+        show_legend: bool=True,
         save_plot=None,
         outline=None,
         size=(1920, 1440),
-        plot_components_on_top=False,
-        plot_components_on_bottom=False,
-        show=True,
+        plot_components_on_top: bool=False,
+        plot_components_on_bottom: bool=False,
+        show: bool=True,
     ):
         """Plot a Net to Matplotlib 2D Chart.
 
@@ -982,7 +982,7 @@ class Nets3DLayout(PyAedtBase):
 class Pins3DLayout(Object3DLayout, PyAedtBase):
     """Contains the pins in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name="", component_name=None, is_pin=True):
+    def __init__(self, primitives, name="", component_name=None, is_pin: bool=True):
         Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
         self.name = name
@@ -1037,7 +1037,7 @@ class Pins3DLayout(Object3DLayout, PyAedtBase):
 class Geometries3DLayout(Object3DLayout, PyAedtBase):
     """Contains geometries in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name, prim_type="poly", is_void=False):
+    def __init__(self, primitives, name, prim_type="poly", is_void: bool=False):
         Object3DLayout.__init__(self, primitives, prim_type)
         self.is_void = is_void
         self._name = name
@@ -1256,7 +1256,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
         )
 
     @negative.setter
-    def negative(self, negative=False):
+    def negative(self, negative: bool=False):
         if not self.is_void:
             vMaterial = ["NAME:Negative", "Value:=", negative]
             self.change_property(vMaterial)
@@ -1289,7 +1289,7 @@ class Geometries3DLayout(Object3DLayout, PyAedtBase):
 class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout polygons."""
 
-    def __init__(self, primitives, name, prim_type="poly", is_void=False):
+    def __init__(self, primitives, name, prim_type="poly", is_void: bool=False):
         Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void)
         self._points = []
 
@@ -1323,7 +1323,7 @@ class Polygons3DLayout(Geometries3DLayout, PyAedtBase):
 class Circle3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout circles."""
 
-    def __init__(self, primitives, name, is_void=False):
+    def __init__(self, primitives, name, is_void: bool=False):
         Geometries3DLayout.__init__(self, primitives, name, "circle", is_void)
 
     @property
@@ -1372,7 +1372,7 @@ class Circle3dLayout(Geometries3DLayout, PyAedtBase):
 class Rect3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout rectangles."""
 
-    def __init__(self, primitives, name, is_void=False):
+    def __init__(self, primitives, name, is_void: bool=False):
         Geometries3DLayout.__init__(self, primitives, name, "rect", is_void)
 
     @property
@@ -1539,7 +1539,7 @@ class Rect3dLayout(Geometries3DLayout, PyAedtBase):
 class Line3dLayout(Geometries3DLayout, PyAedtBase):
     """Manages Hfss 3D Layout lines."""
 
-    def __init__(self, primitives, name, is_void=False):
+    def __init__(self, primitives, name, is_void: bool=False):
         Geometries3DLayout.__init__(self, primitives, name, "line", is_void)
         self._points = []
         self._center_line = {}

@@ -405,7 +405,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def expand(self, assignment, size=1, expand_type="ROUND", replace_original=False):
+    def expand(self, assignment, size=1, expand_type="ROUND", replace_original: bool=False):
         """Expand the object by a specific size.
 
         Parameters
@@ -583,7 +583,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         return self.cleanup_objects()
 
     @pyaedt_function_handler()
-    def convert_to_selections(self, assignment, return_list=False):
+    def convert_to_selections(self, assignment, return_list: bool=False):
         """Convert one or more object to selections.
 
         Parameters
@@ -739,10 +739,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
     @pyaedt_function_handler()
     def set_temperature_dependence(
         self,
-        include_temperature_dependence=True,
-        enable_feedback=True,
+        include_temperature_dependence: bool=True,
+        enable_feedback: bool=True,
         ambient_temp=22,
-        create_project_var=False,
+        create_project_var: bool=False,
     ):
         """Set the temperature dependence for the design.
 

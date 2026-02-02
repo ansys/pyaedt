@@ -490,7 +490,7 @@ class NativeComponentPCB(NativeComponentObject):
         self,
         enabled,
         surface_material="Steel-oxidised-surface",
-        radiate_to_ref_temperature=False,
+        radiate_to_ref_temperature: bool=False,
         view_factor=1,
         ref_temperature="AmbientTemp",
     ):
@@ -636,7 +636,7 @@ class NativeComponentPCB(NativeComponentObject):
         self,
         enabled,
         surface_material="Steel-oxidised-surface",
-        radiate_to_ref_temperature=False,
+        radiate_to_ref_temperature: bool=False,
         view_factor=1,
         ref_temperature="AmbientTemp",
     ):
@@ -1345,7 +1345,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
         package=None,
         part=None,
         reference_designator=None,
-        filter_component=False,
+        filter_component: bool=False,
         power=None,
         r_jb=None,
         r_jc=None,
@@ -1391,7 +1391,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
 
     @pyaedt_function_handler()
     @disable_auto_update
-    def override_definition(self, package, part, filter_component=False, power=None, r_jb=None, r_jc=None, height=None):
+    def override_definition(self, package, part, filter_component: bool=False, power=None, r_jb=None, r_jc=None, height=None):
         """Set component override.
 
         Parameters
@@ -1440,7 +1440,7 @@ class PCBSettingsDeviceParts(PyAedtBase):
     @pyaedt_function_handler()
     @disable_auto_update
     def override_instance(
-        self, reference_designator, filter_component=False, power=None, r_jb=None, r_jc=None, height=None
+        self, reference_designator, filter_component: bool=False, power=None, r_jb=None, r_jc=None, height=None
     ):
         """Set instance override.
 

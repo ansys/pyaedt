@@ -75,20 +75,20 @@ class Modeler3D(Primitives3D, PyAedtBase):
         excitations=None,
         coordinate_systems=None,
         reference_coordinate_system="Global",
-        is_encrypted=False,
-        allow_edit=False,
+        is_encrypted: bool=False,
+        allow_edit: bool=False,
         security_message="",
         password=None,  # nosec
         edit_password=None,
         password_type="UserSuppliedPassword",
-        hide_contents=False,
-        replace_names=False,
+        hide_contents: bool=False,
+        replace_names: bool=False,
         component_outline="BoundingBox",
-        export_auxiliary=False,
+        export_auxiliary: bool=False,
         monitor_objects=None,
         datasets=None,
         native_components=None,
-        create_folder=True,
+        create_folder: bool=True,
     ):
         """Create a 3D component file.
 
@@ -636,9 +636,9 @@ class Modeler3D(Primitives3D, PyAedtBase):
         wg_length=100,
         wg_thickness=None,
         wg_material="aluminum",
-        parametrize_w=False,
-        parametrize_h=False,
-        create_sheets_on_openings=False,
+        parametrize_w: bool=False,
+        parametrize_h: bool=False,
+        create_sheets_on_openings: bool=False,
         name=None,
     ):
         """Create a standard waveguide and optionally parametrize `W` and `H`.
@@ -915,7 +915,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         return solids
 
     @pyaedt_function_handler()
-    def objects_in_bounding_box(self, bounding_box, check_solids=True, check_lines=True, check_sheets=True):
+    def objects_in_bounding_box(self, bounding_box, check_solids: bool=True, check_lines: bool=True, check_sheets: bool=True):
         """Given a bounding box checks if objects, sheets and lines are inside it.
 
         Parameters
@@ -983,16 +983,16 @@ class Modeler3D(Primitives3D, PyAedtBase):
     def import_nastran(
         self,
         file_path,
-        import_lines=True,
+        import_lines: bool=True,
         lines_thickness=0,
-        import_as_light_weight=False,
+        import_as_light_weight: bool=False,
         decimation=0,
-        group_parts=True,
+        group_parts: bool=True,
         enable_planar_merge="True",
-        save_only_stl=False,
-        preview=False,
+        save_only_stl: bool=False,
+        preview: bool=False,
         merge_angle=1e-3,
-        remove_multiple_connections=False,
+        remove_multiple_connections: bool=False,
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
 
@@ -1169,14 +1169,14 @@ class Modeler3D(Primitives3D, PyAedtBase):
         latitude_longitude,
         env_name="default",
         terrain_radius=500,
-        include_osm_buildings=True,
-        including_osm_roads=True,
-        import_in_aedt=True,
-        plot_before_importing=False,
+        include_osm_buildings: bool=True,
+        including_osm_roads: bool=True,
+        import_in_aedt: bool=True,
+        plot_before_importing: bool=False,
         z_offset=2,
         road_step=3,
         road_width=8,
-        create_lightweigth_part=True,
+        create_lightweigth_part: bool=True,
     ):
         """Import OpenStreet Maps into AEDT.
 
@@ -1326,7 +1326,7 @@ class Modeler3D(Primitives3D, PyAedtBase):
         assignment,
         segmentation_thickness=None,
         segments=None,
-        apply_mesh_sheets=False,
+        apply_mesh_sheets: bool=False,
         mesh_sheets=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.

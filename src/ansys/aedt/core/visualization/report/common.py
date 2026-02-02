@@ -136,8 +136,8 @@ class Note(BinaryTreeNode, PyAedtBase):
         border_width=None,
         font="Arial",
         font_size=12,
-        italic=False,
-        bold=False,
+        italic: bool=False,
+        bold: bool=False,
         color=(0, 0, 0),
     ):
         """Set note properties.
@@ -363,7 +363,7 @@ class Trace(BinaryTreeNode, PyAedtBase):
         return self._change_property(props)
 
     @pyaedt_function_handler()
-    def set_symbol_properties(self, show=True, style=None, show_arrows=None, fill=None, color=None):
+    def set_symbol_properties(self, show: bool=True, style=None, show_arrows=None, fill=None, color=None):
         """Set symbol properties.
 
         Parameters
@@ -1920,10 +1920,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def edit_grid(
         self,
-        minor_x=True,
-        minor_y=True,
-        major_x=True,
-        major_y=True,
+        minor_x: bool=True,
+        minor_y: bool=True,
+        major_x: bool=True,
+        major_y: bool=True,
         style_minor="Solid",
         style_major="Solid",
         minor_color=(0, 0, 0),
@@ -1972,7 +1972,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def edit_x_axis(
-        self, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None, display_units=True
+        self, font="Arial", font_size=12, italic: bool=False, bold: bool=False, color=(0, 0, 0), label=None, display_units: bool=True
     ):
         """Edit the X-axis settings.
 
@@ -2048,7 +2048,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
 
     @pyaedt_function_handler()
     def edit_x_axis_scaling(
-        self, linear_scaling=True, min_scale=None, max_scale=None, minor_tick_divs=5, min_spacing=None, units=None
+        self, linear_scaling: bool=True, min_scale=None, max_scale=None, minor_tick_divs=5, min_spacing=None, units=None
     ):
         """Edit the X-axis scaling settings.
 
@@ -2093,9 +2093,9 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     @pyaedt_function_handler()
     def edit_legend(
         self,
-        show_solution_name=True,
-        show_variation_key=True,
-        show_trace_name=True,
+        show_solution_name: bool=True,
+        show_variation_key: bool=True,
+        show_trace_name: bool=True,
         back_color=(255, 255, 255),
         font_color=(0, 0, 0),
     ):
@@ -2132,7 +2132,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         return self._change_property("legend", "legend", props)
 
     @pyaedt_function_handler()
-    def hide_legend(self, solution_name=True, trace_name=True, variation_key=True, font_size=1):
+    def hide_legend(self, solution_name: bool=True, trace_name: bool=True, variation_key: bool=True, font_size=1):
         """Hide the Legend.
 
         Parameters
@@ -2169,11 +2169,11 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         name="Y1",
         font="Arial",
         font_size=12,
-        italic=False,
-        bold=False,
+        italic: bool=False,
+        bold: bool=False,
         color=(0, 0, 0),
         label=None,
-        display_units=True,
+        display_units: bool=True,
     ):
         """Edit the Y-axis settings.
 
@@ -2252,7 +2252,7 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def edit_y_axis_scaling(
         self,
         name="Y1",
-        linear_scaling=True,
+        linear_scaling: bool=True,
         min_scale=None,
         max_scale=None,
         minor_tick_divs=5,
@@ -2306,10 +2306,10 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
         self,
         background_color=(255, 255, 255),
         plot_color=(255, 255, 255),
-        enable_y_stripes=True,
+        enable_y_stripes: bool=True,
         field_width=4,
         precision=4,
-        use_scientific_notation=True,
+        use_scientific_notation: bool=True,
     ):
         """Edit general settings for the plot.
 
@@ -2360,12 +2360,12 @@ class CommonReport(BinaryTreeNode, PyAedtBase):
     def edit_header(
         self,
         company_name="PyAEDT",
-        show_design_name=True,
+        show_design_name: bool=True,
         font="Arial",
         title_size=12,
         subtitle_size=12,
-        italic=False,
-        bold=False,
+        italic: bool=False,
+        bold: bool=False,
         color=(0, 0, 0),
     ):
         """Edit the plot header.

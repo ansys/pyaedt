@@ -39,7 +39,7 @@ class FileManagement(PyAedtBase):
     def __init__(self, client):
         self.client = client
 
-    def upload(self, localpath, remotepath, overwrite=False):
+    def upload(self, localpath, remotepath, overwrite: bool=False):
         """Upload a file or a directory to the given remote path.
 
         Parameters
@@ -56,7 +56,7 @@ class FileManagement(PyAedtBase):
         elif os.path.isfile(localpath):
             self._upload_file(localpath, remotepath)
 
-    def download_folder(self, remotepath, localpath, overwrite=True):
+    def download_folder(self, remotepath, localpath, overwrite: bool=True):
         """Download a directory from a given remote path to the local path.
 
         Parameters
@@ -70,7 +70,7 @@ class FileManagement(PyAedtBase):
         """
         self._download_dir(remotepath, localpath, overwrite=True)
 
-    def download_file(self, remotepath, localpath, overwrite=True):
+    def download_file(self, remotepath, localpath, overwrite: bool=True):
         """Download a file from a given remote path to the local path.
 
         Parameters
@@ -84,7 +84,7 @@ class FileManagement(PyAedtBase):
         """
         self._download_file(remotepath, localpath, overwrite=overwrite)
 
-    def _upload_file(self, local_file, remote_file, overwrite=False):
+    def _upload_file(self, local_file, remote_file, overwrite: bool=False):
         if self.client.root.pathexists(remote_file):
             if overwrite:
                 logger.warning("File already exists on server. Overwriting it.")
@@ -97,7 +97,7 @@ class FileManagement(PyAedtBase):
         new_file.close()
         logger.info("File %s uploaded to %s", local_file, remote_file)
 
-    def _upload_dir(self, localpath, remotepath, overwrite=False):
+    def _upload_dir(self, localpath, remotepath, overwrite: bool=False):
         if self.client.root.pathexists(remotepath):
             logger.warning("Folder already exists on the server.")
         self.client.root.makedirs(remotepath)
@@ -112,7 +112,7 @@ class FileManagement(PyAedtBase):
             i += 1
         logger.info("Directory %s uploaded. %s files copied", localpath, i)
 
-    def _download_file(self, remote_file, local_file, overwrite=True):
+    def _download_file(self, remote_file, local_file, overwrite: bool=True):
         if self.client.root.pathexists(local_file):
             if overwrite:
                 logger.warning("File already exists on the client. Overwriting it.")
@@ -124,7 +124,7 @@ class FileManagement(PyAedtBase):
         shutil.copyfileobj(remote, new_file)
         logger.info("File %s downloaded to %s", remote_file, local_file)
 
-    def _download_dir(self, remotepath, localpath, overwrite=True):
+    def _download_dir(self, remotepath, localpath, overwrite: bool=True):
         if os.path.exists(localpath):
             logger.warning("Folder already exists on the local machine.")
         if not os.path.isdir(localpath):
@@ -143,7 +143,7 @@ class FileManagement(PyAedtBase):
     def open_file(self, remote_file, open_options="r", encoding=None):
         return self.client.root.open(remote_file, open_options=open_options, encoding=encoding)
 
-    def create_file(self, remote_file, create_options="w", encoding=None, override=True):
+    def create_file(self, remote_file, create_options="w", encoding=None, override: bool=True):
         return self.client.root.create(remote_file, open_options=create_options, encoding=encoding, override=override)
 
     def makedirs(self, remotepath):
@@ -258,7 +258,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
             for opt in range(self._beta_options.__len__()):
                 os.environ["ANSYSEM_FEATURE_" + self._beta_options[opt] + "_ENABLE"] = "1"
 
-    def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical=True):
+    def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical: bool=True):
         """Run script on AEDT in the server.
 
         .. warning::
@@ -328,9 +328,9 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         self,
         edbpath=None,
         cellname=None,
-        isreadonly=False,
+        isreadonly: bool=False,
         edbversion="2021.2",
-        use_ppe=False,
+        use_ppe: bool=False,
     ):
         """Start a new Hfss session.
 
@@ -372,7 +372,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Hfss session.
 
@@ -427,7 +427,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Hfss3dLayout session.
 
@@ -482,7 +482,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Maxwell3d session.
 
@@ -537,7 +537,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Maxwell32 session.
 
@@ -592,7 +592,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Icepak session.
 
@@ -647,7 +647,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Circuit session.
 
@@ -702,7 +702,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Mechanical session.
 
@@ -757,7 +757,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Q3d session.
 
@@ -812,7 +812,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         solution_type=None,
         setup=None,
         version=None,
-        non_graphical=True,
+        non_graphical: bool=True,
     ):
         """Start a new Q2d session.
 
@@ -895,7 +895,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @staticmethod
     def aedt_grpc(
-            port=None, beta_options: List[str] = None, use_aedt_relative_path=False, non_graphical=True,
+            port=None, beta_options: List[str] = None, use_aedt_relative_path: bool=False, non_graphical: bool=True,
             check_interval=2
     ):
         """Start a new AEDT session on a specified gRPC port.
@@ -1028,12 +1028,12 @@ class GlobalService(rpyc.Service, PyAedtBase):
     def edb(
         edbpath=None,
         cellname=None,
-        isreadonly=False,
+        isreadonly: bool=False,
         edbversion=None,
-        isaedtowned=False,
+        isaedtowned: bool=False,
         oproject=None,
-        student_version=False,
-        use_ppe=False,
+        student_version: bool=False,
+        use_ppe: bool=False,
     ):
         """Starts a new EDB Session.
 
@@ -1085,7 +1085,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
         return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
     @staticmethod
-    def exposed_create(filename, create_options="wb", encoding=None, override=True):
+    def exposed_create(filename, create_options="wb", encoding=None, override: bool=True):
         if os.path.exists(filename) and not override:
             return "File already exists"
         f = open(filename, create_options, encoding=encoding)

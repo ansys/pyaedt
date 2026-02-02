@@ -219,7 +219,7 @@ class Primitives3DLayout(PyAedtBase):
         return geom
 
     @pyaedt_function_handler()
-    def objects_by_layer(self, layer, object_filter=None, include_voids=False):
+    def objects_by_layer(self, layer, object_filter=None, include_voids: bool=False):
         """Retrieve the list of objects that belongs to a specific layer.
 
         Parameters
@@ -256,7 +256,7 @@ class Primitives3DLayout(PyAedtBase):
         return objs
 
     @pyaedt_function_handler()
-    def objects_by_net(self, net, object_filter=None, include_voids=False):
+    def objects_by_net(self, net, object_filter=None, include_voids: bool=False):
         """Retrieve the list of objects that belongs to a specific net.
 
         Parameters
@@ -579,7 +579,7 @@ class Primitives3DLayout(PyAedtBase):
         return self._components3d
 
     @pyaedt_function_handler()
-    def _cleanup_vias(self, pins=True):
+    def _cleanup_vias(self, pins: bool=True):
         if pins:
             vias = set(self._get_names(["pin"]))
         else:
@@ -852,7 +852,7 @@ class Primitives3DLayout(PyAedtBase):
         return self._padstacks
 
     @pyaedt_function_handler()
-    def change_net_visibility(self, assignment=None, visible=False):
+    def change_net_visibility(self, assignment=None, visible: bool=False):
         """Change the visibility of one or more nets.
 
         Parameters

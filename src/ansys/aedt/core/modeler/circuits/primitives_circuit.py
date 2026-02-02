@@ -233,7 +233,7 @@ class CircuitComponents(PyAedtBase):
         return [i / AEDT_UNITS["Length"][self.schematic_units] for i in self._convert_point_to_meter(point)]
 
     @pyaedt_function_handler()
-    def _get_location(self, location=None, update_current_location=True):
+    def _get_location(self, location=None, update_current_location: bool=True):
         locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
         if not location:
             xpos = self.current_position[0]
@@ -462,7 +462,7 @@ class CircuitComponents(PyAedtBase):
                 return self.components[el]
 
     @pyaedt_function_handler()
-    def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap=True, image_path=None):
+    def create_model_from_touchstone(self, input_file, model_name=None, show_bitmap: bool=True, image_path=None):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -965,7 +965,7 @@ class CircuitComponents(PyAedtBase):
         model_name,
         location=None,
         angle=0,
-        show_bitmap=True,
+        show_bitmap: bool=True,
         page=1,
         image_path=None,
     ):
@@ -1088,7 +1088,7 @@ class CircuitComponents(PyAedtBase):
         component_name="RES_",
         location=None,
         angle=0,
-        use_instance_id_netlist=False,
+        use_instance_id_netlist: bool=False,
         global_netlist_list=None,
         page=1,
     ):
@@ -1623,7 +1623,7 @@ class ComponentInfo(PyAedtBase):
         return self._props
 
     @pyaedt_function_handler()
-    def place(self, assignment=None, location=None, angle=0, use_instance_id_netlist=False, page=1):
+    def place(self, assignment=None, location=None, angle=0, use_instance_id_netlist: bool=False, page=1):
         """Create a component from a library.
 
         Parameters
