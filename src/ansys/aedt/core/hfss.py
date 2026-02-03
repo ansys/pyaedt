@@ -39,7 +39,6 @@ import numpy as np
 
 if TYPE_CHECKING:
     from ansys.aedt.core.generic.constants import Gravity
-    from ansys.aedt.core.generic.constants import InfiniteSphereType
     from ansys.aedt.core.modeler.advanced_cad.actors import Radar
     from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
     from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -49,6 +48,7 @@ if TYPE_CHECKING:
     from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
     from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
     from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
+from ansys.aedt.core.generic.constants import InfiniteSphereType
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
