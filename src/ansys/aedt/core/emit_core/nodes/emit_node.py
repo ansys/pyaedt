@@ -471,7 +471,7 @@ class EmitNode:
         Raises
         ------
         NotImplementedError
-            when self is not a component.  Should avoid calls on BandNodes, SamplingNodes, etc.
+            when self is not a component.  Should avoid calls on BandNodes, or other non components
         """
         if not self.get_is_component():
             raise NotImplementedError("This method is not implemented yet.")
@@ -481,7 +481,7 @@ class EmitNode:
         self_bb = oEditor.GetComponentBoundingBox(self.name)  # [[xBottom,yBottom],[width,height]] in meters
         offset_y = -0.00508 - self_bb[1][1]  # 0.00508meters == 200mil which is the height of a radio
         offset_x = self_bb[1][0] / 2
-        
+
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
 

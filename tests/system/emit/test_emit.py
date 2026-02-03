@@ -341,6 +341,10 @@ def test_duplicate_components(emit_app):
     assert isinstance(dup_tr_switch, TR_Switch)
 
     #Test NotImplementedException
+    band: Band = [b for b in radio.children if isinstance(b,Band)][0]
+    with pytest.raises(NotImplementedError):
+        band.duplicate("DuplicatedBand")
+
 
 
 
