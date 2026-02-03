@@ -481,7 +481,7 @@ class EmitNode:
         self_bb = oEditor.GetComponentBoundingBox(self.name)  # [[xBottom,yBottom],[width,height]] in meters
         offset_y = -0.00508 - self_bb[1][1]  # 0.00508meters == 200mil which is the height of a radio
         offset_x = self_bb[1][0] / 2
-        
+
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
 
@@ -517,7 +517,7 @@ class EmitNode:
             while incremented_new_name in all_components:
                 incremented_new_name = f"{incremented_new_name} {increment}"
                 increment += 1
-            #increment format matches how Paste increments names so its possible arrive at the same value
+            # increment format matches how Paste increments names so its possible arrive at the same value
             if new_comp_name != incremented_new_name:
                 oEditor.RenameComponent(new_comp_name, incremented_new_name)
                 new_comp_name = incremented_new_name

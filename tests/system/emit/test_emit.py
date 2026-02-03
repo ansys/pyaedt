@@ -243,7 +243,7 @@ def test_duplicate_components(emit_app):
     assert isinstance(dup_antenna, AntennaNode)
 
     # Test trying to create a component with the same name as existing
-    radio_homonym = radio.duplicate(new_name = radio.name)
+    radio_homonym = radio.duplicate(new_name=radio.name)
     assert radio_homonym.name != radio.name
     assert radio_homonym.name.startswith(radio.name)
 
@@ -340,8 +340,7 @@ def test_duplicate_components(emit_app):
     assert dup_tr_switch.name == "dup TR Switch"
     assert isinstance(dup_tr_switch, TR_Switch)
 
-    #Test NotImplementedException
-
+    # Test NotImplementedException
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
