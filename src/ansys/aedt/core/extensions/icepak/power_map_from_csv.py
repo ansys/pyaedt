@@ -80,7 +80,7 @@ class PowerMapFromCSVExtensionData(ExtensionCommonData):
 class PowerMapFromCSVExtension(ExtensionIcepakCommon):
     """Class to create a cutout in an HFSS 3D Layout design."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -91,7 +91,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         self.data: PowerMapFromCSVExtensionData = PowerMapFromCSVExtensionData()
         self.add_extension_content()
 
-    def browse_file(self):
+    def browse_file(self) -> None:
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select CSV file",
@@ -104,7 +104,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         entry.config(state="readonly")
         self.data.file_path = Path(filename)
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -144,7 +144,7 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
         self.root.destroy()
 
 
-def create_powermaps_from_csv(ipk, csv_path: Path):
+def create_powermaps_from_csv(ipk, csv_path: Path) -> None:
     """Create powermap from an Icepak classic CSV file.
 
     Parameters
@@ -162,7 +162,7 @@ def create_powermaps_from_csv(ipk, csv_path: Path):
     create_powermaps_from_data(ipk, data)
 
 
-def create_powermaps_from_data(ipk, data: PowerMapFromCSVExtensionData):
+def create_powermaps_from_data(ipk, data: PowerMapFromCSVExtensionData) -> None:
     """Create power maps from geometric and source information.
 
     Parameters
@@ -214,7 +214,7 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
 
     """
 
-    def safe_skip(reader, n):
+    def safe_skip(reader, n) -> None:
         """Skip up to n lines, ignoring StopIteration."""
         for _ in range(n):
             try:
@@ -260,7 +260,7 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
         return geometric_info, source_value_info, source_unit_info
 
 
-def main(data: PowerMapFromCSVExtensionData):
+def main(data: PowerMapFromCSVExtensionData) -> bool:
     """Main function to execute the cutout operation."""
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
