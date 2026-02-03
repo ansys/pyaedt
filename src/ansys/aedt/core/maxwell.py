@@ -2317,7 +2317,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         values = []
         if parameters:
             names, values = list(parameters.keys()), list(parameters.values())
-            netlist_file_path = ""
+
         self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, names, values)
         return True
 

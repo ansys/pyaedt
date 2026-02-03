@@ -32,6 +32,7 @@ import pytest
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfMatProperties
@@ -405,51 +406,131 @@ def test_get_coreloss_coefficients(aedt_app):
         )
 
 
-def test_set_core_loss(aedt_app):
-    aedt_app.materials.add_material("mat_test")
+def test_set_core_loss(maxwell_app):
+    # Testing in time harmonic solver
+    maxwell_app.solution_type = "AC Magnetic"
+
+    # Define frequency dependent bh curves
+    bh_mat_test_60hz = [[0, 0], [1, 3.5], [2, 7.4]]
+    bh_mat_test_80hz = [[0, 0], [1, 3.5], [2, 7.4]]
+    bh_mat_test_100hz = [[0, 0], [1, 8], [2, 9]]
+    bh_mat_test_150hz = [[0, 0], [1, 10], [2, 19]]
+
+    # Create custom material for testing
+    mat_test = maxwell_app.materials.add_material("mat_test")
+
     # Test points_list_at_freq
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}
-    )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
-    )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
-    )
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz})
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={"60Hz": bh_mat_test_60hz})
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={"0.06kHz": bh_mat_test_60hz})
+
     with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(points_at_frequency=[[0, 0], [1, 3.5], [2, 7.4]])
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+        mat_test.set_coreloss_at_frequency(points_at_frequency=bh_mat_test_60hz)
+
+    assert mat_test.set_coreloss_at_frequency(
         points_at_frequency={
-            60: [[0, 0], [1, 3.5], [2, 7.4]],
-            100: [[0, 0], [1, 8], [2, 9]],
-            150: [[0, 0], [1, 10], [2, 19]],
+            60: bh_mat_test_60hz,
+            100: bh_mat_test_100hz,
+            150: bh_mat_test_150hz,
         }
     )
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
+    assert mat_test.get_curve_coreloss_type() == "Electrical Steel"
+
+    assert mat_test.set_coreloss_at_frequency(
         points_at_frequency={
-            60: [[0, 0], [1, 3.5], [2, 7.4]],
-            100: [[0, 0], [1, 8], [2, 9]],
-            150: [[0, 0], [1, 10], [2, 19]],
+            60: bh_mat_test_60hz,
+            100: bh_mat_test_100hz,
+            150: bh_mat_test_150hz,
         },
         core_loss_model_type="Power Ferrite",
     )
+    assert mat_test.get_curve_coreloss_type() == "Power Ferrite"
+
     with pytest.raises(ValueError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={80: [[0, 0], [1, 3.5], [2, 7.4]]}, core_loss_model_type="Power Ferrite"
+        mat_test.set_coreloss_at_frequency(
+            points_at_frequency={80: bh_mat_test_80hz}, core_loss_model_type="Power Ferrite"
         )
     # Test thickness
-    assert aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-        points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
+    assert mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness="0.6mm")
+    # check that if you modify set_coreloss_at_frequency, it defaults to Electrical steel, if loss model not provided
+    # Note that prior to this step, it was set to Power Ferrite
+    assert mat_test.get_curve_coreloss_type() == "Electrical Steel"
+
+    with pytest.raises(TypeError):
+        mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness="invalid")
+    with pytest.raises(TypeError):
+        mat_test.set_coreloss_at_frequency(points_at_frequency={60: bh_mat_test_60hz}, thickness=50)
+
+    # flatten bh curves from list of lists to list as shown in native api
+    flattened_bh_60hz = [item for sublist in bh_mat_test_60hz for item in sublist]
+    flattened_bh_100hz = [item for sublist in bh_mat_test_100hz for item in sublist]
+    flattened_bh_150hz = [item for sublist in bh_mat_test_150hz for item in sublist]
+
+    # compare loss values curves
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_kh"]), 4), 0.0000, 1e-6)
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_kc"]), 4), 0.0000, 1e-6)
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_ke"]), 4), 0.0058, 1e-6)
+    assert is_close(round(float(mat_test.get_curve_coreloss_values()["core_loss_kdc"]), 4), 0.0000, 1e-6)
+
+    # save project before checking project properties
+    maxwell_app.save_project()
+
+    # compare bh curve entries in multiple frequency curve loss model
+    assert (
+        flattened_bh_60hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][0]["Coordinates"]["Points"]
     )
-    with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
-        )
-    with pytest.raises(TypeError):
-        aedt_app.materials["mat_test"].set_coreloss_at_frequency(
-            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
-        )
+    assert (
+        "60Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][0]["Frequency"]
+    )
+
+    assert (
+        flattened_bh_100hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][1]["Coordinates"]["Points"]
+    )
+    assert (
+        "100Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][1]["Frequency"]
+    )
+
+    assert (
+        flattened_bh_150hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][2]["Coordinates"]["Points"]
+    )
+    assert (
+        "150Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoreLossMultiCurveData"
+        ]["AllCurves"]["OneCurve"][2]["Frequency"]
+    )
+
+    # check single bh curves at a single frequency
+
+    # save project before checking project properties
+    maxwell_app.save_project()
+    assert (
+        "60Hz"
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoefficientSetupData"
+        ]["Frequency"]
+    )
+    assert (
+        flattened_bh_60hz
+        == maxwell_app.project_properties["AnsoftProject"]["Definitions"]["Materials"]["mat_test"]["AttachedData"][
+            "CoefficientSetupData"
+        ]["Coordinates"]["Points"]
+    )
 
 
 def test_thermalmodifier_and_spatialmodifier(aedt_app):

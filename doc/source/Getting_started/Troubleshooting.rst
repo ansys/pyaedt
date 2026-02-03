@@ -70,7 +70,7 @@ If the virtual environment was successfully created, you can manually register t
 
 .. code:: bash
 
-    pyaedt panels add --version your_aedt_version --personal-lib "path_to_personalib"
+    pyaedt panels add --personal-lib "path_to_personalib"
 
 Alternatively, you can use the Python API directly:
 

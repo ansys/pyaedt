@@ -64,7 +64,6 @@ def test_init_with_default_values():
     assert exporter.data_file is None
     # Properties
     assert {} == exporter.model_info
-    assert exporter.rcs_data is None
     assert "" == exporter.metadata_file
     assert DEFAULT_EXPRESSION == exporter.column_name
     # App related

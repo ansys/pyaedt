@@ -268,16 +268,15 @@ Install PyAEDT panels into AEDT:
 This command launches an interactive setup that:
 
 1. Detects installed AEDT versions on your system
-2. Prompts you to select the AEDT version
-3. Asks for the path to your PersonalLib folder
-4. Installs the PyAEDT panels
+2. Asks for the path to your PersonalLib folder
+3. Installs the PyAEDT panels
 
-You can also provide all parameters directly:
+You can also provide the PersonalLib path directly:
 
 .. code-block:: bash
 
-    pyaedt panels add --version 2025.2 --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
-    pyaedt panels add -v 2025.2 -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    pyaedt panels add --personal-lib "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
 
 **Skip Version Manager**
 
@@ -426,8 +425,8 @@ Here are some common workflows using the CLI:
     # Interactive mode
     pyaedt panels add
 
-    # Or provide all parameters
-    pyaedt panels add -v 2025.2 -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
+    # Or provide the PersonalLib path
+    pyaedt panels add -p "C:\\Users\\username\\AppData\\Roaming\\Ansoft\\PersonalLib"
 
 **Quick Documentation Access**
 

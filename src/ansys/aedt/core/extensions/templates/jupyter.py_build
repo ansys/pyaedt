@@ -50,7 +50,7 @@ def main():
     # Extension directory
     base_extensions_loc = r"##BASE_EXTENSION_LOCATION##"
     # Jupyter interpreter
-    jupyter_exe = r"##JUPYTER_EXE##" % version
+    jupyter_exe = r"##JUPYTER_EXE##"
     # Check if Jupyter version and AEDT release match
     python_exe = pyaedt_utils.sanitize_interpreter_path(jupyter_exe, version_short)
     template = os.path.join(base_extensions_loc, "jupyter_template.ipynb")

@@ -2216,15 +2216,6 @@ class Material(CommonMaterial, PyAedtBase):
 
         props = self._get_args(props)
         props.pop(0)
-        if len(points_at_frequency) == 1:
-            props[0][-1][2] = "NAME:Points"
-            points = props[0][-1].pop(2)
-            props[0][-1][2].insert(0, points)
-        else:
-            for p in props[0][-1]:
-                if isinstance(p, list):
-                    p[3].pop(2)
-                    p[3][2].insert(0, "NAME:Points")
         coefficients = self.odefinition_manager.ComputeCoreLossCoefficients(
             core_loss_model_type, self.mass_density.evaluated_value, props[0]
         )

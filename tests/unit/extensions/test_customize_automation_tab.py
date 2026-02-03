@@ -42,7 +42,6 @@ def mock_desktop_session():
     """Fixture for a mocked desktop session."""
     mock_desktop = MagicMock()
     mock_desktop.personallib = tempfile.gettempdir()
-    mock_desktop.aedt_version_id = "2024.1"
     return mock_desktop
 
 
@@ -330,38 +329,36 @@ def test_add_script_to_menu_success(
         f.write("print('Hello from test script')")
 
     personal_lib = mock_desktop_session.personallib
-    aedt_version = mock_desktop_session.aedt_version_id
 
     template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
     m = mock_open(read_data=template_content)
 
-    with patch("builtins.open", m):
+    with patch("builtins.open", m), patch("sys.executable", "C:\\Python\\python.exe"):
         # Act
         result = add_script_to_menu(
             name=toolkit_name,
             script_file=str(script_file),
             personal_lib=personal_lib,
-            aedt_version=aedt_version,
         )
 
-    # Assert
-    assert result is True
-    mock_copy.assert_called_once()
-    mock_add_automation_tab.assert_called_once_with(
-        toolkit_name,
-        Path(personal_lib) / "Toolkits",
-        icon_file=None,
-        product="Project",
-        template="run_pyaedt_toolkit_script",
-        panel="Panel_PyAEDT_Extensions",
-        is_custom=False,
-        odesktop=None,
-    )
+        # Assert
+        assert result is True
+        mock_copy.assert_called_once()
+        mock_add_automation_tab.assert_called_once_with(
+            toolkit_name,
+            Path(personal_lib) / "Toolkits",
+            icon_file=None,
+            product="Project",
+            template="run_pyaedt_toolkit_script",
+            panel="Panel_PyAEDT_Extensions",
+            is_custom=False,
+            odesktop=None,
+        )
 
-    # Verify the generated script content
-    written_content = m().write.call_args[0][0]
-    assert sys.executable in written_content
-    assert script_file.name in written_content
+        # Verify the generated script content
+        written_content = m().write.call_args[0][0]
+        assert sys.executable in written_content
+        assert script_file.name in written_content
 
     # Cleanup
     script_file.unlink()
@@ -374,7 +371,7 @@ def test_add_script_to_menu_no_session_failure(mock_logger):
         result = add_script_to_menu("Test")
         assert result is False
         mock_logger.return_value.error.assert_called_with(
-            "Personallib or AEDT version is not provided and there is no available desktop session."
+            "Personallib is not provided. There is no available desktop session."
         )
 
 
@@ -384,13 +381,12 @@ def test_add_script_to_menu_no_copy(mock_add_automation_tab, mock_desktop_sessio
     with patch("shutil.copy2") as mock_copy:
         template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
         m = mock_open(read_data=template_content)
-        with patch("builtins.open", m):
+        with patch("builtins.open", m), patch("sys.executable", "C:\\Python\\python.exe"):
             add_script_to_menu(
                 "MyToolkit",
                 script_file=__file__,
                 copy_to_personal_lib=False,
                 personal_lib=mock_desktop_session.personallib,
-                aedt_version=mock_desktop_session.aedt_version_id,
             )
         mock_copy.assert_not_called()
 
@@ -401,13 +397,12 @@ def test_add_script_to_menu_is_custom(mock_copy, mock_add_automation_tab, mock_d
     """Test that add_automation_tab is called with is_custom=True."""
     template_content = "##PYTHON_EXE## -m ##PYTHON_SCRIPT##"
     m = mock_open(read_data=template_content)
-    with patch("builtins.open", m):
+    with patch("builtins.open", m), patch("sys.executable", "C:\\Python\\python.exe"):
         add_script_to_menu(
             "MyCustomToolkit",
             script_file=__file__,
             is_custom=True,
             personal_lib=mock_desktop_session.personallib,
-            aedt_version=mock_desktop_session.aedt_version_id,
         )
     mock_add_automation_tab.assert_called_with(
         "MyCustomToolkit",
