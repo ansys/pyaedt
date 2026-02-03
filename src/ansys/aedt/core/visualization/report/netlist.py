@@ -59,8 +59,10 @@ class CircuitNetlistReport(CommonReport):
     def _did(self):
         if self.domain == "Sweep":
             return 3
-        else:
+        elif self.domain == "Time":
             return 1
+        elif self.domain == "Index":
+            return 9
 
     @property
     def maximum_time(self):
@@ -167,7 +169,7 @@ class CircuitNetlistReport(CommonReport):
     @property
     def _context(self):
         ctxt = []
-        if self._post.post_solution_type in ["NexximLNA", "NexximTransient"]:
+        if self.setup in ["LNA", "TRAN", "DC"]:
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",

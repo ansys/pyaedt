@@ -1229,6 +1229,7 @@ class PostProcessorCommon(PyAedtBase):
         context=None,
         subdesign_id=None,
         polyline_points=1001,
+        solution=None,
     ):
         # Setup
         if not setup_sweep_name:
@@ -1257,7 +1258,10 @@ class PostProcessorCommon(PyAedtBase):
             and setup_name not in self._app.setup_sweeps_names
         ):
             raise KeyError(f"Setup {setup_name} not available in current design.")
+
         # Domain
+        if self._app.design_type == "Circuit Netlist" and solution == "NexximDC":
+            domain = "Index"
         if not domain:
             domain = "Sweep"
             if setup_name:
@@ -1303,7 +1307,7 @@ class PostProcessorCommon(PyAedtBase):
         # Primary/Secondary Sweep Variable
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
-        elif domain == "DCIR":  # pragma: no cover
+        elif domain == "DCIR" or domain == "Index":  # pragma: no cover
             report.primary_sweep = "Index"
             if variations:
                 variations["Index"] = ["All"]
@@ -1545,6 +1549,7 @@ class PostProcessorCommon(PyAedtBase):
             context=context,
             subdesign_id=subdesign_id,
             polyline_points=polyline_points,
+            solution=solution,
         )
         report.report_type = plot_type
         result = report.create(plot_name, solution)
@@ -2017,19 +2022,10 @@ class Reports(PyAedtBase):
     def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
         if expressions:
             return expressions
-        if self._post_app._app.design_type == "Circuit Netlist":
-            solution = setup_sweep_name
-            if not setup_sweep_name:
-                if not self._app.post.available_report_solutions()[0]:
-                    raise IndexError("No solutions available.")
-                else:
-                    solution = self._app.post.available_report_solutions()[0]
-            setup_sweep_name = CircuitNetlistConstants.solution_types[solution]["name"]
-            is_siwave_dc = False
-        else:
+        is_siwave_dc = False
+        if self._post_app._app.design_type != "Circuit Netlist":
             setup_only_name = setup_sweep_name.split(":")[0].strip()
             get_setup = self._post_app._app.get_setup(setup_only_name)
-            is_siwave_dc = False
             if (
                 "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR"
             ):  # pragma: no cover

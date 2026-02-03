@@ -808,7 +808,7 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
     NAME = "Circuit Netlist"
 
     model_name = "NexximNetlist"
-    solution_default = "NexximLNA"
+    solution_default = None
     solution_types = {
         "NexximLNA": {
             "name": "LNA",
