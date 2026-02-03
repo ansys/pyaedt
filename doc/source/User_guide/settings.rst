@@ -117,7 +117,7 @@ Below is the content that can be updated through the YAML file.
         # AEDT version in the form ``"2025.x"``
         aedt_version: null
         # Timeout in seconds for trying to launch AEDT
-        desktop_launch_timeout: 240
+        desktop_launch_timeout: 120
         # Enable or disable bounding box evaluation by exporting a SAT file
         disable_bounding_box_sat: false
         # Optional path for the EDB DLL file
