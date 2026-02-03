@@ -9,7 +9,7 @@ on:
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   MAIN_PYTHON_VERSION: '3.13'
-  TESTS_VERSION: '3.10'
+  TESTS_VERSION: '3.12'
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
