@@ -10,7 +10,7 @@ log:
 general:
   number_of_grpc_api_retries: 6
   retry_n_times_time_interval: 0.5
-  enable_error_handler: false
+  enable_error_handler: true
   desktop_launch_timeout: 120
   release_on_exception: false
   wait_for_license: true
