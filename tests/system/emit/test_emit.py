@@ -79,6 +79,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and DESKTOP_VERSION < "2025.1") o
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes.generated import Terminator
     from ansys.aedt.core.emit_core.nodes.generated import TouchstoneCouplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import TR_Switch
     from ansys.aedt.core.emit_core.nodes.generated import TxBbEmissionNode
     from ansys.aedt.core.emit_core.nodes.generated import TxHarmonicNode
     from ansys.aedt.core.emit_core.nodes.generated import TxNbEmissionNode
@@ -324,12 +325,11 @@ def test_duplicate_components(emit_app):
     assert isinstance(dup_power_divider, PowerDivider)
 
     # Test TR_Switch duplication
-    # TODO: enable once "TR Switch" correctly creates TR_Switch instead of EmitNode
-    # tr_switch: TR_Switch = emit_app.schematic.create_component("TR Switch", name="new TR Switch")
-    # dup_tr_switch = tr_switch.duplicate("dup TR Switch")
-    # assert dup_tr_switch is not None
-    # assert dup_tr_switch.name == "dup TR Switch"
-    # assert isinstance(dup_tr_switch, TR_Switch)
+    tr_switch: TR_Switch = emit_app.schematic.create_component("TR Switch", name="new TR Switch")
+    dup_tr_switch = tr_switch.duplicate("dup TR Switch")
+    assert dup_tr_switch is not None
+    assert dup_tr_switch.name == "dup TR Switch"
+    assert isinstance(dup_tr_switch, TR_Switch)
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")
