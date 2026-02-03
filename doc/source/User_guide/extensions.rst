@@ -295,6 +295,7 @@ Templates to show how to build an extension consisting of a small automated work
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
    pyaedt_extensions_doc/maxwell/index
+   pyaedt_extensions_doc/emit/index
    pyaedt_extensions_doc/templates/index
 
 
