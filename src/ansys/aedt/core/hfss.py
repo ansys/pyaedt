@@ -48,10 +48,10 @@ if TYPE_CHECKING:
     from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
     from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
     from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
-from ansys.aedt.core.generic.constants import InfiniteSphereType
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
+from ansys.aedt.core.generic.constants import InfiniteSphereType
 from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
