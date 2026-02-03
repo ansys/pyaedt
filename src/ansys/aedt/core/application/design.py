@@ -3275,7 +3275,6 @@ class Design(AedtObjects, PyAedtBase):
         if name == legacy_name:
             self._global_logger.remove_file_logger(name)
             self._logger = self._global_logger
-        self.odesktop.CloseProject(name)
         if name == legacy_name:
             self._init_variables()
             self._oproject = None
@@ -3284,7 +3283,10 @@ class Design(AedtObjects, PyAedtBase):
             self.logger.oproject = None
             self.design_solutions._odesign = None
             AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
+            self.odesktop.CloseProject(name)
+
         else:
+            self.odesktop.CloseProject(name)
             self.desktop_class.active_project(legacy_name)
 
         i = 0
