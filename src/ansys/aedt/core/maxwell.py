@@ -438,9 +438,12 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         handler, schema = dispatcher[self.solution_type]
 
         if not isinstance(args, schema):
-            args = schema(args)
+            raise TypeError(
+                f"Invalid argument type. Expected an instance of {schema.__name__} for {self.solution_type},"
+                f"got {type(args).__name__} instead."
+            )
 
-        if not args.matrix_name:
+        if not getattr(args, "matrix_name", None):
             args.matrix_name = generate_unique_name("Matrix")
 
         return handler(args)
@@ -505,7 +508,9 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
-    def __assign_matrix_ac_magnetic_aphi(self, args: MaxwellMatrix.MatrixACMagneticAPhi) -> MaxwellParameters:
+    def __assign_matrix_ac_magnetic_aphi(
+        self, args: MaxwellMatrix.MatrixACMagneticAPhi
+    ) -> MaxwellParameters:  # pragma: no cover
         """Assign a matrix to the source selection for``AC Magnetic APhi``.
 
 

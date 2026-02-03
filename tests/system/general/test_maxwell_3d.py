@@ -45,7 +45,6 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -453,13 +452,36 @@ def test_assign_matrix_ac_magnetic_aphi(m3d_app):
     )
 
     matrix = m3d_app.assign_matrix(args)
-    assert isinstance(matrix, MaxwellParameters)
+    assert isinstance(matrix, MaxwellMatrix)
     assert len(matrix.rl_sources) == 1
     assert len(matrix.gc_sources) == 1
     assert matrix.rl_sources[0].signal_sources == [current1.name]
     assert matrix.rl_sources[0].ground_sources == [current3.name]
     assert matrix.gc_sources[0].signal_sources == [current2.name]
     assert matrix.gc_sources[0].ground_sources == [current4.name]
+
+
+def test_assign_matrix_ac_magnetic(m3d_app):
+    m3d_app.solution_type = SolutionsMaxwell3D.ACMagnetic
+
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+    current1 = m3d_app.assign_current(box1.top_face_z, amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current(box2.top_face_z, amplitude=1, name="Current2")
+    m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
+    m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
+
+    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+        signal_sources=[signal_source_1, signal_source_2],
+    )
+    matrix = m3d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert len(matrix.signal_sources) == 2
+    assert matrix.signal_sources[0].name == current1.name
+    assert matrix.signal_sources[1].name == current2.name
 
 
 def test_available_quantities_categories(m3d_app, maxwell_versioned):

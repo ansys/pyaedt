@@ -34,7 +34,6 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -515,7 +514,7 @@ def test_assign_matrix_electrostatic(m2d_app):
         ground_sources=[voltage3.name],
     )
     matrix = m2d_app.assign_matrix(matrix_args)
-    assert isinstance(matrix, MaxwellParameters)
+    assert isinstance(matrix, MaxwellMatrix)
     assert voltage1.name in matrix.signal_sources
     assert voltage2.name in matrix.signal_sources
     assert voltage3.name in matrix.ground_sources
@@ -552,7 +551,7 @@ def test_assign_matrix_magnetostatic(m2d_app):
         matrix_name="test_matrix",
     )
     matrix = m2d_app.assign_matrix(matrix_args)
-    assert isinstance(matrix, MaxwellParameters)
+    assert isinstance(matrix, MaxwellMatrix)
     assert len(matrix.signal_sources) == 2
     assert matrix.signal_sources[0].name == current1.name
     assert matrix.signal_sources[0].turns_number == 5
@@ -573,15 +572,35 @@ def test_assign_matrix_ac_magnetic(m2d_app):
     signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
     matrix_args = MaxwellMatrix.MatrixACMagnetic(
         signal_sources=[signal_source_1, signal_source_2],
-        matrix_name="test_matrix",
     )
     matrix = m2d_app.assign_matrix(matrix_args)
-    assert isinstance(matrix, MaxwellParameters)
+    assert isinstance(matrix, MaxwellMatrix)
     assert len(matrix.signal_sources) == 2
     assert matrix.signal_sources[0].name == current1.name
     assert matrix.signal_sources[0].return_path == current2.name
     assert matrix.signal_sources[0].return_path == current2.name
     assert matrix.signal_sources[1].return_path == "infinite"
+
+
+def test_assign_matrix_no_schema(m2d_app):
+    m2d_app.solution_type = SolutionsMaxwell2D.ACMagneticXY
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
+    matrix_args = {"signal_sources": [current1.name]}
+    with pytest.raises(TypeError):
+        m2d_app.assign_matrix(matrix_args)
+
+
+def test_assign_matrix_failure(m2d_app):
+    m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[current1.name],
+        ground_sources=[],
+    )
+    with pytest.raises(AEDTRuntimeError):
+        m2d_app.assign_matrix(matrix_args)
 
 
 def test_solution_types_setup(m2d_app):
