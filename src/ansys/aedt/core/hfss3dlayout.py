@@ -29,7 +29,9 @@ import io
 import os
 from pathlib import Path
 import re
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -41,12 +43,14 @@ from ansys.aedt.core.generic.file_utils import tech_to_control_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
+
 if TYPE_CHECKING:
-    from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
-    from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
-    from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
-    from ansys.aedt.core.visualization.post.solution_data import SolutionData
     from pandas import DataFrame
+
+    from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
+    from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+    from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+    from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 
 
@@ -215,7 +219,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         wave_horizontal_extension: Optional[float] = 5,
         wave_vertical_extension: Optional[float] = 3,
         wave_launcher: Optional[str] = "1mm",
-        reference_primitive: Optional[str]=None,
+        reference_primitive: Optional[str] = None,
         reference_edge_number: Optional[Union[str, int]] = 0,
     ) -> Union[BoundaryObject3dLayout, bool]:
         # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
@@ -369,7 +373,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_wave_port_from_two_conductors(self, assignment: Optional[list] = None, edge_numbers: Optional[list] = None) -> Union[BoundaryObject3dLayout, bool]:
+    def create_wave_port_from_two_conductors(
+        self, assignment: Optional[list] = None, edge_numbers: Optional[list] = None
+    ) -> Union[BoundaryObject3dLayout, bool]:
         """Create a wave port.
 
         Parameters
@@ -555,7 +561,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_differential_port(self, via_signal: str, via_reference: float, name: str, deembed: Optional[bool] = True) -> Union[BoundaryObject3dLayout, bool]:
+    def create_differential_port(
+        self, via_signal: str, via_reference: float, name: str, deembed: Optional[bool] = True
+    ) -> Union[BoundaryObject3dLayout, bool]:
         """Create a differential port.
 
         Parameters
@@ -603,7 +611,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, via: str, radial_extent: float = 0.1, layer: str = None, alignment: Optional[str] = "lower") -> Union[BoundaryObject3dLayout, bool]:
+    def create_coax_port(
+        self, via: str, radial_extent: float = 0.1, layer: str = None, alignment: Optional[str] = "lower"
+    ) -> Union[BoundaryObject3dLayout, bool]:
         """Create a coax port.
 
         Parameters
@@ -1064,7 +1074,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_meshing_settings(
-        self, mesh_method: str = "Phi", enable_intersections_check: Optional[bool] = True, use_alternative_fallback: Optional[bool] = True
+        self,
+        mesh_method: str = "Phi",
+        enable_intersections_check: Optional[bool] = True,
+        use_alternative_fallback: Optional[bool] = True,
     ) -> bool:
         """Define the settings of the mesh.
 
@@ -2331,7 +2344,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def get_dcir_solution_data(self, setup: str, show: Optional[str] = "RL", category: Optional[str] = "Loop_Resistance") -> SolutionData:
+    def get_dcir_solution_data(
+        self, setup: str, show: Optional[str] = "RL", category: Optional[str] = "Loop_Resistance"
+    ) -> SolutionData:
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
 
         Sources ["Voltage", "Current", "Power"]
