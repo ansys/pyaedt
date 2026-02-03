@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -49,16 +51,16 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        version: Optional[str] = None,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = False,
+        close_on_exit: Optional[bool] = False,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
+        aedt_process_id: Optional[int] = None,
+        remove_lock: Optional[bool] = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -114,7 +116,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return self._modeler
 
     @pyaedt_function_handler()
-    def disable_modelcreation(self, solution_type=None):
+    def disable_modelcreation(self, solution_type: Optional[str] = None) -> bool:
         """Enable the RMxprt solution.
 
         Parameters
@@ -133,7 +135,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def enable_modelcreation(self, solution_type=None):
+    def enable_modelcreation(self, solution_type: Optional[str] = None) -> bool:
         """Enable model creation for the Maxwell model wizard.
 
         Parameters
@@ -152,7 +154,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_maxwell_design(self, setup_name, variation="", maxwell_2d=True):
+    def create_maxwell_design(self, setup_name, variation: str = "", maxwell_2d: bool = True):
         """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
 
         Parameters
@@ -183,7 +185,7 @@ class FieldAnalysisRMxprt(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def set_material_threshold(self, conductivity=100000, permeability=100):
+    def set_material_threshold(self, conductivity: int = 100000, permeability: int = 100) -> bool:
         """Set material threshold.
 
         Parameters

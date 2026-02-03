@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Optional
+
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
@@ -60,16 +62,16 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        version: Optional[str] = None,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = False,
+        close_on_exit: Optional[bool] = False,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
+        aedt_process_id: Optional[int] = None,
+        remove_lock: Optional[bool] = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -108,7 +110,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return self._configurations
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters
@@ -134,7 +136,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def push_down(self, component):
+    def push_down(self, component) -> bool:
         """Push-down to the child component and reinitialize the Circuit object.
 
         Parameters
@@ -166,7 +168,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def pop_up(self):
+    def pop_up(self) -> bool:
         """Pop-up to parent Circuit design and reinitialize Circuit object.
 
         Returns
@@ -354,7 +356,7 @@ class FieldAnalysisCircuit(Analysis, PyAedtBase):
         return props
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters

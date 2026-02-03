@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pathlib import Path
+from typing import Optional
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.base import PyAedtBase
@@ -94,17 +95,17 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
+        version: Optional[str] = None,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = False,
+        close_on_exit: Optional[bool] = False,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
+        aedt_process_id: Optional[int] = None,
         ic_mode=None,
-        remove_lock=False,
-    ):
+        remove_lock: Optional[bool] = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -188,7 +189,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return list(self.oboundary.GetAllPortsList())
 
     @pyaedt_function_handler()
-    def change_design_settings(self, settings):
+    def change_design_settings(self, settings) -> bool:
         """Set HFSS 3D Layout Design Settings.
 
         Parameters
@@ -208,7 +209,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    def export_mesh_stats(self, setup, variations: Optional[str] = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -262,7 +263,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return self.oexcitation.GetAllPortsList()
 
     @pyaedt_function_handler()
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters
@@ -315,7 +316,7 @@ class FieldAnalysis3DLayout(Analysis, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def delete_setup(self, name):
+    def delete_setup(self, name: str) -> bool:
         """Delete a setup.
 
         Parameters

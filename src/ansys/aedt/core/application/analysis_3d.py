@@ -22,10 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import csv
 import os
 from pathlib import Path
 from typing import List
+from typing import Optional
 from typing import Union
 
 from ansys.aedt.core.application.analysis import Analysis
@@ -100,16 +103,16 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         designname,
         solution_type,
         setup_name=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
-    ):
+        version: Optional[str] = None,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = False,
+        close_on_exit: Optional[bool] = False,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
+        aedt_process_id: Optional[int] = None,
+        remove_lock: Optional[bool] = False,
+    ) -> None:
         Analysis.__init__(
             self,
             application,
@@ -230,17 +233,17 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     def plot(
         self,
         assignment=None,
-        show=True,
+        show: bool = True,
         output_file=None,
-        plot_as_separate_objects=True,
-        plot_air_objects=True,
+        plot_as_separate_objects: bool = True,
+        plot_air_objects: bool = True,
         force_opacity_value=None,
-        clean_files=False,
-        view="isometric",
-        show_legend=True,
-        dark_mode=False,
-        show_grid=False,
-        show_bounding=False,
+        clean_files: bool = False,
+        view: str = "isometric",
+        show_legend: bool = True,
+        dark_mode: bool = False,
+        show_grid: bool = False,
+        show_bounding: bool = False,
     ):
         """Plot the model or a subset of objects.
 
@@ -299,7 +302,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations="", output_file=None):
+    def export_mesh_stats(self, setup, variations: Optional[str] = "", output_file=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -400,7 +403,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return None
 
     @pyaedt_function_handler()
-    def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
+    def copy_solid_bodies_from(
+        self, design, assignment=None, no_vacuum: bool = True, no_pec: bool = True, include_sheets: bool = False
+    ) -> bool:
         """Copy a list of objects and user defined models from one design to the active design.
 
         If user defined models are selected, the project will be saved automatically. If the destination design
@@ -571,9 +576,9 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
     @pyaedt_function_handler()
     def export_3d_model(
         self,
-        file_name="",
-        file_path="",
-        file_format=".step",
+        file_name: str = "",
+        file_path: str = "",
+        file_format: str = ".step",
         assignment_to_export=None,
         assignment_to_remove=None,
         major_version=-1,
@@ -648,7 +653,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return list(self.osolution.GetAllSourceModes())
 
     @pyaedt_function_handler()
-    def set_source_context(self, sources, number_of_modes=1):
+    def set_source_context(self, sources, number_of_modes: int = 1) -> bool:
         """Set the source context.
 
         Parameters
@@ -678,7 +683,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_material(self, assignment, material):
+    def assign_material(self, assignment, material: str) -> bool:
         """Assign a material to one or more objects.
 
         Parameters
@@ -832,7 +837,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return obj_names
 
     @pyaedt_function_handler()
-    def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
+    def _create_dataset_from_sherlock(self, material_string, property_name: str = "Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
         nominal_id = int(len(mat_temp) / 2)
@@ -846,7 +851,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return nominal_val, "$" + ds_name
 
     @pyaedt_function_handler()
-    def assignmaterial_from_sherlock_files(self, component_file, material_file):
+    def assignmaterial_from_sherlock_files(self, component_file, material_file) -> bool:
         """Assign material to objects in a design based on a CSV file obtained from Sherlock.
 
         Parameters
@@ -959,7 +964,14 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def cleanup_solution(self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True):
+    def cleanup_solution(
+        self,
+        variations: Optional[Union[list, str]] = "All",
+        entire_solution: bool = True,
+        field: bool = True,
+        mesh: bool = True,
+        linked_data: bool = True,
+    ) -> bool:
         """Delete a set of Solution Variations or part of them.
 
         Parameters
@@ -1005,7 +1017,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
         return Stackup3D(self)
 
     @pyaedt_function_handler()
-    def flatten_3d_components(self, components=None, purge_history=True, password=None):
+    def flatten_3d_components(self, components=None, purge_history: bool = True, password=None) -> bool:
         """Flatten one or multiple 3d components in the actual layout.
 
         Each 3d Component is replaced with objects.

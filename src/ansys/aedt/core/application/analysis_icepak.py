@@ -91,15 +91,15 @@ class FieldAnalysisIcepak(FieldAnalysis3D, PyAedtBase):
         solution_type: str,
         setup: Optional[str] = None,
         version: Optional[Union[str, int, float]] = None,
-        non_graphical: bool = False,
-        new_desktop: bool = False,
-        close_on_exit: bool = False,
-        student_version=False,
-        machine: str = "",
-        port: int = 0,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = False,
+        close_on_exit: Optional[bool] = False,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
         aedt_process_id: Optional[int] = None,
-        remove_lock: bool = False,
-    ):
+        remove_lock: Optional[bool] = False,
+    ) -> None:
         FieldAnalysis3D.__init__(
             self,
             application,
@@ -191,7 +191,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation, PyAedtBase):
         Icepak application that is to initialize the call.
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.app = app
 
     def execute(self, k, v) -> str:

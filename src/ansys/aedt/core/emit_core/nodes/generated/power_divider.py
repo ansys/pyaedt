@@ -28,7 +28,7 @@ from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
 
 class PowerDivider(EmitNode):
-    def __init__(self, emit_obj, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id) -> None:
         EmitNode.__init__(self, emit_obj, result_id, node_id)
         self._is_component = True
 
@@ -41,7 +41,7 @@ class PowerDivider(EmitNode):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete this node"""
         self._delete()
 
@@ -55,7 +55,7 @@ class PowerDivider(EmitNode):
         return val
 
     @filename.setter
-    def filename(self, value: str):
+    def filename(self, value: str) -> None:
         self._set_property("Filename", f"{value}")
 
     @property
@@ -68,7 +68,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
+    def noise_temperature(self, value: float) -> None:
         self._set_property("Noise Temperature", f"{value}")
 
     @property
@@ -78,7 +78,7 @@ class PowerDivider(EmitNode):
         return val
 
     @notes.setter
-    def notes(self, value: str):
+    def notes(self, value: str) -> None:
         self._set_property("Notes", f"{value}")
 
     class PowerDividerTypeOption(Enum):
@@ -98,7 +98,7 @@ class PowerDivider(EmitNode):
         return val
 
     @power_divider_type.setter
-    def power_divider_type(self, value: PowerDividerTypeOption):
+    def power_divider_type(self, value: PowerDividerTypeOption) -> None:
         self._set_property("Power Divider Type", f"{value.value}")
 
     @property
@@ -114,7 +114,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @insertion_loss_above_ideal.setter
-    def insertion_loss_above_ideal(self, value: float):
+    def insertion_loss_above_ideal(self, value: float) -> None:
         self._set_property("Insertion Loss Above Ideal", f"{value}")
 
     @property
@@ -130,7 +130,7 @@ class PowerDivider(EmitNode):
         return val == "true"
 
     @finite_isolation.setter
-    def finite_isolation(self, value: bool):
+    def finite_isolation(self, value: bool) -> None:
         self._set_property("Finite Isolation", f"{str(value).lower()}")
 
     @property
@@ -143,7 +143,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @isolation.setter
-    def isolation(self, value: float):
+    def isolation(self, value: float) -> None:
         self._set_property("Isolation", f"{value}")
 
     @property
@@ -159,7 +159,7 @@ class PowerDivider(EmitNode):
         return val == "true"
 
     @finite_bandwidth.setter
-    def finite_bandwidth(self, value: bool):
+    def finite_bandwidth(self, value: bool) -> None:
         self._set_property("Finite Bandwidth", f"{str(value).lower()}")
 
     @property
@@ -172,7 +172,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @out_of_band_attenuation.setter
-    def out_of_band_attenuation(self, value: float):
+    def out_of_band_attenuation(self, value: float) -> None:
         self._set_property("Out-of-band Attenuation", f"{value}")
 
     @property
@@ -186,7 +186,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value: float | str):
+    def lower_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Stop Band", f"{value}")
 
@@ -201,7 +201,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value: float | str):
+    def lower_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Lower Cutoff", f"{value}")
 
@@ -216,7 +216,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value: float | str):
+    def higher_cutoff(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Cutoff", f"{value}")
 
@@ -231,7 +231,7 @@ class PowerDivider(EmitNode):
         return float(val)
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value: float | str):
+    def higher_stop_band(self, value: float | str) -> None:
         value = self._convert_to_internal_units(value, "Freq")
         self._set_property("Higher Stop Band", f"{value}")
 
