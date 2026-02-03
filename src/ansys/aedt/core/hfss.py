@@ -5827,7 +5827,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def get_antenna_data(
         self,
-        frequencies: Optional[Union[float,list]] = None,
+        frequencies: Optional[Union[float, list]] = None,
         setup: Optional[str] = None,
         sphere: Optional[str] = None,
         variations: Optional[dict] = None,
