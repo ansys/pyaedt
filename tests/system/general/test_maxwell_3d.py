@@ -484,6 +484,49 @@ def test_assign_matrix_ac_magnetic(m3d_app):
     assert matrix.signal_sources[1].name == current2.name
 
 
+def test_assign_matrix_magnetostatic(m3d_app):
+    m3d_app.solution_type = SolutionsMaxwell3D.Magnetostatic
+
+    box1 = m3d_app.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    box2 = m3d_app.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+    current1 = m3d_app.assign_current(box1.top_face_z, amplitude=1, name="Current1")
+    current2 = m3d_app.assign_current(box2.top_face_z, amplitude=1, name="Current2")
+    current3 = m3d_app.assign_current(box1.bottom_face_z, amplitude=1, name="Current3", swap_direction=True)
+    m3d_app.assign_current(box2.bottom_face_z, amplitude=1, name="Current4", swap_direction=True)
+    signal_source_1 = MaxwellMatrix.SourceMagnetostatic(
+        name=current1.name,
+        return_path=current3.name,
+        turns_number=5,
+    )
+
+    signal_source_2 = MaxwellMatrix.SourceMagnetostatic(
+        name=current2.name,
+        turns_number=2,
+    )
+
+    group_source = MaxwellMatrix.GroupSourcesMagnetostatic(
+        source_names=[current1.name, current2.name],
+        branches_number=7,
+        name="test_group",
+    )
+
+    matrix_args = MaxwellMatrix.MatrixMagnetostatic(
+        signal_sources=[signal_source_1, signal_source_2],
+        group_sources=[group_source],
+        matrix_name="test_matrix",
+    )
+    matrix = m3d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert len(matrix.signal_sources) == 2
+    assert matrix.signal_sources[0].name == current1.name
+    assert matrix.signal_sources[0].return_path == current3.name
+    assert matrix.signal_sources[0].turns_number == 5
+    assert matrix.signal_sources[1].name == current2.name
+    assert matrix.group_sources[0].name == "test_group"
+    assert matrix.group_sources[0].branches_number == 7
+
+
 def test_available_quantities_categories(m3d_app, maxwell_versioned):
     m3d_app.solution_type = maxwell_versioned.ElectroStatic
 
