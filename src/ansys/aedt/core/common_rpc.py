@@ -29,6 +29,7 @@ import socket
 import sys
 import tempfile
 import time
+from typing import Optional
 
 import rpyc
 from rpyc.core import consts

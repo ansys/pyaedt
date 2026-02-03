@@ -5131,7 +5131,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self,
         radar_file: Union[str, Path],
         name: str,
-        offset: Optional[List[Union[int, float, str]]] = None,
+        offset: Optional[list] = None,
         speed: Optional[float] = 0.0,
         use_relative_cs: Optional[bool] = False,
         relative_cs_name: Optional[str] = None,
@@ -5827,7 +5827,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def get_antenna_data(
         self,
-        frequencies: Optional[Union[float, List[Union[float, str]]]] = None,
+        frequencies: Optional[Union[float,list]] = None,
         setup: Optional[str] = None,
         sphere: Optional[str] = None,
         variations: Optional[dict] = None,
@@ -5957,7 +5957,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def get_rcs_data(
         self,
-        frequencies: Optional[Union[float, List[Union[float, str]]]] = None,
+        frequencies: Optional[Union[float, list]] = None,
         setup: Optional[str] = None,
         expression: Optional[str] = "ComplexMonostaticRCSTheta",
         variations: Optional[dict] = None,
@@ -6736,8 +6736,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self,
         assignment: Optional[Union[str, list]] = None,
         vector_format: Optional[str] = "Spherical",
-        origin: Optional[List[str]] = None,
-        polarization: Optional[Union[str, List[str]]] = None,
+        origin: Optional[list] = None,
+        polarization: Optional[Union[str, list]] = None,
         propagation_vector: Optional[list] = None,
         wave_type: Optional[str] = "Propagating",
         wave_type_properties: Optional[list] = None,
@@ -7021,7 +7021,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def hertzian_dipole_wave(
         self,
         assignment: Optional[Union[str, list]] = None,
-        origin: Optional[List[str]] = None,
+        origin: Optional[list] = None,
         polarization: Optional[list] = None,
         is_electric: Optional[bool] = True,
         radius: Optional[Union[str, float]] = "10mm",
@@ -7136,9 +7136,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def set_mesh_fusion_settings(
         self,
-        assignment: Optional[Union[List[str], str]] = None,
-        volume_padding: Optional[List[List[int]]] = None,
-        priority: Optional[List[str]] = None,
+        assignment: Optional[list] = None,
+        volume_padding: Optional[list] = None,
+        priority: Optional[list] = None,
     ) -> bool:
         # type: (list|str, list, list) -> bool
         """Set mesh fusion settings in HFSS.

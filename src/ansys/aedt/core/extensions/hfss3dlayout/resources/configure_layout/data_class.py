@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 
-from typing import Union
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
