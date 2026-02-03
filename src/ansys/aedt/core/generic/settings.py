@@ -36,6 +36,8 @@ configuration file ``pyaedt_settings.yaml`` in the user's ``APPDATA`` folder for
 The second class is intended for internal use only and shouldn't be modified by users.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from pathlib import Path

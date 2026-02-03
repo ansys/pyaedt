@@ -32,6 +32,8 @@ objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 
 """
 
+from __future__ import annotations
+
 import math
 from pathlib import Path
 import re

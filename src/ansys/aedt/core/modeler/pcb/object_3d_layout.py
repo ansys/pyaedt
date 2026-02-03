@@ -26,6 +26,8 @@
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 """
 
+from __future__ import annotations
+
 import math
 import re
 from typing import Optional

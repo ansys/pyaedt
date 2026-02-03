@@ -29,6 +29,8 @@ This module provides all functionalities for creating and editing plots in the 3
 
 """
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
 import secrets

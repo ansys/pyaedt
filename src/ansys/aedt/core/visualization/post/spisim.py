@@ -23,6 +23,8 @@
 # SOFTWARE.
 
 # coding=utf-8
+from __future__ import annotations
+
 import os
 import pathlib
 from pathlib import Path

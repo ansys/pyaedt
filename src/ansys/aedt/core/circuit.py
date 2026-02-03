@@ -24,6 +24,8 @@
 
 """This module contains the ``Circuit`` class."""
 
+from __future__ import annotations
+
 import io
 import math
 from pathlib import Path
