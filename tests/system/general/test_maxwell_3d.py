@@ -424,7 +424,6 @@ def test_set_core_losses(m3d_app, maxwell_versioned):
     assert m3d_app.set_core_losses(["my_box"], True)
 
 
-@pytest.mark.skipif(DESKTOP_VERSION < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
 def test_assign_matrix_ac_magnetic_aphi(m3d_app):
     m3d_app.solution_type = SolutionsMaxwell3D.ACMagneticAPhi
 

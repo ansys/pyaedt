@@ -508,9 +508,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
-    def __assign_matrix_ac_magnetic_aphi(
-        self, args: MaxwellMatrix.MatrixACMagneticAPhi
-    ) -> MaxwellParameters:  # pragma: no cover
+    def __assign_matrix_ac_magnetic_aphi(self, args: MaxwellMatrix.MatrixACMagneticAPhi) -> MaxwellParameters:
         """Assign a matrix to the source selection for``AC Magnetic APhi``.
 
 
