@@ -110,7 +110,7 @@ if settings.use_local_example_data and USE_LOCAL_EXAMPLE_FOLDER:
 # NOTE: Additional environment configuration for error handling when the tests are
 # run locally and not in a CI environment.
 if "PYAEDT_LOCAL_SETTINGS_PATH" not in os.environ:
-    settings.enable_error_handler = True
+    settings.enable_error_handler = False
     settings.release_on_exception = False
 else:
     print("PYAEDT_LOCAL_SETTINGS_PATH found")
