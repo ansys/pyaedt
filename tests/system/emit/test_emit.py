@@ -242,6 +242,15 @@ def test_duplicate_components(emit_app):
     assert dup_antenna.name == "DuplicatedAntenna"
     assert isinstance(dup_antenna, AntennaNode)
 
+    # Test trying to create a component with the same name as existing
+    radio_homonym = radio.duplicate(new_name = radio.name)
+    assert radio_homonym.name != radio.name
+    assert radio_homonym.name.startswith(radio.name)
+
+    # Rename test that ensures the Pasted increment doesn't match the desired name increment but still colides
+    radio_named_antenna = radio.duplicate(new_name="TestAntenna")
+    assert radio_named_antenna.name == "TestAntenna 1"
+
     # Test Amplifier duplication
     amplifier: Amplifier = emit_app.schematic.create_component("Amplifier", name="TestAmplifier")
     dup_amplifier = amplifier.duplicate("DuplicatedAmplifier")
@@ -330,6 +339,9 @@ def test_duplicate_components(emit_app):
     assert dup_tr_switch is not None
     assert dup_tr_switch.name == "dup TR Switch"
     assert isinstance(dup_tr_switch, TR_Switch)
+
+    #Test NotImplementedException
+
 
 
 @pytest.mark.skipif(DESKTOP_VERSION <= "2022.1", reason="Skipped on versions earlier than 2021.2")

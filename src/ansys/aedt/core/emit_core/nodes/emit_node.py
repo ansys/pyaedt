@@ -461,6 +461,7 @@ class EmitNode:
             The component node to duplicate
         new_name : str, optional
             Name for the duplicated component. If empty, AEDT auto-generates a name.
+            if new_name is the same as an existing component, adds an integer to differentiate from existing names.
 
         Returns
         -------
@@ -480,6 +481,7 @@ class EmitNode:
         self_bb = oEditor.GetComponentBoundingBox(self.name)  # [[xBottom,yBottom],[width,height]] in meters
         offset_y = -0.00508 - self_bb[1][1]  # 0.00508meters == 200mil which is the height of a radio
         offset_x = self_bb[1][0] / 2
+        
         # Get all components before duplication
         all_components = oEditor.GetAllComponents()
 
@@ -508,10 +510,17 @@ class EmitNode:
         all_components_after = oEditor.GetAllComponents()
         new_comp_name = [c for c in all_components_after if c not in all_components][0]
 
-        # Optionally rename if new_name provided
+        # Optionally rename if new_name provided.  Avoids collisions with existing names by incrementing counter
         if new_name:
-            oEditor.RenameComponent(new_comp_name, new_name)
-            new_comp_name = new_name
+            increment = 1
+            incremented_new_name = new_name
+            while incremented_new_name in all_components:
+                incremented_new_name = f"{incremented_new_name} {increment}"
+                increment += 1
+            #increment format matches how Paste increments names so its possible arrive at the same value
+            if new_comp_name != incremented_new_name:
+                oEditor.RenameComponent(new_comp_name, incremented_new_name)
+                new_comp_name = incremented_new_name
 
         # Get the component EmitNode from revision
         revision = emit_design.results.get_revision()
