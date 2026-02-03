@@ -47,7 +47,7 @@ EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/raw/main"
 EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
-def delete_downloads():
+def delete_downloads() -> None:
     """Delete all downloaded examples to free space or update the files."""
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
@@ -623,7 +623,7 @@ def download_custom_reports(force_download: bool = False, local_path: Optional[U
 
 
 @pyaedt_function_handler()
-def download_3dcomponent(force_download=False, local_path: Optional[Union[str, Path]] = None) -> str:
+def download_3dcomponent(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -664,7 +664,7 @@ def download_3dcomponent(force_download=False, local_path: Optional[Union[str, P
 
 
 @pyaedt_function_handler()
-def download_fss_3dcomponent(force_download=False, local_path: Optional[Union[str, Path]] = None) -> str:
+def download_fss_3dcomponent(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of 3d component array with json template files.
 
     If example files have already been downloaded, the download is
@@ -745,7 +745,7 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
 
 @pyaedt_function_handler()
 def download_twin_builder_data(
-    file_name: Optional[str] = None, force_download=False, local_path: Optional[Union[str, Path]] = None
+    file_name: Optional[str] = None, force_download: bool = False, local_path: Optional[Union[str, Path]] = None
 ) -> str:
     """Download a Twin Builder example data file.
 
@@ -788,7 +788,7 @@ def download_twin_builder_data(
 
     if file_name:
 
-        def filter_func(f):
+        def filter_func(f) -> bool:
             return not f.endswith(file_name)
 
     else:
@@ -861,7 +861,7 @@ def download_file(source: str, name: Optional[str] = None, local_path: Optional[
     return str(path)
 
 
-def unzip(source_filename, dest_dir):
+def unzip(source_filename, dest_dir) -> None:
     with zipfile.ZipFile(source_filename) as zf:
         zf.extractall(dest_dir)
     print(dest_dir)

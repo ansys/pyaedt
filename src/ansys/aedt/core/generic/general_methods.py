@@ -37,6 +37,7 @@ import re
 import sys
 import time
 import traceback
+from typing import Optional
 import warnings
 
 import psutil
@@ -68,7 +69,7 @@ inclusion_list = [
 ]
 
 
-def _write_mes(mes_text):
+def _write_mes(mes_text) -> None:
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     mes_text = str(mes_text)
@@ -87,7 +88,7 @@ def _get_args_dicts(func, args, kwargs):
     return args_dict
 
 
-def _exception(ex_info, func, args, kwargs, message="Type Error"):
+def _exception(ex_info, func, args, kwargs, message: str = "Type Error") -> None:
     """Write the trace stack to the desktop when a Python error occurs.
 
     Parameters
@@ -186,7 +187,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     _write_mes(header)
 
 
-def _check_types(arg):
+def _check_types(arg) -> str:
     if "netref.builtins.list" in str(type(arg)):
         return "list"
     elif "netref.builtins.dict" in str(type(arg)):
@@ -332,7 +333,7 @@ def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
 
 
 @pyaedt_function_handler()
-def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
+def check_numeric_equivalence(a, b, relative_tolerance: float = 1e-7):
     """Check if two numeric values are equivalent to within a relative tolerance.
 
     Parameters
@@ -357,7 +358,7 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     return True if reldiff < relative_tolerance else False
 
 
-def _log_method(func, new_args, new_kwargs):
+def _log_method(func, new_args, new_kwargs) -> None:
     if not (settings.enable_debug_logger or settings.enable_debug_edb_logger):
         return
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
@@ -500,7 +501,7 @@ def env_path(input_version):
 
 
 @pyaedt_function_handler()
-def env_value(input_version):
+def env_value(input_version) -> str:
     """Get the name of the version environment variable for an AEDT version.
 
     Parameters
@@ -547,7 +548,7 @@ def env_path_student(input_version):
 
 
 @pyaedt_function_handler()
-def env_value_student(input_version):
+def env_value_student(input_version) -> str:
     """Get the name of the version environment variable for an AEDT student version.
 
     Parameters
@@ -624,7 +625,7 @@ def time_fn(fn, *args, **kwargs):
 
 
 @pyaedt_function_handler()
-def filter_tuple(value, search_key_1, search_key_2):
+def filter_tuple(value, search_key_1, search_key_2) -> bool:
     """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
 
@@ -648,7 +649,7 @@ def filter_tuple(value, search_key_1, search_key_2):
 
 
 @pyaedt_function_handler()
-def filter_string(value, search_key_1):
+def filter_string(value, search_key_1) -> bool:
     """Filter a string"""
     ignore_case = True
 
@@ -708,7 +709,9 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def active_sessions(version=None, student_version=False, non_graphical=False) -> dict:
+def active_sessions(
+    version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False
+) -> dict:
     """Get information for the active AEDT sessions.
 
     Parameters
@@ -793,7 +796,9 @@ def active_sessions(version=None, student_version=False, non_graphical=False) ->
 
 
 @pyaedt_function_handler()
-def com_active_sessions(version=None, student_version=False, non_graphical=False):
+def com_active_sessions(
+    version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False
+):
     """Get information for the active COM AEDT sessions.
 
     Parameters
@@ -822,7 +827,9 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
 
 
 @pyaedt_function_handler()
-def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
+def grpc_active_sessions(
+    version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False
+):
     """Get information for the active gRPC AEDT sessions.
 
     Parameters
@@ -942,7 +949,7 @@ class PropsManager(PyAedtBase):
         self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
         return None
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         """Set the `self.props` key value.
 
         Parameters
@@ -987,7 +994,7 @@ class PropsManager(PyAedtBase):
             self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
 
     @pyaedt_function_handler()
-    def _recursive_search(self, dict_in, key="", matching_percentage=0.8):
+    def _recursive_search(self, dict_in, key: str = "", matching_percentage: float = 0.8):
         f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
         if f:
             return True, dict_in, f[0]
@@ -1005,7 +1012,7 @@ class PropsManager(PyAedtBase):
         return False
 
     @pyaedt_function_handler()
-    def _recursive_list(self, dict_in, prefix=""):
+    def _recursive_list(self, dict_in, prefix: str = ""):
         available_list = []
         for k, v in dict_in.items():
             if prefix:
@@ -1030,7 +1037,7 @@ class PropsManager(PyAedtBase):
         return []
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self) -> None:
         """Update method."""
         pass
 
@@ -1089,7 +1096,9 @@ def _to_boolean(val):
 
 
 @pyaedt_function_handler()
-def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=False):  # pragma: no cover
+def install_with_pip(
+    package_name, package_path=None, upgrade: bool = False, uninstall: bool = False
+):  # pragma: no cover
     """Install a new package using pip.
 
     This method is useful for installing a package from the AEDT Console without launching the Python environment.

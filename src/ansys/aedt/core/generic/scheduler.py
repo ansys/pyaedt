@@ -99,7 +99,7 @@ def path_string(path: Path):
     return path_str
 
 
-def get_aedt_exe(version=None):
+def get_aedt_exe(version: Optional[str] = None):
     """Retrieve the full path to the Ansys AEDT executable.
 
     Parameters
@@ -198,7 +198,7 @@ class _ResourcesConfiguration:
         max_tasks_per_node: Optional[int],
         ram_limit: int,
         ram_per_core: float,
-    ):
+    ) -> None:
         """Configuration for resources used in the job submission."""
         self.__exclusive = exclusive
         self.__num_cores = self.__validate_positive_int("num_cores", num_cores)
@@ -211,7 +211,7 @@ class _ResourcesConfiguration:
         self.__ram_limit = self.__validate_positive_int("ram_limit", ram_limit)
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", ram_per_core)
 
-    def __validate_positive_int(self, name, value, strict=True):
+    def __validate_positive_int(self, name: str, value, strict: bool = True):
         """Validate that the value is an integer > 0 (strict) or >= 0 (non-strict)."""
         if not isinstance(value, int):
             raise ValueError(f"{name} must be an integer, got {type(value).__name__}.")
@@ -223,7 +223,7 @@ class _ResourcesConfiguration:
 
         return value
 
-    def __validate_positive_float(self, name, value):
+    def __validate_positive_float(self, name: str, value):
         """Validate that the value is a foat greater than zero."""
         if not isinstance(value, float):
             raise ValueError(f"{name} must be a float, got {type(value).__name__}.")
@@ -233,7 +233,7 @@ class _ResourcesConfiguration:
 
         return value
 
-    def __validate_optional_positive_int(self, name, value, strict=True):
+    def __validate_optional_positive_int(self, name: str, value, strict: bool = True):
         """Validate that the value is either None or a valid integer.
 
         If strict is True, the value must be > 0; otherwise, it can be >= 0.
@@ -265,7 +265,7 @@ class _ResourcesConfiguration:
         return self.__num_cores
 
     @num_cores.setter
-    def num_cores(self, value: int):
+    def num_cores(self, value: int) -> None:
         """Set the total number of compute cores to be used by the job."""
         self.__num_cores = self.__validate_positive_int("num_cores", value)
 
@@ -275,7 +275,7 @@ class _ResourcesConfiguration:
         return self.__num_gpus
 
     @num_gpus.setter
-    def num_gpus(self, value: Optional[int]):
+    def num_gpus(self, value: Optional[int]) -> None:
         """Set the number of GPUs to be used for the simulation."""
         self.__num_gpus = self.__validate_optional_positive_int("num_gpus", value, strict=False)
 
@@ -285,7 +285,7 @@ class _ResourcesConfiguration:
         return self.__num_nodes
 
     @num_nodes.setter
-    def num_nodes(self, value: int):
+    def num_nodes(self, value: int) -> None:
         """Set the number of nodes for distribution of the HPC jobs."""
         self.__num_nodes = self.__validate_positive_int("num_nodes", value)
 
@@ -295,7 +295,7 @@ class _ResourcesConfiguration:
         return self.__num_tasks
 
     @num_tasks.setter
-    def num_tasks(self, value: int):
+    def num_tasks(self, value: int) -> None:
         """Set the number of tasks for the submission."""
         self.__num_tasks = self.__validate_positive_int("num_tasks", value)
 
@@ -305,7 +305,7 @@ class _ResourcesConfiguration:
         return self.__max_tasks_per_node
 
     @max_tasks_per_node.setter
-    def max_tasks_per_node(self, value: Optional[int]):
+    def max_tasks_per_node(self, value: Optional[int]) -> None:
         """Set the maximum number of tasks allowed to run on a single node."""
         self.__max_tasks_per_node = self.__validate_optional_positive_int("max_tasks_per_node", value, strict=False)
 
@@ -315,7 +315,7 @@ class _ResourcesConfiguration:
         return self.__ram_limit
 
     @ram_limit.setter
-    def ram_limit(self, value: int):
+    def ram_limit(self, value: int) -> None:
         """Set the fraction of available RAM to be used by the simulation."""
         self.__ram_limit = self.__validate_positive_int("ram_limit", value)
 
@@ -325,7 +325,7 @@ class _ResourcesConfiguration:
         return self.__ram_per_core
 
     @ram_per_core.setter
-    def ram_per_core(self, value: float):
+    def ram_per_core(self, value: float) -> None:
         """Set the total RAM in GB to be used per core for the simulation job."""
         self.__ram_per_core = self.__validate_positive_float("ram_per_core", value)
 
@@ -343,7 +343,7 @@ class _ResourcesConfiguration:
                 f"({self.__num_tasks})."
             )
 
-    def align_dependent_attributes(self):
+    def align_dependent_attributes(self) -> None:
         """Align dependent attributes based on the current configuration."""
         if self.__num_gpus is None:
             logging.info(f"Number of GPUs is not set. Setting it to {DEFAULT_NUM_GPUS}.")
@@ -421,7 +421,7 @@ class JobConfigurationData(PyAedtBase):
         shared_directory_windows: Optional[str] = None,
         use_ppe: bool = True,
         wait_for_license: bool = True,
-    ):
+    ) -> None:
         """Configuration data for HPC job submission.
 
         Keys
@@ -541,7 +541,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.exclusive
 
     @exclusive.setter
-    def exclusive(self, value: bool):
+    def exclusive(self, value: bool) -> None:
         """Set whether nodes will be reserved for exclusive use by the HPC job."""
         self.__resources_conf.exclusive = value
 
@@ -551,7 +551,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.num_cores
 
     @num_cores.setter
-    def num_cores(self, value: int):
+    def num_cores(self, value: int) -> None:
         """Set the total number of compute cores to be used by the job."""
         if value < self.num_tasks:
             logging.warning("Number of cores must be greater than or equal to the number of tasks.")
@@ -563,7 +563,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.num_gpus
 
     @num_gpus.setter
-    def num_gpus(self, value: Optional[int]):
+    def num_gpus(self, value: Optional[int]) -> None:
         """Set the number of GPUs to be used for the simulation."""
         self.__resources_conf.num_gpus = value
 
@@ -573,7 +573,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.num_nodes
 
     @num_nodes.setter
-    def num_nodes(self, value: int):
+    def num_nodes(self, value: int) -> None:
         """Set the number of nodes for distribution of the HPC jobs."""
         self.__resources_conf.num_nodes = value
         self.__update_hpc_method()
@@ -584,7 +584,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.num_tasks
 
     @num_tasks.setter
-    def num_tasks(self, value: int):
+    def num_tasks(self, value: int) -> None:
         """Set the number of tasks for the submission."""
         self.__resources_conf.num_tasks = value
         if self.num_tasks > self.num_cores:
@@ -599,7 +599,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.max_tasks_per_node
 
     @max_tasks_per_node.setter
-    def max_tasks_per_node(self, value: Optional[int]):
+    def max_tasks_per_node(self, value: Optional[int]) -> None:
         """Set the maximum number of tasks allowed to run on a single node."""
         self.__resources_conf.max_tasks_per_node = value
 
@@ -609,7 +609,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.ram_limit
 
     @ram_limit.setter
-    def ram_limit(self, value: int):
+    def ram_limit(self, value: int) -> None:
         """Set the fraction of available RAM to be used by the simulation."""
         self.__resources_conf.ram_limit = value
 
@@ -619,7 +619,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__resources_conf.ram_per_core
 
     @ram_per_core.setter
-    def ram_per_core(self, value: float):
+    def ram_per_core(self, value: float) -> None:
         """Set the total RAM in GB to be used per core for the simulation job."""
         self.__resources_conf.ram_per_core = value
 
@@ -631,7 +631,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.auto_hpc
 
     @auto_hpc.setter
-    def auto_hpc(self, value: bool):
+    def auto_hpc(self, value: bool) -> None:
         """Set whether Auto HPC is enabled for the job submission."""
         self.__execution_conf.auto_hpc = value
         self.__update_hpc_method()
@@ -642,7 +642,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.cluster_name
 
     @cluster_name.setter
-    def cluster_name(self, value: str):
+    def cluster_name(self, value: str) -> None:
         """Set the name of the cluster to be used for the job submission."""
         self.__execution_conf.cluster_name = value
 
@@ -652,7 +652,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.custom_submission_string
 
     @custom_submission_string.setter
-    def custom_submission_string(self, value: str):
+    def custom_submission_string(self, value: str) -> None:
         """Set the custom submission string for the job submission."""
         self.__execution_conf.custom_submission_string = value
 
@@ -662,7 +662,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.job_name
 
     @job_name.setter
-    def job_name(self, value: str):
+    def job_name(self, value: str) -> None:
         """Set the name to be assigned to the HPC job when it is launched."""
         self.__execution_conf.job_name = value
 
@@ -672,7 +672,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.monitor
 
     @monitor.setter
-    def monitor(self, value: bool):
+    def monitor(self, value: bool) -> None:
         """Set whether to open the monitor GUI after job submission."""
         self.__execution_conf.monitor = value
 
@@ -682,7 +682,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.ng_solve
 
     @ng_solve.setter
-    def ng_solve(self, value: bool):
+    def ng_solve(self, value: bool) -> None:
         """Set whether to run the solve in non-graphical mode."""
         self.__execution_conf.ng_solve = value
 
@@ -692,7 +692,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.product_full_path
 
     @product_full_path.setter
-    def product_full_path(self, value: Optional[str]):
+    def product_full_path(self, value: Optional[str]) -> None:
         """Set the full path to the AEDT executable used for job submission."""
         self.__execution_conf.product_full_path = value
 
@@ -702,7 +702,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.shared_directory_linux
 
     @shared_directory_linux.setter
-    def shared_directory_linux(self, value: Optional[str]):
+    def shared_directory_linux(self, value: Optional[str]) -> None:
         """Set the path to the shared directory on Linux systems."""
         self.__execution_conf.shared_directory_linux = value
 
@@ -712,7 +712,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.shared_directory_windows
 
     @shared_directory_windows.setter
-    def shared_directory_windows(self, value: Optional[str]):
+    def shared_directory_windows(self, value: Optional[str]) -> None:
         """Set the path to the shared directory on Windows systems."""
         self.__execution_conf.shared_directory_windows = value
 
@@ -722,7 +722,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.use_ppe
 
     @use_ppe.setter
-    def use_ppe(self, value: bool):
+    def use_ppe(self, value: bool) -> None:
         """Set whether to use the "Pro/Premium/Enterprise" licence type."""
         self.__execution_conf.use_ppe = value
 
@@ -732,7 +732,7 @@ class JobConfigurationData(PyAedtBase):
         return self.__execution_conf.wait_for_license
 
     @wait_for_license.setter
-    def wait_for_license(self, value: bool):
+    def wait_for_license(self, value: bool) -> None:
         """Set whether to wait for an available license before submitting the job."""
         self.__execution_conf.wait_for_license = value
 
@@ -788,7 +788,7 @@ class JobConfigurationData(PyAedtBase):
             "wait_for_license": self.wait_for_license,
         }
 
-    def to_json(self, path: Union[str, Path]):
+    def to_json(self, path: Union[str, Path]) -> None:
         """Save the job configuration to a JSON file."""
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=4)
@@ -816,7 +816,7 @@ class JobConfigurationData(PyAedtBase):
 
     # === Private methods ===
 
-    def __update_hpc_method(self):
+    def __update_hpc_method(self) -> None:
         """Update the HPC method based on the current settings."""
         if self.auto_hpc:
             logging.debug("Using Auto HPC method for job submission.")

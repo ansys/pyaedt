@@ -27,13 +27,16 @@ from pathlib import Path
 import secrets
 import shutil
 import string
+from types import TracebackType
+from typing import Optional
+from typing import Type
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.file_utils import _uname
 
 
-def search_files(dirname, pattern="*"):
+def search_files(dirname, pattern: str = "*"):
     """Search for files inside a directory given a specific pattern.
 
     Parameters
@@ -66,7 +69,7 @@ class Scratch(PyAedtBase):
         """ """
         return self._cleaned
 
-    def __init__(self, local_path, permission=0o777, volatile=False):
+    def __init__(self, local_path, permission: int = 0o777, volatile: bool = False) -> None:
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
@@ -84,7 +87,7 @@ class Scratch(PyAedtBase):
             except FileNotFoundError as fnf_error:  # Raise error if folder doesn't exist.
                 print(fnf_error)
 
-    def remove(self):
+    def remove(self) -> None:
         """ """
         try:
             shutil.rmtree(self._scratch_path, ignore_errors=True)
@@ -126,7 +129,7 @@ class Scratch(PyAedtBase):
 
         return str(dst_file)
 
-    def copyfolder(self, src_folder, destfolder):
+    def copyfolder(self, src_folder, destfolder) -> bool:
         """
 
         Parameters
@@ -146,7 +149,12 @@ class Scratch(PyAedtBase):
     def __enter__(self):
         return self
 
-    def __exit__(self, ex_type, ex_value, ex_traceback):
+    def __exit__(
+        self,
+        ex_type: Optional[Type[BaseException]],
+        ex_value: Optional[BaseException],
+        ex_traceback: Optional[TracebackType],
+    ) -> None:
         if ex_type or self._volatile:
             self.remove()
 
@@ -182,7 +190,7 @@ def get_json_files(start_folder):
     return [y for x in os.walk(start_folder) for y in search_files(x[0], "*.json")]
 
 
-def is_safe_path(path, allowed_extensions=None):
+def is_safe_path(path, allowed_extensions=None) -> bool:
     """Validate if a path is safe to use."""
     # Ensure path is an existing file or directory
     path = Path(path)
