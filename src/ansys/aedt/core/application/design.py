@@ -1520,7 +1520,7 @@ class Design(AedtObjects, PyAedtBase):
             return []
 
     @pyaedt_function_handler()
-    def get_oo_property_value(self, aedt_object, object_name, prop_name):
+    def get_oo_property_value(self, aedt_object, object_name: str, prop_name: str) -> Union[str, float, bool]:
         """Return the Object Oriented AEDT Object Properties.
 
         Parameters
@@ -1543,7 +1543,7 @@ class Design(AedtObjects, PyAedtBase):
             return None
 
     @pyaedt_function_handler()
-    def set_oo_property_value(self, aedt_object, object_name, prop_name, value) -> bool:
+    def set_oo_property_value(self, aedt_object, object_name: str, prop_name: str, value: str) -> bool:
         """Change the property value of the object-oriented AEDT object.
 
         Parameters
