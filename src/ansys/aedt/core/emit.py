@@ -135,14 +135,14 @@ class Emit(Design, PyAedtBase):
         design: Optional[str] = None,
         solution_type: Optional[str] = None,
         version: Optional[str] = None,
-        non_graphical: bool = False,
+        non_graphical: Optional[bool] = False,
         new_desktop: bool = True,
         close_on_exit: bool = True,
-        student_version: bool = False,
-        machine: str = "",
-        port: int = 0,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
         aedt_process_id: Optional[int] = None,
-        remove_lock: bool = False,
+        remove_lock: Optional[bool] = False,
     ) -> None:
         self.__emit_api_enabled = False
         self.results = None

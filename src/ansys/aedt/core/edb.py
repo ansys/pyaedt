@@ -38,7 +38,7 @@ def Edb(
     edbversion: Optional[str] = None,
     isaedtowned: bool = False,
     oproject: Optional[any] = None,
-    student_version: bool = False,
+    student_version: Optional[bool] = False,
     use_ppe: bool = False,
     technology_file: Optional[str] = None,
 ):

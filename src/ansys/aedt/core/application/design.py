@@ -169,15 +169,15 @@ class Design(AedtObjects, PyAedtBase):
         design_name: Optional[str] = None,
         solution_type: Optional[str] = None,
         version: Optional[Union[str, int, float]] = None,
-        non_graphical: bool = False,
-        new_desktop: bool = False,
-        close_on_exit: bool = False,
-        student_version: bool = False,
-        machine: str = "",
-        port: int = 0,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = False,
+        close_on_exit: Optional[bool] = False,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
         aedt_process_id: Optional[int] = None,
         ic_mode: Optional[bool] = None,
-        remove_lock: bool = False,
+        remove_lock: Optional[bool] = False,
     ) -> None:
         self._design_name: Optional[str] = None
         self._project_name: Optional[str] = None

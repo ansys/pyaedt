@@ -134,11 +134,11 @@ class Analysis(Design, PyAedtBase):
         new_desktop,
         close_on_exit,
         student_version,
-        machine: str = "",
-        port: int = 0,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
         aedt_process_id: Optional[int] = None,
         ic_mode=None,
-        remove_lock: bool = False,
+        remove_lock: Optional[bool] = False,
     ) -> None:
         Design.__init__(
             self,

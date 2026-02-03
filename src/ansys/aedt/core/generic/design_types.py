@@ -53,12 +53,12 @@ Simplorer = TwinBuilder
 
 def launch_desktop(
     version: Optional[str] = None,
-    non_graphical: bool = False,
+    non_graphical: Optional[bool] = False,
     new_desktop: bool = True,
     close_on_exit: bool = True,
-    student_version: bool = False,
-    machine: str = "",
-    port: int = 0,
+    student_version: Optional[bool] = False,
+    machine: Optional[str] = "",
+    port: Optional[int] = 0,
     aedt_process_id: Optional[int] = None,
 ):
     """Initialize AEDT based on the inputs provided.

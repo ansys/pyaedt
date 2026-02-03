@@ -709,7 +709,7 @@ def number_aware_string_key(s):
 
 
 @pyaedt_function_handler()
-def active_sessions(version: Optional[str] = None, student_version: bool = False, non_graphical: bool = False) -> dict:
+def active_sessions(version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False) -> dict:
     """Get information for the active AEDT sessions.
 
     Parameters
@@ -794,7 +794,7 @@ def active_sessions(version: Optional[str] = None, student_version: bool = False
 
 
 @pyaedt_function_handler()
-def com_active_sessions(version: Optional[str] = None, student_version: bool = False, non_graphical: bool = False):
+def com_active_sessions(version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False):
     """Get information for the active COM AEDT sessions.
 
     Parameters
@@ -823,7 +823,7 @@ def com_active_sessions(version: Optional[str] = None, student_version: bool = F
 
 
 @pyaedt_function_handler()
-def grpc_active_sessions(version: Optional[str] = None, student_version: bool = False, non_graphical: bool = False):
+def grpc_active_sessions(version: Optional[str] = None, student_version: Optional[bool] = False, non_graphical: Optional[bool] = False):
     """Get information for the active gRPC AEDT sessions.
 
     Parameters

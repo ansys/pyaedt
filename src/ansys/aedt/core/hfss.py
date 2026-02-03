@@ -206,14 +206,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         solution_type: Optional[str] = None,
         setup: Optional[str] = None,
         version: Optional[str] = None,
-        non_graphical: bool = False,
-        new_desktop: bool = False,
-        close_on_exit: bool = False,
-        student_version: bool = False,
-        machine: str = "",
-        port: int = 0,
+        non_graphical: Optional[bool] = False,
+        new_desktop: Optional[bool] = False,
+        close_on_exit: Optional[bool] = False,
+        student_version: Optional[bool] = False,
+        machine: Optional[str] = "",
+        port: Optional[int] = 0,
         aedt_process_id: Optional[int] = None,
-        remove_lock: bool = False,
+        remove_lock: Optional[bool] = False,
     ) -> None:
         FieldAnalysis3D.__init__(
             self,
@@ -367,7 +367,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return table_names
 
     @pyaedt_function_handler()
-    def set_auto_open(self, enable: bool = True, opening_type: str = "Radiation"):
+    def set_auto_open(self, enable: Optional[bool] = True, opening_type: Optional[str] = "Radiation"):
         """Set the HFSS auto open type.
 
         Parameters

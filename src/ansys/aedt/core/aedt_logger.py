@@ -30,7 +30,7 @@ import shutil
 import sys
 import tempfile
 import time
-from typing import Optional
+from typing import Optional, Any, Generator
 
 from ansys.aedt.core.generic.settings import settings
 
