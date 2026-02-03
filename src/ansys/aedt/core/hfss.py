@@ -23,25 +23,32 @@
 # SOFTWARE.
 
 """This module contains the ``Hfss`` class."""
+
 from __future__ import annotations
+
 import math
 from pathlib import Path
 import tempfile
-from typing import TYPE_CHECKING, Tuple, List, Optional, Union
+from typing import TYPE_CHECKING
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
+
 import numpy as np
 
 if TYPE_CHECKING:
-    from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
-    from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
-    from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
-    from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-    from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
     from ansys.aedt.core.generic.constants import Gravity
     from ansys.aedt.core.generic.constants import InfiniteSphereType
+    from ansys.aedt.core.modeler.advanced_cad.actors import Radar
     from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
     from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
+    from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+    from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
+    from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
+    from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
+    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.base import PyAedtBase
@@ -4537,7 +4544,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return ports_ID
 
     @pyaedt_function_handler()
-    def validate_full_design(self, design: Optional[str] = None, output_dir: Optional[str] = None, ports: Optional[int] = None) -> Tuple[List[str], bool]:
+    def validate_full_design(
+        self, design: Optional[str] = None, output_dir: Optional[str] = None, ports: Optional[int] = None
+    ) -> Tuple[List[str], bool]:
         """Validate a design based on an expected value and save information to the log file.
 
         Parameters
@@ -4725,7 +4734,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def create_qfactor_report(self, project_dir: str = None, output: list = None, setup: str = None, name: str = "", x_axis: Optional[str] = "X") -> bool:
+    def create_qfactor_report(
+        self,
+        project_dir: str = None,
+        output: list = None,
+        setup: str = None,
+        name: str = "",
+        x_axis: Optional[str] = "X",
+    ) -> bool:
         """Export a CSV file of the EigenQ plot.
 
         Parameters
@@ -5868,7 +5884,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         >>> ffdata = hfss.get_antenna_data()
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", theta=0, is_polar=False)
         """
-
         if not variations:
             variations = variation_string_to_dict(self.design_variation())
 
@@ -6105,7 +6120,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             raise AEDTRuntimeError("Material conductivity threshold could not be set.") from e
 
     @pyaedt_function_handler()
-    def assign_symmetry(self, assignment: list, name: Optional[str] = None, is_perfect_e: Optional[bool] = True) -> BoundaryObject:
+    def assign_symmetry(
+        self, assignment: list, name: Optional[str] = None, is_perfect_e: Optional[bool] = True
+    ) -> BoundaryObject:
         """Assign symmetry to planar entities.
 
         Parameters
@@ -7117,7 +7134,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_mesh_fusion_settings(self, assignment: Optional[Union[List[str], str]] = None, volume_padding: Optional[List[List[int]]] = None, priority: Optional[List[str]] = None) -> bool:
+    def set_mesh_fusion_settings(
+        self,
+        assignment: Optional[Union[List[str], str]] = None,
+        volume_padding: Optional[List[List[int]]] = None,
+        priority: Optional[List[str]] = None,
+    ) -> bool:
         # type: (list|str, list, list) -> bool
         """Set mesh fusion settings in HFSS.
 
@@ -7381,7 +7403,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             raise AEDTRuntimeError("Failed to export antenna metadata.") from e
 
     @pyaedt_function_handler()
-    def export_touchstone_on_completion(self, export: Optional[bool] = True, output_dir: Optional[Union[str, Path]] = None) -> bool:
+    def export_touchstone_on_completion(
+        self, export: Optional[bool] = True, output_dir: Optional[Union[str, Path]] = None
+    ) -> bool:
         """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
 
         Parameters

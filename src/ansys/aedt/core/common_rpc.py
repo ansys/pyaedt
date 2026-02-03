@@ -211,7 +211,9 @@ def pyaedt_service_manager(port: int = 17878, aedt_version=None, student_version
     t.start()
 
 
-def launch_server(port: int = 18000, ansysem_path=None, non_graphical: Optional[bool] = False, threaded: bool = True) -> bool:
+def launch_server(
+    port: int = 18000, ansysem_path=None, non_graphical: Optional[bool] = False, threaded: bool = True
+) -> bool:
     """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
@@ -284,7 +286,11 @@ def launch_server(port: int = 18000, ansysem_path=None, non_graphical: Optional[
 
 
 def create_session(
-    server_name, client_port=None, launch_aedt_on_server: bool = False, aedt_port=None, non_graphical: Optional[bool] = False
+    server_name,
+    client_port=None,
+    launch_aedt_on_server: bool = False,
+    aedt_port=None,
+    non_graphical: Optional[bool] = False,
 ):
     """
     Connect to an existing AEDT server session and create a new client session from it.
