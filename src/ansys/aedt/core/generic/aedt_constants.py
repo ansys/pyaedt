@@ -813,7 +813,7 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
         "NexximLNA": {
             "name": "LNA",
             "options": None,
-            "report_type": "CircuitNetlistReport",
+            "report_type": "Netlist",
             "default_setup": 15,
             "default_adaptive": None,
             "intrinsics": ["Freq"],
@@ -821,14 +821,14 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
         "NexximDC": {
             "name": "DC",
             "options": None,
-            "report_type": "Standard",
+            "report_type": "Netlist",
             "default_setup": 16,
             "default_adaptive": None,
         },
         "NexximTransient": {
             "name": "TRAN",
             "options": None,
-            "report_type": "Standard",
+            "report_type": "Netlist",
             "default_setup": 17,
             "default_adaptive": None,
             "intrinsics": ["Time"],
