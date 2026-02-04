@@ -257,7 +257,7 @@ def test_create_linear_count_sweep(aedt_app):
     )
     assert aedt_app.create_linear_count_sweep(
         setup="MySetup",
-        units="GHz",
+        unit="GHz",
         start_frequency=1.1e3,
         stop_frequency=1200.1,
         num_of_freq_points=1234,
@@ -265,7 +265,7 @@ def test_create_linear_count_sweep(aedt_app):
     )
     assert aedt_app.create_linear_count_sweep(
         setup="MySetup",
-        units="MHz",
+        unit="MHz",
         start_frequency=1.1e3,
         stop_frequency=1200.1,
         num_of_freq_points=1234,
@@ -273,7 +273,7 @@ def test_create_linear_count_sweep(aedt_app):
     )
     assert aedt_app.create_linear_count_sweep(
         setup="MySetup",
-        units="MHz",
+        unit="MHz",
         start_frequency=1.1e3,
         stop_frequency=1200.1,
         num_of_freq_points=1234,
@@ -285,7 +285,7 @@ def test_create_linear_count_sweep(aedt_app):
     units = "MHz"
     sweep = aedt_app.create_linear_count_sweep(
         setup="MySetup",
-        units="MHz",
+        unit="MHz",
         start_frequency=freq_start,
         stop_frequency=freq_stop,
         num_of_freq_points=num_points,
@@ -299,7 +299,7 @@ def test_create_linear_count_sweep(aedt_app):
     with pytest.raises(AttributeError) as execinfo:
         aedt_app.create_linear_count_sweep(
             setup="MySetup",
-            units="MHz",
+            unit="MHz",
             start_frequency=1.1e3,
             stop_frequency=1200.1,
             num_of_freq_points=1234,
@@ -529,7 +529,7 @@ def test_validate_setup(aedt_app):
     aedt_app.create_setup("ValidationSetup", Frequency="1GHz")
     aedt_app.create_linear_count_sweep(
         setup="ValidationSetup",
-        units="GHz",
+        unit="GHz",
         start_frequency=0.8,
         stop_frequency=1.2,
         num_of_freq_points=10,
