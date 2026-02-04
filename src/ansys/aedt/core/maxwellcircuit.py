@@ -26,7 +26,8 @@
 
 import math
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
 from ansys.aedt.core.base import PyAedtBase

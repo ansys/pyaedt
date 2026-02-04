@@ -24,8 +24,8 @@
 
 """This module contains the ``Mechanical`` class."""
 
-from typing import Optional, Union
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
@@ -413,7 +414,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, "Convection")
 
     @pyaedt_function_handler()
-    def assign_uniform_temperature(self, assignment: list, temperature: Optional[str] = "AmbientTemp", name: Optional[str] = "") -> BoundaryObject:
+    def assign_uniform_temperature(
+        self, assignment: list, temperature: Optional[str] = "AmbientTemp", name: Optional[str] = ""
+    ) -> BoundaryObject:
         """Assign a uniform temperature boundary.
 
         .. note::
@@ -555,7 +558,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
         return sweep_list
 
     @pyaedt_function_handler()
-    def assign_heat_flux(self, assignment: list, heat_flux_type: str, value: str, name: Optional[str] = "") -> BoundaryObject:
+    def assign_heat_flux(
+        self, assignment: list, heat_flux_type: str, value: str, name: Optional[str] = ""
+    ) -> BoundaryObject:
         """Assign heat flux boundary condition to an object or face list.
 
         Parameters
