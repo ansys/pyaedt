@@ -166,7 +166,7 @@ intersphinx_mapping = {
 }
 
 # Mermaid configuration
-mermaid_params = ['-p', 'puppeteer-config.json']
+mermaid_params = ["-p", "puppeteer-config.json"]
 mermaid_output_format = "raw"
 mermaid_version = "11.12.1"
 mermaid_init_config = {"startOnLoad": True}
