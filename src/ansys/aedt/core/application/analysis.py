@@ -555,6 +555,9 @@ class Analysis(Design, PyAedtBase):
         """
         exc_names = self.excitation_names[::]
 
+        # Filter modes
+        exc_names = list(set([item.split(":")[0] for item in exc_names]))
+
         for el in self.boundaries:
             if el.name in exc_names:
                 self._excitation_objects[el.name] = el
@@ -563,7 +566,7 @@ class Analysis(Design, PyAedtBase):
         keys_to_remove = [
             internal_excitation
             for internal_excitation in self._excitation_objects
-            if internal_excitation not in self.excitation_names
+            if internal_excitation not in exc_names
         ]
 
         for key in keys_to_remove:
@@ -1365,9 +1368,9 @@ class Analysis(Design, PyAedtBase):
 
         Parameters
         ----------
-        variable : str, optional
+        variable : str
             Name of the variable.
-        expression : str, optional
+        expression : str
             Value for the variable.
         solution : str, optional
             Name of the solution in the format `"name : sweep_name"`.

@@ -52,9 +52,11 @@ from ansys.aedt.core.base import PyAedtBase
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import active_sessions
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+settings.enable_desktop_logs = True
 NO_ACTIVE_PROJECT = "No active project"
 NO_ACTIVE_DESIGN = "No active design"
 MOON = "\u2600"
@@ -1087,6 +1089,15 @@ class ExtensionTheme(PyAedtBase):  # pragma: no cover
                 ("!active", "#F3C767"),
             ],
             foreground=[("active", "black"), ("!active", "black")],
+        )
+
+        # Apply the colors and font to the style for SpinBox
+        style.configure(
+            "PyAEDT.TSpinbox",
+            fieldbackground=colors["combobox_bg"],
+            background=colors["combobox_arrow_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
         )
 
 
