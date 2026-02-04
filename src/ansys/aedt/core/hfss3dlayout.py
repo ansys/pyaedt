@@ -46,7 +46,6 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 if TYPE_CHECKING:
     from pandas import DataFrame
-
     from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
@@ -212,7 +211,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def create_edge_port(
         self,
-        assignment: Union[str, Line3dLayout],
+        assignment: Union[str, "Line3dLayout"],
         edge_number: int,
         is_circuit_port: Optional[bool] = False,
         is_wave_port: Optional[bool] = False,
@@ -1127,7 +1126,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: Optional[float] = 0.5,
         interpolation_max_solutions: Optional[int] = 250,
         use_q3d_for_dc: Optional[bool] = False,
-    ) -> Union[SweepHFSS3DLayout, bool]:
+    ) -> Union["SweepHFSS3DLayout", bool]:
         """Create a sweep with the specified number of points.
 
         Parameters
@@ -1232,7 +1231,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         interpolation_tol_percent: Optional[float] = 0.5,
         interpolation_max_solutions: Optional[int] = 250,
         use_q3d_for_dc: Optional[bool] = False,
-    ) -> Union[SweepHFSS3DLayout, bool]:
+    ) -> Union["SweepHFSS3DLayout", bool]:
         """Create a sweep with the specified frequency step.
 
         Parameters
@@ -1331,7 +1330,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         name: Optional[str] = None,
         save_fields: Optional[bool] = False,
         save_rad_fields_only: Optional[bool] = False,
-    ) -> Union[SweepHFSS, bool]:
+    ) -> Union["SweepHFSS", bool]:
         """Create a sweep with a single frequency point.
 
         Parameters
@@ -2346,7 +2345,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
     @pyaedt_function_handler()
     def get_dcir_solution_data(
         self, setup: str, show: Optional[str] = "RL", category: Optional[str] = "Loop_Resistance"
-    ) -> SolutionData:
+    ) -> "SolutionData":
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
 
         Sources ["Voltage", "Current", "Power"]
@@ -2381,7 +2380,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
     @pyaedt_function_handler()
-    def get_dcir_element_data_loop_resistance(self, setup: str) -> DataFrame:
+    def get_dcir_element_data_loop_resistance(self, setup: str) -> "DataFrame":
         """Get dcir element data loop resistance.
 
         Parameters
@@ -2421,7 +2420,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return df
 
     @pyaedt_function_handler()
-    def get_dcir_element_data_current_source(self, setup: str) -> DataFrame:
+    def get_dcir_element_data_current_source(self, setup: str) -> "DataFrame":
         """Get dcir element data current source.
 
         Parameters
@@ -2455,7 +2454,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
         return df
 
     @pyaedt_function_handler()
-    def get_dcir_element_data_via(self, setup: str) -> DataFrame:
+    def get_dcir_element_data_via(self, setup: str) -> "DataFrame":
         """Get dcir element data via.
 
         Parameters
