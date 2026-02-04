@@ -40,7 +40,6 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionEMITCommon
-from ansys.aedt.core.extensions.misc import get_arguments
 
 EXTENSION_TITLE = "EMIT EMI Heat Map"
 EXTENSION_DEFAULT_ARGUMENTS = {}
@@ -555,6 +554,4 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
-    ext = EMIHeatmapExtension(withdraw=False)
     tkinter.mainloop()

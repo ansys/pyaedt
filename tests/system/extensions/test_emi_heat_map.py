@@ -62,10 +62,8 @@ def emit_app_with_radios(add_app_example):
     app.close_project(app.project_name, save=False)
 
 
-def test_extract_emi_data(emit_app_with_radios):
-    """Test extracting EMI data from real EMIT project."""
-    extension = EMIHeatmapExtension(withdraw=True)
-
+def set_dropdowns(extension):
+    """Set dropdowns to select victim and aggressor radios and bands."""
     extension._victim_combo.current(1)
     extension._on_victim_changed()
     extension._victim_band_combo.current(0)
@@ -75,21 +73,27 @@ def test_extract_emi_data(emit_app_with_radios):
     extension._aggressor_band_combo.current(0)
     extension._on_aggressor_band_changed()
 
+    return extension
+
+
+def test_extract_emi_data(emit_app_with_radios):
+    """Test extracting EMI data from real EMIT project."""
+    extension = EMIHeatmapExtension(withdraw=True)
+    set_dropdowns(extension)
+
     # Extract data from real EMIT project
     extension._extract_data()
 
     # Verify data was extracted
-    assert extension._emi is not None
-    assert extension._rx_power is not None
-    assert extension._desense is not None
-    assert extension._sensitivity is not None
+    assert len(extension._emi) == 13
+    assert len(extension._rx_power) == 13
+    assert len(extension._desense) == 13
+    assert len(extension._sensitivity) == 13
 
-    assert len(extension._emi) > 0
-    assert len(extension._rx_power) > 0
-    assert len(extension._desense) > 0
-    assert len(extension._sensitivity) > 0
-
-    assert len(extension._emi) == len(extension._rx_power) == len(extension._desense) == len(extension._sensitivity)
+    assert extension._emi[0] == [16.64]
+    assert extension._rx_power[0] == [-20]
+    assert extension._desense[0] == [16.64]
+    assert extension._sensitivity[0] == [-110.86]
 
     extension.root.destroy()
 
@@ -97,15 +101,7 @@ def test_extract_emi_data(emit_app_with_radios):
 def test_export_to_csv(emit_app_with_radios, test_tmp_dir):
     """Test exporting real EMIT data to CSV file."""
     extension = EMIHeatmapExtension(withdraw=True)
-
-    extension._victim_combo.current(1)
-    extension._on_victim_changed()
-    extension._victim_band_combo.current(0)
-    extension._on_victim_band_changed()
-    extension._aggressor_combo.current(1)
-    extension._on_aggressor_changed()
-    extension._aggressor_band_combo.current(0)
-    extension._on_aggressor_band_changed()
+    set_dropdowns(extension)
 
     # Extract data first
     extension._extract_data()
@@ -124,15 +120,13 @@ def test_export_to_csv(emit_app_with_radios, test_tmp_dir):
     # Verify CSV content has proper structure and real data
     with open(csv_path, "r") as f:
         content = f.read()
-        assert "Aggressor_Radio" in content
-        assert "Victim_Radio" in content
-        assert "EMI" in content
-        assert "RX_Power" in content
-        assert "Desense" in content
-        assert "Sensitivity" in content
-        # Should have actual data rows, not just headers
         lines = content.strip().split("\n")
-        assert len(lines) > 1
+        assert len(lines) == 14
+        assert (
+            lines[0]
+            == "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity "
+        )
+        assert lines[-1] == "WiFi,HR-DSSS Tx - Ch 1-13,2472.0,GPS,L2 P(Y),1227.6,16.64,-20.0,16.64,-110.86"
 
     extension.root.destroy()
 
@@ -146,15 +140,7 @@ def test_generate_heatmap(mock_show, mock_fig_manager, emit_app_with_radios):
     mock_fig_manager.return_value = mock_manager
 
     extension = EMIHeatmapExtension(withdraw=True)
-
-    extension._victim_combo.current(1)
-    extension._on_victim_changed()
-    extension._victim_band_combo.current(0)
-    extension._on_victim_band_changed()
-    extension._aggressor_combo.current(1)
-    extension._on_aggressor_changed()
-    extension._aggressor_band_combo.current(0)
-    extension._on_aggressor_band_changed()
+    set_dropdowns(extension)
 
     # Extract data
     extension._extract_data()
@@ -177,29 +163,23 @@ def test_full_workflow_integration(emit_app_with_radios, test_tmp_dir):
     assert extension.active_project_name == emit_app_with_radios.project_name
 
     # Verify radios were loaded from project
-    assert len(extension._victims) > 0
-    assert len(extension._aggressors) > 0
+    assert extension._victims == ["Bluetooth", "GPS", "WiFi"]
+    assert extension._aggressors == ["Bluetooth", "WiFi"]
 
-    # Select victim and aggressor
-    extension._victim_combo.current(1)
-    extension._on_victim_changed()
-    assert extension._victim_band_combo["values"]
+    set_dropdowns(extension)
 
-    extension._victim_band_combo.current(0)
-    extension._on_victim_band_changed()
-    assert len(extension._victim_frequencies) > 0
+    # Verify victim and aggressor
+    assert extension._victim == "GPS"
+    assert "L2 P(Y)" in extension._victim_band_combo["values"]
+    assert len(extension._victim_frequencies) == 1
 
-    extension._aggressor_combo.current(1)
-    extension._on_aggressor_changed()
-    assert extension._aggressor_band_combo["values"]
-
-    extension._aggressor_band_combo.current(0)
-    extension._on_aggressor_band_changed()
-    assert len(extension._aggressor_frequencies) > 0
+    assert extension._aggressor == "WiFi"
+    assert "HR-DSSS Tx - Ch 1-13" in extension._aggressor_band_combo["values"]
+    assert len(extension._aggressor_frequencies) == 13
 
     # Extract real data
     extension._extract_data()
-    assert len(extension._emi) > 0
+    assert len(extension._emi) == 13
 
     # Export to CSV
     csv_path = test_tmp_dir / "workflow_test.csv"
