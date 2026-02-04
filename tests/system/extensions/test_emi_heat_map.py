@@ -124,7 +124,7 @@ def test_export_to_csv(emit_app_with_radios, test_tmp_dir):
         assert len(lines) == 14
         assert (
             lines[0]
-            == "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity "
+            == "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity"
         )
         assert lines[-1] == "WiFi,HR-DSSS Tx - Ch 1-13,2472.0,GPS,L2 P(Y),1227.6,16.64,-20.0,16.64,-110.86"
 

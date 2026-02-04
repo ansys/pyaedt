@@ -347,7 +347,7 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
         """Format CSV file to save."""
         pivot_results = (
             "Aggressor_Radio,Aggressor_Band,Aggressor_Channel,"
-            "Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity \n"
+            "Victim_Radio,Victim_Band,Victim_Channel,EMI,RX_Power,Desense,Sensitivity\n"
         )
 
         for aggressor_index in range(len(self._aggressor_frequencies)):
@@ -554,4 +554,5 @@ class EMIHeatmapExtension(ExtensionEMITCommon):
 
 
 if __name__ == "__main__":  # pragma: no cover
+    extension: EMIHeatmapExtension = EMIHeatmapExtension(withdraw=False)
     tkinter.mainloop()
