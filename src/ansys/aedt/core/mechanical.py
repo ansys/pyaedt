@@ -24,9 +24,8 @@
 
 """This module contains the ``Mechanical`` class."""
 
-from typing import Optional, Union, TYPE_CHECKING
-if TYPE_CHECKING:
-    from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from typing import Optional, Union
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase

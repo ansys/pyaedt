@@ -30,12 +30,19 @@ import csv
 import os
 from pathlib import Path
 import re
-from typing import List, Literal, Tuple, Optional, Union, TYPE_CHECKING
+from typing import List
+from typing import Literal
+from typing import Optional
+from typing import Tuple
+from typing import Union
+from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from ansys.aedt.core.modules.boundary.common import BoundaryObject
     from ansys.aedt.core.modules.mesh import MeshOperation
     from ansys.aedt.core.modules.setup_templates import SetupKeys
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
+
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
@@ -399,7 +406,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_source_blocks_from_list(
-        self, list_powers: list, assign_material: Optional[bool] = True, default_material: Optional[str] = "Ceramic_material"
+        self,
+        list_powers: list,
+        assign_material: Optional[bool] = True,
+        default_material: Optional[str] = "Ceramic_material",
     ):
         """Assign to a box in Icepak the sources that come from the CSV file.
 
@@ -461,7 +471,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return listmcad
 
     @pyaedt_function_handler()
-    def assign_surface_monitor(self, face_name: str, monitor_type: Optional[str] = "Temperature", monitor_name: Optional[str] = None) -> Union[str, bool]:
+    def assign_surface_monitor(
+        self, face_name: str, monitor_type: Optional[str] = "Temperature", monitor_name: Optional[str] = None
+    ) -> Union[str, bool]:
         """Assign a surface monitor.
 
         Parameters
@@ -2551,7 +2563,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_two_resistor_network_block(self, object_name: str, pcb: str, power: float, rjb: float, rjc: float) -> BoundaryObject:
+    def create_two_resistor_network_block(
+        self, object_name: str, pcb: str, power: float, rjb: float, rjc: float
+    ) -> BoundaryObject:
         """Function to create 2-Resistor network object.
 
         Parameters
@@ -3156,7 +3170,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def create_setup(self, name: Optional[str] = None, setup_type: Optional[Union[int, str]] = None, **kwargs) -> SetupHFSS:
+    def create_setup(
+        self, name: Optional[str] = None, setup_type: Optional[Union[int, str]] = None, **kwargs
+    ) -> SetupHFSS:
         """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
         names correspond to the ``setup_type``
@@ -3350,7 +3366,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return bound
 
     @pyaedt_function_handler()
-    def create_network_object(self, name: Optional[str] = None, props: Optional[dict] = None, create: Optional[bool] = False) -> NetworkObject:
+    def create_network_object(
+        self, name: Optional[str] = None, props: Optional[dict] = None, create: Optional[bool] = False
+    ) -> NetworkObject:
         """Create a thermal network.
 
         Parameters
@@ -3388,7 +3406,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def create_resistor_network_from_matrix(
-        self, sources_power: Union[List[str], List[float]], faces_ids: List[int], matrix: List[list], network_name: Optional[str] = None, node_names: Optional[List[str]] = None
+        self,
+        sources_power: Union[List[str], List[float]],
+        faces_ids: List[int],
+        matrix: List[list],
+        network_name: Optional[str] = None,
+        node_names: Optional[List[str]] = None,
     ) -> NetworkObject:
         """Create a thermal network.
 
@@ -3463,7 +3486,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         power_assignment: Union[str, dict, BoundaryDictionary],
         boundary_name: Optional[str] = None,
         htc: Optional[Union[float, str, dict, BoundaryDictionary]] = None,
-        ext_temperature: Union[float,str,dict, BoundaryDictionary] = "AmbientTemp",
+        ext_temperature: Union[float, str, dict, BoundaryDictionary] = "AmbientTemp",
     ) -> Optional[BoundaryObject]:
         """
         Assign block boundary for solid objects.
@@ -3584,7 +3607,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         assignment_type: str,
         assignment_value: Union[str, dict, BoundaryDictionary],
         boundary_name: Optional[str] = None,
-        external_temperature: Union[float,str,dict, BoundaryDictionary] = "AmbientTemp",
+        external_temperature: Union[float, str, dict, BoundaryDictionary] = "AmbientTemp",
     ) -> Optional[BoundaryObject]:
         """Assign block boundary for hollow objects.
 
@@ -4142,7 +4165,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def assign_symmetry_wall(self, geometry: Union[int, str, list], boundary_name: Optional[str] = None) -> Optional[BoundaryObject]:
+    def assign_symmetry_wall(
+        self, geometry: Union[int, str, list], boundary_name: Optional[str] = None
+    ) -> Optional[BoundaryObject]:
         """Assign symmetry wall boundary condition.
 
         Parameters
@@ -4178,7 +4203,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def assign_adiabatic_plate(
-        self, assignment: list, high_radiation_dict: Optional[dict] = None, low_radiation_dict: Optional[dict] = None, boundary_name: Optional[str] = None
+        self,
+        assignment: list,
+        high_radiation_dict: Optional[dict] = None,
+        low_radiation_dict: Optional[dict] = None,
+        boundary_name: Optional[str] = None,
     ) -> Optional[BoundaryObject]:
         """
         Assign adiabatic plate boundary condition.
@@ -5392,7 +5421,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return PieceWiseLinearDictionary(type_assignment, ds, scale)
 
     @pyaedt_function_handler
-    def create_temp_dep_assignment(self, ds_name: str, scale: Optional[Union[str, float]] = 1) -> PieceWiseLinearDictionary:
+    def create_temp_dep_assignment(
+        self, ds_name: str, scale: Optional[Union[str, float]] = 1
+    ) -> PieceWiseLinearDictionary:
         """
         Create a temperature-dependent assignment from a dataset.
 
@@ -5412,7 +5443,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return self.__create_dataset_assignment("Temp Dep", ds_name, scale)
 
     @pyaedt_function_handler
-    def create_dataset_transient_assignment(self, ds_name: str, scale: Optional[Union[str, float]] = 1) -> PieceWiseLinearDictionary:
+    def create_dataset_transient_assignment(
+        self, ds_name: str, scale: Optional[Union[str, float]] = 1
+    ) -> PieceWiseLinearDictionary:
         """
         Create a transient assignment from a dataset.
 
@@ -5456,7 +5489,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return LinearDictionary(intercept, slope)
 
     @pyaedt_function_handler
-    def create_powerlaw_transient_assignment(self, intercept: str, coefficient: str, scaling_exponent: str) -> PowerLawDictionary:
+    def create_powerlaw_transient_assignment(
+        self, intercept: str, coefficient: str, scaling_exponent: str
+    ) -> PowerLawDictionary:
         """
         Create an object to assign the power law transient condition to.
 
@@ -5483,7 +5518,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return PowerLawDictionary(intercept, coefficient, scaling_exponent)
 
     @pyaedt_function_handler
-    def create_exponential_transient_assignment(self, vertical_offset: str, coefficient: str, exponent_coefficient: str) -> ExponentialDictionary:
+    def create_exponential_transient_assignment(
+        self, vertical_offset: str, coefficient: str, exponent_coefficient: str
+    ) -> ExponentialDictionary:
         """
         Create an object to assign the exponential transient condition to.
 
@@ -5510,7 +5547,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
 
     @pyaedt_function_handler
-    def create_sinusoidal_transient_assignment(self, vertical_offset: str, vertical_scaling: str, period: str, period_offset: str) -> SinusoidalDictionary:
+    def create_sinusoidal_transient_assignment(
+        self, vertical_offset: str, vertical_scaling: str, period: str, period_offset: str
+    ) -> SinusoidalDictionary:
         """
         Create an object to assign the sinusoidal transient condition to.
 
@@ -5539,7 +5578,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
 
     @pyaedt_function_handler
-    def create_square_wave_transient_assignment(self, on_value: str, initial_time_off: str, on_time: str, off_time: str, off_value: str) -> SquareWaveDictionary:
+    def create_square_wave_transient_assignment(
+        self, on_value: str, initial_time_off: str, on_time: str, off_time: str, off_value: str
+    ) -> SquareWaveDictionary:
         """
         Create an object to assign the square wave transient condition to.
 

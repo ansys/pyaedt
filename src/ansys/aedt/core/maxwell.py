@@ -47,11 +47,10 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
 if TYPE_CHECKING:
     from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
-    from ansys.aedt.core.modules.boundary.common import BoundaryObject
     from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
