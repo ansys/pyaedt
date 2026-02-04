@@ -26,7 +26,8 @@
 
 import math
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
@@ -303,7 +304,9 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_sim_setup_parameter(self, variable: Variable, expression: Variable, analysis_name: Optional[str] = "TR") -> bool:
+    def set_sim_setup_parameter(
+        self, variable: Variable, expression: Variable, analysis_name: Optional[str] = "TR"
+    ) -> bool:
         """Set simulation setup parameters.
 
         Parameters
