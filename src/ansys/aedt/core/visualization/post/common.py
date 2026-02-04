@@ -1229,7 +1229,6 @@ class PostProcessorCommon(PyAedtBase):
         context=None,
         subdesign_id=None,
         polyline_points=1001,
-        solution=None,
     ):
         # Setup
         if not setup_sweep_name:
@@ -1260,8 +1259,6 @@ class PostProcessorCommon(PyAedtBase):
             raise KeyError(f"Setup {setup_name} not available in current design.")
 
         # Domain
-        if self._app.design_type == "Circuit Netlist" and solution == "NexximDC":
-            domain = "Index"
         if not domain:
             domain = "Sweep"
             if setup_name:
@@ -1549,7 +1546,6 @@ class PostProcessorCommon(PyAedtBase):
             context=context,
             subdesign_id=subdesign_id,
             polyline_points=polyline_points,
-            solution=solution,
         )
         report.report_type = plot_type
         result = report.create(plot_name, solution)
