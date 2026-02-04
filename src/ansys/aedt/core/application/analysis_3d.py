@@ -1009,7 +1009,7 @@ class FieldAnalysis3D(Analysis, PyAedtBase):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Stackup3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Stackup3D`
             Stackup class.
         """
         from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D

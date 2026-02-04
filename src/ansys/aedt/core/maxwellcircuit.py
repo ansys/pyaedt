@@ -115,6 +115,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         project: Optional[str] = None,
         design: Optional[str] = None,
         version: Optional[str] = None,
+        solution_type: Optional[str] = None,
         non_graphical: Optional[bool] = False,
         new_desktop: Optional[bool] = False,
         close_on_exit: Optional[bool] = False,
