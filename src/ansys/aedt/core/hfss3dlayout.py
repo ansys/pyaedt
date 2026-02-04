@@ -46,6 +46,7 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 
 if TYPE_CHECKING:
     from pandas import DataFrame
+
     from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
     from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
