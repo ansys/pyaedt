@@ -239,6 +239,22 @@ class CircuitNetlistReport(CommonReport):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Initialize Circuit Netlist.
+        >>> from ansys.aedt.core import CircuitNetlist
+        >>> cir = CircuitNetlist(version="2025.2")
+        Create a report object (not in AEDT) for a transient analysis.
+        >>> new_report = cir.post.reports_by_category.circuit_netlist(
+        ...     expressions="V(net_20,0)", setup="NexximTransient", domain="Time", primary_sweep_variable="Time"
+        ... )
+        Set time range for the report.
+        >>> new_report.time_start = "0us"
+        >>> new_report.time_stop = "10us"
+        Create the report in AEDT.
+        >>> assert new_report.create()
+        >>> cir.release_desktop(False, False)
         """
         self._is_created = False
         if not name:

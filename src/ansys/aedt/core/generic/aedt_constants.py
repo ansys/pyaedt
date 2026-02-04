@@ -826,7 +826,7 @@ class CircuitNetlistConstants(metaclass=DynamicMeta):
             "default_adaptive": None,
         },
         "NexximTransient": {
-            "name": "Tran",
+            "name": "TRAN",
             "options": None,
             "report_type": "Standard",
             "default_setup": 17,
