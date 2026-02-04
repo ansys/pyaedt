@@ -650,7 +650,7 @@ This mechanism prevents PRs from running with stale or inconsistent cache data.
 
 If the ``update-testmondata-cache.yml`` workflow fails:
 
-- Subsequent PRs will fail at the "Wait for master cache update" step.
+- Subsequent PRs fail at the "Wait for master cache update" step.
 - The error message directs users to relaunch the workflow at:
   ``https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml``
 - Once the cache update completes successfully, PR workflows can proceed.
