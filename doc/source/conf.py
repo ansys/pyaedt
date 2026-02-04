@@ -151,6 +151,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinxcontrib.mermaid",
 ]
 
 # Intersphinx mapping
@@ -163,6 +164,11 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
+
+# Mermaid configuration
+mermaid_output_format = "raw"
+mermaid_version = "11.12.1"
+mermaid_init_config = {"startOnLoad": True}
 
 
 toc_object_entries_show_parents = "hide"

@@ -703,7 +703,9 @@ The following diagrams illustrate the testmon workflow in the CI/CD pipeline.
 This diagram shows how the CI/CD pipeline handles a pull request with testmon integration,
 including the cache waiting mechanism and selective test execution.
 
-.. code-block:: mermaid
+.. mermaid::
+   :caption: PR Workflow with Testmon
+   :align: center
 
    flowchart TD
        A[PR Created/Updated] --> B[ci_cd.yml Triggers]
@@ -718,16 +720,14 @@ including the cache waiting mechanism and selective test execution.
        I --> J[Upload Test Results]
        J --> K[No Cache Update - PR Complete]
 
-.. image:: https://mermaid.ink/img/pako:eNpNkE9vwjAMxb-K5TNFQCnQHCYB5Y80sU3ALms5ZK1pq7UJSlMYQ3z3hbABOdnx-70n-4SxTAgZAsC2kIc440rDOogEXN8wfFvCglRKCWgJC56LDTjOE4zCepdwTY6mSpdSmJo7MY8zah7LAtYqT1NS1ebmNLLYOFzWAtaGqeCQ68yWBr_rxlYXhO_WHgLakUhIxEcITMRdF1jdJAyoIKN7LRIYX-JhIrTK6SF5YpXTcMX3BC90uOru86mdz8Ir_kxHBo9LVXVu1izN5s5qPrxjM4vN_7DhnucF_ywItlLBtNa1InhbVhtsYKryBJlWNTWwJGWsTIuni1OEOqOSImSmTLj6ijASZ8PsuPiQsvzHlKzTDNmWF5XprqcPcp4qXt5-1eVQaixroZF1POuB7ITfyNyu32z77sDrtnyv3ev3ug08IvPazU7X9_uu5w9ct9fu9M4N_LGxreag751_Af-hpTw?type=png
-   :alt: PR Workflow with Testmon
-   :align: center
-
 **Diagram 2: Merge to main workflow**
 
 This diagram illustrates what happens when a PR is merged to the ``main`` branch and the
 cache update workflow is triggered.
 
-.. code-block:: mermaid
+.. mermaid::
+   :caption: Merge to Main Cache Update Workflow
+   :align: center
 
    flowchart TD
        A[PR Merged to Main] --> B[update-testmondata-cache.yml Triggers]
@@ -738,16 +738,14 @@ cache update workflow is triggered.
        F --> G[Cache Key: testmondata-suite-main-SHA]
        G --> H[Cache Available for Future PRs]
 
-.. image:: https://mermaid.ink/img/pako:eNqdkk1vo0AMhv-K5XMShY_wdVgJple6qzS9LOQwAQPRliEaYPsR5b_vwLTZkB4adU6M_fqdxzZHzJqcMEAAKJ6a56zisoPNXSpAn7bflZIfKoj5XkAkuciqc3I4cVIPmd2YgYxnFW3PAhL5Z6df63k4sQiNZIjBzwOJdgvz-Q8IzWRNbddIAjZYQiGbemTYTktNLbeSdS8gLArKOspho2rbrzGiiVc0YkSXGNGNGJHGiL6HwSZebMRglxjsRgymMdjtGPH7tK8C0XWA_Q-Elq6x9dJikiVduIe2Tq8Sjfp4yHlHsJH7siRJ-YVypZVOck_P74098L8TiQPzxcBj69XE_BXuSbW0ph1v6bOQ2Xp410KcYSn3OQad7GmGNUn116orHgeLFLuKakoxUJ85l39STMVJ1Ry4-N009UeZbPqywqDgT6269WNnd3uuFlmfo1KNlyRretFh4FmjBwZHfMHAWHkL2zBcx3X9pe96vsq-YuCbC981jJVh-o7lWEvnNMO38dXlwvU917UdzzM8wzRN__QPwscEjw?type=png
-   :alt: Merge to Main Cache Update Workflow
-   :align: center
-
 **Diagram 3: Multiple concurrent PRs**
 
 This diagram shows how multiple PRs can run concurrently, each restoring from the same
 baseline cache without interfering with each other.
 
-.. code-block:: mermaid
+.. mermaid::
+   :caption: Multiple Concurrent PRs Workflow
+   :align: center
 
    flowchart TD
        subgraph Main Branch
@@ -774,16 +772,14 @@ baseline cache without interfering with each other.
        A6 -.-> B4[PR-B May Need Rebase]
        A6 -.-> C4[PR-C May Need Rebase]
 
-.. image:: https://mermaid.ink/img/pako:eNqtUk2P0zAQ_SujOWejpmnaxoeV2CJuSKsCqoQqIeNME6uNHcYOZan633GaNFpB4IQPsR2_j3n2XFDZglAgADj61pJR9FbLkmW9N9CPRrLXSjfSeHgvtQHpoO7mryyNqiZxG6kq2r3roLclfGoK6Ql2lo-Hkz1Pkp63Tx3hefvw9Ao4Qjvvh8fHQVp0uDdQE5dUROBZlyWxg_ZmNJIG9GvetjVGmxI8Oe_iOB6xwT_gwlf0NZyHGsD5UKX7DTfqbSpSR9AH4F74D--76AcvfesEaPOlYVsyOTflvZPaQzJzETB5fvlXlI9dBFC2bk40Gbq7s2AsvxMYOoPqDv5bjrtvuH7XKvWXONtQo2WCQ8hbTVbQw1rTv8jU4WZwwghL1gUKzy1FGB4_NGLY4qVj7dFXVNMeRVgWko973Jtr4ITu-mxtfaexbcsKxUGeXNj1DTM0_fiXyRTEG9saj2Ke3DRQXPAHinSRx0merrPFLM-S5Wq5iPAFRZbE80Wer9IsX6fpMpkvrxH-vNnO4vUqu_4Cf9YLtg?type=png
-   :alt: Multiple Concurrent PRs Workflow
-   :align: center
-
 **Diagram 4: Cache update blocking scenario**
 
 This sequence diagram shows the timeline when a PR workflow starts while the cache update
 workflow is running, demonstrating the waiting and retry mechanism.
 
-.. code-block:: mermaid
+.. mermaid::
+   :caption: Cache Update Blocking Scenario
+   :align: center
 
    sequenceDiagram
        participant Main as main branch
@@ -803,7 +799,3 @@ workflow is running, demonstrating the waiting and retry mechanism.
        PRB->>PRB: Restore fresh cache
        PRB->>PRB: Run tests
        PRB->>PRB: Complete
-
-.. image:: https://mermaid.ink/img/pako:eNqdkk1vo0AMhv-K5XMShY_wdVgJple6qzS9LOQwAQPRliEaYPsR5b_vwLTZkB4adU6M_fqdxzZHzJqcMEAAKJ6a56zisoPNXSpAn7bflZIfKoj5XkAkuciqc3I4cVIPmd2YgYxnFW3PAhL5Z6df63k4sQiNZIjBzwOJdgvz-Q8IzWRNbddIAjZYQiGbemTYTktNLbeSdS8gLArKOspho2rbrzGiiVc0YkSXGNGNGJHGiL6HwSZebMRglxjsRgymMdjtGPH7tK8C0XWA_Q-Elq6x9dJikiVduIe2Tq8Sjfp4yHlHsJH7siRJ-YVypZVOck_P74098L8TiQPzxcBj69XE_BXuSbW0ph1v6bOQ2Xp410KcYSn3OQad7GmGNUn116orHgeLFLuKakoxUJ85l39STMVJ1Ry4-N009UeZbPqywqDgT6269WNnd3uuFlmfo1KNlyRretFh4FmjBwZHfMHAWHkL2zBcx3X9pe96vsq-YuCbC981jJVh-o7lWEvnNMO38dXlwvU917UdzzM8wzRN__QPwscEjw?type=png
-   :alt: Cache Update Blocking Scenario
-   :align: center

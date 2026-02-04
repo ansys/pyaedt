@@ -91,6 +91,7 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.21",
     "sphinx_design>=0.4.0,<0.7",
+    "sphinxcontrib-mermaid>=2.0.0",
     "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
     "fpdf2",
