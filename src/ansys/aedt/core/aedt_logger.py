@@ -160,7 +160,7 @@ class AedtLogger:
     """
 
     def __init__(
-        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop = None
+        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop=None
     ) -> None:
         self._desktop_class = desktop
         self._oproject = None
