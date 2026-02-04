@@ -42,7 +42,6 @@ def icepak_app(add_app):
     app.close_project(app.project_name, save=False)
 
 
-@pytest.mark.skipif(NON_GRAPHICAL, reason="Messages not functional in non-graphical mode")
 def test_global_messenger():
     msg = AedtLogger()
     with pytest.raises(ValueError):
@@ -97,7 +96,6 @@ def test_get_messages(add_app, icepak_app, test_tmp_dir):  # pragma: no cover
     settings.enable_desktop_logs = False
 
 
-@pytest.mark.skipif(NON_GRAPHICAL, reason="Messages not functional in non-graphical mode")
 def test_messaging(icepak_app):  # pragma: no cover
     settings.enable_desktop_logs = True
     msg = icepak_app.logger
