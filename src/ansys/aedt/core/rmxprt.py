@@ -33,6 +33,7 @@ from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
 
 
 class RMXprtModule(PyAedtBase):
@@ -45,12 +46,12 @@ class RMXprtModule(PyAedtBase):
         self.oeditor = app.oeditor
 
     @property
-    def properties(self):
+    def properties(self) -> Union[BinaryTreeNode, bool]:
         """Object parameters.
 
         Returns
         -------
-            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode` when successful,
             ``False`` when failed.
 
         """
@@ -225,7 +226,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         project: Optional[str] = None,
         design: Optional[str] = None,
         solution_type: Optional[str] = None,
-        model_units=None,
+        model_units: Optional[str] = None,
         setup: Optional[str] = None,
         version: Optional[str] = None,
         non_graphical: Optional[bool] = False,
@@ -278,7 +279,7 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         self.design_solutions._design_type = value
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: Optional[str] = "MySetupAuto", setup_type: Optional[Union[int, str]] = None, **kwargs) -> SetupHFSS:
         """Create an analysis setup for RmXport.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``

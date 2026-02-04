@@ -26,7 +26,7 @@
 
 import math
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
 from ansys.aedt.core.application.variables import Variable
@@ -38,6 +38,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 
 
 class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
@@ -239,7 +240,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_end_time(self, expression) -> bool:
+    def set_end_time(self, expression: Variable) -> bool:
         """Set the end time.
 
         Parameters
@@ -260,7 +261,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_hmin(self, expression) -> bool:
+    def set_hmin(self, expression: Variable) -> bool:
         """Set hmin.
 
         Parameters
@@ -281,7 +282,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_hmax(self, expression) -> bool:
+    def set_hmax(self, expression: Variable) -> bool:
         """Set hmax.
 
         Parameters
@@ -302,14 +303,14 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def set_sim_setup_parameter(self, variable, expression, analysis_name: str = "TR") -> bool:
+    def set_sim_setup_parameter(self, variable: Variable, expression: Variable, analysis_name: Optional[str] = "TR") -> bool:
         """Set simulation setup parameters.
 
         Parameters
         ----------
         variable : string
             Name of the variable.
-        expression :
+        expression : Variable
 
         analysis_name : str, optional
             Name of the analysis. The default is ``"TR"``.
@@ -344,7 +345,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_subsheet(self, name: str, design_name) -> bool:
+    def create_subsheet(self, name: str, design_name: Optional[str] = None) -> bool:
         """Create a subsheet from a parent design.
 
         If the parent design does not exist, it will add at top level.
@@ -354,7 +355,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
         ----------
         name : str
             Name of the subsheet.
-        design_name : str
+        design_name : str, optional
             Name of the parent design.
 
         Returns
@@ -380,19 +381,19 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     @pyaedt_function_handler()
     def add_q3d_dynamic_component(
         self,
-        source_project,
-        source_design_name,
+        source_project: str,
+        source_design_name: str,
         setup: str,
         sweep: str,
-        coupling_matrix_name,
-        model_depth: str = "1meter",
-        maximum_order: int = 10000,
-        error_tolerance: float = 0.005,
-        z_ref: int = 50,
-        state_space_dynamic_link_type=None,
-        component_name=None,
-        save_project: bool = True,
-    ):
+        coupling_matrix_name: str,
+        model_depth: Optional[str] = "1meter",
+        maximum_order: Optional[float] = 10000,
+        error_tolerance: Optional[float] = 0.005,
+        z_ref: Optional[float] = 50,
+        state_space_dynamic_link_type: Optional[str] = None,
+        component_name: Optional[str] = None,
+        save_project: Optional[bool] = True,
+    ) -> Union[CircuitComponent, bool]:
         """Add a Q2D or Q3D dynamic component to a Twin Builder design.
 
         Parameters
@@ -644,16 +645,16 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     @min_aedt_version("2025.1")
     def add_excitation_model(
         self,
-        project,
-        design,
-        use_default_values: bool = True,
+        project: str,
+        design: str,
+        use_default_values: Optional[bool] = True,
         setup: Optional[str] = None,
-        start=None,
-        stop=None,
-        export_uniform_points: bool = False,
-        export_uniform_points_step: float = 1e-5,
-        excitations=None,
-    ):
+        start: Optional[str] = None,
+        stop: Optional[str] = None,
+        export_uniform_points: Optional[bool] = False,
+        export_uniform_points_step: Optional[float] = 1e-5,
+        excitations: Optional[dict] = None,
+    ) -> Union[CircuitComponent, bool]:
         """Use the excitation component to assign output quantities
 
         This works in a Twin Builder design to a windings in a Maxwell design.
@@ -675,7 +676,7 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
             Start time provided as value + units.
             The default value is ``None``.
             If not provided and ``use_default_values=True``, the value is chosen from the TR setup.
-        stop : float, optional
+        stop : str, optional
             Stop time provided as value + units.
             The default value is ``None``.
             If not provided and ``use_default_values=True``, the value is chosen from the TR setup.
