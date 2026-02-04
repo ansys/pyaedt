@@ -568,7 +568,7 @@ Testmon workflow during pull requests
 When a pull request is created or updated, the CI/CD pipeline executes the following workflow:
 
 1. **Wait for cache update (if needed)**: Before running tests, the workflow checks if the
-   ``update-testmondata-cache.yml`` workflow is running on the ``main`` branch for the PR's base commit.
+   ``update-testmondata-cache.yml`` workflow is running on the ``main`` branch for the pull request's base commit.
    If so, the PR workflow waits for it to complete to ensure it uses the most
    up-to-date cache data.
 
@@ -642,7 +642,7 @@ If a PR workflow starts while the ``update-testmondata-cache.yml`` workflow is r
 - The PR workflow **waits** for up to 10 minutes for the cache update to complete.
 - If the cache update succeeds, the PR uses the fresh cache.
 - If the cache update fails or times out, the PR workflow **fails** with an error message instructing
-  the user to retrigger the cache update workflow.
+  the user to relaunch the cache update workflow.
 
 This mechanism prevents PRs from running with stale or inconsistent cache data.
 
@@ -651,7 +651,7 @@ This mechanism prevents PRs from running with stale or inconsistent cache data.
 If the ``update-testmondata-cache.yml`` workflow fails:
 
 - Subsequent PRs will fail at the "Wait for master cache update" step.
-- The error message directs users to retrigger the workflow at:
+- The error message directs users to relaunch the workflow at:
   ``https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml``
 - Once the cache update completes successfully, PR workflows can proceed.
 
@@ -673,14 +673,14 @@ Keeping PRs updated with main
 
 This requirement ensures that:
 
-1. **Cache consistency**: The PR's testmon run is validated against the same codebase state that the
+1. **Cache consistency**: The pull request's testmon run is validated against the same codebase state that the
    cache was built from. If a PR is behind ``main``, its testmon data may not accurately reflect which
    tests need to run.
 
 2. **Merge conflicts**: Updating ensures merge conflicts are resolved before merging.
 
 3. **Test coverage**: Tests that were added or modified in ``main`` since the PR was created are
-   executed against the PR's changes.
+   executed against the pull request's changes.
 
 **How to update your PR:**
 
