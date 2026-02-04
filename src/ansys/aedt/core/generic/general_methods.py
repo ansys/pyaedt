@@ -776,7 +776,7 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
     Notes
     -----
     - On Linux: Uses `pgrep` and reads `/proc/{pid}/cmdline`
-    - On Windows: Uses WMIC to query process information
+    - On Windows: Uses WMIC to query process information or falls back to PowerShell if WMIC is unavailable.
 
     Examples
     --------
@@ -823,6 +823,36 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                         if current_pid and current_cmd:
                             found_data.append((current_pid, current_cmd))
                             current_pid, current_cmd = None, []
+        # The system may not have WMIC available, fallback to PowerShell
+        except FileNotFoundError:
+            import json
+
+            for tgt in target_name:
+                powershell_path = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+
+                # PowerShell command equivalent to WMIC
+                ps_cmd = (
+                    f"Get-CimInstance Win32_Process -Filter \"Name='{tgt}'\" "
+                    "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
+                )
+
+                output = subprocess.check_output([powershell_path, "-Command", ps_cmd], text=True)
+
+                # Parse JSON output - can be a single object or array
+                try:
+                    data = json.loads(output)
+                    # If single process, PowerShell returns an object; if multiple, returns an array
+                    if isinstance(data, dict):
+                        data = [data]
+
+                    for process in data:
+                        pid = process.get("ProcessId")
+                        cmdline = process.get("CommandLine", "")
+                        if pid and cmdline:
+                            found_data.append((pid, cmdline.split()))
+                except (json.JSONDecodeError, ValueError):
+                    # No processes found or invalid JSON
+                    pass
         except Exception as e:
             pyaedt_logger.debug(f"Failed to query Windows processes with WMIC: {str(e)}")
 
