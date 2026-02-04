@@ -26,7 +26,7 @@
 
 import math
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
 from ansys.aedt.core.base import PyAedtBase
@@ -113,7 +113,6 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         self,
         project: Optional[str] = None,
         design: Optional[str] = None,
-        solution_type: Optional[str] = None,
         version: Optional[str] = None,
         non_graphical: Optional[bool] = False,
         new_desktop: Optional[bool] = False,
@@ -214,7 +213,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def export_netlist_from_schematic(self, output_file):
+    def export_netlist_from_schematic(self, output_file: Union[str, Path]) -> Union[str, bool]:
         """Create netlist from schematic circuit.
 
         Parameters

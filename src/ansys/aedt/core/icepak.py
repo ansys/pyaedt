@@ -30,10 +30,12 @@ import csv
 import os
 from pathlib import Path
 import re
-from typing import List, Literal, Tuple
-from typing import Optional
-from typing import Union
-
+from typing import List, Literal, Tuple, Optional, Union, TYPE_CHECKING
+if TYPE_CHECKING:
+    from ansys.aedt.core.modules.boundary.common import BoundaryObject
+    from ansys.aedt.core.modules.mesh import MeshOperation
+    from ansys.aedt.core.modules.setup_templates import SetupKeys
+    from ansys.aedt.core.modules.solve_setup import SetupHFSS
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
@@ -53,7 +55,6 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import BoundaryDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import ExponentialDictionary
 from ansys.aedt.core.modules.boundary.icepak_boundary import LinearDictionary
@@ -64,9 +65,6 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionar
 from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
-from ansys.aedt.core.modules.mesh import MeshOperation
-from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solve_setup import SetupHFSS
 
 
 class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
