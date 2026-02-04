@@ -279,7 +279,9 @@ class Rmxprt(FieldAnalysisRMxprt, PyAedtBase):
         self.design_solutions._design_type = value
 
     @pyaedt_function_handler()
-    def create_setup(self, name: Optional[str] = "MySetupAuto", setup_type: Optional[Union[int, str]] = None, **kwargs) -> SetupHFSS:
+    def create_setup(
+        self, name: Optional[str] = "MySetupAuto", setup_type: Optional[Union[int, str]] = None, **kwargs
+    ) -> SetupHFSS:
         """Create an analysis setup for RmXport.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``
