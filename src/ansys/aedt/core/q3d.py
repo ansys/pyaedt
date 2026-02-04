@@ -26,7 +26,9 @@
 
 from pathlib import Path
 import re
-from typing import Dict, List, Optional
+from typing import Dict
+from typing import List
+from typing import Optional
 from typing import Union
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -45,7 +47,8 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.modules.solve_setup import SetupHFSS, SetupQ3D
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
+from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 
@@ -236,7 +239,13 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup: str = None, variations: Optional[str] = "", output_file: Optional[Union[str, Path]] = None, setup_type: Optional[str] = "CG") -> str:
+    def export_mesh_stats(
+        self,
+        setup: str = None,
+        variations: Optional[str] = "",
+        output_file: Optional[Union[str, Path]] = None,
+        setup_type: Optional[str] = "CG",
+    ) -> str:
         """Export mesh statistics to a file.
 
         Parameters
@@ -267,7 +276,13 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         return str(output_file)
 
     @pyaedt_function_handler()
-    def edit_sources(self, cg: Optional[dict] = None, acrl: Optional[dict] = None, dcrl: Optional[dict] = None, harmonic_loss: Optional[dict] = None) -> bool:
+    def edit_sources(
+        self,
+        cg: Optional[dict] = None,
+        acrl: Optional[dict] = None,
+        dcrl: Optional[dict] = None,
+        harmonic_loss: Optional[dict] = None,
+    ) -> bool:
         """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
 
         Parameters
@@ -1446,7 +1461,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def objects_from_nets(self, assignment: Union[str, List[str]], materials: Optional[Union[str, list]] = None) -> dict:
+    def objects_from_nets(
+        self, assignment: Union[str, List[str]], materials: Optional[Union[str, list]] = None
+    ) -> dict:
         """Find the objects that belong to one or more nets. You can filter by materials.
 
         Parameters
@@ -1647,7 +1664,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._boundaries[net_name]
 
     @pyaedt_function_handler()
-    def assign_net(self, assignment: Union[str, List[str]], net_name: Optional[str] = None, net_type: Optional[str] = "Signal") -> BoundaryObject:
+    def assign_net(
+        self, assignment: Union[str, List[str]], net_name: Optional[str] = None, net_type: Optional[str] = "Signal"
+    ) -> BoundaryObject:
         """Assign a net to a list of objects.
 
         Parameters
@@ -1802,7 +1821,10 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_material_thresholds(
-        self, insulator_threshold: Optional[float] = None, perfect_conductor_threshold: Optional[float] = None, magnetic_threshold: Optional[float] = None
+        self,
+        insulator_threshold: Optional[float] = None,
+        perfect_conductor_threshold: Optional[float] = None,
+        magnetic_threshold: Optional[float] = None,
     ) -> bool:
         """Set material threshold.
 
@@ -1894,7 +1916,13 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def assign_thin_conductor(self, assignment: Optional[Union[str, int, list, Object3d]] = None, material: Optional[str] = "copper", thickness: Optional[Union[float,str,int]] = 1, name: Optional[str] = "") -> BoundaryObject:
+    def assign_thin_conductor(
+        self,
+        assignment: Optional[Union[str, int, list, Object3d]] = None,
+        material: Optional[str] = "copper",
+        thickness: Optional[Union[float, str, int]] = 1,
+        name: Optional[str] = "",
+    ) -> BoundaryObject:
         """Assign a thin conductor to a sheet.
 
         The method accepts both a sheet name or a face id.
@@ -2456,7 +2484,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin: list, sizes: list, name: Optional[str] = "", material: Optional[str] = "") -> Object3d:
+    def create_rectangle(
+        self, origin: list, sizes: list, name: Optional[str] = "", material: Optional[str] = ""
+    ) -> Object3d:
         """Create a rectangle.
 
         Parameters
@@ -2490,7 +2520,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         name: Optional[str] = "",
         conductor_type: str = "SignalLine",
         solve_option: Optional[str] = "SolveInside",
-        thickness: Optional[float]=None,
+        thickness: Optional[float] = None,
         units: Optional[str] = "um",
     ) -> BoundaryObject:
         """
@@ -2549,7 +2579,14 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, conductor_type)
 
     @pyaedt_function_handler()
-    def assign_huray_finitecond_to_edges(self, assignment: list, radius: Union[float, str], ratio: Union[float, str], units: Optional[str] = "um", name: Optional[str] = "") -> BoundaryObject:
+    def assign_huray_finitecond_to_edges(
+        self,
+        assignment: list,
+        radius: Union[float, str],
+        ratio: Union[float, str],
+        units: Optional[str] = "um",
+        name: Optional[str] = "",
+    ) -> BoundaryObject:
         """
         Assign the Huray surface roughness model to edges.
 
@@ -2766,7 +2803,9 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_setup(self, name: Optional[str] = "MySetupAuto", setup_type: Optional[Union[int, str]] = None, **kwargs) -> SetupHFSS:
+    def create_setup(
+        self, name: Optional[str] = "MySetupAuto", setup_type: Optional[Union[int, str]] = None, **kwargs
+    ) -> SetupHFSS:
         """Create an analysis setup for 2D Extractor.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``
