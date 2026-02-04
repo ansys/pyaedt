@@ -367,7 +367,7 @@ class NexximComponents(CircuitComponents, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def add_subcircuit_3dlayout(self, name: str):
+    def add_subcircuit_3dlayout(self, name: str) -> Union[CircuitComponent, bool]:
         """Add a subcircuit from a HFSS 3DLayout.
 
         Parameters

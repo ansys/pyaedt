@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional
+from typing import Optional, Union
 import warnings
 
 from ansys.aedt.core import emit_core
@@ -187,7 +187,7 @@ class Emit(Design, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @property
-    def modeler(self):
+    def modeler(self) -> ModelerEmit:
         """Modeler.
 
         Returns
@@ -198,7 +198,7 @@ class Emit(Design, PyAedtBase):
         return self._modeler
 
     @property
-    def couplings(self):
+    def couplings(self) -> CouplingsEmit:
         """EMIT Couplings.
 
         Returns
@@ -209,7 +209,7 @@ class Emit(Design, PyAedtBase):
         return self._couplings
 
     @property
-    def schematic(self):
+    def schematic(self) -> EmitSchematic:
         """EMIT Schematic.
 
         Returns
@@ -220,7 +220,7 @@ class Emit(Design, PyAedtBase):
         return self._schematic
 
     @pyaedt_function_handler()
-    def version(self, detailed: bool = False):
+    def version(self, detailed: bool = False) -> str:
         """
         Get version information.
 
@@ -244,7 +244,7 @@ class Emit(Design, PyAedtBase):
             return ver
 
     @pyaedt_function_handler()
-    def set_units(self, unit_type, unit_value) -> bool:
+    def set_units(self, unit_type: str, unit_value: str) -> bool:
         """Set units for the EMIT design.
 
         Parameters
@@ -299,7 +299,7 @@ class Emit(Design, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_type: str = ""):
+    def get_units(self, unit_type: Optional[str] = "") -> Optional[Union[str, dict]]:
         """Get units for the EMIT design.
 
         Parameters
@@ -326,7 +326,7 @@ class Emit(Design, PyAedtBase):
         return self._units[unit_type]
 
     @pyaedt_function_handler()
-    def save_project(self, file_name: Optional[str] = None, overwrite: bool = True, refresh_ids: bool = False):
+    def save_project(self, file_name: Optional[str] = None, overwrite: Optional[bool] = True, refresh_ids: Optional[bool] = False) -> bool:
         """Save the AEDT project and the current EMIT revision.
 
         Parameters

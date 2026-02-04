@@ -35,6 +35,7 @@ import rpyc
 from rpyc.core import consts
 from rpyc.utils.server import OneShotServer
 from rpyc.utils.server import ThreadedServer
+from rpyc import Connection
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.settings import settings
@@ -142,7 +143,7 @@ safe_attrs = {
 }
 
 
-def pyaedt_service_manager(port: int = 17878, aedt_version=None, student_version: Optional[bool] = False) -> bool:
+def pyaedt_service_manager(port: int = 17878, aedt_version: Optional[str] = None, student_version: Optional[bool] = False) -> bool:
     """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
@@ -213,7 +214,7 @@ def pyaedt_service_manager(port: int = 17878, aedt_version=None, student_version
 
 
 def launch_server(
-    port: int = 18000, ansysem_path=None, non_graphical: Optional[bool] = False, threaded: bool = True
+    port: int = 18000, ansysem_path: Optional[str] = None, non_graphical: Optional[bool] = False, threaded: bool = True
 ) -> bool:
     """Start an RPyC server and listens on a specified port.
 
@@ -287,12 +288,12 @@ def launch_server(
 
 
 def create_session(
-    server_name,
-    client_port=None,
-    launch_aedt_on_server: bool = False,
-    aedt_port=None,
+    server_name: str,
+    client_port: Optional[int] = None,
+    launch_aedt_on_server: Optional[bool] = False,
+    aedt_port: Optional[int] = None,
     non_graphical: Optional[bool] = False,
-):
+) -> Connection:
     """
     Connect to an existing AEDT server session and create a new client session from it.
 
@@ -344,7 +345,7 @@ def create_session(
         return False
 
 
-def connect(server_name, aedt_client_port):
+def connect(server_name: str, aedt_client_port: int) -> Connection:
     """
     Connect to an existing AEDT server session.
 

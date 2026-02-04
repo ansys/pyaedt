@@ -30,8 +30,9 @@ import shutil
 import sys
 import tempfile
 import time
-from typing import Optional
+from typing import Optional, Union
 
+from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
@@ -121,7 +122,7 @@ class AppFilter(logging.Filter):
         self._destination = destination
         self._extra = extra
 
-    def filter(self, record) -> bool:
+    def filter(self, record: logging.LogRecord) -> bool:
         """
         Modify the record sent to the logger.
 
@@ -159,7 +160,7 @@ class AedtLogger:
     """
 
     def __init__(
-        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop=None
+        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop: Desktop=None
     ) -> None:
         self._desktop_class = desktop
         self._oproject = None
@@ -224,7 +225,7 @@ class AedtLogger:
         self._timer = time.time()
         settings.logger = self
 
-    def add_file_logger(self, filename, project_name, level: Optional[int] = None):
+    def add_file_logger(self, filename: str, project_name: str, level: Optional[int] = None) -> logging.Logger:
         """Add a new file to the logger handlers list."""
         # Ensure the directory exists
         log_path = Path(filename)
@@ -251,7 +252,7 @@ class AedtLogger:
 
         return _project
 
-    def remove_file_logger(self, project_name) -> None:
+    def remove_file_logger(self, project_name: str) -> None:
         """Remove a file from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in self._files_handlers:
@@ -307,7 +308,7 @@ class AedtLogger:
         settings.enable_screen_logs = val
 
     @property
-    def logger(self):
+    def logger(self) -> Union[logging.Logger, None]:
         """AEDT logger object."""
         if self._log_on_file:
             return logging.getLogger("Global")
@@ -315,7 +316,7 @@ class AedtLogger:
             return None  # pragma: no cover
 
     @property
-    def aedt_messages(self):
+    def aedt_messages(self) -> list:
         """Message manager content for the active project and design.
 
         Returns
@@ -327,7 +328,7 @@ class AedtLogger:
         return self.get_messages(self.project_name, self.design_name, aedt_messages=True)
 
     @property
-    def messages(self):
+    def messages(self) -> list:
         """Message manager content for the active session.
 
         Returns
@@ -339,7 +340,7 @@ class AedtLogger:
         return self.get_messages(self.project_name, self.design_name)
 
     @property
-    def aedt_info_messages(self):
+    def aedt_info_messages(self) -> list:
         """Message manager content for the active project and design.
 
         Returns
@@ -352,7 +353,7 @@ class AedtLogger:
         return aa.info_level
 
     @property
-    def aedt_warning_messages(self):
+    def aedt_warning_messages(self) -> list:
         """Message manager content for the active project and design.
 
         Returns
@@ -365,7 +366,7 @@ class AedtLogger:
         return aa.warning_level
 
     @property
-    def aedt_error_messages(self):
+    def aedt_error_messages(self) -> list:
         """Message manager content for the active project and design.
 
         Returns
@@ -378,7 +379,7 @@ class AedtLogger:
         return aa.error_level
 
     @property
-    def info_messages(self):
+    def info_messages(self) -> list:
         """Message manager content for the active pyaedt session.
 
         Returns
@@ -391,7 +392,7 @@ class AedtLogger:
         return aa.info_level
 
     @property
-    def warning_messages(self):
+    def warning_messages(self) -> list:
         """Message manager content for the active pyaedt session.
 
         Returns
@@ -405,7 +406,7 @@ class AedtLogger:
         return aa.warning_level
 
     @property
-    def error_messages(self):
+    def error_messages(self) -> list:
         """Message manager content for the active pyaedt session.
 
         Returns
@@ -417,7 +418,7 @@ class AedtLogger:
         aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
         return aa.error_level
 
-    def reset_timer(self, time_val=None):
+    def reset_timer(self, time_val: Optional[float] = None) -> float:
         """Reset actual timer to  actual time or specified time.
 
         Parameters
@@ -435,7 +436,7 @@ class AedtLogger:
             self._timer = time.time()
         return self._timer
 
-    def get_messages(self, project_name=None, design_name=None, level: int = 0, aedt_messages: bool = False):
+    def get_messages(self, project_name: Optional[str] = None, design_name: Optional[str] = None, level: Optional[int] = 0, aedt_messages: Optional[bool] = False) -> list:
         """Get the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
@@ -479,7 +480,7 @@ class AedtLogger:
                         message_lists.append(levels[message[0]] + message[1])
         return MessageList(message_lists)
 
-    def add_error_message(self, message_text, level: Optional[int] = None) -> None:
+    def add_error_message(self, message_text: str, level: Optional[int] = None) -> None:
         """
         Add a type 2 "Error" message to the message manager tree.
 
@@ -504,7 +505,7 @@ class AedtLogger:
         """
         self.add_message(2, message_text, level)
 
-    def add_warning_message(self, message_text, level: Optional[int] = None) -> None:
+    def add_warning_message(self, message_text: str, level: Optional[int] = None) -> None:
         """
         Add a type 1 "Warning" message to the message manager tree.
 
@@ -529,7 +530,7 @@ class AedtLogger:
         """
         self.add_message(1, message_text, level)
 
-    def add_info_message(self, message_text, level: Optional[int] = None) -> None:
+    def add_info_message(self, message_text: str, level: Optional[int] = None) -> None:
         """Add a type 0 "Info" message to the active design level of the message manager tree.
 
         Also add an info message to the logger if the handler is present.
@@ -553,7 +554,7 @@ class AedtLogger:
         """
         self.add_message(0, message_text, level)
 
-    def add_debug_message(self, message_text, level: Optional[int] = None):
+    def add_debug_message(self, message_text: str, level: Optional[int] = None) -> None:
         """
         Parameterized message to the message manager to specify the type and project or design level.
 
@@ -570,7 +571,7 @@ class AedtLogger:
         return self.add_message(3, message_text, level=level)
 
     def add_message(
-        self, message_type, message_text, level: Optional[int] = None, proj_name=None, des_name=None
+        self, message_type: int, message_text: str, level: Optional[int] = None, proj_name: Optional[str] = None, des_name: Optional[str] = None
     ) -> None:
         """Add a message to the message manager to specify the type and project or design level.
 
@@ -651,7 +652,7 @@ class AedtLogger:
         except Exception as e:
             print(f"Logging error: {e}", file=sys.stderr)
 
-    def clear_messages(self, proj_name=None, des_name=None, level: int = 2) -> None:
+    def clear_messages(self, proj_name: Optional[str] = None, des_name: Optional[str] = None, level: Optional[int] = 2) -> None:
         """Clear all messages.
 
         Parameters
@@ -697,7 +698,7 @@ class AedtLogger:
             self._global.info("Failed to clear desktop messages.")
 
     @property
-    def non_graphical(self):
+    def non_graphical(self) -> bool:
         """Check if desktop is graphical or not.
 
         Returns
@@ -710,7 +711,7 @@ class AedtLogger:
         return self._non_graphical
 
     @property
-    def oproject(self):
+    def oproject(self) -> object:
         """Project object.
 
         Returns
@@ -722,7 +723,7 @@ class AedtLogger:
         return None  # pragma: no cover
 
     @property
-    def odesign(self):
+    def odesign(self) -> object:
         """Design object.
 
         Returns
@@ -734,7 +735,7 @@ class AedtLogger:
         return None  # pragma: no cover
 
     @oproject.setter
-    def oproject(self, val) -> None:
+    def oproject(self, val: object) -> None:
         self._oproject = val
         try:
             self._project_name = self._oproject.GetName()
@@ -742,7 +743,7 @@ class AedtLogger:
             self._project_name = ""
 
     @odesign.setter
-    def odesign(self, val) -> None:
+    def odesign(self, val: object) -> None:
         self._odesign = val
         try:
             self._design_name = self._odesign.GetName()
@@ -750,7 +751,7 @@ class AedtLogger:
             self._design_name = ""
 
     @property
-    def design_name(self):
+    def design_name(self) -> str:
         """Name of current logger design.
 
         Returns
@@ -760,7 +761,7 @@ class AedtLogger:
         return self._design_name
 
     @property
-    def project_name(self):
+    def project_name(self) -> str:
         """Name of current logger project.
 
         Returns
@@ -769,7 +770,7 @@ class AedtLogger:
         """
         return self._project_name
 
-    def add_logger(self, destination, level=logging.DEBUG):
+    def add_logger(self, destination: str, level: Optional[int] = logging.DEBUG) -> logging.Logger:
         """
         Add a logger for either the active project or active design.
 
@@ -808,7 +809,7 @@ class AedtLogger:
             raise ValueError("The destination must be either 'Project' or 'Design'.")
 
     @property
-    def log_on_desktop(self):
+    def log_on_desktop(self) -> bool:
         """Status of the log in AEDT (Message Manager).
 
         Returns
@@ -837,7 +838,7 @@ class AedtLogger:
         self.debug("Log on AEDT is enabled.")
 
     @property
-    def log_on_stdout(self):
+    def log_on_stdout(self) -> bool:
         """Status of printing log messages to stdout.
 
         Returns
@@ -875,7 +876,7 @@ class AedtLogger:
         self.debug("Log on console is enabled.")
 
     @property
-    def log_on_file(self):
+    def log_on_file(self) -> bool:
         """Status of printing log messages to a file.
 
         Returns
@@ -914,7 +915,7 @@ class AedtLogger:
             if hasattr(handler, "baseFilename"):
                 self.debug(f"Log on file {handler.baseFilename} is enabled.")
 
-    def info(self, msg, *args, **kwargs):
+    def info(self, msg: str, *args, **kwargs) -> None:
         """Write an info message to the global logger."""
         if not settings.enable_logger:
             return
@@ -928,7 +929,7 @@ class AedtLogger:
         self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
-    def info_timer(self, msg, start_time=None, *args, **kwargs):
+    def info_timer(self, msg: str, start_time: Optional[float] = None, *args, **kwargs) -> None:
         """Write an info message to the global logger with elapsed time.
         Message will have an appendix of type Elapsed time: time.
         """
@@ -956,7 +957,7 @@ class AedtLogger:
         self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
-    def warning(self, msg, *args, **kwargs):
+    def warning(self, msg: str, *args, **kwargs) -> None:
         """Write a warning message to the global logger."""
         if not settings.enable_logger:
             return
@@ -970,7 +971,7 @@ class AedtLogger:
         self._log_on_dekstop(1, msg1, "Global")
         return self._log_on_handler(1, msg, *args, **kwargs)
 
-    def error(self, msg, *args, **kwargs):
+    def error(self, msg: str, *args, **kwargs) -> None:
         """Write an error message to the global logger."""
         if args:
             try:
@@ -982,7 +983,7 @@ class AedtLogger:
         self._log_on_dekstop(2, msg1, "Global")
         return self._log_on_handler(2, msg, *args, **kwargs)
 
-    def debug(self, msg, *args, **kwargs):
+    def debug(self, msg: str, *args, **kwargs) -> None:
         """Write a debug message to the global logger."""
         if not (settings.enable_debug_logger or settings.enable_debug_grpc_api_logger) or not settings.enable_logger:
             return
@@ -998,13 +999,13 @@ class AedtLogger:
         return self._log_on_handler(3, msg, *args, **kwargs)
 
     @property
-    def glb(self):
+    def glb(self) -> logging.Logger:
         """Global logger."""
         self._global = logging.getLogger("Global")
         return self._global
 
     @property
-    def project_logger(self):
+    def project_logger(self) -> logging.Logger:
         """Project logger."""
         self._project = logging.getLogger(self.project_name)
         if not self._project.handlers:
@@ -1012,7 +1013,7 @@ class AedtLogger:
         return self._project
 
     @property
-    def design_logger(self):
+    def design_logger(self) -> logging.Logger:
         """Design logger."""
         self._design = logging.getLogger(self.project_name + ":" + self.design_name)
         if not self._design.handlers:
@@ -1020,7 +1021,7 @@ class AedtLogger:
         return self._design
 
     @contextmanager
-    def suspend_logging(self):
+    def suspend_logging(self) -> None:
         """Temporarily disable all logs and restore them afterwards."""
         previous_state = (self.log_on_stdout, self.log_on_file, self.log_on_desktop)
 

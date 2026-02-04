@@ -26,6 +26,7 @@
 from typing import Optional
 
 from ansys.aedt.core.generic.settings import settings
+from pyedb import Siwave
 
 log = settings.logger
 
@@ -34,12 +35,12 @@ log = settings.logger
 def Edb(
     edbpath: Optional[str] = None,
     cellname: Optional[str] = None,
-    isreadonly: bool = False,
+    isreadonly: Optional[bool] = False,
     edbversion: Optional[str] = None,
-    isaedtowned: bool = False,
+    isaedtowned: Optional[bool] = False,
     oproject: Optional[any] = None,
     student_version: Optional[bool] = False,
-    use_ppe: bool = False,
+    use_ppe: Optional[bool] = False,
     technology_file: Optional[str] = None,
 ):
     """Provides the EDB application interface.
@@ -126,8 +127,8 @@ def Edb(
 
 
 def Siwave(
-    specified_version=None,
-):
+    specified_version: Optional[str] = None,
+) -> Siwave:
     """Siwave Class."""
     from pyedb.siwave import Siwave as app
 

@@ -39,9 +39,9 @@ from typing import Union
 
 if TYPE_CHECKING:
     from ansys.aedt.core.modules.mesh import MeshOperation
-    from ansys.aedt.core.modules.setup_templates import SetupKeys
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
 
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
@@ -1344,7 +1344,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         savedir: Optional[str] = None,
         filename: Optional[Union[str, Path]] = None,
         sweep_name: Optional[str] = None,
-        parameter_dict_with_values: Optional[dict] = None,
+        parameter_dict_with_values: Optional[dict] = {},
     ) -> str:
         """Export the field volume output.
 
