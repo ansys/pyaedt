@@ -2048,7 +2048,12 @@ class Padstack(PyAedtBase):
         """
 
         def __init__(
-            self, holetype: str = "Cir", sizes: list | None = None, xpos: str = "0mm", ypos: str = "0mm", rot: str = "0deg"
+            self,
+            holetype: str = "Cir",
+            sizes: list | None = None,
+            xpos: str = "0mm",
+            ypos: str = "0mm",
+            rot: str = "0deg",
         ) -> None:
             self.shape = holetype
             self.sizes = sizes if sizes is not None else ["1mm"]

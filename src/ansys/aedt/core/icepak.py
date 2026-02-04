@@ -41,7 +41,6 @@ if TYPE_CHECKING:
     from ansys.aedt.core.modules.mesh import MeshOperation
     from ansys.aedt.core.modules.solve_setup import SetupHFSS
 
-from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import Plane
@@ -72,6 +71,7 @@ from ansys.aedt.core.modules.boundary.icepak_boundary import SinusoidalDictionar
 from ansys.aedt.core.modules.boundary.icepak_boundary import SquareWaveDictionary
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
 class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):

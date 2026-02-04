@@ -32,7 +32,9 @@ from pathlib import Path
 import re
 import shutil
 import time
-from typing import Dict, Optional, Tuple
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -450,7 +452,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, input_file: Union[str, Path], is_ami: Optional[bool] = False) -> ibis_reader.Ibis:
+    def get_ibis_model_from_file(
+        self, input_file: Union[str, Path], is_ami: Optional[bool] = False
+    ) -> ibis_reader.Ibis:
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -1017,7 +1021,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def push_excitations(self, instance: str, thevenin_calculation: Optional[bool] = False, setup: Optional[str] = "LinearFrequency") -> bool:
+    def push_excitations(
+        self, instance: str, thevenin_calculation: Optional[bool] = False, setup: Optional[str] = "LinearFrequency"
+    ) -> bool:
         """Push excitations for a linear frequency setup.
 
         Parameters
@@ -1244,7 +1250,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_p
 
     @pyaedt_function_handler()
-    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports: list, input_file: Union[str, Path]) -> Sources:
+    def assign_voltage_frequency_dependent_excitation_to_ports(
+        self, ports: list, input_file: Union[str, Path]
+    ) -> Sources:
         """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters

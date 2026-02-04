@@ -30,7 +30,8 @@ import shutil
 import sys
 import tempfile
 import time
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
@@ -160,7 +161,7 @@ class AedtLogger:
     """
 
     def __init__(
-        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop: Desktop=None
+        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop: Desktop = None
     ) -> None:
         self._desktop_class = desktop
         self._oproject = None
@@ -436,7 +437,13 @@ class AedtLogger:
             self._timer = time.time()
         return self._timer
 
-    def get_messages(self, project_name: Optional[str] = None, design_name: Optional[str] = None, level: Optional[int] = 0, aedt_messages: Optional[bool] = False) -> list:
+    def get_messages(
+        self,
+        project_name: Optional[str] = None,
+        design_name: Optional[str] = None,
+        level: Optional[int] = 0,
+        aedt_messages: Optional[bool] = False,
+    ) -> list:
         """Get the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
@@ -571,7 +578,12 @@ class AedtLogger:
         return self.add_message(3, message_text, level=level)
 
     def add_message(
-        self, message_type: int, message_text: str, level: Optional[int] = None, proj_name: Optional[str] = None, des_name: Optional[str] = None
+        self,
+        message_type: int,
+        message_text: str,
+        level: Optional[int] = None,
+        proj_name: Optional[str] = None,
+        des_name: Optional[str] = None,
     ) -> None:
         """Add a message to the message manager to specify the type and project or design level.
 
@@ -652,7 +664,9 @@ class AedtLogger:
         except Exception as e:
             print(f"Logging error: {e}", file=sys.stderr)
 
-    def clear_messages(self, proj_name: Optional[str] = None, des_name: Optional[str] = None, level: Optional[int] = 2) -> None:
+    def clear_messages(
+        self, proj_name: Optional[str] = None, des_name: Optional[str] = None, level: Optional[int] = 2
+    ) -> None:
         """Clear all messages.
 
         Parameters

@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 import warnings
 
 from ansys.aedt.core import emit_core
@@ -326,7 +327,9 @@ class Emit(Design, PyAedtBase):
         return self._units[unit_type]
 
     @pyaedt_function_handler()
-    def save_project(self, file_name: Optional[str] = None, overwrite: Optional[bool] = True, refresh_ids: Optional[bool] = False) -> bool:
+    def save_project(
+        self, file_name: Optional[str] = None, overwrite: Optional[bool] = True, refresh_ids: Optional[bool] = False
+    ) -> bool:
         """Save the AEDT project and the current EMIT revision.
 
         Parameters

@@ -32,10 +32,10 @@ import time
 from typing import Optional
 
 import rpyc
+from rpyc import Connection
 from rpyc.core import consts
 from rpyc.utils.server import OneShotServer
 from rpyc.utils.server import ThreadedServer
-from rpyc import Connection
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.settings import settings
@@ -143,7 +143,9 @@ safe_attrs = {
 }
 
 
-def pyaedt_service_manager(port: int = 17878, aedt_version: Optional[str] = None, student_version: Optional[bool] = False) -> bool:
+def pyaedt_service_manager(
+    port: int = 17878, aedt_version: Optional[str] = None, student_version: Optional[bool] = False
+) -> bool:
     """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the

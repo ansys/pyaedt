@@ -48,7 +48,9 @@ import tempfile
 import time
 import traceback
 from types import TracebackType
-from typing import List, Optional, Tuple
+from typing import List
+from typing import Optional
+from typing import Tuple
 from typing import Type
 from typing import Union
 import warnings
@@ -1095,7 +1097,9 @@ class Desktop(PyAedtBase):
     # ############################################ #
 
     @pyaedt_function_handler()
-    def active_design(self, project_object: Optional[object] = None, name: Optional[str] = None, design_type: Optional[str] = None) -> Optional[object]:
+    def active_design(
+        self, project_object: Optional[object] = None, name: Optional[str] = None, design_type: Optional[str] = None
+    ) -> Optional[object]:
         """Get the active design.
 
         Parameters
@@ -1793,7 +1797,9 @@ class Desktop(PyAedtBase):
             self.logger.warning(f"Error Setting Up Configuration {config_name} for {product_name}.")
             return False
 
-    def change_registry_from_file(self, registry_file: str, make_active: Optional[bool] = True) -> bool:  # pragma: no cover
+    def change_registry_from_file(
+        self, registry_file: str, make_active: Optional[bool] = True
+    ) -> bool:  # pragma: no cover
         """Apply desktop registry settings from an ACF file.
 
         One way to get an ACF file is to export a configuration from the AEDT UI and then edit and reuse it.
@@ -2069,7 +2075,9 @@ class Desktop(PyAedtBase):
             return "", ""
 
     @pyaedt_function_handler()
-    def get_ansyscloud_job_info(self, job_id: Optional[str] = None, job_name: Optional[str] = None) -> dict:  # pragma: no cover
+    def get_ansyscloud_job_info(
+        self, job_id: Optional[str] = None, job_name: Optional[str] = None
+    ) -> dict:  # pragma: no cover
         """Monitor a job submitted to Ansys Cloud.
 
         .. warning::
@@ -2131,7 +2139,11 @@ class Desktop(PyAedtBase):
 
     @pyaedt_function_handler()
     def select_scheduler(
-        self, scheduler_type: str, address: Optional[str] = None, username: Optional[str] = None, force_password_entry: Optional[bool] = False
+        self,
+        scheduler_type: str,
+        address: Optional[str] = None,
+        username: Optional[str] = None,
+        force_password_entry: Optional[bool] = False,
     ) -> str:  # pragma: no cover
         """Select a scheduler to submit the job.
 

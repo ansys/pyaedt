@@ -25,8 +25,9 @@
 
 from typing import Optional
 
-from ansys.aedt.core.generic.settings import settings
 from pyedb import Siwave
+
+from ansys.aedt.core.generic.settings import settings
 
 log = settings.logger
 
