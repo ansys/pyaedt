@@ -319,9 +319,10 @@ def launch_aedt(
                     prt_str = process[process.index("-grpcsrv") + 1].split(":")
                     prt = int(prt_str[0]) if len(prt_str) == 1 else int(prt_str[1])
                     if prt == port:
-                        pyaedt_logger.warning(f"Failed to retrieve connection but found aedt executable on {port}")
+                        pyaedt_logger.warning(f"Failed to retrieve connection but found AEDT executable on {port}")
                         return True, port
-                except Exception:
+                except Exception as e:
+                    pyaedt_logger.debug(f"Skipping process entry due to parsing error: {e}")
                     continue
         pyaedt_logger.error(f"Failed to start on gRPC port: {port}.")
         return False, 0

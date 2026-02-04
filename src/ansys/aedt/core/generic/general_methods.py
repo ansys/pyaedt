@@ -826,17 +826,22 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
         # The system may not have WMIC available, fallback to PowerShell
         except FileNotFoundError:
             import json
+            from pathlib import Path
+            import shutil
 
-            for tgt in target_name:
+            powershell = Path("powershell")
+            powershell_path = shutil.which(os.fspath(powershell))
+            if not powershell_path:
                 powershell_path = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
 
+            for tgt in target_name:  # pragma: no cover
                 # PowerShell command equivalent to WMIC
                 ps_cmd = (
                     f"Get-CimInstance Win32_Process -Filter \"Name='{tgt}'\" "
                     "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
                 )
 
-                output = subprocess.check_output([powershell_path, "-Command", ps_cmd], text=True)
+                output = subprocess.check_output([powershell_path, "-Command", ps_cmd], text=True)  # nosec
 
                 # Parse JSON output - can be a single object or array
                 try:
@@ -850,8 +855,9 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
                         cmdline = process.get("CommandLine", "")
                         if pid and cmdline:
                             found_data.append((pid, cmdline.split()))
-                except (json.JSONDecodeError, ValueError):
+                except (json.JSONDecodeError, ValueError) as e:
                     # No processes found or invalid JSON
+                    pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
                     pass
         except Exception as e:
             pyaedt_logger.debug(f"Failed to query Windows processes with WMIC: {str(e)}")
