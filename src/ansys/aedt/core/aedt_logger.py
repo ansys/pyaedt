@@ -33,7 +33,9 @@ import time
 from typing import Optional
 from typing import Union
 
-from ansys.aedt.core.desktop import Desktop
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
