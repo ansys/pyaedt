@@ -30,12 +30,9 @@ import shutil
 import sys
 import tempfile
 import time
-from typing import TYPE_CHECKING
 from typing import Optional
 from typing import Union
 
-if TYPE_CHECKING:
-    from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
@@ -163,7 +160,7 @@ class AedtLogger:
     """
 
     def __init__(
-        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop: Desktop = None
+        self, level=logging.DEBUG, filename: Optional[str] = None, to_stdout: bool = False, desktop = None
     ) -> None:
         self._desktop_class = desktop
         self._oproject = None
