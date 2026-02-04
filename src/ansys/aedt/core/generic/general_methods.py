@@ -36,6 +36,8 @@ import subprocess  # nosec
 import sys
 import time
 import traceback
+from typing import Dict
+from typing import List
 from typing import Optional
 import warnings
 
@@ -866,7 +868,29 @@ def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]
 
 
 @pyaedt_function_handler()
-def _check_psutil_connections(pids):
+def _check_psutil_connections(pids: List[int]) -> Dict[int, List[Dict[str, any]]]:
+    """Retrieve network connections for specified process IDs.
+
+    This function collects TCP connection information for a list of process IDs,
+    returning the IP address, port, and status of each connection.
+
+    Parameters
+    ----------
+    pids : list of int
+        List of process IDs to check for active TCP connections.
+
+    Returns
+    -------
+    dict of int to list of dict
+        Dictionary mapping each process ID to a list of connection dictionaries.
+        Each connection dictionary contains:
+        - "ip" : str
+            IP address of the local connection endpoint.
+        - "port" : int
+            Port number of the local connection endpoint.
+        - "status" : str
+            Connection status, for example "LISTEN", or "ESTABLISHED".
+    """
     connections = {i: [] for i in pids}
     for conn in psutil.net_connections(kind="tcp"):
         try:
@@ -879,7 +903,27 @@ def _check_psutil_connections(pids):
 
 
 @pyaedt_function_handler()
-def _check_connection_grpc_port(connections, pid):
+def _check_connection_grpc_port(connections: Dict[int, List[Dict[str, any]]], pid: int) -> int:
+    """Find the gRPC port for a specific process from its network connections.
+
+    This function searches through network connections to identify the gRPC port
+    that a specific process is listening on. It checks for LISTEN status on
+    localhost addresses ("::" or "127.0.0.1").
+
+    Parameters
+    ----------
+    connections : dict of int to list of dict
+        Dictionary mapping process IDs to their network connections.
+        Each connection dictionary should contain "ip", "port", and "status" keys.
+    pid : int
+        The process ID to check for an active gRPC listening port.
+
+    Returns
+    -------
+    int
+        The port number if a LISTEN connection is found on localhost for the specified PID,
+        ``-1`` otherwise.
+    """
     for ip in ["::", "127.0.0.1"]:
         for input_pid, conn in connections.items():
             for el in conn:
