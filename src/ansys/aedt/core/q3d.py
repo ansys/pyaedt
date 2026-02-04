@@ -26,7 +26,7 @@
 
 from pathlib import Path
 import re
-from typing import Optional
+from typing import Dict, List, Optional
 from typing import Union
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -39,11 +39,14 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupHFSS, SetupQ3D
+from ansys.aedt.core.visualization.post.solution_data import SolutionData
 
 
 class QExtractor(FieldAnalysis3D, PyAedtBase):
@@ -72,7 +75,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         project: Optional[str] = None,
         design: Optional[str] = None,
         solution_type: Optional[str] = None,
-        setup_name=None,
+        setup_name: Optional[str] = None,
         version: Optional[str] = None,
         non_graphical: Optional[bool] = False,
         new_desktop: Optional[bool] = False,
@@ -105,7 +108,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
             self.matrices.append(Matrix(self, el))
 
     @pyaedt_function_handler()
-    def sources(self, matrix_index: int = 0, is_gc_sources: bool = True):
+    def sources(self, matrix_index: Optional[int] = 0, is_gc_sources: Optional[bool] = True) -> list:
         """List of matrix sources.
 
         Parameters
@@ -125,12 +128,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     def insert_reduced_matrix(
         self,
         operation_name: str,
-        assignment=None,
+        assignment: Optional[Union[list, str]] = None,
         reduced_matrix: Optional[str] = None,
         new_net_name: Optional[str] = None,
         new_source_name: Optional[str] = None,
         new_sink_name: Optional[str] = None,
-    ):
+    ) -> Matrix:
         """Insert a new reduced matrix.
 
         Parameters
@@ -189,12 +192,12 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
-        get_self_terms: bool = True,
-        get_mutual_terms: bool = True,
-        first_element_filter=None,
-        second_element_filter=None,
-        category: str = "C",
-    ):
+        get_self_terms: Optional[bool] = True,
+        get_mutual_terms: Optional[bool] = True,
+        first_element_filter: Optional[str] = None,
+        second_element_filter: Optional[str] = None,
+        category: Optional[str] = "C",
+    ) -> list:
         """Get a list of traces of specified designs ready to use in plot reports.
 
         Parameters
@@ -233,7 +236,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup, variations: Optional[str] = "", output_file=None, setup_type: str = "CG"):
+    def export_mesh_stats(self, setup: str = None, variations: Optional[str] = "", output_file: Optional[Union[str, Path]] = None, setup_type: Optional[str] = "CG") -> str:
         """Export mesh statistics to a file.
 
         Parameters
@@ -264,7 +267,7 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         return str(output_file)
 
     @pyaedt_function_handler()
-    def edit_sources(self, cg=None, acrl=None, dcrl=None, harmonic_loss=None) -> bool:
+    def edit_sources(self, cg: Optional[dict] = None, acrl: Optional[dict] = None, dcrl: Optional[dict] = None, harmonic_loss: Optional[dict] = None) -> bool:
         """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
 
         Parameters
@@ -445,20 +448,20 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         variations: Optional[str] = None,
         setup: Optional[str] = None,
         sweep: Optional[str] = None,
-        reduce_matrix=None,
-        r_unit: str = "ohm",
-        l_unit: str = "nH",
-        c_unit: str = "pF",
-        g_unit: str = "mho",
-        freq=None,
-        freq_unit=None,
-        matrix_type=None,
-        export_ac_dc_res: bool = False,
-        precision=None,
-        field_width=None,
-        use_sci_notation: bool = True,
-        length_setting: str = "Distributed",
-        length: str = "1meter",
+        reduce_matrix: Optional[str] = None,
+        r_unit: Optional[str] = "ohm",
+        l_unit: Optional[str] = "nH",
+        c_unit: Optional[str] = "pF",
+        g_unit: Optional[str] = "mho",
+        freq: Optional[str] = None,
+        freq_unit: Optional[str] = None,
+        matrix_type: Optional[str] = None,
+        export_ac_dc_res: Optional[bool] = False,
+        precision: Optional[int] = None,
+        field_width: Optional[int] = None,
+        use_sci_notation: Optional[bool] = True,
+        length_setting: Optional[str] = "Distributed",
+        length: Optional[str] = "1meter",
     ) -> bool:
         """Export matrix data.
 
@@ -777,25 +780,25 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
     @pyaedt_function_handler()
     def export_equivalent_circuit(
         self,
-        output_file,
+        output_file: str = None,
         setup: Optional[str] = None,
         sweep: Optional[str] = None,
         variations: Optional[Union[list, str]] = None,
         matrix: Optional[str] = None,
-        cells: int = 2,
-        user_changed_settings: bool = True,
-        include_cap: bool = True,
-        include_cond: bool = True,
-        include_dcr: bool = False,
-        include_dcl: bool = False,
-        include_acr: bool = False,
-        include_acl: bool = False,
-        include_r: bool = True,
-        include_l: bool = True,
-        add_resistance: bool = False,
-        parse_pin_names: bool = False,
-        export_distributed: bool = True,
-        lumped_length: str = "1meter",
+        cells: Optional[int] = 2,
+        user_changed_settings: Optional[bool] = True,
+        include_cap: Optional[bool] = True,
+        include_cond: Optional[bool] = True,
+        include_dcr: Optional[bool] = False,
+        include_dcl: Optional[bool] = False,
+        include_acr: Optional[bool] = False,
+        include_acl: Optional[bool] = False,
+        include_r: Optional[bool] = True,
+        include_l: Optional[bool] = True,
+        add_resistance: Optional[bool] = False,
+        parse_pin_names: Optional[bool] = False,
+        export_distributed: Optional[bool] = True,
+        lumped_length: Optional[str] = "1meter",
         rise_time_value: Optional[str] = None,
         rise_time_unit: Optional[str] = None,
         coupling_limit_type: Optional[int] = None,
@@ -804,9 +807,9 @@ class QExtractor(FieldAnalysis3D, PyAedtBase):
         res_limit: Optional[str] = None,
         cond_limit: Optional[str] = None,
         model: Optional[str] = None,
-        frequency: int = 0,
-        file_type: str = "HSPICE",
-        include_cpp: bool = False,
+        frequency: Optional[Union[int, str]] = 0,
+        file_type: Optional[str] = "HSPICE",
+        include_cpp: Optional[bool] = False,
     ) -> bool:
         """Export matrix data.
 
@@ -1347,7 +1350,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
 
     @property
-    def net_names(self):
+    def net_names(self) -> List[str]:
         """Nets in a Q3D project.
 
         Returns
@@ -1369,7 +1372,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return net_names
 
     @property
-    def design_nets(self):
+    def design_nets(self) -> Dict[str, BoundaryObject]:
         """Get all nets.
 
         Returns
@@ -1388,7 +1391,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return net_objects
 
     @property
-    def nets_by_type(self):
+    def nets_by_type(self) -> dict:
         """Design nets by type.
 
         Returns
@@ -1407,7 +1410,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @property
     @min_aedt_version("2025.1")
-    def field_setups(self):
+    def field_setups(self) -> List[NearFieldSetup]:
         """List of EM fields.
 
         Returns
@@ -1424,7 +1427,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @property
     @min_aedt_version("2025.1")
-    def field_setup_names(self):
+    def field_setup_names(self) -> List[str]:
         """List of EM field names.
 
         Returns
@@ -1443,7 +1446,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def objects_from_nets(self, assignment, materials=None):
+    def objects_from_nets(self, assignment: Union[str, List[str]], materials: Optional[Union[str, list]] = None) -> dict:
         """Find the objects that belong to one or more nets. You can filter by materials.
 
         Parameters
@@ -1479,7 +1482,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return objects
 
     @pyaedt_function_handler()
-    def net_sources(self, net_name):
+    def net_sources(self, net_name: str) -> list:
         """Check if a net has sources and return a list of source names.
 
         Parameters
@@ -1518,7 +1521,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return sources
 
     @pyaedt_function_handler()
-    def net_sinks(self, net_name):
+    def net_sinks(self, net_name: str) -> list:
         """Check if a net has sinks and return a list of sink names.
 
         Parameters
@@ -1593,7 +1596,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def toggle_net(self, net_name, net_type: str = "Signal"):
+    def toggle_net(self, net_name: Union[str, BoundaryObject], net_type: Optional[str] = "Signal") -> BoundaryObject:
         """Toggle net type.
 
         Parameters
@@ -1601,13 +1604,13 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         net_name : str or :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`, optional
             Name of the net. The default is ```None``, in which case the
             default name is used.
-        net_type : str, bool
+        net_type : str, optional
             Type of net to create. Options are ``"Signal"``, ``"Ground"`` and ``"Floating"``.
             The default is ``"Signal"``.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`s
             Net object.
 
         References
@@ -1644,7 +1647,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._boundaries[net_name]
 
     @pyaedt_function_handler()
-    def assign_net(self, assignment, net_name=None, net_type: str = "Signal"):
+    def assign_net(self, assignment: Union[str, List[str]], net_name: Optional[str] = None, net_type: Optional[str] = "Signal") -> BoundaryObject:
         """Assign a net to a list of objects.
 
         Parameters
@@ -1654,7 +1657,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         net_name : str, optional
             Name of the net. The default is ```None``, in which case the
             default name is used.
-        net_type : str, bool
+        net_type : str, optional
             Type of net to create. Options are ``"Signal"``, ``"Ground"`` and ``"Floating"``.
             The default is ``"Signal"``.
 
@@ -1689,12 +1692,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def source(
         self,
-        assignment=None,
-        direction: int = 0,
+        assignment: Optional[Union[str, int, list, Object3d]] = None,
+        direction: Optional[int] = 0,
         name: Optional[str] = None,
-        net_name=None,
-        terminal_type: str = "voltage",
-    ):
+        net_name: Optional[str] = None,
+        terminal_type: Optional[str] = "voltage",
+    ) -> BoundaryObject:
         """Generate a source on a face of an object or a group of faces or face ids.
 
         The face ID is selected based on the axis direction. It is the face that
@@ -1710,7 +1713,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             Name of the source. The default is ``None``.
         net_name : str, optional
             Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
-        terminal_type : str
+        terminal_type : str, optional
             Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
@@ -1727,12 +1730,12 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def sink(
         self,
-        assignment=None,
-        direction: int = 0,
+        assignment: Optional[Union[str, int, list, Object3d]] = None,
+        direction: Optional[int] = 0,
         name: Optional[str] = None,
-        net_name=None,
-        terminal_type: str = "voltage",
-    ):
+        net_name: Optional[str] = None,
+        terminal_type: Optional[str] = "voltage",
+    ) -> BoundaryObject:
         """Generate a sink on a face of an object or a group of faces or face ids.
 
         The face ID is selected based on the axis direction. It is the face that
@@ -1746,9 +1749,9 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
         name : str, optional
             Name of the source. The default is ``None``.
-        net_name : str, optional
+        net_name : str, optisonal
             Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
-        terminal_type : str
+        terminal_type : str, optional
             Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
@@ -1763,7 +1766,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Sink")
 
     @pyaedt_function_handler()
-    def _assign_source_or_sink(self, assignment, direction, name: str, net_name, terminal_type, exc_type):
+    def _assign_source_or_sink(self, assignment, direction, name, net_name, terminal_type, exc_type):
         if not name:
             name = generate_unique_name(exc_type)
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -1799,7 +1802,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler()
     def set_material_thresholds(
-        self, insulator_threshold=None, perfect_conductor_threshold=None, magnetic_threshold=None
+        self, insulator_threshold: Optional[float] = None, perfect_conductor_threshold: Optional[float] = None, magnetic_threshold: Optional[float] = None
     ) -> bool:
         """Set material threshold.
 
@@ -1847,7 +1850,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", **kwargs):
+    def create_setup(self, name: Optional[str] = "MySetupAuto", **kwargs) -> SetupQ3D:
         """Create an analysis setup for Q3D Extractor.
 
         Optional arguments are passed along with the ``name`` parameter.
@@ -1891,7 +1894,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return setup
 
     @pyaedt_function_handler()
-    def assign_thin_conductor(self, assignment, material: Optional[str] = "copper", thickness: int = 1, name: str = ""):
+    def assign_thin_conductor(self, assignment: Optional[Union[str, int, list, Object3d]] = None, material: Optional[str] = "copper", thickness: Optional[Union[float,str,int]] = 1, name: Optional[str] = "") -> BoundaryObject:
         """Assign a thin conductor to a sheet.
 
         The method accepts both a sheet name or a face id.
@@ -1938,14 +1941,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def get_mutual_coupling(
         self,
-        source1,
-        sink1,
-        source2,
-        sink2,
-        calculation: str = "ACL",
-        setup_sweep_name=None,
+        source1: str = None,
+        sink1: str = None,
+        source2: str = None,
+        sink2: str = None,
+        calculation: Optional[str] = "ACL",
+        setup_sweep_name: Optional[str] = None,
         variations: Optional[dict] = None,
-    ):
+    ) -> Union[SolutionData, bool]:
         """Get mutual coupling between two terminals.
 
         User has to provide the pair, source and sink of each terminal. If the provided sinks are not part of the
@@ -2087,7 +2090,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def insert_em_field_line(
         self,
         assignment: str,
-        points: int = 1000,
+        points: Optional[Union[float, str]] = 1000,
         name: Optional[str] = None,
     ) -> NearFieldSetup:
         """Create a EM field line.
@@ -2133,7 +2136,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         u_samples: Union[int, float, str] = 21,
         v_length: Union[int, float, str] = 20,
         v_samples: Union[int, float, str] = 21,
-        units: str = "mm",
+        units: Optional[str] = "mm",
         custom_coordinate_system: Optional[str] = None,
         name: Optional[str] = None,
     ) -> NearFieldSetup:
@@ -2194,7 +2197,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         v_samples: Union[int, float, str] = 21,
         w_length: Union[int, float, str] = 20,
         w_samples: Union[int, float, str] = 21,
-        units: str = "mm",
+        units: Optional[str] = "mm",
         custom_coordinate_system: Optional[str] = None,
         name: Optional[str] = None,
     ) -> NearFieldSetup:
@@ -2256,14 +2259,14 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     def insert_em_field_sphere(
         self,
         radius: Union[int, float, str] = 20,
-        radius_units: str = "mm",
+        radius_units: Optional[str] = "mm",
         x_start: Union[int, float, str] = 0,
         x_stop: Union[int, float, str] = 180,
         x_step: Union[int, float, str] = 10,
         y_start: Union[int, float, str] = 0,
         y_stop: Union[int, float, str] = 180,
         y_step: Union[int, float, str] = 10,
-        angle_units: str = "deg",
+        angle_units: Optional[str] = "deg",
         custom_coordinate_system: Optional[str] = None,
         name: Optional[str] = None,
     ) -> NearFieldSetup:
@@ -2453,7 +2456,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(self, origin, sizes, name: str = "", material: Optional[str] = ""):
+    def create_rectangle(self, origin: list, sizes: list, name: Optional[str] = "", material: Optional[str] = "") -> Object3d:
         """Create a rectangle.
 
         Parameters
@@ -2483,13 +2486,13 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_single_conductor(
         self,
-        assignment,
-        name: str = "",
+        assignment: list,
+        name: Optional[str] = "",
         conductor_type: str = "SignalLine",
-        solve_option: str = "SolveInside",
-        thickness=None,
-        units: str = "um",
-    ):
+        solve_option: Optional[str] = "SolveInside",
+        thickness: Optional[float]=None,
+        units: Optional[str] = "um",
+    ) -> BoundaryObject:
         """
         Assign the conductor type to sheets.
 
@@ -2546,7 +2549,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(name, props, conductor_type)
 
     @pyaedt_function_handler()
-    def assign_huray_finitecond_to_edges(self, assignment, radius, ratio, units: str = "um", name: str = ""):
+    def assign_huray_finitecond_to_edges(self, assignment: list, radius: Union[float, str], ratio: Union[float, str], units: Optional[str] = "um", name: Optional[str] = "") -> BoundaryObject:
         """
         Assign the Huray surface roughness model to edges.
 
@@ -2615,7 +2618,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         arg_name="analyze",
         message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
-    def export_w_elements(self, analyze: bool = False, export_folder=None):
+    def export_w_elements(self, analyze: bool = False, export_folder: Optional[Union[str, Path]] = None) -> list:
         """Export all W-elements to files.
 
         Parameters
@@ -2736,7 +2739,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return exported_files
 
     @pyaedt_function_handler()
-    def toggle_conductor_type(self, assignment, new_type) -> bool:
+    def toggle_conductor_type(self, assignment: str, new_type: str) -> bool:
         """Change the conductor type.
 
         Parameters
@@ -2763,7 +2766,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: Optional[str] = "MySetupAuto", setup_type: Optional[Union[int, str]] = None, **kwargs) -> SetupHFSS:
         """Create an analysis setup for 2D Extractor.
 
         Optional arguments are passed along with the ``setup_type`` and ``name``

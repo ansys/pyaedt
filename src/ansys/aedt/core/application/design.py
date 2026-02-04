@@ -1453,7 +1453,7 @@ class Design(AedtObjects, PyAedtBase):
             return False
 
     @pyaedt_function_handler()
-    def get_oo_name(self, aedt_object, object_name=None):
+    def get_oo_name(self, aedt_object, object_name=None) -> List[str]:
         """Return the object-oriented AEDT property names.
 
         Parameters

@@ -871,7 +871,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         self,
         assignment: str,
         coordinate_system: Optional[str] = "Global",
-        axis: Optional[str, int, Gravity] = "Z",
+        axis: Optional[Union[str, int, Gravity]] = "Z",
         positive_movement: Optional[bool] = True,
         start_position: Optional[Union[int, str, float]] = 0,
         has_rotation_limits: Optional[bool] = True,
