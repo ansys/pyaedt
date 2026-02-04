@@ -393,7 +393,7 @@ def test_em_loss(ipk_app, test_tmp_dir) -> None:
     project = TESTS_ICEPAK_PATH / "example_models" / TEST_SUBFOLDER / project_name
     em_project = shutil.copy2(project, test_tmp_dir / project_name)
 
-    assert ipk_app.copyGroupFrom("Group1", "uUSB", USB_HFSS, str(em_project))
+    assert ipk_app.copy_group_from("Group1", "uUSB", USB_HFSS, str(em_project))
 
     hfss_spath = str(test_tmp_dir / USB_HFSS)
     surface_list = [
