@@ -33,6 +33,7 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.generic.file_utils import get_dxf_layers
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from tests import TESTS_GENERAL_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
@@ -500,92 +501,106 @@ def test_assign_floating(m2d_app):
         m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
 
 
-def test_matrix(m2d_app):
+def test_assign_matrix_electrostatic(m2d_app):
+    m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    rectangle2 = m2d_app.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
+    rectangle3 = m2d_app.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    voltage1 = m2d_app.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
+    voltage2 = m2d_app.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
+    voltage3 = m2d_app.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[voltage1.name, voltage2.name],
+        ground_sources=[voltage3.name],
+    )
+    matrix = m2d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert voltage1.name in matrix.signal_sources
+    assert voltage2.name in matrix.signal_sources
+    assert voltage3.name in matrix.ground_sources
+
+
+def test_assign_matrix_magnetostatic(m2d_app):
     m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
-    m2d_app.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", material="vacuum")
-    m2d_app.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", material="vacuum")
-    m2d_app.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", material="vacuum")
-    m2d_app.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", material="vacuum")
-    m2d_app.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
-    m2d_app.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
-    m2d_app.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")
-    m2d_app.assign_current("Coil_4", amplitude=1, swap_direction=True, name="Current4")
-    matrix = m2d_app.assign_matrix(assignment="Current1")
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Current1"
-    assert matrix.delete()
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current1", "Current2"], matrix_name="Test1", turns=2, return_path="Current3"
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    rectangle2 = m2d_app.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
+    rectangle3 = m2d_app.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
+    current2 = m2d_app.assign_current([rectangle2], amplitude=1, name="Current2")
+    current3 = m2d_app.assign_current([rectangle3], amplitude=1, name="Current3")
+    signal_source_1 = MaxwellMatrix.SourceMagnetostatic(
+        name=current1.name,
+        return_path=current2.name,
+        turns_number=5,
     )
-    assert len(matrix.props["MatrixEntry"]["MatrixEntry"]) == 2
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current1", "Current2"], matrix_name="Test2", turns=[2, 1], return_path=["Current3", "Current4"]
+
+    signal_source_2 = MaxwellMatrix.SourceMagnetostatic(
+        name=current3.name,
+        turns_number=2,
     )
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][1]["ReturnPath"] == "Current4"
-    with pytest.raises(AEDTRuntimeError, match="Return path specified must not be included in sources"):
-        m2d_app.assign_matrix(
-            assignment=["Current1", "Current2"],
-            matrix_name="Test3",
-            turns=[2, 1],
-            return_path=["Current1", "Current1"],
-        )
-    group_sources = {"Group1_Test": ["Current3", "Current2"]}
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current3", "Current2"],
-        matrix_name="Test4",
-        turns=[2, 1],
-        return_path=["Current4", "Current1"],
-        group_sources=group_sources,
+
+    group_source = MaxwellMatrix.GroupSourcesMagnetostatic(
+        source_names=[current1.name, current3.name],
+        branches_number=7,
+        name="test_group",
     )
-    assert matrix.name == "Test4"
-    group_sources = {"Group1_Test": ["Current3", "Current2"], "Group2_Test": ["Current1", "Current2"]}
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current1", "Current2"],
-        matrix_name="Test5",
-        turns=[2, 1],
-        return_path="infinite",
-        group_sources=group_sources,
+
+    matrix_args = MaxwellMatrix.MatrixMagnetostatic(
+        signal_sources=[signal_source_1, signal_source_2],
+        group_sources=[group_source],
+        matrix_name="test_matrix",
     )
-    assert matrix.props["MatrixGroup"]["MatrixGroup"]
-    group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current1", "Current2", "Current3", "Current4"],
-        matrix_name="Test6",
-        turns=2,
-        group_sources=group_sources,
-        branches=3,
+    matrix = m2d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert len(matrix.signal_sources) == 2
+    assert matrix.signal_sources[0].name == current1.name
+    assert matrix.signal_sources[0].turns_number == 5
+    assert len(matrix.group_sources) == 1
+    assert matrix.group_sources[0].name == "test_group"
+    assert matrix.group_sources[0].source_names == [current1.name, current3.name]
+
+
+def test_assign_matrix_ac_magnetic(m2d_app):
+    m2d_app.solution_type = SolutionsMaxwell2D.ACMagneticXY
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1", material="copper")
+    rectangle2 = m2d_app.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2", material="copper")
+    rectangle3 = m2d_app.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3", material="copper")
+    current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
+    current2 = m2d_app.assign_current([rectangle2], amplitude=1, name="Current2")
+    current3 = m2d_app.assign_current([rectangle3], amplitude=1, name="Current3")
+    signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name, return_path=current2.name)
+    signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
+    matrix_args = MaxwellMatrix.MatrixACMagnetic(
+        signal_sources=[signal_source_1, signal_source_2],
     )
-    assert matrix.props["MatrixGroup"]["MatrixGroup"][0]["GroupName"] == "Group1_Test"
-    group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current1", "Current2", "Current3", "Current4"],
-        matrix_name="Test7",
-        turns=[5, 1],
-        group_sources=group_sources,
-        branches=[3, 2, 1],
+    matrix = m2d_app.assign_matrix(matrix_args)
+    assert isinstance(matrix, MaxwellMatrix)
+    assert len(matrix.signal_sources) == 2
+    assert matrix.signal_sources[0].name == current1.name
+    assert matrix.signal_sources[0].return_path == current2.name
+    assert matrix.signal_sources[0].return_path == current2.name
+    assert matrix.signal_sources[1].return_path == "infinite"
+
+
+def test_assign_matrix_no_schema(m2d_app):
+    m2d_app.solution_type = SolutionsMaxwell2D.ACMagneticXY
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
+    matrix_args = {"signal_sources": [current1.name]}
+    with pytest.raises(TypeError):
+        m2d_app.assign_matrix(matrix_args)
+
+
+def test_assign_matrix_failure(m2d_app):
+    m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
+    rectangle1 = m2d_app.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    current1 = m2d_app.assign_current([rectangle1], amplitude=1, name="Current1")
+    matrix_args = MaxwellMatrix.MatrixElectric(
+        signal_sources=[current1.name],
+        ground_sources=[],
     )
-    assert len(matrix.props["MatrixGroup"]["MatrixGroup"]) == 2
-    group_sources = {"Group1_Test": ["Current1", "Current3", "Current2"], "Group2_Test": ["Current2", "Current4"]}
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current1", "Current2", "Current3"],
-        matrix_name="Test8",
-        turns=[2, 1, 2, 3],
-        return_path=["infinite", "infinite", "Current4"],
-        group_sources=group_sources,
-        branches=[3, 2],
-    )
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == 2
-    matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] = 3
-    assert matrix.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == 3
-    group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
-    matrix = m2d_app.assign_matrix(
-        assignment=["Current1", "Current2", "Current3", "Current4"],
-        matrix_name="Test9",
-        turns=[5, 1, 2, 3],
-        group_sources=group_sources,
-        branches=[3, 2],
-    )
-    for val in matrix.props["MatrixEntry"]["MatrixEntry"]:
-        assert val["ReturnPath"] == "infinite"
+    with pytest.raises(AEDTRuntimeError):
+        m2d_app.assign_matrix(matrix_args)
 
 
 def test_solution_types_setup(m2d_app):

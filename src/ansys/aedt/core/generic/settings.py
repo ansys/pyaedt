@@ -126,6 +126,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3",
     "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE",
     "ANS_NODEPCHECK",
+    "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE",
 ]
 
 DEFAULT_GRPC_LOCAL = True
@@ -200,11 +201,12 @@ class Settings(PyAedtBase):
             "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE": "1",
             "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
             "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE": "1",
+            "ANSYSEM_FEATURE_F629017_HARMONIC_APHI_SOLUTION_ENABLE": "1",
         }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         # General settings
-        self.__enable_error_handler: bool = True
+        self.__enable_error_handler: bool = False
         self.__release_on_exception: bool = True
         self.__aedt_version: Optional[str] = None
         self.__use_multi_desktop: bool = False

@@ -69,7 +69,7 @@ class EmitComponents(PyAedtBase):
 
     @property
     def o_definition_manager(self):
-        """Aedt Definition Manager.
+        """AEDT definition manager.
 
         References
         ----------

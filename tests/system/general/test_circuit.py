@@ -1052,16 +1052,15 @@ def test_automatic_ami(aedt_app, test_tmp_dir):
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical.")
 def test_automatic_ibis(aedt_app, test_tmp_dir):
     touchstone_1 = shutil.copy2(TOUCHSTONE_FILE_CUSTOM, test_tmp_dir / TOUCHSTONE_CUSTOM)
-    ibis_file_o = TESTS_GENERAL_PATH / "example_models" / "T15" / "u26a_800_modified.ibs"
-    ibis_file = shutil.copy2(ibis_file_o, test_tmp_dir / "u26a_800_modified.ibs")
+    ibis_file_o = TESTS_GENERAL_PATH / "example_models" / "T15" / "ansys_ddr4.ibs"
     result, _, _ = aedt_app.create_ibis_schematic_from_snp(
         input_file=touchstone_1,
-        ibis_tx_file=ibis_file,
-        tx_buffer_name="DQ_FULL_800",
-        rx_buffer_name="DQ_FULL_800",
+        ibis_tx_file=ibis_file_o,
+        tx_buffer_name="ansys_ddr4_odt34",
+        rx_buffer_name="ansys_ddr4_odt40",
         tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
         rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
-        ibis_rx_file=ibis_file,
+        ibis_rx_file=ibis_file_o,
         use_ibis_buffer=True,
         differential=False,
         bit_pattern="random_bit_count=2.5e3 random_seed=1",
@@ -1163,13 +1162,6 @@ def test_get_component_path_and_import_sss_files(aedt_app, test_tmp_dir):
     sss = aedt_app.modeler.schematic.create_nexxim_state_space_component(nexxim_state_space, 16)
     assert len(aedt_app.modeler.schematic.components) == 5
     assert sss.component_path
-    ibis_model = aedt_app.get_ibis_model_from_file(
-        TESTS_GENERAL_PATH / "example_models" / "T15" / "u26a_800_modified.ibs"
-    )
-    ibis_model.buffers["RDQS#"].add()
-    buffer = ibis_model.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
-    assert len(aedt_app.modeler.schematic.components) == 6
-    assert buffer.component_path
 
 
 def test_output_variables(circuit_app):

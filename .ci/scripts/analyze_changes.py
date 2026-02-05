@@ -240,13 +240,16 @@ def analyze_changes(base_ref: str = "origin/main"):
     # Define module patterns to check for changes
     module_patterns = {
         "emit": [
+            "tests/system/emit/",
             "src/ansys/aedt/core/emit_core/",
         ],
         "extensions": [
             "tests/system/extensions/",
+            "src/ansys/aedt/core/extensions/",
         ],
         "filter_solutions": [
             "tests/system/filter_solutions/",
+            "src/ansys/aedt/core/filtersolutions_core/",
         ],
     }
 

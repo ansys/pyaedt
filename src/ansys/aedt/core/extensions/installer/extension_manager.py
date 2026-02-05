@@ -93,6 +93,28 @@ AEDT_EXTENSION_APPLICATIONS = [
 class ExtensionManager(ExtensionProjectCommon):
     """Extension for move it in AEDT."""
 
+    def _resolve_category_folder(self, category: str) -> str:
+        """Resolve the extension folder name from a category or product name.
+
+        This normalizes AEDT product names (e.g. Project, Q3DExtractor)
+        back to the folder names used under EXTENSIONS_PATH.
+        """
+        if not category:
+            return ""
+        category_lower = str(category).lower()
+
+        # If category already matches a folder key, use it directly
+        if category_lower in AEDT_APPLICATIONS:
+            return category_lower
+
+        # Otherwise map from product name back to folder key
+        for key, value in AEDT_APPLICATIONS.items():
+            if str(value).lower() == category_lower:
+                return key
+
+        # Fallback: use the lower-cased category
+        return category_lower
+
     def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
@@ -247,6 +269,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
     def load_extensions(self, category: str):
         """Load application extensions."""
+        icon_category = self._resolve_category_folder(category)
         # Track the current category for UI refresh
         mapped_category = AEDT_APPLICATIONS.get(str(category).lower())
 
@@ -478,13 +501,28 @@ class ExtensionManager(ExtensionProjectCommon):
                     )
                     icon.pack()
             elif option.lower() == "custom":
-                icon = ttk.Label(
-                    main_icon_frame,
-                    text="🧩",
-                    style="PyAEDT.TLabel",
-                    font=("Segoe UI Emoji", 25),
-                )
-                icon.pack()
+                try:
+                    icon_path = (
+                        EXTENSIONS_PATH
+                        / "images"
+                        / "large"
+                        / "pyansys.png"
+                    )
+                    img = PIL.Image.open(str(icon_path))
+                    photo = self.create_theme_background_image(
+                        img, (48, 48)
+                    )
+                    self.images.append(photo)
+                    icon = ttk.Label(main_icon_frame, image=photo)
+                    icon.pack()
+                except Exception:
+                    icon = ttk.Label(
+                        main_icon_frame,
+                        text="🧩",
+                        style="PyAEDT.TLabel",
+                        font=("Segoe UI Emoji", 25),
+                    )
+                    icon.pack()
             else:
                 try:
                     # Try to find the icon for this specific extension
@@ -492,7 +530,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     if extension_info.get("icon"):
                         icon_path = (
                             EXTENSIONS_PATH
-                            / category.lower()
+                            / icon_category
                             / extension_info["icon"]
                         )
                     else:
@@ -632,7 +670,7 @@ class ExtensionManager(ExtensionProjectCommon):
             return
         self.active_process = None
         self.active_extension = None
-        category = category.lower()
+        category_folder = self._resolve_category_folder(category)
         is_custom = option.lower() == "custom"
         script_file = None
         script_field = None
@@ -666,7 +704,7 @@ class ExtensionManager(ExtensionProjectCommon):
             if category_toolkits.get(option, {}).get("script", None):
                 script_file = (
                     EXTENSIONS_PATH
-                    / category
+                    / category_folder
                     / self.toolkits[self.current_category][option]["script"]
                 )
             else:
@@ -951,14 +989,15 @@ class ExtensionManager(ExtensionProjectCommon):
                 return
         else:
             if self.toolkits[self.current_category][option].get("script", None):
+                category_folder = self._resolve_category_folder(category)
                 script_file = (
                     EXTENSIONS_PATH
-                    / category.lower()
+                    / category_folder
                     / self.toolkits[self.current_category][option]["script"]
                 )
                 icon = (
                     EXTENSIONS_PATH
-                    / category.lower()
+                    / category_folder
                     / self.toolkits[self.current_category][option]["icon"]
                 )
                 # Pin the extension
@@ -1328,7 +1367,7 @@ class ExtensionManager(ExtensionProjectCommon):
             return False  # Custom extensions are not tracked
 
         try:
-            product = category.lower()
+            product = AEDT_APPLICATIONS.get(str(category).lower(), category)
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             return is_extension_in_panel(
                 str(toolkit_dir), product, option

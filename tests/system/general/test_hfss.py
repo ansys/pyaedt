@@ -40,7 +40,6 @@ from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
-from tests.conftest import settings
 
 SMALL_NUMBER = 1e-10  # Used for checking equivalence.
 
@@ -424,11 +423,11 @@ def test_create_single_point_sweep(aedt_app):
     assert aedt_app.create_single_point_sweep(
         setup="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
     )
-    settings.enable_error_handler = True
-    assert not aedt_app.create_single_point_sweep(
-        setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
-    )
-    settings.enable_error_handler = False
+
+    with pytest.raises(AttributeError):
+        aedt_app.create_single_point_sweep(
+            setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+        )
 
 
 def test_delete_setup(aedt_app):

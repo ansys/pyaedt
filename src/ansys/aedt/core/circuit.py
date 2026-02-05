@@ -148,7 +148,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,

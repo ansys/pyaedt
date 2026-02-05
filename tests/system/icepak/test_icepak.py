@@ -1140,6 +1140,7 @@ def test_assign_hollow_block(ipk_app):
     assert block
     with pytest.raises(AEDTRuntimeError, match=f"Failed to create boundary Block {boundary_name}"):
         ipk_app.assign_hollow_block("BlockBox5", "Total Power", "1W", boundary_name=boundary_name)
+    settings.enable_desktop_logs = False
 
 
 def test_assign_solid_block(ipk_app):

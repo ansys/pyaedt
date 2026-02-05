@@ -527,15 +527,16 @@ class ExtensionCommon(PyAedtBase):
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
+
             aedt_active_sessions = active_sessions(
                 version=version,
                 student_version=False,
-                non_graphical=False,
+                non_graphical=None,
             )
             student_active_sessions = active_sessions(
                 version=version,
                 student_version=True,
-                non_graphical=False,
+                non_graphical=None,
             )
 
             if not aedt_active_sessions and not student_active_sessions:
