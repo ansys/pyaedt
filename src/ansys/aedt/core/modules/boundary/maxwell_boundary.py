@@ -24,6 +24,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
@@ -215,7 +216,7 @@ class MaxwellMatrix(MaxwellParameters):
         self._schema = schema
 
     @property
-    def signal_sources(self) -> list[SourceACMagnetic] | None:
+    def signal_sources(self) -> Union[list[SourceACMagnetic], None]:
         if (
             isinstance(self._schema, MaxwellMatrix.MatrixElectric)
             or isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic)
@@ -225,25 +226,25 @@ class MaxwellMatrix(MaxwellParameters):
         return None
 
     @property
-    def ground_sources(self) -> list[str] | None:
+    def ground_sources(self) -> Union[list[str], None]:
         if isinstance(self._schema, MaxwellMatrix.MatrixElectric):
             return self._schema.ground_sources
         return None
 
     @property
-    def group_sources(self) -> list[GroupSourcesMagnetostatic] | None:
+    def group_sources(self) -> Union[list[GroupSourcesMagnetostatic], None]:
         if isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic):
             return self._schema.group_sources
         return None
 
     @property
-    def rl_sources(self) -> list[RLSourceACMagneticAPhi] | None:
+    def rl_sources(self) -> Union[list[RLSourceACMagneticAPhi], None]:
         if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
             return self._schema.rl_sources
         return None
 
     @property
-    def gc_sources(self) -> list[GCSourceACMagneticAPhi] | None:
+    def gc_sources(self) -> Union[list[GCSourceACMagneticAPhi], None]:
         if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
             return self._schema.gc_sources
         return None
@@ -520,7 +521,7 @@ class MaxwellReducedMatrix:
         app,
         parent_matrix: MaxwellMatrix,
         name: str,
-        operations_reduction: list[MaxwellReducedMatrixOperation] | MaxwellReducedMatrixOperation | None = None,
+        operations_reduction: Union[list[MaxwellReducedMatrixOperation], MaxwellReducedMatrixOperation, None] = None,
     ):
         self._app = app
         self.parent_matrix = parent_matrix

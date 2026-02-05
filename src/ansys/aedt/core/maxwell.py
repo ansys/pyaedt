@@ -28,6 +28,7 @@ from pathlib import Path
 import re
 import time
 from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.base import PyAedtBase
@@ -291,10 +292,12 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_matrix(
         self,
-        args: MaxwellMatrix.MatrixElectric
-        | MaxwellMatrix.MatrixACMagnetic
-        | MaxwellMatrix.MatrixACMagneticAPhi
-        | MaxwellMatrix.MatrixMagnetostatic,
+        args: Union[
+            MaxwellMatrix.MatrixElectric,
+            MaxwellMatrix.MatrixACMagnetic,
+            MaxwellMatrix.MatrixACMagneticAPhi,
+            MaxwellMatrix.MatrixMagnetostatic,
+        ],
     ) -> MaxwellParameters:
         """Assign sources to a matrix.
 
@@ -2485,7 +2488,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     def export_matrix(
         self,
         matrix_name: str,
-        output_file: str | Path,
+        output_file: Union[str, Path],
         setup: Optional[str] = None,
         is_post_processed: Optional[bool] = False,
         default_adaptive: Optional[str] = "LastAdaptive",
