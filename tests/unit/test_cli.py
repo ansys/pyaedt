@@ -771,7 +771,7 @@ def test_all_boolean_commands(mock_get_tests_folder, tmp_path, cli_runner):
         (["close-desktop", "false"], "close_desktop set to False"),
         (["use-local-example-data", "true"], "use_local_example_data"),
         (["skip-modelithics", "false"], "skip_modelithics set to False"),
-        (["use_pyedb_grpc", "false"], "use_pyedb_grpc set to False"),
+        (["use-pyedb-grpc", "false"], "use_pyedb_grpc set to False"),
     ]
 
     for cmd_parts, expected_output in bool_tests:
