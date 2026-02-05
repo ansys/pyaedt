@@ -542,11 +542,11 @@ Testmon in CI/CD
 This section explains how PyAEDT uses `testmon <https://testmon.org/>`_ to optimize test execution
 in the CI/CD pipeline by only running tests affected by code changes.
 
-What is testmon?
+What is Testmon?
 ~~~~~~~~~~~~~~~~
 
 Testmon is a pytest plugin that monitors which source code files are used by each test and stores this
-dependency information in a database file (``.testmondata``). On subsequent test runs, testmon analyzes
+dependency information in a database file (``.testmondata``). On subsequent test runs, Testmon analyzes
 which files have changed and selectively runs only the tests that depend on the modified code.
 
 **Key benefits:**
@@ -558,7 +558,7 @@ which files have changed and selectively runs only the tests that depend on the 
 **How it works:**
 
 1. Testmon creates a dependency graph mapping each test to the source files it uses.
-2. When code changes, testmon compares the current state against the cached dependency data.
+2. When code changes, Testmon compares the current state against the cached dependency data.
 3. Only tests with dependencies on changed files are selected for execution.
 4. The dependency database is cached between runs to maintain history.
 
@@ -572,14 +572,14 @@ When a pull request is created or updated, the CI/CD pipeline executes the follo
    If so, the PR workflow waits for it to complete to ensure it uses the most
    up-to-date cache data.
 
-2. **Restore testmon cache**: The pipeline restores the ``.testmondata`` file from GitHub Actions cache for each job.
+2. **Restore testmon cache**: Each job restores the ``.testmondata`` file from the GitHub Actions cache.  
    The cache key includes:
 
    - The test suite identifier (for example, ``testmondata-unit-linux``).
    - The branch name (``main``).
-   - The latest successful commit SHA on ``main``.
+   - The latest successful commit SHA (unique identifier of a commit) on ``main``.
 
-3. **Run selective tests**: Pytest runs with the ``--testmon`` flag, which instructs testmon to:
+3. **Run selective tests**: Pytest runs with the ``--testmon`` flag, which instructs Testmon to:
 
    - Analyze which source files have changed compared to the cached state.
    - Select only tests that depend on the changed files.
