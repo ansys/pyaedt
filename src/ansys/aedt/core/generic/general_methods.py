@@ -933,7 +933,7 @@ def _check_connection_grpc_port(connections: Dict[int, List[Dict[str, any]]], pi
 
 
 @pyaedt_function_handler()
-def is_grpc_session_active(port):
+def is_grpc_session_active(port: int) -> bool:
     """Check if a gRPC session is active on the specified port.
 
     This function verifies whether an AEDT session is actively listening on
