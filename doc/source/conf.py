@@ -171,6 +171,7 @@ mermaid_d3_zoom = True
 mermaid_fullscreen = True
 mermaid_include_elk = True
 mermaid_include_mindmap = True
+mermaid_cmd_shell = True
 
 
 toc_object_entries_show_parents = "hide"
