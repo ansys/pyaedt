@@ -166,7 +166,7 @@ intersphinx_mapping = {
 }
 
 # Mermaid configuration
-mermaid_params = ['-p', 'puppeteer-config.json']
+mermaid_params = ["-p", "puppeteer-config.json"]
 mermaid_d3_zoom = True
 mermaid_fullscreen = True
 mermaid_include_elk = True
