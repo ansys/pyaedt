@@ -123,7 +123,6 @@ class TwinBuilder(AnalysisTwinBuilder, PyAedtBase):
     >>> app = TwinBuilder("myfile.aedt")
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project: Optional[str] = None,

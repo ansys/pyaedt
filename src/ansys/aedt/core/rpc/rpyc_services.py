@@ -274,7 +274,7 @@ class PyaedtServiceWindows(rpyc.Service, PyAedtBase):
         script : str or list
             It can be the full path of the script file or a list of command to execute on the server.
         aedt_version : str, optional
-            Aedt Version to run.
+            AEDT version to run.
         ansysem_path : str, optional
             Full path to AEDT Installation folder.
         non_graphical : bool, optional
@@ -974,7 +974,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @property
     def aedt_port(self):
-        """Aedt active port.
+        """AEDT active port.
 
         Returns
         -------
@@ -988,7 +988,7 @@ class GlobalService(rpyc.Service, PyAedtBase):
 
     @property
     def aedt_version(self):
-        """Aedt Version.
+        """AEDT Version.
 
         Returns
         -------

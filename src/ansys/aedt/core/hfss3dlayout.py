@@ -154,7 +154,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project: Optional[str] = None,

@@ -122,7 +122,6 @@ class CircuitNetlist(AnalysisCircuitNetlist, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project: Optional[str] = None,

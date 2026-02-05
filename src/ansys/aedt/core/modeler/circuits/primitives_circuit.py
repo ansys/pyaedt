@@ -136,7 +136,7 @@ class CircuitComponents(PyAedtBase):
 
     @property
     def o_definition_manager(self):
-        """Aedt oDefinitionManager.
+        """AEDT oDefinitionManager.
 
         References
         ----------

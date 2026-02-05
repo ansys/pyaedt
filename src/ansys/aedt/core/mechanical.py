@@ -127,7 +127,6 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project: Optional[str] = None,

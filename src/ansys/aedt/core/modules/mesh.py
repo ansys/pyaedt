@@ -540,7 +540,7 @@ class Mesh(PyAedtBase):
 
     @property
     def omeshmodule(self):
-        """Aedt Mesh Module.
+        """AEDT Mesh Module.
 
         References
         ----------

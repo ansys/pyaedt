@@ -157,7 +157,7 @@ def pyaedt_service_manager(
     port : int, optional
         Port that the RPyC server is to listen on.
     aedt_version : str, optional
-        Version of Aedt to instantiate with server. Default is latest available version installed on the machine.
+        Version of AEDT to instantiate with server. Default is latest available version installed on the machine.
     student_version : bool, optional
         Either to initialize Student version AEDT or Commercial version.
 
@@ -308,9 +308,9 @@ def create_session(
     launch_aedt_on_server : bool, optional
         Either if the method has to start AEDT after the connection is established or not. Default is  `False`.
     aedt_port : int, optional
-        Aedt Grpc port on server.
+        AEDT gRPC port on server.
     non_graphical : bool, optional
-        Aedt Non Graphical Flag.
+        AEDT non-graphical glag.
 
     Returns
     -------
@@ -336,7 +336,7 @@ def create_session(
             if not aedt_port:
                 aedt_port = client.root.check_port()
             cl.aedt(port=aedt_port, non_graphical=non_graphical)
-            logger.info("Aedt started on port %s", aedt_port)
+            logger.info("AEDT started on port %s", aedt_port)
             if not cl.aedt_port:
                 cl.aedt_port = aedt_port
         return cl

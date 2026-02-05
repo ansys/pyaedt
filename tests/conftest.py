@@ -97,7 +97,7 @@ USE_LOCAL_EXAMPLE_DATA = config.get("use_local_example_data", DEFAULT_CONFIG.get
 USE_LOCAL_EXAMPLE_FOLDER = config.get("local_example_folder", DEFAULT_CONFIG.get("local_example_folder"))
 SKIP_CIRCUITS = config.get("skip_circuits", DEFAULT_CONFIG.get("skip_circuits"))
 SKIP_MODELITHICS = config.get("skip_modelithics", DEFAULT_CONFIG.get("skip_modelithics"))
-
+os.environ["PYAEDT_DESKTOP_VERSION"] = DESKTOP_VERSION
 os.environ["PYAEDT_SCRIPT_VERSION"] = DESKTOP_VERSION
 
 # ================================
@@ -244,11 +244,10 @@ def desktop(tmp_path_factory, request):
     desktop_app.odesktop.SetProjectDirectory(str(base))
 
     desktop_app.disable_autosave()
-
     yield desktop_app
 
     try:
-        desktop_app.release_desktop(close_projects=True, close_on_exit=CLOSE_DESKTOP)
+        desktop_app.release_desktop(close_projects=False, close_on_exit=CLOSE_DESKTOP)
     except Exception as e:
         raise Exception("Failed to close Desktop instance") from e
 

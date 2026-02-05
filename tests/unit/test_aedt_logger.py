@@ -36,8 +36,8 @@ import pytest
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.generic.settings import settings
 
-settings.enable_desktop_logs = True
-settings.enable_local_log_file = True
+# settings.enable_desktop_logs = True
+# settings.enable_local_log_file = True
 
 
 def test_formatter(test_tmp_dir) -> None:
@@ -52,6 +52,8 @@ def test_formatter(test_tmp_dir) -> None:
 
 def test_output_file_with_app_filter(test_tmp_dir) -> None:
     settings.enable_debug_logger = True
+    settings.enable_desktop_logs = True
+    settings.enable_local_log_file = True
     path = test_tmp_dir / "test02.txt"
     logger = AedtLogger(filename=str(path))
     logger.info("Info for Global")
@@ -98,6 +100,8 @@ def test_output_file_with_app_filter(test_tmp_dir) -> None:
     assert ":ERROR   :Error for Design" in content[11]
     assert "Elapsed time:" in content[12]
     path.unlink(missing_ok=True)
+    settings.enable_desktop_logs = False
+    settings.enable_local_log_file = False
 
 
 def test_stdout_with_app_filter() -> None:
@@ -115,6 +119,8 @@ def test_stdout_with_app_filter() -> None:
 
 
 def test_disable_output_file_handler(test_tmp_dir) -> None:
+    settings.enable_desktop_logs = True
+    settings.enable_local_log_file = True
     tempfile.gettempdir()
     path = test_tmp_dir / "test04.txt"
 
@@ -150,6 +156,8 @@ def test_disable_output_file_handler(test_tmp_dir) -> None:
         if "Info for Global after disabling the log file handler." in line:
             disablement_succeeded = False
     assert disablement_succeeded
+    settings.enable_desktop_logs = False
+    settings.enable_local_log_file = False
 
     # Enable log on file.
     logger.enable_log_on_file()
