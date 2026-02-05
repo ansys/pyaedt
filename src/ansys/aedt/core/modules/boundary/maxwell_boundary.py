@@ -215,7 +215,7 @@ class MaxwellMatrix(MaxwellParameters):
         self._schema = schema
 
     @property
-    def signal_sources(self):
+    def signal_sources(self) -> list[SourceACMagnetic] | None:
         if (
             isinstance(self._schema, MaxwellMatrix.MatrixElectric)
             or isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic)
@@ -225,31 +225,31 @@ class MaxwellMatrix(MaxwellParameters):
         return None
 
     @property
-    def ground_sources(self):
+    def ground_sources(self) -> list[str] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixElectric):
             return self._schema.ground_sources
         return None
 
     @property
-    def group_sources(self):
+    def group_sources(self) -> list[GroupSourcesMagnetostatic] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic):
             return self._schema.group_sources
         return None
 
     @property
-    def rl_sources(self):
+    def rl_sources(self) -> list[RLSourceACMagneticAPhi] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
             return self._schema.rl_sources
         return None
 
     @property
-    def gc_sources(self):
+    def gc_sources(self) -> list[GCSourceACMagneticAPhi] | None:
         if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
             return self._schema.gc_sources
         return None
 
     @property
-    def reduced_matrices(self):
+    def reduced_matrices(self) -> list[MaxwellReducedMatrix]:
         """List of reduced matrix groups for the parent matrix.
 
         Returns
@@ -394,7 +394,7 @@ class MaxwellMatrix(MaxwellParameters):
             self.matrix_name = matrix_name
 
     @pyaedt_function_handler()
-    def join_series(self, sources, matrix_name=None, join_name=None):
+    def join_series(self, sources, matrix_name=None, join_name=None) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in series.
 
         Parameters
@@ -417,7 +417,7 @@ class MaxwellMatrix(MaxwellParameters):
         )
 
     @pyaedt_function_handler()
-    def join_parallel(self, sources, matrix_name=None, join_name=None):
+    def join_parallel(self, sources, matrix_name=None, join_name=None) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in parallel.
 
         Parameters
@@ -453,8 +453,6 @@ class MaxwellMatrix(MaxwellParameters):
             ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
         )
         reduced_matrix = next(m for m in self.reduced_matrices if m.name == matrix_name)
-        # operation_reduction = MaxwellReducedMatrixOperation(self.name, matrix_name, join_name, sources)
-        # reduced_matrix.operations_reduction.append(operation_reduction)
         return reduced_matrix
 
 
@@ -537,7 +535,7 @@ class MaxwellReducedMatrix:
     @pyaedt_function_handler()
     def update(
         self, name: str, operation_type: str, new_name: Optional[str] = None, new_sources: Optional[list] = None
-    ):
+    ) -> MaxwellReducedMatrixOperation:
         """Update the reduced matrix.
 
         Parameters
@@ -630,7 +628,7 @@ class MaxwellReducedMatrix:
         return MaxwellReducedMatrixOperation(self.parent_matrix.name, self.name, operation.name, operation.sources)
 
     @pyaedt_function_handler()
-    def delete(self, name):
+    def delete(self, name) -> bool:
         """Delete a specific reduction operation.
 
         Parameters
