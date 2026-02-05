@@ -33,6 +33,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
 from tests import TESTS_SEQUENTIAL_PATH
+from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
 from tests.conftest import SKIP_CIRCUITS
 
@@ -155,6 +156,7 @@ def test_q2d_link(q2d_app, add_app):
 
 
 @pytest.mark.skipif(NON_GRAPHICAL and is_linux, reason="Method not working in Linux and Non graphical")
+@pytest.mark.skipif(DESKTOP_VERSION == "2026.1", reason="Not working in 2026R1")
 def test_q3d_link(q3d_app, add_app):
     cir = add_app(application=Circuit, project=q3d_app.project_name, close_projects=False)
 

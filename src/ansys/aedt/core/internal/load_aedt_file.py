@@ -106,6 +106,24 @@ _len_all_lines = 0
 _count = 0
 
 
+def get_designs(filename: str | Path) -> list[str]:
+    """Get the list of designs in an AEDT file.
+
+    Parameters
+    ----------
+    filename : str or pathlib.Path
+        Path to the AEDT file.
+
+    Returns
+    -------
+    list of str
+        List of design names found in the AEDT file.
+    """
+    filename = Path(filename)
+    designs = load_keyword_in_aedt_file(str(filename), "ProjectPreview")["ProjectPreview"]
+    return [info["DesignName"] for info in designs["DesignInfo"]]
+
+
 def _parse_value(v):
     """Parse value in C# format."""
     #  duck typing parse of the value 'v'

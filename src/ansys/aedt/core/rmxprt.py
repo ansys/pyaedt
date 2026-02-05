@@ -68,6 +68,7 @@ class RMXprtModule(PyAedtBase):
             if name in dict_in.properties:
                 if (
                     isinstance(dict_in.properties[name], list)
+                    and len(dict_in.properties[name]) > 0
                     and isinstance(dict_in.properties[name][0], str)
                     and ":=" in dict_in.properties[name][0]
                     and not isinstance(value, list)
