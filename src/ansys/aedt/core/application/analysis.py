@@ -2307,7 +2307,7 @@ class Analysis(Design, PyAedtBase):
         Parameters
         ----------
         aedt_object :
-            Aedt object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+            AEDT object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
         tab_name : str
             Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
             ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.

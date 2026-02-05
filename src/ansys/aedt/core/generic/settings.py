@@ -204,7 +204,7 @@ class Settings(PyAedtBase):
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
         # General settings
-        self.__enable_error_handler: bool = True
+        self.__enable_error_handler: bool = False
         self.__release_on_exception: bool = True
         self.__aedt_version: Optional[str] = None
         self.__use_multi_desktop: bool = False
