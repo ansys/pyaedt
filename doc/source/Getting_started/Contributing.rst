@@ -572,7 +572,7 @@ When a pull request is created or updated, the CI/CD pipeline executes the follo
    If so, the PR workflow waits for it to complete to ensure it uses the most
    up-to-date cache data.
 
-2. **Restore testmon cache**: Each job restores the ``.testmondata`` file from the GitHub Actions cache.  
+2. **Restore testmon cache**: Each job restores the ``.testmondata`` file from the GitHub Actions cache.
    The cache key includes:
 
    - The test suite identifier (for example, ``testmondata-unit-linux``).
