@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pyparsing import Optional
+from typing import Optional
 
 from ansys.aedt.core import constants
 from ansys.aedt.core.base import PyAedtBase
