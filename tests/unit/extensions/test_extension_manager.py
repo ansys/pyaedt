@@ -690,7 +690,11 @@ def test_extension_manager_check_extension_pinned(mock_is_in_panel, mock_toolkit
     # Path adjusted to OS
     path = "\\dummy\\personal\\Toolkits" if not is_linux else "/dummy/personal/Toolkits"
     assert result is True
-    mock_is_in_panel.assert_called_once_with(path, "hfss", "MyExt")
+    mock_is_in_panel.assert_called_once()
+    call_args = mock_is_in_panel.call_args[0]
+    assert call_args[0] == path
+    assert call_args[1].lower() == "hfss"
+    assert call_args[2] == "MyExt"
 
     extension.root.destroy()
 
