@@ -92,7 +92,7 @@ class AedtObjects(PyAedtBase):
         self.__aedtunits = AedtUnits(self)
 
     @property
-    def units(self):
+    def units(self) -> AedtUnits:
         """PyAEDT default units.
 
         Returns
