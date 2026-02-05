@@ -31,6 +31,7 @@ except ImportError:  # pragma: no cover
         "typer is required for the CLI. Please install with 'pip install pyaedt[all]' or 'pip install typer'"
     )
 
+
 from ansys.aedt.core.cli.config import config_app
 from ansys.aedt.core.cli.doc import doc_app
 from ansys.aedt.core.cli.panels import panels_app
