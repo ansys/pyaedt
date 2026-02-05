@@ -105,7 +105,7 @@ class AedtObjWrapper:
     # print(self.objectID)
 
     def __str__(self):
-        return "Instance of an Aedt object:" + str(self.objectID)
+        return "Instance of an AEDT object:" + str(self.objectID)
 
     def __Invoke__(self, funcName, argv):
         if settings.enable_debug_grpc_api_logger:
