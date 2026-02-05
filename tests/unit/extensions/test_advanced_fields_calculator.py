@@ -147,7 +147,7 @@ def test_advanced_fields_calculator_extension_ok_button(
     mock_active_sessions.return_value = {0: 0}
 
     extension = AdvancedFieldsCalculatorExtension()
-    assert "Dummy description" in extension.root.nametowidget("combo_calculation")["values"]
+    assert EXPRESSION_DESCRIPTION in extension.root.nametowidget("combo_calculation")["values"]
     extension.root.nametowidget("ok_button").invoke()
     data: AdvancedFieldsCalculatorExtensionData = extension.data
 
