@@ -123,7 +123,7 @@ Below is the content that can be updated through the YAML file.
         # Optional path for the EDB DLL file
         edb_dll_path: null
         # Enable or disable the internal PyAEDT error handling
-        enable_error_handler: true
+        enable_error_handler: false
         # Enable or disable the use of Pandas to export dictionaries and lists
         enable_pandas_output: false
         # Enable or disable the check of the project path

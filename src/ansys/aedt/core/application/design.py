@@ -253,7 +253,7 @@ class Design(AedtObjects, PyAedtBase):
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
-        self.logger.info("Aedt Objects correctly read")
+        self.logger.info("AEDT objects correctly read")
         if is_windows and not self.__t and not settings.lazy_load and Path(self.project_file).exists():
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
@@ -1287,7 +1287,7 @@ class Design(AedtObjects, PyAedtBase):
                                 remove_project_lock(project)
                             else:  # pragma: no cover
                                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
-                        self.logger.info("aedt project found. Loading it.")
+                        self.logger.info("AEDT project found. Loading it.")
                         self._oproject = self.odesktop.OpenProject(project)
                         self._add_handler()
                         self.logger.info("Project %s has been opened.", self._oproject.GetName())
@@ -1484,7 +1484,7 @@ class Design(AedtObjects, PyAedtBase):
         Returns
         -------
         object
-            Aedt Object if Any.
+            AEDT object if any.
         """
         try:
             return aedt_object.GetChildObject(object_name)
@@ -3275,7 +3275,6 @@ class Design(AedtObjects, PyAedtBase):
         if name == legacy_name:
             self._global_logger.remove_file_logger(name)
             self._logger = self._global_logger
-        self.odesktop.CloseProject(name)
         if name == legacy_name:
             self._init_variables()
             self._oproject = None
@@ -3284,7 +3283,10 @@ class Design(AedtObjects, PyAedtBase):
             self.logger.oproject = None
             self.design_solutions._odesign = None
             AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
+            self.odesktop.CloseProject(name)
+
         else:
+            self.odesktop.CloseProject(name)
             self.desktop_class.active_project(legacy_name)
 
         i = 0

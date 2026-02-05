@@ -40,7 +40,6 @@ from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests.conftest import DESKTOP_VERSION
 from tests.conftest import NON_GRAPHICAL
-from tests.conftest import settings
 
 SMALL_NUMBER = 1e-10  # Used for checking equivalence.
 
@@ -427,11 +426,11 @@ def test_create_single_point_sweep(aedt_app):
     assert aedt_app.create_single_point_sweep(
         setup="MySetup", unit="GHz", freq=[1.1e1, 1.2e1, 1.3e1], save_single_field=[True, False, True]
     )
-    settings.enable_error_handler = True
-    assert not aedt_app.create_single_point_sweep(
-        setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
-    )
-    settings.enable_error_handler = False
+
+    with pytest.raises(AttributeError):
+        aedt_app.create_single_point_sweep(
+            setup="MySetup", unit="GHz", freq=[1, 2e2, 3.4], save_single_field=[True, False]
+        )
 
 
 def test_delete_setup(aedt_app):
@@ -1222,12 +1221,12 @@ def test_create_infinite_sphere(aedt_app):
     aedt_app.assign_radiation_boundary_to_objects(air)
     bound = aedt_app.insert_infinite_sphere(
         definition="El Over Az",
-        x_start=1,
-        x_stop=91,
-        x_step=45,
-        y_start=2,
-        y_stop=92,
-        y_step=10,
+        phi_start=1,
+        phi_stop=91,
+        phi_step=45,
+        theta_start=2,
+        theta_stop=92,
+        theta_step=10,
         use_slant_polarization=True,
         polarization_angle=30,
     )
@@ -1245,16 +1244,55 @@ def test_create_infinite_sphere(aedt_app):
     assert bound.delete()
     bound = aedt_app.insert_infinite_sphere(
         definition="Az Over El",
-        x_start=1,
-        x_stop=91,
-        x_step=45,
-        y_start=2,
-        y_stop=92,
-        y_step=10,
+        phi_start=1,
+        phi_stop=91,
+        phi_step=45,
+        theta_start=2,
+        theta_stop=92,
+        theta_step=10,
         use_slant_polarization=True,
         polarization_angle=30,
     )
     assert bound.azimuth_start == "2deg"
+    assert bound.delete()
+    # Test with default "Theta-Phi" definition
+    bound = aedt_app.insert_infinite_sphere(
+        definition="Theta-Phi",
+        phi_start=0,
+        phi_stop=180,
+        phi_step=10,
+        theta_start=-180,
+        theta_stop=180,
+        theta_step=10,
+        use_slant_polarization=False,
+        polarization_angle=0,
+    )
+    assert bound
+    assert bound.theta_start == "0deg"
+    assert bound.theta_stop == "180deg"
+    assert bound.theta_step == "10deg"
+    assert bound.phi_start == "-180deg"
+    assert bound.phi_stop == "180deg"
+    assert bound.phi_step == "10deg"
+    assert bound.polarization == "Linear"
+
+    air = aedt_app.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
+    aedt_app.assign_radiation_boundary_to_objects(air)
+    boundary_name = "TestSphere"
+
+    # Create infinite spheres with a specific name
+    sphere = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_1 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    sphere_2 = aedt_app.insert_infinite_sphere(name=boundary_name)
+    boundary_names = [fs.name for fs in aedt_app.field_setups]
+
+    assert sphere
+    assert boundary_name == sphere.name
+    assert sphere_1
+    assert boundary_name + "_1" == sphere_1.name
+    assert sphere_2
+    assert boundary_name + "_2" == sphere_2.name
+    assert all(map(lambda boundary: boundary.name in boundary_names, [sphere, sphere_1, sphere_2]))
 
 
 def test_set_autoopen(aedt_app):
@@ -1590,12 +1628,12 @@ def test_create_near_field_sphere(aedt_app):
     bound = aedt_app.insert_near_field_sphere(
         radius=20,
         radius_units="cm",
-        x_start=-180,
-        x_stop=180,
-        x_step=10,
-        y_start=0,
-        y_stop=180,
-        y_step=10,
+        phi_start=-180,
+        phi_stop=180,
+        phi_step=10,
+        theta_start=0,
+        theta_stop=180,
+        theta_step=10,
         angle_units="deg",
         custom_radiation_faces=None,
         custom_coordinate_system=None,

@@ -461,7 +461,7 @@ def test_force_project_path_disable(aedt_app):
 #     app.close_project(project_name)
 
 
-def test_toolkit(aedt_app, desktop, test_tmp_dir):
+def test_toolkit(aedt_app, test_tmp_dir):
     assert customize_automation_tab.available_toolkits()
     file = test_tmp_dir / "test.py"
     with open(file, "w") as f:
@@ -472,7 +472,6 @@ def test_toolkit(aedt_app, desktop, test_tmp_dir):
         name="test_toolkit",
         script_file=str(file),
         personal_lib=aedt_app.desktop_class.personallib,
-        aedt_version=aedt_app.desktop_class.aedt_version_id,
     )
     assert customize_automation_tab.remove_script_from_menu(desktop_object=aedt_app.desktop_class, name="test_toolkit")
 

@@ -161,7 +161,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
     PyAEDT INFO: Added design...
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
