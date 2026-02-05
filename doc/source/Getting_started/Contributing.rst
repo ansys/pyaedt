@@ -536,266 +536,268 @@ To replicate the CI/CD environment locally, set this environment variable on you
   export PYAEDT_LOCAL_SETTINGS_PATH='tests/pyaedt_settings.yaml'
 
 
-Testmon in CI/CD
-----------------
+.. only:: html
 
-This section explains how PyAEDT uses `testmon <https://testmon.org/>`_ to optimize test execution
-in the CI/CD pipeline by only running tests affected by code changes.
+   Testmon in CI/CD
+   ----------------
 
-What is Testmon?
-~~~~~~~~~~~~~~~~
+   This section explains how PyAEDT uses `testmon <https://testmon.org/>`_ to optimize test execution
+   in the CI/CD pipeline by only running tests affected by code changes.
 
-Testmon is a pytest plugin that monitors which source code files are used by each test and stores this
-dependency information in a database file (``.testmondata``). On subsequent test runs, Testmon analyzes
-which files have changed and selectively runs only the tests that depend on the modified code.
+   What is Testmon?
+   ~~~~~~~~~~~~~~~~
 
-**Key benefits:**
+   Testmon is a pytest plugin that monitors which source code files are used by each test and stores this
+   dependency information in a database file (``.testmondata``). On subsequent test runs, Testmon analyzes
+   which files have changed and selectively runs only the tests that depend on the modified code.
 
-- **Faster CI pipelines**: Only tests affected by changes are executed, significantly reducing test runtime.
-- **Resource efficiency**: Reduces computational costs on self-hosted runners and GitHub Actions.
-- **Immediate feedback**: Developers get quicker feedback on their changes.
+   **Key benefits:**
 
-**How it works:**
+   - **Faster CI pipelines**: Only tests affected by changes are executed, significantly reducing test runtime.
+   - **Resource efficiency**: Reduces computational costs on self-hosted runners and GitHub Actions.
+   - **Immediate feedback**: Developers get quicker feedback on their changes.
 
-1. Testmon creates a dependency graph mapping each test to the source files it uses.
-2. When code changes, Testmon compares the current state against the cached dependency data.
-3. Only tests with dependencies on changed files are selected for execution.
-4. The dependency database is cached between runs to maintain history.
+   **How it works:**
 
-Testmon workflow during pull requests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   1. Testmon creates a dependency graph mapping each test to the source files it uses.
+   2. When code changes, Testmon compares the current state against the cached dependency data.
+   3. Only tests with dependencies on changed files are selected for execution.
+   4. The dependency database is cached between runs to maintain history.
 
-When a pull request is created or updated, the CI/CD pipeline executes the following workflow:
+   Testmon workflow during pull requests
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. **Wait for cache update (if needed)**: Before running tests, the workflow checks if the
-   ``update-testmondata-cache.yml`` workflow is running on the ``main`` branch for the pull request's base commit.
-   If so, the PR workflow waits for it to complete to ensure it uses the most
-   up-to-date cache data.
+   When a pull request is created or updated, the CI/CD pipeline executes the following workflow:
 
-2. **Restore testmon cache**: Each job restores the ``.testmondata`` file from the GitHub Actions cache.
-   The cache key includes:
+   1. **Wait for cache update (if needed)**: Before running tests, the workflow checks if the
+      ``update-testmondata-cache.yml`` workflow is running on the ``main`` branch for the pull request's base commit.
+      If so, the PR workflow waits for it to complete to ensure it uses the most
+      up-to-date cache data.
 
-   - The test suite identifier (for example, ``testmondata-unit-linux``).
-   - The branch name (``main``).
-   - The latest successful commit SHA (unique identifier of a commit) on ``main``.
+   2. **Restore testmon cache**: Each job restores the ``.testmondata`` file from the GitHub Actions cache.
+      The cache key includes:
 
-3. **Run selective tests**: Pytest runs with the ``--testmon`` flag, which instructs Testmon to:
+      - The test suite identifier (for example, ``testmondata-unit-linux``).
+      - The branch name (``main``).
+      - The latest successful commit SHA (unique identifier of a commit) on ``main``.
 
-   - Analyze which source files have changed compared to the cached state.
-   - Select only tests that depend on the changed files.
-   - Execute the selected tests.
+   3. **Run selective tests**: Pytest runs with the ``--testmon`` flag, which instructs Testmon to:
 
-4. **Report results**: Test results and coverage are uploaded as artifacts without modifying the cache
-   (only the ``main`` branch can update the shared cache).
+      - Analyze which source files have changed compared to the cached state.
+      - Select only tests that depend on the changed files.
+      - Execute the selected tests.
 
-.. note::
+   4. **Report results**: Test results and coverage are uploaded as artifacts without modifying the cache
+      (only the ``main`` branch can update the shared cache).
 
-   The PR workflow does **not** update the shared testmon cache. This ensures that all PRs work from
-   a consistent baseline derived from the ``main`` branch.
+   .. note::
 
-Testmon workflow during merge to main
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      The PR workflow does **not** update the shared testmon cache. This ensures that all PRs work from
+      a consistent baseline derived from the ``main`` branch.
 
-When a pull request is merged to the ``main`` branch, the ``update-testmondata-cache.yml`` workflow
-triggers automatically:
+   Testmon workflow during merge to main
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. **Run all affected tests**: The workflow runs tests with testmon to update the dependency data based
-   on the newly merged code.
+   When a pull request is merged to the ``main`` branch, the ``update-testmondata-cache.yml`` workflow
+   triggers automatically:
 
-2. **Delete old cache entries**: Before saving, old cache entries for the same test suite are deleted
-   to prevent cache accumulation.
+   1. **Run all affected tests**: The workflow runs tests with testmon to update the dependency data based
+      on the newly merged code.
 
-3. **Save updated cache**: The updated ``.testmondata`` file is saved to GitHub Actions cache with a
-   key that includes:
+   2. **Delete old cache entries**: Before saving, old cache entries for the same test suite are deleted
+      to prevent cache accumulation.
 
-   - The test suite identifier (for example, ``testmondata-unit-linux``).
-   - The branch name (``main``).
-   - The commit SHA.
+   3. **Save updated cache**: The updated ``.testmondata`` file is saved to GitHub Actions cache with a
+      key that includes:
 
-4. **Cache available for PRs**: The new cache becomes the baseline for all subsequent pull requests.
+      - The test suite identifier (for example, ``testmondata-unit-linux``).
+      - The branch name (``main``).
+      - The commit SHA.
 
-Each test suite maintains its own separate cache:
+   4. **Cache available for PRs**: The new cache becomes the baseline for all subsequent pull requests.
 
-- ``testmondata-unit-linux``: Unit tests on Linux.
-- ``testmondata-integration-linux``: Integration tests on Linux.
-- ``testmondata-solvers-win``: Solver tests on Windows.
-- ``testmondata-solvers-linux``: Solver tests on Linux.
-- And other test suites (general, visualization, icepak, layout, extensions, filter, emit).
+   Each test suite maintains its own separate cache:
 
-Edge cases and considerations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   - ``testmondata-unit-linux``: Unit tests on Linux.
+   - ``testmondata-integration-linux``: Integration tests on Linux.
+   - ``testmondata-solvers-win``: Solver tests on Windows.
+   - ``testmondata-solvers-linux``: Solver tests on Linux.
+   - And other test suites (general, visualization, icepak, layout, extensions, filter, emit).
 
-**Multiple open PRs:**
+   Edge cases and considerations
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When multiple PRs are open simultaneously, each PR:
+   **Multiple open PRs:**
 
-- Restores the same baseline cache from ``main``.
-- Runs only tests affected by its own changes.
-- Does not interfere with other PRs since no PR modifies the shared cache.
+   When multiple PRs are open simultaneously, each PR:
 
-This design ensures isolation between concurrent PR workflows.
+   - Restores the same baseline cache from ``main``.
+   - Runs only tests affected by its own changes.
+   - Does not interfere with other PRs since no PR modifies the shared cache.
 
-**Cache update in progress while PR runs:**
+   This design ensures isolation between concurrent PR workflows.
 
-If a PR workflow starts while the ``update-testmondata-cache.yml`` workflow is running on ``main``:
+   **Cache update in progress while PR runs:**
 
-- The PR workflow **waits** for up to 10 minutes for the cache update to complete.
-- If the cache update succeeds, the PR uses the fresh cache.
-- If the cache update fails or times out, the PR workflow **fails** with an error message instructing
-  the user to relaunch the cache update workflow.
+   If a PR workflow starts while the ``update-testmondata-cache.yml`` workflow is running on ``main``:
 
-This mechanism prevents PRs from running with stale or inconsistent cache data.
+   - The PR workflow **waits** for up to 10 minutes for the cache update to complete.
+   - If the cache update succeeds, the PR uses the fresh cache.
+   - If the cache update fails or times out, the PR workflow **fails** with an error message instructing
+     the user to relaunch the cache update workflow.
 
-**Cache update workflow fails:**
+   This mechanism prevents PRs from running with stale or inconsistent cache data.
 
-If the ``update-testmondata-cache.yml`` workflow fails:
+   **Cache update workflow fails:**
 
-- Subsequent PRs fail at the "Wait for master cache update" step.
-- The error message directs users to relaunch the workflow at:
-  ``https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml``
-- Once the cache update completes successfully, PR workflows can proceed.
+   If the ``update-testmondata-cache.yml`` workflow fails:
 
-**Pruning testmon caches:**
+   - Subsequent PRs fail at the "Wait for master cache update" step.
+   - The error message directs users to relaunch the workflow at:
+     ``https://github.com/ansys/pyaedt/actions/workflows/update-testmondata-cache.yml``
+   - Once the cache update completes successfully, PR workflows can proceed.
 
-A separate workflow (``prune-testmon-caches.yml``) can be manually triggered to delete all testmon
-caches. This is useful when:
+   **Pruning testmon caches:**
 
-- Cache corruption is suspected.
-- A major refactoring requires rebuilding the dependency graph from scratch.
-- Cache storage limits are approached.
+   A separate workflow (``prune-testmon-caches.yml``) can be manually triggered to delete all testmon
+   caches. This is useful when:
 
-Keeping PRs updated with main
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   - Cache corruption is suspected.
+   - A major refactoring requires rebuilding the dependency graph from scratch.
+   - Cache storage limits are approached.
 
-.. important::
+   Keeping PRs updated with main
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   **PRs must be updated to the latest ``main`` branch before merging.**
+   .. important::
 
-This requirement ensures that:
+      **PRs must be updated to the latest ``main`` branch before merging.**
 
-1. **Cache consistency**: The pull request's testmon run is validated against the same codebase state that the
-   cache was built from. If a PR is behind ``main``, its testmon data may not accurately reflect which
-   tests need to run.
+   This requirement ensures that:
 
-2. **Merge conflicts**: Updating ensures merge conflicts are resolved before merging.
+   1. **Cache consistency**: The pull request's testmon run is validated against the same codebase state that the
+      cache was built from. If a PR is behind ``main``, its testmon data may not accurately reflect which
+      tests need to run.
 
-3. **Test coverage**: Tests that were added or modified in ``main`` since the PR was created are
-   executed against the pull request's changes.
+   2. **Merge conflicts**: Updating ensures merge conflicts are resolved before merging.
 
-**How to update your PR:**
+   3. **Test coverage**: Tests that were added or modified in ``main`` since the PR was created are
+      executed against the pull request's changes.
 
-.. code:: bash
+   **How to update your PR:**
 
-   git fetch origin main
-   git merge main
-   # Resolve any conflicts
-   git push
+   .. code:: bash
 
-Alternatively, use the GitHub UI "Update branch" button if available.
+      git fetch origin main
+      git merge main
+      # Resolve any conflicts
+      git push
 
-Workflow diagrams
-~~~~~~~~~~~~~~~~~
-
-The following diagrams illustrate the testmon workflow in the CI/CD pipeline.
-
-**Diagram 1: PR workflow with testmon**
-
-This diagram shows how the CI/CD pipeline handles a pull request with testmon integration,
-including the cache waiting mechanism and selective test execution.
-
-.. mermaid::
-   :caption: PR Workflow with Testmon
-   :align: center
-
-   flowchart TD
-       A[PR Created/Updated] --> B[ci_cd.yml Triggers]
-       B --> C{Cache Update Running?}
-       C -->|Yes| D[Wait up to 10 min]
-       D --> E{Update Complete?}
-       E -->|Success| F[Restore Testmon Cache]
-       E -->|Failure/Timeout| G[PR Workflow Fails]
-       C -->|No| F
-       F --> H[Pytest --testmon]
-       H --> I[Run Affected Tests Only]
-       I --> J[Upload Test Results]
-       J --> K[No Cache Update - PR Complete]
-
-**Diagram 2: Merge to main workflow**
-
-This diagram illustrates what happens when a PR is merged to the ``main`` branch and the
-cache update workflow is triggered.
-
-.. mermaid::
-   :caption: Merge to Main Cache Update Workflow
-   :align: center
-
-   flowchart TD
-       A[PR Merged to Main] --> B[update-testmondata-cache.yml Triggers]
-       B --> C[Run Tests with Testmon]
-       C --> D[Update Dependency Data]
-       D --> E[Delete Old Cache Entries]
-       E --> F[Save New Cache]
-       F --> G[Cache Key: testmondata-suite-main-SHA]
-       G --> H[Cache Available for Future PRs]
-
-**Diagram 3: Multiple concurrent PRs**
-
-This diagram shows how multiple PRs can run concurrently, each restoring from the same
-baseline cache without interfering with each other.
-
-.. mermaid::
-   :caption: Multiple Concurrent PRs Workflow
-   :align: center
-
-   flowchart TD
-       subgraph Main Branch
-           M[main branch cache]
-       end
-       subgraph PR-A
-           A1[PR-A Opens] --> A2[Restore Cache from Main]
-           A2 --> A3[Run Affected Tests]
-       end
-       subgraph PR-B
-           B1[PR-B Opens] --> B2[Restore Cache from Main]
-           B2 --> B3[Run Affected Tests]
-       end
-       subgraph PR-C
-           C1[PR-C Opens] --> C2[Restore Cache from Main]
-           C2 --> C3[Run Affected Tests]
-       end
-       M --> A2
-       M --> B2
-       M --> C2
-       A3 --> A4[PR-A Merges]
-       A4 --> A5[Cache Update Triggered]
-       A5 --> A6[New Cache Saved]
-       A6 -.-> B4[PR-B May Need Rebase]
-       A6 -.-> C4[PR-C May Need Rebase]
-
-**Diagram 4: Cache update blocking scenario**
-
-This sequence diagram shows the timeline when a PR workflow starts while the cache update
-workflow is running, demonstrating the waiting and retry mechanism.
-
-.. mermaid::
-   :caption: Cache Update Blocking Scenario
-   :align: center
-
-   sequenceDiagram
-       participant Main as main branch
-       participant CacheWF as Cache Update Workflow
-       participant PRB as PR-B Workflow
-
-       Main->>CacheWF: PR-A merged, triggers update
-       CacheWF->>CacheWF: Running tests...
-       PRB->>PRB: PR-B workflow starts
-       PRB->>CacheWF: Check if running
-       CacheWF-->>PRB: Status: in_progress
-       PRB->>PRB: Wait 10s, retry
-       CacheWF->>CacheWF: Tests complete
-       CacheWF->>Main: Save new cache
-       PRB->>CacheWF: Check if running
-       CacheWF-->>PRB: Status: completed, success
-       PRB->>PRB: Restore fresh cache
-       PRB->>PRB: Run tests
-       PRB->>PRB: Complete
+   Alternatively, use the GitHub UI "Update branch" button if available.
+
+   Workflow diagrams
+   ~~~~~~~~~~~~~~~~~
+
+   The following diagrams illustrate the testmon workflow in the CI/CD pipeline.
+
+   **Diagram 1: PR workflow with testmon**
+
+   This diagram shows how the CI/CD pipeline handles a pull request with testmon integration,
+   including the cache waiting mechanism and selective test execution.
+
+   .. mermaid::
+      :caption: PR Workflow with Testmon
+      :align: center
+
+      flowchart TD
+          A[PR Created/Updated] --> B[ci_cd.yml Triggers]
+          B --> C{Cache Update Running?}
+          C -->|Yes| D[Wait up to 10 min]
+          D --> E{Update Complete?}
+          E -->|Success| F[Restore Testmon Cache]
+          E -->|Failure/Timeout| G[PR Workflow Fails]
+          C -->|No| F
+          F --> H[Pytest --testmon]
+          H --> I[Run Affected Tests Only]
+          I --> J[Upload Test Results]
+          J --> K[No Cache Update - PR Complete]
+
+   **Diagram 2: Merge to main workflow**
+
+   This diagram illustrates what happens when a PR is merged to the ``main`` branch and the
+   cache update workflow is triggered.
+
+   .. mermaid::
+      :caption: Merge to Main Cache Update Workflow
+      :align: center
+
+      flowchart TD
+          A[PR Merged to Main] --> B[update-testmondata-cache.yml Triggers]
+          B --> C[Run Tests with Testmon]
+          C --> D[Update Dependency Data]
+          D --> E[Delete Old Cache Entries]
+          E --> F[Save New Cache]
+          F --> G[Cache Key: testmondata-suite-main-SHA]
+          G --> H[Cache Available for Future PRs]
+
+   **Diagram 3: Multiple concurrent PRs**
+
+   This diagram shows how multiple PRs can run concurrently, each restoring from the same
+   baseline cache without interfering with each other.
+
+   .. mermaid::
+      :caption: Multiple Concurrent PRs Workflow
+      :align: center
+
+      flowchart TD
+          subgraph Main Branch
+              M[main branch cache]
+          end
+          subgraph PR-A
+              A1[PR-A Opens] --> A2[Restore Cache from Main]
+              A2 --> A3[Run Affected Tests]
+          end
+          subgraph PR-B
+              B1[PR-B Opens] --> B2[Restore Cache from Main]
+              B2 --> B3[Run Affected Tests]
+          end
+          subgraph PR-C
+              C1[PR-C Opens] --> C2[Restore Cache from Main]
+              C2 --> C3[Run Affected Tests]
+          end
+          M --> A2
+          M --> B2
+          M --> C2
+          A3 --> A4[PR-A Merges]
+          A4 --> A5[Cache Update Triggered]
+          A5 --> A6[New Cache Saved]
+          A6 -.-> B4[PR-B May Need Rebase]
+          A6 -.-> C4[PR-C May Need Rebase]
+
+   **Diagram 4: Cache update blocking scenario**
+
+   This sequence diagram shows the timeline when a PR workflow starts while the cache update
+   workflow is running, demonstrating the waiting and retry mechanism.
+
+   .. mermaid::
+      :caption: Cache Update Blocking Scenario
+      :align: center
+
+      sequenceDiagram
+          participant Main as main branch
+          participant CacheWF as Cache Update Workflow
+          participant PRB as PR-B Workflow
+
+          Main->>CacheWF: PR-A merged, triggers update
+          CacheWF->>CacheWF: Running tests...
+          PRB->>PRB: PR-B workflow starts
+          PRB->>CacheWF: Check if running
+          CacheWF-->>PRB: Status: in_progress
+          PRB->>PRB: Wait 10s, retry
+          CacheWF->>CacheWF: Tests complete
+          CacheWF->>Main: Save new cache
+          PRB->>CacheWF: Check if running
+          CacheWF-->>PRB: Status: completed, success
+          PRB->>PRB: Restore fresh cache
+          PRB->>PRB: Run tests
+          PRB->>PRB: Complete
