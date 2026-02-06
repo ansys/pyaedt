@@ -22,21 +22,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import datetime
 import difflib
 import functools
 from functools import update_wrapper
-import getpass
 import inspect
 import itertools
 import logging
 import os
 import platform
 import re
+import subprocess  # nosec
 import sys
 import time
 import traceback
+from typing import Dict
+from typing import List
+from typing import Optional
 import warnings
 
 import psutil
@@ -707,88 +709,396 @@ def number_aware_string_key(s):
     return tuple(result)
 
 
+def _run_ss_xlp() -> dict[int, int]:
+    """Run 'ss -xlp' command on Linux to find Unix socket ports.
+
+    This function executes the `ss -xlp` command to list Unix sockets and
+    extracts port numbers from AEDT socket filenames.
+
+    Returns
+    -------
+    dict[int, int]
+        Dictionary mapping process IDs to port numbers extracted from Unix socket names.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import _run_ss_xlp
+    >>> _run_ss_xlp()
+    {12345: 50051, 67890: 50052}
+    """
+    proc = subprocess.run(
+        ["ss", "-xlp"],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )  # nosec
+    if proc.returncode != 0:
+        raise RuntimeError(f"'ss -xlp' failed: {proc.stderr.strip()}")
+
+    lines = proc.stdout.splitlines()
+    results = {}
+
+    for line in lines:
+        # If the line does not contain "ansysedt.exe", skip it
+        if "ansysedt.exe" not in line:
+            continue
+
+        # Extract PID from the line (format: "pid=12345")
+        pid_match = re.search(r"pid=(\d+)", line)
+        pid = int(pid_match.group(1)) if pid_match else None
+
+        # Extract port number from socket filename (for example, "AnsysEMUDS-50051.sock")
+        port_match = re.search(r"-(\d+)\.sock", line)
+        port = int(port_match.group(1)) if port_match else None
+
+        if pid and port:
+            results[pid] = port
+
+    return results
+
+
+def _get_target_processes(target_name: list[str]) -> list[tuple[int, list[str]]]:
+    """Get process IDs and command line arguments for target processes.
+
+    This function searches for running processes matching the specified names
+    and retrieves their command line arguments.
+
+    Parameters
+    ----------
+    target_name : list[str]
+        List of process names to search for. For example, `["ansysedt.exe", "ansysedtsv.exe"]`.
+
+    Returns
+    -------
+    list[tuple[int, list[str]]]
+        List of tuples containing (process_id, command_line_arguments).
+        Command line arguments are split into individual strings.
+
+    Notes
+    -----
+    - On Linux: Uses `pgrep` and reads `/proc/{pid}/cmdline`
+    - On Windows: Uses WMIC to query process information or falls back to PowerShell if WMIC is unavailable.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic.general_methods import _get_target_processes
+    >>> _get_target_processes(["ansysedt.exe"])
+    [(12345, ['C:\\Program Files\\...\\ansysedt.exe', '-grpcsrv', '127.0.0.1:50051'])]
+    """
+    platform_system = platform.system()
+    found_data = []
+
+    if platform_system == "Linux":
+        # Use pgrep to find PIDs and read command lines from /proc
+        try:
+            pids = []
+            for process_name in target_name:
+                pids += subprocess.check_output(["pgrep", "-x", process_name]).decode().split()  # nosec
+
+            for pid in pids:
+                if os.path.exists(f"/proc/{pid}/cmdline"):
+                    with open(f"/proc/{pid}/cmdline", "rb") as f:
+                        # Command line arguments in /proc are null-byte separated
+                        cmdline = f.read().decode().split("\0")
+                        found_data.append((int(pid), [arg for arg in cmdline if arg]))
+        except subprocess.CalledProcessError:
+            pyaedt_logger.debug("No matching processes found.")
+
+    elif platform_system == "Windows":
+        # Use WMIC to get process information
+        try:
+            for tgt in target_name:
+                cmd = ["wmic", "process", "where", f"name='{tgt}'", "get", "ProcessId,CommandLine", "/format:list"]
+                output = subprocess.check_output(cmd).decode(errors="ignore")  # nosec
+
+                current_cmd = []
+
+                for line in output.splitlines():
+                    line = line.strip()
+                    if line.startswith("CommandLine="):
+                        # Extract and parse command line
+                        cmdline_raw = line[len("CommandLine=") :]
+                        current_cmd = cmdline_raw.split()
+                    elif line.startswith("ProcessId="):
+                        current_pid = int(line[len("ProcessId=") :])
+                        if current_pid and current_cmd:
+                            found_data.append((current_pid, current_cmd))
+                            current_pid, current_cmd = None, []
+        # The system may not have WMIC available, fallback to PowerShell
+        except FileNotFoundError:
+            import json
+            from pathlib import Path
+            import shutil
+
+            powershell = Path("powershell")
+            powershell_path = shutil.which(os.fspath(powershell))
+            if not powershell_path:
+                powershell_path = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+
+            for tgt in target_name:  # pragma: no cover
+                # PowerShell command equivalent to WMIC
+                ps_cmd = (
+                    f"Get-CimInstance Win32_Process -Filter \"Name='{tgt}'\" "
+                    "| Select-Object ProcessId, CommandLine | ConvertTo-Json"
+                )
+
+                output = subprocess.check_output([powershell_path, "-Command", ps_cmd], text=True)  # nosec
+
+                # Parse JSON output - can be a single object or array
+                try:
+                    data = json.loads(output)
+                    # If single process, PowerShell returns an object; if multiple, returns an array
+                    if isinstance(data, dict):
+                        data = [data]
+
+                    for process in data:
+                        pid = process.get("ProcessId")
+                        cmdline = process.get("CommandLine", "")
+                        if pid and cmdline:
+                            found_data.append((pid, cmdline.split()))
+                except (json.JSONDecodeError, ValueError) as e:
+                    # No processes found or invalid JSON
+                    pyaedt_logger.debug(f"Failed to parse PowerShell output: {str(e)}")
+                    pass
+        except Exception as e:
+            pyaedt_logger.debug(f"Failed to query Windows processes with WMIC: {str(e)}")
+
+    return found_data
+
+
 @pyaedt_function_handler()
-def active_sessions(version=None, student_version=False, non_graphical=False) -> dict:
-    """Get information for the active AEDT sessions.
+def _check_psutil_connections(pids: List[int]) -> Dict[int, List[Dict[str, any]]]:
+    """Retrieve network connections for specified process IDs.
+
+    This function collects TCP connection information for a list of process IDs,
+    returning the IP address, port, and status of each connection.
+
+    Parameters
+    ----------
+    pids : list of int
+        List of process IDs to check for active TCP connections.
+
+    Returns
+    -------
+    dict of int to list of dict
+        Dictionary mapping each process ID to a list of connection dictionaries.
+        Each connection dictionary contains:
+        - "ip" : str
+            IP address of the local connection endpoint.
+        - "port" : int
+            Port number of the local connection endpoint.
+        - "status" : str
+            Connection status, for example "LISTEN", or "ESTABLISHED".
+    """
+    connections = {i: [] for i in pids}
+    for conn in psutil.net_connections(kind="tcp"):
+        try:
+            if conn.pid in pids:
+                connections[conn.pid].append({"ip": conn.laddr.ip, "port": conn.laddr.port, "status": conn.status})
+        except (AttributeError, KeyError):
+            # Skip connections that don't have valid PID or address information
+            pass
+    return connections
+
+
+@pyaedt_function_handler()
+def _check_connection_grpc_port(connections: Dict[int, List[Dict[str, any]]], pid: int) -> int:
+    """Find the gRPC port for a specific process from its network connections.
+
+    This function searches through network connections to identify the gRPC port
+    that a specific process is listening on. It checks for LISTEN status on
+    localhost addresses ("::" or "127.0.0.1").
+
+    Parameters
+    ----------
+    connections : dict of int to list of dict
+        Dictionary mapping process IDs to their network connections.
+        Each connection dictionary should contain "ip", "port", and "status" keys.
+    pid : int
+        The process ID to check for an active gRPC listening port.
+
+    Returns
+    -------
+    int
+        The port number if a LISTEN connection is found on localhost for the specified PID,
+        ``-1`` otherwise.
+    """
+    for ip in ["::", "127.0.0.1"]:
+        for input_pid, conn in connections.items():
+            for el in conn:
+                if input_pid == pid and el["ip"] == ip and el["status"] == "LISTEN":
+                    return el["port"]
+    return -1
+
+
+@pyaedt_function_handler()
+def is_grpc_session_active(port):
+    """Check if a gRPC session is active on the specified port.
+
+    This function verifies whether an AEDT session is actively listening on
+    the specified gRPC port. It does not parse process command lines, instead,
+    it checks active TCP connections.
+
+    The function uses multiple detection strategies:
+    1. On Linux: Checks Unix sockets using `ss -xlp`
+    2. Searches for AEDT processes
+    3. Verifies TCP connections on localhost (127.0.0.1) for the specified port
+
+    Parameters
+    ----------
+    port : int
+        The gRPC port number to check.
+
+    Returns
+    -------
+    bool
+        ``True`` if an AEDT session is listening on the specified port, ``False`` otherwise.
+
+    Notes
+    -----
+    - This function is faster than `active_sessions()` but less comprehensive.
+    - It only checks if the port is in use, not which version of AEDT is using it.
+    - Does not distinguish between graphical and non-graphical sessions.
+
+    Examples
+    --------
+    Check if port 50051 is in use:
+    >>> from ansys.aedt.core.generic.general_methods import is_grpc_session_active
+    >>> if is_grpc_session_active(50051):
+    ...     print("Port 50051 is occupied.")
+    ... else:
+    ...     print("Port 50051 is available.")
+    """
+    # On Linux, try to resolve unknown ports using Unix socket analysis
+    if is_linux:
+        try:
+            sockets = _run_ss_xlp()
+            if port in sockets.values():
+                return True
+        except Exception as e:
+            pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
+
+    targets = ["ansysedt.exe", "ansysedtsv.exe"]
+    if is_linux:
+        targets.extend(["ansysedt", "ansysedtsv"])
+
+    for target in targets:
+        target_processes = _get_target_processes([target])
+
+        # Initialize all found AEDT processes with unknown port (-1)
+        # Port will be determined later through socket/connection analysis
+        return_dict = {pid: -1 for pid, _ in target_processes}
+
+        connections = _check_psutil_connections(list(return_dict.keys()))
+        for pid in return_dict.keys():
+            if _check_connection_grpc_port(connections, pid) == port:
+                return True
+    return False
+
+
+@pyaedt_function_handler()
+def active_sessions(
+    version: str = None, student_version: bool = False, non_graphical: Optional[bool] = None
+) -> dict[int, int]:
+    """Get information for active AEDT sessions.
+
+    This function detects running AEDT processes and identifies their gRPC ports or
+    marks them as COM sessions. It works on both Windows and Linux platforms.
+
+    The function uses multiple detection strategies:
+    1. Searches for AEDT processes (ansysedt.exe or ansysedtsv.exe).
+    2. Parses command-line arguments to find gRPC port specifications.
+    3. On Linux: Analyzes Unix sockets to detect ports.
+    4. Falls back to TCP connection analysis if ports are still unknown.
 
     Parameters
     ----------
     version : str, optional
-        Version to check. The default is ``None``, in which case all versions are checked.
+        AEDT version to check. The default is ``None``, in which case all versions are checked.
         When specifying a version, you can use a three-digit format like ``"222"`` or a
         five-digit format like ``"2022.2"``.
     student_version : bool, optional
+        Whether to check for student version sessions. The default is ``False``.
     non_graphical : bool, optional
+        Whether to filter by non-graphical sessions. The default is ``None``.
+        If ``True``, only non-graphical sessions are returned.
+        If ``False``, only graphical sessions are returned.
+        If ``None``, all sessions are returned regardless of mode.
 
     Returns
     -------
-    dict
-        {AEDT PID: port}
-        If the PID corresponds to a COM session port is set to -1
+    dict[int, int]
+        Dictionary mapping AEDT process IDs to their corresponding ports.
+        Port is set to ``-1`` if the session is using COM instead of gRPC.
+
+    Examples
+    --------
+    Get all active AEDT sessions:
+    >>> from ansys.aedt.core.generic.general_methods import active_sessions
+    >>> active_sessions()
+    {12345: 50051, 67890: -1}  # PID 12345 uses gRPC port 50051, PID 67890 uses COM
+
+    Get only AEDT 2023.2 sessions:
+
+    >>> active_sessions(version="2023.2")
+    {12345: 50051}
+
+    Get only non-graphical sessions:
+
+    >>> active_sessions(non_graphical=True)
+    {67890: 50052}
     """
     return_dict = {}
+
+    # Determine target process names based on version type and OS
     if student_version:
-        keys = ["ansysedtsv.exe", "ansysedtsv"]
+        target = ["ansysedtsv", "ansysedtsv.exe"] if is_linux else ["ansysedtsv.exe"]
     else:
-        keys = ["ansysedt.exe", "ansysedt"]
+        target = ["ansysedt", "ansysedt.exe"] if is_linux else ["ansysedt.exe"]
+
+    # Normalize version format
     if version and "." in version:
         version = version[-4:].replace(".", "")
     if version and version < "221":
         version = version[:2] + "." + version[2]
 
-    def _normalize_user(u):
-        if not u:
-            return ""
-        # drop domain like DOMAIN\user or any path parts, compare case-insensitive
-        return str(u).split("\\")[-1].split("/")[-1].lower()
+    # Get all matching AEDT processes
+    target_processes = _get_target_processes(target)
+    available_ports = [i for i in range(50051, 50100)]
+    # Extract port information from process command lines
+    for pid, cmd in target_processes:
+        if "-grpcsrv" in cmd:
+            try:
+                prt = cmd[cmd.index("-grpcsrv") + 1].split(":")
+                if len(prt) == 1:
+                    available_ports.append(int(prt[0]))
+                else:
+                    available_ports.append(int(prt[1]))
+            except IndexError:
+                pass
+        if (version and any([i for i in cmd if version in i])) or not version:
+            if non_graphical is None or non_graphical and "-ng" in cmd:
+                return_dict[pid] = -1
+            elif not non_graphical and "-ng" not in cmd:
+                return_dict[pid] = -1
 
-    def _current_username():
+    # On Linux, try to resolve unknown ports using Unix socket analysis
+    if is_linux and any(port == -1 for port in return_dict.values()):
         try:
-            return _normalize_user(psutil.Process(os.getpid()).username())
-        except Exception:
-            # fallback
-            return _normalize_user(getpass.getuser())
+            sockets = _run_ss_xlp()
+            for pid, port in sockets.items():
+                if pid in return_dict and return_dict[pid] == -1:
+                    return_dict[pid] = port
+        except Exception as e:
+            pyaedt_logger.debug(f"Failed to analyze Unix sockets for port detection: {str(e)}")
 
-    current_user = _current_username()
+    # Fallback: Try to find ports by checking network connections for remaining unknown ports
+    if any(port == -1 for port in return_dict.values()):
+        connections = _check_psutil_connections(list(return_dict.keys()))
+        for pid in [i for i, v in return_dict.items() if v == -1]:
+            return_dict[pid] = _check_connection_grpc_port(connections, pid)
 
-    for p in psutil.process_iter(attrs=("pid", "name", "username", "cmdline")):
-        try:
-            p_user = _normalize_user(p.info.get("username"))
-            if p_user != current_user:
-                continue  # skip processes from other users
-            # process belongs to current user — safe to use p.info or p
-            pid = p.info["pid"]
-            name = p.info["name"]
-            cmd = p.info.get("cmdline", [])
-            if cmd is None:
-                cmd = []
-            if name in keys:
-                if non_graphical and "-ng" in cmd or not non_graphical:
-                    if not version or (version and version in cmd[0]):
-                        if "-grpcsrv" in cmd:
-                            if not version or (version and version in cmd[0]):
-                                try:
-                                    options = cmd[cmd.index("-grpcsrv") + 1].split(":")
-                                    if len(options) > 1:
-                                        return_dict[pid] = int(options[1])
-                                    else:
-                                        return_dict[pid] = int(options[0])
-                                except (IndexError, ValueError):
-                                    # default desktop grpc port.
-                                    return_dict[pid] = 50051
-                        else:
-                            return_dict[pid] = -1
-                            for i in psutil.net_connections(kind="inet"):
-                                if i.pid == pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
-                                    return_dict[pid] = i.laddr.port
-                                    break
-        except psutil.NoSuchProcess as e:  # pragma: no cover
-            pyaedt_logger.debug(f"The process exited and cannot be an active session: {e}")
-        except Exception as e:  # pragma: no cover
-            pyaedt_logger.debug(
-                f"A(n) {type(e)} error occurred while retrieving information for the active AEDT sessions: {e}"
-            )
-            pyaedt_logger.debug(traceback.format_exc())
     return return_dict
 
 
