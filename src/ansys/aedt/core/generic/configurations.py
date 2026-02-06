@@ -1251,7 +1251,7 @@ class Configurations(PyAedtBase):
         dict_out["general"]["output_variables"] = {}
         if list(self._app.output_variables):
             oo_out = Path(tempfile.gettempdir()) / f"{generate_unique_name('oo')}.txt"
-            self._app.ooutput_variable.ExportOutputVariables(oo_out)
+            self._app.ooutput_variable.ExportOutputVariables(str(oo_out))
             with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
@@ -1476,7 +1476,7 @@ class Configurations(PyAedtBase):
             dict_out["material datasets"] = datasets
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None, overwrite=False):
+    def export_config(self, config_file=None, overwrite=False) -> str:
         """Export current design properties to a JSON or TOML file.
 
         The sections to be exported are defined with ``configuration.options`` class.
