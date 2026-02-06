@@ -103,7 +103,7 @@ def test_assign_single_signal_line(aedt_app):
 
 @pytest.fixture
 def aedtapp_closed(add_app):
-    """Fixture for Q2D app with closed solution type for SurfaceGround testing as we cant apply SurfaceGround in open solution type."""
+    """Q2d applies surface ground for open solution type so here is for closed solution type."""
     app = add_app(application=Q2d, solution_type="Closed")
     yield app
     app.close_project(app.project_name, save=False)
