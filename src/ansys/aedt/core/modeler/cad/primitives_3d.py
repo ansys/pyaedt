@@ -2011,7 +2011,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
             component_obj = Edb(
                 edbpath=aedb_component_path,
                 isreadonly=True,
-                edbversion=self._app._aedt_version,
+                version=self._app._aedt_version,
                 student_version=self._app.student_version,
             )
 

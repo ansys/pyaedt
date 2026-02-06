@@ -96,6 +96,7 @@ USE_LOCAL_EXAMPLE_FOLDER = config.get("local_example_folder", DEFAULT_CONFIG.get
 SKIP_CIRCUITS = config.get("skip_circuits", DEFAULT_CONFIG.get("skip_circuits"))
 SKIP_MODELITHICS = config.get("skip_modelithics", DEFAULT_CONFIG.get("skip_modelithics"))
 os.environ["PYAEDT_DESKTOP_VERSION"] = DESKTOP_VERSION
+
 os.environ["PYAEDT_SCRIPT_VERSION"] = DESKTOP_VERSION
 
 # ================================

@@ -30,9 +30,8 @@ from tkinter import ttk
 from typing import Union
 import webbrowser
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import AedtInfo
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import ExportOptions
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import create_tab_example
@@ -173,7 +172,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         settings.logger.info("Applying configuration to EDB")
         selected_edb = self.selected_edb
         settings.logger.info(f"target EDB: {selected_edb}")
-        app = Edb(edbpath=str(selected_edb), edbversion=self.aedt_info.version)
+        app = Edb(edbpath=str(selected_edb), version=self.aedt_info.version)
 
         temp_dir = test_folder
         if test_folder is None:
@@ -189,7 +188,7 @@ class ConfigureLayoutExtension(ExtensionHFSS3DLayoutCommon):
         return app.edbpath
 
     def export_config_from_edb(self):
-        app = Edb(edbpath=str(self.selected_edb), edbversion=self.aedt_info.version)
+        app = Edb(edbpath=str(self.selected_edb), version=self.aedt_info.version)
         data = app.configuration.get_data_from_db(**self.export_options.model_dump())
         app.close()
         return data

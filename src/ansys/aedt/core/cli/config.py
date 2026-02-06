@@ -148,6 +148,7 @@ def test_callback(
         "use_local_example_data": "Use local example data",
         "local_example_folder": "Path to local examples",
         "skip_modelithics": "Skip Modelithics tests",
+        "use_pyedb_grpc": "Use PyEDB with gRPC for database access",
     }
 
     if config_path.exists():
@@ -300,3 +301,9 @@ def local_example_folder(value: str = typer.Argument(None, help="Path to local e
 def skip_modelithics(value: bool = typer.Argument(None, help="Skip Modelithics tests (true/false)")):
     """Set skip Modelithics flag."""
     _update_bool_config("skip_modelithics", value, "skip_modelithics")
+
+
+@test_app.command()
+def use_pyedb_grpc(value: bool = typer.Argument(None, help="Use PyEDB with gRPC for database access")):
+    """Set use pyedb grpc flag."""
+    _update_bool_config("use_pyedb_grpc", value, "use_pyedb_grpc")

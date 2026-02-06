@@ -223,7 +223,7 @@ def main(data: ArbitraryWavePortExtensionData):
                 if res == "no":
                     return False
 
-    edb = Edb(edbpath=rf"{edb_file}", edbversion=VERSION)
+    edb = Edb(edbpath=rf"{edb_file}", version=VERSION)
     if not edb.create_model_for_arbitrary_wave_ports(
         temp_directory=str(working_dir),
         mounting_side=mounting_side_variable,
@@ -255,9 +255,9 @@ def main(data: ArbitraryWavePortExtensionData):
     hfss3d.close_project()
 
     hfss = Hfss(
-        projectname=str(out_3d_project),
-        specified_version=VERSION,
-        new_desktop_session=False,
+        project=str(out_3d_project),
+        version=VERSION,
+        new_desktop=False,
     )
     hfss.solution_type = "Terminal"
 
