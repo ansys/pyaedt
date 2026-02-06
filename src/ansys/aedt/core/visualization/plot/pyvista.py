@@ -227,7 +227,7 @@ def _parse_aedtplt(filepath):
         num_nodes_per_element = elements[4]
         header_length = 5
         elements_nodes = []
-        # TODO: Aedt 23R2 supports mixed elements size. To be implemented.
+        # TODO: AEDT 23R2 supports mixed elements size. To be implemented.
         for i in range(0, len(elements), num_nodes_per_element + header_length):
             elements_nodes.append([elements[i + header_length + n] for n in range(num_nodes_per_element)])
         if solution:

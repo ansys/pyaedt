@@ -126,7 +126,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         if settings.remote_api or settings.remote_rpc_session:
             return self._edb
         if not self._edb:
-            from pyedb import Edb
+            from ansys.aedt.core import Edb
 
             self._edb = None
             if Path(self._edb_file).exists() or inside_desktop_ironpython_console:

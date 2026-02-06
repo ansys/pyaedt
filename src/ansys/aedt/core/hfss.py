@@ -27,11 +27,15 @@
 import math
 from pathlib import Path
 import tempfile
+from typing import TYPE_CHECKING
 from typing import List
 from typing import Optional
 from typing import Union
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
@@ -190,7 +194,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
     """
 
-    @pyaedt_function_handler()
     def __init__(
         self,
         project=None,
@@ -5840,57 +5843,108 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def get_rcs_data(
         self,
-        frequencies=None,
-        setup=None,
-        expression="ComplexMonostaticRCSTheta",
-        variations=None,
-        overwrite=True,
-        link_to_hfss=True,
-        variation_name=None,
-    ):
-        """Export the radar cross-section data.
+        frequencies: Optional[Union[float, List[Union[float, str]]]] = None,
+        setup: Optional[str] = None,
+        expression: str = "ComplexMonostaticRCSTheta",
+        variations: Optional[dict] = None,
+        overwrite: bool = True,
+        link_to_hfss: bool = True,
+        variation_name: Optional[str] = None,
+    ) -> Union["MonostaticRCSExporter", Path, bool]:
+        """Export monostatic radar cross-section (RCS) data from HFSS.
 
-        This method returns an instance of the ``RcsSolutionDataExporter`` object.
+        This method exports RCS simulation data into a standardized metadata format
+        and returns a ``MonostaticRCSExporter`` object for further processing.
+
+        .. note::
+           For advanced RCS analysis and visualization, install the radar explorer toolkit:
+
+           .. code-block:: bash
+
+               pip install ansys-aedt-toolkits-radar-explorer
+
+           Then use ``MonostaticRCSData`` and ``MonostaticRCSPlotter`` from the toolkit.
 
         Parameters
         ----------
-        frequencies : float, list, optional
-            Frequency value or list of frequencies to compute the data. The default is ``None,`` in which case
-            all available frequencies are computed.
+        frequencies : float or list of float or str, optional
+            Frequency value or list of frequencies to export. Frequencies can be specified as
+            floats (in Hz) or strings with units. For example, ``"77GHz"``.
+            The default is ``None``, in which case all available frequencies from the setup are used.
         setup : str, optional
-            Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
+            Name of the setup and sweep to use in the format ``"SetupName : SweepName"``.
+            The default is ``None``, in which case ``nominal_adaptive`` is used.
         expression : str, optional
-            Monostatic expression name. The default value is ``"ComplexMonostaticRCSTheta"``.
+            Monostatic RCS expression name to export. Available options include
+            ``"ComplexMonostaticRCSTheta"``, ``"ComplexMonostaticRCSPhi"``, etc.
+            The default is ``"ComplexMonostaticRCSTheta"``.
         variations : dict, optional
-            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+            Dictionary of variation variables and their values.
+            The default is ``None``, in which case the nominal variation is used.
         overwrite : bool, optional
-            Whether to overwrite metadata files. The default is ``True``.
+            Whether to overwrite existing metadata files if they already exist.
+            The default is ``True``.
         link_to_hfss : bool, optional
-            Whether to return an instance of the
-            :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` class,
-            which requires a connection to an instance of the :class:`Hfss` class.
-            The default is `` True``. If ``False``, returns an instance of
-            :class:`ansys.aedt.core.visualization.advanced.rcs_visualization.MonostaticRCSData` class, which is
-            independent of the running HFSS instance.
+            Whether to return a ``MonostaticRCSExporter`` object (``True``) or just the
+            metadata file path (``False``). When ``True``, the returned object maintains
+            a connection to the HFSS instance. When ``False``, returns the path to the
+            metadata file, allowing offline analysis.
+            The default is ``True``.
         variation_name : str, optional
-            Variation name. The default is ``None``, in which case the nominal variation is added.
+            Name to assign to this RCS solution variation. If provided, overrides the
+            default solution name. The default is ``None``.
 
         Returns
         -------
-        :class:`ansys.aedt.core.post.rcs_exporter.MonostaticRCSExporter`
-            SolutionData object.
+        :class:`ansys.aedt.core.visualization.post.rcs_exporter.MonostaticRCSExporter` or pathlib.Path or bool
+            - If ``link_to_hfss=True``: Returns a ``MonostaticRCSExporter`` object.
+            - If ``link_to_hfss=False``: Returns a ``Path`` object pointing to the metadata file.
+            - Returns ``False`` if frequencies cannot be obtained.
 
         Examples
         --------
-        The method :func:`get_antenna_data` is used to export the farfield of each element of the design.
-
-        Open a design and create the objects.
+        Export RCS data with default settings:
 
         >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss()
-        >>> rcs_data = hfss.get_rcs_data()
+        >>> hfss = Hfss(project="MyRCSProject", design="MyRCSDesign")
+        >>> rcs_exporter = hfss.get_rcs_data()
+        >>> metadata_file = rcs_exporter.metadata_file
+
+        Export RCS data for specific frequencies:
+
+        >>> frequencies = [9e9, 10e9, 11e9]  # Frequencies in Hz
+        >>> rcs_exporter = hfss.get_rcs_data(
+        ...     frequencies=frequencies, setup="Setup1 : Sweep1", expression="ComplexMonostaticRCSTheta"
+        ... )
+
+        Export with frequency strings and custom variation:
+
+        >>> frequencies = ["9GHz", "10GHz", "11GHz"]
+        >>> variations = {"angle": "0deg", "distance": "100mm"}
+        >>> rcs_exporter = hfss.get_rcs_data(
+        ...     frequencies=frequencies, variations=variations, variation_name="angle_0deg"
+        ... )
+
+        Export only metadata file (no link to HFSS):
+
+        >>> metadata_path = hfss.get_rcs_data(frequencies=[77e9], link_to_hfss=False)
+        >>> print(f"RCS data exported to: {metadata_path}")
+
+        Use with radar explorer toolkit for advanced analysis:
+
+        >>> # Export RCS data from HFSS
+        >>> rcs_exporter = hfss.get_rcs_data(frequencies=[77e9])
+        >>> metadata_file = rcs_exporter.metadata_file
+        >>>
+        >>> # Close HFSS and use toolkit for offline analysis
+        >>> hfss.close_project()
+        >>>
+        >>> # Advanced analysis with radar explorer toolkit
+        >>> # pip install ansys-aedt-toolkits-radar-explorer
+        >>> from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData
+        >>> rcs_data = MonostaticRCSData(str(metadata_file))
+        >>> rcs_data.plot_3d()
         """
-        from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
         from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 
         if not variations:
@@ -5929,7 +5983,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         if link_to_hfss:
             return rcs
         elif metadata:
-            return MonostaticRCSData(input_file=metadata)
+            return metadata
 
         raise AEDTRuntimeError("Farfield solution data could not be exported.")
 
