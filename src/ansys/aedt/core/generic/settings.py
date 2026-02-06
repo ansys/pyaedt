@@ -255,7 +255,7 @@ class Settings(PyAedtBase):
     # ########################## gRPC properties ##########################
 
     @property
-    def pyedb_use_grpc(self):
+    def pyedb_use_grpc(self) -> bool:
         """Flag for whether to use Pyedb with grpc or not.
         Grpc is supported from AEDT 25R2.
         The default is ``False``.
