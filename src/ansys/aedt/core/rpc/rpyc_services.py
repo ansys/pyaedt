@@ -1148,7 +1148,7 @@ class ServiceManager(rpyc.Service, PyAedtBase):
             sys.stdout = sys.__stdout__
         for edb in self._edb:
             try:
-                edb.close_edb()
+                edb.close()
             except Exception:
                 logger.warning("Error when trying to close EDB.")
 

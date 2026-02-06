@@ -913,7 +913,7 @@ def test_create_circuit_from_multizone_layout(add_app, test_tmp_dir):
 
     try:
         defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
-        edb.close_edb()
+        edb.close()
         assert project_connexions
 
         app = add_app(application=Circuit)
@@ -922,7 +922,7 @@ def test_create_circuit_from_multizone_layout(add_app, test_tmp_dir):
         assert app.remove_all_unused_definitions()
         app.close_project(save_project=False)
     except Exception as e:
-        edb.close_edb()
+        edb.close()
         print(e)
 
 

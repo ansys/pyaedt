@@ -216,7 +216,7 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
             res[net].extend(obj.aedt_name for obj in net_objs)
         for net_obj in self.aedt_application.modeler.edb.padstacks.instances.values():
             res[net_obj.net_name].append(net_obj.aedt_name)
-        self.aedt_application.modeler.edb.close_edb()
+        self.aedt_application.modeler.edb.close()
         res = dict(res)
         return res
 

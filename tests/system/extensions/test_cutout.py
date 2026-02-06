@@ -182,7 +182,7 @@ def test_cutout_success(add_app_example, test_tmp_dir):
     edb_app = Edb(edbpath=str(test_project), version=DESKTOP_VERSION)
     edb_app_nets = edb_app.nets
     assert all(net in edb_app_nets for net in SIGNAL_NETS + REFERENCE_NETS + OTHER_NETS)
-    edb_app.close_edb()
+    edb_app.close()
 
     # Perform the cutout operation.
     app = add_app_example(
@@ -203,4 +203,4 @@ def test_cutout_success(add_app_example, test_tmp_dir):
     cutout_app_nets = cutout_app.nets
     assert all(net in cutout_app_nets for net in SIGNAL_NETS + REFERENCE_NETS)
     assert not any(net in cutout_app_nets for net in OTHER_NETS)
-    cutout_app.close_edb()
+    cutout_app.close()
