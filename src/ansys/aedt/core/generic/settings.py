@@ -239,7 +239,7 @@ class Settings(PyAedtBase):
         self.__grpc_secure_mode = DEFAULT_GRPC_SECURE_MODE
         self.__grpc_local = DEFAULT_GRPC_LOCAL
         self.__grpc_listen_all = DEFAULT_GRPC_LISTEN_ALL
-        self.__pyedb_use_grpc = None
+        self.__pyedb_use_grpc: bool = False
         self._update_settings()
 
     def _update_settings(self):
@@ -255,7 +255,7 @@ class Settings(PyAedtBase):
     # ########################## gRPC properties ##########################
 
     @property
-    def pyedb_use_grpc(self):
+    def pyedb_use_grpc(self) -> bool:
         """Flag for whether to use Pyedb with grpc or not.
         Grpc is supported from AEDT 25R2.
         The default is ``False``.
@@ -263,7 +263,7 @@ class Settings(PyAedtBase):
         return self.__pyedb_use_grpc
 
     @pyedb_use_grpc.setter
-    def pyedb_use_grpc(self, value):
+    def pyedb_use_grpc(self, value: bool):
         self.__pyedb_use_grpc = value
 
     @property
