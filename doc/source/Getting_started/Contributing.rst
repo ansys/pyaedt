@@ -711,57 +711,89 @@ The following diagrams illustrate the Testmon workflow in the CI/CD pipeline.
 This diagram shows how the CI/CD pipeline handles a pull request with Testmon integration,
 including the cache waiting mechanism and selective test execution.
 
-.. image:: ../Resources/diagrams/output/testmon_pr_workflow_dark.png
-    :align: center
-    :class: only-dark
-    :alt: PR Workflow with Testmon
+.. only:: html
 
-.. image:: ../Resources/diagrams/output/testmon_pr_workflow_light.png
-    :align: center
-    :class: only-light
-    :alt: PR Workflow with Testmon
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_dark.png
+      :align: center
+      :class: only-dark
+      :alt: PR Workflow with Testmon
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_light.png
+      :align: center
+      :class: only-light
+      :alt: PR Workflow with Testmon
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_pr_workflow_light.png
+      :align: center
+      :alt: PR Workflow with Testmon
 
 **Diagram 2: Merge to main workflow**
 
 This diagram illustrates what happens when a PR is merged to the ``main`` branch and the
 cache update workflow is triggered.
 
-.. image:: ../Resources/diagrams/output/testmon_merge_workflow_dark.png
-    :align: center
-    :class: only-dark
-    :alt: Merge to Main Cache Update Workflow
+.. only:: html
 
-.. image:: ../Resources/diagrams/output/testmon_merge_workflow_light.png
-    :align: center
-    :class: only-light
-    :alt: Merge to Main Cache Update Workflow
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Merge to Main Cache Update Workflow
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_light.png
+      :align: center
+      :class: only-light
+      :alt: Merge to Main Cache Update Workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_merge_workflow_light.png
+      :align: center
+      :alt: Merge to Main Cache Update Workflow
 
 **Diagram 3: Multiple concurrent PRs**
 
 This diagram shows how multiple PRs can run concurrently, each restoring from the same
 baseline cache without interfering with each other.
 
-.. image:: ../Resources/diagrams/output/testmon_concurrent_prs_dark.png
-    :align: center
-    :class: only-dark
-    :alt: Multiple Concurrent PRs Workflow
+.. only:: html
 
-.. image:: ../Resources/diagrams/output/testmon_concurrent_prs_light.png
-    :align: center
-    :class: only-light
-    :alt: Multiple Concurrent PRs Workflow
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Multiple Concurrent PRs Workflow
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_light.png
+      :align: center
+      :class: only-light
+      :alt: Multiple Concurrent PRs Workflow
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_concurrent_prs_light.png
+      :align: center
+      :alt: Multiple Concurrent PRs Workflow
 
 **Diagram 4: Cache update blocking scenario**
 
 This sequence diagram shows the timeline when a PR workflow starts while the cache update
 workflow is running, demonstrating the waiting and retry mechanism.
 
-.. image:: ../Resources/diagrams/output/testmon_blocking_scenario_dark.png
-    :align: center
-    :class: only-dark
-    :alt: Cache Update Blocking Scenario
+.. only:: html
 
-.. image:: ../Resources/diagrams/output/testmon_blocking_scenario_light.png
-    :align: center
-    :class: only-light
-    :alt: Cache Update Blocking Scenario
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_dark.png
+      :align: center
+      :class: only-dark
+      :alt: Cache Update Blocking Scenario
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_light.png
+      :align: center
+      :class: only-light
+      :alt: Cache Update Blocking Scenario
+
+.. only:: latex
+
+  .. image:: ../Resources/diagrams/output/testmon_blocking_scenario_light.png
+      :align: center
+      :alt: Cache Update Blocking Scenario
