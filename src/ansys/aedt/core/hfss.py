@@ -7222,7 +7222,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         setup: str,
         sphere: str,
         variations: dict | None = None,
-        element_name: str | None = "element",
+        element_name: str = "element",
         output_dir: str | None = None,
     ) -> bool:
         """Export the element pattern.
@@ -7257,6 +7257,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         self.logger.info("Exporting embedded element patterns...")
 
         variation = self.available_variations.variation_string(variations)
+        freq_list = frequencies if isinstance(frequencies, list) else [frequencies]
+        
+        # Ensure output_dir has a valid value
+        if not output_dir:
+            output_dir = self.working_directory
+        
         command = [
             "ExportFileName:=",
             str(Path(output_dir) / (element_name + ".ffd")),
@@ -7264,7 +7270,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             sphere,
         ]
 
-        for frequency in frequencies:
+        for frequency in freq_list:
             command.append("IntrinsicVariationKey:=")
             command.append("Freq='" + str(frequency) + "'")
 
@@ -7332,6 +7338,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         variation = self.available_variations.variation_string(variations)
 
+        freq_list = frequencies if isinstance(frequencies, list) else [frequencies]
+
         command = [
             "SolutionName:=",
             setup,
@@ -7343,7 +7351,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             "Use Edit Sources",
         ]
 
-        for frequency in frequencies:
+        for frequency in freq_list:
             command.append("IntrinsicVariable:=")
             command.append("Freq='" + str(frequency) + "'")
 
