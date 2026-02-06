@@ -23,8 +23,10 @@
 # SOFTWARE.
 
 
-from pyedb import Siwave
 from typing import Any
+
+from pyedb import Siwave
+
 from ansys.aedt.core.generic.settings import settings
 
 log = settings.logger
