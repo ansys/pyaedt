@@ -128,9 +128,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
         if not self._edb:
             from ansys.aedt.core import Edb
 
-            if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":
-                settings.pyedb_use_grpc = True
-            use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2025.2" else False
             self._edb = None
             if Path(self._edb_file).exists() or inside_desktop_ironpython_console:
                 self._edb = Edb(
@@ -140,10 +137,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout, PyAedtBase):
                     self._app._aedt_version,
                     isaedtowned=True,
                     oproject=self._app.oproject,
-                    grpc=use_grpc,
                 )
-                grpc_enabled = "grpc enabled" if use_grpc else "dotnet enabled"
-                self.logger.info(f"EDB loaded with {grpc_enabled}.")
 
         return self._edb
 

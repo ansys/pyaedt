@@ -33,7 +33,7 @@ def Edb(
     edbpath=None,
     cellname=None,
     isreadonly=False,
-    edbversion=None,
+    version=None,
     isaedtowned=False,
     oproject=None,
     student_version=False,
@@ -57,7 +57,7 @@ def Edb(
     isreadonly : bool, optional
         Whether to open EBD in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
-    edbversion : str, optional
+    version : str, optional
         Version of EDB to use. The default is ``"2021.2"``.
     isaedtowned : bool, optional
         Whether to launch EDB from HFSS 3D Layout. The
@@ -111,14 +111,16 @@ def Edb(
 
     if settings.pyedb_use_grpc is None and settings.aedt_version > "2025.2":
         settings.pyedb_use_grpc = True
+
     use_grpc = True if settings.pyedb_use_grpc and settings.aedt_version >= "2025.2" else False
     grpc_enabled = "Grpc enabled" if use_grpc else "Dotnet enabled"
     settings.logger.info(f"Loading EDB with {grpc_enabled}.")
+
     return Edb(
         edbpath=str(edbpath),
         cellname=cellname,
         isreadonly=isreadonly,
-        edbversion=edbversion,
+        version=version,
         isaedtowned=isaedtowned,
         oproject=oproject,
         student_version=student_version,
