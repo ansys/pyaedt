@@ -118,13 +118,24 @@ def _copy_local_example(
     source_relative_path: str,
     target_path: Optional[Union[str, Path]] = None,
 ) -> Path:  # pragma: no cover
-    """Copy a folder from a local copy of the examples repo."""
-    dst = Path(target_path) / Path(source_relative_path).name
+    """Copy a file or folder from a local copy of the examples repo."""
+    pyaedt_logger.debug(f"Retrieving local example from '{settings.local_example_folder}'")
+    source = Path(settings.local_example_folder) / source_relative_path
+    target_path = Path(target_path)
+
+    if source.is_file():
+        target_path.mkdir(parents=True, exist_ok=True)
+        dst = target_path / source.name
+        try:
+            shutil.copy2(source, dst)
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to copy {str(source)}.") from e
+        return dst
+
+    dst = target_path / Path(source_relative_path).name
     dst.mkdir(parents=True, exist_ok=True)
-    pyaedt_logger.debug(f"Retrieving local folder from '{settings.local_example_folder}'")
-    source_folder = Path(settings.local_example_folder) / source_relative_path
-    for p in source_folder.rglob("*"):
-        target = dst / p.relative_to(source_folder)
+    for p in source.rglob("*"):
+        target = dst / p.relative_to(source)
         if p.is_dir():
             target.mkdir(parents=True, exist_ok=True)
         else:
