@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import math
+from pathlib import Path
 
 import pytest
 
@@ -30,6 +31,7 @@ from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_close
+from ansys.aedt.core.generic.numbers_utils import reference_check
 
 
 @pytest.fixture()
@@ -438,3 +440,13 @@ def test_validator_float_type_invalidate_zeros(validation_float_input):
     validation_errors = generate_validation_errors(property_names, expected_settings, actual_settings)
 
     assert len(validation_errors) == 1
+
+
+def test_reference_check():
+    a = 15
+    b = 20
+    error = 0.1
+    file = Path(__file__)
+    with pytest.raises(ValueError) as excinfo:
+        reference_check(a, b, error, file)
+    assert Path(file).name in str(excinfo.value)
