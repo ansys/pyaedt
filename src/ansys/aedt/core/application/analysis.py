@@ -554,7 +554,7 @@ class Analysis(Design, PyAedtBase):
         >>> oModule.GetExcitations
         """
         exc_names = self.excitation_names[::]
-
+        exc_names = list(dict.fromkeys(s.split(":", 1)[0] for s in exc_names))
         for el in self.boundaries:
             if el.name in exc_names:
                 self._excitation_objects[el.name] = el
@@ -563,7 +563,7 @@ class Analysis(Design, PyAedtBase):
         keys_to_remove = [
             internal_excitation
             for internal_excitation in self._excitation_objects
-            if internal_excitation not in self.excitation_names
+            if internal_excitation not in self.excitation_names and internal_excitation not in exc_names
         ]
 
         for key in keys_to_remove:
