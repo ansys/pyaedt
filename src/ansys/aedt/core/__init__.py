@@ -54,7 +54,7 @@ def deprecation_warning() -> None:
     existing_showwarning = warnings.showwarning
 
     # Define and use custom showwarning
-    def custom_show_warning(message, category, filename, lineno, file=None, line=None) -> None:
+    def custom_show_warning(message, category) -> None:
         """Define and use custom warning to remove <stdin>:loc: pattern."""
         print(f"{category.__name__}: {message}")
 

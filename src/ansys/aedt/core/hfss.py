@@ -34,6 +34,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
+from ansys.aedt.core.modules.solve_setup import SetupHFSS, SetupHFSSAuto
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
@@ -1648,7 +1649,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
@@ -1719,11 +1720,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_linear_count_sweep(
         self,
-        setup,
-        units,
-        start_frequency,
-        stop_frequency,
-        num_of_freq_points=None,
+        setup: str,
+        units: str,
+        start_frequency: float,
+        stop_frequency: float,
+        num_of_freq_points: int | None = None,
         name: str | None = None,
         save_fields: bool = True,
         save_rad_fields: bool = False,
@@ -2276,14 +2277,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_sbr_antenna(
         self,
         antenna_type=SbrAntennas.ConicalHorn,
-        target_cs=None,
-        units=None,
-        parameters=None,
+        target_cs: str | None = None,
+        units: str | None = None,
+        parameters: dict | None = None,
         use_current_source_representation: bool = False,
         is_array: bool = False,
-        custom_array=None,
+        custom_array: str | None = None,
         name: str | None = None,
-    ):
+    ) -> NativeComponentObject:
         """Create a parametric beam antennas in SBR+.
 
         Parameters
@@ -2396,16 +2397,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_sbr_file_based_antenna(
         self,
-        far_field_data,
+        far_field_data: str,
         antenna_size: str = "1mm",
         antenna_impedance: str = "50ohm",
         representation_type: str = "Far Field",
-        target_cs=None,
-        units=None,
+        target_cs: str | None = None,
+        units: str | None = None,
         is_array: bool = False,
-        custom_array=None,
+        custom_array: str | None = None,
         name: str | None = None,
-    ):
+    ) -> NativeComponentObject:
         """Create a linked antenna.
 
         Parameters
@@ -2661,15 +2662,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def create_sbr_custom_array_file(
         self,
-        output_file=None,
-        frequencies=None,
+        output_file: str | None = None,
+        frequencies: list | None = None,
         element_number: int = 1,
         state_number: int = 1,
-        position=None,
-        x_axis=None,
-        y_axis=None,
-        weight=None,
-    ):
+        position: list | None = None,
+        x_axis: list[list] | None = None,
+        y_axis: list[list] | None = None,
+        weight: list[list] | None = None,
+    ) -> str | bool:
         """Create custom array file with sarr format.
 
         Parameters
@@ -2790,7 +2791,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return output_file
 
     @pyaedt_function_handler()
-    def set_sbr_txrx_settings(self, txrx_settings):
+    def set_sbr_txrx_settings(self, txrx_settings: dict) -> BoundaryObject:
         """Set SBR+ TX RX antennas settings.
 
         Parameters
@@ -3170,16 +3171,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
     def create_floquet_port(
         self,
         assignment: str | list,
-        lattice_origin=None,
-        lattice_a_end=None,
-        lattice_b_end=None,
+        lattice_origin: list | None = None,
+        lattice_a_end: list | None = None,
+        lattice_b_end: list | None = None,
         modes: int = 2,
         name: str | None = None,
         renormalize: bool = True,
         deembed_distance: int = 0,
         reporter_filter: bool = True,
         lattice_cs: str = "Global",
-    ):
+    ) -> BoundaryObject:
         """Create a floquet port on a face.
 
         Parameters
