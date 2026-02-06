@@ -128,6 +128,8 @@ general:
   block_figure_plot: false
   # Skip license check during Desktop initialization
   skip_license_check: true
+  # Enable or disable gRPC API for the EDB module
+  pyedb_use_grpc: null
 
 grpc:
   # Enable or disable secure mode for gRPC connections
