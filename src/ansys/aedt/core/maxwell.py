@@ -56,6 +56,7 @@ from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 if TYPE_CHECKING:
     from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
@@ -302,45 +303,75 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         self.oboundary.SetCoreLoss(assignment, core_loss_on_field)
         return True
 
-    # TODO: Check this method
     @pyaedt_function_handler()
     def assign_matrix(
         self,
-        assignment: Union[list, str],
-        matrix_name: Optional[str] = None,
-        turns: Optional[Union[list, int]] = None,
-        return_path: Optional[Union[list, str]] = None,
-        group_sources: Optional[Union[dict, list]] = None,
-        branches: Optional[Union[list, int]] = None,
-    ) -> BoundaryObject:
-        """Assign a matrix to the selection.
+        args: Union[
+            MaxwellMatrix.MatrixElectric,
+            MaxwellMatrix.MatrixACMagnetic,
+            MaxwellMatrix.MatrixACMagneticAPhi,
+            MaxwellMatrix.MatrixMagnetostatic,
+        ],
+    ) -> MaxwellParameters:
+        """Assign sources to a matrix.
 
-        Matrix assignment can be calculated based upon the solver type.
-        For 2D/3D solvers the available solution types are: ``Magnetostatic``,
-        ``Electrostatic``, ``Eddy Current``, ``DC Conduction`` and ``AC Conduction``.
+        This is the unified method for matrix assignment in Maxwell 2D and 3D.
+        The method automatically selects the correct internal assignment routine
+        depending on the design's ``solution_type``.
+
+        Supported solution types:
+
+        * ``Electrostatic``
+        * ``AC Conduction``
+        * ``DC Conduction``
+        * ``AC Magnetic``
+        * ``AC Magnetic A-Phi``
+        * ``Magnetostatic``
 
 
         Parameters
         ----------
-        assignment : list, str
-            List of sources to assign a matrix to.
-        matrix_name : str, optional
-            Name of the matrix. The default is ``None``.
-        turns : list, int, optional
-            Number of turns. The default is 1.
-        return_path : list, str, optional
-            Return path. The default is ``infinite``
-        group_sources : dict, list optional
-            Dictionary consisting of ``{Group Name: list of source names}`` to add
-            multiple groups. You can also define a list of strings. The default is ``None``.
-        branches : : list, int, optional
-            Number of branches. The default is ``None``, which indicates that only one
-            branch exists.
+        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix
+        .MatrixElectric`, :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagnetic`,
+        :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagneticAPhi` or
+        :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixMagnetostatic`
+            Structured argument container describing the sources to assign.
+            The expected dataclass type depends on the active solver:
+
+            * **Electric solvers** (Electrostatic, AC Conduction, DC Conduction):
+            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix
+        .MatrixElectric`
+
+                - ``signal_sources``: list
+                - ``ground_sources``: list
+                - ``matrix_name``: str (optional)
+
+            * **AC Magnetic solver**:
+            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagnetic`
+
+                - ``sources``: list or dict
+                - ``matrix_name``: str (optional)
+
+            * **AC Magnetic A-Phi**:
+            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagneticAPhi`
+
+                - ``rl_sources``: dict
+                - ``gc_sources``: dict
+                - ``matrix_name``: str (optional)
+
+            * **Magnetostatic**:
+            :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixMagnetostatic`
+
+                - ``sources``: dict
+                - ``group_sources``: dict
+                - ``branches_number``: int
+                - ``matrix_name``: str (optional)
+
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
-            Boundary object.
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
 
         References
         ----------
@@ -348,157 +379,231 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
         Examples
         --------
-        Set matrix in a Maxwell magnetostatic analysis.
+        Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", version="2025.2", close_on_exit=True)
-        >>> coil1 = m2d.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
-        >>> coil2 = m2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
-        >>> coil3 = m2d.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
-        >>> coil4 = m2d.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4")
-        >>> current1 = m2d.assign_current(assignment="Coil_1", amplitude=1, swap_direction=False, name="Current1")
-        >>> current2 = m2d.assign_current(assignment="Coil_2", amplitude=1, swap_direction=True, name="Current2")
-        >>> current3 = m2d.assign_current(assignment="Coil_3", amplitude=1, swap_direction=True, name="Current3")
-        >>> current4 = m2d.assign_current(assignment="Coil_4", amplitude=1, swap_direction=True, name="Current4")
-        >>> group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
-        >>> selection = ["Current1", "Current2", "Current3", "Current4"]
-        >>> turns = [5, 1, 2, 3]
-        >>> L = m2d.assign_matrix(assignment=selection, matrix_name="Test2", turns=turns, group_sources=group_sources)
+        >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
+        >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> voltage1 = m2d.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
+        >>> voltage2 = m2d.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
+        >>> voltage3 = m2d.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
 
-        Set matrix in a Maxwell DC Conduction analysis.
-        >>> m2d.assign_voltage(["Port1"], amplitude=1, name="1V")
-        >>> m2d.assign_voltage(["Port2"], amplitude=0, name="0V")
-        >>> m2d.assign_matrix(assignment=["1V"], matrix_name="Matrix1", group_sources=["0V"])
-        >>> m2d.desktop_class.close_desktop()
+        Define matrix assignments by instantiating the MaxwellElectric class.
+
+        >>> matrix_args = MaxwellMatrix.MatrixElectric(
+        >>>             signal_sources=[voltage1.name, voltage2.name],
+        >>>             ground_sources=[voltage3.name],
+        >>>             matrix_name="test_matrix",
+        >>>         )
+
+        Assign matrix. The method returns a MaxwellParameters object.
+
+        >>> matrix = m2d.assign_matrix(matrix_args)
+        >>> m2d.release_desktop(True, True)
+
+        Setup a Maxwell 3D model in AC Magnetic A-Phi.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagneticAPhi)
+        >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], name="Sheet1", material="copper")
+        >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], name="Sheet2", material="copper")
+        >>> box3 = m3d.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], name="Sheet3", material="copper")
+        >>> current1 = m3d.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+        >>> current2 = m3d.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+        >>> current3 = m3d.assign_current([box1.bottom_face_z], amplitude=1, name="Current3", swap_direction=True)
+        >>> current4 = m3d.assign_current([box2.bottom_face_z], amplitude=1, name="Current4", swap_direction=True)
+
+        Define matrix assignments by instantiating the MatrixACMagneticAPhi class.
+
+        >>> rl_source = MaxwellMatrix.RLSourceACMagneticAPhi(
+        >>>                 signal_sources=[current1.name],
+        >>>                 ground_sources=[current3.name],
+        >>>             )
+        >>> gc_source = MaxwellMatrix.GCSourceACMagneticAPhi(
+        >>>                 signal_sources=[current2.name],
+        >>>                 ground_sources=[current4.name],
+        >>>             )
+
+        >>> matrix_args = MaxwellMatrix.MatrixACMagneticAPhi(
+        >>>                 rl_sources=[rl_source],
+        >>>                 gc_sources=[gc_source],
+        >>>                 matrix_name="test_matrix",
+        >>>             )
+
+        Assign matrix. The method returns a MaxwellParameters object.
+
+        >>> matrix = m3d.assign_matrix(matrix_args)
+        >>> m3d.release_desktop(True, True)
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        dispatcher = {
+            SolutionsMaxwell3D.ElectroStatic: (self.__assign_matrix_electric_solvers, MaxwellMatrix.MatrixElectric),
+            SolutionsMaxwell3D.ACConduction: (self.__assign_matrix_electric_solvers, MaxwellMatrix.MatrixElectric),
+            SolutionsMaxwell3D.DCConduction: (self.__assign_matrix_electric_solvers, MaxwellMatrix.MatrixElectric),
+            SolutionsMaxwell3D.Magnetostatic: (self.__assign_matrix_magnetostatic, MaxwellMatrix.MatrixMagnetostatic),
+            SolutionsMaxwell3D.ACMagnetic: (self.__assign_matrix_ac_magnetic, MaxwellMatrix.MatrixACMagnetic),
+            SolutionsMaxwell3D.ACMagneticAPhi: (
+                self.__assign_matrix_ac_magnetic_aphi,
+                MaxwellMatrix.MatrixACMagneticAPhi,
+            ),
+        }
 
-        maxwell_solutions = SolutionsMaxwell3D
+        if self.solution_type not in dispatcher:
+            raise AEDTRuntimeError(f"Matrix assignment for {self.solution_type} is not available.")
 
-        if self.solution_type in (
-            maxwell_solutions.ElectroStatic,
-            maxwell_solutions.ACConduction,
-            maxwell_solutions.DCConduction,
-        ):
-            turns = ["1"] * len(assignment)
-            branches = None
-            if self.design_type == "Maxwell 2D":
-                if group_sources:
-                    if isinstance(group_sources, dict):
-                        first_key = next(iter(group_sources))
-                        group_sources = group_sources[first_key]
-                        self.logger.warning("First Ground is selected")
-                    group_sources = self.modeler.convert_to_selections(group_sources, True)
-                    if any(item in group_sources for item in assignment):
-                        raise AEDTRuntimeError("Ground must be different than selected sources")
-            else:
-                group_sources = None
-        elif self.solution_type == maxwell_solutions.Magnetostatic:
-            if group_sources:
-                if isinstance(group_sources, dict):
-                    new_group = group_sources.copy()
-                    for element in new_group:
-                        if not all(item in assignment for item in group_sources[element]):
-                            self.logger.warning("Sources in group " + element + " are not selected")
-                            group_sources.pop(element)
-                    if not branches or len(group_sources) != len(self.modeler.convert_to_selections(branches, True)):
-                        if branches:
-                            branches = self.modeler.convert_to_selections(branches, True)
-                            num = abs(len(group_sources) - len(self.modeler.convert_to_selections(branches, True)))
-                            if len(group_sources) < len(self.modeler.convert_to_selections(branches, True)):
-                                branches = branches[:-num]
-                            else:
-                                new_element = [branches[0]] * num
-                                branches.extend(new_element)
-                        else:
-                            branches = [1] * len(group_sources)
-                elif isinstance(group_sources, list):
-                    group_name = generate_unique_name("Group")
-                    group_sources = {group_name: group_sources}
-                else:
-                    self.logger.warning("Group of sources is not a dictionary")
-                    group_sources = None
-        elif self.solution_type in [
-            maxwell_solutions.EddyCurrent,
-            maxwell_solutions.ACMagnetic,
-            maxwell_solutions.ACMagneticAPhi,
-        ]:
-            group_sources = None
-            branches = None
-            turns = ["1"] * len(assignment)
-            self.logger.info("Infinite is the only return path option in EddyCurrent.")
-            return_path = ["infinite"] * len(assignment)
+        handler, schema = dispatcher[self.solution_type]
 
-        if self.solution_type not in [maxwell_solutions.Transient, maxwell_solutions.ElectricTransient]:
-            if not matrix_name:
-                matrix_name = generate_unique_name("Matrix")
-            if not turns or len(assignment) != len(self.modeler.convert_to_selections(turns, True)):
-                if turns:
-                    turns = self.modeler.convert_to_selections(turns, True)
-                    num = abs(len(assignment) - len(self.modeler.convert_to_selections(turns, True)))
-                    if len(assignment) < len(self.modeler.convert_to_selections(turns, True)):
-                        turns = turns[:-num]
-                    else:
-                        new_element = [turns[0]] * num
-                        turns.extend(new_element)
-                else:
-                    turns = ["1"] * len(assignment)
-            else:
-                turns = self.modeler.convert_to_selections(turns, True)
-            if not return_path or len(assignment) != len(self.modeler.convert_to_selections(return_path, True)):
-                return_path = ["infinite"] * len(assignment)
-            else:
-                return_path = self.modeler.convert_to_selections(return_path, True)
-            if any(item in return_path for item in assignment):
-                raise AEDTRuntimeError("Return path specified must not be included in sources")
+        if not isinstance(args, schema):
+            raise TypeError(
+                f"Invalid argument type. Expected an instance of {schema.__name__} for {self.solution_type},"
+                f"got {type(args).__name__} instead."
+            )
 
-            if group_sources and self.solution_type in [
-                maxwell_solutions.EddyCurrent,
-                maxwell_solutions.Magnetostatic,
-                maxwell_solutions.ACMagnetic,
-            ]:
-                props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": dict({"MatrixGroup": []})})
-            else:
-                props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": []})
+        if not getattr(args, "matrix_name", None):
+            args.matrix_name = generate_unique_name("Matrix")
 
-            for element in range(len(assignment)):
-                if self.solution_type == maxwell_solutions.Magnetostatic and self.design_type == "Maxwell 2D":
-                    prop = dict(
-                        {
-                            "Source": assignment[element],
-                            "NumberOfTurns": turns[element],
-                            "ReturnPath": return_path[element],
-                        }
-                    )
-                elif self.solution_type in [
-                    maxwell_solutions.EddyCurrent,
-                    maxwell_solutions.ACMagnetic,
-                    maxwell_solutions.ACMagneticAPhi,
-                ]:
-                    prop = dict({"Source": assignment[element], "ReturnPath": return_path[element]})
-                else:
-                    prop = dict({"Source": assignment[element], "NumberOfTurns": turns[element]})
+        return handler(args)
+
+    @pyaedt_function_handler()
+    def __assign_matrix_electric_solvers(self, args: MaxwellMatrix.MatrixElectric) -> MaxwellParameters:
+        """Assign a matrix to the source selection for ``Electrostatic``,``DC Conduction`` and ``AC Conduction``.
+
+
+        Parameters
+        ----------
+        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixElectric`
+            Arguments for the matrix assignment.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+        """
+        matrix_name = args.matrix_name
+        props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
+        for s in args.signal_sources:
+            prop = {"Source": s, "NumberOfTurns": "1"}
+            props["MatrixEntry"]["MatrixEntry"].append(prop)
+        for g in args.ground_sources:
+            props["GroundSources"] += g + ","
+        return self._create_boundary(matrix_name, props, "Matrix", schema=args)
+
+    @pyaedt_function_handler()
+    def __assign_matrix_ac_magnetic(self, args: MaxwellMatrix.MatrixACMagnetic) -> MaxwellParameters:
+        """Assign a matrix to the source selection for ``AC Magnetic``.
+
+
+        Parameters
+        ----------
+        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagnetic`
+            Arguments for the matrix assignment.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+
+        """
+        props = {"MatrixEntry": {"MatrixEntry": []}}
+        if self.design_type == "Maxwell 2D":
+            for source in args.signal_sources:
+                prop = {"Source": source.name, "ReturnPath": source.return_path}
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
-
-            if group_sources:
-                if self.solution_type in (
-                    maxwell_solutions.ElectroStatic,
-                    maxwell_solutions.ACConduction,
-                    maxwell_solutions.DCConduction,
-                ):
-                    source_list = ",".join(group_sources)
-                    props["GroundSources"] = source_list
-                else:
-                    cont = 0
-                    for element in group_sources:
-                        source_list = ",".join(group_sources[element])
-                        # GroundSources
-                        prop = dict({"GroupName": element, "NumberOfBranches": branches[cont], "Sources": source_list})
-                        props["MatrixGroup"]["MatrixGroup"].append(prop)
-                        cont += 1
-            return self._create_boundary(matrix_name, props, "Matrix")
         else:
-            raise AEDTRuntimeError("Solution type does not have matrix parameters")
+            for source in args.signal_sources:
+                prop = {"Source": source.name}
+                props["MatrixEntry"]["MatrixEntry"].append(prop)
+        return self._create_boundary(args.matrix_name, props, "Matrix", args)
+
+    @pyaedt_function_handler()
+    def __assign_matrix_ac_magnetic_aphi(self, args: MaxwellMatrix.MatrixACMagneticAPhi) -> MaxwellParameters:
+        """Assign a matrix to the source selection for``AC Magnetic APhi``.
+
+
+        Parameters
+        ----------
+        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixACMagneticAPhi`
+            Arguments for the matrix assignment.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+
+        """
+        # 3D only
+        props = {"RLMatrix": {}, "GCMatrix": {}}
+        rl_props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
+        for rl_source in args.rl_sources:
+            for signal_source in rl_source.signal_sources:
+                prop = {"Source": signal_source, "NumberOfTurns": "1"}
+                rl_props["MatrixEntry"]["MatrixEntry"].append(prop)
+            for ground_source in rl_source.ground_sources:
+                rl_props["GroundSources"] += ground_source + ","
+        props["RLMatrix"] = rl_props
+        gc_props = {"MatrixEntry": {"MatrixEntry": []}, "GroundSources": ""}
+        for gc_source in args.gc_sources:
+            for signal_source in gc_source.signal_sources:
+                prop = {"Source": signal_source, "NumberOfTurns": "1"}
+                gc_props["MatrixEntry"]["MatrixEntry"].append(prop)
+            for ground_source in gc_source.ground_sources:
+                gc_props["GroundSources"] += ground_source + ","
+        props["GCMatrix"] = gc_props
+        return self._create_boundary(args.matrix_name, props, "Matrix", args)
+
+    @pyaedt_function_handler()
+    def __assign_matrix_magnetostatic(self, args: MaxwellMatrix.MatrixMagnetostatic) -> MaxwellParameters:
+        """Assign a matrix to the source selection for ``Magnetostatic``.
+
+
+        Parameters
+        ----------
+        args : :class:`ansys.aedt.core.modules.boundary.maxwell_boundary.MaxwellMatrix.MatrixMagnetostatic`
+            Arguments for the matrix assignment.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.MaxwellParameters`
+            MaxwellParameters object.
+
+        References
+        ----------
+        >>> oModule.AssignMatrix
+
+        """
+        props = {"MatrixEntry": {"MatrixEntry": []}, "MatrixGroup": []}
+        if self.design_type == "Maxwell 2D":
+            for source in args.signal_sources:
+                prop = {"Source": source.name, "NumberOfTurns": source.turns_number, "ReturnPath": source.return_path}
+                props["MatrixEntry"]["MatrixEntry"].append(prop)
+            for group in args.group_sources:
+                sources_str = ",".join(group.source_names)
+                if not group.name:
+                    group.name = generate_unique_name("Group_Sources")
+                prop = {"GroupName": group.name, "NumberOfBranches": group.branches_number, "Sources": sources_str}
+                props["MatrixGroup"].append(prop)
+        else:
+            for source in args.signal_sources:
+                prop = {"Source": source.name, "NumberOfTurns": source.turns_number}
+                props["MatrixEntry"]["MatrixEntry"].append(prop)
+            for group in args.group_sources:
+                sources_str = ",".join(group.source_names)
+                prop = {"GroupName": group.name, "NumberOfBranches": group.branches_number, "Sources": sources_str}
+                props["MatrixGroup"].append(prop)
+        return self._create_boundary(args.matrix_name, props, "Matrix", args)
 
     @pyaedt_function_handler()
     def eddy_effects_on(
@@ -745,10 +850,12 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
                 maxwell_solutions.TransientAPhi,
             ):
                 props["Phase"] = phase
+            # TO CHECK FOR AC MAGNETIC A-PHI
             if self.solution_type not in (
                 maxwell_solutions.DCConduction,
                 maxwell_solutions.ElectricTransient,
                 maxwell_solutions.ElectroDCConduction,
+                maxwell_solutions.ACMagneticAPhi,
             ):
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
@@ -2559,13 +2666,16 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
 
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle Maxwell parameters
-    def _create_boundary(self, name: str, props, boundary_type):
+    def _create_boundary(self, name, props, boundary_type, schema=None):
         # Non Maxwell parameters cases
         if boundary_type not in ("Force", "Torque", "Matrix", "LayoutForce"):
             return super()._create_boundary(name, props, boundary_type)
 
-        # Maxwell parameters cases
-        bound = MaxwellParameters(self, name, props, boundary_type)
+        if boundary_type == "Matrix":
+            bound = MaxwellMatrix(self, name, props, schema=schema)
+        else:
+            # Maxwell parameters Force and Torque
+            bound = MaxwellParameters(self, name, props, boundary_type)
         result = bound.create()
         if result:
             self._boundaries[bound.name] = bound

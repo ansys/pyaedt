@@ -21,12 +21,17 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import annotations
+
+from typing import Optional
+from typing import Union
 
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modules.boundary.common import BoundaryCommon
 from ansys.aedt.core.modules.boundary.common import BoundaryProps
@@ -45,54 +50,15 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         Properties of the boundary.
     boundarytype : str, optional
         Type of the boundary.
-
-    Examples
-    --------
-    Create a matrix in Maxwell3D return a ``ansys.aedt.core.modules.boundary.common.BoundaryObject``
-
-    >>> from ansys.aedt.core import Maxwell2d
-    >>> maxwell_2d = Maxwell2d()
-    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_1", "vacuum")
-    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_2", "vacuum")
-    >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
-    def __init__(self, app, name: str, props=None, boundarytype=None) -> None:
-        self.auto_update = False
+    def __init__(self, app, name, props=None, boundarytype=None):
+        self.auto_update = True
         self._app = app
         self._name = name
         self.__props = BoundaryProps(self, props) if props else {}
         self.type = boundarytype
-        self.auto_update = True
-        self.__reduced_matrices = None
-        self.matrix_assignment = None
         self._initialize_tree_node()
-
-    @property
-    def reduced_matrices(self):
-        """List of reduced matrix groups for the parent matrix.
-
-        Returns
-        -------
-        dict
-            Dictionary of reduced matrices where the key is the name of the parent matrix
-            and the values are in a list of reduced matrix groups.
-        """
-        maxwell_solutions = SolutionsMaxwell3D
-        if self._app.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
-            self.__reduced_matrices = {}
-            cc = self._app.odesign.GetChildObject("Parameters")
-            parents = cc.GetChildNames()
-            if self.name in parents:
-                parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
-                parent_type = parent_object.GetPropValue("Type")
-                if parent_type == "Matrix":
-                    self.matrix_assignment = parent_object.GetPropValue("Selection").split(",")
-                    child_names = parent_object.GetChildNames()
-                    self.__reduced_matrices = []
-                    for r in child_names:
-                        self.__reduced_matrices.append(MaxwellMatrix(self._app, self.name, r))
-        return self.__reduced_matrices
 
     @property
     def _child_object(self):
@@ -200,29 +166,236 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
             return False
         return True
 
-    @pyaedt_function_handler()
-    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
-        maxwell_solutions = SolutionsMaxwell3D
-        if self._app.solution_type not in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
-            self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
-            return False, False
-        if not matrix_name:
-            matrix_name = generate_unique_name("ReducedMatrix", n=3)
-        if not join_name:
-            join_name = generate_unique_name("Join" + red_type, n=3)
-        try:
-            self._app.omaxwell_parameters.AddReduceOp(
-                self.name,
-                matrix_name,
-                ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
-            )
-            return matrix_name, join_name
-        except Exception:
-            self._app.logger.error("Failed to create Matrix Reduction")
-            return False, False
+
+class MaxwellMatrix(MaxwellParameters):
+    """Provides methods to interact with matrices in Maxwell.
+
+    This class allows sources in a reduced matrix to be listed, updated, and deleted.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.Maxwell2d`
+        Parent Maxwell application instance.
+    schema : MaxwellMatrix.MatrixElectric, MaxwellMatrix.MatrixMagnetostatic, MaxwellMatrix.MatrixACMagnetic,
+    MaxwellMatrix.MatrixACMagneticAPhi, optional
+        Schema defining the matrix assignment.
+        The default is ``None``.
+
+    Examples
+    --------
+    Setup a Maxwell 2D model in Electrostatic (valid for all electric solvers).
+
+    >>> from ansys.aedt.core import Maxwell2d
+    >>> m2d = Maxwell2d(version="2025.2", solution_type=SolutionsMaxwell2D.ElectroStaticXY)
+    >>> rectangle1 = m2d.modeler.create_rectangle([0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+    >>> rectangle2 = m2d.modeler.create_rectangle([9, 1.5, 0], [2.5, 5], name="Sheet2")
+    >>> rectangle3 = m2d.modeler.create_rectangle([16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+    >>> voltage1 = m2d.assign_voltage([rectangle1], amplitude=1, name="Voltage1")
+    >>> voltage2 = m2d.assign_voltage([rectangle2], amplitude=1, name="Voltage2")
+    >>> voltage3 = m2d.assign_voltage([rectangle3], amplitude=1, name="Voltage3")
+
+    Define matrix assignments by instantiating the MaxwellElectric class.
+
+    >>> matrix_args = MaxwellMatrix.MatrixElectric(
+    >>>             signal_sources=[voltage1.name, voltage2.name],
+    >>>             ground_sources=[voltage3.name],
+    >>>             matrix_name="test_matrix",
+    >>>         )
+
+    Assign matrix. The method returns a MaxwellParameters object.
+
+    >>> matrix = m2d.assign_matrix(matrix_args)
+    >>> m2d.release_desktop(True, True)
+    """
+
+    def __init__(self, app, name, props=None, schema=None):
+        """Initialize Maxwell matrix."""
+        super().__init__(app, name, props=props, boundarytype="Matrix")
+        self._app = app
+        self.__reduced_matrices = None
+        self._schema = schema
+
+    @property
+    def signal_sources(self) -> Union[list[SourceACMagnetic], None]:
+        if (
+            isinstance(self._schema, MaxwellMatrix.MatrixElectric)
+            or isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic)
+            or isinstance(self._schema, MaxwellMatrix.MatrixACMagnetic)
+        ):
+            return self._schema.signal_sources
+        return None
+
+    @property
+    def ground_sources(self) -> Union[list[str], None]:
+        if isinstance(self._schema, MaxwellMatrix.MatrixElectric):
+            return self._schema.ground_sources
+        return None
+
+    @property
+    def group_sources(self) -> Union[list[GroupSourcesMagnetostatic], None]:
+        if isinstance(self._schema, MaxwellMatrix.MatrixMagnetostatic):
+            return self._schema.group_sources
+        return None
+
+    @property
+    def rl_sources(self) -> Union[list[RLSourceACMagneticAPhi], None]:
+        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
+            return self._schema.rl_sources
+        return None
+
+    @property
+    def gc_sources(self) -> Union[list[GCSourceACMagneticAPhi], None]:
+        if isinstance(self._schema, MaxwellMatrix.MatrixACMagneticAPhi):
+            return self._schema.gc_sources
+        return None
+
+    @property
+    def reduced_matrices(self) -> list[MaxwellReducedMatrix]:
+        """List of reduced matrix groups for the parent matrix.
+
+        Returns
+        -------
+        list
+            List of reduced matrices for the parent matrix.
+        """
+        if self._app.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
+            self.__reduced_matrices = []
+            parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+            child_names = parent_object.GetChildNames()
+            for r in child_names:
+                reduced_matrix_object = parent_object.GetChildObject(r)
+                reduced_operations = reduced_matrix_object.GetChildNames()
+                operation_object = []
+                for operation_name in reduced_operations:
+                    sources = reduced_matrix_object.GetChildObject(operation_name).GetPropValue("Source").split(", ")
+                    operation_object.append(MaxwellReducedMatrixOperation(self.name, r, operation_name, sources))
+                self.__reduced_matrices.append(MaxwellReducedMatrix(self._app, self, r, operation_object))
+        return self.__reduced_matrices
+
+    class MatrixElectric:
+        """Matrix assignment for electric solvers."""
+
+        def __init__(
+            self, signal_sources: list, ground_sources: Optional[list] = None, matrix_name: Optional[str] = None
+        ):
+            self.signal_sources = signal_sources
+            self.ground_sources = ground_sources if ground_sources is not None else []
+            self.matrix_name = matrix_name
+
+    class SourceMagnetostatic:
+        """Source definition for magnetostatic solver.
+
+        Parameters
+        ----------
+        name : str
+            Name of the source.
+        return_path : str, optional
+            For Maxwell 2D design types, the `return_path` parameter can be provided.
+            If not the default value is "infinite".
+            For Maxwell 3D design types, this parameter is ignored.
+        turns_number : int, optional
+            Number of turns for the source. The default value is ``1``.
+        """
+
+        def __init__(self, name: str, return_path: Optional[str] = "infinite", turns_number: Optional[int] = 1):
+            self.name = name
+            self.return_path = return_path
+            self.turns_number = turns_number
+
+    class GroupSourcesMagnetostatic:
+        """Group sources definition for magnetostatic solver.
+
+        Parameters
+        ----------
+        source_names : list
+            List of source names in the group.
+        branches_number : int, optional
+            Number of branches for the group source.
+            The default value is ``1``.
+        name : str
+            Name of the group source.
+            The default value is ``None``.
+        """
+
+        def __init__(self, source_names: list, branches_number: Optional[int] = 1, name: Optional[str] = None):
+            self.source_names = source_names
+            self.branches_number = branches_number
+            self.name = name
+
+    class MatrixMagnetostatic:
+        """Matrix assignment for magnetostatic solver."""
+
+        def __init__(
+            self,
+            signal_sources: list[MaxwellMatrix.SourceMagnetostatic],
+            group_sources: list[MaxwellMatrix.GroupSourcesMagnetostatic],
+            matrix_name=None,
+        ):
+            self.signal_sources = signal_sources
+            self.group_sources = group_sources
+            self.matrix_name = matrix_name
+
+    class SourceACMagnetic:
+        """Sources for AC Magnetic solver.
+
+        Parameters
+        ----------
+        name : str
+            Name of the source.
+        return_path : str, optional
+            For Maxwell 2D design types, the `return_path` parameter can be provided.
+            If not the default value is "infinite".
+            For Maxwell 3D design types, this parameter is ignored.
+        """
+
+        def __init__(self, name: str, return_path: Optional[str] = "infinite"):
+            self.name = name
+            self.return_path = return_path
+
+    class MatrixACMagnetic:
+        """Matrix assignment for AC Magnetic solver."""
+
+        def __init__(self, signal_sources: list[MaxwellMatrix.SourceACMagnetic], matrix_name: Optional[str] = None):
+            self.signal_sources = signal_sources
+            self.matrix_name = matrix_name
+
+    class RLSourceACMagneticAPhi:
+        """Sources for AC Magnetic A-Phi solver."""
+
+        def __init__(
+            self,
+            signal_sources: list,
+            ground_sources: list,
+        ):
+            self.signal_sources = signal_sources
+            self.ground_sources = ground_sources
+
+    class GCSourceACMagneticAPhi:
+        """Sources for AC Magnetic A-Phi solver."""
+
+        def __init__(
+            self,
+            signal_sources: list,
+            ground_sources: list,
+        ):
+            self.signal_sources = signal_sources
+            self.ground_sources = ground_sources
+
+    class MatrixACMagneticAPhi:
+        """Matrix assignment for AC Magnetic A-Phi solver."""
+
+        def __init__(
+            self,
+            rl_sources: list[MaxwellMatrix.RLSourceACMagneticAPhi],
+            gc_sources: list[MaxwellMatrix.GCSourceACMagneticAPhi],
+            matrix_name: Optional[str] = None,
+        ):
+            self.rl_sources = rl_sources
+            self.gc_sources = gc_sources
+            self.matrix_name = matrix_name
 
     @pyaedt_function_handler()
-    def join_series(self, sources, matrix_name=None, join_name=None):
+    def join_series(self, sources, matrix_name=None, join_name=None) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in series.
 
         Parameters
@@ -230,14 +403,14 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         sources : list
             Sources to be included in matrix reduction.
         matrix_name :  str, optional
-            Name of the string to create.
+            Reduced matrix name.
         join_name : str, optional
             Name of the Join operation.
 
         Returns
         -------
-        (str, str)
-            Matrix name and Joint name.
+        MaxwellReducedMatrix
+            Reduced matrix object.
 
         """
         return self._create_matrix_reduction(
@@ -245,7 +418,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def join_parallel(self, sources, matrix_name=None, join_name=None):
+    def join_parallel(self, sources, matrix_name=None, join_name=None) -> MaxwellReducedMatrix:
         """Create matrix reduction by joining sources in parallel.
 
         Parameters
@@ -253,120 +426,278 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode, PyAedtBase):
         sources : list
             Sources to be included in matrix reduction.
         matrix_name :  str, optional
-            Name of the matrix to create.
+            Reduced matrix name.
         join_name : str, optional
             Name of the Join operation.
 
         Returns
         -------
-        (str, str)
-            Matrix name and Joint name.
+        MaxwellReducedMatrix
+            Reduced matrix object.
 
         """
         return self._create_matrix_reduction(
             red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
         )
 
+    @pyaedt_function_handler()
+    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if self._app.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
+            raise AEDTRuntimeError(r"Matrix reduction is available only in Eddy Current\AC Magnetic solver.")
+        if not matrix_name:
+            matrix_name = generate_unique_name("ReducedMatrix", n=3)
+        if not join_name:
+            join_name = generate_unique_name("Join" + red_type, n=3)
+        self._app.omaxwell_parameters.AddReduceOp(
+            self.name,
+            matrix_name,
+            ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
+        )
+        reduced_matrix = next(m for m in self.reduced_matrices if m.name == matrix_name)
+        return reduced_matrix
 
-class MaxwellMatrix(PyAedtBase):
-    """
-    Provides methods to interact with reduced matrices in Maxwell.
 
-    This class allows sources in a reduced matrix to be listed, updated, and deleted.
+class MaxwellReducedMatrix:
+    """Provides methods to interact with reduced matrices in Maxwell.
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisMaxwell`
+    app : :class:`ansys.aedt.core.Maxwell3d`, :class:`ansys.aedt.core.Maxwell2d`
         Parent Maxwell application instance.
-    parent_name : str
-        Name of the parent matrix.
-    reduced_name : str
+    parent_matrix : MaxwellMatrix
+        Parent matrix object.
+    name : str
         Name of the reduced matrix.
+    operations_reduction : list[MaxwellReducedMatrixOperation], MaxwellReducedMatrixOperation, optional
+        List of reduced matrix operations or a single reduced matrix operation.
+        The default is ``None``.
 
+    Examples
+    --------
+    Create a Maxwell 3D model in AC Magnetic solver.
+    >>> from ansys.aedt.core import Maxwell3d
+    >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+    >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+
+    >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+
+    >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    >>> box3 = m3d.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+    >>> box4 = m3d.modeler.create_box([20, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+    >>> current1 = m3d.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+    >>> current2 = m3d.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+    >>> current3 = m3d.assign_current([box3.top_face_z], amplitude=1, name="Current3")
+    >>> current4 = m3d.assign_current([box4.top_face_z], amplitude=1, name="Current4")
+    >>> m3d.assign_current([box1.bottom_face_z], amplitude=1, name="Current5", swap_direction=True)
+    >>> m3d.assign_current([box2.bottom_face_z], amplitude=1, name="Current6", swap_direction=True)
+    >>> m3d.assign_current([box3.bottom_face_z], amplitude=1, name="Current7", swap_direction=True)
+    >>> m3d.assign_current([box4.bottom_face_z], amplitude=1, name="Current8", swap_direction=True)
+
+    Assign matrix.
+    >>> signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+    >>> signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+    >>> signal_source_3 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
+    >>> signal_source_4 = MaxwellMatrix.SourceACMagnetic(name=current4.name)
+
+    >>> matrix_args = MaxwellMatrix.MatrixACMagnetic(
+    >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3, signal_source_4],
+    >>>     matrix_name="test_matrix",
+    >>> )
+    >>> matrix = m3d.assign_matrix(matrix_args)
+
+    Join sources in series to create a reduced matrix.
+    >>> reduced_matrix = matrix.join_series(
+    >>>     sources=["Current1", "Current2"],
+    >>>     matrix_name="ReducedMatrix1",
+    >>>     join_name="JoinSeries1"
+    >>> )
+    >>> m3d.release_desktop(True, True)
     """
 
-    def __init__(self, app, parent_name, reduced_name) -> None:
-        """Initialize Maxwell matrix."""
+    def __init__(
+        self,
+        app,
+        parent_matrix: MaxwellMatrix,
+        name: str,
+        operations_reduction: Union[list[MaxwellReducedMatrixOperation], MaxwellReducedMatrixOperation, None] = None,
+    ):
         self._app = app
-        self.parent_matrix = parent_name
-        self.name = reduced_name
-        self.__sources = None
-
-    @property
-    def sources(self):
-        """List of matrix sources."""
-        maxwell_solutions = SolutionsMaxwell3D
-        if self._app.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
-            sources = (
-                self._app.odesign.GetChildObject("Parameters")
-                .GetChildObject(self.parent_matrix)
-                .GetChildObject(self.name)
-                .GetChildNames()
-            )
-            self.__sources = {}
-            for s in sources:
-                excitations = (
-                    self._app.odesign.GetChildObject("Parameters")
-                    .GetChildObject(self.parent_matrix)
-                    .GetChildObject(self.name)
-                    .GetChildObject(s)
-                    .GetPropValue("Source")
-                )
-                self.__sources[s] = excitations
-        return self.__sources
+        self.parent_matrix = parent_matrix
+        self.name = name
+        if operations_reduction is None:
+            self.operations_reduction: list[MaxwellReducedMatrixOperation] = []
+        elif isinstance(operations_reduction, MaxwellReducedMatrixOperation):
+            self.operations_reduction = [operations_reduction]
+        else:
+            self.operations_reduction = operations_reduction
 
     @pyaedt_function_handler()
-    def update(self, old_source, source_type, new_source=None, new_excitations=None) -> bool:
+    def update(
+        self, name: str, operation_type: str, new_name: Optional[str] = None, new_sources: Optional[list] = None
+    ) -> MaxwellReducedMatrixOperation:
         """Update the reduced matrix.
 
         Parameters
         ----------
-        old_source : str
-            Original name of the source to update.
-        source_type : str
+        name : str
+            Name of the reduced matrix operation.
+        operation_type : str
             Source type, which can be ``Series`` or ``Parallel``.
-        new_source : str, optional
-            New name of the source to update.
-            The default value is the old source name.
-        new_excitations : str, optional
-            List of excitations to include in the matrix reduction.
-            The default values are excitations included in the source to update.
+        new_name : str, optional
+            New name of the reduced matrix.
+            The default value is the current name.
+        new_sources : list, optional
+            List of sources to include in the matrix reduction.
+            The default values are the sources included already in the reduced matrix operation.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        MaxwellReducedMatrixOperation
+            Updated reduced matrix operation object.
+
+        Examples
+        --------
+        Create a Maxwell 3D model in AC Magnetic solver.
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+
+        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+
+        Assign a matrix and create a reduced matrix by joining sources in series.
+        >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+        >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+        >>> box3 = m3d.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+        >>> current1 = m3d.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+        >>> current2 = m3d.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+        >>> current3 = m3d.assign_current([box3.top_face_z], amplitude=1, name="Current3")
+        >>> m3d.assign_current([box1.bottom_face_z], amplitude=1, name="Current4", swap_direction=True)
+        >>> m3d.assign_current([box2.bottom_face_z], amplitude=1, name="Current5", swap_direction=True)
+        >>> m3d.assign_current([box3.bottom_face_z], amplitude=1, name="Current6", swap_direction=True)
+
+        Assign matrix.
+        >>> signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+        >>> signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+        >>> signal_source_3 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
+
+        >>> matrix_args = MaxwellMatrix.MatrixACMagnetic(
+        >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        >>>     matrix_name="test_matrix",
+        >>> )
+        >>> matrix = m3d.assign_matrix(matrix_args)
+
+        Join sources in series to create a reduced matrix.
+        >>> reduced_matrix = matrix.join_series(
+        ...     sources=["Current1", "Current2", "Current3"], matrix_name="ReducedMatrix1"
+        ... )
+
+        Get the reduced operation name.
+        >>> operation_name = reduced_matrix.operations_reduction[0].name
+
+        Update the name of the join operation.
+        >>> join_operation = reduced_matrix.update(
+        >>> name=reduced_matrix.operations_reduction[0].name, operation_type="series", new_name="my_op"
+        >>> )
+
+        Update the sources of the join operation.
+        >>> join_operation_1 = reduced_matrix.update(
+        >>> name=join_operation.name, operation_type="series", new_sources=["Current2", "Current3"]
+        >>> )
+        >>> m3d.release_desktop(True, True)
         """
-        if old_source not in self.sources:
-            self._app.logger.error("Source does not exist.")
-            return False
-        else:
-            new_excitations = self.sources[old_source] if not new_excitations else new_excitations
-        if source_type.lower() not in ["series", "parallel"]:
-            self._app.logger.error("Join type not valid.")
-            return False
-        if not new_source:
-            new_source = old_source
-        args = ["NAME:" + new_source, "Type:=", "Join in " + source_type, "Sources:=", new_excitations]
-        self._app.omaxwell_parameters.EditReduceOp(self.parent_matrix, self.name, old_source, args)
-        return True
+        if operation_type.lower() not in ["series", "parallel"]:
+            raise AEDTRuntimeError("Join type not valid.")
+        if name not in [op.name for op in self.operations_reduction]:
+            raise AEDTRuntimeError("Reduction operation name not valid.")
+        operation = next(op for op in self.operations_reduction if op.name == name)
+        if new_name:
+            operation.name = new_name
+        if new_sources:
+            operation.sources = new_sources
+        args = [
+            "NAME:" + operation.name,
+            "Type:=",
+            "Join in " + operation_type,
+            "Sources:=",
+            ",".join(operation.sources) if not new_sources else ",".join(new_sources),
+        ]
+
+        self._app.omaxwell_parameters.EditReduceOp(self.parent_matrix.name, self.name, name, args)
+        return MaxwellReducedMatrixOperation(self.parent_matrix.name, self.name, operation.name, operation.sources)
 
     @pyaedt_function_handler()
-    def delete(self, source) -> bool:
-        """Delete a specified source in a reduced matrix.
+    def delete(self, name: str) -> bool:
+        """Delete a specific reduction operation.
 
         Parameters
         ----------
-        source : string
-            Name of the source to delete.
+        name : string
+            Name of the operation to delete.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a Maxwell 3D model in AC Magnetic solver.
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+        >>> from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+
+        >>> m3d = Maxwell3d(version="2025.2", solution_type=SolutionsMaxwell3D.ACMagnetic)
+
+        Assign a matrix and create a reduced matrix by joining sources in series.
+        >>> box1 = m3d.modeler.create_box([0.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+        >>> box2 = m3d.modeler.create_box([9, 1.5, 0.5], [2.5, 5, 5], material="copper")
+        >>> box3 = m3d.modeler.create_box([16.5, 1.5, 0.5], [2.5, 5, 5], material="copper")
+
+        >>> current1 = m3d.assign_current([box1.top_face_z], amplitude=1, name="Current1")
+        >>> current2 = m3d.assign_current([box2.top_face_z], amplitude=1, name="Current2")
+        >>> current3 = m3d.assign_current([box3.top_face_z], amplitude=1, name="Current3")
+        >>> m3d.assign_current([box1.bottom_face_z], amplitude=1, name="Current4", swap_direction=True)
+        >>> m3d.assign_current([box2.bottom_face_z], amplitude=1, name="Current5", swap_direction=True)
+        >>> m3d.assign_current([box3.bottom_face_z], amplitude=1, name="Current6", swap_direction=True)
+
+        Assign matrix.
+        >>> signal_source_1 = MaxwellMatrix.SourceACMagnetic(name=current1.name)
+        >>> signal_source_2 = MaxwellMatrix.SourceACMagnetic(name=current2.name)
+        >>> signal_source_3 = MaxwellMatrix.SourceACMagnetic(name=current3.name)
+
+        >>> matrix_args = MaxwellMatrix.MatrixACMagnetic(
+        >>>     signal_sources=[signal_source_1, signal_source_2, signal_source_3],
+        >>>     matrix_name="test_matrix",
+        >>> )
+        >>> matrix = m3d.assign_matrix(matrix_args)
+
+        Join sources in series to create a reduced matrix.
+        >>> reduced_matrix = matrix.join_series(
+        >>> sources = (["Current1", "Current2", "Current3"],)
+        >>> matrix_name = ("ReducedMatrix1",)
+        >>> join_name = "JoinSeries1"
+        >>> )
+
+        Delete the reduction operation.
+        >>> reduced_matrix.delete(name="JoinSeries1")
+        >>> m3d.release_desktop(True, True)
         """
-        if source not in self.sources:
-            self._app.logger.error("Invalid source name.")
-            return False
-        self._app.omaxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, source)
+        if name not in [op.name for op in self.operations_reduction]:
+            raise AEDTRuntimeError("Reduction operation name not valid.")
+        self._app.omaxwell_parameters.DeleteReduceOp(self.parent_matrix.name, self.name, name)
+        operation = next(op for op in self.operations_reduction if op.name == name)
+        self.operations_reduction.remove(operation)
         return True
+
+
+class MaxwellReducedMatrixOperation:
+    """Represent a reduced matrix operation in Maxwell (join in series or parallel)."""
+
+    def __init__(self, parent_matrix: str, reduced_matrix: str, name: str, sources: list[str]):
+        self.parent_matrix = parent_matrix
+        self.reduced_matrix = reduced_matrix
+        self.name = name
+        self.sources = sources
