@@ -303,7 +303,10 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
     @pyaedt_function_handler()
     def assign_matrix(
         self,
-        args: MaxwellMatrix.MatrixElectric | MaxwellMatrix.MatrixACMagnetic | MaxwellMatrix.MatrixACMagneticAPhi | MaxwellMatrix.MatrixMagnetostatic,
+        args: MaxwellMatrix.MatrixElectric
+        | MaxwellMatrix.MatrixACMagnetic
+        | MaxwellMatrix.MatrixACMagneticAPhi
+        | MaxwellMatrix.MatrixMagnetostatic,
     ) -> MaxwellParameters:
         """Assign sources to a matrix.
 
@@ -1075,9 +1078,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return self._create_boundary(motion_name, props, "Band")
 
     @pyaedt_function_handler()
-    def assign_voltage(
-        self, assignment: list, amplitude: float | None = 1, name: str | None = None
-    ) -> BoundaryObject:
+    def assign_voltage(self, assignment: list, amplitude: float | None = 1, name: str | None = None) -> BoundaryObject:
         """Assign a voltage excitation to a list of faces or edges in Maxwell 2D or a list of objects in Maxwell 2D.
 
         Parameters
@@ -1780,9 +1781,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def assign_symmetry(
-        self, assignment: list, symmetry_name: str | None = None, is_odd: bool | None = True
-    ) -> bool:
+    def assign_symmetry(self, assignment: list, symmetry_name: str | None = None, is_odd: bool | None = True) -> bool:
         """Assign symmetry boundary.
 
         This boundary condition defines a plane of geometric or magnetic symmetry in a structure.
@@ -2481,9 +2480,7 @@ class Maxwell(CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def create_setup(
-        self, name: str = "MySetupAuto", setup_type: int | str | None = None, **kwargs
-    ) -> SetupMaxwell:
+    def create_setup(self, name: str = "MySetupAuto", setup_type: int | str | None = None, **kwargs) -> SetupMaxwell:
         """Create an analysis setup for Maxwell 3D or 2D.
 
         Optional arguments are passed using the ``setup_type`` and ``name``
@@ -2802,9 +2799,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, PyAedtBase):
         self.__init__(**kwargs)
 
     @pyaedt_function_handler()
-    def assign_insulating(
-        self, assignment: str | int, insulation: str | None = None
-    ) -> BoundaryObject | bool:
+    def assign_insulating(self, assignment: str | int, insulation: str | None = None) -> BoundaryObject | bool:
         """Create an insulating boundary condition.
 
         This boundary condition is used to model very thin sheets of perfectly insulating material between

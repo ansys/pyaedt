@@ -29,7 +29,6 @@ This module provides all functionalities for creating and editing the mesh in th
 
 """
 
-
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name

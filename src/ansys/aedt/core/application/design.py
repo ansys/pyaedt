@@ -3785,9 +3785,7 @@ class Design(AedtObjects, PyAedtBase):
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler()
-    def save_project(
-        self, file_name: str | Path = None, overwrite: bool = True, refresh_ids: bool = False
-    ) -> bool:
+    def save_project(self, file_name: str | Path = None, overwrite: bool = True, refresh_ids: bool = False) -> bool:
         """Save the project and add a message.
 
         Parameters

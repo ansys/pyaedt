@@ -23,7 +23,6 @@
 # SOFTWARE.
 from __future__ import annotations
 
-
 from ansys.aedt.core.base import PyAedtBase
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -273,9 +272,7 @@ class MaxwellMatrix(MaxwellParameters):
     class MatrixElectric:
         """Matrix assignment for electric solvers."""
 
-        def __init__(
-            self, signal_sources: list, ground_sources: list | None = None, matrix_name: str | None = None
-        ):
+        def __init__(self, signal_sources: list, ground_sources: list | None = None, matrix_name: str | None = None):
             self.signal_sources = signal_sources
             self.ground_sources = ground_sources if ground_sources is not None else []
             self.matrix_name = matrix_name

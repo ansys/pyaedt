@@ -125,9 +125,7 @@ class Primitives3D(GeometryModeler, PyAedtBase):
         self.multiparts = []
 
     @pyaedt_function_handler()
-    def create_box(
-        self, origin, sizes, name: str | None = None, material: str | None = None, **kwargs
-    ) -> "Object3d":
+    def create_box(self, origin, sizes, name: str | None = None, material: str | None = None, **kwargs) -> "Object3d":
         """Create a box.
 
         Parameters

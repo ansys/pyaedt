@@ -55,9 +55,7 @@ class Cable(PyAedtBase):
 
     """
 
-    def __init__(
-        self, app, json_file_name: str | dict | None = None, working_dir: str | None = None
-    ) -> None:
+    def __init__(self, app, json_file_name: str | dict | None = None, working_dir: str | None = None) -> None:
         self._app = app
         self._odesign = app.odesign
         self._omodule = self._odesign.GetModule("CableSetup")

@@ -3165,9 +3165,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         )
 
     @pyaedt_function_handler()
-    def create_setup(
-        self, name: str | None = None, setup_type: int | str | None = None, **kwargs
-    ) -> SetupHFSS:
+    def create_setup(self, name: str | None = None, setup_type: int | str | None = None, **kwargs) -> SetupHFSS:
         """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
         names correspond to the ``setup_type``
@@ -5416,9 +5414,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin, PyAedtBase):
         return PieceWiseLinearDictionary(type_assignment, ds, scale)
 
     @pyaedt_function_handler
-    def create_temp_dep_assignment(
-        self, ds_name: str, scale: str | float | None = 1
-    ) -> PieceWiseLinearDictionary:
+    def create_temp_dep_assignment(self, ds_name: str, scale: str | float | None = 1) -> PieceWiseLinearDictionary:
         """
         Create a temperature-dependent assignment from a dataset.
 

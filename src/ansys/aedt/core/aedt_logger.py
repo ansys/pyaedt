@@ -157,9 +157,7 @@ class AedtLogger:
         Whether to write log messages to stdout. The default is ``False``.
     """
 
-    def __init__(
-        self, level=logging.DEBUG, filename: str | None = None, to_stdout: bool = False, desktop=None
-    ) -> None:
+    def __init__(self, level=logging.DEBUG, filename: str | None = None, to_stdout: bool = False, desktop=None) -> None:
         self._desktop_class = desktop
         self._oproject = None
         self._odesign = None
@@ -661,9 +659,7 @@ class AedtLogger:
         except Exception as e:
             print(f"Logging error: {e}", file=sys.stderr)
 
-    def clear_messages(
-        self, proj_name: str | None = None, des_name: str | None = None, level: int | None = 2
-    ) -> None:
+    def clear_messages(self, proj_name: str | None = None, des_name: str | None = None, level: int | None = 2) -> None:
         """Clear all messages.
 
         Parameters

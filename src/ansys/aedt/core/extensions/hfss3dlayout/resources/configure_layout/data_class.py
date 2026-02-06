@@ -22,7 +22,6 @@
 # SOFTWARE.
 
 
-
 from pydantic import BaseModel
 
 
