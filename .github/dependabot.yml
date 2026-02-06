@@ -24,7 +24,7 @@ updates:
       prefix: "BUILD(pip)"
 
   - package-ecosystem: "uv"
-    directory: "/.ci" # Location of CI lockfile
+    directory: "/" # Location of CI lockfile
     schedule:
       interval: "weekly"
       day: "saturday"
@@ -44,7 +44,7 @@ updates:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "BUILD(ci)"
+      prefix: "BUILD(uv)"
 
   - package-ecosystem: "github-actions"
     cooldown:
