@@ -28,9 +28,8 @@ from pathlib import Path
 import tkinter
 from tkinter import ttk
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -178,7 +177,7 @@ def main(data: ExportLayoutExtensionData):
     project_name = active_project.GetName()
     aedb_path = project_path / f"{project_name}.aedb"
     design_name = active_design.GetName().split(";")[1]
-    edb = Edb(aedb_path=(aedb_path), cellname=design_name, version=VERSION)
+    edb = Edb(edbpath=str(aedb_path), cellname=design_name, version=VERSION)
 
     try:
         if data.export_ipc:

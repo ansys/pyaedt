@@ -15,5 +15,6 @@ general:
   release_on_exception: false
   wait_for_license: true
   enable_pandas_output: true
+  pyedb_use_grpc: true
 lsf: {}
   # LSF settings are kept at defaults for test environment

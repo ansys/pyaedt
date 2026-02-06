@@ -158,4 +158,4 @@ Below is the content that can be updated through the YAML file.
         # Path to the user defined PyD libraries. If set, it overrides the default pyd_libraries_path
         pyd_libraries_user_path: null
         # Enable or disable gRPC API for the EDB module.
-        pyedb_use_grpc: null
+        pyedb_use_grpc: false
