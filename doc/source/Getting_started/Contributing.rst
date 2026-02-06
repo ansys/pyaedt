@@ -573,9 +573,7 @@ For Testmon to work correctly, the following requirements must be met:
 - **No pytest markers for test selection**: Testmon relies on analyzing code dependencies to determine which tests to run.
   Using pytest markers (for example, ``-m "solvers"``) forces Testmon to run with `--testmon-noselect` argument and leads to all tests being run, negating the benefits of selective testing. Instead, the way to select specific test suites is by providing the path to the test files (for example, ``pytest tests/solvers``).
 
-- **Cache invalidation**: If you encounter unexpected test behavior or suspect cache corruption, the Testmon cache
-  can be manually cleared by triggering the ``prune-Testmon-caches.yml`` workflow. This forces a complete rebuild
-  of the dependency graph on the next test run.
+If you want to learn more details about this implementation, check our `.github/workflows` files.
 
 Testmon workflow during pull requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

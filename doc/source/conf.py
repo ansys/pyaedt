@@ -151,7 +151,6 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinxcontrib.mermaid",
 ]
 
 # Intersphinx mapping
@@ -164,15 +163,6 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
-
-# Mermaid configuration
-mermaid_params = ["-p", "puppeteer-config.json"]
-mermaid_d3_zoom = True
-mermaid_fullscreen = True
-mermaid_include_elk = True
-mermaid_include_mindmap = True
-mermaid_cmd_shell = True
-
 
 toc_object_entries_show_parents = "hide"
 
