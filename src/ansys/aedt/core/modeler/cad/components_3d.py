@@ -965,7 +965,7 @@ class LayoutComponent(PyAedtBase):
             app = Edb(
                 edbpath=aedb_component_path,
                 isreadonly=False,
-                edbversion=self._primitives._app._aedt_version,
+                version=self._primitives._app._aedt_version,
                 student_version=self._primitives._app.student_version,
             )
 

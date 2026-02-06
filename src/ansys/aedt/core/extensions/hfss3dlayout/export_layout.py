@@ -178,7 +178,7 @@ def main(data: ExportLayoutExtensionData):
     project_name = active_project.GetName()
     aedb_path = project_path / f"{project_name}.aedb"
     design_name = active_design.GetName().split(";")[1]
-    edb = Edb(str(aedb_path), design_name, edbversion=VERSION)
+    edb = Edb(aedb_path=(aedb_path), cellname=design_name, version=VERSION)
 
     try:
         if data.export_ipc:
@@ -194,7 +194,7 @@ def main(data: ExportLayoutExtensionData):
             edb.configuration.export(config_file)
     finally:
         # Ensure EDB is properly closed
-        edb.close_edb()
+        edb.close()
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.logger.info("Project generated correctly.")

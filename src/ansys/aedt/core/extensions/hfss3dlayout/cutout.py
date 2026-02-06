@@ -290,8 +290,8 @@ def main(data: CutoutData) -> Path:
     aedb_path = Path(active_project.GetPath()) / f"{active_project.GetName()}.aedb"
     new_path = aedb_path.with_stem(aedb_path.stem + generate_unique_name("_cutout", n=2))
 
-    edb = Edb(str(aedb_path), active_design.GetName().split(";")[1], edbversion=VERSION)
-    edb.save_edb_as(str(new_path))
+    edb = Edb(str(aedb_path), active_design.GetName().split(";")[1], version=VERSION)
+    edb.save(str(new_path))
     edb.cutout(
         signal_list=data.signals,
         reference_list=data.references,
@@ -318,8 +318,10 @@ def main(data: CutoutData) -> Path:
         keep_lines_as_path=False,
     )
     if data.fix_disjoints:
-        edb.nets.find_and_fix_disjoint_nets(data.references)
-    edb.close_edb()
+        edb.layout_validation.disjoint_nets(
+            net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0, order_by_area=False
+        )
+    edb.close()
 
     if "PYTEST_CURRENT_TEST" not in os.environ:
         Hfss3dLayout(str(new_path))

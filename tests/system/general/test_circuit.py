@@ -906,7 +906,7 @@ def test_create_circuit_from_multizone_layout(add_app, test_tmp_dir):
     target_path = test_tmp_dir / "test_multi_zone" / "multi_zone_project.aedb"
     shutil.copytree(source_path, target_path)
 
-    edb = Edb(edbpath=str(target_path), edbversion=DESKTOP_VERSION)
+    edb = Edb(edbpath=str(target_path), version=DESKTOP_VERSION)
     common_reference_net = "gnd"
     edb_zones = edb.copy_zones()
     assert edb_zones

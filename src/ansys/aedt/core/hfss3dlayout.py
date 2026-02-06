@@ -135,7 +135,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods, PyAedtBase):
 
     >>> import ansys.aedt.core
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=252)
+    >>> edb = ansys.aedt.core.Edb(edb_path, version=252)
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
