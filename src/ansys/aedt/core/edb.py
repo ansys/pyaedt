@@ -24,7 +24,7 @@
 
 
 from pyedb import Siwave
-
+from typing import Any
 from ansys.aedt.core.generic.settings import settings
 
 log = settings.logger
@@ -37,7 +37,7 @@ def Edb(
     isreadonly: bool | None = False,
     edbversion: str | None = None,
     isaedtowned: bool | None = False,
-    oproject: any | None = None,
+    oproject: Any | None = None,
     student_version: bool | None = False,
     use_ppe: bool | None = False,
     technology_file: str | None = None,
