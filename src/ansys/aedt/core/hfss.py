@@ -7258,11 +7258,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
 
         variation = self.available_variations.variation_string(variations)
         freq_list = frequencies if isinstance(frequencies, list) else [frequencies]
-        
+
         # Ensure output_dir has a valid value
         if not output_dir:
             output_dir = self.working_directory
-        
+
         command = [
             "ExportFileName:=",
             str(Path(output_dir) / (element_name + ".ffd")),
