@@ -263,7 +263,7 @@ class Settings(PyAedtBase):
         return self.__pyedb_use_grpc
 
     @pyedb_use_grpc.setter
-    def pyedb_use_grpc(self, value):
+    def pyedb_use_grpc(self, value: bool):
         self.__pyedb_use_grpc = value
 
     @property
