@@ -30,9 +30,8 @@ from tkinter import ttk
 from typing import Union
 import webbrowser
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import AedtInfo
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.data_class import ExportOptions
 from ansys.aedt.core.extensions.hfss3dlayout.resources.configure_layout.tab_example import create_tab_example

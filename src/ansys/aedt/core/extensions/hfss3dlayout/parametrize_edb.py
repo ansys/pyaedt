@@ -28,9 +28,8 @@ from pathlib import Path
 import tkinter
 from tkinter import ttk
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon

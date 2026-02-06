@@ -30,8 +30,7 @@ import tkinter
 from tkinter import messagebox
 from tkinter import ttk
 
-from pyedb import Edb
-
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.extensions.misc import ExtensionCommon

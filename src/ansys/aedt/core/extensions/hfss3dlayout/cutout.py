@@ -30,9 +30,8 @@ import tkinter
 from tkinter import ttk
 from typing import List
 
-from pyedb import Edb
-
 import ansys.aedt.core
+from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout
 import ansys.aedt.core.extensions.hfss3dlayout
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
@@ -290,8 +289,8 @@ def main(data: CutoutData) -> Path:
     aedb_path = Path(active_project.GetPath()) / f"{active_project.GetName()}.aedb"
     new_path = aedb_path.with_stem(aedb_path.stem + generate_unique_name("_cutout", n=2))
 
-    edb = Edb(str(aedb_path), active_design.GetName().split(";")[1], version=VERSION)
-    edb.save(str(new_path))
+    edb = Edb(edbpath=str(aedb_path), cellname=active_design.GetName().split(";")[1], version=VERSION)
+    edb.save_as(str(new_path))
     edb.cutout(
         signal_list=data.signals,
         reference_list=data.references,
