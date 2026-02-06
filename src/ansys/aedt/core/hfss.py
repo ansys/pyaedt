@@ -34,7 +34,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from ansys.aedt.core.modeler.advanced_cad.actors import Radar
-from ansys.aedt.core.modules.solve_setup import SetupHFSS, SetupHFSSAuto
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
+from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
 from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
@@ -1649,7 +1650,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
         return self.create_boundary(self.BoundaryType.Radiation, faces_list, rad_name)
 
     @pyaedt_function_handler()
-    def create_setup(self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs) -> SetupHFSS | SetupHFSSAuto:
+    def create_setup(
+        self, name: str = "MySetupAuto", setup_type: str | None = None, **kwargs
+    ) -> SetupHFSS | SetupHFSSAuto:
         """Create an analysis setup for HFSS.
 
         Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
