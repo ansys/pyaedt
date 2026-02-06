@@ -46,7 +46,7 @@ updates:
     commit-message:
       prefix: "BUILD(ci)"
 
-  - package-ecosystem: "github-actions" # zizmor: ignore[dependabot-cooldown] cooldown feature is not available for github actions yet.
+  - package-ecosystem: "github-actions"
     cooldown:
       default-days: 10 # Fallback cooldown if no specific rule applies
     directory: "/"
