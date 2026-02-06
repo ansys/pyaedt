@@ -48,6 +48,10 @@ try:
     check_graphics_available()
 
     import pyvista as pv
+
+    # Visualization interface imports
+    from ansys.tools.visualization_interface import MeshObjectPlot, Plotter as ViPlotter
+    from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
@@ -782,6 +786,8 @@ class ModelPlotter(CommonPlotter):
 
     def __init__(self):
         CommonPlotter.__init__(self)
+        self._vi_plotter = None  # Visualization interface plotter (lazy initialization)
+        self._vi_backend = None  # PyVista backend for visualization interface
 
     @property
     def fields(self):
@@ -1130,7 +1136,13 @@ class ModelPlotter(CommonPlotter):
                 filedata = pv.read(cad.path)
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
-            cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
+            # Use visualization interface if available, otherwise fall back to direct PyVista
+            if self._vi_plotter is not None:
+                mesh_plot = MeshObjectPlot(custom_object=cad, mesh=cad._cached_polydata)
+                self._vi_plotter.plot(mesh_plot, color=color_cad, opacity=cad.opacity)
+                cad._cached_mesh = mesh_plot.actor
+            else:
+                cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
         obj_to_iterate = [i for i in self._fields]
         if read_frames:
             for i in self.frames:
@@ -1246,7 +1258,18 @@ class ModelPlotter(CommonPlotter):
     @pyaedt_function_handler()
     def populate_pyvista_object(self):
         """Populate pyvista object with geometry and fields added to the model plotter."""
-        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        # Initialize the visualization interface backend and plotter
+        self._vi_backend = PyVistaBackend()
+        self._vi_plotter = ViPlotter(backend=self._vi_backend)
+
+        # Get the underlying PyVista plotter scene for backward compatibility
+        self.pv = self._vi_backend.pv_interface.scene
+
+        # Configure the plotter
+        if self.off_screen:
+            self.pv.off_screen = True
+        self.pv.window_size = self.windows_size
+
         self.pv.enable_ssao()
         self.pv.enable_parallel_projection()
         self.meshes = None
@@ -1286,15 +1309,16 @@ class ModelPlotter(CommonPlotter):
                     self.vector_field_scale * field.vector_scale
                 )
                 scalars = arrows[arrows.active_scalars_name] / (self.vector_field_scale * field.vector_scale)
-                self.pv.add_mesh(
-                    arrows,
-                    scalars=scalars,
-                    cmap=field.color_map,
-                )
+
+                # Use visualization interface to plot the mesh
+                mesh_plot = MeshObjectPlot(custom_object=field, mesh=arrows)
+                self._vi_plotter.plot(mesh_plot, scalars=scalars, cmap=field.color_map)
                 field.label = field.scalar_name
             elif self.range_max is not None and self.range_min is not None:
-                field._cached_mesh = self.pv.add_mesh(
-                    field._cached_polydata,
+                # Use visualization interface to plot the mesh
+                mesh_plot = MeshObjectPlot(custom_object=field, mesh=field._cached_polydata)
+                self._vi_plotter.plot(
+                    mesh_plot,
                     scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
@@ -1303,9 +1327,12 @@ class ModelPlotter(CommonPlotter):
                     opacity=field.opacity,
                     show_edges=field.show_edge,
                 )
+                field._cached_mesh = mesh_plot.actor
             else:
-                field._cached_mesh = self.pv.add_mesh(
-                    field._cached_polydata,
+                # Use visualization interface to plot the mesh
+                mesh_plot = MeshObjectPlot(custom_object=field, mesh=field._cached_polydata)
+                self._vi_plotter.plot(
+                    mesh_plot,
                     scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
@@ -1315,6 +1342,7 @@ class ModelPlotter(CommonPlotter):
                     smooth_shading=True,
                     split_sharp_edges=True,
                 )
+                field._cached_mesh = mesh_plot.actor
 
         self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
 
@@ -1459,11 +1487,15 @@ class ModelPlotter(CommonPlotter):
             off_screen = True
         self.off_screen = off_screen
 
-        if self.is_notebook:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
-        else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size, off_screen=off_screen)
-            self.pv.off_screen = off_screen
+        # Initialize visualization interface backend for animations
+        self._vi_backend = PyVistaBackend()
+        self._vi_plotter = ViPlotter(backend=self._vi_backend)
+        self.pv = self._vi_backend.pv_interface.scene
+
+        # Configure plotter
+        if self.is_notebook or off_screen:
+            self.pv.off_screen = True
+        self.pv.window_size = self.windows_size
 
         if self.background_image:
             self.pv.add_background_image(self.background_image)
