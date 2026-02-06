@@ -447,9 +447,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def get_ibis_model_from_file(
-        self, input_file: str | Path, is_ami: bool | None = False
-    ) -> ibis_reader.Ibis:
+    def get_ibis_model_from_file(self, input_file: str | Path, is_ami: bool | None = False) -> ibis_reader.Ibis:
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -1245,9 +1243,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods, PyAedtBase):
         return source_p
 
     @pyaedt_function_handler()
-    def assign_voltage_frequency_dependent_excitation_to_ports(
-        self, ports: list, input_file: str | Path
-    ) -> Sources:
+    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports: list, input_file: str | Path) -> Sources:
         """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters

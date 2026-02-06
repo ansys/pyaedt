@@ -23,10 +23,7 @@
 # SOFTWARE.
 
 
-
-def post_processor(
-    app=None, project: str | None = None, design: str | None = None, version: str | None = None
-):
+def post_processor(app=None, project: str | None = None, design: str | None = None, version: str | None = None):
     """PostProcessor.
 
     Returns

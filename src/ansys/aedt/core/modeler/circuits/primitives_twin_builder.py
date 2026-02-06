@@ -359,9 +359,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_npn(
-        self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
-    ):
+    def create_npn(self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
         """Create an NPN transistor.
 
         Parameters
@@ -398,9 +396,7 @@ class TwinBuilderComponents(CircuitComponents, PyAedtBase):
         return id
 
     @pyaedt_function_handler()
-    def create_pnp(
-        self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False
-    ):
+    def create_pnp(self, name: str | None = None, location=None, angle: int = 0, use_instance_id_netlist: bool = False):
         """Create a PNP transistor.
 
         Parameters

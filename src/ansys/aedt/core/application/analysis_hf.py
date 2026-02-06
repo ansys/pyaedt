@@ -294,9 +294,7 @@ class ScatteringMethods(PyAedtBase):
         return fext
 
     @pyaedt_function_handler()
-    def get_touchstone_data(
-        self, setup: str | None = None, sweep: str | None = None, variations: dict | None = None
-    ):
+    def get_touchstone_data(self, setup: str | None = None, sweep: str | None = None, variations: dict | None = None):
         """
         Return a Touchstone data plot.
 

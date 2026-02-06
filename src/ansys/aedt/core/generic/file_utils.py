@@ -185,9 +185,7 @@ def check_if_path_exists(path: str | Path) -> bool:
 
 
 @pyaedt_function_handler()
-def check_and_download_folder(
-    local_path: str | Path, remote_path: str | Path, overwrite: bool = True
-) -> str:
+def check_and_download_folder(local_path: str | Path, remote_path: str | Path, overwrite: bool = True) -> str:
     """Download remote folder.
 
     Parameters

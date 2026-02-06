@@ -1456,9 +1456,7 @@ class Q3d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         return True
 
     @pyaedt_function_handler()
-    def objects_from_nets(
-        self, assignment: str | list[str], materials: str | list | None = None
-    ) -> dict:
+    def objects_from_nets(self, assignment: str | list[str], materials: str | list | None = None) -> dict:
         """Find the objects that belong to one or more nets. You can filter by materials.
 
         Parameters
@@ -2478,9 +2476,7 @@ class Q2d(QExtractor, CreateBoundaryMixin, PyAedtBase):
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler()
-    def create_rectangle(
-        self, origin: list, sizes: list, name: str | None = "", material: str | None = ""
-    ) -> Object3d:
+    def create_rectangle(self, origin: list, sizes: list, name: str | None = "", material: str | None = "") -> Object3d:
         """Create a rectangle.
 
         Parameters

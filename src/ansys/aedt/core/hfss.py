@@ -7399,9 +7399,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin, PyAedtBase):
             raise AEDTRuntimeError("Failed to export antenna metadata.") from e
 
     @pyaedt_function_handler()
-    def export_touchstone_on_completion(
-        self, export: bool | None = True, output_dir: str | Path | None = None
-    ) -> bool:
+    def export_touchstone_on_completion(self, export: bool | None = True, output_dir: str | Path | None = None) -> bool:
         """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
 
         Parameters

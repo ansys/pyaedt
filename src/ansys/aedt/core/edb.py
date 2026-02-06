@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 
-
 from pyedb import Siwave
 
 from ansys.aedt.core.generic.settings import settings
